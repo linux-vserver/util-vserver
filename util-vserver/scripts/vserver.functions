@@ -455,11 +455,13 @@ function _processSingleInterface
 	echo $"The 'only_ip' flag for interface '$iface' is deprecated; use 'nodev' instead of" >&2
 	unset dev
     }
-    test ! -e "$iface"/nodev   || unset dev
     test ! -e "$iface"/down    || up=
     
-    if test "$dev"; then
+    while test "$dev"; do
 	_transformMask2Prefix prefix "$prefix" "$mask"
+	INTERFACES=( "${INTERFACES[@]}" "$ip${prefix:+/$prefix}" )
+
+	test ! -e "$iface"/nodev || break
 
 	case "$dev" in
 	    (*.*)
@@ -490,8 +492,9 @@ function _processSingleInterface
 	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" dev "$dev"
 	    test -z "$extip" || _addInterfaceCmd IPTABLES "$ip${prefix:+/$prefix}" ${name:+label "$dev:$name"} "$ctx" "$extip"
 	fi
-	INTERFACES=( "${INTERFACES[@]}" "$ip${prefix:+/$prefix}" )
-    fi
+
+	break
+    done
 }
 
 ## Usage: _generateInterfaceOptions <vserver-directory>
