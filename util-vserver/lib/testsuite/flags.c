@@ -55,7 +55,7 @@
     struct vc_err_listparser	err;					\
     char			buf[] = STR;				\
     volatile int		res;					\
-    struct vc_ctx_flags		flags;					\
+    struct vc_ctx_flags		flags = {0,0};				\
     res = vc_list2flag(buf, LEN, &err, &flags);				\
     assert(res==(EXP_RES));						\
     assert(flags.flagword==(EXP_FLAG));					\
