@@ -72,17 +72,14 @@ src_DIETPROGS =		src/new-namespace \
 			src/vserver-info
 
 src_HDRS =  		src/vutil.h src/vutil.p src/util.h \
-			src/wrappers.h src/wrappers-vserver.h \
 			src/fstool.h \
 			src/compat-pivot_root.h \
 			src/stack-start.h \
 			src/vunify-matchlist.h \
-			src/wrappers-dirent.h \
 			src/vunify.h \
 			src/vunify-compare.hc \
 			src/vunify-doit.hc \
 			src/vunify-init.hc \
-			src/wrappers-io.h \
 			src/vserver.hh
 
 src_pkglib_SCRPTS =
@@ -200,8 +197,8 @@ src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc src/vserver.cc
 src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc src/vserver.cc
 
 src_lsxid_SOURCES		=  src/fstool.c src/util-safechdir.c src/lsxid.c
-src_lsxid_LDADD			=  lib/libvserver.la
-src_lsxid_LDFLAGS		=  $(VSERVER_LDFLAGS)
+src_lsxid_LDADD			=  lib/libvserver.la libensc_vector.a
+src_lsxid_LDFLAGS		=  $(VSERVER_LDFLAGS) 
 
 src_chxid_SOURCES		=  src/fstool.c src/util-safechdir.c \
 				   src/fstool-resolvectx.c src/chxid.c
