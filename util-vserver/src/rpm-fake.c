@@ -74,7 +74,8 @@
 #define DBG_VERBOSE1	(0x4000 | DBG_VERBOSE0)
 #define DBG_VERBOSE2	(0x2000 | DBG_VERBOSE1)
 
-static char const *	ctx_s = 0;
+int			wrapper_exit_code = 255;
+
 static xid_t		ctx   = VC_NOCTX;
 static uint32_t		caps  = ~0;
 static int		flags = 0;
@@ -169,31 +170,55 @@ getAndClearEnv(char const *key, int dflt)
   return res;
 }
 
-static void
-setupContext(xid_t xid)
+  /// \returns true iff we are in ctx after leaving this function
+static bool
+setupContext(xid_t xid, char const **xid_str)
 {
+  bool		res = false;
   
   if (vc_isSupported(vcFEATURE_MIGRATE)) {
-    xid_t	rc = vc_create_context(xid);
-    if (rc==VC_NOCTX && errno!=EEXIST) {
-      perror("rpm-fake.so: vc_create_context()");
+    xid_t	rc=VC_NOCTX;
+
+    if ((xid==VC_DYNAMIC_XID || !vc_is_dynamic_xid(xid)) &&
+	(rc=vc_create_context(xid))==VC_NOCTX &&
+	errno!=EEXIST) {
+      perror(ENSC_WRAPPERS_PREFIX "vc_create_context()");
       exit(255);
     }
 
     if (rc!=VC_NOCTX) {
-      char		buf[128];
-      size_t		l;
+      char			buf[sizeof(xid_t)*3 + 128];
+      size_t			l;
+      struct vc_ctx_caps	caps;
+      
       strcpy(buf, "rpm-fake.so #");
       l = utilvserver_fmt_uint(buf+sizeof("rpm-fake.so #")-1, getppid());
       Evc_set_vhi_name(rc, vcVHI_CONTEXT, buf, sizeof("rpm-fake.so #")+l-1);
-#warning set some sane capabilities
+
+      caps.ccaps = ~0;
+      caps.cmask = ~0;
+      caps.bcaps = ~vc_get_securecaps();
+      Evc_set_ccaps(rc, &caps);
+      
 	// context will be activated later...
 
       xid = rc;
+      res = true;
     }
   }
 
+  if (xid==VC_DYNAMIC_XID)
+    *xid_str = 0;
+  else {
+    char		buf[sizeof(xid_t)*3 + 2];
+    size_t		l;
+    
+    l        = utilvserver_fmt_uint(buf, xid); buf[l] = '\0';
+    *xid_str = strdup(buf);
+  }
+ 
   Ewrite(3, &xid, sizeof xid);
+  return res;
 }
 
 #if 0
@@ -214,7 +239,7 @@ initPwSocket()
 	connect(pw_sock, (struct sockaddr *)(&addr), sizeof addr)==-1 ||
 	(flag=fcntl(pw_sock, F_GETFD))==-1 ||
 	fcntl(pw_sock, F_SETFD, flag | FD_CLOEXEC)==-1) {
-      perror("rpm-fake.so: error while initializing pw-socket");
+      perror(ENSC_WRAPPERS_PREFIX "error while initializing pw-socket");
       exit(255);
     }
   }
@@ -241,20 +266,21 @@ initPwSocket()
 	pipe(sync_pipe)==-1 ||
 	fcntl(res_sock[0],  F_SETFD, FD_CLOEXEC)==-1 ||
 	fcntl(sync_pipe[0], F_SETFD, FD_CLOEXEC)==-1) {
-      perror("rpm-fake.so: failed to create/initialize resolver-socket or pipe");
+      perror(ENSC_WRAPPERS_PREFIX "failed to create/initialize resolver-socket or pipe");
       exit(255);
     }
 
     pid = fork();
     if (pid==-1) {
-      perror("rpm-fake.so: fork()");
+      perror(ENSC_WRAPPERS_PREFIX "fork()");
       exit(255);
     }
 
     if (pid==0) {
-      char const	*args[10];
+      char const	*args[15];
       char const	**ptr  = args;
       char const 	*env[] = { "HOME=/", "PATH=/bin:/usr/bin", 0 };
+      char const	*xid_str;
       
       setsid();
       dup2(res_sock[1],  0);
@@ -271,12 +297,13 @@ initPwSocket()
       if (root)  { *ptr++ = "-r"; *ptr++ = root;  }
       if (uid)   { *ptr++ = "-u"; *ptr++ = uid;   }
       if (gid)   { *ptr++ = "-g"; *ptr++ = gid;   }
-      if (ctx_s) { *ptr++ = "-c"; *ptr++ = ctx_s; }
-      *ptr++ = 0;
 
-      setupContext(ctx);
+      if (setupContext(ctx, &xid_str)) { *ptr++ = "-s"; }
+      else if (xid_str)                { *ptr++ = "-c"; *ptr++ = xid_str; }
+      
+      *ptr++ = 0;
       execve(resolver, (char **)args, (char **)env);
-      perror("rpm-fake.so: failed to exec resolver");
+      perror(ENSC_WRAPPERS_PREFIX "failed to exec resolver");
       exit(255);
     }
     else {
@@ -292,17 +319,16 @@ initPwSocket()
 	  write(pw_sock, ".", 1)!=1 ||
 	  read(pw_sock, &c,   1)!=1 ||
 	  c!='.') {
-	WRITE_MSG(2, "rpm-fake.so: failed to initialize communication with resolver\n");
+	WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "failed to initialize communication with resolver\n");
 	exit(255);
       }
 
       if (wait4(pid, 0, WNOHANG,0)==-1) {
-	WRITE_MSG(2, "rpm-fake.so: unexpected initialization-error of resolver\n");
+	WRITE_MSG(2, ENSC_WRAPPERS_PREFIX" unexpected initialization-error of resolver\n");
 	exit(255);
       }
     }
 
-    free((char *)ctx_s);
     unsetenv("RPM_FAKE_RESOLVER_GID");
     unsetenv("RPM_FAKE_RESOLVER_UID");
     unsetenv("RPM_FAKE_RESOLVER");    
@@ -329,10 +355,6 @@ initEnvironment()
     vc_init_internal_legacy(syscall_rev, syscall_nr, 3, 274);
   }
 #endif
-
-  ctx_s = getenv("RPM_FAKE_CTX");
-  if (ctx_s && *ctx_s) ctx_s = strdup(ctx_s);
-  else                 ctx_s = 0;
 
   ctx       = getAndClearEnv("RPM_FAKE_CTX",  VC_DYNAMIC_XID);
   caps      = getAndClearEnv("RPM_FAKE_CAP",  ~0x3404040f);
