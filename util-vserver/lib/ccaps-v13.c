@@ -30,7 +30,10 @@
 #define DECL(STR, VAL) { STR, sizeof(STR)-1, VAL }
 
 static struct Mapping_uint64 const VALUES[] = {
-#warning Add the 'ccap' values here
+  DECL("utsname", VC_VXC_SET_UTSNAME),
+  DECL("rlimit",  VC_VXC_SET_RLIMIT),
+  DECL("ping",    VC_VXC_ICMP_PING),
+  DECL("mount",   VC_VXC_SECURE_MOUNT),
 };
 
 uint_least64_t
