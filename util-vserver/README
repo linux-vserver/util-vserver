@@ -151,14 +151,18 @@ a level of the featureset stability but not of the software stability.
 
 E.g. 'stable' is not really stable: it has huge security problems and
 missing functionality. But you can expect that the current configuration
-will work in future versions also.
+will work in future versions also. This version is untested on author's
+side and it will be hard to bring patches/fixes in, since it must be
+proofed that they will not break anything.
 
 In the opposite, the 'alpha' branch does not have known security issues
-and works well on author's system. But it may happen that some behavior
-or configuration options change. With 'alpha' you should be still able
-to use vservers created with the 'stable' branch, but you may encounter
-some oddities -- especially on kernel 2.6 systems (e.g. 'vserver-stat'
-will show the names of old vservers).
+and works well (at least on author's system ;)).  But it may happen
+that some behavior or configuration options change.
+
+With 'alpha' you should be still able to use vservers created with the
+'stable' branch, but you may encounter some oddities -- especially on
+kernel 2.6 systems (e.g. 'vserver-stat' will not show the names of old
+vservers).
 
 
 So let me summarize:
