@@ -20,16 +20,12 @@
 tests_DIETPROGS			=  tests/getctx tests/getinitpid \
 				   tests/vserver-info
 
-test_PRGS			=  tests/chrootsafe \
-				   tests/escaperoot \
+test_PRGS			=  tests/escaperoot \
 				   tests/forkbomb \
 				   tests/testipc \
 				   tests/testlimit \
 				   tests/testopenf \
 				   $(tests_DIETPROGS)
-
-tests_chrootsafe_SOURCES	=  tests/chrootsafe.c
-tests_chrootsafe_LDADD		=  lib/libvserver.a
 
 tests_escaperoot_SOURCES	=  tests/escaperoot.c
 tests_forkbomb_SOURCES		=  tests/forkbomb.c
@@ -38,10 +34,13 @@ tests_testlimit_SOURCES		=  tests/testlimit.c
 tests_testopenf_SOURCES		=  tests/testopenf.c
 
 tests_getctx_SOURCES		=  tests/getctx.c
-tests_getctx_LDADD		=  lib/libvserver.a
+tests_getctx_LDADD		=  lib/libvserver.la
+tests_getctx_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 tests_getinitpid_SOURCES	=  tests/getinitpid.c
-tests_getinitpid_LDADD		=  lib/libvserver.a
+tests_getinitpid_LDADD		=  lib/libvserver.la
+tests_getinitpid_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 tests_vserver_info_SOURCES	=  tests/vserver-info.c
-tests_vserver_info_LDADD	=  lib/libvserver.a
+tests_vserver_info_LDADD	=  lib/libvserver.la
+tests_vserver_info_LDFLAGS	=  $(VSERVER_LDFLAGS)
