@@ -1,6 +1,0 @@
-Essential:
-  basesystem
-  coreutils
-  filesystem
-  glibc
-  setup
