@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/stat.h>
 
 bool
@@ -88,8 +89,11 @@ Unify_unify(char const *src, struct stat const UNUSED *src_stat,
   res = true;
 
   err:
-  if (tmpfile[0]!='\0')
+  if (tmpfile[0]!='\0') {
+    int	old_errno = errno;
     unlink(tmpfile);
+    errno = old_errno;
+  }
 
   return res;
 }
