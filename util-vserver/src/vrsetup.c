@@ -62,7 +62,7 @@ showVersion()
   WRITE_MSG(1,
 	    "vrsetup " VERSION " -- set up and control vroot devices\n"
 	    "This program is part of " PACKAGE_STRING "\n\n"
-	    "Copyright (C) 2003 Enrico Scholz\n"
+	    "Copyright (C) 2004 Enrico Scholz\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
   exit(0);
 }
