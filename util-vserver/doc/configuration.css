@@ -41,3 +41,14 @@ span.symbolic {
 span.description {
   background-color: #ffffdd;
 }
+
+
+div.elements {
+  padding-left: 1em;
+}
+
+dd.elements {
+}
+
+dt.elements {
+}
