@@ -68,6 +68,14 @@ Erecv(int s, void *buf, size_t len, int flags)
   return res;
 }
 
+inline static WRAPPER_DECL ssize_t
+Esend(int s, void const *buf, size_t len, int flags)
+{
+  register ssize_t	res = send(s,buf,len,flags);
+  FatalErrnoError(res==-1, "send()");
+  return res;
+}
+
 inline static WRAPPER_DECL int
 Eselect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 	struct timeval *timeout)
@@ -75,4 +83,10 @@ Eselect(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
   register int		res = select(n, readfds,writefds,exceptfds, timeout);
   FatalErrnoError(res==-1, "select()");
   return res;
+}
+
+inline static WRAPPER_DECL void
+Esocketpair(int d, int type, int protocol, int sv[2])
+{
+  FatalErrnoError(socketpair(d,type,protocol,sv)==-1, "socketpair()");
 }
