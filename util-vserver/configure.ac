@@ -24,7 +24,8 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.23.6, enrico.scholz@informatik.tu-chemnitz.de)
+
+AC_INIT(util-vserver, 0.23.91, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -66,7 +67,7 @@ AC_MSG_RESULT($kernelincludedir/linux)
 
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([supported-api],
-	      [AC_HELP_STRING([--with-supported-api=APIS],
+	      [AC_HELP_STRING([--enable-supported-api=APIS],
 			      [enable support for given apis; supported values: legacy,compat,ALL (default: ALL)])],
               [],
 	      [supported_apis=ALL])
