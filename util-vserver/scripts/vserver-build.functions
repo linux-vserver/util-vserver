@@ -133,7 +133,7 @@ function _renameVserverCfg
     local suffix=.~$(date +'%s')~
     local i
     
-    for i in "$VDIR" "$SETUP_CONFDIR"; do
+    for i in "$VDIR" "$SETUP_CONFDIR" "$PKGCFGDIR"; do
 	test ! -e "$i" || {
 	    mv "$i" "$i$suffix"
 	    say "Renamed '$i' to '$i$suffix'"
