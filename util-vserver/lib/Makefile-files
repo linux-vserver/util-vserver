@@ -59,7 +59,7 @@ lib_v13_SRCS =			lib/syscall_ctxcreate.c \
 				lib/syscall_gettaskxid-v13.hc \
 				lib/syscall_gettaskxid-oldproc.hc \
 				lib/syscall_getnxinfo.c \
-				lib/syscall_getnxinfo-nid.hc \
+				lib/syscall_getnxinfo-net.hc \
 				lib/syscall_getvxinfo.c \
 				lib/syscall_getvxinfo-v13.hc \
 				lib/syscall_getvxinfo-oldproc.hc \
