@@ -76,7 +76,8 @@ cnt=0
 res=255
 for i in "${vservers[@]}"; do
     cnt=$[ cnt + 1 ]
-    "$_VNAMESPACE" --new -- "$_VRPM_WORKER" "$i" "$@"
+    callInNamespace "$i" \
+	"$_VNAMESPACE" --new -- "$_VRPM_WORKER" "$i" "$@"
     res=$?
 done
 
