@@ -119,7 +119,7 @@ function msg()
 set +e
 
 OPTIONS_ORIG=( "$@" )
-tmp=$(getopt -o +sv --long nonamespace,--nonamespace,help,debug,version,sync,verbose,silent -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o +sv --long nonamespace,--nonamespace,--insecure,help,debug,version,sync,verbose,silent -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 OPTION_FORCE_SYNC=
@@ -127,6 +127,7 @@ OPTION_VERBOSE=
 OPTION_SILENT=
 OPTION_DEBUG=
 OPTION_NONAMESPACE=
+OPTION_INSECURE=
 
 while true; do
     case "$1" in
@@ -137,6 +138,7 @@ while true; do
 	(-s|--sync) 	OPTION_FORCE_SYNC=$1;;
 	(--silent) 	OPTION_SILENT=$1;;
 	(----nonamespace)OPTION_NONAMESPACE=$1;;
+	(----insecure)	OPTION_INSECURE=1;;
 	(--)	   	shift; break;;
 	(*)	   	echo $"vserver: internal error; arg=='$1'" >&2; exit 1;;
     esac
