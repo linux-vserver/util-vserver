@@ -181,21 +181,13 @@ connectExternalSync(char const *filename)
 static void
 setFlags(struct Arguments const *args, xid_t xid)
 {
-  struct vc_ctx_flags	flags = {
-    .mask     = 0,
-    .flagword = VC_VXF_STATE_INIT|VC_VXF_STATE_SETUP,
-  };
+  struct vc_ctx_flags	flags = { 0,0 };
 
-  if (args->is_fakeinit) {
-    flags.flagword &= ~VC_VXF_STATE_INIT;
-    flags.flagword |=  VC_VXF_INFO_INIT;
-    flags.mask     |=  VC_VXF_INFO_INIT|VC_VXF_STATE_INIT;
-  }
+  if (args->is_fakeinit)
+    flags.mask |=  VC_VXF_STATE_INIT;
 
-  if (args->do_endsetup) {
-    flags.flagword &= ~VC_VXF_STATE_SETUP;
-    flags.mask     |=  VC_VXF_STATE_SETUP;
-  }
+  if (args->do_endsetup)
+    flags.mask |=  VC_VXF_STATE_SETUP;
 
   if (flags.mask!=0) {
     DPRINTF("set_flags: mask=%08llx, flag=%08llx\n", flags.mask, flags.flagword);
