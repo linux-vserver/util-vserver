@@ -34,7 +34,8 @@ vc_set_vhi_name_v13(xid_t xid, vc_uts_type type, char const *val, size_t len)
   }
 
   cmd.field = VHI_USER2KERNEL(type);
-  strncpy(cmd.name, val, sizeof(cmd.name));
+  memcpy(cmd.name, val, len);
+  cmd.name[len] = '\0';
 
   rc = vserver(VCMD_vx_set_vhi_name, CTX_USER2KERNEL(xid), &cmd);
   ENSC_FIX_IOCTL(rc);
