@@ -25,7 +25,7 @@ dnl
 
 AC_PREREQ(2.57)
 
-AC_INIT(util-vserver, 0.23.95, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.23.96, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -41,29 +41,11 @@ AC_PROG_LN_S
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
-ENSC_CHECK_CC_FLAG([-std=c99])
+ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
+ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
 
 AC_ARG_VAR(CC, [The C compiler])
-AC_MSG_CHECKING([for linux kernel headers])
-AC_ARG_WITH([kerneldir],
-	    [AC_HELP_STRING([--with-kerneldir=DIR],
-                            [assume top-kernelsources in DIR (default: /lib/modules/<current>/build)])],
-            [case "$withval" in
-		yes|no)	AC_MSG_ERROR(['$withval' is not a valid value for kerneldir]);;
-		*)	kerneldir=$withval;;
-	     esac],
-	    [kerneldir=
-	     for i in /lib/modules/$(uname -r)/build /usr/src/linux /usr; do
-		test -e $i/include/linux/version.h && { kerneldir=$i; break; }
-	     done])
-
-test "$kerneldir" -a -e $i/include/linux/version.h || {
-	AC_MSG_ERROR([Can not find kernelsources])
-}
-
-kernelincludedir=$kerneldir/include
-AC_SUBST(kernelincludedir)
-AC_MSG_RESULT($kernelincludedir/linux)
+ENSC_KERNEL_HEADERS(kernelincludedir)
 
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([apis],
