@@ -28,15 +28,15 @@ function start()
 {
     echo -n $"Fixing /proc entries visibility..."
     $_VPROCUNHIDE
-    rc=$?
-    case "$rc" in
+    retval=$?
+    case "$retval" in
 	0)	success;;
-	2)	passed; rc=0;;
+	2)	passed; retval=0;;
 	*)	failure;
     esac
     echo
-    test "$rc" -ne 0 || touch "$lockfile"
-    return $rc
+    test "$retval" -ne 0 || touch "$lockfile"
+    return $retval
 }
 
 function stop()
