@@ -42,6 +42,7 @@ static struct {
     char const	*fname;
     int		code;
 } const LIMITS[] = {
+  DECLARE_LIMIT(CORE,    core),
   DECLARE_LIMIT(CPU,     cpu),
   DECLARE_LIMIT(DATA,    data),
   DECLARE_LIMIT(FSIZE,   fsize),
