@@ -9,8 +9,8 @@ Some common notes/FAQs:
   'util-vserver' with packagemanagement, an appropriate initscript
   should be installed
 
-* the name of old-style vservers is not shown; the needed functionality
-  is not implemented
+* the name of old-style vservers is shown on 2.4 kernels only; the
+  needed functionality is not implemented for 2.6 kernels.
 
 
 
