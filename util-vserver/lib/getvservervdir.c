@@ -21,13 +21,10 @@
 #endif
 
 #include "vserver.h"
+#include "internal.h"
 #include "pathconfig.h"
 
 #include <string.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <libgen.h>
-#include <unistd.h>
 
 char *
 vc_getVserverVdir(char const *id, vcCfgStyle style)
@@ -77,7 +74,7 @@ vc_getVserverVdir(char const *id, vcCfgStyle style)
     default			:  return 0;
   }
 
-  if (access(res, X_OK)==-1) {
+  if (!utilvserver_isDirectory(res, true)) {
     free(res);
     res = 0;
   }
