@@ -240,6 +240,11 @@ function _generateInitOptions
 	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
 	    ;;
 
+	(xgentoo)
+	    INITCMD_START=( /sbin/rc default  )
+	    INITCMD_STOP=(  /sbin/rc shutdown )
+	    ;;
+
 	(x) ;;
 	(*) echo "Unknown init-style '$INITSTYLE'; aborting" >&2;
 	    exit 1;;
