@@ -70,6 +70,14 @@
 	    install it at a temporary place.</description>
 	  </file>
 	</dir>
+
+	<dir name="vprocunhide" type="fixed">
+	  <file name="files">
+	    <description>A list of files which will be made visibly by vprocunhide. Wildcards are
+	    allowed and anything ending in '/' will be processed recursively. When this file exists,
+	    it overrides the defaults in SYSDEFAULTDIR/vprocunhide-files.</description>
+	  </file>
+	</dir>
       </dir>
     </dir>
 
