@@ -45,7 +45,7 @@ sbincfg_DATA		=  $(scripts_sbincfg_DTA)
 sbin_SCRIPTS		=  $(scripts_sbin_PRGS) $(src_sbin_SCRPTS)
 sbin_PROGRAMS		=  $(src_sbin_PRGS)
 noinst_PROGRAMS		=  $(test_PRGS)
-noinst_DATA		=  $(contrib_DTA)
+noinst_DATA		=  $(contrib_DTA) $(doc_DAT)
 
 initrd_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
