@@ -40,5 +40,5 @@ else
     ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT"} \
     "$_CHCONTEXT"    "${CHCONTEXT_OPTS[@]}" \
     "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" --suid "$user" . \
-    -- "$@"
+    "$@"
 fi

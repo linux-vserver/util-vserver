@@ -42,7 +42,7 @@ else
     ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT"} \
     "$_CHCONTEXT"    "${CHCONTEXT_OPTS[@]}" \
     "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . "${INITCMD_STOP[@]}" && \
-    -- "${INITCMD_STOP_SYNC[@]}" || :
+    "${INITCMD_STOP_SYNC[@]}" || :
 fi
 
 sendKillSequence  "$S_CONTEXT" "${INITKILL_SEQ[@]}"
