@@ -83,9 +83,10 @@ lib_internal_libinternal_common_SRCS = \
 				lib_internal/matchlist-initmanually.c \
 				lib_internal/matchlist-initrefserverlist.c \
 				lib_internal/matchlist-printid.c \
+				lib_internal/matchvserverinfo-init.c \
+				lib_internal/matchvserverinfo-free.c \
 				lib_internal/pathinfo-append.c \
 				lib_internal/pathinfo-test.c \
-				lib_internal/string-destroy.c \
 				lib_internal/switchtowatchxid.c \
 				lib_internal/unify-copy.c \
 				lib_internal/unify-deunify.c \
