@@ -20,7 +20,7 @@ if isVserverRunning "$VSERVER_DIR"; then
     exit 1
 fi
 
-set +e
+set -e
 generateOptions  "$VSERVER_DIR"
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" prepre-start
 enableInterfaces "$VSERVER_DIR"

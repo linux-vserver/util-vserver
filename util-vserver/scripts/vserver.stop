@@ -24,7 +24,7 @@ fi
 
 generateOptions   "$VSERVER_DIR"
 
-set +e
+set -e
 cd "$VSERVER_DIR"/vdir/
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
 
