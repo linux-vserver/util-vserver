@@ -58,17 +58,19 @@ src_DIETPROGS		=  src/new-namespace \
 			   src/exec-ulimit \
 			   src/vlimit \
 			   src/vunify \
-	     		   src/ctx-kill \
 			   src/rpm-fake-resolver \
 			   src/vkill \
 			   src/vserver-stat
 
-src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
-			   src/wrappers.h src/wrappers-vserver.h \
-			   src/ext2fs.h \
-			   src/compat-pivot_root.h \
-			   src/stack-start.h \
-			   src/vserver.hh
+src_HDRS =  		src/vutil.h src/vutil.p src/util.h \
+			src/wrappers.h src/wrappers-vserver.h \
+			src/ext2fs.h \
+			src/compat-pivot_root.h \
+			src/stack-start.h \
+			src/vunify-matchlist.h \
+			src/vunify-operations.h \
+			src/wrappers-dirent.h \
+			src/vserver.hh
 
 src_pkglib_SCRPTS	=  src/setattr
 src_pkglib_PRGS		=  src/capchroot \
@@ -96,7 +98,6 @@ src_lib_LTLIBS		=
 
 src_sbin_PRGS		=  src/chbind \
 			   src/chcontext \
-			   src/ctx-kill \
 			   src/exec-cd \
 			   src/rebootmgr \
 			   src/reducecap \
@@ -161,10 +162,6 @@ src_rpm_fake_resolver_LDADD	=  lib/libvserver.la
 src_rpm_fake_resolver_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_mask2prefix_SOURCES		=  src/mask2prefix.c
-
-src_ctx_kill_SOURCES		=  src/ctx-kill.c
-src_ctx_kill_LDADD		=  lib/libvserver.la
-src_ctx_kill_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
 src_vserver_stat_LDADD		=  lib/libvserver.la
