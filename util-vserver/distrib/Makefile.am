@@ -15,12 +15,11 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-confdir			=  $(sysconfdir)/vservers
-defaultsdir		=  $(pkglibdir)/defaults
-distribdir		=  $(pkglibdir)/distributions
-confdistribdir		=  $(confdir)/.distributions
-confdefaultsdir		=  $(confdir)/.defaults
-confdefaultsinitdir	=  $(confdefaultsdir)/init
+confdir =		$(sysconfdir)/vservers
+defaultsdir =		$(pkglibdir)/defaults
+distribdir =		$(pkglibdir)/distributions
+confdistribdir =	$(confdir)/.distributions
+confdefaultsdir =	$(confdir)/.defaults
 
 defaults_DATA =		misc/debootstrap.uri \
 			misc/fstab \
@@ -57,5 +56,7 @@ install-data-hook:
 				ln -sf ../redhat/initpost $(DESTDIR)$(distribdir)/$$i/ && \
 				ln -sf ../redhat/initpre  $(DESTDIR)$(distribdir)/$$i/; \
 			done
-			$(mkinstalldirs) $(DESTDIR)$(confdir) $(DESTDIR)$(confdefaultsdir) \
-				$(DESTDIR)$(confdefaultsinitdir)
+			$(mkinstalldirs) $(DESTDIR)$(confdir) \
+				$(DESTDIR)$(confdefaultsdir) \
+				$(DESTDIR)$(confdefaultsdir)/apps \
+				$(DESTDIR)$(confdefaultsdir)/files
