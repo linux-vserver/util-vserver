@@ -64,6 +64,11 @@
 #  define CALL_VC_LEGACY(F,...) CALL_VC_NOOP
 #endif
 
+#ifdef VC_ENABLE_API_V11
+#  define CALL_VC_V11(F,...)	CALL_VC_GENERAL(0x00010000, v11, F, __VA_ARGS__)
+#else
+#  define CALL_VC_V11(F,...)	CALL_VC_NOOP
+#endif
 
 
 

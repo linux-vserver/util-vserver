@@ -70,13 +70,14 @@ AC_ARG_ENABLE([apis],
               [],
 	      [supported_apis=ALL])
 
-test x"$supported_apis" != xALL || supported_apis='legacy,compat'
+test x"$supported_apis" != xALL || supported_apis='legacy,compat,v11'
 old_IFS=$IFS
 IFS=,;
 for i in $supported_apis; do
 	case "$i" in
 		compat)	AC_DEFINE(VC_ENABLE_API_COMPAT, 1, [Enable support for compatibily syscall API]);;
 		legacy) AC_DEFINE(VC_ENABLE_API_LEGACY, 1, [Enable support for old, /proc parsing API]);;
+		v11)    AC_DEFINE(VC_ENABLE_API_V11,    1, [Enable support for API of vserver 1.1.x]);;
 		*)	AC_MSG_ERROR(['$i' is not a supported API]);;
 	esac
 done
