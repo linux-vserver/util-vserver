@@ -154,6 +154,9 @@ function _pkgSetVarsApt
 	findDir APTCACHEDIR  "$VDIR"/var/cache/apt
 	findDir APTARCHIVDIR "$VDIR"/var/cache/apt/archives /var/cache/apt/archives
     fi
+
+    findFile APT_CONFIG "$APTETCDIR"/apt.conf ""
+    test -z "$APT_CONFIG" || export APT_CONFIG
 }
 
 function _pkgMountBase
