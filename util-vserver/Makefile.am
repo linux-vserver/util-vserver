@@ -208,6 +208,9 @@ fix_SCRPTS		=  $(addprefix $(pkglibdir)/, $(notdir $(pkglib_SCRIPTS))) \
 			   $(addprefix $(sbindir)/,   $(notdir $(sbin_SCRIPTS))) \
 			   $(addprefix $(initrddir)/, $(notdir $(initrd_SCRIPTS)))
 
+update-doc:		doc
+			$(top_srcdir)/update-doc
+
 install-data-hook:	install-fix-script-paths install-create-dirs
 
 install-create-dirs:
@@ -263,4 +266,4 @@ include $(top_srcdir)/m4/validate.am
 include $(top_srcdir)/m4/changelog.am
 include $(top_srcdir)/m4/pkgconfig.am
 
-.PHONY:		FORCE
+.PHONY:		FORCE update-doc
