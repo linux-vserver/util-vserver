@@ -22,6 +22,7 @@
 
 #include "vserver.h"
 #include "pathconfig.h"
+#include "internal.h"
 
 #include <string.h>
 #include <sys/param.h>
@@ -40,6 +41,8 @@ isAbsPath(char const *p)
   return p[0]=='/';
 }
 
+#define ISDIR	utilvserver_isDirectory(buf, true)
+
 vcCfgStyle
 vc_getVserverCfgStyle(char const *id)
 {
@@ -49,24 +52,27 @@ vc_getVserverCfgStyle(char const *id)
 		    MAX(sizeof(CONFDIR "/"),sizeof(DEFAULT_VSERVERDIR "/")) +
 		    MAX(sizeof("/legacy"),  sizeof(".conf")) - 1];
   char *	marker = 0;
+  bool		is_path;
 
   strcpy(buf,    id);
   marker = buf+l1;
   strcpy(marker, "/vdir");
 
-  if (access(buf, X_OK)==0) res = vcCFG_RECENT_FULL;
-  else if (!isRelPath(buf) && !isAbsPath(buf)) {
+  is_path = isAbsPath(buf) || isRelPath(buf);
+  if (is_path && ISDIR)
+    res = vcCFG_RECENT_FULL;
+  else if (!is_path) {
     strcpy(buf,                         CONFDIR "/");
     strcpy(buf+sizeof(CONFDIR "/") - 1, id);
     marker = buf+sizeof(CONFDIR "/")+l1 - 1;
     strcpy(marker, "/vdir");
 
-    if (access(buf, X_OK)==0) res = vcCFG_RECENT_SHORT;
+    if (ISDIR) res = vcCFG_RECENT_SHORT;
     else {
       strcpy(buf,                                  DEFAULT_VSERVERDIR "/");
       strcpy(buf+sizeof(DEFAULT_VSERVERDIR)+1 - 1, id);
 
-      if (access(buf, X_OK)==0) res = vcCFG_LEGACY;
+      if (ISDIR) res = vcCFG_LEGACY;
     }
 
     if (res==vcCFG_LEGACY) {
@@ -74,7 +80,7 @@ vc_getVserverCfgStyle(char const *id)
       strcpy(buf+sizeof(CONFDIR "/") - 1,    id);
       strcpy(buf+sizeof(CONFDIR "/")+l1 - 1, ".conf");
 
-      if (access(buf, R_OK)!=0) res = vcCFG_NONE;
+      if (!ISDIR) res = vcCFG_NONE;
     }
   }
 
