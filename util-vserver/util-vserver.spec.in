@@ -324,17 +324,17 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 
 %changelog
 * Thu Mar 24 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.30.205-0
-- added some %descriptions
+- added some %%descriptions
 - copy GPG keys from the system into the confdir
 - buildrequire dietlibc-0.25
 - BuildRequire beecrypt-devel
 - cleanups
-- use %global instead of %define
+- use %%global instead of %%define
 - removed 'run.rev' as a vserver-local variable and made it a system-wide setting
 
 * Wed Jan 26 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.30.198-0.3
 - updated BuildRequires:
-- use 'setattr --barrier' instead of 'chattr +t' in the %post scriptlet
+- use 'setattr --barrier' instead of 'chattr +t' in the %%post scriptlet
 - moved the v_* initscripts to legacy
 - do not ship the /vservers directory itself; as it is immutable, the
   extraction will fail else
