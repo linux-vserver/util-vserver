@@ -70,7 +70,7 @@ set_ipv4root system call.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%__make DESTDIR="$RPM_BUILD_ROOT" install
+%__make DESTDIR="$RPM_BUILD_ROOT" install install-vserverdir
 
 
 %clean
@@ -118,7 +118,6 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %_sbindir/rebootmgr
 %_sbindir/vdu
 %_sbindir/vfiles
-%_sbindir/vkill
 %_sbindir/vps
 %_sbindir/vpstree
 %_sbindir/vserver
