@@ -22,7 +22,7 @@ function pkgmgmt._setPkgCfgBase
 {
     test -z "$PKGCFGBASE" || return 0
 
-    for item in "\"$CONFDIR/.defaults/apps/pkgmgmt/base\" 1" "$ROOTDIR/.pkg" "$DEFAULT_VSERVERPKGDIR"; do
+    for item in "\"$CONFDIR/.defaults/apps/pkgmgmt/base\" 1" ${ROOTDIR:+"$ROOTDIR/.pkg"} "$DEFAULT_VSERVERPKGDIR"; do
 	eval set -- "$item"
 	PKGCFGBASE=$1
 	PKGCFGBASE_REL=$2
