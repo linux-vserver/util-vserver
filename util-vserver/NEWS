@@ -1,3 +1,19 @@
+Version 0.24
+============
+
+	- updated to new syscall API (patch c17h and later)
+	
+	- revived linuxconf module
+
+	- revived copy-all-mode for 'vserver ... build' (can be disabled
+	  with $UTIL_VSERVER_AVOID_COPY)
+
+	- use '-HS' ulimit switch for newly created vservers
+
+	- added QUOTACTL capability, removed OPENDEV capability
+
+	
+	
 version 0.23.6
 ==============
 
