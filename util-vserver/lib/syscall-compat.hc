@@ -44,7 +44,7 @@ vc_set_ipv4root_compat(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const 
   struct vcmd_set_ipv4root_v3	msg;
   size_t			i;
 
-  if (nb>=NB_IPV4ROOT) {
+  if (nb>NB_IPV4ROOT) {
     errno = -EINVAL;
     return -1;
   }
