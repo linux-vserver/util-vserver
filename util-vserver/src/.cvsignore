@@ -9,6 +9,7 @@ chroot-cat
 chroot-rm
 chxid
 clearenv
+enter-namespace
 exec-cd
 exec-ulimit
 fakerunlevel
