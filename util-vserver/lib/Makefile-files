@@ -19,6 +19,8 @@
 
 lib_VERSION =			0.0.0
 
+lib_compat_SRCS =		lib/flags-compat.c \
+				lib/flags_list-compat.c
 lib_legacy_SRCS =		lib/getprocentry-legacy.c
 lib_management_SRCS =		lib/createskeleton.c \
 				lib/getvserverbyctx.c \
@@ -65,7 +67,9 @@ lib_v13_SRCS =			lib/syscall_enternamespace.c \
 				lib/syscall_setflags.c \
 				lib/syscall_setflags-v13.hc \
 				lib/syscall_setsched.c \
-				lib/syscall_setsched-v13.hc
+				lib/syscall_setsched-v13.hc \
+				lib/flags-v13.c \
+				lib/flags_list-v13.c
 
 PKGCONFIG_FILES =		lib/util-vserver
 
@@ -78,10 +82,12 @@ lib_SRCS =  			lib/syscall.c \
 				lib/fmtx-32.c \
 				lib/fmtx-64.c \
 				lib/capabilities.c \
-				lib/flags.c \
-				lib/flags_list.c \
 				lib/issupported.c \
+				lib/issupportedstring.c \
+				lib/listparser_uint32.c \
+				lib/listparser_uint64.c \
 				$(lib_legacy_SRCS) \
+				$(lib_compat_SRCS) \
 				$(lib_management_SRCS) \
 				$(lib_v11_SRCS) \
 				$(lib_v13_SRCS)
@@ -105,22 +111,13 @@ lib_XHDRS =			lib/syscall-compat.hc \
 				lib/fmt.hc \
 				lib/fmtx.hc \
 				lib/fmt-internal.h \
+				lib/listparser.hc \
 				lib/virtual.h \
 				lib/internal.h \
 				lib/utils-legacy.h \
 				lib/vserver-internal.h
 
-#lib_lib_LIBS			=  lib/libvserver.a lib/libvserver-pic.a
-lib_lib_LIBS			=
-lib_lib_LTLIBS			=  lib/libvserver.la
-
-#lib_libvserver_la_SOURCES	=  $(lib_SRCS)
-#lib_libvserver_a_SOURCES	=  $(lib_SRCS)
-#lib_libvserver_a_CPPFLAGS	=  $(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -D_REENTRANT -D_GNU_SOURCE
-# _REENTRANT is needed for dietlibc to use __error_location
-
-#lib_libvserver_pic_a_SOURCES	=  $(lib_SRCS)
-#lib_libvserver_pic_a_CPPFLAGS	=  $(lib_libvserver_a_CPPFLAGS) -fPIC
+lib_lib_LTLIBS =		lib/libvserver.la
 
 lib_libvserver_la_SOURCES =  	$(lib_SRCS)
 lib_libvserver_la_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -D_REENTRANT -D_GNU_SOURCE
