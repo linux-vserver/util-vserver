@@ -20,7 +20,8 @@
 lib_VERSION =			0.0.0
 
 lib_legacy_SRCS =		lib/getprocentry-legacy.c
-lib_management_SRCS =		lib/getvserverbyctx.c \
+lib_management_SRCS =		lib/createskeleton.c \
+				lib/getvserverbyctx.c \
 				lib/getvservercfgstyle.c \
 				lib/getvserverappdir.c \
 				lib/getvservercfgdir.c \
@@ -74,6 +75,8 @@ lib_XHDRS =			lib/syscall-compat.hc \
 				lib/syscall_getvhiname-olduts.hc \
 				lib/syscall_setvhiname-v13.hc \
 				lib/syscall_setvhiname-olduts.hc \
+				lib/createskeleton-full.hc \
+				lib/createskeleton-short.hc \
 				lib/fscompat_setiattr-v13.hc \
 				lib/fscompat_setiattr-fscompat.hc \
 				lib/fscompat_getiattr-v13.hc \
