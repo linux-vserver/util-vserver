@@ -38,15 +38,16 @@
 #  define UNUSED                __attribute__((__unused__))
 #  define NORETURN              __attribute__((__noreturn__))
 #  define CONST			__attribute__((__const__))
-#  if __GNUC__>3 || (__GNUC__==3 && __GNUC_MINOR__>=3)
+#  if __GNUC__*0x10000 + __GNUC_MINOR__*0x100 + __GNUC_PATCHLEVEL__ >= 0x30300
 #    define NONNULL(ARGS)	__attribute__((__nonnull__ ARGS))
 #    define ALWAYSINLINE        __attribute__((__always_inline__))
 #  else
 #    define NONNULL(ARGS)
 #    define ALWAYSINLINE
+#    define PURE
 #  endif
-#  if __GNUC__>=3
-#    define PURE			__attribute__((__pure__))
+#  if __GNUC__*0x10000 + __GNUC_MINOR__*0x100 + __GNUC_PATCHLEVEL__ >= 0x30303
+#    define PURE		__attribute__((__pure__))
 #  else
 #    define PURE
 #  endif
