@@ -378,7 +378,8 @@
       </dir>
 
       <dir name="ulimits" type="fixed">
-	<description>A directory with ulimits.</description>
+	<description>A directory with ulimits. Possible resources are cpu, data, fsize, locks,
+	memlock, nofile, nproc, rss and/or stack.</description>
 
 	<file name="resource" type="symbolic">
 	  <description>A file which contains the hard- and soft-limit of the given resource in the
