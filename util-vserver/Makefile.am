@@ -59,6 +59,9 @@ BUILT_SOURCES =		linuxcaps.h pathconfig.h linuxvirtual.h \
 man_MANS =
 
 kernel_HDRS =		kernel/context.h \
+			kernel/cvirt.h \
+			kernel/debug.h \
+			kernel/dlimit.h \
 			kernel/inode.h \
 			kernel/legacy.h \
 			kernel/limit.h \
@@ -66,7 +69,8 @@ kernel_HDRS =		kernel/context.h \
 			kernel/network.h \
 			kernel/sched.h \
 			kernel/signal.h \
-			kernel/switch.h
+			kernel/switch.h \
+			kernel/xid.h
 
 EXTRA_PROGRAMS =
 EXTRA_DIST =		pathconfig.h.pathsubst \
@@ -122,7 +126,7 @@ silent.%:		FORCE
 linuxcaps.h:		${kernelincludedir}/linux/capability.h Makefile
 			@rm -f $@
 			echo '#include <stdint.h>' >$@.tmp
-			$(SED) -e 's!^#include .*!!g;s!\<__u32\>!uint32_t!g;s!\<__user\>!!g;' $< >>$@.tmp
+			$(SED) -e 's!^#include .*!!g;' $< >>$@.tmp
 			@-chmod --reference $< $@.tmp &>/dev/null
 			mv -f $@.tmp $@
 			@chmod a-w $@
