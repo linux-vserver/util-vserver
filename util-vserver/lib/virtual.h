@@ -1,8 +1,6 @@
 #ifndef _LINUX_VIRTUAL_H
 #define _LINUX_VIRTUAL_H
 
-#include <linux/types.h>
-
 #define VC_CATEGORY(c)		(((c) >> 24) & 0x3F)
 #define VC_COMMAND(c)     	(((c) >> 16) & 0xFF)
 #define VC_VERSION(c)		((c) & 0xFFF)
