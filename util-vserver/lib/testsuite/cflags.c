@@ -28,10 +28,10 @@
 
 
 #define TEST_T2F_C(X,Y,Z) assert(vc_text2cflag_compat(X,Y)==Z)
-#define TEST_F2T_C(Y,X) {			\
-    char const *x=vc_hicflag2text_compat(X);	\
-    assert((x==0 && Y==0) || (x!=0 && Y!=0));	\
-    if (x!=0) assert(strcmp(x, Y)==0);		\
+#define TEST_F2T_C(Y,X) {				\
+    char const *x=vc_hicflag2text_compat(X);		\
+    assert((x==0 && Y==0) || (x!=0 && Y!=0));		\
+    if (x!=0 && Y!=0) assert(strcmp(x, Y)==0);		\
   }
 
 #define TEST_LIST_C(STR,LEN,EXP,ERR_POS,ERR_LEN) {	\
@@ -48,11 +48,11 @@
 //----
 
 #define TEST_T2F(X,Y,Z) assert(vc_text2cflag(X,Y)==Z)
-#define TEST_F2T(Y,X) {				\
-    uint_least64_t x = (X);			\
-    char const *rc=vc_locflag2text(&x);		\
-    assert((rc==0 && Y==0) || (rc!=0 && Y!=0));	\
-    if (rc!=0) assert(strcmp(rc, Y)==0);	\
+#define TEST_F2T(Y,X) {						\
+    uint_least64_t x = (X);					\
+    char const *rc=vc_locflag2text(&x);				\
+    assert((rc==0 && Y==0) || (rc!=0 && Y!=0));			\
+    if (rc!=0 && Y!=0) assert(strcmp(rc, Y)==0);		\
   }
 #define TEST_LIST(STR,LEN,EXP_RES,EXP_FLAG,EXP_MASK,ERR_POS,ERR_LEN) {	\
     struct vc_err_listparser	err;					\
