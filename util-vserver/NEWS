@@ -1,3 +1,18 @@
+Version 0.26
+============
+
+	- BUGFIX: uninitialized variables in 'ifspec' were fixed and
+	  error-messages will be given out when ioctl() on the requested
+	  interface fails (thanks to Herbert Poetzl)
+	
+	- BUGFIX: fixed vc_get_rlimit_mask() to return the queried
+	  values. This step was missing in 0.25 which returned the
+	  error-code only.
+	
+	- use the shipped 'virtual.h' header on default instead of the
+	  kernel version. The old Behavior can be restored with the
+	  '--disable-internal-headers' ./configure option
+	
 Version 0.25
 ============
 

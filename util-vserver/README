@@ -1,0 +1,10 @@
+Build-Requirements:
+
+    * at least gcc-2.95 (C and C++ frontends)
+
+    * when using 2.6 kernel-headers, the 'e2fsprogs' headers are
+      required. RHL/Fedora Core ships them in the 'e2fsprogs-devel'
+      package, Mandrake in 'libext2fs2-devel'.
+
+      Using these headers with kernel 2.4 will not hurt and can prevent
+      problems, so they are strongly recommended.
