@@ -19,6 +19,7 @@ dnl Usage: ENSC_SYSCALL
 
 AC_DEFUN([ENSC_SYSCALL],
 [
+	AC_REQUIRE([ENSC_KERNEL_HEADERS])
         AC_MSG_CHECKING([for syscall(2) invocation method])
         AC_ARG_WITH([syscall],
         	    [AC_HELP_STRING([--with-syscall=METHOD],
@@ -30,18 +31,42 @@ AC_DEFUN([ENSC_SYSCALL],
         case x"$with_syscall" in
             xauto)
 		AC_CACHE_CHECK([which syscall(2) invocation works], [ensc_cv_test_syscall],
-			       [AC_COMPILE_IFELSE([
+			       [
+				old_CPPFLAGS=$CPPFLAGS
+				CPPFLAGS="-I$ensc_cv_path_kernelheaders"
+				AC_LANG_PUSH(C)
+				AC_COMPILE_IFELSE([
 #include <asm/unistd.h>
 #include <syscall.h>
 #include <errno.h>
-#define __NR_foo	300
-inline static _syscall4(int, foo, int, a, int, b, int, c, int, d)
+#define __NR_foo0	300
+#define __NR_foo1	301
+#define __NR_foo2	302
+#define __NR_foo3	303
+#define __NR_foo4	304
+#define __NR_foo5	305
+inline static _syscall0(int, foo0)
+inline static _syscall1(int, foo1, int, a)
+inline static _syscall2(int, foo2, int, a, int, b)
+inline static _syscall3(int, foo3, int, a, int, b, int, c)
+inline static _syscall4(int, foo4, int, a, int, b, int, c, int, d)
+inline static _syscall5(int, foo5, int, a, int, b, int, c, int, d, int, e)
 
 int main() {
-  return foo(1,2,3,4);
+  return foo0() || \
+	 foo1(1) || \
+	 foo2(1,2) || \
+         foo3(1,2,3) || \
+         foo4(1,2,3,4) || \
+	 foo5(1,2,3,4,5);
 }
-		],
-		[ensc_cv_test_syscall=fast],[ensc_cv_test_syscall=traditional])])
+				],
+				[ensc_cv_test_syscall=fast],
+				[ensc_cv_test_syscall=traditional])
+
+				AC_LANG_POP
+				CPPFLAGS=$old_CPPFLAGS
+		])
 		with_syscall=$ensc_cv_test_syscall
         	;;
             xfast|xtraditional)
