@@ -17,6 +17,12 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-doc_DAT			=  doc/FAQ.txt \
-			   doc/changelog.txt \
-			   doc/intro.txt
+doc_DAT =		doc/FAQ.txt \
+			doc/changelog.txt \
+			doc/intro.txt \
+			doc/compatibility.html
+
+doc/compatibility.html:		STYLESHEET=$(srcdir)/doc/compat-xhtml.xsl
+doc/compatibility.html:		$(srcdir)/doc/compat-xhtml.xsl
+%.html:				%.xml $(STYLESHEET)
+				$(XSLTPROC) -o "$@" "$(STYLESHEET)" "$<"
