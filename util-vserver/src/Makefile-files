@@ -55,6 +55,7 @@ src_DIETPROGS =		src/new-namespace \
 	     		src/fakerunlevel \
 			src/pipe-sync \
 			src/exec-ulimit \
+			src/vps \
 			src/lsxid \
 			src/chxid \
 			src/showattr \
