@@ -53,6 +53,7 @@ src_DIETPROGS =		src/new-namespace \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
 	     		src/clearenv \
+			src/enter-namespace \
 			src/exec-cd \
 	     		src/fakerunlevel \
 			src/pipe-sync \
@@ -89,6 +90,7 @@ src_pkglib_PRGS =	src/capchroot \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
 			src/clearenv \
+			src/enter-namespace \
 			src/fakerunlevel \
 			src/filetime \
 			src/ifspec \
@@ -175,6 +177,10 @@ src_save_ctxinfo_LDFLAGS	=  $(VSERVER_LDFLAGS)
 src_vdu_SOURCES =		src/vdu.c
 src_vreboot_SOURCES =		src/vreboot.c
 src_secure_mount_SOURCES =	src/secure-mount.c
+
+src_enter_namespace_SOURCES =	src/enter-namespace.c
+src_enter_namespace_LDADD =	$(VSERVER_LDADDS)
+src_enter_namespace_LDFLAGS =	$(VSERVER_LDFLAGS)
 
 src_new_namespace_SOURCES =	src/new-namespace.c \
 				src/util-exitlikeprocess.c

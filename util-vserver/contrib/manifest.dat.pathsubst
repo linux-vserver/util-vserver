@@ -63,6 +63,7 @@ core   @SBINDIR@/chxid
 base   @SBINDIR@/exec-cd
 core   @SBINDIR@/lsxid
 core   @SBINDIR@/new-namespace
+core   @SBINDIR@/enter-namespace
 base   @SBINDIR@/rebootmgr
 core   @SBINDIR@/reducecap
 core   @SBINDIR@/setattr
