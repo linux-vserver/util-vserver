@@ -1,24 +1,28 @@
 /etc/vservers
 |-- <vserver>
     |-- [vdir]  ->  /vservers/<vserver>    Link to vserver top-dir
-    |-- apps
-        `-- pkgmgmt
-            |-- base       ->  ...         Link to pkgmgmt cfg-dir
-            |-- aptetc               \
-            |-- aptcache              \
-            |-- aptstate               \   Overriding of cfg-dir values
-            |-- aptarchives            /
-            |-- rpmetc                /
-            |-- rpmstate             /
-            |-- execdir                    Alternative executables
-            `-- rpmlib                     Alternative /usr/lib/rpm dir
-
+    `-- apps
+        |-- pkgmgmt
+        |   |-- base        ->  ...        Link to pkgmgmt cfg-dir
+        |   |-- aptetc               \
+        |   |-- aptcache              \
+        |   |-- aptstate               \   Overriding of cfg-dir values
+        |   |-- aptarchives            /
+        |   |-- rpmetc                /
+        |   |-- rpmstate             /
+        |   |-- execdir                    Alternative executables
+        |   `-- rpmlib                     Alternative /usr/lib/rpm dir
+        `-- vunify
+            |-- refserver   ->  ...        link to cfg-dir of refserver
+            |                              (e.g. /etc/vservers/<xxx>)
+            `-- dirs                       file with incldir(+) or
+                                           excldir(-) entries
 
 
 pkgmgmt cfg-dir
-|-- apt/etc
-|-- apt/archives
-|-- apt/cache
-|-- apt/state
-|-- rpm/etc
-`-- rpm/state
+|-- apt/etc		(e.g. sources.list, apt.conf, rpmpriorities,...)
+|-- apt/archives	(downloaded files)
+|-- apt/cache		(pkgcache.bin,srcpkgcache.bin)
+|-- apt/state		(fetched repository info)
+|-- rpm/etc		(content of /etc/rpm; e.g. 'macros' file)
+`-- rpm/state		(/var/lib/rpm database)
