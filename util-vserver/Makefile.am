@@ -97,6 +97,7 @@ pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			   s!@'CONFDIR'@!$(confdir)!g; \
 			   s!@'SYSCONFDIR'@!$(sysconfdir)!g; \
 			   s!@'PKGSTATEDIR'@!$(pkgstatedir)!g; \
+			   s!@'PKGSTATEREVDIR'@!$(pkgstaterevdir)!g; \
 			   s!@'VSERVERDIR'@!$(vserverdir)!g; \
 			   s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
 			   s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
@@ -133,10 +134,11 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@touch '$@'
 
 pkgstatedir		=  $(localstatedir)/run/vservers
+pkgstaterevdir		=  $(pkgstatedir).rev
 vserverpkgdir		=  $(vserverdir)/.pkg
 
 install-data-hook:
-			$(mkinstalldirs) -m 755 $(DESTDIR)$(pkgstatedir)/rev
+			$(mkinstalldirs) -m 755 $(DESTDIR)$(pkgstatedir) $(DESTDIR)$(pkgstaterevdir)
 
 install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
