@@ -187,6 +187,19 @@ Eunlink(char const *pathname)
   FatalErrnoError(unlink(pathname)==-1, "unlink()");
 }
 
+inline static WRAPPER_DECL void
+Egetrlimit(int resource, struct rlimit *rlim)
+{
+  FatalErrnoError(getrlimit(resource, rlim)==-1, "getrlimit()");
+}
+
+inline static WRAPPER_DECL void
+Esetrlimit(int resource, struct rlimit const *rlim)
+{
+  FatalErrnoError(setrlimit(resource, rlim)==-1, "setrlimit()");
+}
+
+
 #undef WRAPPER_DECL
 
 #endif	//  H_UTIL_VSERVER_SRC_WRAPPERS_H
