@@ -1,3 +1,7 @@
+.deps
+.dirstamp
+.gdb_history
+.libs
 flags
 fmt
 parselimit

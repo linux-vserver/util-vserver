@@ -1,6 +1,7 @@
+*.la
+*.lo
+.buexcl
 .deps
 .dirstamp
 .libs
-*.lo
-*.la
 util-vserver.pc
