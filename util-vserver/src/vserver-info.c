@@ -35,6 +35,7 @@
 #include <errno.h>
 #include <sys/utsname.h>
 #include <dirent.h>
+#include <strings.h>
 
 #define ENSC_WRAPPERS_FCNTL	1
 #define ENSC_WRAPPERS_IO	1
@@ -42,9 +43,9 @@
 #define ENSC_WRAPPERS_VSERVER	1
 #include <wrappers.h>
 
-typedef enum { tgNONE,tgCONTEXT, tgRUNNING,
+typedef enum { tgNONE,tgCONTEXT, tgID, tgRUNNING,
 	       tgVDIR, tgNAME, tgCFGDIR, tgAPPDIR,
-	       tgAPIVER,
+	       tgAPIVER, tgPXID,
 	       tgINITPID, tgINITPID_PID,
 	       tgXID, tgUTS, tgSYSINFO,
 	       tgFEATURE,
@@ -57,6 +58,7 @@ static struct {
 }  const TAGS[] = {
   { "CONTEXT", tgCONTEXT, ("the current and/or assigned context; when an optinal argument "
 			   "evaluates to false,only the current context will be printed") },
+  { "ID",      tgID,      "gives out the vserver-id for the context-xid" },
   { "RUNNING", tgRUNNING, "gives out '1' when vserver is running; else, it fails without output" },
   { "VDIR",    tgVDIR,    "gives out the root-directory of the vserver" },
   { "NAME",    tgNAME,    "gives out the name of the vserver" },
@@ -71,6 +73,7 @@ static struct {
 				   "machine and domainname") },
   { "SYSINFO",     tgSYSINFO,     "gives out information about the systen" },
   { "FEATURE",     tgFEATURE,     "returns 0 iff the queried feature is supported" },
+  { "PXID",        tgPXID,        "returns the xid of the parent context" },
 };
 
 int wrapper_exit_code = 1;
@@ -176,6 +179,13 @@ getXid(char *buf, char const *vserver)
     return buf;
   }
 
+  return 0;
+}
+
+static char *
+getPXid(char UNUSED *buf, char const UNUSED *vserver)
+{
+  // TODO: implement me when available
   return 0;
 }
 
@@ -370,7 +380,7 @@ testFeature(int argc, char *argv[])
 static bool
 str2bool(char const *str)
 {
-  return atoi(str)!=0 || strchr("yYtY", str[0])!=0;
+  return atoi(str)!=0 || strchr("yYtY", str[0])!=0 || strcasecmp("true", str)==0;
 }
 
 static int
@@ -378,7 +388,6 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
 {
   char const *		res = 0;
   char 			buf[sizeof(xid_t)*4 + 1024];
-  xid_t			xid = *vserver!='\0' ? vc_xidopt2xid(vserver,true,0) : VC_SAMECTX;
 
   memset(buf, 0, sizeof buf);
   switch (tag) {
@@ -397,15 +406,24 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
 
     case tgCONTEXT	:  res = getContext(buf, vserver,
 					    argc==0 || str2bool(argv[0])); break;
-    case tgXID		:  res = getXid(buf, vserver);         break;
-    case tgINITPID	:  res = getInitPid(buf, xid);         break;
     case tgINITPID_PID	:  res = getInitPidPid(buf, vserver);  break;
     case tgAPIVER	:  res = getAPIVer(buf);               break;
-    case tgUTS		:  res = getUTS(buf, xid, argc, argv); break;
+    case tgXID		:  res = getXid(buf, vserver);         break;
+    case tgPXID		:  res = getPXid(buf, vserver);        break;
     case tgSYSINFO	:  return printSysInfo(buf);           break;
     case tgFEATURE	:  return testFeature(argc,argv);      break;
+
+    default		: {
+      xid_t		xid = *vserver!='\0' ? vc_xidopt2xid(vserver,true,0) : VC_SAMECTX;
+
+      switch (tag) {
+	case tgID	:  res = vc_getVserverByCtx(xid,0,0);  break;
+	case tgINITPID	:  res = getInitPid(buf, xid);         break;
+	case tgUTS	:  res = getUTS(buf, xid, argc, argv); break;
     
-    default		:  assert(false); abort();  // TODO
+	default		:  assert(false); abort();  // TODO
+      }
+    }
   }
 
   if (res==0) return EXIT_FAILURE;
