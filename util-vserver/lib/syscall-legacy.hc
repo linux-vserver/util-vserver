@@ -51,9 +51,9 @@ static int __NR_set_ipv4root_rev3;
 static int rev_ipv4root=0;
 
 #ifdef ENSC_SYSCALL_TRADITIONAL
-#if defined __dietlibc__
+#  if defined __dietlibc__
 extern long int syscall (long int __sysno, ...);
-#endif
+#  endif
 
 inline static int
 set_ipv4root_rev0(unsigned long ip)
@@ -79,37 +79,29 @@ set_ipv4root_rev3(unsigned long *ip, int nb, unsigned long bcast, unsigned long 
   return syscall(__NR_set_ipv4root_rev3, ip, nb, bcast, mask);
 }
 
-#else
+#else  // ENSC_SYSCALL_TRADITIONAL
 inline static _syscall1(int, set_ipv4root_rev0, unsigned long, ip)
 inline static _syscall2(int, set_ipv4root_rev1, unsigned long, ip, unsigned long, bcast)
 inline static _syscall3(int, set_ipv4root_rev2, unsigned long *, ip, int, nb, unsigned long, bcast)
 inline static _syscall4(int, set_ipv4root_rev3, unsigned long *, ip, int, nb, unsigned long, bcast, unsigned long *, mask)
-#endif
+#endif // ENSC_SYSCALL_TRADITIONAL
 
 static int def_NR_new_s_context = 273;
 #undef __NR_new_s_context
 static int __NR_new_s_context_rev0;
-  //static int __NR_new_s_context_rev1;
 static int rev_s_context=0;
 
-#if defined(__pic__) && defined(__i386)
+
+#ifdef ENSC_SYSCALL_TRADITIONAL
 inline static xid_t
 new_s_context_rev0(int newctx, int remove_cap, int flags)
 {
   return syscall(__NR_new_s_context_rev0, newctx, remove_cap, flags);
 }
-#else
+#else  // ENSC_SYSCALL_TRADITIONAL
 inline static _syscall3(int, new_s_context_rev0, int, newctx, int, remove_cap, int, flags)
-    //static _syscall4(int, new_s_context_rev1, int, nbctx, int *, ctxs, int, remove_cap, int, flags)
-#endif
+#endif // ENSC_SYSCALL_TRADITIONAL
 
-#if 0
-#undef __NR_set_ctxlimit
-static int __NR_set_ctxlimit=-1;
-static int rev_set_ctxlimit=-1;
-
-static _syscall2 (int, set_ctxlimit, int, resource, long, limit)
-#endif
 
 static bool	is_init = false;
 
@@ -251,7 +243,7 @@ vc_set_ipv4root_legacy(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const 
 {
   unsigned long	ip[nb];
   unsigned long	mask[nb];
-  size_t		i;
+  size_t	i;
 
   for (i=0; i<nb; ++i) {
     ip[i]   = ips[i].ip;
