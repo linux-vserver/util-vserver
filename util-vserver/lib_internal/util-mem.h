@@ -20,6 +20,7 @@
 #define H_UTIL_VSERVER_LIB_INTERNAL_UTIL_MEM_H
 
 #include <string.h>
+#include <stdlib.h>
 
 inline static void *
 Xmemcpy(void * restrict dst, void const * restrict src, size_t len)
