@@ -64,6 +64,10 @@
 #  define S_CTX_INFO_ULIMIT	64
 #endif
 
+#ifndef S_CTX_INFO_NAMESPACE
+#  define S_CTX_INFO_NAMESPACE	128
+#endif
+
 #define VC_CAP_CHOWN            	 0
 #define VC_CAP_DAC_OVERRIDE     	 1
 #define VC_CAP_DAC_READ_SEARCH  	 2

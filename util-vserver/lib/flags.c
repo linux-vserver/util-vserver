@@ -38,6 +38,7 @@ static struct {
   DECL("fakeinit", S_CTX_INFO_INIT),
   DECL("hideinfo", S_CTX_INFO_HIDEINFO),
   DECL("ulimit",   S_CTX_INFO_ULIMIT),
+  DECL("namespace", S_CTX_INFO_NAMESPACE),
 };
 
 unsigned int
