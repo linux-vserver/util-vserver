@@ -1,3 +1,5 @@
+%define __chattr	/usr/bin/chattr
+
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
@@ -13,6 +15,7 @@ Provides:	vserver = %epoch:%version-%release
 Conflicts:	vserver < %epoch:%version-%release
 Conflicts:	vserver > %epoch:%version-%release
 BuildRequires:	e2fsprogs-devel
+Requires(post):	%__chattr
 
 %package linuxconf
 Summary:	Linuxconf administration modules for vservers
@@ -70,6 +73,8 @@ rm -rf $RPM_BUILD_ROOT
 for i in %v_services; do
 	/sbin/chkconfig --add v_$i
 done
+
+%__chattr +t /vservers || :
 
 
 %preun
