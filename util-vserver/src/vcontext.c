@@ -33,6 +33,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <assert.h>
+#include <signal.h>
 
 #define ENSC_WRAPPERS_PREFIX	"vcontext: "
 #define ENSC_WRAPPERS_UNISTD	1
@@ -324,6 +325,8 @@ int main (int argc, char *argv[])
     }
   }
 
+  signal(SIGCHLD, SIG_DFL);
+  
   if (args.do_migrateself)
     args.xid = Evc_get_task_xid(0);
   

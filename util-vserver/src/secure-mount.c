@@ -49,6 +49,7 @@
 #include <ctype.h>
 #include <sys/wait.h>
 #include <libgen.h>
+#include <signal.h>
 
 #define MNTPOINT	"/etc"
 
@@ -593,6 +594,8 @@ int main(int argc, char *argv[])
     perror("secure-mount: open(\"/\")");
     return EXIT_FAILURE;
   }
+
+  signal(SIGCHLD, SIG_DFL);
 
   while (1) {
     int		c = getopt_long(argc, argv, "ht:nao:", CMDLINE_OPTIONS, 0);

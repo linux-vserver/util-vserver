@@ -112,12 +112,12 @@ str2sig(char const *str)
 inline static ALWAYSINLINE int
 kill_wrapper_legacy(xid_t UNUSED xid, char const *proc, int UNUSED sig)
 {
-  pid_t		pid = fork();
-  if (pid==-1) {
-    perror("vkill: fork()");
-    exit(1);
-  }
-  else if (pid==0) {
+  pid_t		pid;
+
+  signal(SIGCHLD, SIG_DFL);
+  pid = Efork();
+
+  if (pid==0) {
     int		status;
     int		res;
     while ((res=wait4(pid, &status, 0,0))==-1 &&

@@ -40,6 +40,7 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <libgen.h>
+#include <signal.h>
 
 #define ENSC_WRAPPERS_PREFIX	"chcontext: "
 #define ENSC_WRAPPERS_VSERVER	1
@@ -283,7 +284,8 @@ int main (int argc, char *argv[])
   pid_t		pid;
   
   global_args = &args;
-  
+  signal(SIGCHLD, SIG_DFL);
+
   while (1) {
     int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
