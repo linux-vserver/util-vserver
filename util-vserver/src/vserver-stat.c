@@ -63,7 +63,7 @@ int	wrapper_exit_code = 1;
 
 struct ctx_list
 {
-	int ctx;
+	xid_t ctx;
 	int process_count;
 	int VmSize_total;
 	int VmRSS_total;
@@ -80,7 +80,7 @@ struct process_info
 	long start_time;	// start time of process -- seconds since 1-1-70
 	long stime, utime;	// kernel & user-mode CPU time accumulated by process
 	long cstime, cutime;	// cumulative time of process and reaped children
-	int s_context;
+	xid_t s_context;
 };
 
 char *process_name;
@@ -205,35 +205,24 @@ add_ctx(struct ctx_list *list, struct process_info *process)
 
 // increment the count number in the ctx record using ctx number
 static void
-count_ctx(struct ctx_list *list, struct process_info *process)
+count_ctx(struct ctx_list **list, struct process_info *process)
 {
-	struct ctx_list *prev = list;
+  struct ctx_list	**ptr = list;
 
-	if (process == NULL) return;
+  for (;;) {
+    if (*ptr==0 || (*ptr)->ctx > process->s_context) {
+      *ptr = insert_ctx(process->s_context, *ptr);
+      add_ctx(*ptr, process);
+      return;
+    }
 
-	// search
-	while(list != NULL)
-	{
-		// find
-		if (list->ctx == process->s_context)
-		{
-			add_ctx(list, process);
-			return;
-		}
-		// insert between
-		if (list->ctx > process->s_context)
-		{
-			prev->next = insert_ctx(process->s_context, list);
-			add_ctx(prev->next, process);
-			return;
-		}
-		// ++
-		prev = list;
-		list = list->next;
-	}
-	// add at the end
-	prev->next = insert_ctx(process->s_context, NULL);
-	add_ctx(prev->next, process);
+    if ((*ptr)->ctx == process->s_context) {
+      add_ctx(*ptr, process);
+      return;
+    }
+
+    ptr = &(*ptr)->next;
+  }
 }
 
 // free mem
@@ -261,6 +250,13 @@ struct process_info *get_process_info(char *pid)
 
   process.s_context = vc_get_task_xid(atoi(pid));
 
+  if (process.s_context==VC_NOCTX) {
+    int		err=errno;
+    WRITE_MSG(2, "vc_get_task_xid(");
+    WRITE_STR(2, pid);
+    WRITE_MSG(2, "): ");
+    WRITE_STR(2, strerror(err));
+  }
   
   memcpy(buffer,     "/proc/", 6); idx  = 6;
   memcpy(buffer+idx, pid,      l); idx += l;
@@ -393,13 +389,13 @@ void showContexts(struct ctx_list *list)
 
   WRITE_MSG(1, "CTX   PROC    VSZ    RSS  userTIME   sysTIME    UPTIME NAME\n");
   while (list!=0) {
-    char	buf[512];
-    char	tmp[32];
+    char	buf[sizeof(xid_t)*3 + 512];
+    char	tmp[sizeof(int)*3 + 2];
     size_t	l;
 
     memset(buf, ' ', sizeof(buf));
-    l = utilvserver_fmt_ulong(buf, list->ctx);
-    l = utilvserver_fmt_ulong(tmp, list->process_count);
+    l = utilvserver_fmt_long(buf, list->ctx);
+    l = utilvserver_fmt_long(tmp, list->process_count);
     memcpy(buf+10-l, tmp, l);
 
     shortenMem (buf+10, list->VmSize_total);
@@ -454,7 +450,8 @@ int main(int argc, char **argv)
 
 #if 1
     // try to switch in context 1
-  Evc_new_s_context(1, 0,0);
+  if (vc_get_task_xid(0)!=1)
+    Evc_new_s_context(1, 0,0);
 #endif
 	
     // create the fist...
@@ -472,7 +469,7 @@ int main(int argc, char **argv)
       continue;
 
     if (atoi(dir_entry->d_name) != my_pid)
-      count_ctx(my_ctx_list, get_process_info(dir_entry->d_name));
+      count_ctx(&my_ctx_list, get_process_info(dir_entry->d_name));
 		
   }
   closedir(proc_dir);
