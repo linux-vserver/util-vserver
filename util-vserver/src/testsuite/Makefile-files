@@ -23,7 +23,13 @@ src_testsuite_check_passive_PRGS =	src/testsuite/rpm-fake-test
 src_testsuite_check_PRGS =		$(src_testsuite_check_passive_PRGS) \
 					$(src_testsuite_check_active_PRGS)
 
-src_testsuite_check_src_SCRPTS =	src/testsuite/vunify-test.sh
+if ENSC_HAVE_C99_COMPILER
+src_testsuite_check_src_C99_SCRPTS =	src/testsuite/vunify-test.sh
+else
+src_testsuite_check_src_C99_SCRPTS =
+endif
+
+src_testsuite_check_src_SCRPTS =	$(src_testsuite_check_src_C99_SCRPTS)
 src_testsuite_check_gen_SCRPTS =
 
 src_testsuite_check_SCRPTS =		$(src_testsuite_check_src_SCRPTS) \
