@@ -99,16 +99,6 @@ the GNU General Public License.  This program has absolutely no warranty."
     exit $1
 }
 
-function cleanup()
-{
-    if test -d "$tmpdir"; then
-	local S="$tmpdir"/socket
-	test ! -S "$S" || $_KEEP_CTX_ALIVE --quit "$S" &>/dev/null
-	rm -rf "$tmpdir"
-    fi
-}
-
-
 $_VSERVER_INFO - FEATURE migrate || exec $_CHCONTEXT_COMPAT "$@"
 
 tmp=$(getopt -o + --long cap:,ctx:,disconnect,domainname:,flag:,hostname:,secure,silent,help,version -n "$0" -- "$@") || exit 1
@@ -125,12 +115,12 @@ while true; do
     case "$1" in
 	--help)    	showHelp $0 ;;
 	--version) 	showVersion ;;
-	--cap)		OPT_CAPS=( "${OPT_CAPS[@]}" "$1" ); shift;;
-	--ctx)		OPT_CTX=$1; shift;;
+	--cap)		OPT_CAPS=( "${OPT_CAPS[@]}" "$2" ); shift;;
+	--ctx)		OPT_CTX=$2; shift;;
 	--disconnect)	OPT_DISCONNECT=1;;
-	--domainname)	OPT_DOMAINNAME=$1; shift;;
-	--hostname)	OPT_HOSTNAME=$1;   shift;;
-	--flag)		OPT_FLAGS=( "${OPT_FLAGS[@]}" "$1" ); shift;;
+	--domainname)	OPT_DOMAINNAME=$2; shift;;
+	--hostname)	OPT_HOSTNAME=$2;   shift;;
+	--flag)		OPT_FLAGS=( "${OPT_FLAGS[@]}" "$2" ); shift;;
 	--secure)	OPT_SECURE=1;;
 	--silent)	OPT_SILENT=1;;
 	--)		shift; break;;
@@ -139,42 +129,26 @@ while true; do
     shift
 done
 
-tmpdir=
-tmpdir=$(mktemp -d /tmp/chcontext.XXXXXX)
-trap "cleanup" EXIT
+create_cmd=( $_VCONTEXT --create
+	     ${OPT_SILENT:+--silent}
+	     ${OPT_CTX:+--xid "$OPT_CTX"} )
 
-xid=$($_VCONTEXT --create ${OPT_SILENT:+--silent} ${OPT_CTX:+--xid "$OPT_CTX"} -- $_KEEP_CTX_ALIVE --socket "$tmpdir"/socket --timeout 60)
+chain_cmd=(  $_VATTRIBUTE -s
+	     ${OPT_CAPS:+--cap "${OPT_CAPS[@]}"}
+   	     ${OPT_FLAGS:+--flag "${OPT_FLAGS[@]}"}
+	     ${OPT_SECURE:+--secure}
+	    
+             $_VUNAME -s
+	     ${OPT_DOMAINNAME:+--domainname "$OPT_DOMAINNAME"}
+	     ${OPT_HOSTNAME:+--nodename "$OPT_HOSTNAME"} )
+
+migrate_cmd=( $_VCONTEXT --migrate-self
+	      ${OPT_SILENT:+--silent}
+	      ${OPT_DISCONNECT:+--disconnect}
+	      -- "$@" )
+
+"${create_cmd[@]}" "${chain_cmd[@]}" "${migrate_cmd[@]}"
 rc=$?
-test "$rc" -ne 255 ||
-    echo $"chcontext: Failed to create the context; aborting..." >&2
-    exit 1
-}
 
-test "$rc" -ne 254 || xid=$OPT_CTX
-test "$xid" || {
-    echo $"chcontext: Failed to determine context xid; aborting..." >&2
-    exit 1
-}
-
-set -e
-test "$rc" -ne 0 || {
-    rm -rf "$tmpdir"
-    unset rc
-}
-
-if test "$rc" -ne 254; then
-    $_VATTRIBUTE --xid "$xid" -s \
-	${OPT_CAPS:+--cap "${OPT_CAPS[@]}"}
-	${OPT_FLAGS:+--flag "${OPT_FLAGS[@]}"} \
-	${OPT_SECURE:+--secure}
-
-    $_VUNAME --xid "$xid" -s \
-	${OPT_DOMAINNAME:+--domainname "$OPT_DOMAINNAME"} \
-	${OPT_HOSTNAME:+--nodename "$OPT_HOSTNAME"}
-fi
-
-exec $_VCONTEXT --migrate --xid "$xid" \
-    ${OPT_SILENT:+--silent} \
-    ${OPT_DISCONNECT:+--disconnect} \
-    ${rc:--syncsock "$tmpdir"/socket} \
-    -- "$@"
+test "$rc" -ne 254 || exec "${migrate_cmd[@]}"
+exit $rc
