@@ -22,7 +22,6 @@
 
 static inline ALWAYSINLINE int
 vc_get_flags_v13(xid_t xid, struct vc_ctx_flags *flags)
-
 {
   struct vcmd_ctx_flags_v0	k_flags;
   int				res;

@@ -22,7 +22,6 @@
 
 static inline ALWAYSINLINE int
 vc_set_flags_v13(xid_t xid, struct vc_ctx_flags const *flags)
-
 {
   struct vcmd_ctx_flags_v0	k_flags;
 
