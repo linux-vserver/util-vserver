@@ -24,23 +24,23 @@ declare -r _VS_NEWLINE=${_VS_NEWLINE:0-1}
 
 function findObject
 {
-    local mod=$1
-    local var=$2
-    local file=
-    local i=X
+    local _fo_mod=$1
+    local _fo_var=$2
+    local _fo_file=
+    local _fo_i=X
     shift 2
     
-    for i; do
-	test "$i"        || continue
-	test ! $mod "$i" || { file=$i; break; }
+    for _fo_i; do
+	test "$_fo_i"            || continue
+	test ! $_fo_mod "$_fo_i" || { _fo_file=$_fo_i; break; }
     done
 
-    test -z "$i" -o "$file" || {
-	echo "Can not find file for '$var'; aborting"
+    test -z "$_fo_i" -o "$_fo_file" || {
+	echo "Can not find file for '$_fo_var'; aborting"
 	exit 1
     } >&2
 
-    eval "$var=\"$file\""
+    eval "$_fo_var=\"$_fo_file\""
 }
 
 function findFile
@@ -374,39 +374,39 @@ function isAvoidNamespace
 
 function getAllVservers
 {
-    local i
-    declare -a _tmp=()
+    local _ga_i
+    declare -a _ga_tmp=()
 
-    for i in $CONFDIR/*; do
-	test   -d "$i"          || continue
-	test ! -e "$i"/disabled || continue
-	test   -d "$i"/vdir     || continue
-	case "$i" in
+    for _ga_i in $CONFDIR/*; do
+	test   -d "$_ga_i"          || continue
+	test ! -e "$_ga_i"/disabled || continue
+	test   -d "$_ga_i"/vdir     || continue
+	case "$_ga_i" in
 	    *.~*~) continue;;
 	esac
 
-	_tmp=( "${_tmp[@]}" "${i##$CONFDIR/}")
+	_ga_tmp=( "${_ga_tmp[@]}" "${_ga_i##$CONFDIR/}")
     done
 
-    eval $1='( "${_tmp[@]}" )'
+    eval $1='( "${_ga_tmp[@]}" )'
 }
 
 ## Usage: _getProcNumberCount <ctx> <var>
 function _getProcNumberCount
 {
-    local var=$2
-    local procnr_cnt=0
+    local _gp_var=$2
+    local _gp_procnr_cnt=0
 
     # Use /proc/virtual from kernel 2.6 when possible
     if test -d "/proc/virtual"; then
 	set -- $($_GREP '^PROC:' "/proc/virtual/$1/limit" 2>/dev/null)
-	procnr_cnt=$2
+	_gp_procnr_cnt=$2
     else
-	procnr_cnt=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$1" | $_WC -l )
+	_gp_procnr_cnt=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$1" | $_WC -l )
     fi
 
-    let procnr_cnt=procnr_cnt+0
-    eval $var=\$procnr_cnt
+    let _gp_procnr_cnt=_gp_procnr_cnt+0
+    eval $_gp_var=\$_gp_procnr_cnt
 }
 
 ## Usage: getVserverCtx <vdir> <result-varname> [<procnumber-varname> [<do-cleanup>]]
@@ -415,16 +415,16 @@ function getVserverStatus
 {
     test -r "$1"/run || return 1
 
-    local _ctx
-    read _ctx <"$1"/run
-    eval "$2"=\$_ctx
+    local _gvs_ctx
+    read _gvs_ctx <"$1"/run
+    eval "$2"=\$_gvs_ctx
 
     test "$3"        || return 0
-    local _tmp
-    _getProcNumberCount "$_ctx" _tmp
-    eval "$3"=\$_tmp
+    local _gvs_tmp
+    _getProcNumberCount "$_gvs_ctx" _gvs_tmp
+    eval "$3"=\$_gvs_tmp
 
-    if test "$_tmp" = 0; then
+    if test "$_gvs_tmp" = 0; then
 	local runfile=$($_READLINK "$1/run")
 	test -z "$4" || $_RM -f "$runfile"
 	return 1
@@ -444,24 +444,24 @@ function isCtxRunning
 ## Usage: isVserverRunning <vdir> [<ctx-varname>]
 function isVserverRunning
 {
-    local ctx procnum
+    local _ivr_ctx _ivr_procnum
 
-    getVserverStatus "$1" ctx procnum 1 || return 1
-    test $procnum != 0                  || return 1
-    test -z "$2" || eval "$2"=\$ctx
+    getVserverStatus "$1" _ivr_ctx _ivr_procnum 1 || return 1
+    test $_ivr_procnum != 0                       || return 1
+    test -z "$2" || eval "$2"=\$_ivr_ctx
     return 0
 }
 
 ## Called as 'getFileValue <varname> <filename>+'
 function getFileValue
 {
-    local var=$1
-    local file
+    local _gfv_var=$1
+    local _gfv_file
     shift
 
-    findFile file "$@" ''
-    test "$file" -a -r "$file" || return 0
-    eval read "$var" <"$file"
+    findFile _gfv_file "$@" ''
+    test "$_gfv_file" -a -r "$_gfv_file" || return 0
+    eval read "$_gfv_var" <"$_gfv_file"
 }
 
 ## Called as 'getFileArray <varname> <filename>'
@@ -543,21 +543,21 @@ function setDefaultTTY
 ## Usage: pkgmgmt.guessStyle <vserver> <resultvar>
 function pkgmgmt.guessStyle()
 {
-    local vdir=$($_VSERVER_INFO "$1" VDIR) || {
+    local _pgs_vdir=$($_VSERVER_INFO "$1" VDIR) || {
 	echo $"Can not determine vserver-root" >&2
 	return 1
     }
-    local cfgdir=$($_VSERVER_INFO "$1" APPDIR pkgmgmt) || :
+    local _pgs_cfgdir=$($_VSERVER_INFO "$1" APPDIR pkgmgmt) || :
 
-    if test "$cfgdir" -a -e "$cfgdir"/style; then
-	read style <"$cfgdir"/style
-    elif test -e "$vdir"/etc/redhat-release -o -e "$vdir"/etc/fedora-release; then
+    if test "$_pgs_cfgdir" -a -e "$_pgs_cfgdir"/style; then
+	read style <"$_pgs_cfgdir"/style
+    elif test -e "$_pgs_vdir"/etc/redhat-release -o -e "$_pgs_vdir"/etc/fedora-release; then
 	style=redhat
-    elif test -e "$vdir"/etc/mandrake-release; then
+    elif test -e "$_pgs_vdir"/etc/mandrake-release; then
 	style=mandrake
-    elif test -e "$vdir"/etc/debian_version; then
+    elif test -e "$_pgs_vdir"/etc/debian_version; then
 	style=debian
-    elif test -e "$vdir"/etc/SuSE-release; then
+    elif test -e "$_pgs_vdir"/etc/SuSE-release; then
 	style=suse
     else
 	echo $"Can not determine packagemanagement style" >&2
@@ -694,26 +694,26 @@ function vshelper.isEnabled
 
 function vshelper._getHandlerInternal
 {
-    local var=$1
-    local tmp
+    local _vghi_var=$1
+    local _vghi_tmp
     shift
     shift	## HACK: see below the note about the 'set -u' mode
     
     while test "$#" -ge 2; do
-	local mod=$1
-	local obj=$2
+	local _vghi_mod=$1
+	local _vghi_obj=$2
 	shift 2
 
-	test "$mod" "$obj" || continue
-	case "$mod" in
+	test "$_vghi_mod" "$_vghi_obj" || continue
+	case "$_vghi_mod" in
 	    (-x)
-		eval $var=\$obj
+		eval $_vghi_var=\$_vghi_obj
 		;;
 	    (-e)
-		read tmp <"$obj"
-		eval $var=:\$tmp
+		read _vghi_tmp <"$_vghi_obj"
+		eval $_vghi_var=:\$_vghi_tmp
 		;;
-	    (*)	panic $"Internal error, unexpected modifier '$mod'"
+	    (*)	panic $"Internal error, unexpected modifier '$_vghi_mod'"
 	esac
 	return 0
     done
@@ -724,17 +724,16 @@ function vshelper._getHandlerInternal
 ## Usage: vshelper.getHandler <result-var> <vserver> <action>
 function vshelper.getHandler
 {
-    local appdir=$($_VSERVER_INFO "$2" APPDIR vshelper) || appdir=
-    local script
-    declare -a search_list=( X )
+    local _vgh_appdir=$($_VSERVER_INFO "$2" APPDIR vshelper) || _vgh_appdir=
+    declare -a _vgh_search_list=( X )
     ## HACK: when we are in 'set -u' mode, empty lists are causing errors
 
-    test -z "$appdir" || search_list=( "${search_list[@]}" -x "$appdir/$3" )
-    test -z "$appdir" || search_list=( "${search_list[@]}" -e "$appdir/action" )
-    search_list=( "${search_list[@]}" -x "$CONFDIR"/.defaults/apps/vshelper/"$3" )
-    search_list=( "${search_list[@]}" -e "$CONFDIR"/.defaults/apps/vshelper/action )
+    test -z "$_vgh_appdir" || _vgh_search_list=( "${_vgh_search_list[@]}" -x "$_vgh_appdir/$3" )
+    test -z "$_vgh_appdir" || _vgh_search_list=( "${_vgh_search_list[@]}" -e "$_vgh_appdir/action" )
+    _vgh_search_list=( "${_vgh_search_list[@]}" -x "$CONFDIR"/.defaults/apps/vshelper/"$3" )
+    _vgh_search_list=( "${_vgh_search_list[@]}" -e "$CONFDIR"/.defaults/apps/vshelper/action )
 
-    ! vshelper._getHandlerInternal "$1" "${search_list[@]}" || return 0
+    ! vshelper._getHandlerInternal "$1" "${_vgh_search_list[@]}" || return 0
     eval $1=':restart'
 }
 
@@ -779,25 +778,25 @@ function vshelper.doDestroy
 ## Usage: vshelper.initSync <vserver> <pipe-varname>
 function vshelper.initSync
 {
-    local tmpdir=$($_MKTEMPDIR /tmp/vserver-stop.XXXXXX) || {
+    local _vis_tmpdir=$($_MKTEMPDIR /tmp/vserver-stop.XXXXXX) || {
 	warning $"Failed to generate temporary directory for vshelper sync"
 	return 1
     }
 
-    local fifo="$tmpdir"/pipe
-    $_MKFIFO -m700 "$fifo"
-    vshelper.doInit "$1" sync "$fifo"
-    eval $2=\$fifo
+    local _vis_fifo="$_vis_tmpdir"/pipe
+    $_MKFIFO -m700 "$_vis_fifo"
+    vshelper.doInit "$1" sync "$_vis_fifo"
+    eval $2=\$_vis_fifo
 }
 
 ## Usage: vshelper.getSyncTimeout <vserver> <varname>
 function vshelper.getSyncTimeout
 {
-    local appdir=$($_VSERVER_INFO "$1" APPDIR vshelper) || appdir=
-    local file tmp
+    local _vgst_appdir=$($_VSERVER_INFO "$1" APPDIR vshelper) || _vgst_appdir=
+    local _vgst_file _vgst_tmp
 
-    findFile file ${appdir:+"$appdir"/sync-timeout} "$CONFDIR"/.defaults/apps/vshelper/sync-timeout ''
-    test "$file" || return 1
-    read tmp <"$file"
-    eval $2=\$tmp
+    findFile _vgst_file ${_vgst_appdir:+"$_vgst_appdir"/sync-timeout} "$CONFDIR"/.defaults/apps/vshelper/sync-timeout ''
+    test "$_vgst_file" || return 1
+    read _vgst_tmp <"$_vgst_file"
+    eval $2=\$_vgst_tmp
 }
