@@ -22,7 +22,6 @@ scripts_OPTIONS_EXEMPT		=  scripts/distrib-info \
 				   scripts/vrpm-worker \
 				   scripts/vrpm-preload \
 				   scripts/save_s_context \
-				   scripts/vprofile \
 				   scripts/vservers.grabinfo.sh \
 				   scripts/vsysvwrapper \
 				   scripts/vps \
@@ -50,7 +49,6 @@ scripts_pkglib_src_SCRPTS	=  scripts/distrib-info \
 				   scripts/vrpm-preload \
 				   scripts/rootshell \
 				   scripts/save_s_context \
-				   scripts/vprofile \
 				   scripts/vserver-build \
 				   scripts/vserver-legacy \
 				   scripts/vserverkillall \
