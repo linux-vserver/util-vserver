@@ -191,34 +191,23 @@ setCap(char const *str, uint32_t *add_caps, uint32_t *remove_caps)
     WRITE_MSG(2, "Unknown capability '");
     WRITE_STR(2, str);
     WRITE_MSG(2, "'\n");
-    exit(255);
+    exit(wrapper_exit_code);
   }
 }
 
 static inline void
 setFlags(char const *str, uint32_t *flags)
 {
-  for (;;) {
-    char const	*ptr = strchr(str, ',');
-    size_t	cnt  = ptr ? (size_t)(ptr-str) : strlen(str);
-    
-    if      (strncmp(str, "lock",     cnt)==0) *flags |= S_CTX_INFO_LOCK;
-    else if (strncmp(str, "sched",    cnt)==0) *flags |= S_CTX_INFO_SCHED;
-    else if (strncmp(str, "nproc",    cnt)==0) *flags |= S_CTX_INFO_NPROC;
-    else if (strncmp(str, "private",  cnt)==0) *flags |= S_CTX_INFO_PRIVATE;
-    else if (strncmp(str, "fakeinit", cnt)==0) *flags |= S_CTX_INFO_INIT;
-    else if (strncmp(str, "hideinfo", cnt)==0) *flags |= S_CTX_INFO_HIDEINFO;
-    else if (strncmp(str, "ulimit",   cnt)==0) *flags |= S_CTX_INFO_ULIMIT;
-    else {
-      WRITE_MSG(2, "Unknown flag '");
-      write(2, str, cnt);
-      WRITE_MSG(2, "'\n");
-      exit(255);
-    }
+  char const		*err_ptr;
+  size_t		err_len;
+  
+  *flags = vc_textlist2flag(str, 0, &err_ptr, &err_len);
 
-    
-    if (ptr==0) break;
-    str = ptr+1;
+  if (err_ptr!=0) {
+    WRITE_MSG(2, "Unknown flag '");
+    write(2, err_ptr, err_len);
+    WRITE_MSG(2, "'\n");
+    exit(wrapper_exit_code);
   }
 }
 
@@ -389,16 +378,16 @@ int main (int argc, char *argv[])
   if (args.nbctx == 0)
     args.ctxs[args.nbctx++] = VC_RANDCTX;
     
-  xflags = args.flags & 16;
-
-  newctx            = Evc_new_s_context(args.ctxs[0],0,args.flags&~16);
-  args.remove_caps &= (~args.add_caps);
-  setHostname(args.hostname);
-  setDomainname(args.domainname);
+  xflags      = args.flags & S_CTX_INFO_INIT;
+  args.flags &= ~S_CTX_INFO_INIT;
 
   pid = initSync(p);
-  
   if (pid==0) {
+    newctx            = Evc_new_s_context(args.ctxs[0],0,args.flags);
+    args.remove_caps &= (~args.add_caps);
+    setHostname(args.hostname);
+    setDomainname(args.domainname);
+
     if (args.remove_caps!=0 || xflags!=0)
       Evc_new_s_context (VC_SAMECTX,args.remove_caps,xflags);
     tellContext(args.ctxs[0]==VC_RANDCTX ? newctx : args.ctxs[0]);
