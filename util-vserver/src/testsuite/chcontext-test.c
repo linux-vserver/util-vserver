@@ -29,4 +29,6 @@ int main()
 {
   if (0) fake_main(0,0);
   test();
+
+  return EXIT_SUCCESS;
 }
