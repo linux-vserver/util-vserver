@@ -32,7 +32,7 @@ AC_DEFUN([ENSC_FPIC_SYSCALL],
             #define __NR_dummy	42
             _syscall3(int, dummy, int, a, int, b, int, c)],
         [ensc_cv_c_fpic_syscall=yes], [ensc_cv_c_fpic_syscall=no])
-	AC_LANG_PUSH(C)
+	AC_LANG_POP
 
         CFLAGS=$old_CFLAGS
     ])
