@@ -21,7 +21,7 @@ AC_DEFUN([ENSC_SET_SEARCHPATH],
 	ensc_searchpath="$1"
 ])
 
-dnl Usage: ENSC_PATHPROG(<VAR>, <PROG>[, <REQ>])
+dnl Usage: ENSC_PATHPROG_INIT
 AC_DEFUN([ENSC_PATHPROG_INIT],
 [
 	ENSC_PATHPROG_SED=
@@ -29,7 +29,7 @@ AC_DEFUN([ENSC_PATHPROG_INIT],
 ])
 
 
-dnl Usage: ENSC_PATHPROG(<VAR>, <PROG>[, <DFLT>])
+dnl Usage: ENSC_PATHPROG(<VAR>, <PROG>[, <DFLT>, <DESCR>])
 AC_DEFUN([ENSC_PATHPROG],
 [
 	AC_REQUIRE([ENSC_SET_SEARCHPATH])
@@ -50,7 +50,13 @@ AC_DEFUN([ENSC_PATHPROG],
 	AC_PATH_PROGS($1, [$2], [$ensc_dflt], [$ensc_searchpath])
 
 	if test -z "${$1}" && $rq; then
-		AC_MSG_ERROR([Can not find the '$2' tool within '${ensc_searchpath:-$PATH}'])
+		if test -z "$4"; then
+			AC_MSG_ERROR([Can not find the '$2' tool within '${ensc_searchpath:-$PATH}'.])
+		else
+			AC_MSG_ERROR([
+Can not find the '$2' tool within '${ensc_searchpath:-$PATH}'.
+$4])
+		fi
 	fi
 
 	test "${$1}" && ENSC_PATHPROG_SED="${ENSC_PATHPROG_SED}s!@'$1'@!${$1}!g;"
