@@ -47,7 +47,7 @@ doSyncStage1(int p[2][2], bool do_disconnect)
 
   if (!do_disconnect) return;
   
-  fd = Eopen("/dev/null", O_RDONLY|O_NONBLOCK, 0);
+  fd = EopenD("/dev/null", O_RDONLY|O_NONBLOCK, 0);
   Esetsid();
   Edup2(fd, 0);
   Eclose(p[1][0]);
