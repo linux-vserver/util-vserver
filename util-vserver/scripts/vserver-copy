@@ -47,6 +47,10 @@ VERSION="0.4"
 umask 022
 me=${0##*/}
 
+mktemp=$(which mktemp 2>/dev/null) || mktemp=$(which tempfile 2>/dev/null) || {
+    echo $"Can not find mktemp or tempfile" >&2
+    exit 1
+}
 
 ### Helper functions ###
 
@@ -302,7 +306,7 @@ fi
 if [ -n "$ip" -a -n "$domain" ]; then
 	# Insert the new IPROOT/S_HOSTNAME values into the config file
 	info "Modifying $targetconf"
-	tmpf=$(tempfile)
+	tmpf=$($mktemp)
 	if (sed -e "s/^S_HOSTNAME=.*/S_HOSTNAME=\"$newname\"/" \
 		-e "s/^IPROOT=.*/IPROOT=\"$ip\"/" $vconf > $tmpf)
 	then
@@ -348,7 +352,7 @@ else
 	if ! $stopstart; then
 		# Make sure that this vserver doesn't start on the 
 		# destination host if it reboots
-		tmpf=$(tempfile)
+		tmpf=$($mktemp)
 		sed -e 's/^ONBOOT=.*/ONBOOT=no/' $vconf > $tmpf
 		vconf=$tmpf
 	fi
@@ -372,7 +376,7 @@ if $stopstart; then
 	fi
 
 	# Make sure that we don't start the original on next boot
-	tmpf=$(tempfile)
+	tmpf=$($mktemp)
 	sed -e 's/^ONBOOT=.*/ONBOOT=no/' $vconf > $tmpf
 	mv $tmpf $vconf
 fi
