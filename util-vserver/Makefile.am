@@ -29,8 +29,12 @@ sbincfgdir		=  $(sbindir)
 legacydir		=  $(pkglibdir)/legacy
 
 include_HEADERS		=  $(lib_HDRS)
-noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h compat-c99.h
+noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) \
+			   $(ENSC_VECTOR_HDRS) $(ENSC_VECTOR_XHDRS) \
+			   $(ENSC_WRAPPERS_HDRS) \
+			   compat.h compat-c99.h
 
+noinst_LIBRARIES	=  $(src_lib_LIBS) $(ENSC_VECTOR_LIBS)
 lib_LIBRARIES		=  $(lib_lib_LIBS)
 lib_LTLIBRARIES		=  $(lib_lib_LTLIBS) $(src_lib_LTLIBS)
 pkglib_LTLIBRARIES	=  $(src_pkglib_LTLIBS)
@@ -50,11 +54,12 @@ noinst_DATA		=  $(contrib_DTA) $(doc_DAT)
 initrd_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
 
-DIETPROGS		=  $(src_DIETPROGS) $(tests_DIETPROGS) $(lib_DIETPROGS)
+DIETPROGS		=  $(src_DIETPROGS) $(tests_DIETPROGS) $(lib_DIETPROGS) \
+			   $(ENSC_VECTOR_LIBS)
 
-BUILT_SOURCES		=  linuxcaps.h pathconfig.h linuxvirtual.h
+BUILT_SOURCES =		linuxcaps.h pathconfig.h linuxvirtual.h
 
-man_MANS		=  $(man_DATMAN)
+man_MANS =		$(man_DATMAN)
 
 EXTRA_PROGRAMS =	$(src_EXTRA_PROGS)
 EXTRA_DIST =		$(sysv_XTRAS) $(sysv_CFG) \
@@ -71,7 +76,7 @@ TESTS			=  $(src_TSTS)
 
 TESTS_ENVIRONMENT	=  $(src_TESTS_ENV)
 
-AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE $(RELEASE_CPPFLAGS)
+AM_CPPFLAGS		=  -I $(top_srcdir)/lib -I $(top_srcdir)/ensc_wrappers -D _GNU_SOURCE $(RELEASE_CPPFLAGS)
 
 CLEANFILES =		$(sysv_GENSCRPTS) $(scripts_CLEANFILES) $(BUILT_SOURCES) \
 			$(contrib_CLEANFILES) \
@@ -201,6 +206,8 @@ include $(top_srcdir)/scripts/Makefile-files
 include $(top_srcdir)/tests/Makefile-files
 include $(top_srcdir)/sysv/Makefile-files
 include $(top_srcdir)/contrib/Makefile-files
+include $(top_srcdir)/ensc_vector/Makefile-files
+include $(top_srcdir)/ensc_wrappers/Makefile-files
 
 include $(top_srcdir)/m4/gpgsig.am
 include $(top_srcdir)/m4/validate.am
