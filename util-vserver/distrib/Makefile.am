@@ -28,21 +28,23 @@ defaults_DATA =		misc/debootstrap.uri \
 			misc/vunify-exclude
 
 nobase_distrib_SCRIPTS	=  redhat/initpost \
-			   redhat/initpre
+			   redhat/initpre \
+			   redhat/rc.sysinit
 
 nobase_distrib_DATA	=  defaults/devs \
 			   defaults/apt.conf \
 			   defaults/rpm/macros \
 			   defaults/apt/apt.conf \
-			   rh9/apt/rpmpriorities rh9/pkgs/01 rh9/pkgs/02 \
-			   fc1/apt/rpmpriorities fc1/pkgs/01 fc1/pkgs/02 \
-			   fc2/apt/rpmpriorities fc2/pkgs/01 fc2/pkgs/02 \
-			   suse91/apt/sources.list suse91/pkgs/01 suse91/pkgs/02 \
+			   rh9/apt/rpmpriorities    rh9/pkgs/01    rh9/pkgs/02 \
+			   fc1/apt/rpmpriorities    fc1/pkgs/01    fc1/pkgs/02 \
+			   fc2/apt/rpmpriorities    fc2/pkgs/01    fc2/pkgs/02 \
+			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros
 
 nobase_confdistrib_DATA	=  rh9/apt/sources.list \
 			   fc1/apt/sources.list \
-			   fc2/apt/sources.list
+			   fc2/apt/sources.list \
+			   suse91/apt/sources.list
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT \
 			=  $(nobase_distrib_SCRIPTS)
