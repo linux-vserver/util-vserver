@@ -159,6 +159,7 @@ pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			   s!@'PS'@!$(PS)!g; \
 			   s!@'WC'@!$(WC)!g; \
 			   s!@'WGET'@!$(WGET)!g; \
+			   s!@'TAR'@!$(TAR)!g; \
 			   s!@'ENSC_HAVE_C99_COMPILER_TRUE'@!\@ENSC_HAVE_C99_COMPILER_TRUE@ !g; \
 			   s!@'ENSC_HAVE_C99_COMPILER_FALSE'@!\@ENSC_HAVE_C99_COMPILER_FALSE@ !g; \
 			   s!@'ENSC_HAVE_CXX_COMPILER_TRUE'@!\@ENSC_HAVE_CXX_COMPILER_TRUE@ !g; \
