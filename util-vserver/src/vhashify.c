@@ -48,11 +48,14 @@
 #define ENSC_WRAPPERS_UNISTD    1
 #define ENSC_WRAPPERS_FCNTL     1
 #define ENSC_WRAPPERS_DIRENT    1
+#define ENSC_WRAPPERS_IO	1
 #include <wrappers.h>
 
 
 #define HASH_BLOCKSIZE		0x10000000u
 #define HASH_MINSIZE		0x10
+#define HASH_MAXBITS		256		// we have to take care about
+						// max filename-length...
 
 #if HASH_MINSIZE<=0
 #  error HASH_MINSIZE must be not '0'
@@ -82,13 +85,23 @@ CMDLINE_OPTIONS[] = {
   { 0,0,0,0 }
 };
 
-  // SHA1, grouped by 4 digits + hash-collision counter + 2* '/' + NULL
-typedef char			HashPath[160/4 + (160/4/4) + sizeof(unsigned int)*2 + 3];
+  // hash digest grouped by 2 digits + hash-collision counter + 2* '/' + NULL
+typedef char			HashPath[HASH_MAXBITS/4 + (HASH_MAXBITS/4/2) +
+					 sizeof(unsigned int)*2 + 3];
+
+struct HashDirConfiguration
+{
+    hashFunction const				*method;
+    enum { hshALL=0, hshSTART = 1, hshMIDDLE=2,
+	   hshEND = 4, hshINVALID = -1 }	blocks;
+    size_t					blocksize;
+};
 
 struct WalkdownInfo
 {
     PathInfo			state;
     struct MatchList		dst_list;
+    struct HashDirConfiguration	hash_conf;
     HashDirCollection		hash_dirs;
     size_t			hash_dirs_max_size;
 
@@ -97,8 +110,13 @@ struct WalkdownInfo
 
 int				wrapper_exit_code = 1;
 struct Arguments const		*global_args;
-struct WalkdownInfo		global_info;
 static struct SkipReason	skip_reason;
+
+struct WalkdownInfo		global_info = {
+  .hash_conf = { .method     = 0,
+		 .blocks     = hshALL,
+		 .blocksize  = 0x10000 }
+};
 
 #include "vhashify-init.hc"
 
@@ -241,9 +259,10 @@ convertDigest(HashPath d_path)
   for (size_t in=0;
        out+1<sizeof(HashPath)-(sizeof(unsigned int)*2 + 2) && in<d_size;
        ++in) {
-    if (in%2 == 0 && in>0) d_path[out++]='/';
-    d_path[out++] = HEX_DIGIT[digest[in] >>    4];
-    d_path[out++] = HEX_DIGIT[digest[in] &  0x0f];
+    if ((in+254)%(in<=2 ? 1 : 256) == 0 && in>0)
+      d_path[out++]='/';
+    d_path[out++]  = HEX_DIGIT[digest[in] >>    4];
+    d_path[out++]  = HEX_DIGIT[digest[in] &  0x0f];
   }
   d_path[out++] = '\0';
   
@@ -399,7 +418,7 @@ resolveCollisions(char *result, PathInfo const *root, HashPath d_path,
   char			buf[sizeof(int)*2 + 1];
   size_t		len;
 
-  *ptr++             = '/';
+  *ptr++             = '-';
   *ptr               = '\0';
   ptr[sizeof(int)*2] = '\0';
 
@@ -627,11 +646,6 @@ int main(int argc, char *argv[])
 
   Vector_init(&global_info.hash_dirs, sizeof(struct HashDirInfo));
 
-  if (hashFunctionContextInit(&global_info.hash_context,
-			      hashFunctionDefault())==-1)
-    return EXIT_FAILURE;
-
-
   global_args = &args;
   while (1) {
     int		c = getopt_long(argc, argv, "+nv",
@@ -672,6 +686,12 @@ int main(int argc, char *argv[])
     case mdVSERVER	:  initModeVserver (&args, argc-optind, argv+optind); break;
     default		:  assert(false); return EXIT_FAILURE;
   };
+
+  if (hashFunctionContextInit(&global_info.hash_context,
+			      global_info.hash_conf.method)==-1) {
+    WRITE_MSG(2, "Failed to initialize hash-context\n");
+    return EXIT_FAILURE;
+  }
 
   if (Global_getVerbosity()>=1)
     WRITE_MSG(1, "Starting to traverse directories...\n");

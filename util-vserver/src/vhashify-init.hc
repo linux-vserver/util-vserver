@@ -91,6 +91,180 @@ initHashList(HashDirCollection *hash_vec, char const *hashdir)
   return res;
 }
 
+static bool
+initHashMethod(struct HashDirConfiguration *conf, char const *filename)
+{
+  int		fd = open(filename, O_RDONLY);
+  if (fd==-1 && conf->method==0)
+    conf->method = hashFunctionDefault();
+
+  if (fd==-1) {
+    assert(conf->method!=0);
+    if (conf->method==0)      return false;
+    if (global_args->dry_run) return true;	// do not create the file
+    
+    fd = Eopen(filename, O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW, 0644);
+    TEMP_FAILURE_RETRY(write(fd, conf->method->name, strlen(conf->method->name)));
+    TEMP_FAILURE_RETRY(write(fd, "\n", 1));
+  }
+  else {
+    off_t	s  = Elseek(fd, 0, SEEK_END);
+    char	buf[s + 1];
+    Elseek(fd, 0, SEEK_SET);
+
+    conf->method=0;
+
+    if (s>0 && read(fd, buf, s+1)==s) {
+      while (s>0 && (buf[s-1]=='\0' || buf[s-1]=='\n'))
+	--s;
+      buf[s] = '\0';
+
+      conf->method = hashFunctionFind(buf);
+      if (conf->method==0) {
+	WRITE_MSG(2, "Can not find hash-function '");
+	WRITE_STR(2, buf);
+	WRITE_MSG(2, "'\n");
+      }
+    }
+    else
+      WRITE_MSG(2, "Can not read configuration file for hash-method\n");
+  }
+
+  if (conf->method!=0 && conf->method->digestsize*8>HASH_MAXBITS) {
+    WRITE_MSG(2, "Wow... what an huge hash-function. I can not handle so much bits; giving up...\n");
+    conf->method=0;
+  }
+  
+  Eclose(fd);
+  return conf->method!=0;
+}
+
+static bool
+initHashBlocks(struct HashDirConfiguration *conf, char const *filename)
+{
+  int		fd = open(filename, O_RDONLY);
+
+  if (fd==-1) {
+    char		str[sizeof("all,start,middle,end,")] = { [0] = '\0' };
+
+    if (global_args->dry_run) return true;	// do not create the file
+    
+    fd = Eopen(filename, O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW, 0644);
+
+    if (conf->blocks== hshALL)    strcat(str, "all\n");
+    if (conf->blocks & hshSTART)  strcat(str, "start\n");
+    if (conf->blocks & hshMIDDLE) strcat(str, "middle\n");
+    if (conf->blocks & hshEND)    strcat(str, "end\n");
+
+    EwriteAll(fd, str, strlen(str));
+  }
+  else {
+    off_t	s  = Elseek(fd, 0, SEEK_END);
+    char	buf[s + 1];
+    Elseek(fd, 0, SEEK_SET);
+    
+    conf->blocks = hshINVALID;
+      
+    if (s>0 && read(fd, buf, s+1)==s) {
+      char	*tok = buf;
+      char	*sep = "\n,\t ";
+
+      buf[s]       = '\0';
+      conf->blocks = hshALL;
+
+      do {
+	char	*ptr = strsep(&tok, sep);
+
+	if (*ptr=='#') { sep = "\n"; continue; }
+	sep = "\n,\t ";
+	if (*ptr=='\0') continue;
+
+	if      (strcasecmp(ptr, "all")   ==0) conf->blocks  = hshALL;
+	else {
+	  if (conf->blocks==hshINVALID) conf->blocks = 0;
+	  
+	  else if (strcasecmp(ptr, "start") ==0) conf->blocks |= hshSTART;
+	  else if (strcasecmp(ptr, "middle")==0) conf->blocks |= hshMIDDLE;
+	  else if (strcasecmp(ptr, "end")   ==0) conf->blocks |= hshEND;
+	  else {
+	    WRITE_MSG(2, "Invalid block descriptor '");
+	    WRITE_STR(2, ptr);
+	    WRITE_MSG(2, "'\n");
+	    conf->blocks = hshINVALID;
+	    tok = 0;
+	  }
+	}
+      } while (tok!=0);
+    }
+    else
+      WRITE_MSG(2, "Can not read configuration file for hash-blocks\n");
+  }
+
+  Eclose(fd);
+  return conf->blocks!=hshINVALID;
+}
+
+static bool
+initHashBlockSize(struct HashDirConfiguration *conf, char const *filename)
+{
+  if (conf->blocks==hshALL) return true;
+  
+  int		fd = open(filename, O_RDONLY);
+  if (fd==-1) {
+    char		str[sizeof("0x") + sizeof(size_t)*3+2] = {
+      [0] = '0', [1] = 'x'
+    };
+    size_t		len = utilvserver_fmt_xuint(str+2, conf->blocksize);
+
+    if (global_args->dry_run) return true;	// do not create the file
+
+    fd = Eopen(filename, O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW, 0644);
+    EwriteAll(fd, str, len+2);
+  }
+  else {
+    off_t	s  = Elseek(fd, 0, SEEK_END);
+    char	buf[s + 1];
+    Elseek(fd, 0, SEEK_SET);
+
+    conf->blocksize = (size_t)(-1);
+
+    if (s>0 && read(fd, buf, s+1)==s) {
+      char	*errptr;
+      
+      while (s>0 && (buf[s-1]=='\0' || buf[s-1]=='\n'))
+	--s;
+      buf[s] = '\0';
+
+      conf->blocksize = strtol(buf, &errptr, 0);
+      if (errptr==buf || (*errptr!='\0' && *errptr!='\n')) {
+	WRITE_MSG(2, "Failed to parse blocksize '");
+	WRITE_STR(2, buf);
+	WRITE_MSG(2, "'\n");
+	conf->blocksize = (size_t)(-1);
+      }
+    }
+    else
+      WRITE_MSG(2, "Can not read configuration file for hash-blocksize\n");
+  }
+
+  Eclose(fd);
+  return conf->blocksize!=(size_t)(-1);
+}
+
+static bool
+initHashConf(struct HashDirConfiguration *conf, char const *hashdir)
+{
+  size_t		l = strlen(hashdir);
+  char			tmp[l + MAX(MAX(sizeof("/method"), sizeof("/blocks")),
+				    sizeof("/blocksize"))];
+
+  memcpy(tmp, hashdir, l);
+
+  return ((strcpy(tmp+l, "/method"),    initHashMethod   (conf, tmp)) &&
+	  (strcpy(tmp+l, "/blocks"),    initHashBlocks   (conf, tmp)) &&
+	  (strcpy(tmp+l, "/blocksize"), initHashBlockSize(conf, tmp)));
+}
+
 static char *
 searchHashdir(char const *lhs, char const *rhs)
 {
@@ -120,6 +294,11 @@ initModeManually(struct Arguments const UNUSED *args, int argc, char *argv[])
     exit(1);
   }
 
+  if (!initHashConf(&global_info.hash_conf, args->hash_dir)) {
+    WRITE_MSG(2, "failed to initialize hash-configuration\n");
+    exit(1);
+  }
+  
   global_info.hash_dirs_max_size = initHashList(&global_info.hash_dirs,
 						args->hash_dir);
   MatchList_initManually(&global_info.dst_list, 0, strdup(argv[0]), argv[1]);
@@ -157,6 +336,11 @@ initModeVserver(struct Arguments const UNUSED *args, int argc, char *argv[])
     exit(1);
   }
 
+  if (!initHashConf(&global_info.hash_conf, hashdir)) {
+    WRITE_MSG(2, "failed to initialize hash-configuration\n");
+    exit(1);
+  }
+  
   global_info.hash_dirs_max_size = initHashList(&global_info.hash_dirs, hashdir);
 
   free(const_cast(char *)(hashdir));
