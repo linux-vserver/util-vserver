@@ -225,8 +225,11 @@ initPwSocket()
       setsid();
       dup2(res_sock[1],  0);
       dup2(res_sock[1],  1);
-      dup2(sync_pipe[1], 2);
-      close(sync_pipe[1]);
+      if (sync_pipe[1]!=3) {
+	close(3);
+	dup2(sync_pipe[1], 3);
+	close(sync_pipe[1]);
+      }
       close(res_sock[1]);
 	/* ... *socket[0] are marked as close-on-exec ...*/
 
@@ -253,7 +256,12 @@ initPwSocket()
 	  write(pw_sock, ".", 1)!=1 ||
 	  read(pw_sock, &c,   1)!=1 ||
 	  c!='.') {
-	WRITE_MSG(2, "rpm-fake.so: failed to initialize communication with resolver");
+	WRITE_MSG(2, "rpm-fake.so: failed to initialize communication with resolver\n");
+	exit(255);
+      }
+
+      if (wait4(pid, 0, WNOHANG,0)==-1) {
+	WRITE_MSG(2, "rpm-fake.so: unexpected initialization-error of resolver\n");
 	exit(255);
       }
     }
@@ -287,14 +295,16 @@ initEnvironment()
 #endif
 
   ctx_s = getenv("RPM_FAKE_CTX");
-  if (ctx_s) ctx_s = strdup(ctx_s);
+  if (ctx_s && *ctx_s) ctx_s = strdup(ctx_s);
+  else                 ctx_s = 0;
 
   ctx       = getAndClearEnv("RPM_FAKE_CTX",  VC_RANDCTX);
   caps      = getAndClearEnv("RPM_FAKE_CAP",  ~0x3404040f);
   flags     = getAndClearEnv("RPM_FAKE_FLAGS", 0);
   root      = getenv("RPM_FAKE_CHROOT");
   mnts      = getenv("RPM_FAKE_NAMESPACE_MOUNTS");
-  if (mnts!=0) mnts = strdup(mnts);
+  if (mnts && *mnts) mnts = strdup(mnts);
+  else               mnts = 0;
 
   unsetenv("RPM_FAKE_CHROOT");
   unsetenv("RPM_FAKE_NAMESPACE_MOUNTS");
@@ -374,7 +384,7 @@ initRPMFake()
 void
 exitRPMFake()
 { 
-  write(2, ">>>>> exitRPMFake <<<<<\n", 24);
+  if (isDbgLevel(DBG_INIT)) WRITE_MSG(2, ">>>>> exitRPMFake <<<<<\n");
   if (pw_sock!=-1) {
     uint8_t	c;
     read(sync_sock, &c, 1);
