@@ -25,10 +25,29 @@
 #include "src/util.h"
 #include <stdlib.h>
 
+static void
+checkArgs(int argc, char *argv[])
+{
+  if (argc==2) {
+    if (strcmp(argv[1], "--help")==0) {
+      WRITE_MSG(1, "Usage: vserver-info <vserver>\n");
+      exit(0);
+    }
+    if (strcmp(argv[1], "--version")==0) {
+      WRITE_MSG(1, "vserver-info " VERSION "\n");
+      exit(0);
+    }
+  }
+  else {
+    WRITE_MSG(2, "No vserver specified; try '--help' for more inforamtion\n");
+    exit(1);
+  }
+}
+
 int
 main(int argc, char *argv[])
 {
-  vcCfgStyle	style = vc_getVserverCfgStyle(argv[1]);
+  vcCfgStyle	style = (checkArgs(argc, argv), vc_getVserverCfgStyle(argv[1]));
   char const *	name  = vc_getVserverName(argv[1], style);
   char const *	vdir  = vc_getVserverVdir(argv[1], style);
 
