@@ -92,17 +92,13 @@ DISTCLEANFILES =	FEATURES.txt
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT =
 
-LIBTOOL_CC =		@LIBTOOL@ --tag CC
-LIBTOOL_CXX =		@LIBTOOL@ --tag CXX
-
 if USE_DIETLIBC
 DIET			=  diet
 DIET_FLAGS		=
 DIET_CC		       :=  $(DIET) $(DIET_FLAGS) $(CC)
-DIET_LIBTOOL	       :=  $(LIBTOOL_CC)
-VSERVER_LDFLAGS	       :=  -static
+VSERVER_LDFLGS	       :=  -static
 else
-VSERVER_LDFLAGS	       :=
+VSERVER_LDFLGS	       :=
 endif
 
 if USE_DIETLIBC_COMPAT
@@ -239,10 +235,6 @@ _install-vserverdir:
 			touch $@
 
 if USE_DIETLIBC
-$(addsuffix $(EXEEXT), $(DIETPROGS)) \
-$(addsuffix $(OBJEXT), $(DIETPROGS)) \
-		:		LIBTOOL=$(DIET_LIBTOOL)
-
 $(addsuffix $(EXEEXT), $(DIETPROGS)) \
 $(addsuffix $(OBJEXT), $(DIETPROGS)) \
 		:		CC=$(DIET_CC)
