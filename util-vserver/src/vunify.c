@@ -23,6 +23,7 @@
 #include "vunify.h"
 #include "util.h"
 
+#include "lib_internal/unify.h"
 #include <lib/vserver.h>
 
 #include <getopt.h>
@@ -34,6 +35,7 @@
 #include <errno.h>
 #include <wait.h>
 #include <fcntl.h>
+#include <assert.h>
 
 #define ENSC_WRAPPERS_IO	1
 #define ENSC_WRAPPERS_FCNTL	1
@@ -60,6 +62,14 @@ CMDLINE_OPTIONS[] = {
 static struct WalkdownInfo		global_info;
 static struct SkipReason		skip_reason;
 static struct Arguments const *		global_args;
+
+int Global_getVerbosity() {
+  return global_args->verbosity;
+}
+
+bool Global_doRenew() {
+  return global_args->do_renew;
+}
 
 static void
 showHelp(int fd, char const *cmd, int res)
@@ -99,8 +109,6 @@ showVersion()
   exit(0);
 }
 
-#include "vunify-compare.hc"
-
 // Returns 'false' iff one of the files is not existing, or of the files are different/not unifyable
 static bool
 checkFstat(struct MatchList const * const mlist,
@@ -136,8 +144,8 @@ checkFstat(struct MatchList const * const mlist,
 
     // both files are different, so return false
     skip_reason.r = rsDIFFERENT;
-    if ((!global_args->do_revert && !compareUnify  (*dst_fstat, src_fstat)) ||
-	( global_args->do_revert && !compareDeUnify(*dst_fstat, src_fstat)))
+    if ((!global_args->do_revert && !Unify_isUnifyable(*dst_fstat, src_fstat)) ||
+	( global_args->do_revert && !Unify_isUnified  (*dst_fstat, src_fstat)))
       return false;
   }
 
@@ -184,7 +192,7 @@ checkDirEntry(PathInfo const *path,
     }
     else if (cache_stat!=0 && !global_args->do_revert &&
 	     skip_reason.r == rsDIFFERENT &&
-	     compareDeUnify(cache_stat, src_stat)) {
+	     Unify_isUnified(cache_stat, src_stat)) {
       skip_reason.r      = rsUNIFIED;
       skip_reason.d.list = mlist;
       return 0;
@@ -235,8 +243,6 @@ EsafeChdir(char const *path, struct stat const *exp_stat)
   FatalErrnoError(safeChdir(path, exp_stat)==-1, "safeChdir()");
 }
 
-#include "vunify-doit.hc"
-
 static bool
 doit(struct MatchList const *mlist,
      PathInfo const *src_path, struct stat const *src_stat,
@@ -265,8 +271,8 @@ doit(struct MatchList const *mlist,
   
   PathInfo_append(&path, src_path, path_buf);
   return (global_args->do_dry_run ||
-	  (!global_args->do_revert && doitUnify(  path.d, src_stat, dst_path, dst_stat)) ||
-	  ( global_args->do_revert && doitDeUnify(path.d, src_stat, dst_path, dst_stat)));
+	  (!global_args->do_revert && Unify_unify(  path.d, src_stat, dst_path, dst_stat)) ||
+	  ( global_args->do_revert && Unify_deUnify(path.d, src_stat, dst_path, dst_stat)));
 }
 
 static void
