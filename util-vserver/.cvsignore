@@ -3,6 +3,7 @@
 COPYING
 ChangeLog
 INSTALL
+Makefile
 aclocal.m4
 autom4te.cache
 compile
