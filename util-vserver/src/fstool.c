@@ -195,8 +195,6 @@ int main(int argc, char *argv[])
     .do_display_dot	=  false,
     .do_display_dir 	=  false,
     .do_mapping		=  true,
-    .immutable		=  false,
-    .immulink		=  false,
     .ctx		=  VC_NOCTX,
     .is_legacy          =  false,
     .do_set             =  false,
@@ -215,12 +213,14 @@ int main(int argc, char *argv[])
     switch (c) {
       case CMD_HELP		:  showHelp(1, argv[0], 0);
       case CMD_VERSION		:  showVersion();
-      case CMD_IMMU		:  args.set_mask |= VC_IATTR_IUNLINK; break;
+      case CMD_IMMU		:  args.set_mask |= VC_IATTR_IMMUTABLE; /*@fallthrough@*/
+      case CMD_IMMUX		:  args.set_mask |= VC_IATTR_IUNLINK; break;
       case CMD_ADMIN		:  args.set_mask |= VC_IATTR_ADMIN;   break;
       case CMD_WATCH		:  args.set_mask |= VC_IATTR_WATCH;   break;
       case CMD_HIDE		:  args.set_mask |= VC_IATTR_HIDE;    break;
       case CMD_BARRIER		:  args.set_mask |= VC_IATTR_BARRIER; break;
-      case CMD_UNSET_IMMU	:  args.del_mask |= VC_IATTR_IUNLINK; break;
+      case CMD_UNSET_IMMU	:  args.del_mask |= VC_IATTR_IMMUTABLE; /*@fallthrough@*/
+      case CMD_UNSET_IMMUX	:  args.del_mask |= VC_IATTR_IUNLINK; break;
       case CMD_UNSET_ADMIN	:  args.del_mask |= VC_IATTR_ADMIN;   break;
       case CMD_UNSET_WATCH	:  args.del_mask |= VC_IATTR_WATCH;   break;
       case CMD_UNSET_HIDE	:  args.del_mask |= VC_IATTR_HIDE;    break;

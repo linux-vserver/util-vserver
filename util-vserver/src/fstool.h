@@ -32,11 +32,13 @@
 #define CMD_WATCH		0x8012
 #define CMD_HIDE		0x8013
 #define CMD_BARRIER		0x8014
+#define CMD_IMMUX		0x8015
 #define CMD_UNSET_IMMU		0x8020
 #define CMD_UNSET_ADMIN		0x8021
 #define CMD_UNSET_WATCH		0x8022
 #define CMD_UNSET_HIDE		0x8023
 #define CMD_UNSET_BARRIER	0x8024
+#define CMD_UNSET_IMMUX		0x8025
 
 
 struct stat;
@@ -46,8 +48,6 @@ struct Arguments {
     bool		do_display_dot;
     bool		do_display_dir;
     bool		do_mapping;
-    bool		immutable;
-    bool		immulink;
     char const *	ctx_str;
     xid_t		ctx;
     bool		is_legacy;
