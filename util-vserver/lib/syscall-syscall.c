@@ -22,5 +22,13 @@
 
 #include "vserver-internal.h"
 
+#if 0
 int
 vc_syscall(uint32_t cmd, xid_t xid, void *data) __attribute__((__alias__("vserver")));
+#else
+int
+vc_syscall(uint32_t cmd, xid_t xid, void *data)
+{
+  return vserver(cmd, xid, data);
+}
+#endif
