@@ -60,7 +60,7 @@ function pkgmgmt.initFilesystem
 {
     test -z "$1" || pkgmgmt._renameVserverPkgCfg
     test ! -d "$PKGCFGDIR" || {
-	echo $
+	echo $\
 "vserver pkgmgmt-directory exists already; please try to use
 '--force'; or remove it manually" >&2
 	exit 1
