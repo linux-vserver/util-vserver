@@ -7,11 +7,13 @@ fakerunlevel
 filetime
 ifspec
 listdevip
+mask2prefix
 new-namespace
 parserpmdump
 readlink
 rebootmgr
 reducecap
+save_ctxinfo
 secure-mount
 setctxlimit
 showattr
