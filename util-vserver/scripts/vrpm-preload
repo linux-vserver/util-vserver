@@ -27,46 +27,28 @@ test -e "$UTIL_VSERVER_VARS" || {
 
 lib=$_RPM_FAKE_SO
 
-function getSyscallParams
-{
-    set -- `grep '^__NR_new_s_context:' /proc/self/status`
-    scall_nr=$2
-    test -z "$3" || scall_rev=${3##rev}
-}
+#scall_nr=$($_VSERVER_INFO  x SYSCALL_NEW_S_CONTEXT_NR  2>/dev/null)
+#scall_rev=$($_VSERVER_INFO x SYSCALL_NEW_S_CONTEXT_REV 2>/dev/null)
+vdir=$($_VSERVER_INFO "$CUR_VSERVER" VDIR)    || vdir="$CUR_VSERVER"
+ctx=$($_VSERVER_INFO  "$CUR_VSERVER" CONTEXT) || ctx=
 
-need_cfg=
-case "$CUR_VSERVER" in
-    /*)	vdir=$CUR_VSERVER;;
-    *)  vdir=$CONFDIR/$CUR_VSERVER/vdir
-	need_cfg=1;;
-esac
-
-test "$CUR_VSERVER" -a -d "$vdir" || {
-    echo "No or invalid vserver-name given"
+test -d "$vdir" || {
+    echo $"Can not find chroot environment at '$vdir' for '$CUR_VSERVER'" >&2
     exit 1
 }
-
-ctxfile=/var/run/vservers/${CUR_VSERVER}.ctx
-if test -f "$ctxfile"; then
-    . "$ctxfile"
-else
-    S_CONTEXT=
-fi
-
 for bin in `which rpm` /bin/rpm /usr/lib/rpm/rpmi ""; do
     ldd "$bin" &>/dev/null && break
 done
 
 test "$bin" || {
-    echo "No dynamically linked rpm binary found; exiting..."
+    echo $"No dynamically linked rpm binary found; exiting..."  >&2
     exit 1
 }
 
-getSyscallParams
-
-RPM_FAKE_S_CONTEXT_REV=$scall_rev \
-RPM_FAKE_S_CONTEXT_NR=$scall_nr \
-RPM_FAKE_CTX=$S_CONTEXT \
+#RPM_FAKE_S_CONTEXT_REV=$scall_rev \
+#RPM_FAKE_S_CONTEXT_NR=$scall_nr \
+RPM_FAKE_CHROOT=$vdir \
+RPM_FAKE_CTX=$ctx \
 RPM_FAKE_CAP=$[ ~0x3404040f ] \
 LD_PRELOAD=$lib${LD_PRELOAD:+:$LD_PRELOAD} \
 exec $bin "$@"
