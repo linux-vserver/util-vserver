@@ -22,6 +22,7 @@
 
 #include <vserver.h>
 #include <errno.h>
+#include <unistd.h>
 
   // try to switch in context 1
 bool
@@ -34,7 +35,14 @@ switchToWatchXid(char const **errptr)
   if (vc_get_task_xid(0)==1) return true;
 
   if (vc_isSupported(vcFEATURE_MIGRATE)) {
+    int		max_tries = 20;
+    again:
     if (vc_ctx_create(1)==VC_NOCTX) {
+      if (errno==EBUSY && --max_tries>0) {
+	usleep(50000);
+	goto again;
+      }
+	
       if (errno!=EEXIST) {
 	if (errptr) *errptr = "vc_create_context()";
 	return false;
@@ -42,6 +50,17 @@ switchToWatchXid(char const **errptr)
 
       if (vc_ctx_migrate(1)==-1) {
 	if (errptr) *errptr = "vc_migrate_context()";
+	return false;
+      }
+    }
+    else {
+      struct vc_ctx_flags	flags = {
+	.flagword = 0,
+	.mask     = VC_VXF_STATE_SETUP,
+      };
+
+      if (vc_set_cflags(1, &flags)==-1) {
+	if (errptr) *errptr = "vc_set_cflags()";
 	return false;
       }
     }
