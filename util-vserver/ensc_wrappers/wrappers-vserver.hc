@@ -61,5 +61,5 @@ Evc_get_flags(xid_t xid, struct vc_ctx_flags *flags)
 inline static WRAPPER_DECL void
 Evc_set_flags(xid_t xid, struct vc_ctx_flags const *flags)
 {
-  FatalErrnoError(vc_set_flags(xid, flags)!=-1, "vc_get_flags()");
+  FatalErrnoError(vc_set_flags(xid, flags)!=-1, "vc_set_flags()");
 }
