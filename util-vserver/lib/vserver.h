@@ -169,6 +169,17 @@ extern "C" {
   char *	vc_getVserverName(char const *id, vcCfgStyle style);
 
   char *	vc_getVserverVdir(char const *id, vcCfgStyle style);
+
+  /** Returns the ctx of the given vserver, or VC_NOCTX if vserver is not
+   *  running */
+  ctx_t		vc_getVserverCtx(char const *id, vcCfgStyle style);
+
+  /** Resolves the cfg-path of the vserver owning the given ctx. 'revdir' will
+      be used as the directory holding the mapping-links; when NULL, the
+      default value will be assumed.  The result will be allocated and must be
+      freed by the caller. */
+  char *	vc_getVserverByCtx(ctx_t ctx, /*@null@*/vcCfgStyle *style,
+				   /*@null@*/char const *revdir);
   
 #ifdef __cplusplus
 }
