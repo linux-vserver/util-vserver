@@ -321,17 +321,6 @@ function _generateChcontextOptions
 	read domainname <"$vdir"/uts/domainname || read domainname <"$vdir"/domainname || :
     } 2>/dev/null
 
-    ## LEGACY ALERT
-    test \( ! -e "$vdir"/hostname   -o -e "$vdir"/uts/nodename   \) -a \
-	 \( ! -e "$vdir"/domainname -o -e "$vdir"/uts/domainname \) || {
-	echo $"\
-The hostname is now configured in 'uts/nodename' but not in 'hostname' anymore;
-the old way is not supported when using 2.6 kernel patches so it is strongly
-recommended to move these files.
-
-The same applies to 'domainname' vs. 'uts/domainname'." >&2
-    }
-
     test -z "$S_CONTEXT" || ctx=$S_CONTEXT
 
     _generateCapabilityOptions "$vdir"
@@ -465,11 +454,8 @@ function _processSingleInterface
 	INTERFACES=( "${INTERFACES[@]}" "$ip${prefix:+/$prefix}" )
 
 	test ! -e "$iface"/nodev   || break
-	test ! -e "$iface"/only_ip || {
-	    ## LEGACY ALERT
-	    echo $"The 'only_ip' flag for interface '$iface' is deprecated; use 'nodev' instead of" >&2
-	    break
-	}
+	## LEGACY ALERT
+	test ! -e "$iface"/only_ip || break
 
 	case "$dev" in
 	    (*.*)
@@ -671,7 +657,8 @@ function mountVserver
     local mtab_src
 
     test -e "$cfgdir"/fstab -o \
-         -e "$cfgdir"/fstab.local || return 0
+         -e "$cfgdir"/fstab.local -o \
+	 -e "$cfgdir"/fstab.remote || return 0
 
     findObject -r mtab_src "$vdir"/apps/init/mtab "$CONFDIR"/.defaults/init/mtab "$PKGLIBDEFAULTDIR"/mtab /dev/null
     
@@ -684,8 +671,9 @@ function mountVserver
     test -z "$NAMESPACE_CLEANUP" || isAvoidNamespace "$cfgdir" || \
 	$_VNAMESPACE --cleanup
 
-    _mountVserverInternal "$cfgdir"/fstab       $_CHBIND "${CHBIND_OPTS[@]}"
+    _mountVserverInternal "$cfgdir"/fstab
     _mountVserverInternal "$cfgdir"/fstab.local
+    _mountVserverInternal "$cfgdir"/fstab.remote $_CHBIND "${CHBIND_OPTS[@]}"
 
     isAvoidNamespace "$cfgdir" || \
 	$_SECURE_MOUNT --rbind -n "$vdir" "/"
@@ -788,4 +776,47 @@ function execScriptlets
 
 	test -z "$already_handled" -o "$DONT_SKIP_DEFAULTS" || break
     done
+}
+
+
+function sanityCheck
+{
+    declare -r cfgdir=$1
+
+    ! test -e "$cfgdir"/fstab.local ||
+	warning $"\
+WARNING: 'fstab' will *not* be executed in the network context of the
+  vserver anymore. Therefore, 'fstab.local' has the same functionality
+  and is obsoleted. When you need the old behaviour, put the mounts
+  into 'fstab.remote'"
+
+    ! test -e "$cfgdir"/hostname -a ! -L "$cfgdir"/hostname ||
+	warning $"\
+WARNING: The hostname is now configured in 'uts/nodename' but not in
+  'hostname'."
+
+    ! test -e "$cfgdir"/domainname -a ! -L "$cfgdir"/domainname ||
+	warning $"\
+WARNING: The domainname is now configured in 'uts/domainname' but not
+  in 'domainname'." >&2
+
+  
+    local i
+    for i in "$cfgdir"/interfaces/*/only_ip; do
+	if test -e "$i"; then
+	    local iface
+	    iface=${i##$cfgdir/interfaces/}
+	    iface=${iface%%/only_ip}
+	    warning $"\
+WARNING: The 'only_ip' flag for interface '$iface' is deprecated; use
+  'nodev' instead of"
+	fi
+    done
+
+    find "$cfgdir" -type f -exec "$_CHECK_UNIXFILE" '{}' ';'
+
+    vshelper.doSanityCheck
+
+    $_VSERVER_INFO - VERIFYCAP ||
+	panic $"capabilities are not enabled in kernel-setup"
 }
