@@ -8,3 +8,4 @@ getinitpid
 testipc
 testlimit
 testopenf
+vserver-info

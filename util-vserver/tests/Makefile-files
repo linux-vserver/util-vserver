@@ -17,7 +17,8 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-tests_DIETPROGS			=  tests/getctx tests/getinitpid
+tests_DIETPROGS			=  tests/getctx tests/getinitpid \
+				   tests/vserver-info
 
 test_PRGS			=  tests/chrootsafe \
 				   tests/escaperoot \
@@ -42,3 +43,5 @@ tests_getctx_LDADD		=  lib/libvserver.a
 tests_getinitpid_SOURCES	=  tests/getinitpid.c
 tests_getinitpid_LDADD		=  lib/libvserver.a
 
+tests_vserver_info_SOURCES	=  tests/vserver-info.c
+tests_vserver_info_LDADD	=  lib/libvserver.a
