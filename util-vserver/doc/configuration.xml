@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE cfgdirdoc SYSTEM "cfgdirdoc.dtd" [
+<!DOCTYPE cfgdirdoc SYSTEM "configuration.dtd" [
 <!ENTITY init-scriptlet-params
 	  "<params>
 	    <param id='vserver-dir'>
@@ -30,9 +30,8 @@
 	                     completely.">
 ]>
 
-
 <cfgdirdoc>
-  <topleveldir path="@CONFDIR@">
+  <topleveldir type="confdir">
     <description>The base configuration directory.</description>
 
     <dir name=".defaults" type="fixed" optional="yes">
@@ -78,6 +77,13 @@
 	    it overrides the defaults in SYSDEFAULTDIR/vprocunhide-files.</description>
 	  </file>
 	</dir>
+
+	<dir name="init" type="fixed">
+	  <symlink name="tty">
+	    <description>A symlink to the TTY device where input/output will be redirected from/to
+	    at startup via initscript.</description>
+	  </symlink>
+	</dir>
       </dir>
     </dir>
 
@@ -88,8 +94,8 @@
 	</file>
 
 	<file name="apt.conf">
-	  <description>The default apt.conf which is going to be used .It overrides the apt.conf
-	  from @CONFDIR@/.defaults/apps/pkgmgmt.</description>
+	  <description>The default apt.conf which is going to be used. It overrides the apt.conf
+	  from CONFDIR/.defaults/apps/pkgmgmt.</description>
 	</file>
 
 	<script name="initpre">
@@ -251,6 +257,11 @@
 	  <file name="sync">
 	    <description>Without this file, the 'cmd.*-sync' files will be ignored.</description>
 	  </file>
+
+	  <symlink name="tty">
+	    <description>A symlink to the TTY device where input/output will be redirected from/to
+	    at startup via initscript.</description>
+	  </symlink>
 	</dir>
       </dir>
 
@@ -280,7 +291,6 @@
 	    <description>&init-dir-script-text; &init-pre-start;</description>
 	    &init-scriptlet-params;
 	  </script>
-	  
 	</dir>
 
 	<script name="post-start">
