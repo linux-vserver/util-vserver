@@ -45,6 +45,7 @@ _LIB_VSERVER_BUILD_FUNCTIONS_APT="$PKGLIBDIR/vserver-build.functions.apt"
 _LIB_VSERVER_BUILD_FUNCTIONS_RPM="$PKGLIBDIR/vserver-build.functions.rpm"
 _LIB_VSERVER_BUILD_FUNCTIONS_PKGMGMT="$PKGLIBDIR/vserver-build.functions.pkgmgmt"
 _MASK2PREFIX="$PKGLIBDIR/mask2prefix"
+_PKGMGMT="$PKGLIBDIR/pkgmgmt"
 _READLINK="$PKGLIBDIR/readlink"
 _RPM_FAKE_SO="$PKGLIBDIR/rpm-fake.so"
 _SAVE_S_CONTEXT="$LEGACYDIR/save_s_context"
@@ -81,6 +82,7 @@ _UMOUNT="@UMOUNT@"
 _VCONFIG="@VCONFIG@"
 _WC="@WC@"
 _WGET="@WGET@"
+_TAR="@TAR@"
 
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=106057
 WORKAROUND_106057=1
