@@ -19,6 +19,7 @@ BuildRoot:	%_tmppath/%name-%version-%release-root
 Requires:	init(@PACKAGE@)
 Requires:	%name-core = %epoch:%version-%release
 Requires:	%name-lib  = %epoch:%version-%release
+Requires:	diffutils mktemp sed
 Provides:	vserver = %epoch:%version-%release
 Obsoletes:	vserver < %epoch:%version
 BuildRequires:	mount vconfig gawk iproute
@@ -37,11 +38,12 @@ Group:			System Environment/Libraries
 %package core
 Summary:		The core-utilities for util-vserver
 Group:			Applications/System
+Requires:		util-linux
 
 %package build
 Summary:		Tools which can be used to build vservers
 Group:			Applications/System
-Requires:		rpm apt wget binutils tar
+Requires:		rpm apt wget binutils tar e2fsprogs
 Requires:		%name = %epoch:%version-%release
 Requires(pre):		%confdir
 Requires(postun):	%confdir
@@ -178,7 +180,6 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 /sbin/vshelper
 %dir %confdir
 %dir %confdefaultdir
-%dir %confdefaultdir/init
 %dir %confdefaultdir/apps
 %dir %confdefaultdir/files
 %dir %pkglibdir/defaults
@@ -190,6 +191,7 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 
 %dir /var/run/vservers
 %dir /var/run/vservers.rev
+%dir /var/run/vshelper
 
 
 %files lib -f %name-lib.list
