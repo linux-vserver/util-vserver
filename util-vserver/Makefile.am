@@ -32,7 +32,7 @@ noinst_HEADERS		=  $(src_HDRS)
 lib_LIBRARIES		=  $(lib_lib_LIBS)
 
 pkglib_SCRIPTS		=  $(scripts_SCRPTS)
-pkglib_DATA		=  $(scriptscfg_DATA)
+pkglib_DATA		=  $(scriptscfg_DATA) $(scripts_DTA)
 pkglib_PROGRAMS		=  $(src_pkglib_PRGS)
 
 sbin_SCRIPTS		=  $(scripts_PRGS)
@@ -73,11 +73,24 @@ linuxcaps.h:
 pathconfig.h:		.pathconfig.h.pathsubst.stamp
 .%.pathsubst.stamp:	%.pathsubst Makefile
 			@mkdir -p $$(dirname '$@')
-			sed -e 's!@'PKGLIBDIR'@!$(pkglibdir)!g; \
+			@echo "sed -e '...' $*.pathsubst >$*"
+			@sed -e 's!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 				s!@'SBINDIR'@!$(sbindir)!g; \
 				s!@'CONFDIR'@!$(confdir)!g; \
-				s!@'SYSCONFDIR'@!$(sysconfdir)!g' '$<' >'$@.tmp'
-			if cmp -s '$@.tmp' '$*'; then rm -f '$@.tmp'; else rm -f '$*'; mv '$@.tmp' '$*'; fi
+				s!@'SYSCONFDIR'@!$(sysconfdir)!g; \
+				s!@'PACKAGE'@!$(PACKAGE)!g; \
+				s!@'PACKAGE_BUGREPORT'@!$(PACKAGE_BUGREPORT)!g; \
+				s!@'PACKAGE_NAME'@!$(PACKAGE_NAME)!g; \
+				s!@'PACKAGE_STRING'@!$(PACKAGE_STRING)!g; \
+				s!@'PACKAGE_TARNAME'@!$(PACKAGE_TARNAME)!g; \
+				s!@'PACKAGE_VERSION'@!$(PACKAGE_VERSION)!g; \
+			       ' '$<' >'$@.tmp'
+			@if cmp -s '$@.tmp' '$*'; then \
+				echo "... no changes, reusing old version"; \
+				rm -f '$@.tmp'; \
+			else \
+				rm -f '$*'; mv '$@.tmp' '$*'; \
+			fi
 			@chmod a-w '$*'
 			@touch '$@'
 
