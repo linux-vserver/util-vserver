@@ -242,7 +242,7 @@ function pkgInit
 
 function isAvoidNamespace
 {
-    $_VSERVER_INFO - FEATURE namespace || return 1
+    $_VSERVER_INFO - FEATURE namespace || return 0
     test ! -e "$1"/namespace           || return 1
     test -e "$CONFDIR"/.defaults/nonamespace -o \
          -e "$1"/nonamespace
@@ -280,10 +280,10 @@ function getVserverStatus
     local _tmp=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$_ctx" | $_WC -l )
     eval "$3"=\$_tmp
 
-    test "$4" -a $_tmp = 0 || return 0
+    test "$4" -o $_tmp != 0 || return 1
     _tmp=$($_READLINK "$1/run")
-    test "$_tmp"           || return 1
-    rm -f "$_tmp"
+    test "$_tmp" || return 1
+    test -z "$4" || rm -f "$_tmp"
     return 0
 }
 
