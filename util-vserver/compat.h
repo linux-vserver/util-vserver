@@ -44,11 +44,17 @@
 #    define NONNULL(ARGS)
 #    define ALWAYSINLINE
 #  endif
+#  if __GNUC__>3
+#    define PURE		__attribute__((__pure__))
+#  else
+#    define PURE
+#  endif
 #else
 #  define NONNULL(ARGS)
 #  define UNUSED
 #  define NORETURN
 #  define ALWAYSINLINE
+#  define PURE
 #endif
 
 #if !defined(__STDC_VERSION__) || (__STDC_VERSION__<199901L)
