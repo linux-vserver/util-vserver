@@ -19,6 +19,7 @@ BuildRoot:	%_tmppath/%name-%version-%release-root
 Requires:	init(@PACKAGE@)
 Requires:	%name-core = %epoch:%version-%release
 Requires:	%name-lib  = %epoch:%version-%release
+Requires:	make
 Provides:	vserver = %epoch:%version-%release
 Obsoletes:	vserver < %epoch:%version
 BuildRequires:	mount vconfig gawk iproute
@@ -206,6 +207,7 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 * Sat Mar  6 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.29.198-0
 - added vprocunhide-service support
 - added doxygen support
+- updated Requires:
 
 * Wed Oct  1 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.23.5-0
 - Initial build.
