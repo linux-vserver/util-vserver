@@ -24,6 +24,13 @@ Version 0.30
 	  filelist and use '-HS' in the sample.conf (reported by Arne
 	  Blankerts)
 
+	- 'distrib-info' knows now how to deal with Debian; vunify &
+	  related tools should now work there (patch provided by Matthew
+	  Lavy)
+
+	- init-scripts are now a little bit more Debian compliantly
+	  (Savannah patch #2633; provided by Noèl Köthe)
+ 
 
 	
 Version 0.29
