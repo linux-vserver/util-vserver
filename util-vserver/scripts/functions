@@ -146,7 +146,7 @@ function _pkgMountRPM
     _pkgMountBindDir "$RPMETCDIR" /etc/rpm
     test "$RPMLIBDIR" = "/" || _pkgMountBindDir "$RPMLIBDIR" /usr/lib/rpm
 
-    "$_SECURE_MOUNT" "$VDIR" "$RPMSTATEDIR" "$_rpmdb_mntpoint"
+    "$_SECURE_MOUNT" --chroot "$VDIR" -n --secure --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
     test -z "$WORKAROUND_106057" || mount -n --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
 }
 
