@@ -20,6 +20,8 @@
 #  include <config.h>
 #endif
 
+#include <string.h>
+
 static inline ALWAYSINLINE int
 vc_get_vhi_name_v13(xid_t xid, vc_uts_type type, char *val, size_t len)
 {
