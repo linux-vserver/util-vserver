@@ -168,8 +168,23 @@
     <dir name="vserver-name" type="symbolic">
       <description>The configuration directory for the vserver vserver-name.</description>
 
+      <file name="bcapabilities">
+	<description>[experimental; name is subject of possible change] Contains the system capabilities.</description>
+      </file>
+
+      <file name="ccapabilities">
+	<description>[experimental; name is subject of possible change] Contains the context capabilities.</description>
+      </file>
+
+      <file name="schedule">
+	<description>[experimental; name is subject of possible change] Contains the scheduler
+	parameters: fill-rate, interval, tokens, tokens-min, tokens-max and cpu-mask. One parameter
+	per line.</description>
+      </file>
+      
+      
       <file name="hostname">
-	<description>Contains the hostname of the vserver.</description>
+	<description>Contains the hostname of the vserver. Same as uts/nodename.</description>
       </file>
 
       <file name="name">
@@ -178,7 +193,7 @@
       </file>
 
       <file name="domainname">
-	<description>The domainname of the vserver.</description>
+	<description>The domainname of the vserver. Same as uts/domainname.</description>
       </file>
 
       <file name="nice">
