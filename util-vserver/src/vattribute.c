@@ -25,8 +25,11 @@
 
 #include <getopt.h>
 #include <stdint.h>
+#include <errno.h>
 
+#define ENSC_WRAPPERS_PREFIX	"vattribute: "
 #define ENSC_WRAPPERS_VSERVER	1
+#define ENSC_WRAPPERS_UNISTD	1
 #include <wrappers.h>
 
 #define CMD_HELP		0x1000
@@ -84,12 +87,24 @@ showVersion()
 static void
 setFlags(char const UNUSED *str, struct vc_ctx_flags UNUSED * flags)
 {
-  abort();
+  char const		*err_ptr;
+  size_t		err_len;
+  int			rc;
+
+  rc = vc_list2flag(str,0, &err_ptr,&err_len, &flags->flagword, &flags->mask);
+  
+  if (rc==-1) {
+    WRITE_MSG(2, "Unknown flag '");
+    write(2, err_ptr, err_len);
+    WRITE_MSG(2, "'\n");
+    exit(wrapper_exit_code);
+  }
 }
 
 static void
 setCaps(char const UNUSED *str, struct vc_ctx_flags UNUSED * caps)
 {
+#warning Implement me...
   abort();
 }
 
@@ -97,6 +112,7 @@ static void
 setSecure(struct vc_ctx_flags UNUSED * flags,
 	  struct vc_ctx_flags UNUSED * caps)
 {
+#warning Implement me...
   abort();
 }
 
@@ -136,6 +152,8 @@ int main(int argc, char *argv[])
     perror("vc_set_flags()");
 //  else if (vc_set_caps(xid, &args.caps)==-1)
 //    perror("vc_set_caps()");
+  else if (optind<argc)
+    EexecvpD(argv[optind], argv+optind);
   else
     return EXIT_SUCCESS;
 
