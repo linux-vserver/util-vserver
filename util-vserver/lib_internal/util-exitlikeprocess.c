@@ -20,15 +20,19 @@
 #  include <config.h>
 #endif
 
+#include "util.h"
+#include <lib/internal.h>
+
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/resource.h>
 
 void
-exitLikeProcess(int pid)
+exitLikeProcess(int pid, char const *cmd)
 {
   int		status;
   
@@ -38,6 +42,25 @@ exitLikeProcess(int pid)
     exit(WEXITSTATUS(status));
 
   if (WIFSIGNALED(status)) {
+    struct rlimit	lim = { 0,0 };
+
+    if (cmd) {
+      char		buf[sizeof(int)*3 + 2];
+      size_t		l = utilvserver_fmt_uint(buf, pid);
+      
+      WRITE_MSG(2, "command '");
+      WRITE_STR(2, cmd);
+      WRITE_MSG(2, "' (pid ");
+      write    (2, buf, l);
+      WRITE_MSG(2, ") exited with signal ");
+      l = utilvserver_fmt_uint(buf, WTERMSIG(status));      
+      write    (2, buf, l);
+      WRITE_MSG(2, "; following it...\n");
+    }
+
+    // prevent coredumps which might override the real ones
+    setrlimit(RLIMIT_CORE, &lim);
+      
     kill(getpid(), WTERMSIG(status));
     exit(1);
   }
