@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.29.192, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.29.193, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -95,7 +95,11 @@ if test x"$ensc_have_dietlibc" = xno; then
 	AC_MSG_WARN([*** chroot() environments,  so you have to  expect problems ***])
 	AC_MSG_WARN([*** there.                                                  ***])
 	AC_MSG_WARN([***                                                         ***])
+	AM_CONDITIONAL(USE_DIETLIBC_COMPAT, false)
+else
+	ENSC_DIETLIBC_NEED_COMPAT(USE_DIETLIBC_COMPAT)
 fi
+
 
 ENSC_KERNEL_HEADERS(kernelincludedir)
 ENSC_UV_VROOTDIR(vserverdir)
@@ -180,9 +184,11 @@ AC_OUTPUT
 ensc_cxx_affected=" (affected: vbuild, vcheck)"
 ensc_c99_affected=" (affected: vunify)"
 ensc_diet_msg=" (you have been warned)"
-test x"$ensc_cv_cxx_cxxcompiler" = xno || ensc_cxx_affected=
-test x"$ensc_cv_c99_c99compiler" = xno || ensc_c99_affected=
-test x"$ensc_have_dietlibc"      = xno || ensc_diet_msg=
+ensc_diet_compat_msg=" (use -lcompat)"
+test x"$ensc_cv_cxx_cxxcompiler"    = xno || ensc_cxx_affected=
+test x"$ensc_cv_c99_c99compiler"    = xno || ensc_c99_affected=
+test x"$ensc_have_dietlibc"         = xno || ensc_diet_msg=
+test x"$ensc_cv_c_dietlibc_compat" != xno || ensc_diet_compat_msg=
 
 AC_MSG_NOTICE([
 
@@ -195,7 +201,7 @@ Features:
                    CFLAGS: '$CFLAGS'
                  CXXFLAGS: '$CXXFLAGS'
                build/host: $build/$host
-             Use dietlibc: $ensc_have_dietlibc$ensc_diet_msg
+             Use dietlibc: $ensc_have_dietlibc$ensc_diet_msg$ensc_diet_compat_msg
        Build C++ programs: $ensc_cv_cxx_cxxcompiler$ensc_cxx_affected
        Build C99 programs: $ensc_cv_c99_c99compiler$ensc_c99_affected
            Available APIs: $enable_apis
