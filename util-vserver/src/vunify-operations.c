@@ -34,12 +34,13 @@
 static bool
 compareUnify(struct stat const *lhs, struct stat const *rhs)
 {
-  return (lhs->st_dev ==rhs->st_dev  &&
-	  lhs->st_ino !=rhs->st_ino  &&
-	  lhs->st_mode==rhs->st_mode &&
-	  lhs->st_uid ==rhs->st_uid  &&
-	  lhs->st_gid ==rhs->st_gid  &&
-	  lhs->st_size==rhs->st_size);
+  return (lhs->st_dev  ==rhs->st_dev  &&
+	  lhs->st_ino  !=rhs->st_ino  &&
+	  lhs->st_mode ==rhs->st_mode &&
+	  lhs->st_uid  ==rhs->st_uid  &&
+	  lhs->st_gid  ==rhs->st_gid  &&
+	  lhs->st_size ==rhs->st_size &&
+          lhs->st_mtime==rhs->st_mtime);
 
   // TODO: acl? time?
 }
