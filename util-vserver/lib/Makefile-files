@@ -17,13 +17,16 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
+lib_VERSION =			0.0.0
+
 lib_legacy_SRCS			=  lib/getprocentry-legacy.c
 lib_management_SRCS		=  lib/getvserverbyctx.c \
 				   lib/getvservercfgstyle.c \
 				   lib/getvserverctx.c \
 				   lib/getvservername.c \
 				   lib/getvservervdir.c
-lib_v11_SRCS			=  lib/syscall_rlimit.c
+lib_v11_SRCS			=  lib/syscall_rlimit.c \
+				   lib/syscall_kill.c
 
 PKGCONFIG_FILES			=  lib/util-vserver
 
@@ -46,6 +49,7 @@ lib_HDRS			=  lib/vserver.h
 lib_XHDRS                       =  lib/syscall-compat.hc \
 	 			   lib/syscall-legacy.hc \
 				   lib/syscall_rlimit-v11.hc \
+				   lib/syscall_kill-v11.hc \
 				   lib/getctx-compat.hc \
 				   lib/getctx-legacy.hc \
 				   lib/getinitpid-compat.hc \
@@ -61,16 +65,22 @@ lib_XHDRS                       =  lib/syscall-compat.hc \
 				   lib/utils-legacy.h \
 				   lib/vserver-internal.h
 
-lib_lib_LIBS			=  lib/libvserver.a
+#lib_lib_LIBS			=  lib/libvserver.a lib/libvserver-pic.a
+lib_lib_LIBS			=
 lib_lib_LTLIBS			=  lib/libvserver.la
 
 #lib_libvserver_la_SOURCES	=  $(lib_SRCS)
-lib_libvserver_a_SOURCES	=  $(lib_SRCS)
-lib_libvserver_a_CPPFLAGS	=  $(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -I$(kernelincludedir) -D_REENTRANT -D_GNU_SOURCE
+#lib_libvserver_a_SOURCES	=  $(lib_SRCS)
+#lib_libvserver_a_CPPFLAGS	=  $(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -I$(kernelincludedir) -D_REENTRANT -D_GNU_SOURCE
 # _REENTRANT is needed for dietlibc to use __error_location
 
-if USE_DIETLIBC
-lib/lib_libvserver_a-%$(EXEEXT) lib/lib_libvserver_a-%$(OBJEXT)		\
-lib/libvserver.a \
-			:	CC=$(DIET_CC)
-endif
+#lib_libvserver_pic_a_SOURCES	=  $(lib_SRCS)
+#lib_libvserver_pic_a_CPPFLAGS	=  $(lib_libvserver_a_CPPFLAGS) -fPIC
+
+lib_libvserver_la_SOURCES =  	$(lib_SRCS)
+lib_libvserver_la_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -I$(kernelincludedir) -D_REENTRANT -D_GNU_SOURCE
+lib_libvserver_la_LDFLAGS =	-version $(lib_VERSION)
+
+lib_DIETPROGS =			lib/lib_libvserver_la-% \
+				lib/lib_libvserver_a-% \
+				lib/lib_libvserver_pic_a-%
