@@ -50,12 +50,12 @@ ENSC_C99COMPILER
 ENSC_SET_SEARCHPATH([$PATH:/sbin:/usr/sbin:/usr/local/sbin])
 ENSC_PATHPROG_STANDARD_TOOLS
 
-ENSC_PATHPROG(IP,        ip)
+ENSC_PATHPROG(IP,        ip,,      [Usually, this tool is shipped in the 'iproute' or 'iproute2' package of your distribution])
 ENSC_PATHPROG(IPTABLES,  iptables)
 ENSC_PATHPROG(MODPROBE,  modprobe)
 ENSC_PATHPROG(NAMEIF,    nameif)
 ENSC_PATHPROG(RMMOD,     rmmod)
-ENSC_PATHPROG(VCONFIG,   vconfig)
+ENSC_PATHPROG(VCONFIG,   vconfig,, [See http://www.candelatech.com/~greear/vlan.html; usually this tool is shipped in the 'vconfig' or 'vlan' package of your distribution])
 ENSC_PATHPROG(WGET,      wget)
 
 ENSC_PATHPROG(DOXYGEN,   doxygen,  [:])
