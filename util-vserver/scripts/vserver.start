@@ -37,6 +37,7 @@ cd "$VSERVER_DIR"/vdir/
     "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
     "$_CHCONTEXT"    "${CHCONTEXT_OPTS[@]}" "${CHCONTEXT_INIT_OPTS[@]}" \
     "$_SAVE_CTXINFO" "$VSERVER_DIR" \
+    "$_CLEARENV" \
     "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . "${INITCMD_START[@]}"
 
 "${INITCMD_START_SYNC[@]}"
