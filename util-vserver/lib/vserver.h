@@ -273,6 +273,14 @@ extern "C" {
       freed by the caller. */
   char *	vc_getVserverByCtx(xid_t ctx, /*@null@*/vcCfgStyle *style,
 				   /*@null@*/char const *revdir);
+
+#define vcSKEL_INTERFACES	1u
+#define vcSKEL_PKGMGMT		2u
+#define vcSKEL_FILESYSTEM	4u
+  
+  /** Create a basic configuration skeleton for a vserver plus toplevel
+   *  directories for pkgmanagemt and filesystem (when requested). */
+  int		vc_createSkeleton(char const *id, vcCfgStyle style, int flags);
   
 #ifdef __cplusplus
 }
