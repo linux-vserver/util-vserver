@@ -32,14 +32,14 @@ function showHelp()
 {
     echo \
 $"Usage: $(basename $0) -m <method> -n <name> --force <cfg-options>*
-    --rootdir <dir> --pkgcfgbase <dir> [--] <method-args>*
+    --rootdir <dir> --pkgbase <dir> [--] <method-args>*
 
 Options:
     --force     ...  remove/rename already existing vservers with the same name
     -m <method> ...  use method <method>; see below for possible values
     --rootdir <dir>
                 ...  [default: $DEFAULT_VSERVERDIR]
-    --pkgcfgbase <dir>
+    --pkgbase <dir>
                 ...  [default: $DEFAULT_VSERVERPKGDIR]
       
 cfg-options are: $SETUP_HELPMSG
