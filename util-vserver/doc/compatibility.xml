@@ -188,7 +188,9 @@
   <program name="chcontext">
     <location>SBINDIR</location>
     <clicompat status="yes"/>
-    <funccompat status="yes"/>
+    <funccompat status="yes">
+      <text>Return code in '--disconnect' case is now more correctly.</text>
+    </funccompat>
   </program>
 
   <program name="rebootmgr">
