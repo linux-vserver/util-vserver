@@ -149,13 +149,12 @@ test -z "$OPT_DOMAINNAME$OPT_HOSTNAME" || \
 		${OPT_DOMAINNAME:+--domainname "$OPT_DOMAINNAME"}
 		${OPT_HOSTNAME:+--nodename "$OPT_HOSTNAME"} )
 
-migrate_cmd=( $_VCONTEXT --migrate-self
+migrate_cmd=( $_VCONTEXT
 	      ${OPT_SILENT:+--silent}
-	      ${OPT_DISCONNECT:+--disconnect}
-	      -- "$@" )
+	      ${OPT_DISCONNECT:+--disconnect} )
 
-"${create_cmd[@]}" "${chain_cmd[@]}" -- "${migrate_cmd[@]}"
+"${create_cmd[@]}" "${chain_cmd[@]}" -- "${migrate_cmd[@]}" --migrate-self -- "$@"
 rc=$?
 
-test "$rc" -ne 254 || exec "${migrate_cmd[@]}"
+test "$rc" -ne 254 || exec "${migrate_cmd[@]}" --migrate -- "$@"
 exit $rc
