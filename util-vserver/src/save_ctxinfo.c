@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
   }
   Eclose(fd);
 
-  strcpy(runfile, DEFAULT_PKGSTATEREVDIR);
+  strcpy(runfile, DEFAULT_PKGSTATEREVDIR "/");
   strncat(runfile, buf, len);
   unlink(runfile);
   EsymlinkD(argv[1], runfile);
