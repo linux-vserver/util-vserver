@@ -118,10 +118,6 @@ okfile=$(mktemp     /tmp/vserver-init.XXXXXX)
 passedfile=$(mktemp /tmp/vserver-init.XXXXXX)
 trap "rm -rf $makedir $resultfile $passedfile" EXIT
 
-defaulttty="$CONFDIR/.defaults/apps/init/tty"
-test -c "$defaulttty" || defaulttty=$(tty)
-test -c "$defaulttty" || defaulttty=/dev/null
-
 test_cmd=false
 case "$OPTION_FLAVOR" in
     start)	test_cmd="${_VSERVER}   --silent '\$*' status";;
@@ -130,11 +126,10 @@ esac
 
 {
     cat <<EOF
-TTY = ${defaulttty}
 .%.stamp:
 ${TAB}$test_cmd || { \
 ${TAB}echo -n '.' >>$passedfile ; \
-${TAB}$_VSERVER --sync ${OPTION_DEBUG:+--debug} "\$*" ${OPTION_FLAVOR} >\$(TTY) 2>\$(TTY) <\$(TTY) ; }
+${TAB}$_VSERVER --defaulttty --sync ${OPTION_DEBUG:+--debug} "\$*" ${OPTION_FLAVOR}; }
 ${TAB}echo -n '.' >>$okfile
 ${TAB}@touch "\$@"
 EOF
@@ -153,9 +148,6 @@ for i in "${vservers[@]}"; do
     cat "$d"/depends
 done | sort -u | while read vserver; do
     d=$CONFDIR/$vserver/apps/init
-    test ! -e $d/tty || {
-	echo -e ".$vserver.stamp:\tTTY=$d/tty" >>$makedir/Makefile
-    }
 
     case "$OPTION_FLAVOR" in
 	start)
