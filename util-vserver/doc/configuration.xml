@@ -15,6 +15,19 @@
 
     <link name="vdirbase">
       <default>/vservers</default>
+      <description>A link to the default vserver rootdirectory.</description>
+    </link>
+    
+    <link name="run.rev">
+      <description>
+Path of the vserver run reverse directory. This directory contains
+symlinks named with XID numbers which point back to the configuration
+directory of vservers. Under kernel 2.4 this is required for the XID
+to VSERVER mapping; Under kernel 2.6 it is unused.
+
+NOTE: this link exists in 0.30.202+ only; in previous versions it was
+a vserver specific setting.
+      </description>
     </link>
     
     <collection name="apps">
@@ -101,96 +114,111 @@ at startup via initscript.
 	</list>
       </collection>
     </collection>
+  </collection>
     
-    <collection name=".distributions" use="optional">
-      <collection name="dist" type="symbolic">
-	<scalar name="dev">
-	  <description></description>
-	</scalar>
-	<data name="apt.conf">
+  <collection name=".distributions" use="optional">
+    <collection name="dist" type="symbolic">
+      <scalar name="dev">
+	<description></description>
+      </scalar>
+      <collection name="yum">
+	<description>
+The default, yum-related content of the /etc directory.
+        </description>
+	<scalar name="yum.conf">
 	  <description>
+The master yum configuration file. It supports the @YUMETCDIR@,
+@YUMCACHEDIR@ and @YUMLOGDIR@ placeholder which will be replaced at
+'vserver ... build' time.
+          </description>
+	</scalar>
+      </collection>
+      <collection name="yum.repos.d">
+	<description>A directory with yum repositories.</description>
+      </collection>
+      <data name="apt.conf">
+	<description>
 The default apt.conf which is going to be used. It overrides the
 apt.conf from CONFDIR/.defaults/apps/pkgmgmt.
-          </description>
-	</data>
-	<program name="initpre">
-	  <description>
+        </description>
+      </data>
+      <program name="initpre">
+	<description>
 Script which will be executed before packages will be installed.
           </description>
-	  <parameterList>
-	    <parameter name="confdir">
-	      <description>
+	<parameterList>
+	  <parameter name="confdir">
+	    <description>
 The configuration directory of the vserver which is going to be set up.
-              </description>
-	    </parameter>
-	    <parameter name="vserver">
-	      <description>
+            </description>
+	  </parameter>
+	  <parameter name="vserver">
+	    <description>
 The pathname of the vserver binary.
-              </description>
-	    </parameter>
-	  </parameterList>
-	</program>
-	<program name="initpost">
-	  <description>
+            </description>
+	  </parameter>
+	</parameterList>
+      </program>
+      <program name="initpost">
+	<description>
 Script which will be executed after packages are installed.
           </description>
-	  <parameterList>
-	    <parameter name="confdir">
-	      <description>
-The configuration directory of the vserver which is going to be set up.
-              </description>
-	    </parameter>
-	    <parameter name="vserver">
-	      <description>
-The pathname of the vserver binary.
-              </description>
-	    </parameter>
-	  </parameterList>
-	</program>
-	
-	<collection name="pkgs">
-	  <description>
-Contains files with packages.
-            </description>
-	  <list name="list">
+	<parameterList>
+	  <parameter name="confdir">
 	    <description>
+The configuration directory of the vserver which is going to be set up.
+            </description>
+	  </parameter>
+	  <parameter name="vserver">
+	    <description>
+The pathname of the vserver binary.
+            </description>
+	  </parameter>
+	</parameterList>
+      </program>
+      
+      <collection name="pkgs">
+	<description>
+Contains files with packages.
+        </description>
+	<list name="list">
+	  <description>
 File which contains the name of packages. On top of file the special
 keywords '--reinstall' and '--can-fail' are possible.
-            </description>
-	  </list>
-	</collection>
-	
-	<collection name="pubkeys">
-	  <description>
+          </description>
+	</list>
+      </collection>
+      
+      <collection name="pubkeys">
+	<description>
 Directory with GPG pubkeys which are used to sign the packages of this
 distribution.
-          </description>
-	</collection>
-	
-	<collection name="apt">
-	  <description>
+        </description>
+      </collection>
+      
+      <collection name="apt">
+	<description>
 Default content of the /etc/apt/ directory.
-          </description>
-	</collection>
-	
-	<collection name="rpm">
-	  <description>
+        </description>
+      </collection>
+      
+      <collection name="rpm">
+	<description>
 Default content of the /etc/rpm directory.
-          </description>
-	</collection>
-	
-	<link name="rpmlib">
-	  <description>
+        </description>
+      </collection>
+      
+      <link name="rpmlib">
+	<description>
 Directory which overrides /usr/lib/rpm.
-          </description>
-	</link>
-	<link name="execdir">
-	  <description>
+        </description>
+      </link>
+      <link name="execdir">
+	<description>
 Directory with all executables and libraries which are required for
 this distribution.
-            </description>
-	</link>
-      </collection>
+        </description>
+      </link>
     </collection>
   </collection>
   
@@ -208,16 +236,11 @@ Path of the vserver root directory
 
     <link name="run">
       <description>
-Path of the vserver run directory
+Points to a file which will contain the XID of the running vserver. When
+the vserver is stopped, this can be a dangling symlink.
       </description>
     </link>
 
-    <link name="run.rev">
-      <description>
-Path of the vserver run reverse directory
-      </description>
-    </link>
-    
     <list name="bcapabilities">
       <description>
 [experimental; name is subject of possible change] Contains the system capabilities. See
