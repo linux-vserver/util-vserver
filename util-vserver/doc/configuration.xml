@@ -74,7 +74,8 @@
 	  <file name="files">
 	    <description>A list of files which will be made visibly by vprocunhide. Wildcards are
 	    allowed and anything ending in '/' will be processed recursively. When this file exists,
-	    it overrides the defaults in SYSDEFAULTDIR/vprocunhide-files.</description>
+	    it overrides the defaults in SYSDEFAULTDIR/vprocunhide-files. The entries there must be
+	    absolute filenames inclusive the leading '/proc'.</description>
 	  </file>
 	</dir>
 
@@ -391,6 +392,10 @@
 	</file>
 
 	<dir name="iface" type="symbolic">
+	  <description>'iface' is an arbitrary name for the interface; the value itself is not important
+	  but may be interesting regarding interface-creation and usage with 'chbind'. Both happens in
+	  alphabetical order and numbers like '00' are good names for these directories.</description>
+	  
 	  <file name="disabled">
 	    <description>When this file exists, this interface will be ignored.</description>
 	  </file>
@@ -411,7 +416,7 @@
 	    <description>The network-mask.</description>
 	  </file>
 	  <file name="scope">
-	    <description>The scope of the network interfaces.</description>
+	    <description>The scope of the network interface.</description>
 	  </file>
 	  <file name="name">
 	    <description>When this file exists, the interface will be named with the text in this file.</description>
