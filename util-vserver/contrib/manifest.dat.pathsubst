@@ -28,6 +28,7 @@ build  @PKGLIBDIR@/defaults/vunify-exclude
 base   @PKGLIBDIR@/capchroot
 base   @PKGLIBDIR@/chroot-cat
 base   @PKGLIBDIR@/chroot-rm
+base   @PKGLIBDIR@/clearenv
 base   @PKGLIBDIR@/exec-ulimit
 base   @PKGLIBDIR@/fakerunlevel
 base   @PKGLIBDIR@/filetime
