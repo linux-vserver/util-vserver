@@ -86,6 +86,7 @@ PKGCONFIG_FILES =		lib/util-vserver
 lib_SRCS =  			lib/syscall.c \
 				lib/checkversion.c \
 				lib/isdirectory.c \
+				lib/getnbipv4root.c \
 				lib/getversion.c \
 				lib/fmt-32.c \
 				lib/fmt-64.c \
