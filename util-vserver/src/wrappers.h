@@ -228,6 +228,27 @@ Edup2(int oldfd, int newfd)
   return res;
 }
 
+inline static UNUSED void *
+Emalloc(size_t size)
+{
+  register void               *res = malloc(size);
+  FatalErrnoError(res==0 && size!=0, "malloc()");
+  return res;
+}
+
+/*@unused@*/
+inline static /*@null@*//*@only@*/ void *
+Erealloc(/*@only@*//*@out@*//*@null@*/ void *ptr,
+         size_t new_size)
+    /*@ensures maxSet(result) == new_size@*/
+    /*@modifies *ptr@*/
+{
+  register void         *res = realloc(ptr, new_size);
+  FatalErrnoError(res==0 && new_size!=0, "realloc()");
+
+  return res;
+}
+
 #undef WRAPPER_DECL
 
 #endif	//  H_UTIL_VSERVER_SRC_WRAPPERS_H
