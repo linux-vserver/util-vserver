@@ -33,3 +33,10 @@ String_c_str(String const *str, char *buf)
   buf[str->l] = '\0';
   return buf;
 }
+
+
+static inline UNUSED void
+String_free(String *str)
+{
+  free((char *)(str->d));
+}
