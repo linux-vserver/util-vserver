@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.28.190, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.28.191, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -114,16 +114,23 @@ AC_ARG_ENABLE([apis],
 
 test x"$enable_apis" != xALL || enable_apis='legacy,compat,v11,v13,fscompat'
 enable_api_oldproc=
+enable_api_olduts=
 old_IFS=$IFS
 IFS=,;
 for i in $enable_apis; do
 	case "$i" in
 		compat)		AC_DEFINE(VC_ENABLE_API_COMPAT,   1, [Enable support for compatibility syscall API])
-				enable_api_oldproc=1;;
+				enable_api_oldproc=1
+				enable_api_olduts=1
+				;;
 		legacy) 	AC_DEFINE(VC_ENABLE_API_LEGACY,   1, [Enable support for old, /proc parsing API])
-				enable_api_old_proc=1;;
+				enable_api_old_proc=1
+				enable_api_olduts=1
+				;;
 		v11)    	AC_DEFINE(VC_ENABLE_API_V11,      1, [Enable support for API of vserver 1.1.x])
-				enable_api_oldproc=1;;
+				enable_api_oldproc=1
+				enable_api_olduts=1
+				;;
 		v13)    	AC_DEFINE(VC_ENABLE_API_V13,      1, [Enable support for API of vserver 1.3.x]);;
 		fscompat)	AC_DEFINE(VC_ENABLE_API_FSCOMPAT, 1, [Enable support for filesystem compatibility API]);;
 		*)		AC_MSG_ERROR(['$i' is not a supported API]);;
@@ -133,6 +140,10 @@ IFS=$old_IFS
 if test x"$enable_api_oldproc" != x; then
 	AC_DEFINE(VC_ENABLE_API_OLDPROC, 1, [Enable API for a backward compatible /proc parsing])
 	enable_apis="$enable_apis,oldproc"
+fi
+if test x"$enable_api_olduts" != x; then
+	AC_DEFINE(VC_ENABLE_API_OLDUTS, 1, [Enable API for a backward compatible uts handling])
+	enable_apis="$enable_apis,olduts"
 fi
 AC_MSG_RESULT([$enable_apis])
 
