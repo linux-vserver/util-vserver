@@ -37,6 +37,7 @@ Unify_unify(char const *src, struct stat const UNUSED *src_stat,
   char		tmpfile[l + sizeof(";XXXXXX")];
   int		fd;
   bool		res = false;
+  struct stat	st;
 
   // at first, set the ILI flags on 'src'
   if (vc_set_iattr(src,
@@ -45,33 +46,39 @@ Unify_unify(char const *src, struct stat const UNUSED *src_stat,
 		   VC_IATTR_IUNLINK|VC_IATTR_IMMUTABLE)==-1)
     return false;
 
-  // now, create a temporary filename
-  memcpy(tmpfile,   dst, l);
-  memcpy(tmpfile+l, ";XXXXXX", 8);
-  fd = mkstemp(tmpfile);
-  close(fd);
+  // check if 'dst' already exists
+  if (lstat(dst, &st)==0) {
+      // now, create a temporary filename
+    memcpy(tmpfile,   dst, l);
+    memcpy(tmpfile+l, ";XXXXXX", 8);
+    fd = mkstemp(tmpfile);
+    close(fd);
 
-  if (fd==-1) {
-    perror("mkstemp()");
-    return false;
+    if (fd==-1) {
+      perror("mkstemp()");
+      return false;
+    }
+
+      // and rename the old file to this name
+
+      // NOTE: this rename() is race-free; when an attacker makes 'tmpfile' a
+      // directory, the operation would fail; when making it a symlink to a file
+      // or directory, the symlink but not the file/directory would be overridden
+    if (rename(dst, tmpfile)==-1) {
+      perror("rename()");
+      goto err;
+    }
   }
-
-  // and rename the old file to this name
-
-  // NOTE: this rename() is race-free; when an attacker makes 'tmpfile' a
-  // directory, the operation would fail; when making it a symlink to a file
-  // or directory, the symlink but not the file/directory would be overridden
-  if (rename(dst, tmpfile)==-1) {
-    perror("rename()");
-    goto err;
-  }
+  else
+    tmpfile[0] = '\0';
 
   // now, link the src-file to dst
   if (link(src, dst)==-1) {
     perror("link()");
 
     unlink(dst);
-    if (rename(tmpfile, dst)==-1) {
+    if (tmpfile[0]!='\0' &&
+	rename(tmpfile, dst)==-1) {
       perror("FATAL error in rename()");
       _exit(1);
     }
@@ -81,7 +88,8 @@ Unify_unify(char const *src, struct stat const UNUSED *src_stat,
   res = true;
 
   err:
-  unlink(tmpfile);
+  if (tmpfile[0]!='\0')
+    unlink(tmpfile);
 
   return res;
 }
