@@ -62,7 +62,8 @@ scripts_legacy_src_SCRPTS =	scripts/legacy/save_s_context \
 				scripts/legacy/vserverkillall
 scripts_legacy_gen_SCRPTS =	scripts/legacy/vps
 
-scripts_sbin_src_PRGS =		scripts/vapt-get \
+scripts_sbin_src_PRGS =		scripts/chcontext \
+				scripts/vapt-get \
 				scripts/vpstree \
 				scripts/vrpm \
 				scripts/vserver \
