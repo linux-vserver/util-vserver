@@ -19,12 +19,10 @@
 #ifndef H_VSERVER_SYSCALL_INTERNAL_H
 #define H_VSERVER_SYSCALL_INTERNAL_H
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <syscall.h>
-#include <unistd.h>
 #include <asm/unistd.h>
+#include <syscall.h>
 #include <errno.h>
+#include <stdint.h>
 
 #ifndef __NR_sys_virtual_context
 #  define __NR_sys_virtual_context	273
@@ -64,26 +62,10 @@
 #  define CALL_VC_LEGACY(F,...) CALL_VC_NOOP
 #endif
 
-
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef HAVE_SYS_VIRTUAL_CONTEXT
 static UNUSED
 _syscall3(int, sys_virtual_context,
 	  uint32_t, cmd, uint32_t, id, void *, data)
 #endif
-
-size_t		utilvserver_uint2str(char *buf, size_t len,
-				     unsigned int val, unsigned char base);
-int		utilvserver_checkCompatVersion();
-
-#ifdef __cplusplus
-}
-#endif
-
 
 #endif	//  H_VSERVER_SYSCALL_INTERNAL_H
