@@ -146,8 +146,9 @@ parseSecure(struct vc_ctx_flags UNUSED * flags,
   caps->bcaps = ~vc_get_insecurebcaps();
   caps->bmask = ~0ull;
 
-  flags->flagword = ~vc_get_insecureflags();
-  flags->mask     =  vc_get_insecureflags();
+    // TODO: generalize this
+  flags->flagword = VC_VXF_HIDE_NETIF;
+  flags->mask     = VC_VXF_HIDE_NETIF;
 }
 
 int main(int argc, char *argv[])
