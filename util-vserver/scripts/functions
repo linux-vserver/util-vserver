@@ -276,12 +276,29 @@ function _pkgSetVarsApt
     test -z "$APT_CONFIG" || export APT_CONFIG
 }
 
+function _pkgSetVarsYum
+{
+    if test "$PKGDIR"; then
+	findDir YUMETCDIR    $PKGDIR/yumetc      $PKGDIR/base/yum/etc       /etc
+	findDir YUMCACHEDIR  $PKGDIR/yumcache    $PKGDIR/base/yum/cache
+    else
+	findDir YUMETCDIR    "$VDIR"/etc       	 /etc
+	findDir YUMCACHEDIR  "$VDIR"/var/cache/yum
+    fi
+}
+
+
 function _pkgMountBase
 {
     :
 }
 
 function _pkgMountApt
+{
+    :
+}
+
+function _pkgMountYum
 {
     :
 }
@@ -317,6 +334,11 @@ function _pkgSetEnvApt
     :
 }
 
+function _pkgSetEnvYum
+{
+    :
+}
+
 function _pkgSetEnvRPM
 {
     CUR_VSERVER=$vserver
@@ -337,6 +359,7 @@ function pkgInit
 	case "$i" in
 	    rpm)	_pkgSetVarsRPM;;
 	    apt)	_pkgSetVarsApt;;
+	    yum)	_pkgSetVarsYum;;
 	    *)		echo "Unknown packaging flavor" >&2; exit 1;;
 	esac
     done
@@ -346,6 +369,7 @@ function pkgInit
 	case "$i" in
 	    rpm)	_pkgMountRPM;;
 	    apt)	_pkgMountApt;;
+	    yum)	_pkgMountYum;;
 	esac
     done
 
@@ -354,6 +378,7 @@ function pkgInit
 	case "$i" in
 	    rpm)	_pkgSetEnvRPM;;
 	    apt)	_pkgSetEnvApt;;
+	    yum)	_pkgSetEnvYum;;
 	esac
     done
 
@@ -601,6 +626,28 @@ function pkgmgmt.isAptAvailable
     test "$have_apt" && return 0 || return 1
 }
 
+## Usage: pkgmgmt.isYumAvailable <cfgdir> <vdir> [<is-internal>]
+function pkgmgmt.isYumAvailable
+{
+    local cfgdir="$1"
+    local vdir="$2"
+    local is_internal="$3"
+    
+    local have_yum i
+    if test "$is_internal"; then
+	have_yum=1
+	test -d "$cfgdir"/base/yum -o -d "$cfgdir"/yumetc || have_yum=
+    else
+	have_yum=
+	for i in /bin /usr/bin /usr/local/bin; do
+	    test ! -x "$vdir$i"/yum || { have_yum=1; break; }
+	done
+    fi
+
+    test "$have_yum" && return 0 || return 1
+}
+
+
 function vshelper.doSanityCheck
 {
     local vshelper this_xid i
@@ -799,4 +846,51 @@ function vshelper.getSyncTimeout
     test "$_vgst_file" || return 1
     read _vgst_tmp <"$_vgst_file"
     eval $2=\$_vgst_tmp
+}
+
+
+function _rpmFake.getCapFlags
+{
+    local ctx=$1
+    
+    if test "$ctx" && ! $_VSERVER_INFO - FEATURE migrate; then
+	set -- $($_CHCONTEXT_COMPAT --xid 1 \
+	    $_SH -c "$_CAT /proc/[0-9]*/status | $_EGREP '^(CapBset|s_context|ctxflags)'" | \
+	    $_GREP -B 1 -A 1 "^s_context: $ctx " | \
+	    $_SED -e '1,3p;d' | $_AWK '{ print $2 }')
+    else
+	set --
+    fi
+
+    if test "$3"; then
+	RPM_FAKE_CAP=$[ ~0x$1 ]
+	RPM_FAKE_FLAGS=$3
+    else
+	RPM_FAKE_CAP=$[ ~0xd40c04ff ]
+	RPM_FAKE_FLAGS=4
+    fi
+}
+
+function rpmFake.init
+{
+    local vdir ctx
+    
+    vdir=$($_VSERVER_INFO "$1" VDIR)    || vdir="$1"
+    ctx=$($_VSERVER_INFO  "$1" CONTEXT) || ctx=
+
+    test -d "$vdir" ||
+	panic $"Can not find chroot environment at '$vdir' for '$1'"
+
+    _rpmFake.getCapFlags "$ctx"
+
+    RPM_FAKE_CHROOT=$vdir
+    RPM_FAKE_CTX=$ctx
+}
+
+function rpmFake.exec
+{
+    export RPM_FAKE_CHROOT RPM_FAKE_CTX RPM_FAKE_CAP RPM_FAKE_FLAGS
+    
+    LD_PRELOAD=$_RPM_FAKE_SO${LD_PRELOAD:+:$LD_PRELOAD} \
+	exec "$@"
 }
