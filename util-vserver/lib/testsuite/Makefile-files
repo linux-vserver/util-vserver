@@ -15,11 +15,18 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-lib_testsuite_DIETPROGS =	lib/testsuite/flags
+lib_testsuite_DIETPROGS =	lib/testsuite/flags \
+				lib/testsuite/fmt
 
-lib_testsuite_PRGS =		lib/testsuite/flags
-lib_testsuite_TSTS =		lib/testsuite/flags
+lib_testsuite_PRGS =		lib/testsuite/flags \
+				lib/testsuite/fmt
+lib_testsuite_TSTS =		lib/testsuite/flags \
+				lib/testsuite/fmt
 
 lib_testsuite_flags_SOURCES =	lib/testsuite/flags.c
 lib_testsuite_flags_LDADD =	lib/libvserver.la
 lib_testsuite_flags_LDFLAGS =	$(VSERVER_LDFLAGS)
+
+lib_testsuite_fmt_SOURCES =	lib/testsuite/fmt.c
+lib_testsuite_fmt_LDADD =	lib/libvserver.la
+lib_testsuite_fmt_LDFLAGS =	$(VSERVER_LDFLAGS)
