@@ -39,3 +39,9 @@ Erealloc(/*@only@*//*@out@*//*@null@*/ void *ptr,
 
   return res;
 }
+
+inline static WRAPPER_DECL void
+Esetenv(char const *key, char const *val, int override)
+{
+  FatalErrnoError(setenv(key,val,override)==-1, "setenv()");
+}
