@@ -188,7 +188,10 @@ test x"$ensc_cv_c99_c99compiler"    = xno || ensc_c99_affected=
 test x"$ensc_have_dietlibc"         = xno || ensc_diet_msg=
 test x"$ensc_have_dietlibc$ensc_cv_c_dietlibc_compat" = xyesyes || ensc_diet_compat_msg=
 
-FEATURES_TXT="Features:
+AH_BOTTOM([#include "compat.h"])
+AC_CONFIG_COMMANDS_PRE([
+			FEATURES_TXT="\
+Features:
 		       CC: $CC, $($CC   --version | sed -e '1p;d')
                       CXX: $CXX, $($CXX --version | sed -e '1p;d')
                  CPPFLAGS: '$CPPFLAGS'
@@ -212,9 +215,8 @@ Paths:
             Kernelheaders: $kernelincludedir
           vserver-Rootdir: $vserverdir
 "
-
-AH_BOTTOM([#include "compat.h"])
-AC_CONFIG_COMMANDS_PRE([echo "$FEATURES_TXT" >FEATURES.txt])
+			echo "$FEATURES_TXT" >FEATURES.txt
+			])
 AC_CONFIG_FILES([util-vserver.spec Makefile distrib/Makefile lib/apidoc/Doxyfile])
 AC_OUTPUT
 
