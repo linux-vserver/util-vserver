@@ -235,7 +235,7 @@ case "$2" in
     (pkgmgmt)
 	op=$3
 	shift 3
-	exec $_PKGMGMT ${op:+--$op} "$@" -- "$vserver"
+	exec $_VNAMESPACE --new -- $_PKGMGMT ${op:+--$op} "$@" -- "$vserver"
 	;;
 
     (apt-get|apt-config|apt-cache)

@@ -24,6 +24,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 . "$UTIL_VSERVER_VARS"
 . "$_LIB_FUNCTIONS"
 . "$_LIB_VSERVER_BUILD_FUNCTIONS_PKGMGMT"
+. "$PKGLIBDIR/vserver.functions"
 
 function showHelp()
 {
@@ -118,6 +119,45 @@ function _unhashAuto()
 	cat "$tmp" >"$1"
 
     rm -f $tmp
+}
+
+function _mountFilesystemsInternal()
+{
+    local fstab="$1"
+    test -e "$fstab" || return 0
+    shift
+    
+    "$@" $_SECURE_MOUNT -n -a --chroot "$vdir" --fstab "$fstab"
+}
+
+function _mountFilesystems()
+{
+    local cfgdir=$($_VSERVER_INFO "$1" CFGDIR) || {
+	echo "Can not determine configuration directory for '$1'; ..." >&2
+	return 1
+    }
+    test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1"
+    
+    _mountFilesystemsInternal "$cfgdir"/fstab       $_CHBIND "${CHBIND_OPTS[@]}" || return 1
+    _mountFilesystemsInternal "$cfgdir"/fstab.local $_CHBIND "${CHBIND_OPTS[@]}" || return 1
+}
+
+function _umountFilesystems()
+{
+    local cfgdir=$($_VSERVER_INFO "$1" CFGDIR) || {
+	echo "Can not determine configuration directory for '$1'; ..." >&2
+	return 1
+    }
+    local vdir=$cfgdir/vdir
+    local is_ok=1
+    test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1"
+
+    pushd "$vdir/" >/dev/null || return 1
+	_umountVserverInternal  "$cfgdir"/fstab.local                              || is_ok=
+	_umountVserverInternal  "$cfgdir"/fstab       $_CHBIND "${CHBIND_OPTS[@]}" || is_ok=
+    popd >/dev/null           || return 1
+    
+    test "$is_ok"
 }
 
 function processVserver_RH()
@@ -290,6 +330,7 @@ function processVserver()
     test -z "$skip" || return 1
 
     local style
+    _mountFilesystems  "$vserver"       || return 1
     pkgmgmt.guessStyle "$vserver" style || return 1
 
     case "$style" in
@@ -299,6 +340,8 @@ function processVserver()
 	    echo $"Vserver style '$style' is not supported for packagemanagment" >&2
 	    return 1
     esac
+
+    _umountFilesystems "$vserver"       || return 1
 }
 
 tmp=$(getopt -o y --long debug,externalize,internalize,help,version -n "$0" -- "$@") || exit 1
