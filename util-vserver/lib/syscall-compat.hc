@@ -29,10 +29,9 @@
 static inline ALWAYSINLINE int
 vc_new_s_context_compat(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
 {
-  struct vcmd_new_s_context_v1	msg = {
-    .remove_cap = remove_cap,
-    .flags      = flags
-  };
+  struct vcmd_new_s_context_v1	msg;
+  msg.remove_cap = remove_cap;
+  msg.flags      = flags;
 
   return sys_virtual_context(VC_CMD(COMPAT, 1, 1), ctx, &msg);
 }
@@ -40,15 +39,15 @@ vc_new_s_context_compat(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
 static inline ALWAYSINLINE int
 vc_set_ipv4root_compat(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips)
 {
-  struct vcmd_set_ipv4root_v3	msg = {
-    .broadcast  = bcast
-  };
+  struct vcmd_set_ipv4root_v3	msg;
   size_t			i;
 
   if (nb>=NB_IPV4ROOT) {
     errno = -EINVAL;
     return -1;
   }
+
+  msg.broadcast = bcast;
 
   for (i=0; i<nb; ++i) {
     msg.ip_mask_pair[i].ip   = ips[i].ip;
