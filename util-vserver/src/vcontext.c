@@ -24,8 +24,6 @@
 #include "lib/internal.h"
 #include "lib_internal/jail.h"
 
-#include "linuxcaps.h"
-
 #include <vserver.h>
 #include <getopt.h>
 #include <fcntl.h>
