@@ -1,3 +1,23 @@
+Version 0.28
+============
+	
+	- BUGFIX: fixed context creation when both fakeinit-flag and a
+	  static context is wanted; previous versions ignored the fakeinit
+	  flag in this situation
+
+	- BUGFIX: vserver-copy: autodetect mktemp/tempfile (reported by
+	  DUCLOS Andre)
+
+	- FEATURE: allow to override start/stop commands of vservers
+	  (patch by Erik Smit)
+
+	- BUGFIX: call 'chkconfig' to fix initscripts *after* generating
+	  the configuration (reported by DUCLOS Andre)
+
+	- call programs with 'exec' on vserver's 'suexec' command (patch
+	  by Alec Thomas)
+
+	
 Version 0.27
 ============
 
