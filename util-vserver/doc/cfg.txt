@@ -1,0 +1,24 @@
+/etc/vservers
+|-- <vserver>
+    |-- [vdir]  ->  /vservers/<vserver>    Link to vserver top-dir
+    |-- apps
+        `-- pkgmgmt
+            |-- base       ->  ...         Link to pkgmgmt cfg-dir
+            |-- aptetc               \
+            |-- aptcache              \
+            |-- aptstate               \   Overriding of cfg-dir values
+            |-- aptarchives            /
+            |-- rpmetc                /
+            |-- rpmstate             /
+            |-- execdir                    Alternative executables
+            `-- rpmlib                     Alternative /usr/lib/rpm dir
+
+
+
+pkgmgmt cfg-dir
+|-- apt/etc
+|-- apt/archives
+|-- apt/cache
+|-- apt/state
+|-- rpm/etc
+`-- rpm/state
