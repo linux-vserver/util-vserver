@@ -18,6 +18,11 @@
 vdir=$1/vdir
 . "$2"
 
+function relink
+{
+    test ! -e "$2" -o -L "$2" || mv -f "$2"{,.orig}
+    ln -s "$1" "$2"
+}
 
 pushd "$vdir"/etc/init.d &>/dev/null ||
     pushd "$vdir"/etc/rc.d/init.d &>/dev/null || exit 1
@@ -33,9 +38,11 @@ pushd "$vdir"/etc/init.d &>/dev/null ||
 	esac
     done
 
-    mv -f halt{,.orig}
-    ln -s /bin/true halt
-    
+    relink /bin/true halt
+popd >/dev/null
+
+pushd "$vdir"/sbin &>/dev/null
+    relink /bin/true new-kernel-pkg
 popd >/dev/null
 
 pushd "$vdir"/etc &>/dev/null
