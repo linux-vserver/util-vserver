@@ -713,3 +713,9 @@ rpm_execcon(unsigned int UNUSED verified,
 
   return removeNamespaceMounts(filename, argv, envp);
 }
+
+int
+is_selinux_enabled()
+{
+  return 0;
+}
