@@ -1,12 +1,12 @@
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
-Release:	1
+Release:	0
 Epoch:		0
-Copyright:	GPL
+License:	GPL
 Group:		System Environment/Base
-Source:		%name-%version.tar.bz2
-Provides:	%name-devel = %epoch:%version-%release
+URL:		http://savannah.nongnu.org/projects/util-vserver/
+Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version//%name-%version.tar.bz2
 BuildRoot:	%_tmppath/%name-%version-%release-root
 Provides:	vserver = %epoch:%version-%release
 Conflicts:	vserver < %epoch:%version
@@ -34,7 +34,7 @@ set_ipv4root system call.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%__make DESTDIR=$RPM_BUILD_ROOT install
+%__make DESTDIR="$RPM_BUILD_ROOT" install
 
 
 %clean
@@ -66,20 +66,12 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 
 
 %files
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %doc AUTHORS COPYING ChangeLog NEWS README THANKS
 %doc doc/FAQ.txt
-%_sbindir/*
-%_libdir/%name
-%_includedir/vserver.h
-%_libdir/libvserver.a
-%_mandir/man8/*
-%config /etc/init.d/*
-%config(noreplace) /etc/vservers/newvserver.defaults
-%config(noreplace) /etc/vservers.conf
 
 
 %changelog
+* Wed Oct  1 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.23.5-0
+- Initial build.
 
-* Fri Sep 26 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.23.4-1
-- initial build.
