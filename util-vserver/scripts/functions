@@ -271,6 +271,7 @@ function getAllVservers
 }
 
 ## Usage: getVserverCtx <vdir> <result-varname> [<procnumber-varname> [<do-cleanup>]]
+## Returns: 0 iff vserver is running
 function getVserverStatus
 {
     test -r "$1"/run || return 1
@@ -283,10 +284,12 @@ function getVserverStatus
     local _tmp=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$_ctx" | $_WC -l )
     eval "$3"=\$_tmp
 
-    test "$4" -o $_tmp != 0 || return 1
-    _tmp=$($_READLINK "$1/run")
-    test "$_tmp" || return 1
-    test -z "$4" || rm -f "$_tmp"
+    if test "$_tmp" = 0; then
+	local runfile=$($_READLINK "$1/run")
+	test -z "$4" || rm -f "$runfile"
+	return 1
+    fi
+
     return 0
 }
 
