@@ -17,7 +17,8 @@
   <xsl:template match="topleveldir[@type='confdir']">
     <head>
       <title>The <xsl:value-of select="$confdir"/> directory</title>
-      <link rel="stylesheet" title="LSD" type="text/css" href="configuration-lsd.css"></link>
+      <link rel="stylesheet" title="LSD"    type="text/css" href="configuration-lsd.css"></link>
+      <link rel="stylesheet" title="boring" type="text/css" href="configuration.css"></link>
     </head>
     <body>
       <h1>The content of the <xsl:value-of select="$confdir"/> directory</h1>
