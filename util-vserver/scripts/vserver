@@ -179,7 +179,7 @@ else
 fi
 
 test "$2" != start -o "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" || \
-    exec $_NEW_NAMESPACE "$0" ----nonamespace "${OPTIONS_ORIG[@]}"
+    exec $_VNAMESPACE --new -- $_VSERVER ----nonamespace "${OPTIONS_ORIG[@]}"
 
 . $PKGLIBDIR/vserver.functions
 case "$2" in
