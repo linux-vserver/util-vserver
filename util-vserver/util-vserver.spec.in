@@ -12,6 +12,7 @@ BuildRoot:	%_tmppath/%name-%version-%release-root
 Provides:	vserver = %epoch:%version-%release
 Conflicts:	vserver < %epoch:%version-%release
 Conflicts:	vserver > %epoch:%version-%release
+BuildRequires:	e2fsprogs-devel
 
 %package linuxconf
 Summary:	Linuxconf administration modules for vservers
