@@ -23,6 +23,7 @@
 #define SBINDIR		"@SBINDIR@"
 #define CONFDIR		"@CONFDIR@"
 #define SYSCONFDIR	"@SYSCONFDIR@"
+#define LOCKDIR		"/var/lock"
 
 #define DEFAULT_VSERVERDIR	"@VSERVERDIR@"
 #define DEFAULT_VSERVERPKGDIR	"@VSERVERPKGDIR@"
@@ -35,5 +36,14 @@
 
 #define VPKG_PROG		PKGLIBDIR "/vpkg"
 #define RESOLVER_PROG		PKGLIBDIR "/rpm-fake-resolver"
+
+#define PROG_IP			"@IP@"
+#define PROG_MODPROBE		"@MODPROBE@"
+#define PROG_NAMEIF		"@NAMEIF@"
+#define PROG_VCONFIG		"@VCONFIG@"
+
+#define PATH_VSERVER_START	PKGLIBDIR "/vserver.start"
+#define PATH_FUNCTIONS		PKGLIBDIR "/functions"
+#define PATH_UTILVSERVER_VARS	PKGLIBDIR "/util-vserver-vars"
 
 #endif	//  H_UTIL_VSERVER_PATHCONFIG_H
