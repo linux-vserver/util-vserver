@@ -64,9 +64,9 @@ function rpm.initFilesystem
 	"$DISTRIBDIR/$DISTRIBUTION/rpm" \
 	"$CONFDIR/.distributions/$DISTRIBUTION/rpm"
 
-    echo "%_dbpath $RPMDB_PATH" >>"$pkgcfg/etc/macros"
+    echo "%_dbpath $RPMDB_PATH" >>"$PKGCFGDIR/rpm/etc/macros"
 
-    test "$RPMLIBDIR"  = / || ln -s "$RPMLIB"  "$confdir/apps/pkgmgmt/rpmlib"
+    test "$RPMLIBDIR"  = / || ln -s "$RPMLIB"  "$SETUP_CONFDIR/apps/pkgmgmt/rpmlib"
 }
 
 function rpm.initDB
