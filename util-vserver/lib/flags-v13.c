@@ -21,45 +21,33 @@
 #endif
 
 #include "vserver.h"
-#include "lib_internal/util-dimof.h"
+#include "internal.h"
+#include <lib_internal/util-dimof.h>
 
 #include <string.h>
 #include <assert.h>
 
 #define DECL(STR, VAL) { STR, sizeof(STR)-1, VAL }
 
-static struct {
-    char const * const		id;
-    size_t			len;
-    unsigned char		val;
-} const FLAGVALUES[] = {
+static struct Mapping_uint64 const VALUES[] = {
   DECL("fakeinit",  S_CTX_INFO_INIT),
 };
 
 uint_least64_t
 vc_text2flag(char const *str, size_t len)
 {
-  size_t	i;
-  if (len==0) len=strlen(str);
-
-  for (i=0; i<sizeof(FLAGVALUES)/sizeof(FLAGVALUES[0]); ++i)
-    if (len==FLAGVALUES[i].len &&
-	strncmp(FLAGVALUES[i].id, str, len)==0)
-      return FLAGVALUES[i].val;
-
-  return 0;
+  ssize_t	idx = utilvserver_value2text_uint64(str, len,
+						    VALUES, DIM_OF(VALUES));
+  if (idx==-1) return 0;
+  else         return VALUES[idx].val;
 }
 
 char const *
-vc_hiflag2text(uint_least64_t val)
+vc_loflag2text(uint_least64_t *val)
 {
-  size_t	i;
-  size_t	idx;
+  ssize_t	idx = utilvserver_text2value_uint64(val,
+						    VALUES, DIM_OF(VALUES));
 
-  for (i=S_CTX_INFO_INIT, idx=DIM_OF(FLAGVALUES); i>0 && idx>0; i/=2) {
-    --idx;
-    if (val & i) return FLAGVALUES[idx].id;
-  }
-
-  return 0;
+  if (idx==-1) return 0;
+  else         return VALUES[idx].id;
 }

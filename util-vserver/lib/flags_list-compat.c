@@ -25,7 +25,7 @@
 
 uint_least32_t
 vc_list2flag_compat(char const *str, size_t len,
-		    char const **err_ptr, size_t *err_len)
+		    struct vc_err_listparser *err)
 {
   uint32_t		res = 0;
 
@@ -43,8 +43,10 @@ vc_list2flag_compat(char const *str, size_t len,
 
     if (tmp!=0) res |= tmp;
     else {
-      if (err_ptr) *err_ptr = str;
-      if (err_len) *err_len = cnt;
+      if (err) {
+	err->ptr = str;
+	err->len = cnt;
+      }
       return res;
     }
 
@@ -52,7 +54,9 @@ vc_list2flag_compat(char const *str, size_t len,
     str = ptr+1;
   }
 
-  if (err_ptr) *err_ptr = 0;
-  if (err_len) *err_len = 0;
+  if (err) {
+    err->ptr = 0;
+    err->len = 0;
+  }
   return res;
 }

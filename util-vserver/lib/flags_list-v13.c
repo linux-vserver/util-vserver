@@ -27,11 +27,12 @@
 
 int
 vc_list2flag(char const *str, size_t len,
-	     char const **err_ptr, size_t *err_len,
-	     uint_least64_t *flag,
-	     uint_least64_t *mask)
+	     struct vc_err_listparser *err,
+	     struct vc_ctx_flags *flags)
 {
-  return utilvserver_listparser_uint64(str, len, err_ptr, err_len,
-				       flag, mask,
+  return utilvserver_listparser_uint64(str, len,
+				       err ? &err->ptr : 0,
+				       err ? &err->len : 0,
+				       &flags->flagword, &flags->mask,
 				       vc_text2flag);
 }
