@@ -453,14 +453,18 @@ function _processSingleInterface
     _getInterfaceValue mac    '' "$iface"
 
     test "$ip" || { echo $"Can not read ip for '$iface'"  >&2; return 1; }
+    test "$dev" -o -e "$iface"/nodev || {
+	echo $"No device specified for '$iface'" >&2
+	return 1;
+    }
 
-    test ! -e "$iface"/down    || up=
-    
-    while test "$dev"; do
+    test ! -e "$iface"/down || up=
+
+    while true; do
 	_transformMask2Prefix prefix "$prefix" "$mask"
 	INTERFACES=( "${INTERFACES[@]}" "$ip${prefix:+/$prefix}" )
 
-	test ! -e "$iface"/nodev || break
+	test ! -e "$iface"/nodev   || break
 	test ! -e "$iface"/only_ip || {
 	    ## LEGACY ALERT
 	    echo $"The 'only_ip' flag for interface '$iface' is deprecated; use 'nodev' instead of" >&2
