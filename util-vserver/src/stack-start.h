@@ -22,7 +22,7 @@
 #ifdef HAVE_GROWING_STACK
 #  define STACK_START(PTR)		(PTR)
 #else
-#  define STACK_START(PTR)		((PTR)+sizeof(PTR)/sizeof(PTR[0]))
+#  define STACK_START(PTR)		((PTR)+sizeof(PTR)/sizeof(PTR[0])-1)
 #endif
 
 #endif	//  H_UTIL_VSERVER_SRC_STACK_START_H
