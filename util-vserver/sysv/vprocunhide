@@ -20,7 +20,7 @@ else
     success() { echo .; }
     passed()  { echo .; }
     failure() { echo ERROR; }
-    lockfile=/dev/null
+    lockfile=/var/run/vprocunhide
 fi
 
 
