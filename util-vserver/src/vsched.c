@@ -28,7 +28,7 @@
 #include <getopt.h>
 #include <libgen.h>
 
-#define ENSC_WRAPPERS_PREFIX	"vschedule: "
+#define ENSC_WRAPPERS_PREFIX	"vsched: "
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_UNISTD	1
 #include <wrappers.h>
@@ -74,7 +74,7 @@ static void
 showVersion()
 {
   WRITE_MSG(1,
-	    "vschedule " VERSION " -- modifies scheduling parameters\n"
+	    "vsched " VERSION " -- modifies scheduling parameters\n"
 	    "This program is part of " PACKAGE_STRING "\n\n"
 	    "Copyright (C) 2003,2004 Enrico Scholz\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
