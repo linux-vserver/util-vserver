@@ -148,5 +148,8 @@ int main(int argc, char *argv[])
     exit(255);
   }
 
-  EexecvpD(argv[optind],argv+optind);
+  if (optind<argc)
+    EexecvpD(argv[optind],argv+optind);
+
+  return EXIT_SUCCESS;
 }
