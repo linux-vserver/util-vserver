@@ -149,8 +149,6 @@ struct  vcmd_ctx_rlimit_mask_v0 {
 
 /* Structure for context's TBF scheduling priorities */
 struct  vcmd_set_sched_v1 {
-       uint32_t options;
-
        int32_t fill_rate;
        int32_t period;
        int32_t fill_level;
