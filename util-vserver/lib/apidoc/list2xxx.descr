@@ -1,4 +1,0 @@
-When the \c `~' prefix is used, the bits will be unset, and the \c `^'
-prefix specifies a bitnumber instead of a bitmask. A `~' after another
-`~' will cancel both ones. The special values for \c NAME will be
-recognized case insensitively.
