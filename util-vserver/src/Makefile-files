@@ -64,6 +64,7 @@ src_DIETPROGS =		src/new-namespace \
 			src/setattr \
 			src/vlimit \
 			src/vunify \
+			src/vuname \
 			src/rpm-fake-resolver \
 			src/vkill \
 			src/vrsetup \
@@ -126,6 +127,7 @@ src_sbin_PRGS =		src/chbind \
 			src/vrsetup \
 			src/vserver-stat \
 			src/vserver-info \
+			src/vuname \
 			$(src_sbin_CXX_X_PROGS)
 
 src_capchroot_SOURCES		=  src/capchroot.c
@@ -221,6 +223,10 @@ src_vunify_SOURCES =		src/vunify.c \
 				src/vunify-debug.c
 src_vunify_LDADD =		lib/libvserver.la
 src_vunify_LDFLAGS =		$(VSERVER_LDFLAGS)
+
+src_vuname_SOURCES =		src/vuname.c
+src_vuname_LDADD =		lib/libvserver.la
+src_vuname_LDFLAGS =		$(VSERVER_LDFLAGS)
 
 src_rpm_fake_la_SOURCES		=  src/rpm-fake.c
 src_rpm_fake_la_CFLAGS		=  $(AM_CFLAGS)
