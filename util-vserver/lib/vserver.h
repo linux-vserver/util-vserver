@@ -258,7 +258,7 @@ extern "C" {
      *  \param remove_cap  The linux capabilities which will be \b removed.
      *  \param flags       Special flags which will be set.
      *
-     *  \returns  The new context-id, or VC_NOCTX on errors; errno
+     *  \returns  The new context-id, or VC_NOCTX on errors; \c errno
      *	          will be set appropriately
      *
      *  See http://vserver.13thfloor.at/Stuff/Logic.txt for details */
@@ -287,7 +287,7 @@ extern "C" {
      *  \param xid  The new context; special values are:
      *	- VC_DYNAMIC_XID which means to create a dynamic context
      *
-     *	\returns the xid of the created context, or VC_NOCTX on errors. errno
+     *	\returns the xid of the created context, or VC_NOCTX on errors. \c errno
      *	         will be set appropriately. */
   xid_t	vc_ctx_create(xid_t xid);
 
@@ -602,11 +602,20 @@ extern "C" {
     return vc_set_iattr(filename, xid, 0, VC_IATTR_XID);
   }
   
-  inline static xid_t	vc_getfilecontext(char const *filename) {
-    xid_t	res;
-    if (vc_get_iattr(filename, &res, 0,0)==-1) return VC_NOCTX;
-    return res;
-  }
+  /** \brief   Returns the context of \c filename
+   *  \ingroup syscalls
+   *
+   *  This function calls vc_get_iattr() with appropriate arguments to
+   *  determine the context of \c filename. In error-case or when no context
+   *  is assigned, \c VC_NOCTX will be returned. To differ between both cases,
+   *  \c errno must be examined.
+   *
+   *  \b WARNING: this function can modify \c errno although no error happened.
+   *
+   *  \param   filename  The file to check
+   *  \returns The assigned context, or VC_NOCTX when an error occured or no
+   *           such assignment exists. \c errno will be 0 in the latter case */
+  xid_t		vc_getfilecontext(char const *filename) VC_ATTR_NONNULL((1));
 
 
   struct vc_set_sched {
