@@ -114,6 +114,8 @@ function _renameVserverCfg
     done
 }
 
+
+## Usage: getDistribution [<default>]
 function getDistribution
 {
     test -z "$DISTRIBUTION" || return 0
@@ -136,6 +138,8 @@ function getDistribution
     elif test -e /etc/slackware-release; then
 	set -- $(cat /etc/slackware-release)
 	DISTRIBUTION=slackware$2
+    elif test -n "$1"; then
+	DISTRIBUTION=$1
     else
 	echo \
 "Can not determine distribution; please specify it manually
