@@ -47,6 +47,7 @@ build  @PKGLIBDIR@/rpm-fake-resolver
 base   @PKGLIBDIR@/save_ctxinfo
 base   @PKGLIBDIR@/secure-mount
 base   @PKGLIBDIR@/showperm
+base   @PKGLIBDIR@/start-vservers
 build  @PKGLIBDIR@/vapt-get-worker
 @ENSC_HAVE_CXX_COMPILER_TRUE@build  @PKGLIBDIR@/vbuild
 @ENSC_HAVE_CXX_COMPILER_TRUE@build  @PKGLIBDIR@/vcheck
