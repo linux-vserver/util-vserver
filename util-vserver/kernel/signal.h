@@ -13,7 +13,7 @@ struct  vcmd_ctx_kill_v0 {
 };
 
 #ifdef	__KERNEL__
-extern int vc_ctx_kill(uint32_t, void *);
+extern int vc_ctx_kill(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 #endif	/* _VX_SIGNAL_H */

@@ -52,6 +52,7 @@ static inline int vx_info_proc_limit(struct _vx_limit *limit, char *buffer)
 #ifndef _VX_LIMIT_H
 #define _VX_LIMIT_H
 
+#include <linux/compiler.h>
 #include "switch.h"
 
 /*  rlimit vserver commands */
@@ -78,9 +79,9 @@ struct  vcmd_ctx_rlimit_mask_v0 {
 #define CRLIM_KEEP		(~1ULL)
 
 #ifdef	__KERNEL__
-extern int vc_get_rlimit(uint32_t, void *);
-extern int vc_set_rlimit(uint32_t, void *);
-extern int vc_get_rlimit_mask(uint32_t, void *);
+extern int vc_get_rlimit(uint32_t, void __user *);
+extern int vc_set_rlimit(uint32_t, void __user *);
+extern int vc_get_rlimit_mask(uint32_t, void __user *);
 
 struct sysinfo;
 

@@ -38,15 +38,24 @@ struct  vcmd_ctx_iattr_v1 {
 #define	IATTR_IUNLINK	0x00020000
 #define	IATTR_IMMUTABLE	0x00040000
 
+
+#ifdef	CONFIG_PROC_SECURE
+#define	IATTR_PROC_DEFAULT	( IATTR_ADMIN | IATTR_HIDE )
+#define	IATTR_PROC_SYMLINK	( IATTR_ADMIN )
+#else
+#define	IATTR_PROC_DEFAULT	( IATTR_ADMIN )
+#define	IATTR_PROC_SYMLINK	( IATTR_ADMIN )
+#endif
+
 #ifdef	__KERNEL__
 
 #define vx_hide_check(c,m)      (((m) & IATTR_HIDE) ? vx_check(c,m) : 1)
 
-extern int vc_get_iattr_v0(uint32_t, void *);
-extern int vc_set_iattr_v0(uint32_t, void *);
+extern int vc_get_iattr_v0(uint32_t, void __user *);
+extern int vc_set_iattr_v0(uint32_t, void __user *);
 
-extern int vc_get_iattr(uint32_t, void *);
-extern int vc_set_iattr(uint32_t, void *);
+extern int vc_get_iattr(uint32_t, void __user *);
+extern int vc_set_iattr(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 

@@ -2,6 +2,7 @@
 #define _VX_NAMESPACE_H
 
 #include <linux/types.h>
+#include <linux/compiler.h>
 
 	
 /* virtual host info names */
@@ -27,8 +28,8 @@ enum vx_vhi_name_field {
 
 
 #ifdef	__KERNEL__
-extern int vc_set_vhi_name(uint32_t, void *);
-extern int vc_get_vhi_name(uint32_t, void *);
+extern int vc_set_vhi_name(uint32_t, void __user *);
+extern int vc_get_vhi_name(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 
@@ -44,9 +45,9 @@ struct fs_struct;
 
 extern int vx_set_namespace(struct vx_info *, struct namespace *, struct fs_struct *);
 
-extern int vc_enter_namespace(uint32_t, void *);
-extern int vc_cleanup_namespace(uint32_t, void *);
-extern int vc_set_namespace(uint32_t, void *);
+extern int vc_enter_namespace(uint32_t, void __user *);
+extern int vc_cleanup_namespace(uint32_t, void __user *);
+extern int vc_set_namespace(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 #endif	/* _VX_NAMESPACE_H */

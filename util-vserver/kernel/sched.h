@@ -87,8 +87,8 @@ struct  vcmd_set_sched_v2 {
 
 #ifdef	__KERNEL__
 
-extern int vc_set_sched_v1(uint32_t, void *);
-extern int vc_set_sched(uint32_t, void *);
+extern int vc_set_sched_v1(uint32_t, void __user *);
+extern int vc_set_sched(uint32_t, void __user *);
 
 
 #define VAVAVOOM_RATIO		50

@@ -80,7 +80,7 @@ extern int vx_migrate_task(struct task_struct *, struct vx_info *);
 #define	VCMD_task_nid		VC_CMD(VINFO, 2, 0)
 
 #ifdef	__KERNEL__
-extern int vc_task_xid(uint32_t, void *);
+extern int vc_task_xid(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 
@@ -94,7 +94,7 @@ struct  vcmd_vx_info_v0 {
 };
 
 #ifdef	__KERNEL__
-extern int vc_vx_info(uint32_t, void *);
+extern int vc_vx_info(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 
@@ -102,8 +102,8 @@ extern int vc_vx_info(uint32_t, void *);
 #define VCMD_migrate_context	VC_CMD(PROCMIG, 1, 0)
 
 #ifdef	__KERNEL__
-extern int vc_create_context(uint32_t, void *);
-extern int vc_migrate_context(uint32_t, void *);
+extern int vc_create_context(uint32_t, void __user *);
+extern int vc_migrate_context(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 
@@ -116,8 +116,8 @@ struct  vcmd_ctx_flags_v0 {
 };
 
 #ifdef	__KERNEL__
-extern int vc_get_flags(uint32_t, void *);
-extern int vc_set_flags(uint32_t, void *);
+extern int vc_get_flags(uint32_t, void __user *);
+extern int vc_set_flags(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 
@@ -158,8 +158,8 @@ struct  vcmd_ctx_caps_v0 {
 };
 
 #ifdef	__KERNEL__
-extern int vc_get_ccaps(uint32_t, void *);
-extern int vc_set_ccaps(uint32_t, void *);
+extern int vc_get_ccaps(uint32_t, void __user *);
+extern int vc_set_ccaps(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 
