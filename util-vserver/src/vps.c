@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
   }
     
   if (vc_get_task_xid(0)!=1)
-    Evc_new_s_context(1, vc_get_securecaps(), 0);
+    Evc_new_s_context(1, vc_get_insecurecaps(), 0);
 
   Epipe(p);
   pid = Efork();

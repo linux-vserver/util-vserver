@@ -412,7 +412,7 @@ extern "C" {
   int		vc_text2cap(char const *);
   char const *	vc_cap2text(unsigned int);
 
-  inline static uint_least32_t	vc_get_securecaps() {
+  inline static uint_least32_t	vc_get_insecurecaps() {
     return ( (1<<VC_CAP_LINUX_IMMUTABLE) | (1<<VC_CAP_NET_BROADCAST) |
 	     (1<<VC_CAP_NET_ADMIN) | (1<<VC_CAP_NET_RAW) |
 	     (1<<VC_CAP_IPC_LOCK) | (1<<VC_CAP_IPC_OWNER) |

@@ -197,7 +197,7 @@ setupContext(xid_t xid, char const **xid_str)
 
       caps.ccaps = ~0ull;
       caps.cmask = ~0ull;
-      caps.bcaps = ~vc_get_securecaps();
+      caps.bcaps = ~vc_get_insecurecaps();
       caps.bmask = ~0ull;
       Evc_set_ccaps(rc, &caps);
       

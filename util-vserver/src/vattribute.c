@@ -70,7 +70,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd,
 	    " --set [--xid <xid>] [--bcap [~!]<cap>] [--ccap [~!]<cap>] [--flag [~!]<flag>] [--secure] -- [<program> <args>*]\n"
 	    "\n"
-	    " --bcap <cap>   ...  system capability to be removed\n"
+	    " --bcap <cap>   ...  system  capability to be added\n"
 	    " --cap  <cap>   ...  context capability to be added\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
@@ -143,7 +143,7 @@ parseSecure(struct vc_ctx_flags UNUSED * flags,
 {
   caps->ccaps = ~0ull;
   caps->cmask = ~0ull;
-  caps->bcaps =  vc_get_securecaps();
+  caps->bcaps = ~vc_get_insecurecaps();
   caps->bmask = ~0ull;
 }
 
@@ -178,7 +178,6 @@ int main(int argc, char *argv[])
   }
 
   if (args.xid==VC_NOCTX) args.xid = Evc_get_task_xid(0);
-  args.caps.bcaps = ~args.caps.bcaps;
 
   if ((args.caps.cmask || args.caps.bmask) &&
       vc_set_ccaps(args.xid, &args.caps)==-1)
