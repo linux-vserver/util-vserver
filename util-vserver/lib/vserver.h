@@ -99,6 +99,16 @@
 #define VC_IMMUTABLE_LINK_FL		0x00008000l
 #define VC_IMMUTABLE_ALL		(VC_IMMUTABLE_LINK_FL|VC_IMMUTABLE_FILE_FL)
 
+#define VC_IATTR_XID			0x01000000
+
+#define VC_IATTR_ADMIN			0x00000001
+#define VC_IATTR_WATCH			0x00000002
+#define VC_IATTR_HIDE			0x00000004
+
+#define VC_IATTR_BARRIER		0x00010000
+#define	VC_IATTR_IUNLINK		0x00020000
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -159,13 +169,21 @@ extern "C" {
   pid_t	vc_X_getinitpid(pid_t pid);
 
 
-  xid_t		vc_X_get_filecontext(int fd);
-  int		vc_X_set_filecontext(int fd, xid_t ctx);
+  int		vc_set_iattr(dev_t dev, ino_t ino, xid_t xid,  uint32_t flags, uint32_t mask); 
+  int		vc_get_iattr(dev_t dev, ino_t ino, xid_t * /*@null@*/ xid,
+			     uint32_t * /*@null@*/ flags, uint32_t * /*@null@*/ mask);
 
-  int		vc_X_get_ext2flags(int fd, long *flags);
-  int		vc_X_set_ext2flags(int fd, long set_flags, long del_flags);
+  int		vc_set_iattr_compat(char const *filename,
+				    dev_t dev, ino_t ino, xid_t xid,
+				    uint32_t flags, uint32_t mask);
 
-
+  int		vc_get_iattr_compat(char const *filename,
+				    dev_t dev, ino_t ino,
+				    xid_t    * /*@null@*/ xid,
+				    uint32_t * /*@null@*/ flags,
+				    uint32_t * /*@inout@*/ mask);
+  
+  
   int		vc_text2cap(char const *);
   char const *	vc_cap2text(int);
 
@@ -180,6 +198,16 @@ extern "C" {
 	     (1<<VC_CAP_MKNOD) | (1<<VC_CAP_QUOTACTL) );
   }
 
+  inline static int		vc_setfilecontext(dev_t dev, ino_t ino, xid_t xid) {
+    return vc_set_iattr(dev, ino, xid, 0, VC_IATTR_XID);
+  }
+  
+  inline static xid_t		vc_getfilecontext(dev_t dev, ino_t ino) {
+    xid_t	res;
+    if (vc_get_iattr(dev, ino, &res, 0,0)==-1) return VC_NOCTX;
+    return res;
+  }
+  
   
   /* The management part */
 
