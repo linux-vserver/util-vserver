@@ -65,6 +65,7 @@ _VSERVER="$SBINDIR/vserver"
 _VSERVER_LEGACY="$LEGACYDIR/vserver"
 _VSERVER_BUILD="$PKGLIBDIR/vserver-build"
 _VSERVER_INFO="$SBINDIR/vserver-info"
+_VUNAME="$SBINDIR/vuname"
 _VUNIFY="$PKGLIBDIR/vunify"
 
 _AWK="@AWK@"
