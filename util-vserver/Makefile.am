@@ -18,6 +18,7 @@
 #  
 
 ACLOCAL_AMFLAGS		=  -I m4
+SUBDIRS			=  . distrib
 
 sysvdir			=  $(sysconfdir)/init.d
 confdir			=  $(sysconfdir)/vservers
@@ -27,8 +28,8 @@ noinst_HEADERS		=  $(src_HDRS)
 
 lib_LIBRARIES		=  $(lib_lib_LIBS)
 
-pkglib_SCRIPTS		=  $(distrib_SCRPTS) $(scripts_SCRPTS)
-pkglib_DATA		=  $(distrib_DAT) $(scriptscfg_DATA)
+pkglib_SCRIPTS		=  $(scripts_SCRPTS)
+pkglib_DATA		=  $(scriptscfg_DATA)
 pkglib_PROGRAMS		=  $(src_pkglib_PRGS)
 
 sbin_SCRIPTS		=  $(scripts_PRGS)
@@ -43,8 +44,7 @@ BUILT_SOURCES		=  linuxcaps.h
 
 man_MANS		=  $(man_DATMAN)
 
-EXTRA_DIST		=  $(distrib_SCRPTS) $(distrib_DAT) \
-			   $(sysv_XTRAS) $(sysv_CFG) \
+EXTRA_DIST		=  $(sysv_XTRAS) $(sysv_CFG) \
                            $(doc_DAT) $(man_DATMAN) \
 			   $(scripts_SCRPTS) $(scripts_PRGS) $(scripts_XTRAS) \
 			   vserver.spec newvserver.defaults \
@@ -68,7 +68,6 @@ linuxcaps.h:
 
 include $(top_srcdir)/lib/Makefile-files
 include $(top_srcdir)/src/Makefile-files
-include $(top_srcdir)/distrib/Makefile-files
 include $(top_srcdir)/doc/Makefile-files
 include $(top_srcdir)/man/Makefile-files
 include $(top_srcdir)/scripts/Makefile-files
