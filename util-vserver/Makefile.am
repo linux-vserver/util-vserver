@@ -80,7 +80,8 @@ TESTS =
 
 TESTS_ENVIRONMENT =
 
-AM_CPPFLAGS		=  -I $(top_srcdir)/lib -I $(top_srcdir)/ensc_wrappers -D _GNU_SOURCE $(RELEASE_CPPFLAGS)
+AM_CPPFLAGS		=  -I $(top_srcdir)/lib -I $(top_srcdir)/ensc_wrappers \
+			   -D_GNU_SOURCE -D_REENTRANT $(RELEASE_CPPFLAGS)
 
 CLEANFILES =		$(BUILT_SOURCES) \
 			.*.pathsubst.stamp */.*.pathsubst.stamp */*/.*.pathsubst.stamp \
@@ -112,6 +113,15 @@ endif
 
 VSERVER_LDADDS =	lib/libvserver.la  $(DIET_COMPAT_LDADDS)
 
+silent.%:		FORCE
+			@t=$$(mktemp /tmp/build.XXXXXX) && \
+			$(MAKE) '$*' -s 2>$$t >/dev/null && \
+			( cat $$t | \
+				grep -v ': In function' | \
+				grep -v 'your code still has assertions enabled' | \
+				grep -v ' is obsoleted' | \
+				grep -v 'warning: #warning'; \
+				rm -f $$t || : )
 
 linuxcaps.h:		${kernelincludedir}/linux/capability.h Makefile
 			@rm -f $@
@@ -248,9 +258,13 @@ include $(top_srcdir)/sysv/Makefile-files
 include $(top_srcdir)/contrib/Makefile-files
 include $(top_srcdir)/ensc_vector/Makefile-files
 include $(top_srcdir)/ensc_wrappers/Makefile-files
+include $(top_srcdir)/ensc_fmt/Makefile-files
 include $(top_srcdir)/lib_internal/Makefile-files
+include $(top_srcdir)/vserver-start/Makefile-files
 
 include $(top_srcdir)/m4/gpgsig.am
 include $(top_srcdir)/m4/validate.am
 include $(top_srcdir)/m4/changelog.am
 include $(top_srcdir)/m4/pkgconfig.am
+
+.PHONY:		FORCE
