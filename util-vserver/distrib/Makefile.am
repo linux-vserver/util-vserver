@@ -1,11 +1,10 @@
-## $Id$  -*- makefile -*-
+## $Id$
 
 ## Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 ##  
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
-## the Free Software Foundation; either version 2, or (at your option)
-## any later version.
+## the Free Software Foundation; version 2 of the License.
 ##  
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,18 +15,11 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-distrib_SCRPTS		= distrib/install-mdk8.2 \
-			  distrib/install-post.sh \
-			  distrib/install-pre.sh \
-			  distrib/install-rh7.2 \
-			  distrib/install-rh7.3 \
-			  distrib/install-rh8.0 \
-			  distrib/install-rh9.0 \
-			  distrib/sample.sh
+distribdir		=  $(pkglibdir)
 
-distrib_DAT		= distrib/mdk8.2-minimum \
-			  distrib/rh7.3-minimum \
-			  distrib/rh8.0-minimum \
-			  distrib/rh9.0-minimum \
-			  distrib/sample.conf
+nobase_distrib_DATA	=  defaults/devs \
+			   defaults/rpm/macros \
+			   rh9/pkgs/01 rh9/pkgs/02 \
+			   rh9.0.93/pkgs/01 rh9.0.93/pkgs/02
 
+EXTRA_DIST		=  $(nobase_distrib_DATA)
