@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.23.194, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.23.195, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -84,61 +84,13 @@ else
 	AC_MSG_RESULT(yes)
 fi
 
-AC_MSG_CHECKING([whether to enable dietlibc])
-AC_ARG_ENABLE([dietlibc],
-	      [AC_HELP_STRING([--disable-dietlibc],
-			      [do not use dietlibc (default: use dietlibc)])],
-	      [case "$withval" in
-		  yes)	use_dietlibc=forced;;
-		  no)	use_dietlibc=forced_no;;
-		  *)	AC_MSG_ERROR(['$withval' is not a valid value for --enable-dietlibc]);;
-	       esac],
-	      [: ${DIET:=diet}
-	       which "$DIET" >/dev/null 2>/dev/null && use_dietlibc=detected || use_dietlibc=detected_no])
-
-case x"$use_dietlibc" in
-    xdetected)
-	AM_CONDITIONAL(USE_DIETLIBC, true)
-	AC_MSG_RESULT([yes (autodetected)])
-	;;
-    xforced)
-	AM_CONDITIONAL(USE_DIETLIBC, true)
-	AC_MSG_RESULT([yes (forced)])
-	;;
-    xdetected_no)
-	AM_CONDITIONAL(USE_DIETLIBC, false)
-	AC_MSG_RESULT([no (detected)])
-	;;
-    xforced_no)
-	AM_CONDITIONAL(USE_DIETLIBC, false)
-	AC_MSG_RESULT([no (forced)])
-	;;
-    *)
-	AC_MSG_ERROR([internal error, use_dietlibc was "$use_dietlibc"])
-	;;
-esac
-
 AC_ARG_VAR(CC, [The C compiler])
-AC_MSG_CHECKING([for linux kernel headers])
-AC_ARG_WITH([kerneldir],
-	    [AC_HELP_STRING([--with-kerneldir=DIR],
-                            [assume top-kernelsources in DIR (default: /lib/modules/<current>/build)])],
-            [case "$withval" in
-		yes|no)	AC_MSG_ERROR(['$withval' is not a valid value for kerneldir]);;
-		*)	kerneldir=$withval;;
-	     esac],
-	    [kerneldir=
-	     for i in /lib/modules/$(uname -r)/build /usr/src/linux /usr; do
-		test -e $i/include/linux/version.h && { kerneldir=$i; break; }
-	     done])
 
-test "$kerneldir" -a -e $i/include/linux/version.h || {
-	AC_MSG_ERROR([Can not find kernelsources])
-}
+ENSC_INITRDDIR(initrddir)
+ENSC_RELEASE(RELEASE_CPPFLAGS)
+ENSC_ENABLE_DIETLIBC(USE_DIETLIBC)
+ENSC_KERNEL_HEADERS(kernelincludedir)
 
-kernelincludedir=$kerneldir/include
-AC_SUBST(kernelincludedir)
-AC_MSG_RESULT($kernelincludedir/linux)
 
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([apis],
