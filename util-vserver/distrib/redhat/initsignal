@@ -1,0 +1,45 @@
+#! /bin/bash
+#
+# initsignal   Signals final start/stop state
+#
+# chkconfig: 2345 99 99
+# description: This service puts a single byte into the \
+#              /var/run/vserver/initsignal fifo
+
+# Source function library.
+. /etc/init.d/functions
+
+RETVAL=0
+SIGNALPIPE=/var/run/vserver/initsignal
+
+lockfile=/var/lock/subsys/initsignal
+
+sendSignal() {
+    test -p "$SIGNALPIPE" && : >"$SIGNALPIPE"
+}
+
+start() {
+	echo -n $"Signaling final start-state: "
+	sendSignal && success || failure
+	RETVAL=$?
+	echo
+	touch "$lockfile"
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Signaling final stop-state: "
+	sendSignal && success || failure
+	RETVAL=$?
+	echo
+	rm -f "$lockfile"
+	return $RETVAL
+}	
+
+case "$1" in
+  start|stop)
+	"$1";;
+  *)
+	echo $"Usage: $0 {start|stop}"
+	exit 1
+esac
