@@ -27,7 +27,7 @@ noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h
 
 lib_LIBRARIES		=  $(lib_lib_LIBS)
 
-pkglib_SCRIPTS		=  $(distrib_SCRPTS) $(scripts_SCRPTS)
+pkglib_SCRIPTS		=  $(distrib_SCRPTS) $(scripts_SCRPTS) $(src_pkglib_SCRPTS)
 pkglib_DATA		=  $(distrib_DAT) $(scriptscfg_DATA)
 pkglib_PROGRAMS		=  $(src_pkglib_PRGS)
 
@@ -46,7 +46,7 @@ man_MANS		=  $(man_DATMAN)
 EXTRA_DIST		=  $(distrib_SCRPTS) $(distrib_DAT) \
 			   $(sysv_XTRAS) $(sysv_CFG) \
                            $(doc_DAT) $(man_DATMAN) \
-			   $(scripts_SCRPTS) $(scripts_PRGS) $(scripts_XTRAS) \
+			   $(scripts_SCRPTS) $(scripts_XTRAS) \
 			   vserver.spec newvserver.defaults \
                            m4/ensc_cflags.m4 \
 			   THANKS
