@@ -19,11 +19,12 @@
 #ifndef H_UTIL_VSERVER_PATHCONFIG_H
 #define H_UTIL_VSERVER_PATHCONFIG_H
 
-#define PKGLIBDIR	"@PKGLIBDIR@"
-#define SBINDIR		"@SBINDIR@"
-#define CONFDIR		"@CONFDIR@"
-#define SYSCONFDIR	"@SYSCONFDIR@"
-#define LOCKDIR		"/var/lock"
+#define PKGLIBDIR		"@PKGLIBDIR@"
+#define SBINDIR			"@SBINDIR@"
+#define CONFDIR			"@CONFDIR@"
+#define SYSCONFDIR		"@SYSCONFDIR@"
+#define LOCKDIR			"/var/lock"
+#define PKGLIBDEFAULTDIR	PKGLIBDIR "/defaults"
 
 #define DEFAULT_VSERVERDIR	"@VSERVERDIR@"
 #define DEFAULT_VSERVERPKGDIR	"@VSERVERPKGDIR@"
@@ -41,6 +42,8 @@
 #define PROG_MODPROBE		"@MODPROBE@"
 #define PROG_NAMEIF		"@NAMEIF@"
 #define PROG_VCONFIG		"@VCONFIG@"
+
+#define PROG_SECURE_MOUNT	PKGLIBDIR "/secure-mount"
 
 #define PATH_VSERVER_START	PKGLIBDIR "/vserver.start"
 #define PATH_FUNCTIONS		PKGLIBDIR "/functions"
