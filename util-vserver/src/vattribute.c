@@ -145,6 +145,9 @@ parseSecure(struct vc_ctx_flags UNUSED * flags,
   caps->cmask = ~0ull;
   caps->bcaps = ~vc_get_insecurebcaps();
   caps->bmask = ~0ull;
+
+  flags->flagword = ~vc_get_insecureflags();
+  flags->mask     =  vc_get_insecureflags();
 }
 
 int main(int argc, char *argv[])
