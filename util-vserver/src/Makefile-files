@@ -22,7 +22,6 @@ src_pkglib_CXX_X_PROGS	=  src/vunify src/vbuild src/vcheck
 
 src_OPTIONS_EXEMPT	=  src/parserpmdump \
 			   src/readlink \
-			   src/showattr \
 			   src/showperm \
 			   src/vbuild \
 			   src/vcheck \
@@ -56,6 +55,10 @@ src_DIETPROGS =		src/new-namespace \
 	     		src/fakerunlevel \
 			src/pipe-sync \
 			src/exec-ulimit \
+			src/lsxid \
+			src/chxid \
+			src/showattr \
+			src/setattr \
 			src/vlimit \
 			src/vunify \
 			src/rpm-fake-resolver \
@@ -65,7 +68,6 @@ src_DIETPROGS =		src/new-namespace \
 
 src_HDRS =  		src/vutil.h src/vutil.p src/util.h \
 			src/wrappers.h src/wrappers-vserver.h \
-			src/ext2fs.h \
 			src/compat-pivot_root.h \
 			src/stack-start.h \
 			src/vunify-matchlist.h \
@@ -73,7 +75,7 @@ src_HDRS =  		src/vutil.h src/vutil.p src/util.h \
 			src/wrappers-dirent.h \
 			src/vserver.hh
 
-src_pkglib_SCRPTS	=  src/setattr
+src_pkglib_SCRPTS =
 src_pkglib_PRGS		=  src/capchroot \
 	     		   src/chroot-cat \
 	     		   src/chroot-rm \
@@ -83,7 +85,6 @@ src_pkglib_PRGS		=  src/capchroot \
 			   src/listdevip \
 			   src/parserpmdump \
 			   src/readlink \
-			   src/showattr \
 			   src/showperm \
 			   src/vreboot \
 			   src/save_ctxinfo \
@@ -97,9 +98,14 @@ src_pkglib_PRGS		=  src/capchroot \
 src_pkglib_LTLIBS	=  src/rpm-fake.la
 src_lib_LTLIBS		=
 
+src_sbin_SCRPTS =
 src_sbin_PRGS =		src/chbind \
 			src/chcontext \
 			src/exec-cd \
+			src/lsxid \
+			src/chxid \
+			src/showattr \
+			src/setattr \
 			src/rebootmgr \
 			src/reducecap \
 			src/vdu \
@@ -152,8 +158,6 @@ src_save_ctxinfo_SOURCES	=  src/save_ctxinfo.c
 src_save_ctxinfo_LDADD		=  lib/libvserver.la
 src_save_ctxinfo_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
-src_showattr_SOURCES		=  src/showattr.c
-src_showperm_SOURCES		=  src/showperm.c
 src_vdu_SOURCES			=  src/vdu.c
 src_vreboot_SOURCES		=  src/vreboot.c
 src_new_namespace_SOURCES	=  src/new-namespace.c
@@ -176,6 +180,23 @@ src_vserver_stat_LDFLAGS	=  $(VSERVER_LDFLAGS)
 src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc src/vserver.cc
 src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc src/vserver.cc
 src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc src/vserver.cc
+
+src_lsxid_SOURCES		=  src/fstool.c src/util-safechdir.c src/lsxid.c
+src_lsxid_LDADD			=  lib/libvserver.la
+src_lsxid_LDFLAGS		=  $(VSERVER_LDFLAGS)
+
+src_chxid_SOURCES		=  src/fstool.c src/util-safechdir.c \
+				   src/fstool-resolvectx.c src/chxid.c
+src_chxid_LDADD			=  lib/libvserver.la
+src_chxid_LDFLAGS		=  $(VSERVER_LDFLAGS)
+
+src_showattr_SOURCES		=  src/fstool.c src/util-safechdir.c src/showattr.c
+src_showattr_LDADD		=  lib/libvserver.la
+src_showattr_LDFLAGS		=  $(VSERVER_LDFLAGS)
+
+src_setattr_SOURCES		=  src/fstool.c src/util-safechdir.c src/setattr.c
+src_setattr_LDADD		=  lib/libvserver.la
+src_setattr_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 
 src_vunify_SOURCES		=  src/vunify.c \
@@ -204,10 +225,6 @@ else
 src_sbin__PROGS			=
 src_pkglib_CXX_PROGS		=  
 endif
-
-src/setattr$(EXEEXT):		src/showattr$(EXEEXT)
-				@rm -f '$@'
-				ln -s showattr$(EXEEXT) '$@'
 
 install-exec-hook:		src_install_exec_hook
 
