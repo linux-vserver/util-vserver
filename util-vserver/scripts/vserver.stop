@@ -15,16 +15,23 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+
+lock "$LOCKDIR"/vserver."$(echo "$VSERVER_DIR" | tr -dc a-zA-Z0-9)".startup
+
 if ! isVserverRunning "$VSERVER_DIR" S_CONTEXT; then
     echo $"vserver '$VSERVER_NAME' is not running; aborting..." >&2
     test "$OPTION_DEBUG" || exec 2>/dev/null >/dev/null
     umountVserver     "$VSERVER_DIR" || :
     disableInterfaces "$VSERVER_DIR" || :
+    unlock
     exit 1
 fi
 
 function cleanup
 {
+    set +e
+    unlock
+    
     test ! -p "$sync_fifo" || {
 	rm -f "$sync_fifo"
 	rmdir $(dirname "$sync_fifo")
@@ -45,7 +52,7 @@ cd "$VSERVER_DIR"/vdir/
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
 cd "$VSERVER_DIR"/vdir/
 
-test -z "$OPTION_DEFAULTTTY" || setDefaultTTY
+test -z "$OPTION_DEFAULTTTY" || setDefaultTTY "$VSERVER_DIR"
 
 fail=
 if test "$_IS_FAKEINIT" && \

@@ -15,6 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+lock "$LOCKDIR"/vserver."$(echo "$VSERVER_DIR" | tr -dc a-zA-Z0-9)".startup
+
 if isVserverRunning "$VSERVER_DIR"; then
     echo $"vserver '$VSERVER_NAME' already running; aborting..." >&2
     exit 1
@@ -22,8 +24,10 @@ fi
 
 function cleanup()
 {
+    set +e
+
     test -z "$startsync_pipe"  || rm -f "$startsync_pipe"
-    test -z "$is_started"      || return 0
+    test -z "$is_started"      || { unlock; return 0; }
 
     if test "$is_configured" -a -z "$is_executed"; then
 	warning $"
@@ -55,6 +59,8 @@ Failed to start vserver '$VSERVER_NAME'"
     test    "$OPTION_DEBUG"    || exec 2>/dev/null >/dev/null
     test -z "$is_mounted"      || umountVserver     "$VSERVER_DIR" || :
     test -z "$have_interfaces" || disableInterfaces "$VSERVER_DIR" || :
+
+    unlock || :
 }
 
 is_configured=
@@ -81,7 +87,7 @@ pushd "$VSERVER_DIR"/vdir/ >/dev/null
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" pre-start
 popd >/dev/null
 
-test -z "$OPTION_DEFAULTTTY" || setDefaultTTY
+test -z "$OPTION_DEFAULTTTY" || setDefaultTTY "$VSERVER_DIR"
 
 pushd "$VSERVER_DIR"/vdir/ >/dev/null
 is_configured=1
