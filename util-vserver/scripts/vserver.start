@@ -54,7 +54,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
     $_VLIMIT     --dir "$VSERVER_DIR"/rlimits --missingok -- \
     $_VUNAME     --dir "$VSERVER_DIR"/uts     --missingok -- \
     $_VUNAME     --set --context -- "$VSERVER_DIR" \
-    $_VATTRIBUTE --set "${OPTS_VATTRIBUTE[@]}" -- \
+    $_VATTRIBUTE --set "${OPTS_VATTRIBUTE[@]}" --flag !setup -- \
     $_VCONTEXT   --migrate-self --chroot $SILENT_OPT "${OPTS_VCONTEXT_MIGRATE[@]}" -- \
     "${INITCMD_START[@]}"
 else
