@@ -104,7 +104,7 @@ appendLimit(char *ptr, bool do_it, vc_limit_t lim)
     else {
       memcpy(ptr, "0x", 2); ptr += 2;
       
-      ptr += utilvserver_fmt_uint64_base(ptr, lim, 16);
+      ptr += utilvserver_fmt_xuint64(ptr, lim);
       *ptr = ' ';
     }
   }
