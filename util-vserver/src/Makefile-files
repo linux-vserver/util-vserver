@@ -76,7 +76,8 @@ DIETPROGS +=		src/chcontext-compat \
 			src/vshelper-sync \
 			src/vrsetup \
 			src/vserver-stat \
-			src/vserver-info
+			src/vserver-info \
+			src/vdlimit
 
 noinst_HEADERS +=	src/vutil.h src/vutil.p \
 			src/capability-compat.h \
@@ -132,6 +133,7 @@ sbin_PROGRAMS +=	src/chbind \
 			src/vdu \
 			src/vattribute \
 			src/vcontext \
+			src/vdlimit \
 			src/vlimit \
 			src/vkill \
 			src/vnamespace \
@@ -271,6 +273,10 @@ src_rpm_fake_la_SOURCES		=  src/rpm-fake.c
 src_rpm_fake_la_CFLAGS		=  $(AM_CFLAGS)
 src_rpm_fake_la_LDFLAGS		=  -module -avoid-version -rpath $(pkglibdir)
 src_rpm_fake_la_LIBADD		=  lib/libvserver.la -ldl
+
+src_vdlimit_SOURCES		= src/vdlimit.c
+src_vdlimit_LDADD		= $(VSERVER_LDADDS)
+src_vdlimit_LDFLAGS		= $(VSERVER_LDFLGS)
 
 EXTRA_PROGRAMS +=		$(src_sbin_CXX_PROGS) $(src_pkglib_CXX_PROGS)
 

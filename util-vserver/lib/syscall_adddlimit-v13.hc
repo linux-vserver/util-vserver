@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,16 +16,19 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifndef H_UTIL_VSERVER_LIB_VIRTUAL_H
-#define H_UTIL_VSERVER_LIB_VIRTUAL_H
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
-#include <kernel/context.h>
-#include <kernel/legacy.h>
-#include <kernel/limit.h>
-#include <kernel/signal.h>
-#include <kernel/namespace.h>
-#include <kernel/inode.h>
-#include <kernel/sched.h>
-#include <kernel/dlimit.h>
+#include "vserver.h"
 
-#endif	//  H_UTIL_VSERVER_LIB_VIRTUAL_H
+static inline ALWAYSINLINE int
+vc_add_dlimit_v13(char const *filename, xid_t xid, uint32_t flags)
+{
+  struct vcmd_ctx_dlimit_base_v0	init;
+
+  memset(&init, 0, sizeof(init));
+  init.name = filename;
+  init.flags = flags;
+  return vserver(VCMD_add_dlimit, CTX_USER2KERNEL(xid), &init);
+}

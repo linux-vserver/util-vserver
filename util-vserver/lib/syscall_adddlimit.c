@@ -1,6 +1,6 @@
-// $Id$    --*- c -*--
+// $Id$    --*- c++ -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,16 +16,21 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifndef H_UTIL_VSERVER_LIB_VIRTUAL_H
-#define H_UTIL_VSERVER_LIB_VIRTUAL_H
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
-#include <kernel/context.h>
-#include <kernel/legacy.h>
-#include <kernel/limit.h>
-#include <kernel/signal.h>
-#include <kernel/namespace.h>
-#include <kernel/inode.h>
-#include <kernel/sched.h>
-#include <kernel/dlimit.h>
+#include "vserver.h"
+#include "linuxvirtual.h"
 
-#endif	//  H_UTIL_VSERVER_LIB_VIRTUAL_H
+#include "vserver-internal.h"
+
+#ifdef VC_ENABLE_API_V13
+#  include "syscall_adddlimit-v13.hc"
+#endif
+
+int
+vc_add_dlimit(char const *filename, xid_t xid, uint32_t flags)
+{
+  CALL_VC(CALL_VC_V13(vc_add_dlimit, filename, xid, flags));
+}

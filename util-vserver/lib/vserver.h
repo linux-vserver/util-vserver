@@ -72,6 +72,9 @@
 #define VC_LIM_INFINITY		(~0ULL)
 #define VC_LIM_KEEP		(~1ULL)
 
+#define VC_CDLIM_UNSET		(0U)
+#define VC_CDLIM_INFINITY	(~0U)
+#define VC_CDLIM_KEEP		(~1U)
   
 #ifndef S_CTX_INFO_LOCK
 #  define S_CTX_INFO_LOCK	1
@@ -657,8 +660,34 @@ extern "C" {
   };
 
   int		vc_set_sched(xid_t xid, struct vc_set_sched const *);
+
+
+  struct vc_ctx_dlimit {
+      uint_least32_t	space_used;
+      uint_least32_t	space_total;
+      uint_least32_t	inodes_used;
+      uint_least32_t	inodes_total;
+      uint_least32_t	reserved;
+  };
   
+
+  /** Add a disk limit to a file system. */
+  int		vc_add_dlimit(char const *filename, xid_t xid,
+			      uint_least32_t flags);
+  /** Remove a disk limit from a file system. */
+  int		vc_rem_dlimit(char const *filename, xid_t xid,
+			      uint_least32_t flags);
+
+  /** Set a disk limit. */
+  int		vc_set_dlimit(char const *filename, xid_t xid,
+			      uint_least32_t flags,
+			      struct vc_ctx_dlimit const *limits);
+  /** Get a disk limit. */
+  int		vc_get_dlimit(char const *filename, xid_t xid,
+			      uint_least32_t flags,
+			      struct vc_ctx_dlimit *limits);
   
+    
   typedef enum { vcFEATURE_VKILL,  vcFEATURE_IATTR,   vcFEATURE_RLIMIT,
 		 vcFEATURE_COMPAT, vcFEATURE_MIGRATE, vcFEATURE_NAMESPACE,
 		 vcFEATURE_SCHED,  vcFEATURE_VINFO,   vcFEATURE_VHI,
@@ -718,15 +747,16 @@ extern "C" {
       freed by the caller. */
   char *	vc_getVserverByCtx(xid_t ctx, /*@null@*/vcCfgStyle *style,
 				   /*@null@*/char const *revdir);
-
+ 
 #define vcSKEL_INTERFACES	1u
 #define vcSKEL_PKGMGMT		2u
 #define vcSKEL_FILESYSTEM	4u
-  
+
   /** Create a basic configuration skeleton for a vserver plus toplevel
    *  directories for pkgmanagemt and filesystem (when requested). */
   int		vc_createSkeleton(char const *id, vcCfgStyle style, int flags);
-  
+
+
 #ifdef __cplusplus
 }
 #endif
