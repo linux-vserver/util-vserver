@@ -29,7 +29,7 @@
 
 int main(int argc, char *argv[])
 {
-  if (argc==1) printf("%i\n", vc_X_getcctx());
+  if (argc==1) printf("%i\n", vc_X_getctx(0));
   else         printf("%i\n", vc_X_getctx(atoi(argv[1])));
 
   return 0;
