@@ -21,6 +21,11 @@
 	Print the list of all network (IP) devices. Print the IP
 	in fact, including all aliases.
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+#include "compat.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -99,7 +104,7 @@ static int devlist_read2_2()
 	return ret;
 }
 
-int main (int argc, char *argv[])
+int main (int UNUSED argc, char UNUSED *argv[])
 {
 	devlist_read2_2();
 	return 0;
