@@ -59,8 +59,8 @@ size_t	FMT_P( xlong)    (char *ptr,          long val)            WEAKFUNC( xint
 #else
 size_t	FMT_P(ulong_base)(char *ptr, unsigned long val, char base) WEAKFUNC(uint32_base);
 size_t	FMT_P( long_base)(char *ptr,          long val, char base) WEAKFUNC( int32_base);
-size_t	FMT_P(xulong)    (char *ptr, unsigned long val, char base) WEAKFUNC(xuint32);
-size_t	FMT_P( xlong)    (char *ptr,          long val, char base) WEAKFUNC( xint32);
+size_t	FMT_P(xulong)    (char *ptr, unsigned long val)            WEAKFUNC(xuint32);
+size_t	FMT_P( xlong)    (char *ptr,          long val)            WEAKFUNC( xint32);
 #endif
 
 size_t	FMT_P(uint_base)(char *ptr, unsigned int val, char base)   WEAKFUNC(uint32_base);
