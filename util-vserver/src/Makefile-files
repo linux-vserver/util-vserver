@@ -65,6 +65,7 @@ src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
 			   src/stack-start.h \
 			   src/vserver.hh
 
+src_pkglib_SCRPTS	=  src/setattr
 src_pkglib_PRGS		=  src/capchroot \
 	     		   src/chroot-cat \
 			   src/chroot-rm \
@@ -169,9 +170,13 @@ if ENSC_HAVE_CXX_COMPILER
 src_sbin_CXX_PROGS		=  $(src_sbin_CXX_X_PROGS)
 src_pkglib_CXX_PROGS		=  $(src_pkglib_CXX_X_PROGS)
 else
-src_sbin__PROGS		=
+src_sbin__PROGS			=
 src_pkglib_CXX_PROGS		=  
 endif
+
+src/setattr$(EXEEXT):		src/showattr$(EXEEXT)
+				@rm -f '$@'
+				ln -s showattr$(EXEEXT) '$@'
 
 
 ## Local Variables:
