@@ -32,6 +32,11 @@ shift
 pkgInit "$vserver" rpm yum
 rpmFake.init "$vserver"
 
+test -z "$_YUM" || {
+    warning $"The environment variable \$_YUM is not supported anymore; please use \$YUM instead of"
+    ${YUM:=$_YUM}
+}
+
 yum=${YUM:-yum}
 case $(yum --version) in
     (2.[0123]*)		conf=yum-hack.conf;;

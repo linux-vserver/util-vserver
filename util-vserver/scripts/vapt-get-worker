@@ -40,6 +40,11 @@ pkgInit "$vserver" rpm apt
 
 createAptFileSys
 
+test -z "$_APT_GET" || {
+    warning $"The environment variable \$_APT_GET is not supported anymore; please use \$APT_GET instead of"
+    ${APT_GET:=$_APT_GET}
+}
+
 exec ${_APT_GET:-apt-get} \
     -o "RPM::RootDir=$VDIR" \
     -o "Dir=$VDIR" \
