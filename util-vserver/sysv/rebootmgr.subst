@@ -33,7 +33,7 @@ case "$1" in
 	rm -f /var/lock/subsys/rebootmgr
 	rm -f $PIDFILE
 	;;
-  restart)
+  restart|force-reload)
 	$0 stop
 	$0 start
 	;;
