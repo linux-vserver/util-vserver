@@ -18,6 +18,12 @@ Version 0.30
 	  '--XXX' syntax will be recognized (based on patches and reports
 	  by Bodo Eggert).
 
+	- cleaned up the documentation and removed unused files
+
+	- "minimum" installation method: added fc1 target, fixed the rh9
+	  filelist and use '-HS' in the sample.conf (reported by Arne
+	  Blankerts)
+
 
 	
 Version 0.29
