@@ -63,6 +63,7 @@ src_DIETPROGS =		src/new-namespace \
 			src/vunify \
 			src/rpm-fake-resolver \
 			src/vkill \
+			src/vrsetup \
 			src/vserver-stat \
 			src/vserver-info
 
@@ -119,6 +120,7 @@ src_sbin_PRGS =		src/chbind \
 			src/new-namespace \
 			src/vlimit \
 			src/vkill \
+			src/vrsetup \
 			src/vserver-stat \
 			src/vserver-info \
 			$(src_sbin_CXX_PROGS)
