@@ -33,7 +33,7 @@ declare -r SETUP_HELPMSG=$"
     --lockfile <filename>
 		...  [default: $RUNDIR/<name>]
     --lockrevdir <dirname>
-		...  [default: $RUNDIR/rev/]
+		...  [default: $PKGSTATEREVDIR/]
     --hostname <hostname>
     --netdev   <device>
     --netbcast <broadcast>
@@ -123,7 +123,7 @@ function setup_setDefaults
 {
     : ${SETUP_CONFDIR:=$CONFDIR/$1}
     : ${SETUP_LOCKFILE:=$RUNDIR/$1}
-    : ${SETUP_LOCKREVDIR:=$RUNDIR/rev}
+    : ${SETUP_LOCKREVDIR:=$PKGSTATEREVDIR}
 }
 
 function setup_writeOption
