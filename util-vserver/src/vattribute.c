@@ -134,16 +134,14 @@ setCCaps(char const *str, struct vc_ctx_caps *caps)
   }
 }
 
-
-
 static void
 setSecure(struct vc_ctx_flags UNUSED * flags,
 	  struct vc_ctx_caps  UNUSED * caps)
 {
-#warning Implement me...
-  abort();
+  caps->ccaps = ~vc_get_securecaps();
+  caps->cmask = ~0;
+  caps->bcaps = ~0;
 }
-
 
 int main(int argc, char *argv[])
 {
