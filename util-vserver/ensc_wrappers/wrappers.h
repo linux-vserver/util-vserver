@@ -41,12 +41,12 @@
 #define ENSC_DETAIL2(RES,FUNC, VAL0,VAL1, DO_QUOTE0,DO_QUOTE1)	\
   size_t	l0_ = strlen(VAL0);				\
   size_t	l1_ = strlen(VAL1);				\
-  char		RES[l0_ + l1_ + sizeof(FUNC "(\",\")")];	\
+  char		RES[l0_ + l1_ + sizeof(FUNC "('','')")];	\
   char *	ptr_ = RES;					\
   memcpy(ptr_, FUNC "(", sizeof(FUNC)); ptr_ += sizeof(FUNC);	\
   ENSC_DOQUOTE_COND(ptr_, VAL0, l0_, DO_QUOTE0);		\
   *ptr_++ = ',';						\
-  ENSC_DOQUOTE_COND(ptr_, VAL0, l1_, DO_QUOTE1);		\
+  ENSC_DOQUOTE_COND(ptr_, VAL1, l1_, DO_QUOTE1);		\
   *ptr_++ = ')';						\
   *ptr_   = '\0';
   
