@@ -181,7 +181,7 @@ findUtsIdx(char const *str, size_t len)
       return i;
 
   WRITE_MSG(2, "Tag '");
-  write(2, str, len);
+  Vwrite   (2, str, len);
   WRITE_STR(2, "' not recognized\n");
   exit(wrapper_exit_code);
 }

@@ -114,7 +114,7 @@ writeInt(int fd, char const *prefix, int val)
 
   if (prefix)
     WRITE_STR(fd, prefix);
-  (void)write(fd, buf, len);
+  Vwrite(fd, buf, len);
 }
 
 static void

@@ -131,9 +131,9 @@ handleFile(char const *name, char const *display_name)
     res = false;
   }
 
-  write(1, buf, 8);
-  write(1, display_name, strlen(display_name));
-  write(1, "\n", 1);
+  Vwrite(1, buf, 8);
+  Vwrite(1, display_name, strlen(display_name));
+  Vwrite(1, "\n", 1);
 
   return res;
 }

@@ -46,7 +46,7 @@ assumeNonNull(PathInfo const *cfgdir, char const *file, char const *val)
   if (val!=0) return 0;
 
   WRITE_MSG(2, "vserver-start: no value configured for '");
-  write(2, cfgdir->d, cfgdir->l);
+  Vwrite   (2, cfgdir->d, cfgdir->l);
   WRITE_MSG(2, "/");
   WRITE_STR(2, file);
   WRITE_STR(2, "'\n");
@@ -91,7 +91,7 @@ Iface_read(struct Interface *res, PathInfo *cfgdir,
 
   if (mask && prefix) {
     WRITE_MSG(2, "vserver-start: both 'prefix' and 'mask' specified in '");
-    write(2, cfgdir->d, cfgdir->l);
+    Vwrite   (2, cfgdir->d, cfgdir->l);
     WRITE_MSG(2, "'\n");
     goto err;
   }
@@ -109,7 +109,7 @@ Iface_read(struct Interface *res, PathInfo *cfgdir,
     int		p = atoi(prefix);
     if (p==0) {
       WRITE_MSG(2, "vserver-start: invalid 'prefix' specified in '");
-      write(2, cfgdir->d, cfgdir->l);
+      Vwrite   (2, cfgdir->d, cfgdir->l);
       WRITE_MSG(2, "'\n");
       goto err;
     }

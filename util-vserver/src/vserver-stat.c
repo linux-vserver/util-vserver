@@ -460,8 +460,8 @@ showContexts(struct Vector *vec)
       }
     }
 
-    write(1, buf, strlen(buf));
-    write(1, "\n", 1);
+    Vwrite(1, buf, strlen(buf));
+    Vwrite(1, "\n", 1);
   }
 }
 

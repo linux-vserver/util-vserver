@@ -82,21 +82,21 @@ writeContextInfo(xid_t ctx, char const *name)
   size_t	res = CTXNR_WIDTH + 1;
   
   if (ctx==VC_NOCTX) {
-    if (3<CTXNR_WIDTH) write(1, CONTEXT_PLACE, CTXNR_WIDTH-3);
-    write(1, "ERR ", 4);
+    if (3<CTXNR_WIDTH) Vwrite(1, CONTEXT_PLACE, CTXNR_WIDTH-3);
+    Vwrite(1, "ERR ", 4);
   }
   else {
     char	buf[sizeof(ctx)*3+1];
     size_t	l = utilvserver_fmt_ulong(buf, ctx);
 
-    if (l<CTXNR_WIDTH) write(1, CONTEXT_PLACE, CTXNR_WIDTH-l);
-    write(1, buf, l);
-    write(1, " ", 1);
+    if (l<CTXNR_WIDTH) Vwrite(1, CONTEXT_PLACE, CTXNR_WIDTH-l);
+    Vwrite(1, buf, l);
+    Vwrite(1, " ", 1);
   }
 
   if (l1!=0) {
     assert(name!=0);
-    write(1, name, l1);
+    Vwrite(1, name, l1);
   }
 
   return res+l1;
@@ -187,10 +187,10 @@ processOutput(char *data, size_t len)
 
   pid_end = pos-data + 4;
 
-  write(1, data, pid_end);
-  write(1, "CONTEXT" CONTEXT_PLACE, CONTEXT_WIDTH);
-  write(1, data+pid_end, eol_pos-(data+pid_end));
-  write(1, "\n", 1);
+  Vwrite(1, data, pid_end);
+  Vwrite(1, "CONTEXT" CONTEXT_PLACE, CONTEXT_WIDTH);
+  Vwrite(1, data+pid_end, eol_pos-(data+pid_end));
+  Vwrite(1, "\n", 1);
 
   len -= eol_pos-data;
   data = eol_pos+1;
@@ -208,12 +208,12 @@ processOutput(char *data, size_t len)
     ctx          = extractCtx(data + pid_end - 6);
     vserver_name = resolveCtx(ctx);
 
-    write(1, data, pid_end);
+    Vwrite(1, data, pid_end);
     l = writeContextInfo(ctx, vserver_name);
-    if (l<CONTEXT_WIDTH) write(1, CONTEXT_PLACE, CONTEXT_WIDTH-l);
-    else                 write(1, " ", 1);
-    write(1, data+pid_end, eol_pos-(data+pid_end));
-    write(1, "\n", 1);
+    if (l<CONTEXT_WIDTH) Vwrite(1, CONTEXT_PLACE, CONTEXT_WIDTH-l);
+    else                 Vwrite(1, " ", 1);
+    Vwrite(1, data+pid_end, eol_pos-(data+pid_end));
+    Vwrite(1, "\n", 1);
     
     len -= eol_pos-data;
     data = eol_pos+1;

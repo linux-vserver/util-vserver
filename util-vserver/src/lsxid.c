@@ -153,7 +153,7 @@ handleFile(char const *name, char const *display_name)
   
   if (ctx==VC_NOCTX) {
     memcpy(buf, "!!ERR!!", 7);
-    write(1, buf, sizeof buf);
+    Vwrite(1, buf, sizeof buf);
     need_write = false;
   }
   else if (global_args->do_mapping) {
@@ -161,8 +161,8 @@ handleFile(char const *name, char const *display_name)
     if (!vname) buf[0] = '\0';
     else {
       size_t		l = strlen(vname);
-      if (l<sizeof(buf)) write(1, buf, sizeof(buf)-l);
-      write(1, vname, l);
+      if (l<sizeof(buf)) Vwrite(1, buf, sizeof(buf)-l);
+      Vwrite(1, vname, l);
 
       need_write = false;
     }
@@ -170,13 +170,13 @@ handleFile(char const *name, char const *display_name)
 
   if (need_write) {
     size_t	l = utilvserver_fmt_ulong(buf, ctx);
-    if (l<sizeof(buf)) write(1, buf+l, sizeof(buf)-l);
-    write(1, buf, l);
+    if (l<sizeof(buf)) Vwrite(1, buf+l, sizeof(buf)-l);
+    Vwrite(1, buf, l);
   }
 
-  write(1, "  ", 2);
-  write(1, display_name, strlen(display_name));
-  write(1, "\n", 1);
+  Vwrite(1, "  ", 2);
+  Vwrite(1, display_name, strlen(display_name));
+  Vwrite(1, "\n", 1);
 
   return ctx!=VC_NOCTX;
 }

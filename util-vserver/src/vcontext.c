@@ -164,7 +164,7 @@ tellContext(xid_t ctx, bool do_it)
   l = utilvserver_fmt_long(buf,ctx);
 
   WRITE_MSG(1, "New security context is ");
-  write(1, buf, l);
+  Vwrite   (1, buf, l);
   WRITE_MSG(1, "\n");
 }
 

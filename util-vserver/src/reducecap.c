@@ -187,7 +187,7 @@ printReducecap(struct __user_cap_data_struct *user)
     buf[23 + 10*0 + 4] = (user->effective   & bit) ? 'X' : ' ';
     buf[23 + 10*1 + 4] = (user->permitted   & bit) ? 'X' : ' ';
     buf[23 + 10*2 + 4] = (user->inheritable & bit) ? 'X' : ' ';
-    write(1, buf, len);
+    Vwrite(1, buf, len);
   }
 }
 
@@ -258,7 +258,7 @@ int main (int argc, char *argv[])
 	flags = vc_list2cflag_compat(optarg, 0, &err);
 	if (err.ptr!=0) {
 	  WRITE_MSG(2, "Unknown flag '");
-	  write(2, err.ptr, err.len);
+	  Vwrite(2, err.ptr, err.len);
 	  WRITE_MSG(2, "'\n");
 	  exit(wrapper_exit_code);
 	}

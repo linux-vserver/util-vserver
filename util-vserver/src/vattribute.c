@@ -99,7 +99,7 @@ parseFlags(char const *str, struct vc_ctx_flags *flags)
   
   if (rc==-1) {
     WRITE_MSG(2, "Unknown flag '");
-    write(2, err.ptr, err.len);
+    Vwrite(2, err.ptr, err.len);
     WRITE_MSG(2, "'\n");
     exit(wrapper_exit_code);
   }
@@ -115,7 +115,7 @@ parseBCaps(char const *str, struct vc_ctx_caps *caps)
   
   if (rc==-1) {
     WRITE_MSG(2, "Unknown bcap '");
-    write(2, err.ptr, err.len);
+    Vwrite(2, err.ptr, err.len);
     WRITE_MSG(2, "'\n");
     exit(wrapper_exit_code);
   }
@@ -131,7 +131,7 @@ parseCCaps(char const *str, struct vc_ctx_caps *caps)
   
   if (rc==-1) {
     WRITE_MSG(2, "Unknown ccap '");
-    write(2, err.ptr, err.len);
+    Vwrite(2, err.ptr, err.len);
     WRITE_MSG(2, "'\n");
     exit(wrapper_exit_code);
   }

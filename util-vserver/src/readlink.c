@@ -71,7 +71,7 @@ int main (int argc, char *argv[])
     PERROR_Q("readlink: readlink", argv[idx]);
   else {
     buf[len++] = '\n';
-    write(1, buf, len);
+    Vwrite(1, buf, len);
     return EXIT_SUCCESS;
   }
 

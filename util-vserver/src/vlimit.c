@@ -217,7 +217,7 @@ showAll(int ctx)
     ptr  = appendLimit(buf+50, mask.hard&bitmask, limit.hard);
 
     *ptr++ = '\n';
-    write(1, buf, ptr-buf);
+    Vwrite(1, buf, ptr-buf);
   }
 }
 

@@ -95,7 +95,7 @@ int main (int argc, char *argv[])
     l += utilvserver_fmt_ulong(buf+l, minutes);
     buf[l++] = '\n';
 
-    (void)write(1, buf, l);
+    Vwrite(1, buf, l);
     return EXIT_SUCCESS;
   }
 

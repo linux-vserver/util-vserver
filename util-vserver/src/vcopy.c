@@ -193,7 +193,7 @@ doit(Operation op,
     else if (op==opSKIP)    WRITE_MSG(1, "skipping '");
     else { assert(false); abort(); }
 
-    write(1, show_path->d, show_path->l);
+    Vwrite(1, show_path->d, show_path->l);
     WRITE_MSG(1, "'\n");
   }
 
