@@ -112,7 +112,6 @@ int main (int argc, char *argv[])
 	int nbctx = 0;
 	int ctxs[16];
 	int disconnect = 0;
-	int fakeinit = 0;
 	int silent = 0;
 	int flags = 0;
 	unsigned remove_cap = 0;
@@ -159,7 +158,6 @@ int main (int argc, char *argv[])
 			}else if (strcmp(opt,"private")==0){
 				flags |= 8;
 			}else if (strcmp(opt,"fakeinit")==0){
-				fakeinit = 1;
 				flags |= 16;
 			}else if (strcmp(opt,"hideinfo")==0){
 				flags |= 32;
@@ -209,8 +207,10 @@ int main (int argc, char *argv[])
 		*/
 		if (disconnect == 0 || fork()==0){
 		        int newctx;
+			int xflags = flags & 16;
+
 			if (nbctx == 0) ctxs[nbctx++] = -1;
-			newctx = vc_new_s_context(ctxs[0],0,flags);
+			newctx = vc_new_s_context(ctxs[0],0,flags&~16);
 			if (newctx != -1){
 				if (hostname != NULL){
 					if (sethostname (hostname,strlen(hostname))==-1){
@@ -227,7 +227,8 @@ int main (int argc, char *argv[])
 					}
 				}
 				remove_cap &= (~add_cap);
-				if (remove_cap != 0) vc_new_s_context (-2,remove_cap,0);
+				if (remove_cap!=0 || xflags!=0)
+				        vc_new_s_context (-2,remove_cap,xflags);
 				if (!silent){
 					printf ("New security context is %d\n"
 						,ctxs[0] == -1 ? newctx : ctxs[0]);
