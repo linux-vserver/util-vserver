@@ -19,7 +19,7 @@
 #ifndef H_UTIL_VSERVER_LIB_INTERNAL_UTIL_PERROR_H
 #define H_UTIL_VSERVER_LIB_INTERNAL_UTIL_PERROR_H
 
-#define PERROR_U(MSG, ARG0) {				\
+#define PERROR_U(MSG, ARG0) do {			\
     size_t	pu_l1 = strlen(MSG);			\
     size_t	pu_l2 = strlen(ARG0);			\
     char	pu_buf[pu_l1 + pu_l2 + sizeof("()")];	\
@@ -29,9 +29,9 @@
     pu_buf[pu_l1+1+pu_l2] = ')';			\
     pu_buf[pu_l1+2+pu_l2] = '\0';			\
     perror(pu_buf);					\
-  }
+  } while (0)
 
-#define PERROR_Q(MSG, ARG0) {			\
+#define PERROR_Q(MSG, ARG0) do {		\
     size_t	pq_l = strlen(ARG0);		\
     char	pq_buf[pq_l + 3];		\
     pq_buf[0]    = '"';				\
@@ -39,6 +39,6 @@
     pq_buf[pq_l+1] = '"';			\
     pq_buf[pq_l+2] = '\0';			\
     PERROR_U(MSG, pq_buf);			\
-  }
+  } while (0)
 
 #endif	//  H_UTIL_VSERVER_LIB_INTERNAL_UTIL_PERROR_H
