@@ -36,9 +36,10 @@
 #define CMD_VERSION		0x1001
 #define CMD_XID			0x2000
 #define CMD_SET			0x2001
-#define CMD_CAP			0x2002
+#define CMD_CCAP		0x2002
 #define CMD_FLAG		0x2003
 #define CMD_SECURE		0x2004
+#define CMD_BCAP		0x2005
 
 int			wrapper_exit_code = 1;
 
@@ -48,7 +49,8 @@ CMDLINE_OPTIONS[] = {
   { "version",    no_argument,       0, CMD_VERSION },
   { "xid",        required_argument, 0, CMD_XID },
   { "set",        no_argument,       0, CMD_SET },
-  { "cap",        required_argument, 0, CMD_CAP },
+  { "ccap",       required_argument, 0, CMD_CCAP },
+  { "bcap",       required_argument, 0, CMD_BCAP },
   { "flag",       required_argument, 0, CMD_FLAG },
   { "secure",     no_argument,       0, CMD_SECURE },
   {0,0,0,0}
@@ -57,7 +59,7 @@ CMDLINE_OPTIONS[] = {
 struct Arguments {
     xid_t		xid;
     struct vc_ctx_flags flags;
-    struct vc_ctx_flags caps;
+    struct vc_ctx_caps  caps;
 };
 
 static void
@@ -66,7 +68,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:\n    ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " --set [--xid <xid>] [--cap [~!]<cap>] [--flag [~!]<flag>] [--secure] -- [<program> <args>*]\n"
+	    " --set [--xid <xid>] [--bcap [~!]<cap>] [--ccap [~!]<cap>] [--flag [~!]<flag>] [--secure] -- [<program> <args>*]\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
@@ -85,32 +87,58 @@ showVersion()
 }
 
 static void
-setFlags(char const UNUSED *str, struct vc_ctx_flags UNUSED * flags)
+setFlags(char const *str, struct vc_ctx_flags *flags)
 {
-  char const		*err_ptr;
-  size_t		err_len;
-  int			rc;
+  struct vc_err_listparser	err;
+  int				rc;
 
-  rc = vc_list2flag(str,0, &err_ptr,&err_len, &flags->flagword, &flags->mask);
+  rc = vc_list2flag(str,0, &err, flags);
   
   if (rc==-1) {
     WRITE_MSG(2, "Unknown flag '");
-    write(2, err_ptr, err_len);
+    write(2, err.ptr, err.len);
     WRITE_MSG(2, "'\n");
     exit(wrapper_exit_code);
   }
 }
 
 static void
-setCaps(char const UNUSED *str, struct vc_ctx_flags UNUSED * caps)
+setBCaps(char const *str, struct vc_ctx_caps *caps)
 {
-#warning Implement me...
-  abort();
+  struct vc_err_listparser	err;
+  int				rc;
+
+  rc = vc_list2bcap(str,0, &err, caps);
+  
+  if (rc==-1) {
+    WRITE_MSG(2, "Unknown bcap '");
+    write(2, err.ptr, err.len);
+    WRITE_MSG(2, "'\n");
+    exit(wrapper_exit_code);
+  }
 }
 
 static void
+setCCaps(char const *str, struct vc_ctx_caps *caps)
+{
+  struct vc_err_listparser	err;
+  int				rc;
+
+  rc = vc_list2ccap(str,0, &err, caps);
+  
+  if (rc==-1) {
+    WRITE_MSG(2, "Unknown ccap '");
+    write(2, err.ptr, err.len);
+    WRITE_MSG(2, "'\n");
+    exit(wrapper_exit_code);
+  }
+}
+
+
+
+static void
 setSecure(struct vc_ctx_flags UNUSED * flags,
-	  struct vc_ctx_flags UNUSED * caps)
+	  struct vc_ctx_caps  UNUSED * caps)
 {
 #warning Implement me...
   abort();
@@ -122,7 +150,7 @@ int main(int argc, char *argv[])
   struct Arguments		args = {
     .xid   = VC_NOCTX,
     .flags = { .flagword = 0, .mask = 0 },
-    .caps  = { .flagword = 0, .mask = 0 },
+    .caps  = { .bcaps = 0, .ccaps = 0, .cmask = 0 },
   };
   
   while (1) {
@@ -135,7 +163,8 @@ int main(int argc, char *argv[])
       case CMD_SET	:  break; // default op currently
       case CMD_XID	:  args.xid = atoi(optarg); break;
       case CMD_FLAG	:  setFlags(optarg, &args.flags);      break;
-      case CMD_CAP	:  setCaps(optarg,  &args.caps);       break;
+      case CMD_CCAP	:  setCCaps(optarg, &args.caps);       break;
+      case CMD_BCAP	:  setBCaps(optarg, &args.caps);       break;
       case CMD_SECURE	:  setSecure(&args.flags, &args.caps); break;
       default		:
 	WRITE_MSG(2, "Try '");
@@ -148,10 +177,10 @@ int main(int argc, char *argv[])
 
   if (args.xid==VC_NOCTX) args.xid = Evc_get_task_xid(0);
 
-  if (vc_set_flags(args.xid,&args.flags)==-1)
+  if (vc_set_flags(args.xid, &args.flags)==-1)
     perror("vc_set_flags()");
-//  else if (vc_set_caps(xid, &args.caps)==-1)
-//    perror("vc_set_caps()");
+  else if (vc_set_ccaps(args.xid, &args.caps)==-1)
+    perror("vc_set_ccaps()");
   else if (optind<argc)
     EexecvpD(argv[optind], argv+optind);
   else
