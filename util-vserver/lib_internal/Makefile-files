@@ -17,6 +17,15 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
+command_SRCS =			lib_internal/command-appendparameter.c \
+				lib_internal/command-exec.c\
+				lib_internal/command-free.c \
+				lib_internal/command-init.c \
+				lib_internal/command-reset.c \
+				lib_internal/command-wait.c \
+				lib_internal/command.h
+
+
 noinst_LIBRARIES +=		lib_internal/libinternal.a
 noinst_HEADERS += \
 				lib_internal/coreassert.h \
@@ -59,6 +68,10 @@ lib_internal_libinternal_a_SOURCES = \
 				lib_internal/unify-settime.c \
 				lib_internal/unify-unify.c \
 				lib_internal/util-exitlikeprocess.c \
-				lib_internal/util-safechdir.c
+				lib_internal/util-safechdir.c \
+				$(command_SRCS)
 
 DIETPROGS +=			lib_internal/libinternal.a
+
+
+include $(top_srcdir)/lib_internal/testsuite/Makefile-files
