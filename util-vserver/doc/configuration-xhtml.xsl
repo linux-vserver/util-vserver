@@ -19,7 +19,9 @@
   <xsl:template match="database">
     <head>
       <title>The <xsl:value-of select="$confdir"/> directory</title>
-      <link rel="stylesheet" title="LSD"    type="text/css" href="configuration-lsd.css"></link>
+      <link rel="stylesheet" title="gras"   type="text/css" href="configuration-lsd.css"></link>
+      <link rel="stylesheet" title="gras1"  type="text/css" href="configuration-lsd1.css"></link>
+      <link rel="stylesheet" title="flower" type="text/css" href="configuration-flower.css"></link>
       <link rel="stylesheet" title="boring" type="text/css" href="configuration.css"></link>
     </head>
     <body>
@@ -162,6 +164,21 @@
       <xsl:value-of select="@name"/>
     </span>
   </xsl:template>
+
+  <xsl:template match="elements">
+    <div class="elements">
+      <dl>
+        <xsl:apply-templates select="element">
+          <xsl:sort select="@name"/>
+        </xsl:apply-templates>
+      </dl>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="elements/element">
+    <dt class="elements"><xsl:value-of select="@name"/></dt>
+    <dd class="elements"><xsl:apply-templates select="description"/></dd>
+  </xsl:template>
   
   <xsl:template name="printfullname">
     <xsl:param name="thisdir"/>
@@ -185,6 +202,7 @@
     <span class="description">
       <xsl:apply-templates select="description"/>
     </span>
+    <xsl:apply-templates select="elements"/>
   </xsl:template>
 
   <xsl:template match="ulink">
