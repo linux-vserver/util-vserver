@@ -23,6 +23,7 @@
 #include "vserver.h"
 #include "pathconfig.h"
 #include "compat-c99.h"
+#include "lib_internal/util.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -30,6 +31,58 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+
+#ifdef VC_ENABLE_API_COMPAT
+#include <fcntl.h>
+
+static xid_t
+extractLegacyXID(char const *dir, char const *basename)
+{
+  size_t	l1 = strlen(dir);
+  size_t	l2 = strlen(basename);
+  char		path[l1 + l2 + sizeof("/.ctx")];
+  char *	ptr = path;
+  int		fd;
+  ssize_t	len;
+  xid_t		result = VC_NOXID;
+
+  ptr    = Xmemcpy(ptr, dir, l1);
+  *ptr++ = '/';
+  ptr    = Xmemcpy(ptr, basename, l2);
+  ptr    = Xmemcpy(ptr, ".ctx",    5);
+
+  fd = open(path, O_RDONLY);
+  if (fd==-1) return VC_NOXID;
+
+  len = lseek(fd, 0, SEEK_END);
+
+  if (len!=-1 && lseek(fd, 0, SEEK_SET)!=-1) {
+    char	buf[len+2];
+    char const	*pos = 0;
+
+    buf[0] = '\n';
+    
+    if (read(fd, buf+1, len+1)==len) {
+      buf[len+1] = '\0';
+      pos        = strstr(buf, "\nS_CONTEXT=");
+    }
+
+    if (pos) pos += 11;
+    if (*pos>='1' && *pos<='9')
+      result = atoi(pos);
+  }
+
+  close(fd);
+  return result;
+}
+#else
+static xid_t
+extractLegacyXID(char const UNUSED *dir, char const UNUSED *basename)
+{
+  return VC_NOXID;
+}
+#endif
+
 
 static xid_t
 getCtxFromFile(char const *pathname)
@@ -73,7 +126,8 @@ vc_getVserverCtx(char const *id, vcCfgStyle style, bool honor_static, bool *is_r
 
   switch (style) {
     case vcCFG_NONE		:  return VC_NOCTX;
-    case vcCFG_LEGACY		:  return VC_NOCTX;	// todo
+    case vcCFG_LEGACY		:
+      return extractLegacyXID(DEFAULT_PKGSTATEDIR, id);
     case vcCFG_RECENT_SHORT	:
     case vcCFG_RECENT_FULL	: {
       size_t		idx = 0;

@@ -28,6 +28,44 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifdef VC_ENABLE_API_COMPAT
+#include <dirent.h>
+#include <sys/types.h>
+
+
+static char *
+handleLegacy(xid_t xid)
+{
+  DIR			*dir = opendir(DEFAULT_PKGSTATEDIR);
+  struct dirent		*ep;
+  char *		result = 0;
+  
+  if (dir==0) return 0;
+  while ((ep=readdir(dir))!=0) {
+    char * const		name = ep->d_name;
+    size_t			l    = name ? strlen(name) : 0;
+    xid_t			cur_xid;
+
+    if (l<=4 || strcmp(name+l-4, ".ctx")!=0) continue;
+    name[l-4]   = '\0';
+    cur_xid = vc_getVserverCtx(name, vcCFG_LEGACY, false, 0);
+    if (cur_xid!=xid) continue;
+
+    result      = strdup(name);
+    break;
+  }
+
+  closedir(dir);
+  return result;
+}
+#else
+static inline char *
+handleLegacy(xid_t UNUSED xid)
+{
+  return 0;
+}
+#endif
+
 static char *
 vc_getVserverByCtx_compat(xid_t ctx, vcCfgStyle *style, char const *revdir)
 {
@@ -46,7 +84,7 @@ vc_getVserverByCtx_compat(xid_t ctx, vcCfgStyle *style, char const *revdir)
 
   if (style==0 || *style==vcCFG_AUTO) {
     if (access(path, F_OK)==0) cur_style = vcCFG_RECENT_FULL;
-      // TODO: handle legacy
+    else                       cur_style = vcCFG_LEGACY;
   }
   else
     cur_style = *style;
@@ -60,6 +98,15 @@ vc_getVserverByCtx_compat(xid_t ctx, vcCfgStyle *style, char const *revdir)
       if (style) *style = vcCFG_RECENT_FULL;
       return strdup(path);
 	// TODO: handle legacy
+    case vcCFG_LEGACY		:
+    {
+      char *	tmp = handleLegacy(ctx);
+      if (tmp && style)
+	*style = vcCFG_LEGACY;
+
+      return tmp;
+    }
+      
     default		:
       return 0;
   }
