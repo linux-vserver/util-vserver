@@ -15,6 +15,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+#ifdef H_VSERVER_SYSCALL_INTERNAL_H
+#  error vserver-internal.h must not be included more than once
+#endif
 
 #ifndef H_VSERVER_SYSCALL_INTERNAL_H
 #define H_VSERVER_SYSCALL_INTERNAL_H
@@ -38,15 +41,14 @@
 #define CALL_VC_GENERAL(ID, SUFFIX, FUNC, ...)				\
   VC_PREFIX; VC_SELECT(ID) return FUNC ## _ ## SUFFIX(__VA_ARGS__); VC_SUFFIX
 
-#if 1
-#  define VC_SELECT(ID)	case ID: if(1)
+#ifdef VC_MULTIVERSION_SYSCALL
+#  define VC_SELECT(ID)	if (ver>=(ID))
 #  define CALL_VC(...)					\
   do {							\
-    switch (utilvserver_checkCompatVersion()&~0xff) {	\
-      case -1 & ~0xff	:  if (1) break;		\
-	VC_SUFFIX, __VA_ARGS__ , VC_PREFIX;		\
-      default	:  errno = EINVAL;			\
-    }							\
+    int	ver = utilvserver_checkCompatVersion();		\
+    if (ver==-1) return -1;				\
+    VC_SUFFIX, __VA_ARGS__, VC_PREFIX;			\
+    errno = EINVAL;					\
     return -1;						\
   } while (0)
 #else
@@ -77,11 +79,22 @@
 #endif
 
 #ifdef VC_ENABLE_API_V13
-#  define CALL_VC_V13(F,...)	CALL_VC_GENERAL(0x00010000, v13, F, __VA_ARGS__)
+#  define CALL_VC_V13(F,...)	CALL_VC_GENERAL(0x00010010, v13, F, __VA_ARGS__)
 #else
 #  define CALL_VC_V13(F,...)	CALL_VC_NOOP
 #endif
 
+#ifdef VC_ENABLE_API_FSCOMPAT
+#  define CALL_VC_FSCOMPAT(F,...)	CALL_VC_GENERAL(0x00010000, fscompat, F, __VA_ARGS__)
+#else
+#  define CALL_VC_FSCOMPAT(F,...)	CALL_VC_NOOP
+#endif
+
+#ifdef VC_ENABLE_API_OLDPROC
+#  define CALL_VC_OLDPROC(F,...)	CALL_VC_GENERAL(0x00000000, X, F, __VA_ARGS__)
+#else
+#  define CALL_VC_OLDPROC(F,...)	CALL_VC_NOOP
+#endif
 
 #if 1
 #  define CTX_KERNEL2USER(X)	(((X)==(uint32_t)(-1)) ? VC_NOCTX   : \
