@@ -26,6 +26,7 @@ legacy @LEGACYDIR@/ifspec
 legacy @LEGACYDIR@/listdevip
 legacy @LEGACYDIR@/parserpmdump
 legacy @LEGACYDIR@/rebootmgr
+legacy @LEGACYDIR@/rootshell
 legacy @LEGACYDIR@/showperm
 legacy @LEGACYDIR@/vreboot
 core   @PKGLIBDIR@/FEATURES.txt
@@ -47,7 +48,6 @@ base   @PKGLIBDIR@/keep-ctx-alive
 base   @PKGLIBDIR@/mask2prefix
 build  @PKGLIBDIR@/pkgmgmt
 base   @PKGLIBDIR@/readlink
-base   @PKGLIBDIR@/rootshell
 build  @PKGLIBDIR@/rpm-fake-resolver
 base   @PKGLIBDIR@/save_ctxinfo
 base   @PKGLIBDIR@/secure-mount
