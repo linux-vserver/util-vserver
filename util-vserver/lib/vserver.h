@@ -204,7 +204,7 @@ extern "C" {
 #endif
 
   struct vc_ip_mask_pair {
-    uint32_t	ip;
+      uint32_t	ip;
       uint32_t	mask;
   };
 
