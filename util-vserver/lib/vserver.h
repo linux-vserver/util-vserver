@@ -128,7 +128,7 @@ extern "C" {
      *  - VC_RANDCTX  which means the next free context; this value can be used by
      *                ordinary users also
      *  See http://vserver.13thfloor.at/Stuff/Logic.txt for details */
-  int	vc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags);
+  xid_t	vc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags);
 
     /** Sets the ipv4root information.
      *  \precondition: nb<16 */
@@ -188,6 +188,15 @@ extern "C" {
   xid_t		vc_get_task_xid(pid_t pid);
   int		vc_get_vx_info(xid_t xid, struct vc_vx_info *info);
 
+
+  typedef enum { vcVHI_CONTEXT, vcVHI_SYSNAME, vcVHI_NODENAME,
+		 vcVHI_RELEASE, vcVHI_VERSION, vcVHI_MACHINE,
+		 vcVHI_DOMAINNAME }		vc_uts_type;
+  
+  int		vc_set_vhi_name(xid_t xid, vc_uts_type type, char const *val, size_t len);
+  int		vc_get_vhi_name(xid_t xid, vc_uts_type type, char *val, size_t len);
+
+  
   int		vc_text2cap(char const *);
   char const *	vc_cap2text(int);
 
