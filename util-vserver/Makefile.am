@@ -51,7 +51,7 @@ noinst_DATA =
 initrd_SCRIPTS =
 sysconf_DATA =
 
-DIETPROGS =		$(ENSC_VECTOR_LIBS)
+DIETPROGS =		$(LIBENSCVECTOR_DIET)
 
 BUILT_SOURCES =		pathconfig.h linuxvirtual.h \
 			.fixups
@@ -111,7 +111,7 @@ else
 DIET_COMPAT_LDADDS =
 endif
 
-VSERVER_LDADDS =	lib/libvserver.la  $(DIET_COMPAT_LDADDS)
+VSERVER_LDADDS =	$(LIBVSERVER) $(DIET_COMPAT_LDADDS)
 
 silent.%:		FORCE
 			@t=$$(mktemp /tmp/build.XXXXXX) && \
