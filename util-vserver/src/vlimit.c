@@ -367,11 +367,11 @@ int main (int argc, char *argv[])
     else switch (c) {
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
-      case CMD_XID	:
       case 'a'		:  show_all   = true;            break;
       case 'n'		:  do_resolve = false;           break;
       case CMD_DIR	:  dir        = optarg;          break;
       case CMD_MISSINGOK:  missing_ok = true;            break;
+      case CMD_XID	:  /*@fallthrough@*/
       case 'c'		:  ctx = Evc_xidopt2xid(optarg,true);   break;
       case 'd'		:  fmt_func   = utilvserver_fmt_uint64; break;
       case 'M'		:
