@@ -24,13 +24,33 @@
 struct dirent;
 struct WalkdownInfo
 {
-    PathInfo			state;
-    struct MatchList		dst_list;
+    PathInfo				state;
+    struct MatchList			dst_list;
     struct {
-	struct MatchList *	v;
-	size_t			l;
-    }				src_lists;
+	struct MatchList *		v;
+	size_t				l;
+    }					src_lists;
 };
+
+struct SkipReason {
+    enum { rsDOTFILE, rsEXCL_DST, rsEXCL_SRC,
+	   rsFSTAT, rsNOEXISTS, rsSYMLINK, rsUNIFIED,
+	   rsDIFFERENT }	r;
+
+    union {
+	struct MatchList const *	list;
+    }					d;
+};
+
+struct Arguments {
+    enum {mdMANUALLY, mdVSERVER}	mode;
+    bool				do_revert;
+    bool				do_dry_run;
+    unsigned int			verbosity;
+    bool				local_fs;
+    bool				do_renew;
+};
+
 
 static void	visitDirEntry(struct dirent const *) NONNULL((1));
 static void	visitDir(char const *, struct stat const *) NONNULL((1));
