@@ -51,6 +51,3 @@ exec ${_APT_GET:-apt-get} \
     -o "RPM::Order=true" \
     -o "RPM::PM=external" \
     "$@"
-
-#export PS1='@@ '
-#exec bash
