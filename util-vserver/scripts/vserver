@@ -36,6 +36,7 @@ SAVE_S_CONTEXT_CMD=$USR_LIB_VSERVER/save_s_context
 CAPCHROOT_CMD=$USR_LIB_VSERVER/capchroot
 VSERVERKILLALL_CMD=$USR_LIB_VSERVER/vserverkillall
 DEFAULTPATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin
+
 vserver_mknod(){
 	mknod $1 $2 $3 $4
 	chmod $5 $1
@@ -457,6 +458,8 @@ elif [ "$2" = "start" ] ; then
 
 		rm -f `find var/run -type f`
 		touch var/run/utmp
+		chgrp ${UTMP_GROUP:-utmp} var/run/utmp
+		chmod 0664 var/run/utmp
 		rm -f  var/lock/subsys/*
 		mountproc $VROOTDIR/$1
 		CTXOPT=
