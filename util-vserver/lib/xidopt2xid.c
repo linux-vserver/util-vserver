@@ -46,10 +46,8 @@ vc_xidopt2xid(char const *str, bool honor_static, char const **err_info)
 
     if (endptr!=str && (*endptr=='\0' || *endptr=='\n'))
       res = xid;
-    else {
-      err = "getVserverXid()";
+    else
       res = getVserverXid(str, honor_static, &err);
-    }
   }
 
   if (res==VC_NOCTX && err_info) *err_info = err;
