@@ -19,18 +19,21 @@
 #ifndef H_VSERVER_SYSCALL_H
 #define H_VSERVER_SYSCALL_H
 
+#include <stdint.h>
+#include <stdlib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int call_new_s_context(int nbctx, int ctxs[], int remove_cap, int flags);
-int call_set_ipv4root (unsigned long ip[], int nb,
-		       unsigned long bcast, unsigned long mask[]);
-int call_chrootsafe (const char *dir);
-int has_chrootsafe();
-int call_set_ctxlimit (int res, long limit);
+  struct vc_ip_mask_pair {
+    uint32_t	ip;
+    uint32_t	mask;
+  };
 
-void	vserver_init();
+  int	vc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags);
+  int	vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips);
+  int	vc_chrootsafe(char const *dir);
 
 #ifdef __cplusplus
 }
