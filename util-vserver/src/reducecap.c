@@ -161,49 +161,55 @@ int main (int argc, char *argv[])
 				// The following capabilities are normally available
 				// to vservers administrator, but are place for
 				// completeness
-				{"CAP_CHOWN",CAP_CHOWN},
-				{"CAP_DAC_OVERRIDE",CAP_DAC_OVERRIDE},
-				{"CAP_DAC_READ_SEARCH",CAP_DAC_READ_SEARCH},
-				{"CAP_FOWNER",CAP_FOWNER},
-				{"CAP_FSETID",CAP_FSETID},
-				{"CAP_KILL",CAP_KILL},
-				{"CAP_SETGID",CAP_SETGID},
-				{"CAP_SETUID",CAP_SETUID},
-				{"CAP_SETPCAP",CAP_SETPCAP},
-				{"CAP_SYS_TTY_CONFIG",CAP_SYS_TTY_CONFIG},
-				{"CAP_LEASE",CAP_LEASE},
-				{"CAP_SYS_CHROOT",CAP_SYS_CHROOT},
+				{"CHOWN",CAP_CHOWN},
+				{"DAC_OVERRIDE",CAP_DAC_OVERRIDE},
+				{"DAC_READ_SEARCH",CAP_DAC_READ_SEARCH},
+				{"FOWNER",CAP_FOWNER},
+				{"FSETID",CAP_FSETID},
+				{"KILL",CAP_KILL},
+				{"SETGID",CAP_SETGID},
+				{"SETUID",CAP_SETUID},
+				{"SETPCAP",CAP_SETPCAP},
+				{"SYS_TTY_CONFIG",CAP_SYS_TTY_CONFIG},
+				{"LEASE",CAP_LEASE},
+				{"SYS_CHROOT",CAP_SYS_CHROOT},
 
 				// Those capabilities are not normally available
 				// to vservers because they are not needed and
 				// may represent a security risk
-				{"--LINUX_IMMUTABLE",CAP_LINUX_IMMUTABLE},
-				{"--NET_BIND_SERVICE",CAP_NET_BIND_SERVICE},
-				{"--NET_BROADCAST",CAP_NET_BROADCAST},
-				{"--NET_ADMIN",	CAP_NET_ADMIN},
-				{"--NET_RAW",	CAP_NET_RAW},
-				{"--IPC_LOCK",	CAP_IPC_LOCK},
-				{"--IPC_OWNER",	CAP_IPC_OWNER},
-				{"--SYS_MODULE",CAP_SYS_MODULE},
-				{"--SYS_RAWIO",	CAP_SYS_RAWIO},
-				{"--SYS_PACCT",	CAP_SYS_PACCT},
-				{"--SYS_ADMIN",	CAP_SYS_ADMIN},
-				{"--SYS_BOOT",	CAP_SYS_BOOT},
-				{"--SYS_NICE",	CAP_SYS_NICE},
-				{"--SYS_RESOURCE",CAP_SYS_RESOURCE},
-				{"--SYS_TIME",	CAP_SYS_TIME},
-				{"--MKNOD",		CAP_MKNOD},
-				{"--QUOTACTL",          CAP_QUOTACTL},
+				{"LINUX_IMMUTABLE",CAP_LINUX_IMMUTABLE},
+				{"NET_BIND_SERVICE",CAP_NET_BIND_SERVICE},
+				{"NET_BROADCAST",CAP_NET_BROADCAST},
+				{"NET_ADMIN",	CAP_NET_ADMIN},
+				{"NET_RAW",	CAP_NET_RAW},
+				{"IPC_LOCK",	CAP_IPC_LOCK},
+				{"IPC_OWNER",	CAP_IPC_OWNER},
+				{"SYS_MODULE",CAP_SYS_MODULE},
+				{"SYS_RAWIO",	CAP_SYS_RAWIO},
+				{"SYS_PACCT",	CAP_SYS_PACCT},
+				{"SYS_ADMIN",	CAP_SYS_ADMIN},
+				{"SYS_BOOT",	CAP_SYS_BOOT},
+				{"SYS_NICE",	CAP_SYS_NICE},
+				{"SYS_RESOURCE",CAP_SYS_RESOURCE},
+				{"SYS_TIME",	CAP_SYS_TIME},
+				{"MKNOD",		CAP_MKNOD},
+				{"QUOTACTL",          CAP_QUOTACTL},
 				{NULL,0}
 			};
 			int j;
+			arg += 2;
+			if (*arg=='\0') {
+			  ++i;
+			  break;
+			}
+			if (strncmp(arg, "CAP_", 4)==0) arg += 4;
 			for (j=0; tbcap[j].option != NULL; j++){
 				if (strcasecmp(tbcap[j].option,arg)==0){
 					remove |= (1<<tbcap[j].bit);
 					break;
 				}
 			}
-			if (tbcap[j].option != NULL){
+			if (tbcap[j].option == NULL){
 				usage();
 			}
 		}else{
@@ -216,8 +222,6 @@ int main (int argc, char *argv[])
 		}else{
 			usage();
 		}
-	}else if (argv[i][0] == '-'){
-		usage();
 	}else{
 		struct __user_cap_header_struct header;
 		struct __user_cap_data_struct user;
