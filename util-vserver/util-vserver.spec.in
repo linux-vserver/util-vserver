@@ -229,7 +229,7 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 
 %changelog
 * Thu Sep  9 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.30.194-0
-- commented switches
+- documented switches for 'rpmbuild'
 
 * Wed May 26 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.29.215-0
 - (re)added the MANIFEST_* variables which were lost some time ago;
