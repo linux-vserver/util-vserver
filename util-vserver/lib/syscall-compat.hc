@@ -19,8 +19,10 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-
 #include "compat.h"
+
+#include "safechroot-internal.hc"
+
 #include "vserver.h"
 #include "vserver-internal.h"
 

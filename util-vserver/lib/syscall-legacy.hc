@@ -29,6 +29,8 @@
 	If this file does not have those system calls (not a patched kernel source)
 	we rely on static values in this file.
 */
+#include "safechroot-internal.hc"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
