@@ -117,9 +117,6 @@ FMT_P(int)(char *ptr, int val)
 }
 #endif
 
-#undef ALIASFUNC
-#undef STRINGIFY
-#undef STRINGIFY_
 #undef FMT_P
 #undef FMT_P_
 #undef FMT_P__
