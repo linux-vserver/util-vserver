@@ -77,12 +77,11 @@ Debian Woody & Sarge
   | echo 'http://ftp.debian.org/debian/pool/main/d/debootstrap/debootstrap_<version>_i386.deb' \
   |    >/etc/vservers/.defaults/apps/debootstrap/uri
 
-  You can download a local copy of this tarball also, and put it with
+  You can download a local copy of this tarball also, and register it
+  with
 
   | echo '/<path-to-the-tarball>' \
   |    >/etc/vservers/.defaults/apps/debootstrap/uri
-
-  into this file.
 
 * it is known, that warning messages will be created at startup and
   shutdown of guest servers. This is non fatal and can be ignored
