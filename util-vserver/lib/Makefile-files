@@ -28,6 +28,11 @@ lib_management_SRCS		=  lib/getvserverbyctx.c \
 lib_v11_SRCS			=  lib/syscall_rlimit.c \
 				   lib/syscall_kill.c
 
+lib_ioctl_SRCS =		lib/ioctl-getfilecontext.c \
+				lib/ioctl-setfilecontext.c \
+				lib/ioctl-getext2flags.c \
+				lib/ioctl-setext2flags.c
+
 PKGCONFIG_FILES			=  lib/util-vserver
 
 lib_SRCS			=  lib/syscall.c \
@@ -40,6 +45,7 @@ lib_SRCS			=  lib/syscall.c \
 				   lib/fmtx-32.c \
 				   lib/fmtx-64.c \
 				   lib/capabilities.c \
+				   $(lib_ioctl_SRCS) \
 				   $(lib_legacy_SRCS) \
 				   $(lib_management_SRCS) \
 				   $(lib_v11_SRCS)
@@ -56,6 +62,7 @@ lib_XHDRS                       =  lib/syscall-compat.hc \
 				   lib/getinitpid-legacy.hc \
 				   lib/getversion-internal.hc \
 				   lib/safechroot-internal.hc \
+				   lib/ext2fs.h \
 				   lib/fmt.h \
 				   lib/fmt.hc \
 				   lib/fmtx.hc \
