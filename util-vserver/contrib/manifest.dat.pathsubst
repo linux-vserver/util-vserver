@@ -41,6 +41,7 @@ base   @PKGLIBDIR@/listdevip
 base   @PKGLIBDIR@/mask2prefix
 base   @PKGLIBDIR@/parserpmdump
 base   @PKGLIBDIR@/pipe-sync
+build  @PKGLIBDIR@/pkgmgmt
 base   @PKGLIBDIR@/readlink
 base   @PKGLIBDIR@/rootshell
 build  @PKGLIBDIR@/rpm-fake-resolver
