@@ -41,5 +41,10 @@ vc_X_get_ext2flags(int fd, long *flags)
   rc = ioctl(fd, EXT2_IOC_GETFLAGS, flags);
   *flags = EXT2FLAGS_KERNEL2USER(*flags);
 
+  if (rc<-1) {
+    errno = -rc;
+    rc    = -1;
+  }
+
   return rc;
 }

@@ -31,5 +31,10 @@ vc_X_set_filecontext(int fd, xid_t ctx)
   int	c  = ctx;
   int	rc = ioctl(fd, EXT2_IOC_SETCONTEXT, &c);
 
+  if (rc<-1) {
+    errno = -rc;
+    rc    = -1;
+  }
+  
   return rc;
 }

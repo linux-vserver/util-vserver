@@ -37,6 +37,7 @@ static inline ALWAYSINLINE int
 vc_X_set_ext2flags(int fd, long set_flags, long del_flags)
 {
   long		old_flags = 0;
+  int		rc;
 
   set_flags = EXT2FLAGS_USER2KERNEL(set_flags);
   del_flags = EXT2FLAGS_USER2KERNEL(del_flags);
@@ -47,5 +48,12 @@ vc_X_set_ext2flags(int fd, long set_flags, long del_flags)
   }
 
   old_flags |= set_flags;
-  return ioctl(fd, EXT2_IOC_SETFLAGS, &old_flags);
+  rc = ioctl(fd, EXT2_IOC_SETFLAGS, &old_flags);
+
+  if (rc<-1) {
+    errno = -rc;
+    rc    = -1;
+  }
+
+  return rc;
 }

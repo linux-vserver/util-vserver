@@ -34,5 +34,10 @@ vc_X_get_xflg(int fd, long *flags)
   *flags = 0;
   rc = ioctl(fd, FIOC_GETXFLG, flags);
 
+  if (rc<-1) {
+    errno = -rc;
+    rc    = -1;
+  }
+  
   return rc;
 }
