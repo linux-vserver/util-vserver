@@ -95,7 +95,7 @@ endif
 linuxcaps.h:		${kernelincludedir}/linux/capability.h Makefile
 			@rm -f $@
 			echo '#include <stdint.h>' >$@.tmp
-			sed -e 's!^#include .*!!g;s!\<__u32\>!uint32_t!g;s!\<__user\>!!g;' $< >>$@.tmp
+			$(SED) -e 's!^#include .*!!g;s!\<__u32\>!uint32_t!g;s!\<__user\>!!g;' $< >>$@.tmp
 			@-chmod --reference $< $@.tmp &>/dev/null
 			mv -f $@.tmp $@
 			@chmod a-w $@
@@ -141,8 +141,8 @@ pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 pathconfig.h:		.pathconfig.h.pathsubst.stamp
 .%.pathsubst.stamp:	%.pathsubst Makefile
 			@mkdir -p $$(dirname '$@')
-			@echo "sed -e '...' $*.pathsubst >$*"
-			@sed -e '$(pathsubst_RULES)' '$<' >'$@.tmp'
+			@echo "$(SED) -e '...' $*.pathsubst >$*"
+			@$(SED) -e '$(pathsubst_RULES)' '$<' >'$@.tmp'
 			@-chmod --reference='$<' '$@.tmp'
 			@if cmp -s '$@.tmp' '$*'; then \
 				echo "... no changes, reusing old version"; \
@@ -157,11 +157,26 @@ pkgstatedir		=  $(localstatedir)/run/vservers
 pkgstaterevdir		=  $(pkgstatedir).rev
 vserverpkgdir		=  $(vserverdir)/.pkg
 
-install-data-hook:
+fix_SCRPTS		=  $(addprefix $(pkglibdir)/, $(notdir $(pkglib_SCRIPTS))) \
+			   $(addprefix $(legacydir)/, $(notdir $(legacy_SCRIPTS))) \
+			   $(addprefix $(sbindir)/,   $(notdir $(sbin_SCRIPTS)))
+
+install-data-hook:	install-fix-script-paths install-create-dirs
+
+install-create-dirs:
 			$(mkinstalldirs) -m 755 $(DESTDIR)$(pkgstatedir) $(DESTDIR)$(pkgstaterevdir)
 			$(mkinstalldirs) -m 755 $(DESTDIR)$(confdefaultsdir)/{apps/pkgmgmt,files}
-			f=$(DESTDIR)$(confdefaultsdir)/vdirbase; test -e "$$f" || ln -s '$(vserverdir)'     "$$f"
-			f=$(DESTDIR)$(confdefaultsdir)/run.rev;  test -e "$$f" || ln -s '$(pkgstaterevdir)' "$$f"
+			f=$(DESTDIR)$(confdefaultsdir)/vdirbase; test -e "$$f" || ln -sf '$(vserverdir)'     "$$f"
+			f=$(DESTDIR)$(confdefaultsdir)/run.rev;  test -e "$$f" || ln -sf '$(pkgstaterevdir)' "$$f"
+
+install-fix-script-paths:
+			test "/usr/lib/util-vserver" = "$(pkglibdir)" || \
+			for i in $(fix_SCRPTS); do \
+				f="$(DESTDIR)$$i"; \
+				$(SED) -e 's!/usr/lib/util-vserver!$(pkglibdir)!g' "$$f" >"$$f.tmp"; \
+				$(CMP) -s "$$f.tmp" "$$f" || cat "$$f.tmp" >"$$f"; \
+				rm -f "$$f.tmp"; \
+			done
 
 install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
