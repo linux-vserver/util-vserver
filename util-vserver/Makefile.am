@@ -20,7 +20,7 @@
 ACLOCAL_AMFLAGS		=  -I m4
 SUBDIRS			=  . distrib
 
-CVS2CL_AMFLAGS		=  $(CVS2CL_TAG) -U cvsusers.map
+CVS2CL_AMFLAGS		=  $(CVS2CL_TAG) -U cvsusers.map --show-dead
 CVS2CL_ALLFLAGS        :=  $(CVS2CL_AMFLAGS) $(CVS2CL_FLAGS)
 
 confdir			=  $(sysconfdir)/vservers
@@ -51,14 +51,16 @@ BUILT_SOURCES		=  linuxcaps.h pathconfig.h linuxvirtual.h
 
 man_MANS		=  $(man_DATMAN)
 
+m4_FILES		=  m4/ensc_cflags.m4 m4/ensc_kerneldir.m4 \
+			   m4/ensc_changelog.m4 m4/ensc_uv_vrootdir.m4 \
+			   m4/ensc_fpicsyscall.m4 m4/ensc_cxxcompiler.m4
+
 EXTRA_PROGRAMS		=  $(src_EXTRA_PROGS)
 EXTRA_DIST		=  $(sysv_XTRAS) $(sysv_CFG) \
                            $(doc_DAT) $(man_DATMAN) \
-			   $(scripts_XTRAS) \
+			   $(scripts_XTRAS) $(m4_FILES) \
 			   pathconfig.h.pathsubst \
 			   util-vserver.spec \
-                           m4/ensc_cflags.m4 m4/ensc_fpicsyscall.m4 \
-			   m4/ensc_cxxcompiler.m4 \
 			   THANKS
 
 AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE $(RELEASE_CPPFLAGS)
@@ -77,8 +79,14 @@ DIET_FLAGS		=
 DIET_CC		       :=  $(DIET) $(DIET_FLAGS) $(CC)
 endif
 
-linuxcaps.h:
-			ln -sf ${kernelincludedir}/linux/capability.h linuxcaps.h
+linuxcaps.h:		${kernelincludedir}/linux/capability.h Makefile
+			@rm -f $@
+			echo '#include <stdint.h>' >$@.tmp
+			sed -e 's!^#include .*!!g;s!\<__u32\>!uint32_t!g' $< >>$@.tmp
+			@-chmod --reference $< $@.tmp &>/dev/null
+			mv -f $@.tmp $@
+			@chmod a-w $@
+
 
 linuxvirtual.h:
 			ln -sf '$(kernelincludedir)/linux/virtual.h' '$@' && test -e '$@' || \
