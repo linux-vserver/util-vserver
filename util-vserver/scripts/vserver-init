@@ -32,7 +32,8 @@ tmp=$(getopt -o d:r: --long force,dir:,pkgcfg:,hostname:,iproot:,iprootmask:,ipr
 eval set -- "$tmp"
 
 distrib=
-root=/vservers
+root=
+root_rel=1
 dir=
 name=
 hostname=
@@ -42,7 +43,7 @@ iprootbcast=
 iprootdev=
 force=
 pkgcfg=
-
+pkgcfgbase_rel=
 
 function makeDevEntry
 {
@@ -110,6 +111,26 @@ function prepareRPMDb
     mkdir -p "$vdir$rpmdb_path"
 }
 
+function importGPGPubKeys
+{
+    local dst=$1
+    local pkgs
+    declare -a pkgs
+    local i
+    
+    shift
+    for i; do
+	local file=
+	for file in "$i"/*; do
+	    test -f "$file" || continue
+	    pkgs[${#pkgs[*]}]=$file
+	done
+    done
+
+    test "$pkgs" || return 0
+    "$_VRPM" "$dst" -- --import "${pkgs[@]}"
+}
+
 while true; do
     case "$1" in
 	-d)		distrib="$2"; shift 2;;
@@ -140,8 +161,39 @@ test "$#" = 1 || {
 }
 
 name=$1
-test "$dir"    || dir=$name
-test "$pkgcfg" || pkgcfg=$root/.pkg/$name
+
+test "$root"    || {
+    for item in "$CONFDIR/.defaults/vdirbase 1" "/vservers"; do
+	set -- $item
+	root=$1
+	root_rel=$2
+	test ! -d "$root" || break
+    done
+}
+
+test -d "$root" || {
+    echo "Root-directory '$root' does not exists or is invalid"
+    exit 1
+}
+    
+test "$pkgcfg"  || {
+    pkgcfgbase=
+    for item in "$CONFDIR/.defaults/apps/pkgmgmt/base 1" "$root/.pkg"; do
+	set -- $item
+	pkgcfgbase=$1
+	pkgcfgbase_rel=$2
+	test ! -d "$pkgcfgbase" || break
+    done
+
+    test -d "$pkgcfgbase"  || {
+	echo "pkgcfgbase-dir '$pkgcfgbase' does not exists or is invalid"
+	exit 1
+    }
+
+    pkgcfg="$pkgcfgbase/$name"
+}
+
+test "$dir"        || dir=$name
 
 vdir=$root/$dir
 test ! -d "$vdir"  || {
@@ -177,7 +229,7 @@ findDir  EXECDIR  $CONFDIR/.distributions/$distrib/execdir  $DISTRIBDIR/$distrib
 findDir  RPMLIB   $CONFDIR/.distributions/$distrib/rpmlib   $DISTRIBDIR/$distrib/rpmlib  	/
 findDir  PKGDIR   $CONFDIR/.distributions/$distrib/pkgs     $DISTRIBDIR/$distrib/pkgs    	/
 
-mkdir -p "$confdir"/apps/pkgmgmt "$vdir"/{dev,etc} \
+mkdir -p "$confdir"/apps/pkgmgmt "$vdir"/{dev/pts,etc} \
          "$pkgcfg"/{rpm/{etc,state},apt/{etc,archives/partial,cache,state/lists/partial}}
 
 prepareRPMDb
@@ -211,6 +263,7 @@ populateDirectory "$pkgcfg/rpm/etc" "$DISTRIBDIR/defaults/rpm" "$DISTRIBDIR/$dis
 echo "%_dbpath $rpmdb_path" >>"$pkgcfg/rpm/etc/macros"
 		  
 test -z "$INITPRE"  || "$INITPRE" "$name"
+importGPGPubKeys "$name" "$CONFDIR/.distributions/$distrib/pubkeys" "$DISTRIBDIR/$distrib/pubkeys"
 "$_VAPT_GET" "$name" -- update
 installBasePackages "$name" "$PKGDIR"
 "$_VAPT_GET" "$name" -- dist-upgrade -y
