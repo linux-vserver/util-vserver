@@ -70,6 +70,19 @@ initLib()
 {
   if (is_initialized) return;
 
+#ifdef VC_ENABLE_API_LEGACY
+  {
+    extern void vc_init_internal_legacy(int ctx_rev, int ctx_number,
+					int ipv4_rev, int ipv4_number);
+  
+    vc_init_internal_legacy(getAndClearEnv("RPM_FAKE_S_CONTEXT_REV", 0),
+			    getAndClearEnv("RPM_FAKE_S_CONTEXT_NR",  280),
+			    3, 281);
+  }
+#else
+  (void)getAndClearEnv("RPM_FAKE_S_CONTEXT_REV", 0);
+  (void)getAndClearEnv("RPM_FAKE_S_CONTEXT_NR",  280);
+#endif  
   INIT(RTLD_NEXT, execv);
     //INIT(RTLD_NEXT, open);
 
