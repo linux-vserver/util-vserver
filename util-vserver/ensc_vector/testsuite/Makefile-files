@@ -22,7 +22,7 @@ TESTS +=			ensc_vector/testsuite/test1 \
 				ensc_vector/testsuite/test2
 
 ensc_vector_testsuite_test1_SOURCES =	ensc_vector/testsuite/test1.c
-ensc_vector_testsuite_test1_LDADD =	libensc_vector.a
+ensc_vector_testsuite_test1_LDADD =	$(LIBENSCVECTOR)
 
 ensc_vector_testsuite_test2_SOURCES =	ensc_vector/testsuite/test2.c
-ensc_vector_testsuite_test2_LDADD =	libensc_vector.a
+ensc_vector_testsuite_test2_LDADD =	$(LIBENSCVECTOR)
