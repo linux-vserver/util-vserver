@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.23.190.1, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.23.191, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -146,6 +146,6 @@ if false; then
 	AC_DEFINE(HAVE_GROWING_STACK, [1], [Define to 1 if the stack is on growing addresses])
 fi
 
-
+AH_BOTTOM([#include "compat.h"])
 AC_CONFIG_FILES([util-vserver.spec Makefile distrib/Makefile])
 AC_OUTPUT
