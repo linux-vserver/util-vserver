@@ -39,7 +39,7 @@ EXTRA_DIST +=			$(doc_compatibility_SRCS) \
 				$(doc_old_doc) \
 				$(doc_gen_DOCS)
 
-CLEANFILES +=			$(doc_gen_DOCS) doc/*.raw.html* doc/*.html.tmp
+CLEANFILES +=			doc/*.raw.html* doc/*.html.tmp
 
 doc/configuration.html:		STYLESHEET=$(srcdir)/doc/configuration-xhtml.xsl
 doc/configuration.html:		$(srcdir)/doc/configuration-xhtml.xsl
@@ -51,6 +51,7 @@ doc:				doc_doc
 doc_doc:			$(doc_gen_DOCS)
 
 if HAVE_XSLTP
+CLEANFILES +=			$(doc_gen_DOCS)
 %.html:				%.xml $(STYLESHEET)
 				LANG=C $(XSLTP) $(XSLTP_AMFLAGS) -in '$<' -xsl $(STYLESHEET) -out '$@.tmp'
 				@mv -f '$@.tmp' '$@'
