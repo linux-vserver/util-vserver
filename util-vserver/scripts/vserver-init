@@ -1,4 +1,5 @@
-#! /bin/bash -e
+#! /bin/bash
+# $Id$
 
 # Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 #  
@@ -15,6 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+set -e
 
 : ${UTIL_VSERVER_VARS:=$(dirname $0)/util-vserver-vars}
 test -e "$UTIL_VSERVER_VARS" || {
@@ -42,9 +44,19 @@ force=
 pkgcfg=
 
 
-function makeInode
+function makeDevEntry
 {
-    mknod -m$6 $1/$2 $3 $4 $5
+    local dst=$1/$2
+    case "$3" in
+	c|b)	mknod -m$6 "$dst"  $3 $4 $5;;
+	d)	mkdir -p -m$4 "$dst";;
+	f)	touch "$dst"
+		chmod $4 "$dst"
+		;;
+	*)	echo "Unknown dev-entry mode '$3'" >&2
+		false
+		;;
+    esac
 }
 
 function installBasePackages
@@ -54,7 +66,7 @@ function installBasePackages
 
     test "$dir" != / || return
     for filelist in "$dir"/*; do
-	test -e "$filelist" || continue
+	test -f "$filelist" || continue
 	local idx=0
 	local can_fail=false
 	local flags=
@@ -68,8 +80,34 @@ function installBasePackages
 	    esac
 	    shift
 	done
-	"$_VAPT_GET" "$name" -- install $flags "$@"  || $can_fail
+	"$_VAPT_GET" "$name" -- install -y $flags $* || $can_fail
     done
+}
+
+function populateDirectory
+{
+    local dst=$1
+    local i
+    
+    shift
+    for i; do
+	local file=
+	
+	for file in "$i"/*; do
+	    test -e "$file" || continue
+	    cp -a "$file" "$dst/"
+	done
+    done
+}
+
+function prepareRPMDb
+{
+    rpmdb_path=/dev
+    test -z "$WORKAROUND_106057" || {
+	rpmdb_path=/.rpmdb
+	mkdir -p "$rpmdb_path"
+    }
+    mkdir -p "$vdir$rpmdb_path"
 }
 
 while true; do
@@ -135,17 +173,24 @@ test "$distrib" || {
 findFile INITPRE  $CONFDIR/.distributions/$distrib/initpre  $DISTRIBDIR/$distrib/initpre	""
 findFile INITPOST $CONFDIR/.distributions/$distrib/initpost $DISTRIBDIR/$distrib/initpost	""
 findFile DEVDESCR $CONFDIR/.distributions/$distrib/devs     $DISTRIBDIR/$distrib/devs 	        $DISTRIBDIR/defaults/devs
-findDir  APTTMPL  $CONFDIR/.distributions/$distrib/apt      $DISTRIBDIR/$distrib/apt
-findDir  RPMTMPL  $CONFDIR/.distributions/$distrib/rpm      $DISTRIBDIR/$distrib/rpm  	        $DISTRIBDIR/defaults/rpm
 findDir  EXECDIR  $CONFDIR/.distributions/$distrib/execdir  $DISTRIBDIR/$distrib/execdir 	/
 findDir  RPMLIB   $CONFDIR/.distributions/$distrib/rpmlib   $DISTRIBDIR/$distrib/rpmlib  	/
 findDir  PKGDIR   $CONFDIR/.distributions/$distrib/pkgs     $DISTRIBDIR/$distrib/pkgs    	/
 
-mkdir -p "$confdir"/apps/pkgmgmt "$vdir"/{dev,/var/lib/rpm,/etc} \
+mkdir -p "$confdir"/apps/pkgmgmt "$vdir"/{dev,etc} \
          "$pkgcfg"/{rpm/{etc,state},apt/{etc,archives/partial,cache,state/lists/partial}}
- 
+
+prepareRPMDb
+	 	 
+## HACK AND SECURITY ALERT!
+## /var/lib/rpm is hardcoded into apt-get which does not honor the
+## %_dbpath variable therefore
+#mkdir -p "$vdir"/var/lib
+#ln -s ../../dev "$vdir"/var/lib/rpm
+
+
 while read spec; do
-    makeInode "$vdir"/dev $spec
+    makeDevEntry "$vdir"/dev $spec
 done <$DEVDESCR
 
 ln -s "$vdir" "$confdir"/vdir
@@ -159,12 +204,14 @@ ln -s "$pkgcfg" "$confdir/apps/pkgmgmt/base"
 test "$EXECDIR" = / || ln -s "$EXECDIR" "$confdir/apps/pkgmgmt/execdir"
 test "$RPMLIB"  = / || ln -s "$RPMLIB"  "$confdir/apps/pkgmgmt/rpmlib"
 
-cp -a "$RPMTMPL/"* "$pkgcfg/rpm/etc/"
-cp -a "$APTTMPL/"* "$pkgcfg/apt/etc/"
+populateDirectory "$pkgcfg/apt/etc" "$DISTRIBDIR/$distrib/apt" "$CONFDIR/.distributions/$distrib/apt"
+populateDirectory "$pkgcfg/rpm/etc" "$DISTRIBDIR/defaults/rpm" "$DISTRIBDIR/$distrib/rpm" \
+		  "$CONFDIR/.distributions/$distrib/rpm"
 
-
-test -z "$INITPRE" || "$INITPRE" "$name"
+echo "%_dbpath $rpmdb_path" >>"$pkgcfg/rpm/etc/macros"
+		  
+test -z "$INITPRE"  || "$INITPRE" "$name"
 "$_VAPT_GET" "$name" -- update
 installBasePackages "$name" "$PKGDIR"
-"$_VAPT_GET" "$name" -- dist-upgrade
+"$_VAPT_GET" "$name" -- dist-upgrade -y
 test -z "$INITPOST" || "$INITPOST" "$name"
