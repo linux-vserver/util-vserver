@@ -37,7 +37,8 @@ if $_VSERVER_INFO - FEATURE migrate; then
     $_CHBIND     "${CHBIND_OPTS[@]}" \
     $_VCONTEXT   --create "${OPTS_VCONTEXT_CREATE[@]}" \
     ${USE_VNAMESPACE:+$_VNAMESPACE --set} \
-    $_VLIMIT     --dir "$VSERVER_DIR/rlimits" --missingok \
+    $_VLIMIT     --dir "$VSERVER_DIR"/rlimits --missingok \
+    $_VUNAME     --dir "$VSERVER_DIR"/uts     --missingok \
     $_VATTRIBUTE --set "${OPTS_VATTRIBUTE[@]}" \
     $_VCONTEXT   --migrate --chroot $SILENT_OPT "${OPTS_VCONTEXT_MIGRATE[@]}" \
     -- "${INITCMD_START[@]}"
