@@ -80,7 +80,7 @@ the GNU General Public License.  This program has absolutely no warranty."
 set -e
 
 declare -a default_opts=()
-test "$NO_DEFAULT_OPTS" || getFileArray default_opts "$CONFDIR/.defaults/apps/build/options"
+test "$NO_DEFAULT_OPTS" || getFileArray default_opts "$CONFDIR/.defaults/apps/build/options" || :
 
 tmp=$(getopt -o +m:n: --long force,debug,help,version,rootdir:,pkgbase:,$SETUP_OPTIONS -n "$(basename $0)" -- \
 	"${default_opts[@]}" "$@") || exit 1
