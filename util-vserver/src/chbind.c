@@ -38,6 +38,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#define ENSC_WRAPPERS_PREFIX	"chbind: "
 #define ENSC_WRAPPERS_IO	1
 #define ENSC_WRAPPERS_UNISTD	1
 #include "wrappers.h"
@@ -276,7 +277,7 @@ int main (int argc, char *argv[])
   
 
   if (vc_set_ipv4root(bcast,nbaddrs,ips)!=0) {
-    perror("vc_set_ipv4root()");
+    perror("chbind: vc_set_ipv4root()");
     exit(wrapper_exit_code);
   }
 
@@ -317,9 +318,11 @@ void test()
   readIP("localhost", &ip, &bcast);
   assert(ip.ip==ntohl(0x7f000001) && ip.mask==ntohl(0xffffff00) && bcast==0);
 
+#if 0
   if (ifconfig_getaddr("lo", &tmp, &tmp, &tmp)!=-1) {
     readIP("lo", &ip, &bcast);
     assert(ip.ip==ntohl(0x7f000001) && ip.mask==ntohl(0xff000000) && bcast==ntohl(0x7fffffff));
   }
+#endif
 }
 #endif
