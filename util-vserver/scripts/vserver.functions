@@ -607,6 +607,7 @@ function generateOptions
 
     if test "$_IS_FAKEINIT"; then
 	CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
+	OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --flag fakeinit )
 	OPTS_VCONTEXT_MIGRATE=( "${OPTS_VCONTEXT_MIGRATE[@]}" --fakeinit --disconnect )
     fi
 }
