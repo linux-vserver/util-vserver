@@ -27,18 +27,24 @@
 struct Command
 {
     char const *	filename;
-    struct Vector	params;
+    union {
+	struct Vector	v;
+	char const **	d;
+    }			params;
     pid_t		pid;
     int			rc;
     int			err;
     struct rusage	rusage;
+
+    enum { parNONE, parVEC, parDATA }	params_style_;
 };
 
-void	Command_init(struct Command *, size_t param_count);
+void	Command_init(struct Command *);
 void	Command_free(struct Command *);
 void	Command_reset(struct Command *);
 bool	Command_exec(struct Command *, bool do_fork);
 void	Command_appendParameter(struct Command *, char const *);
+void	Command_setParams(struct Command *, char const **);
 /**
  *  \args do_hang  when true, do not return before command exited, or
  *                 an error (e.g. signal) occured
