@@ -45,7 +45,7 @@ src_OPTIONS_EXEMPT	=  src/parserpmdump \
 
 
 src_DIETPROGS =		src/new-namespace \
-			src/chcontext \
+			src/chcontext-compat \
 	     		src/secure-mount \
 	     		src/save_ctxinfo \
 	     		src/mask2prefix \
@@ -90,6 +90,7 @@ src_HDRS =  		src/vutil.h src/vutil.p \
 
 src_pkglib_SCRPTS =
 src_pkglib_PRGS =	src/capchroot \
+			src/chcontext-compat \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
 			src/clearenv \
@@ -115,7 +116,6 @@ src_lib_LTLIBS		=
 
 src_sbin_SCRPTS =
 src_sbin_PRGS =		src/chbind \
-			src/chcontext \
 			src/exec-cd \
 			src/lsxid \
 			src/chxid \
@@ -144,9 +144,9 @@ src_chbind_SOURCES		=  src/chbind.c
 src_chbind_LDADD		=  $(VSERVER_LDADDS)
 src_chbind_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
-src_chcontext_SOURCES		=  src/chcontext.c
-src_chcontext_LDADD		=  $(VSERVER_LDADDS) lib_internal/libinternal.a
-src_chcontext_LDFLAGS		=  $(VSERVER_LDFLAGS)
+src_chcontext_compat_SOURCES =	src/chcontext.c
+src_chcontext_compat_LDADD =	$(VSERVER_LDADDS) lib_internal/libinternal.a
+src_chcontext_compat_LDFLAGS =	$(VSERVER_LDFLAGS)
 
 src_vcontext_SOURCES		=  src/vcontext.c
 src_vcontext_LDADD		=  $(VSERVER_LDADDS) lib_internal/libinternal.a
