@@ -47,7 +47,7 @@ elif [ -d "$1" ] ; then
 	DISTDIR=$1
 	CHROOTCMD="$SBINDIR/chroot $DISTDIR"
 else
-	DISTDIR=/vservers/$1
+	DISTDIR=$DEFAULT_VSERVERDIR/$1
 	CHROOTCMD="$SBINDIR/chroot $DISTDIR"
 fi
 KEY=$2

@@ -25,7 +25,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 
-cd /vservers
+cd $DEFAULT_VSERVERDIR
 for vserv in *
 do
 	if [ -f /etc/vservers/$vserv.conf ] ; then

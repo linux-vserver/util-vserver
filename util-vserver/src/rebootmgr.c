@@ -66,7 +66,7 @@ static int rebootmgr_opensocket (const char *vname)
 	int ret = -1;
 	char sockn[PATH_MAX];
 	int fd =  socket (AF_UNIX,SOCK_STREAM,0);
-	sprintf (sockn,"/vservers/%s/dev/reboot",vname);
+	sprintf (sockn, DEFAULT_VSERVERVDIR "/%s/dev/reboot",vname);
 	unlink (sockn);
 	if (fd == -1){
 		fprintf (stderr,"Can't create a unix domain socket (%s)\n"

@@ -6,7 +6,7 @@
 # processname: rebootmgr
 # config: /etc/vservers
 
-
+DEFAULT_VSERVERDIR=/vservers
 USR_SBIN=/usr/sbin
 PIDFILE=/var/run/rebootmgr.pid
 # See how we were called.
@@ -18,7 +18,7 @@ case "$1" in
 	for serv in *.conf
 	do
 		serv=`basename $serv .conf`
-		if [ -d /vservers/$serv ] ; then
+		if [ -d $DEFAULT_VSERVERDIR/$serv ] ; then
 			VSERVERS="$VSERVERS $serv"
 		fi
 	done

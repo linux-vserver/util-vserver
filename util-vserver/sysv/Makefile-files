@@ -47,7 +47,8 @@ sysv_CFG		=  sysv/vservers.conf
 
 
 sysv_SUBSTRULE		=  s!/usr/lib/util-vserver!$(pkglibdir)!g; \
-			   s!^USR_SBIN=/usr/sbin$$!USR_SBIN=$(sbindir)!g
+			   s!^USR_SBIN=/usr/sbin$$!USR_SBIN=$(sbindir)!g; \
+                           s!^DEFAULT_VSERVERDIR=/vservers$$!DEFAULT_VSERVERDIR=$(vserverdir)!g
 
 sysv/%:			sysv/%.subst
 			@mkdir -p $$(dirname '$@')
