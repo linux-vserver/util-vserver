@@ -54,7 +54,7 @@ function findDebootstrap
         workdir=$dir
         dst=$dir/debootstrap.deb
         
-        findFile DEBOOTSTRAP_URI "$CONFDIR"/.defaults/debootstrap.uri "$PKGLIBDEFAULTDIR"/debootstrap.uri
+        findFile DEBOOTSTRAP_URI "$CONFDIR"/.defaults/apps/debootstrap/uri "$PKGLIBDEFAULTDIR"/debootstrap.uri
         read tmp <$DEBOOTSTRAP_URI
         case "$tmp" in
     	(/*)			ln -s "$tmp" "$dst";;
