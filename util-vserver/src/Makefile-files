@@ -75,6 +75,7 @@ src_HDRS =  		src/vutil.h src/vutil.p src/util.h \
 			src/fstool.h \
 			src/compat-pivot_root.h \
 			src/stack-start.h \
+			src/sys_clone.h \
 			src/vunify-matchlist.h \
 			src/vunify.h \
 			src/vunify-compare.hc \
