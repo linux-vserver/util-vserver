@@ -23,18 +23,18 @@
 #include <stdbool.h>
 
 inline static UNUSED bool
-WwriteAll(int fd, void const *ptr_v, size_t len)
+WwriteAll(int fd, void const *ptr_v, size_t len, int *err)
 {
   register char const	*ptr = ptr_v;
 
+  if (err) *err = 0;
+
   while (len>0) {
-    size_t	res = TEMP_FAILURE_RETRY(write(fd, ptr, len));
-    if (res==(size_t)-1) {
-      perror("write()");
+    ssize_t	res = TEMP_FAILURE_RETRY(write(fd, ptr, len));
+    if (res<=0) {
+      if (err) *err = errno;
       return false;
     }
-
-    if (res==0) return false;
 
     ptr += res;
     len -= res;
@@ -58,14 +58,16 @@ EwriteAll(int fd, void const *ptr_v, size_t len)
 
 
 inline static UNUSED bool
-WreadAll(int fd, void *ptr_v, size_t len)
+WreadAll(int fd, void *ptr_v, size_t len, int *err)
 {
   register char	*ptr = ptr_v;
-  
+
+  if (err) *err = 0;
+
   while (len>0) {
-    size_t	res = TEMP_FAILURE_RETRY(read(fd, ptr, len));
-    if (res==(size_t)-1) {
-      perror("read()");
+    ssize_t	res = TEMP_FAILURE_RETRY(read(fd, ptr, len));
+    if (res==-1) {
+      if (err) *err = errno;
       return false;
     }
 
