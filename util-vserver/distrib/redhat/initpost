@@ -15,6 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+## HACK: this script is full of races...
+
 vdir=$1/vdir
 . "$2"
 
@@ -68,6 +70,6 @@ pushd "$vdir" &>/dev/null
     cat "$DISTRIBDIR"/redhat/rc.sysinit     | $_CHROOT_CAT /etc/rc.d/rc.sysinit.vserver
     # TODO: remove race/symlink-attack
     chmod +x etc/rc.d/rc.sysinit.vserver
-    subst /etc/inittab 's!^\([^#].*:respawn:.* tty\)!#\1!;
-			s!si::sysinit:/etc/rc.d/rc.sysinit!si::sysinit:/etc/rc.d/rc.sysinit.vserver!'
+    subst etc/inittab 's!^\([^#].*:respawn:.* tty\)!#\1!;
+		       s!si::sysinit:/etc/rc.d/rc.sysinit!si::sysinit:/etc/rc.d/rc.sysinit.vserver!'
 popd >/dev/null
