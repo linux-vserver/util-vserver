@@ -27,5 +27,8 @@ done
 
 cat $data | while read style file; do
     test "$file" || continue
+    case "$style" in
+	(\#*)	continue;;
+    esac
     echo "$file" >>$name-$style.list
 done
