@@ -54,8 +54,8 @@ sbin_PROGRAMS		=  $(src_sbin_PRGS)
 noinst_PROGRAMS		=  $(test_PRGS)
 noinst_DATA		=  $(contrib_DTA) $(doc_DAT)
 
-initrd_SCRIPTS		=  $(sysv_SCRPTS)
-sysconf_DATA		=  $(sysv_CFG)
+initrd_SCRIPTS =
+sysconf_DATA =
 
 DIETPROGS =		$(src_DIETPROGS) $(tests_DIETPROGS) $(lib_DIETPROGS) \
 			$(lib_internal_DIETPROGS)
@@ -66,8 +66,7 @@ BUILT_SOURCES =		linuxcaps.h pathconfig.h linuxvirtual.h
 man_MANS =		$(man_DATMAN)
 
 EXTRA_PROGRAMS =	$(src_EXTRA_PROGS)
-EXTRA_DIST =		$(sysv_XTRAS) $(sysv_CFG) \
-                        $(doc_DAT) $(man_DATMAN) \
+EXTRA_DIST =            $(doc_DAT) $(man_DATMAN) \
 			$(scripts_XTRAS) $(src_XTRAS) \
 			$(contrib_XTRAS) \
 			pathconfig.h.pathsubst \
@@ -84,7 +83,7 @@ TESTS_ENVIRONMENT	=  $(src_TESTS_ENV)
 
 AM_CPPFLAGS		=  -I $(top_srcdir)/lib -I $(top_srcdir)/ensc_wrappers -D _GNU_SOURCE $(RELEASE_CPPFLAGS)
 
-CLEANFILES =		$(sysv_GENSCRPTS) $(scripts_CLEANFILES) $(BUILT_SOURCES) \
+CLEANFILES =		$(scripts_CLEANFILES) $(BUILT_SOURCES) \
 			$(contrib_CLEANFILES) \
 			.*.pathsubst.stamp */.*.pathsubst.stamp */*/.*.pathsubst.stamp \
 			linuxcaps.h pathconfig.h
@@ -93,8 +92,7 @@ DISTCLEANFILES =	FEATURES.txt
 
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT	=  $(src_OPTIONS_EXEMPT) \
-					   $(scripts_OPTIONS_EXEMPT) \
-					   $(sysv_OPTIONS_EXEMPT)
+					   $(scripts_OPTIONS_EXEMPT)
 
 LIBTOOL_CC =		@LIBTOOL@ --tag CC
 LIBTOOL_CXX =		@LIBTOOL@ --tag CXX
@@ -191,7 +189,8 @@ vserverpkgdir		=  $(vserverdir)/.pkg
 
 fix_SCRPTS		=  $(addprefix $(pkglibdir)/, $(notdir $(pkglib_SCRIPTS))) \
 			   $(addprefix $(legacydir)/, $(notdir $(legacy_SCRIPTS))) \
-			   $(addprefix $(sbindir)/,   $(notdir $(sbin_SCRIPTS)))
+			   $(addprefix $(sbindir)/,   $(notdir $(sbin_SCRIPTS))) \
+			   $(addprefix $(initrddir)/, $(notdir $(initrd_SCRIPTS)))
 
 install-data-hook:	install-fix-script-paths install-create-dirs
 
