@@ -68,7 +68,7 @@ Command_exec(struct Command *cmd, bool do_fork)
     assert(cmd->err != 0);
 
     if (do_fork) {
-      write(p[1], &cmd->err, sizeof(cmd->err));
+      TEMP_FAILURE_RETRY(write(p[1], &cmd->err, sizeof(cmd->err)));
       _exit(1);	// implicates 'close(p[1])'
     }
   }
