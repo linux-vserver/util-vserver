@@ -19,6 +19,7 @@
 
 noinst_LIBRARIES +=		lib_internal/libinternal.a
 noinst_HEADERS += \
+				lib_internal/coreassert.h \
 				lib_internal/jail.h \
 				lib_internal/matchlist.h \
 				lib_internal/pathinfo.h \
