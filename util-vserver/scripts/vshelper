@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/lib/util-vserver/sigexec /bin/bash
 
 # Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 #  
