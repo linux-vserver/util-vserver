@@ -44,8 +44,7 @@ src_OPTIONS_EXEMPT	=  src/parserpmdump \
 
 
 
-src_DIETPROGS =		src/new-namespace \
-			src/chcontext-compat \
+src_DIETPROGS =		src/chcontext-compat \
 	     		src/secure-mount \
 	     		src/save_ctxinfo \
 	     		src/mask2prefix \
@@ -53,9 +52,9 @@ src_DIETPROGS =		src/new-namespace \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
 	     		src/clearenv \
-			src/enter-namespace \
 			src/exec-cd \
 	     		src/fakerunlevel \
+			src/keep-ctx-alive \
 			src/pipe-sync \
 			src/exec-ulimit \
 			src/vps \
@@ -64,6 +63,7 @@ src_DIETPROGS =		src/new-namespace \
 			src/reducecap \
 			src/showattr \
 			src/setattr \
+			src/vattribute \
 			src/vlimit \
 			src/vnamespace \
 			src/vunify \
@@ -89,6 +89,9 @@ src_HDRS =  		src/vutil.h src/vutil.p \
 			src/vserver-visitdir.hc \
 			src/vserver.hh
 
+src_legacy_SCRPTS =
+src_legacy_PRGS =
+
 src_pkglib_SCRPTS =
 src_pkglib_PRGS =	src/capchroot \
 			src/chcontext-compat \
@@ -98,6 +101,7 @@ src_pkglib_PRGS =	src/capchroot \
 			src/fakerunlevel \
 			src/filetime \
 			src/ifspec \
+			src/keep-ctx-alive \
 			src/listdevip \
 			src/parserpmdump \
 			src/readlink \
@@ -126,8 +130,7 @@ src_sbin_PRGS =		src/chbind \
 			src/rebootmgr \
 			src/reducecap \
 			src/vdu \
-			src/enter-namespace \
-			src/new-namespace \
+			src/vattribute \
 			src/vcontext \
 			src/vlimit \
 			src/vkill \
@@ -193,16 +196,13 @@ src_vdu_SOURCES =		src/vdu.c
 src_vreboot_SOURCES =		src/vreboot.c
 src_secure_mount_SOURCES =	src/secure-mount.c
 
-src_enter_namespace_SOURCES =	src/enter-namespace.c
-src_enter_namespace_LDADD =	$(VSERVER_LDADDS)
-src_enter_namespace_LDFLAGS =	$(VSERVER_LDFLAGS)
+src_vattribute_SOURCES =	src/vattribute.c
+src_vattribute_LDADD =		$(VSERVER_LDADDS)
+src_vattribute_LDFLAGS =	$(VSERVER_LDFLAGS)
 
 src_vnamespace_SOURCES =	src/vnamespace.c
 src_vnamespace_LDADD =		$(VSERVER_LDADDS) lib_internal/libinternal.a
 src_vnamespace_LDFLAGS =	$(VSERVER_LDFLAGS)
-
-src_new_namespace_SOURCES =	src/new-namespace.c
-src_new_namespace_LDADD =	$(DIET_COMPAT_LDADDS) lib_internal/libinternal.a
 
 src_rpm_fake_resolver_SOURCES	=  src/rpm-fake-resolver.c
 src_rpm_fake_resolver_LDADD	=  $(VSERVER_LDADDS)
@@ -242,6 +242,11 @@ src_showattr_LDFLAGS		=  $(VSERVER_LDFLAGS)
 src_setattr_SOURCES		=  src/fstool.c src/setattr.c
 src_setattr_LDADD		=  lib_internal/libinternal.a $(VSERVER_LDADDS)
 src_setattr_LDFLAGS		=  $(VSERVER_LDFLAGS)
+
+src_keep_ctx_alive_SOURCES =	src/keep-ctx-alive.c
+src_keep_ctx_alive_LDADD =	$(VSERVER_LDADDS)
+src_keep_ctx_alive_LDFLAGS =	$(VSERVER_LDFLAGS)
+
 
 src_vcopy_SOURCES =		src/vcopy.c
 src_vcopy_LDADD =		lib_internal/libinternal.a $(VSERVER_LDADDS)
