@@ -43,7 +43,6 @@ base   @PKGLIBDIR@/fakerunlevel
 base   @PKGLIBDIR@/filetime
 base   @PKGLIBDIR@/keep-ctx-alive
 base   @PKGLIBDIR@/mask2prefix
-base   @PKGLIBDIR@/pipe-sync
 build  @PKGLIBDIR@/pkgmgmt
 base   @PKGLIBDIR@/readlink
 base   @PKGLIBDIR@/rootshell

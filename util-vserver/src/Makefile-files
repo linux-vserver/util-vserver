@@ -31,7 +31,6 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 			src/vreboot \
 			src/save_ctxinfo \
 			src/mask2prefix \
-			src/pipe-sync \
 			src/chroot-cat \
 			src/ifspec \
 			src/rebootmgr \
@@ -54,7 +53,6 @@ DIETPROGS +=		src/chcontext-compat \
 			src/exec-cd \
 	     		src/fakerunlevel \
 			src/keep-ctx-alive \
-			src/pipe-sync \
 			src/exec-ulimit \
 			src/vps \
 			src/lsxid \
@@ -102,7 +100,6 @@ pkglib_PROGRAMS +=	src/capchroot \
 			src/save_ctxinfo \
 			src/secure-mount \
 			src/mask2prefix \
-			src/pipe-sync \
 			src/exec-ulimit \
 			src/rpm-fake-resolver \
 			src/vshelper-sync \
@@ -173,7 +170,6 @@ src_listdevip_SOURCES		=  src/listdevip.c
 src_parserpmdump_SOURCES	=  src/parserpmdump.c
 src_readlink_SOURCES		=  src/readlink.c
 src_rebootmgr_SOURCES		=  src/rebootmgr.c
-src_pipe_sync_SOURCES		=  src/pipe-sync.c
 src_exec_ulimit_SOURCES		=  src/exec-ulimit.c
 src_vshelper_sync_SOURCES	=  src/vshelper-sync.c
 
