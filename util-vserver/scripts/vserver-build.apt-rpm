@@ -45,9 +45,9 @@ initFilesystemApt
 setup_writeOption "$VSERVER_NAME"
 setup_writeInitialFstab
 
-test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$_VSERVER"
+test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
 importGPGPubKeys "$VSERVER_NAME" "$CONFDIR/.distributions/$DISTRIBUTION/pubkeys" "$DISTRIBDIR/$DISTRIBUTION/pubkeys"
 "$_VAPT_GET" "$SETUP_CONFDIR" -- update
 installBasePackages "$SETUP_CONFDIR" "$PKGDIR"
 "$_VAPT_GET" "$SETUP_CONFDIR" -- dist-upgrade -y
-test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$_VSERVER"
+test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
