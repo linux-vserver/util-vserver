@@ -17,16 +17,44 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-doc_DAT =		doc/FAQ.txt \
-			doc/changelog.txt \
-			doc/intro.txt \
-			doc/compatibility.html \
-			doc/compat-xhtml.xsl \
-			doc/compatibility.dtd \
-			doc/compatibility.xml \
-			doc/configuration.xml
+doc_DAT =			doc/FAQ.txt \
+				doc/intro.txt
 
-doc/compatibility.html:		STYLESHEET=$(srcdir)/doc/compat-xhtml.xsl
-doc/compatibility.html:		$(srcdir)/doc/compat-xhtml.xsl
-%.html:				%.xml $(STYLESHEET)
-				$(XSLTPROC) -o "$@" "$(STYLESHEET)" "$<"
+XSLT_AMFLAGS =			--stringparam confdir '$(sysconfdir)/vservers'
+
+doc_gen_DOCS =			doc/configuration.html \
+				doc/compatibility.html
+
+doc_configuration_SRCS =	doc/configuration.xml \
+				doc/configuration.dtd \
+				doc/configuration-lsd.css \
+				doc/configuration-xhtml.xsl
+
+doc_compatibility_SRCS =	doc/compatibility.xml \
+				doc/compatibility.dtd \
+				doc/compatibility-xhtml.xsl
+
+EXTRA_DIST +=			$(doc_compatibility_SRCS) \
+				$(doc_configuration_SRCS) \
+				doc/beautify.xsl
+
+CLEANFILES +=			$(doc_gen_DOCS) doc/*.raw.html*
+
+doc/configuration.html:		STYLESHEET=$(srcdir)/doc/configuration-xhtml.xsl
+doc/configuration.html:		$(srcdir)/doc/configuration-xhtml.xsl
+
+doc/compatibility.html:		STYLESHEET=$(srcdir)/doc/compatibility-xhtml.xsl
+doc/compatibility.html:		$(srcdir)/doc/compatibility-xhtml.xsl
+
+doc:				doc_doc
+doc_doc:			$(doc_gen_DOCS)
+
+%.raw.html:			%.xml $(STYLESHEET)
+				-rm -f '$@.tmp' '$@'
+				$(XSLTPROC) $(XSLT_FLAGS) $(XSLT_AMFLAGS) -o '$@.tmp' "$(STYLESHEET)" "$<"
+				mv '$@.tmp' '$@'
+
+%.html:				%.raw.html doc/beautify.xsl
+				-rm -f '$@.tmp' '$@'
+				$(XSLTPROC) -o '$@.tmp' doc/beautify.xsl '$<'
+				mv '$@.tmp' '$@'
