@@ -25,6 +25,7 @@
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <signal.h>
 
 void
 exitLikeProcess(int pid)
