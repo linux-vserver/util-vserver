@@ -1,4 +1,0 @@
-#! /bin/sh
-
-vdir=$1/vdir
-. "$2"

@@ -1,7 +1,0 @@
-*.la
-*.lo
-.buexcl
-.deps
-.dirstamp
-.libs
-util-vserver.pc
