@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/file.h>
+#include <sys/param.h>
 
 static void
 showHelp(int fd, char const *cmd, int res)
@@ -73,12 +74,9 @@ showVersion()
   exit(0);
 }
 
-static volatile int		timeout_flag = 0;
-
 static void
 alarmFunc(int UNUSED sig)
 {
-  timeout_flag = 1;
   signal(SIGALRM, alarmFunc);
 }
 
@@ -93,6 +91,7 @@ int main(int argc, char *argv[])
   int			fd, sync_fd;
   int			idx = 1;
   time_t		end_time;
+  pid_t const		ppid = getppid();
 
   if (argc>=2) {
     if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
@@ -108,8 +107,6 @@ int main(int argc, char *argv[])
   end_time = time(0);
   if (argc==idx+3) end_time += atoi(argv[idx+2]);
   else             end_time += 300;
-
-  
 		   
   if ((fd=open(argv[idx], O_CREAT|O_RDONLY|O_NOFOLLOW|O_NONBLOCK, 0644))==-1)
     perror("lockfile: open(<lockfile>)");
@@ -120,24 +117,24 @@ int main(int argc, char *argv[])
   else if (siginterrupt(SIGALRM, 1)==-1)
     perror("lockfile: siginterrupt()");
   else if (signal(SIGALRM, alarmFunc)==SIG_ERR ||
-	   signal(SIGHUP,  quitFunc)==SIG_ERR)
+	   signal(SIGHUP,  quitFunc) ==SIG_ERR)
     perror("lockfile: signal()");
-  else while (time(0)<end_time && getppid()!=1) {
-    alarm(1);
+  else while (time(0)<end_time && getppid()==ppid) {
+    int		duration = end_time-time(0);
+    alarm(MIN(10, MAX(duration,1)));
+    
     if (flock(fd,LOCK_EX)==-1) {
       if (errno==EINTR) continue;
       perror("lockfile: flock()");
       return EXIT_FAILURE;
     }
+    signal(SIGALRM, SIG_IGN);
 
     close(sync_fd);
-
-    signal(SIGALRM, SIG_IGN);
-    while (getppid()!=1) sleep(1);
+    while (getppid()==ppid) sleep(10);
 	   
     return EXIT_SUCCESS;
   }
 
   return EXIT_FAILURE;
 }
-  
