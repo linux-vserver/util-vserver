@@ -408,26 +408,17 @@ extern "C" {
 					    struct vc_err_listparser *err);
   uint_least32_t	vc_text2flag_compat(char const *, size_t len);
   char const *		vc_hiflag2text_compat(uint_least32_t);
-  
-  int		vc_text2cap(char const *);
-  char const *	vc_cap2text(unsigned int);
 
-  inline static uint_least32_t	vc_get_insecurecaps() {
-    return ( (1<<VC_CAP_LINUX_IMMUTABLE) | (1<<VC_CAP_NET_BROADCAST) |
-	     (1<<VC_CAP_NET_ADMIN) | (1<<VC_CAP_NET_RAW) |
-	     (1<<VC_CAP_IPC_LOCK) | (1<<VC_CAP_IPC_OWNER) |
-	     (1<<VC_CAP_SYS_MODULE) | (1<<VC_CAP_SYS_RAWIO) |
-	     (1<<VC_CAP_SYS_PACCT) | (1<<VC_CAP_SYS_ADMIN) |
-	     (1<<VC_CAP_SYS_BOOT) | (1<<VC_CAP_SYS_NICE) |
-	     (1<<VC_CAP_SYS_RESOURCE) | (1<<VC_CAP_SYS_TIME) |
-	     (1<<VC_CAP_MKNOD) | (1<<VC_CAP_QUOTACTL) );
-  }
+  uint_least32_t	vc_get_insecurecaps() VC_ATTR_CONST;
+  int			vc_text2cap(char const *);
+  char const *		vc_cap2text(unsigned int);
 
-  inline static int		vc_setfilecontext(char const *filename, xid_t xid) {
+
+  inline static int	vc_setfilecontext(char const *filename, xid_t xid) {
     return vc_set_iattr(filename, xid, 0, VC_IATTR_XID);
   }
   
-  inline static xid_t		vc_getfilecontext(char const *filename) {
+  inline static xid_t	vc_getfilecontext(char const *filename) {
     xid_t	res;
     if (vc_get_iattr(filename, &res, 0,0)==-1) return VC_NOCTX;
     return res;
@@ -448,12 +439,13 @@ extern "C" {
   
   typedef enum { vcFEATURE_VKILL,  vcFEATURE_IATTR,   vcFEATURE_RLIMIT,
 		 vcFEATURE_COMPAT, vcFEATURE_MIGRATE, vcFEATURE_NAMESPACE,
-		 vcFEATURE_SCHED,  vcFEATURE_VINFO,   vcFEATURE_VHI }
+		 vcFEATURE_SCHED,  vcFEATURE_VINFO,   vcFEATURE_VHI,
+                 vcFEATURE_VSHELPER }
     vcFeatureSet;
 
-  bool		vc_isSupported(vcFeatureSet);
+  bool		vc_isSupported(vcFeatureSet) VC_ATTR_CONST;
   bool		vc_isSupportedString(char const *);
-  
+
   /* The management part */
 
 #define VC_LIMIT_VSERVER_NAME_LEN	1024
