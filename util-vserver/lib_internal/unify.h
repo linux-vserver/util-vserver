@@ -25,7 +25,7 @@ struct stat;
 
 bool
 Unify_unify(char const *src, struct stat const *src_stat,
-	    char const *dst) NONNULL((1,2,3));
+	    char const *dst, bool ignore_zero) NONNULL((1,2,3));
 
 bool
 Unify_copy(char const *src, struct stat const *src_stat,
@@ -37,6 +37,8 @@ Unify_deUnify(char const *dst) NONNULL((1));
 bool
 Unify_setTime(char const *dst, struct stat const *stat) NONNULL((1,2));
 
+bool
+Unify_isIUnlinkable(char const *filename) NONNULL((1));
 
 #define	Unify_isUnified(LHS, RHS)		\
   ((bool)((LHS)->st_dev ==(RHS)->st_dev  &&	\
