@@ -21,7 +21,6 @@
 #endif
 
 #include "util.h"
-#include "wrappers.h"
 
 #include "internal.h"
 #include "vserver.h"
@@ -30,6 +29,11 @@
 #include <getopt.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <fcntl.h>
+
+#define ENSC_WRAPPERS_FCNTL	1
+#define ENSC_WRAPPERS_UNISTD	1
+#include <wrappers.h>
 
 typedef enum { tgNONE,tgCONTEXT, tgRUNNING,
 	       tgVDIR, tgNAME, tgCFGDIR, tgAPPDIR,

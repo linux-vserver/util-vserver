@@ -37,9 +37,6 @@
 #include "vserver.h"
 #include "util.h"
 #include "internal.h"
-#include "wrappers.h"
-#include "wrappers-dirent.h"
-#include "wrappers-vserver.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,6 +51,12 @@
 #include <syscall.h>
 #include <time.h>
 #include <stdbool.h>
+
+#define ENSC_WRAPPERS_DIRENT	1
+#define ENSC_WRAPPERS_VSERVER	1
+#define ENSC_WRAPPERS_FCNTL	1
+#define ENSC_WRAPPERS_UNISTD	1
+#include "wrappers.h"
 
 #define PROC_DIR_NAME "/proc"
 #define CTX_DIR_NAME "/var/run/vservers/"

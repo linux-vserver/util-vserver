@@ -28,8 +28,6 @@
 
 #include "util.h"
 #include "vserver.h"
-#include "wrappers.h"
-#include "wrappers-vserver.h"
 #include "internal.h"
 
 #include <stdio.h>
@@ -39,6 +37,12 @@
 #include <errno.h>
 #include <getopt.h>
 #include <assert.h>
+#include <fcntl.h>
+
+#define ENSC_WRAPPERS_VSERVER	1
+#define ENSC_WRAPPERS_UNISTD	1
+#define ENSC_WRAPPERS_FCNTL	1
+#include <wrappers.h>
 
 #define CMD_HELP	0x1000
 #define CMD_VERSION	0x1001

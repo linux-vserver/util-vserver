@@ -20,11 +20,17 @@
 #  include <config.h>
 #endif
 
-#include "wrappers.h"
 #include "util.h"
 
 #include <getopt.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+
+#define ENSC_WRAPPERS_FCNTL	1
+#define ENSC_WRAPPERS_IOCTL	1
+#define ENSC_WRAPPERS_UNISTD	1
+#include <wrappers.h>
 
 int wrapper_exit_code = 1;
 

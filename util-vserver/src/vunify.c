@@ -21,7 +21,6 @@
 #endif
 
 #include "vunify.h"
-#include "wrappers-dirent.h"
 #include "util.h"
 
 #include <lib/vserver.h>
@@ -32,6 +31,16 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <errno.h>
+#include <wait.h>
+#include <fcntl.h>
+
+#define ENSC_WRAPPERS_IO	1
+#define ENSC_WRAPPERS_FCNTL	1
+#define ENSC_WRAPPERS_DIRENT	1
+#define ENSC_WRAPPERS_UNISTD	1
+#define ENSC_WRAPPERS_STDLIB	1
+#include <wrappers.h>
 
 int	wrapper_exit_code = 1;
 

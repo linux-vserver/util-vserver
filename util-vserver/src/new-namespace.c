@@ -25,7 +25,6 @@
 #endif
 
 #include "util.h"
-#include "wrappers.h"
 #include "stack-start.h"
 
 #include <stdio.h>
@@ -37,6 +36,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sched.h>
+
+#define ENSC_WRAPPERS_CLONE	1
+#define ENSC_WRAPPERS_WAIT	1
+#include <wrappers.h>
 
 #ifndef CLONE_NEWNS
 #  define CLONE_NEWNS 0x00020000

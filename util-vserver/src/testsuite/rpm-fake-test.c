@@ -20,7 +20,6 @@
 #  include <config.h>
 #endif
 
-#include "src/wrappers.h"
 
 #include <grp.h>
 #include <pwd.h>
@@ -28,6 +27,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+#define ENSC_WRAPPERS_UNISTD	1
+#include <wrappers.h>
 
 int wrapper_exit_code = 1;
 

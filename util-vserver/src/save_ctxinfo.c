@@ -25,14 +25,17 @@
 #include "vserver.h"
 #include "internal.h"
 #include "util.h"
-#include "wrappers.h"
-#include "wrappers-vserver.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <limits.h>
+
+#define ENSC_WRAPPERS_VSERVER 1
+#define ENSC_WRAPPERS_UNISTD  1
+#define ENSC_WRAPPERS_FCNTL   1
+#include <wrappers.h>
 
 int	wrapper_exit_code = 255;
 

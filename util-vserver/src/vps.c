@@ -21,13 +21,18 @@
 #endif
 
 #include "util.h"
-#include "wrappers.h"
-#include "wrappers-vserver.h"
 #include "pathconfig.h"
 
 #include <lib/vserver.h>
 #include <lib/fmt.h>
 #include <assert.h>
+#include <fcntl.h>
+
+#define ENSC_WRAPPERS_VSERVER	1
+#define ENSC_WRAPPERS_STDLIB	1
+#define ENSC_WRAPPERS_UNISTD	1
+#define ENSC_WRAPPERS_FCNTL	1
+#include <wrappers.h>
 
 #define CTXNR_WIDTH	5
 #define HUNK_SIZE	0x4000

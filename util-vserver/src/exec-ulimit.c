@@ -20,12 +20,17 @@
 #  include <config.h>
 #endif
 
-#include "wrappers.h"
 #include "util.h"
 
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
+#include <fcntl.h>
+
+#define ENSC_WRAPPERS_UNISTD	1
+#define ENSC_WRAPPERS_FCNTL	1
+#define ENSC_WRAPPERS_RESOURCE	1
+#include <wrappers.h>
 
 #define DECLARE_LIMIT(RES,FNAME) { #FNAME, RLIMIT_##RES }
 

@@ -21,11 +21,13 @@
 #endif
 
 #include "util.h"
-#include "wrappers.h"
 
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+
+#define ENSC_WRAPPERS_UNISTD 1
+#include <wrappers.h>
 
 int	wrapper_exit_code = 1;
 

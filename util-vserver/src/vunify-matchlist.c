@@ -21,10 +21,12 @@
 #endif
 
 #include "vunify-matchlist.h"
-#include "wrappers.h"
 
 #include <fnmatch.h>
 #include <assert.h>
+
+#define ENSC_WRAPPERS_STDLIB	1
+#include <wrappers.h>
 
 bool
 MatchList_compare(struct MatchList const *list, char const *path)

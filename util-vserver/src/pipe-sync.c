@@ -21,13 +21,15 @@
 #endif
 
 #include "util.h"
-#include "wrappers.h"
 
 #include <stdlib.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
+#define ENSC_WRAPPERS_UNISTD 1
+#include "wrappers.h"
 
 int	wrapper_exit_code = 2;
 

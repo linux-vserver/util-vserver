@@ -22,15 +22,21 @@
 
 #include "fstool.h"
 #include "util.h"
-#include "wrappers.h"
-#include "wrappers-dirent.h"
 
 #include <lib/vserver.h>
 
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
 
+#define ENSC_WRAPPERS_DIRENT	1
+#define ENSC_WRAPPERS_FCNTL	1
+#define ENSC_WRAPPERS_UNISTD	1
+#include <wrappers.h>
 
 struct Arguments const *		global_args = 0;
 
