@@ -21,7 +21,7 @@ legacy @LEGACYDIR@/vps
 legacy @LEGACYDIR@/vserver
 legacy @LEGACYDIR@/vserverkillall
 legacy @LEGACYDIR@/distrib-info
-base   @PKGLIBDIR@/FEATURES.txt
+core   @PKGLIBDIR@/FEATURES.txt
 base   @PKGLIBDIR@/defaults/mtab
 build  @PKGLIBDIR@/defaults/fstab
 build  @PKGLIBDIR@/defaults/debootstrap.uri
@@ -78,7 +78,7 @@ build  @SBINDIR@/vrpm
 core   @SBINDIR@/vrsetup
 base   @SBINDIR@/vserver
 build  @SBINDIR@/vserver-copy
-base   @SBINDIR@/vserver-info
+core   @SBINDIR@/vserver-info
 base   @SBINDIR@/vserver-stat
 base   @SBINDIR@/vtop
 core   @SBINDIR@/vuname
