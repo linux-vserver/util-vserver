@@ -92,7 +92,7 @@ showVersion()
 }
 
 static void
-newNamespace()
+newNamespace(char const *cmd)
 {
   pid_t		pid;
 #ifdef NDEBUG    
@@ -108,7 +108,7 @@ newNamespace()
     case 0	:
       break;
     default	:
-      exitLikeProcess(pid);
+      exitLikeProcess(pid, cmd);
   }
 }
 
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
   else if (optind==argc && (do_new || do_enter))
     WRITE_MSG(2, "No command specified; try '--help' for more information\n");
   else {
-    if      (do_new)     newNamespace();
+    if      (do_new)     newNamespace(argv[optind]);
     else if (do_set)     setNamespace();
     else if (do_cleanup) cleanupNamespace();
     else if (do_enter)   enterNamespace(xid);
