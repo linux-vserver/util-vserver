@@ -19,7 +19,8 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat-pivot_root.h"
+
+#include "pathconfig.h"
 
 #include "wrappers.h"
 #include "util.h"
@@ -52,6 +53,9 @@ showVersion()
 int main(int argc, char *argv[])
 {
   char const *	dir;
+  int		root_fd;
+  int		this_fd;
+  char *	umount_cmd[] = { UMOUNT_PROG, "-l", "-n", ".", 0 };
 
   if (argc<2) {
     WRITE_MSG(2, "Try '");
@@ -66,9 +70,16 @@ int main(int argc, char *argv[])
   dir = argv[1];
   if (strcmp(dir, "--")==0 && argc>=3) dir = argv[2];
 
+  root_fd = Eopen("/", O_RDONLY, 0);
   Echroot(".");
-  Echdir("/");
+  Echdir(dir);
+  this_fd = Eopen(".", O_RDONLY, 0);
+  Efchdir(root_fd);
+  Echroot(".");
+  Efchdir(this_fd);
 
-  Eumount2(dir, 0);
-  return EXIT_SUCCESS;
+  Eclose(root_fd);
+  Eclose(this_fd);
+
+  Eexecv(umount_cmd[0], umount_cmd);
 }
