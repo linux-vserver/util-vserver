@@ -57,7 +57,7 @@ static bool	checkFstat(struct MatchList const * const,
 			   PathInfo const * const,
 			   PathInfo const * const,
 			   struct stat const ** const, struct stat * const,
-			   struct stat *) NONNULL((1,2,3,4,5,6,7));
+			   struct stat *) NONNULL((1,2,3,4,5,6));
 
 static struct MatchList const *
 checkDirEntry(PathInfo const *,
