@@ -129,7 +129,7 @@ function lock
 
     sleep 10
     $_LOCKFILE "$1" $tmp $2 &
-    cat <$tmp >/dev/null
+    $tmp 2>/dev/null || return 1
     
     _VS_LOCKS="$! $_VS_LOCKS"
 }
