@@ -1,0 +1,179 @@
+#! /bin/bash
+
+# Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+# Usage: start-vservers [-c <CFGDIR>] [-m <MARK>] [-j <NUM>] [--start|--stop|--status|--condrestart|--restart] [--test] [--all] [--debug] -- <name>+
+
+: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo "Can not find util-vserver installation; aborting..." >&2
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+. "$_LIB_FUNCTIONS"
+
+### Some local functions
+
+function showHelp()
+{
+    echo \
+$"Usage: $(basename $0) [-c <CFGDIR>] [-m <MARK>] [-j <NUM] [--test]
+             [--start|--stop] [--all] -- <name>+
+
+Please report bugs to $PACKAGE_BUGREPORT"
+    exit 0
+}
+
+
+function showVersion()
+{
+    echo \
+$"start-vserver $PACKAGE_VERSION -- starts/stops a bunch of vservers
+This program is part of $PACKAGE_STRING
+
+Copyright (C) 2004 Enrico Scholz
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License.  This program has absolutely no warranty."
+    exit 0
+}
+
+function verifyVserver()
+{
+    true
+}
+
+###
+
+set +e
+
+
+tmp=$(getopt -o c:j:m: --long debug,help,version,start,stop,test,all -n "$0" -- "$@") || exit 1
+eval set -- "$tmp"
+
+declare -r TAB=$(echo -en "\t")
+OPTION_MARK=
+OPTION_ALL=
+OPTION_PARALLEL=99
+OPTION_DEBUG=
+NOOPTION_DEBUG=1
+
+case "`basename $0`" in
+    start-*)	OPTION_FLAVOR=start;;
+    stop-*)	OPTION_FLAVOR=stop;;
+    *)		OPTION_FLAVOR=;;
+esac
+
+while true; do
+    case "$1" in
+	--help)    	showHelp    $0 ;;
+	--version) 	showVersion $0 ;;
+	-c)		CONFDIR=$2;     shift;;
+	-m)		OPTION_MARK=$2; shift;;
+	-j)		OPTION_PARALLEL=$2; shift;;
+	--start)	OPTION_FLAVOR=start;;
+	--stop)		OPTION_FLAVOR=stop;;
+	--all)		OPTION_ALL=1;;
+	--debug)	OPTION_DEBUG=1; NOOPTION_DEBUG=; set -x;;
+	--)	   	shift; break;;
+	*)	   	echo $"$0: internal error; arg=='$1'" >&2; exit 1;;
+    esac
+    shift
+done
+
+test -n "$OPTION_FLAVOR" || {
+    echo "$0: unknown invocation method; aborting..." >&2
+    exit 1
+}
+
+vservers=( "$@" )
+test -z  "$OPTION_ALL" || getAllVservers vservers
+
+makedir=$(mktemp -d /tmp/vserver-init.XXXXXX)
+trap "rm -rf $makedir" EXIT
+
+defaulttty="$CONFDIR/.defaults/apps/init/tty"
+test -c "$defaulttty" || defaulttty=$(tty)
+test -c "$defaulttty" || defaulttty=/dev/null
+
+test_cmd=false
+case "$OPTION_FLAVOR" in
+    start)	test_cmd="${_VSERVER}   --silent '\$*' status";;
+    stop)	test_cmd="! ${_VSERVER} --silent '\$*' status";;
+esac
+
+
+{
+    cat <<EOF
+TTY = ${defaulttty}
+.%.stamp:
+${TAB}$test_cmd || \
+${TAB}${_VSERVER} --sync ${OPTION_DEBUG:+--debug} "\$*" ${OPTION_FLAVOR} >\$(TTY) 2>\$(TTY) <\$(TTY)
+${TAB}@touch "\$@"
+EOF
+
+    echo -ne "all:\t"
+    for i in "${vservers[@]}"; do
+	echo -n ".$i.stamp "
+    done
+    echo
+} >$makedir/Makefile
+
+orig_vservers=$vservers
+i=${#vservers[*]}
+
+while test $i -gt 0; do
+    let --i
+    d=$CONFDIR/${vservers[$i]}/apps/init
+    { test "$OPTION_MARK"    && grep -sx "$OPTION_MARK" "$d"/mark; } || \
+    { test -z "$OPTION_MARK" && test ! -e "$d"/mark; } || \
+    unset vservers[$i]
+done
+
+for i in "${vservers[@]}"; do
+    d=$CONFDIR/$i/apps/init
+    echo "$i"
+    test -e "$d"/depends || continue
+    cat "$d"/depends
+done | sort -u | while read vserver; do
+    d=$CONFDIR/$vserver/apps/init
+    test ! -e $d/tty || {
+	echo -e ".$vserver.stamp:\tTTY=$d/tty" >>$makedir/Makefile
+    }
+
+    case "$OPTION_FLAVOR" in
+	start)
+	    if test -e "$d"/depends; then
+		echo -ne ".$vserver.stamp:\t"
+		cat "$d"/depends | while read dep; do
+		    verifyVserver "$dep"
+		    echo -n ".$dep.stamp "
+		done
+		echo
+	    fi >>$makedir/Makefile
+	    ;;
+	stop)
+	    if test -e "$d"/depends; then
+		cat "$d"/depends | while read dep; do
+		    verifyVserver "$dep"
+		    echo -ne ".$dep.stamp:\t.$vserver.stamp"
+		done
+		echo
+	    fi >>$makedir/Makefile
+    esac
+done
+
+#cat $makedir/Makefile
+make -k ${NOOPTION_DEBUG:+-s} ${OPTION_PARALLEL:+-j$OPTION_PARALLEL} -C $makedir
