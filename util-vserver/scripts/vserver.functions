@@ -90,6 +90,36 @@ function _generateNiceCommand
     NICE_CMD=( $_NICE -$nice )
 }
 
+function _generateCCapabilityOptions
+{
+    local vdir=$1
+    local cap
+    local f="$vdir"/ccapabilities
+    
+    test -e "$f" || return 0
+    while read cap; do
+	case x"$cap" in
+	    x|x#)	;;
+	    *)		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --ccap "$cap" );;
+	esac
+    done <"$f"
+}
+
+function _generateBCapabilityOptions
+{
+    local vdir=$1
+    local cap
+    local f="$vdir"/bcapabilities
+    
+    test -e "$f" || return 0
+    while read cap; do
+	case x"$cap" in
+	    x|x#)	;;
+	    *)		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --bcap "$cap" );;
+	esac
+    done <"$f"
+}
+
 function _generateCapabilityOptions
 {
     local vdir=$1
