@@ -26,6 +26,7 @@
 
 #include <vserver.h>
 
+#include <sys/socket.h>
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -43,7 +44,6 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/socket.h>
 #include <sys/un.h>
 #include <fcntl.h>
 #include <pwd.h>
