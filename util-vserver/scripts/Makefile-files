@@ -19,6 +19,21 @@
 
 scriptscfgdir		=  $(sbindir)
 
+scripts_OPTIONS_EXEMPT	=  scripts/distrib-info \
+			   scripts/vapt-get-worker \
+			   scripts/vrpm-worker \
+			   scripts/vrpm-preload \
+			   scripts/vserver-init \
+			   scripts/save_s_context \
+			   scripts/vprofile \
+			   scripts/vservers.grabinfo.sh \
+			   scripts/vsysvwrapper \
+			   scripts/vunify.old.sh \
+			   scripts/vps \
+			   scripts/vpstree \
+			   scripts/vserver-copy \
+			   scripts/vtop
+
 scripts_DTA		=  scripts/functions \
 			   scripts/vserver.functions \
 			   scripts/vserver.start \
@@ -33,6 +48,7 @@ scripts_SCRPTS		=  scripts/distrib-info \
 			   scripts/rootshell \
 			   scripts/save_s_context \
 			   scripts/vprofile \
+			   scripts/vserver-build \
 			   scripts/vserver-legacy \
 			   scripts/vserverkillall \
 			   scripts/vservers.grabinfo.sh \
