@@ -20,22 +20,24 @@
 #  include <config.h>
 #endif
 #include "compat.h"
+
 #include "vserver.h"
-#include "vserver-internal.h"
+#include "getversion-internal.hc"
 
-#ifdef VC_ENABLE_API_COMPAT
-#  include "getctx-compat.hc"
-#endif
-
-#ifdef VC_ENABLE_API_LEGACY
-#  include "getctx-legacy.hc"
-#endif
-
-#include <sys/types.h>
-
-ctx_t
-vc_X_getctx(pid_t pid)
+int
+utilvserver_checkCompatVersion()
 {
-  CALL_VC(CALL_VC_COMPAT(vc_X_getctx, pid),
-	  CALL_VC_LEGACY(vc_X_getctx, pid));
+  static int	res=0;
+  static int	v_errno;
+
+  if (res==0) {
+    res     = vc_get_version_internal(VC_CAT_COMPAT);
+    v_errno = errno;
+#ifdef VC_ENABLE_API_LEGACY
+    if (res==-1 && errno==ENOSYS) res=0;
+#endif    
+  }
+
+  errno = v_errno;
+  return res;
 }

@@ -42,7 +42,7 @@ noinst_PROGRAMS		=  $(test_PRGS)
 sysv_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
 
-BUILT_SOURCES		=  linuxcaps.h pathconfig.h
+BUILT_SOURCES		=  linuxcaps.h pathconfig.h linuxvirtual.h
 
 man_MANS		=  $(man_DATMAN)
 
@@ -57,7 +57,7 @@ EXTRA_DIST		=  $(sysv_XTRAS) $(sysv_CFG) \
 AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE
 AM_CFLAGS		=  -Wall -pedantic
 
-CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) \
+CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) $(BUILT_SOURCES) \
 			   .*.pathsubst.stamp */.*.pathsubst.stamp \
 			   linuxcaps.h pathconfig.h
 
@@ -69,6 +69,10 @@ endif
 
 linuxcaps.h:
 			ln -sf ${kernelincludedir}/linux/capability.h linuxcaps.h
+
+linuxvirtual.h:
+			ln -sf '$(kernelincludedir)/linux/virtual.h' '$@' && test -e '$@' || \
+			ln -sf '$(top_srcdir)/lib/virtual.h' '$@'
 
 pathconfig.h:		.pathconfig.h.pathsubst.stamp
 .%.pathsubst.stamp:	%.pathsubst Makefile
@@ -103,6 +107,7 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 
 install-data-local:
 			$(INSTALL) -d -m755 $(DESTDIR)$(localstatedir)/run/vservers
+
 
 include $(top_srcdir)/lib/Makefile-files
 include $(top_srcdir)/src/Makefile-files

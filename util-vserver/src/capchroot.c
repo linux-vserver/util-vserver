@@ -26,6 +26,7 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
+#include "compat.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -37,20 +38,7 @@
 #include <stdlib.h>
 
 #include "linuxcaps.h"
-#include "compat.h"
 #include "vserver.h"
-
-static int my_chroot(const char *dir)
-{
-	int ret = -1;
-	if (has_chrootsafe()){
-		ret = call_chrootsafe(dir);
-	}else{
-	    //fprintf (stderr,"Kernel do not support chrootsafe(), using chroot()\n");
-		ret = chroot (dir);
-	}
-	return ret;
-}
 
 int main (int argc, char *argv[])
 {
@@ -86,7 +74,7 @@ int main (int argc, char *argv[])
 		// and also a security flaw. The shared objects in the vserver
 		// may be tweaked to get control of the root server ...
 		getpwnam ("root");
-		if (my_chroot (argv[dir]) == -1){
+		if (vc_chrootsafe (argv[dir]) == -1){
 			fprintf (stderr,"Can't chroot to directory %s (%s)\n",argv[dir]
 				,strerror(errno));
 		}else{
@@ -94,7 +82,7 @@ int main (int argc, char *argv[])
 			int cmd          = dir + 1;
 
 			if (nochroot){
-				call_new_s_context (0,NULL,1<<CAP_SYS_CHROOT,0);
+				vc_new_s_context (-2,1<<CAP_SYS_CHROOT,0);
 			}
 
 			if (uid != NULL && strcmp(uid,"root")!=0){

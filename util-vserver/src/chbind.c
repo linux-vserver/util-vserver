@@ -127,7 +127,7 @@ int main (int argc, char *argv[])
 	int ret = -1;
 	int silent = 0;
 	int i;
-	unsigned long addrs[16],masks[16];
+	struct vc_ip_mask_pair	ips[16];
 	int nbaddrs = 0;
 	unsigned long bcast = 0xffffffff;
 	for (i=1; i<argc; i++){
@@ -177,12 +177,14 @@ int main (int argc, char *argv[])
 					usage();
 				}else{
 					memcpy (&addr,h->h_addr,sizeof(addr));
-					masks[nbaddrs] = mask;
-					addrs[nbaddrs++] = addr;
+					ips[nbaddrs].ip   = addr;
+					ips[nbaddrs].mask = mask;
+					++nbaddrs;
 				}
 			}else{
-				masks[nbaddrs] = mask;
-				addrs[nbaddrs++] = addr;
+			      ips[nbaddrs].ip   = addr;
+			      ips[nbaddrs].mask = mask;
+			      ++nbaddrs;
 			}
 			i++;
 		}else if (strcmp(arg,"--bcast")==0){
@@ -208,12 +210,12 @@ int main (int argc, char *argv[])
 	}else if (argv[i][0] == '-'){
 		usage();
 	}else{
-		if (call_set_ipv4root(addrs,nbaddrs,bcast,masks)==0){
+	      if (vc_set_ipv4root(bcast,nbaddrs,ips)==0){
 			if (!silent){
 			        int i;
 				printf ("ipv4root is now");
 				for (i=0; i<nbaddrs; i++){
-					unsigned long hostaddr = ntohl(addrs[i]);
+					unsigned long hostaddr = ntohl(ips[i].ip);
 					printf (" %ld.%ld.%ld.%ld"
 						,hostaddr>>24
 						,(hostaddr>>16)&0xff

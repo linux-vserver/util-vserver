@@ -16,26 +16,21 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
+#ifndef H_UTIL_VSERVER_LIB_GETVERSION_INTERNAL_H
+#define H_UTIL_VSERVER_LIB_GETVERSION_INTERNAL_H
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
 #include "compat.h"
-#include "vserver.h"
+
 #include "vserver-internal.h"
+#include "linuxvirtual.h"
 
-#ifdef VC_ENABLE_API_COMPAT
-#  include "getctx-compat.hc"
-#endif
-
-#ifdef VC_ENABLE_API_LEGACY
-#  include "getctx-legacy.hc"
-#endif
-
-#include <sys/types.h>
-
-ctx_t
-vc_X_getctx(pid_t pid)
+static inline ALWAYSINLINE int
+vc_get_version_internal(int cat)
 {
-  CALL_VC(CALL_VC_COMPAT(vc_X_getctx, pid),
-	  CALL_VC_LEGACY(vc_X_getctx, pid));
+  return sys_virtual_context(VC_CMD(VERSION, 0, 0), cat, 0);
 }
+
+#endif	//  H_UTIL_VSERVER_LIB_GETVERSION_INTERNAL_H

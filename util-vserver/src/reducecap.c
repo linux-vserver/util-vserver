@@ -223,7 +223,7 @@ int main (int argc, char *argv[])
 			if (show){
 				reducecap_print (&user);
 			}
-			if (call_new_s_context(0,NULL,remove,flags)==-1){
+			if (vc_new_s_context(-2,remove,flags)==-1){
 				perror ("new_s_context -2");
 			}else{
 				fprintf (stderr,"Executing\n");

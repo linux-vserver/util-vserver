@@ -20,22 +20,48 @@
 #  include <config.h>
 #endif
 #include "compat.h"
+
+#include "safechroot-internal.hc"
+
 #include "vserver.h"
 #include "vserver-internal.h"
 
-#ifdef VC_ENABLE_API_COMPAT
-#  include "getctx-compat.hc"
-#endif
+#include <unistd.h>
 
-#ifdef VC_ENABLE_API_LEGACY
-#  include "getctx-legacy.hc"
-#endif
-
-#include <sys/types.h>
-
-ctx_t
-vc_X_getctx(pid_t pid)
+static inline ALWAYSINLINE int
+vc_new_s_context_compat(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
 {
-  CALL_VC(CALL_VC_COMPAT(vc_X_getctx, pid),
-	  CALL_VC_LEGACY(vc_X_getctx, pid));
+  struct vcmd_new_s_context_v1	msg;
+  msg.remove_cap = remove_cap;
+  msg.flags      = flags;
+
+  return sys_virtual_context(VC_CMD(COMPAT, 1, 1), ctx, &msg);
+}
+
+static inline ALWAYSINLINE int
+vc_set_ipv4root_compat(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips)
+{
+  struct vcmd_set_ipv4root_v3	msg;
+  size_t			i;
+
+  if (nb>=NB_IPV4ROOT) {
+    errno = -EINVAL;
+    return -1;
+  }
+
+  msg.broadcast = bcast;
+
+  for (i=0; i<nb; ++i) {
+    msg.ip_mask_pair[i].ip   = ips[i].ip;
+    msg.ip_mask_pair[i].mask = ips[i].mask;
+  }
+
+  return sys_virtual_context(VC_CMD(COMPAT, 2, 3), nb, &msg);
+}
+
+static inline ALWAYSINLINE int
+vc_chrootsafe_compat(char const *dir)
+{
+  vc_tell_unsafe_chroot();
+  return chroot(dir);
 }

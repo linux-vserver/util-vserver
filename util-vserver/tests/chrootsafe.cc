@@ -23,6 +23,11 @@
 
 	chrootsafe /vservers/test
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+#include "compat.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -40,7 +45,7 @@ int main (int argc, char *argv[])
 	// This test must fail
 	int fd = open ("/",O_RDONLY);
 	if (fd != -1){
-		if (call_chrootsafe(argv[1])==-1){
+		if (vc_chrootsafe(argv[1])==-1){
 			fprintf (stderr,"Ok, chrootsafe failed with one open directory errno=%s\n",strerror(errno));
 		}else{
 			fprintf (stderr,"Hum, chrootsafe succeed with one open directory\n");
@@ -49,7 +54,7 @@ int main (int argc, char *argv[])
 		close (fd);
 	}
 	// Now it should work
-	if (call_chrootsafe(argv[1])!=-1){
+	if (vc_chrootsafe(argv[1])!=-1){
 		fprintf (stderr,"Ok, chrootsafe worked\n");
 		system ("/bin/sh");
 	}else{

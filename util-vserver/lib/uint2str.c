@@ -20,22 +20,35 @@
 #  include <config.h>
 #endif
 #include "compat.h"
-#include "vserver.h"
-#include "vserver-internal.h"
 
-#ifdef VC_ENABLE_API_COMPAT
-#  include "getctx-compat.hc"
-#endif
+#include <assert.h>
+#include <stdbool.h>
+#include <string.h>
 
-#ifdef VC_ENABLE_API_LEGACY
-#  include "getctx-legacy.hc"
-#endif
-
-#include <sys/types.h>
-
-ctx_t
-vc_X_getctx(pid_t pid)
+size_t
+utilvserver_uint2str(char *buf, size_t len, unsigned int val, unsigned char base)
 {
-  CALL_VC(CALL_VC_COMPAT(vc_X_getctx, pid),
-	  CALL_VC_LEGACY(vc_X_getctx, pid));
+  char			*ptr = buf+len-1;
+  register size_t	res;
+  if (base>=36 || len==0) return 0;
+
+  *ptr = '\0';
+  while (ptr>buf) {
+    unsigned char	digit = val%base;
+    
+    --ptr;
+    *ptr = (digit<10 ? '0'+digit :
+	    digit<36 ? 'a'+digit-10 :
+	    (assert(false),'?'));
+
+    val /= base;
+    if (val==0) break;
+  }
+
+  assert(ptr>=buf && ptr<=buf+len-1);
+	 
+  res = buf+len-ptr;
+  memmove(buf, ptr, res);
+
+  return res-1;
 }

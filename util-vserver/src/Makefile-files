@@ -42,7 +42,6 @@ src_sbin_PRGS		=  src/chbind \
 			   src/chcontext \
 			   src/rebootmgr \
 			   src/reducecap \
-			   src/setctxlimit \
 			   src/vdu \
 			   src/vfiles \
 			   src/new-namespace \
@@ -71,9 +70,6 @@ src_reducecap_LDADD		=  lib/libvserver.a
 
 src_save_ctxinfo_SOURCES	=  src/save_ctxinfo.c
 src_save_ctxinfo_LDADD		=  lib/libvserver.a
-
-src_setctxlimit_SOURCES		=  src/setctxlimit.c
-src_setctxlimit_LDADD		=  lib/libvserver.a
 
 src_showattr_SOURCES		=  src/showattr.c
 src_showperm_SOURCES		=  src/showperm.c

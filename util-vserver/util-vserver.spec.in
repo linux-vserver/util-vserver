@@ -1,6 +1,7 @@
 # $Id$
 
-%define confdir	%_sysconfdir/vservers
+%define confdir		%_sysconfdir/vservers
+%define pkglibdir	%_libdir/%name
 
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
@@ -12,8 +13,15 @@ Group:		System Environment/Base
 URL:		http://savannah.nongnu.org/projects/util-vserver/
 Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version/%name-%version.tar.bz2
 BuildRoot:	%_tmppath/%name-%version-%release-root
+#Requires:	util-vserver-core = %epoch:%version-%release
 Provides:	vserver = %epoch:%version-%release
 Conflicts:	vserver < %epoch:%version
+BuildRequires:	mount vconfig gawk iproute
+BuildRequires:	dietlibc gcc-c++
+
+%package core
+Summary:	The core-utilities for util-vserver
+Group:		Applications/System
 
 %package sysv
 Summary:	SysV-initscripts for vserver
@@ -24,7 +32,7 @@ Requires:	initscripts
 %package devel
 Summary:	Header-files and libraries which are needed to develop vserver based applications
 Group:		Development/Libraries
-
+Requires:	pkgconfig
 
 %description
 This package provides the components and a framework to setup virtual
@@ -36,6 +44,7 @@ can't interact with services in the main server.
 This requires a special kernel supporting the new new_s_context and
 set_ipv4root system call.
 
+%description core
 %description sysv
 %description devel
 
@@ -89,7 +98,7 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING ChangeLog NEWS README THANKS
 %doc doc/FAQ.txt
-%_libdir/%name
+%pkglibdir
 %_sbindir/*
 %_mandir/man8/*
 %dir %confdir
@@ -97,6 +106,18 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %dir %confdir/.distributions/rh*
 %dir %confdir/.distributions/*/apt
 %config(noreplace) %confdir/.distributions/*/apt/sources.list
+%dir /var/run/vservers
+
+%if 0
+%files core
+%defattr(-,root,root,-)
+%dir %pkglibdir
+%pkglibdir/filetime
+%pkglibdir/
+filetime ifspec listdevip mask2prefix readlink save_ctxinfo save_s_context secure-mount showattr showperm util-vserver-vars
+
+chbind chcontext new-namespace reducecap setctxlimit util-vserver-vars
+%endif
 
 %files sysv
 %defattr(-,root,root,-)
@@ -107,6 +128,7 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %defattr(-,root,root,-)
 %_includedir/*.h
 %_libdir/*.a
+%_libdir/pkgconfig/*
 
 %changelog
 * Wed Oct  1 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.23.5-0
