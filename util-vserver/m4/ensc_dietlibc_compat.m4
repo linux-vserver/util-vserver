@@ -29,10 +29,20 @@ AC_DEFUN([ENSC_DIETLIBC_NEED_COMPAT],
 #include <unistd.h>
 #include <errno.h>
 
-#define __NR_foo		0
-inline static _syscall0(int, foo)
+#define __NR_foo0		42
+#define __NR_foo1		42
+#define __NR_foo2		42
+#define __NR_foo3		42
+#define __NR_foo4		42
+#define __NR_foo5		42
+inline static _syscall0(int, foo0)
+inline static _syscall1(int, foo1, int, a)
+inline static _syscall2(int, foo2, int, a, int, b)
+inline static _syscall3(int, foo3, int, a, int, b, int, c)
+inline static _syscall4(int, foo4, int, a, int, b, int, c, int, d)
+inline static _syscall5(int, foo5, int, a, int, b, int, c, int, d, int, e)
 ],
-			[foo()])],
+			[foo0(); foo1(0); foo2(0,0); foo3(0,0,0); foo4(0,0,0,0); foo5(0,0,0,0,0);])],
 			[ensc_cv_c_dietlibc_compat=no],
 			[ensc_cv_c_dietlibc_compat=yes])
 		CC=$ensc_dietlibc_need_compat_old_CC
