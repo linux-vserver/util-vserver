@@ -4,30 +4,32 @@
 ## --without dietlibc        ...   disable usage of dietlibc
 ## --without xalan           ...   do not require/use the xalan xslt processor
 
-%define confdir		%_sysconfdir/vservers
-%define confdefaultdir	%confdir/.defaults
-%define pkglibdir	%_libdir/%name
-%define __chattr	/usr/bin/chattr
-%define chkconfig	/sbin/chkconfig
+%global confdir		%_sysconfdir/vservers
+%global confdefaultdir	%confdir/.defaults
+%global pkglibdir	%_libdir/%name
+%global __chattr	/usr/bin/chattr
+%global chkconfig	/sbin/chkconfig
 
-%define _localstatedir	%_var
+%global _localstatedir	%_var
+
+
+%{!?release_func:%global release_func() %1}
 
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
-Release:	0
-Epoch:		0
+Release:	%release_func 0
 License:	GPL
 Group:		System Environment/Base
 URL:		http://savannah.nongnu.org/projects/util-vserver/
 Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version/%name-%version.tar.bz2
 BuildRoot:	%_tmppath/%name-%version-%release-root
 Requires:	init(%name)
-Requires:	%name-core = %epoch:%version-%release
-Requires:	%name-lib  = %epoch:%version-%release
+Requires:	%name-core = %version-%release
+Requires:	%name-lib  = %version-%release
 Requires:	diffutils mktemp sed
-Provides:	vserver = %epoch:%version-%release
-Obsoletes:	vserver < %epoch:%version
+Provides:	vserver = %version-%release
+Obsoletes:	vserver < %version
 BuildRequires:	mount vconfig gawk iproute iptables
 BuildRequires:	gcc-c++ wget
 BuildRequires:	e2fsprogs-devel
@@ -51,7 +53,7 @@ Requires:		util-linux
 Summary:		Tools which can be used to build vservers
 Group:			Applications/System
 Requires:		rpm apt wget binutils tar e2fsprogs
-Requires:		%name = %epoch:%version-%release
+Requires:		%name = %version-%release
 Requires(pre):		%confdir
 Requires(postun):	%confdir
 
@@ -61,7 +63,7 @@ Group:			System Environment/Base
 Provides:		init(%name) = sysv
 Requires:		make diffutils
 Requires:		initscripts
-Requires:		%name = %epoch:%version-%release
+Requires:		%name = %version-%release
 Requires(post):		%chkconfig
 Requires(preun):	%chkconfig
 Requires(pre):		%_initrddir %pkglibdir
@@ -70,7 +72,7 @@ requires(postun):	%_initrddir %pkglibdir
 %package legacy
 Summary:		Legacy utilities for util-vserver
 Group:			Applications/System
-Requires:		%name = %epoch:%version-%release
+Requires:		%name = %version-%release
 Requires(post):		%chkconfig
 Requires(preun):	%chkconfig
 Requires(pre):		%_initrddir %pkglibdir
