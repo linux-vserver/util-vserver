@@ -20,9 +20,12 @@
 #  include <config.h>
 #endif
 
+#include "lib_internal/coreassert.h"
 #include "vserver.h"
-#include <assert.h>
+
 #include <string.h>
+#include <unistd.h>
+
 
 #define TEST_T2F_C(X,Y,Z) assert(vc_text2cflag_compat(X,Y)==Z)
 #define TEST_F2T_C(Y,X) {			\
@@ -56,10 +59,10 @@
     char			buf[] = STR;				\
     volatile int		res;					\
     struct vc_ctx_flags		flags = {0,0};				\
-    res = vc_list2cflag(buf, LEN, &err, &flags);				\
+    res = vc_list2cflag(buf, LEN, &err, &flags);			\
     assert(res==(EXP_RES));						\
-    assert(flags.flagword==(EXP_FLAG));					\
-    assert(flags.mask    ==(EXP_MASK));					\
+    assert(flags.flagword==(uint_least64_t)(EXP_FLAG));			\
+    assert(flags.mask    ==(uint_least64_t)(EXP_MASK));			\
     assert(err.len==ERR_LEN);						\
     if (ERR_POS==-1) assert(err.ptr==0);				\
     else             assert(err.ptr==buf+(ERR_POS));			\
@@ -109,10 +112,13 @@ int main()
   TEST_F2T(0,          0);
 
   TEST_LIST("fakeinit",     0,  0, VC_VXF_INFO_INIT, VC_VXF_INFO_INIT,-1,0);
+  TEST_LIST("FaKeInIt",     0,  0, VC_VXF_INFO_INIT, VC_VXF_INFO_INIT,-1,0);
   TEST_LIST("~fakeinit",    0,  0, 0,               VC_VXF_INFO_INIT,-1,0);
   TEST_LIST("!fakeinit",    0,  0, 0,               VC_VXF_INFO_INIT,-1,0);
   TEST_LIST("fakeinit,XXX", 0, -1, VC_VXF_INFO_INIT, VC_VXF_INFO_INIT, 9,3);
   TEST_LIST("",             0,  0, 0,               0,              -1,0);
+  TEST_LIST("0",            0,  0, 0,               0,              -1,0);
+  TEST_LIST("00",           0,  0, 0,               0,              -1,0);
   TEST_LIST("X",            0, -1, 0,               0,               0,1);
   TEST_LIST("all",          0,  0, ALL64,           ALL64,          -1,0);
   TEST_LIST("ALL",          0,  0, ALL64,           ALL64,          -1,0);
@@ -120,18 +126,37 @@ int main()
   TEST_LIST("ANY",          0,  0, ALL64,           ALL64,          -1,0);
   TEST_LIST("~all",         0,  0, 0,               ALL64,          -1,0);
   TEST_LIST("~ALL",         0,  0, 0,               ALL64,          -1,0);
-  TEST_LIST("all,~fakeinit",0,  0, ~VC_VXF_INFO_INIT,ALL64,          -1,0);
-  TEST_LIST("~all,fakeinit",0,  0, VC_VXF_INFO_INIT, ALL64,          -1,0);
+  TEST_LIST("none",         0,  0, 0,               0,              -1,0);
+  TEST_LIST("NONE",         0,  0, 0,               0,              -1,0);
+  TEST_LIST("~none",        0,  0, 0,               0,              -1,0);
+  TEST_LIST("~NONE",        0,  0, 0,               0,              -1,0);
+  TEST_LIST("all,~fakeinit",0,  0, ~VC_VXF_INFO_INIT,ALL64,         -1,0);
+  TEST_LIST("~all,fakeinit",0,  0, VC_VXF_INFO_INIT, ALL64,         -1,0);
   TEST_LIST("fakeinit,~all",0,  0, 0,               ALL64,          -1,0);
+  TEST_LIST("none,~lock",   0,  0, 0,               VC_VXF_INFO_LOCK,-1,0);
+  TEST_LIST("~none,lock",   0,  0, VC_VXF_INFO_LOCK,VC_VXF_INFO_LOCK,-1,0);
+  TEST_LIST("lock,none",    0,  0, VC_VXF_INFO_LOCK,VC_VXF_INFO_LOCK,-1,0);
+  TEST_LIST("lock,~none",   0,  0, VC_VXF_INFO_LOCK,VC_VXF_INFO_LOCK,-1,0);
   TEST_LIST("~",            0, -1, 0,               0,               1,0);
+  TEST_LIST("~~",           0, -1, 0,               0,               2,0);
+  TEST_LIST("!",            0, -1, 0,               0,               1,0);
+  TEST_LIST("^",            0, -1, 0,               0,               1,0);
   TEST_LIST("fakeinit,~",   0, -1, VC_VXF_INFO_INIT, VC_VXF_INFO_INIT,10,0);
   TEST_LIST("1",            0,  0, 1,               1,              -1,0);
   TEST_LIST("1,23,42",      0,  0, 1|23|42,         1|23|42,        -1,0);
   TEST_LIST("~1",           0,  0, 0,               1,              -1,0);
+  TEST_LIST("!1",           0,  0, 0,               1,              -1,0);
+  TEST_LIST("~~1",          0,  0, 1,               1,              -1,0);
+  TEST_LIST("~~~1",         0,  0, 0,               1,              -1,0);
+  TEST_LIST("~!~1",         0,  0, 0,               1,              -1,0);
   TEST_LIST("42,fakeinit",  0,  0, VC_VXF_INFO_INIT|42, VC_VXF_INFO_INIT|42, -1,0);
   TEST_LIST("42x,1",        0, -1, 0,               0,               0,3);
 
   TEST_LIST("^4,~^2",       0,  0, 0x10,            0x14,           -1,0);
+  TEST_LIST("^4,~~^2",      0,  0, 0x14,            0x14,           -1,0);
+  TEST_LIST("^4,~~~^2",     0,  0, 0x10,            0x14,           -1,0);
+  TEST_LIST("~^2,^4",       0,  0, 0x10,            0x14,           -1,0);
+  TEST_LIST("1,^1,~^2,8",   0,  0, 0x0b,            0x0f,           -1,0);
 
   TEST_LIST("lock,nproc,private,fakeinit,hideinfo,ulimit,namespace,"
 	    "sched_hard,sched_prio,sched_pause,"
@@ -172,4 +197,3 @@ int main()
 	    
   return 0;
 }
-
