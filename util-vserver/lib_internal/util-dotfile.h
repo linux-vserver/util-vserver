@@ -22,7 +22,7 @@
 #include <stdbool.h>
 
 static inline UNUSED ALWAYSINLINE bool
-isDotfile(char const *d) PURE
+isDotfile(char const *d)
 {
   return d[0]=='.' && (d[1]=='\0' || (d[1]=='.' && d[2]=='\0'));
 }
