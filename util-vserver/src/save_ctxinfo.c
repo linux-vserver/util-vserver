@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
   Eclose(fd);
 
   strcat(runfile, ".rev/");
-  strcat(runfile, buf);
+  strncat(runfile, buf, len);
   unlink(runfile);
   EsymlinkD(argv[1], runfile);
 
