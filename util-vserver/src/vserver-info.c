@@ -33,6 +33,7 @@
 
 typedef enum { tgNONE,tgCONTEXT, tgRUNNING,
 	       tgVDIR, tgNAME, tgCFGDIR, tgAPPDIR,
+	       tgAPIVER,
 	       tgINITPID, tgINITPID_PID,
 	       tgXID,
 }	VserverTag;
@@ -51,9 +52,8 @@ static struct {
   { "INITPID",     tgINITPID,     "gives out the initpid of the given context" },
   { "INITPID_PID", tgINITPID_PID, "gives out the initpid of the given pid" },
   { "XID",         tgXID,         "gives out the context-id of the given pid" },
+  { "APIVER",      tgAPIVER,      "gives out the version of the kernel API" }
 };
-
-#define TAGS_COUNT	(sizeof(TAGS)/sizeof(TAGS[0]))
 
 int wrapper_exit_code = 1;
 
@@ -71,7 +71,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-q] <vserver>|<pid>|<context> <tag>\n"
+	    " [-ql] <vserver>|<pid>|<context> <tag>\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
@@ -94,7 +94,7 @@ showTags()
   size_t	i;
 
   WRITE_MSG(1, "Valid tags are: ");
-  for (i=0; i<TAGS_COUNT; ++i) {
+  for (i=0; i<DIM_OF(TAGS); ++i) {
     WRITE_STR(1, delim);
     WRITE_STR(1, TAGS[i].tag);
 
@@ -108,7 +108,7 @@ static VserverTag
 stringToTag(char const *str)
 {
   size_t	i;
-  for (i=0; i<TAGS_COUNT; ++i)
+  for (i=0; i<DIM_OF(TAGS); ++i)
     if (strcmp(TAGS[i].tag, str)==0) return TAGS[i].val;
 
   return tgNONE;
@@ -120,7 +120,8 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
   char const *		res = 0;
   char 			buf[sizeof(xid_t)*4 + 16];
   xid_t			ctx;
-  
+
+  memset(buf, 0, sizeof buf);
   switch (tag) {
     case tgNAME		:  res = vc_getVserverName(vserver, vcCFG_AUTO); break;
     case tgVDIR		:
@@ -182,6 +183,17 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
       break;
     }
 
+    case tgAPIVER	:
+    {
+      int	v = vc_get_version();
+      if (v!=-1) {
+	size_t	l = utilvserver_fmt_xulong(0, (unsigned int)v);
+	memcpy(buf, "0x00000000", 10);
+	utilvserver_fmt_xulong(buf+2+8-l, (unsigned int)v);
+	res = buf;
+      }
+      break;
+    }
     default		:  assert(false); abort();  // TODO
   }
 
