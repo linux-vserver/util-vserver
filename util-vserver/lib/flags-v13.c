@@ -35,9 +35,9 @@ static struct Mapping_uint64 const VALUES[] = {
   DECL("private",   VC_VXF_INFO_PRIVATE),
   DECL("fakeinit",  VC_VXF_INFO_INIT),
 
-  DECL("hide",      VC_VXF_INFO_HIDE),
+  DECL("hideinfo",  VC_VXF_INFO_HIDEINFO),
   DECL("ulimit",    VC_VXF_INFO_ULIMIT),
-  DECL("nspace",    VC_VXF_INFO_NSPACE),
+  DECL("namespace", VC_VXF_INFO_NAMESPACE),
 
   DECL("hard",      VC_VXF_SCHED_HARD),
   DECL("prio",      VC_VXF_SCHED_PRIO),
@@ -45,6 +45,10 @@ static struct Mapping_uint64 const VALUES[] = {
 
   DECL("mem",       VC_VXF_VIRT_MEM),
   DECL("uptime",    VC_VXF_VIRT_UPTIME),
+  DECL("cpu",       VC_VXF_VIRT_CPU),
+
+  DECL("hidemount", VC_VXF_HIDE_MOUNT),
+  DECL("hidenetif", VC_VXF_HIDE_NETIF),
 
   DECL("setup",     VC_VXF_STATE_SETUP),
   DECL("init",      VC_VXF_STATE_INIT),
