@@ -34,6 +34,10 @@ lib_v11_SRCS =			lib/syscall_rlimit.c \
 				lib/syscall_kill-v11.hc
 lib_v13_SRCS =			lib/syscall_enternamespace.c \
 				lib/syscall_enternamespace-v13.hc \
+				lib/syscall_setnamespace.c \
+				lib/syscall_setnamespace-v13.hc \
+				lib/syscall_cleanupnamespace.c \
+				lib/syscall_cleanupnamespace-v13.hc \
 				lib/syscall_getiattr.c \
 				lib/syscall_getiattr-fscompat.hc \
 				lib/syscall_getiattr-v13.hc \
