@@ -42,13 +42,14 @@ AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
 check_paths=$PATH:/sbin:/usr/sbin:/usr/local/sbin
-AC_PATH_PROGS(AWK,     [awk],     [awk],        [ $check_paths ])
-AC_PATH_PROGS(GREP,    [grep],    [grep],       [ $check_paths ])
-AC_PATH_PROGS(IP,      [ip],      [ip],         [ $check_paths ])
-AC_PATH_PROGS(MOUNT,   [mount],   [/bin/mount], [ $check_paths ])
-AC_PATH_PROGS(NICE,    [nice],    [nice],       [ $check_paths ])
-AC_PATH_PROGS(VCONFIG, [vconfig], [vconfig],    [ $check_paths ])
-AC_PATH_PROGS(WC,      [wc],      [wc],         [ $check_paths ])
+AC_PATH_PROGS(AWK,     [awk],     [awk],         [ $check_paths ])
+AC_PATH_PROGS(GREP,    [grep],    [grep],        [ $check_paths ])
+AC_PATH_PROGS(IP,      [ip],      [ip],          [ $check_paths ])
+AC_PATH_PROGS(MOUNT,   [mount],   [/bin/mount],  [ $check_paths ])
+AC_PATH_PROGS(UMOUNT,  [umount],  [/bin/umount], [ $check_paths ])
+AC_PATH_PROGS(NICE,    [nice],    [nice],        [ $check_paths ])
+AC_PATH_PROGS(VCONFIG, [vconfig], [vconfig],     [ $check_paths ])
+AC_PATH_PROGS(WC,      [wc],      [wc],          [ $check_paths ])
 
 AC_CHECK_PROGS(CVS2CL, [cvs2cl])
 AM_CONDITIONAL(HAVE_CVS2CL,  [test x"$CVS2CL" != x])
@@ -56,7 +57,7 @@ AM_CONDITIONAL(HAVE_CVS2CL,  [test x"$CVS2CL" != x])
 AC_CHECK_PROGS(RCS2LOG, [rcs2log])
 AM_CONDITIONAL(HAVE_RCS2LOG,  [test x"$RCS2LOG" != x])
 
-ENSC_CHECK_CC_FLAG([-std=c99])
+ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
 
 AC_MSG_CHECKING([whether to enable dietlibc])
 AC_ARG_ENABLE([dietlibc],
@@ -140,6 +141,11 @@ AC_CHECK_TYPES(ctx_t,,,[#include <sys/types.h>])
 
 dnl BIG HACK! Do some autodetection here!
 AC_DEFINE(UTMP_GID, [22], [The utmp gid-number])
+
+if false; then
+	AC_DEFINE(HAVE_GROWING_STACK, [1], [Define to 1 if the stack is on growing addresses])
+fi
+
 
 AC_CONFIG_FILES([util-vserver.spec Makefile distrib/Makefile])
 AC_OUTPUT
