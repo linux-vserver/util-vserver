@@ -43,7 +43,34 @@ int	utilvserver_listparser_uint64(char const *str, size_t len,
 				      uint_least64_t *mask,
 				      uint_least64_t (*func)(char const*,
 							     size_t)) NONNULL((0,4,5,6));
+
+struct Mapping_uint32 {
+    char const * const	id;
+    size_t			len;
+    uint_least32_t		val;
+};
+
+struct Mapping_uint64 {
+    char const * const	id;
+    size_t			len;
+    uint_least64_t		val;
+};
   
+ssize_t	utilvserver_value2text_uint32(char const *str, size_t len,
+				      struct Mapping_uint32 const *map,
+				      size_t map_len) NONNULL((0,3));
+
+ssize_t	utilvserver_value2text_uint64(char const *str, size_t len,
+				      struct Mapping_uint64 const *map,
+				      size_t map_len) NONNULL((0,3));
+
+ssize_t utilvserver_text2value_uint32(uint_least32_t *val,
+				      struct Mapping_uint32 const *map,
+				      size_t map_len) NONNULL((0,3));
+  
+ssize_t utilvserver_text2value_uint64(uint_least64_t *val,
+				      struct Mapping_uint64 const *map,
+				      size_t map_len) NONNULL((0,3));
 #ifdef __cplusplus
 }
 #endif
