@@ -32,8 +32,6 @@ AC_DEFUN([ENSC_SYSCALL],
             xauto)
 		AC_CACHE_CHECK([which syscall(2) invocation works], [ensc_cv_test_syscall],
 			       [
-				old_CPPFLAGS=$CPPFLAGS
-				CPPFLAGS="-I$ensc_cv_path_kernelheaders"
 				AC_LANG_PUSH(C)
 				AC_COMPILE_IFELSE([
 #include <asm/unistd.h>
@@ -65,7 +63,6 @@ int main() {
 				[ensc_cv_test_syscall=traditional])
 
 				AC_LANG_POP
-				CPPFLAGS=$old_CPPFLAGS
 		])
 		with_syscall=$ensc_cv_test_syscall
         	;;

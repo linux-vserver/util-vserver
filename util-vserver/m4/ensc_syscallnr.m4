@@ -19,37 +19,43 @@ dnl Usage: ENSC_SYSCALLNR(<syscall>,<default>)
 
 AC_DEFUN([ENSC_SYSCALLNR],
 [
-	AC_REQUIRE([ENSC_KERNEL_HEADERS])
 	AC_REQUIRE([AC_PROG_EGREP])
+	AC_REQUIRE([ENSC_KERNEL_HEADERS])
 
 	AC_CACHE_CHECK([for number of syscall '$1'], [ensc_cv_value_syscall_$1],
 	[
 		AC_LANG_PUSH(C)
-		AC_EGREP_CPP(ensc_cv_value_syscall_$1=auto, [
+		AC_LANG_CONFTEST([
 #include <asm/unistd.h>
 #ifdef __NR_$1
-ensc_cv_value_syscall_$1=auto
-#endif
-],
-			[ensc_cv_value_syscall_$1=auto], [
-			AC_LANG_CONFTEST([
-#include <asm/unistd.h>
-#ifdef __NR_$1
-ensc_cv_value_syscall_$1=__NR_$1
-#else
-ensc_cv_value_syscall_$1=$2
+ensc_syscall_tmp_nr=__NR_$1;
+ensc_syscall_tmp_src=ENSC_MARK
 #endif
 ])
-			eval $($CPP $CPPFLAGS -I$ensc_cv_path_kernelheaders conftest.c | $EGREP -x 'ensc_cv_value_syscall_$1=[[1-9]][[0-9]]*')
-			if test x"$ensc_cv_value_syscall_$1" = x; then
-				AC_MSG_ERROR(
+		ensc_syscall_tmp_nr=
+		ensc_syscall_tmp_src=
+		test "$ensc_syscall_tmp_nr" || \
+			eval $($CPP $CPPFLAGS -D ENSC_MARK='glibc'                       conftest.c | $EGREP '^ensc_syscall_tmp_(nr=[[1-9]][[0-9]]*;|src=.*)$')
+		test "$ensc_syscall_tmp_nr" || \
+			eval $($CPP $CPPFLAGS -D ENSC_MARK='kernel' -I $kernelincludedir conftest.c | $EGREP '^ensc_syscall_tmp_(nr=[[1-9]][[0-9]]*;|src=.*)$')
+		test "$ensc_syscall_tmp_nr" || {
+			ensc_syscall_tmp_nr=$2
+			ensc_syscall_tmp_src=default
+		}
+
+		if test x"$ensc_syscall_tmp_nr" = x; then
+			AC_MSG_ERROR(
 [Can not determine value of __NR_$1; please verify your glibc/kernelheaders, and/or set CPPFLAGS='-D=__NR_$1=<value>' environment when calling configure.])
-			fi
-		])
+		fi
 		AC_LANG_POP
+
+		ensc_cv_value_syscall_$1="$ensc_syscall_tmp_nr/$ensc_syscall_tmp_src"
 	])
 
-	if test x"$ensc_cv_value_syscall_$1" != xauto; then
-		AC_DEFINE_UNQUOTED(ENSC_SYSCALL__NR_$1, $ensc_cv_value_syscall_$1, [The number of the $1 syscall])
+	ensc_syscall_tmp_nr=${ensc_cv_value_syscall_$1%/*}
+	ensc_syscall_tmp_src=${ensc_cv_value_syscall_$1#*/}
+
+	if test x"$ensc_syscall_tmp_src" != x'glibc'; then
+		AC_DEFINE_UNQUOTED(ENSC_SYSCALL__NR_$1, $ensc_syscall_tmp_nr, [The number of the $1 syscall])
 	fi
 ])
