@@ -95,6 +95,9 @@
 #define VC_CAP_LEASE            	28
 #define VC_CAP_QUOTACTL          	29
 
+#define VC_IMMUTABLE_FILE_FL		0x00000010l
+#define VC_IMMUTABLE_LINK_FL		0x00008000l
+#define VC_IMMUTABLE_ALL		(VC_IMMUTABLE_LINK_FL|VC_IMMUTABLE_FILE_FL)
 
 #ifdef __cplusplus
 extern "C" {
@@ -154,6 +157,13 @@ extern "C" {
 
     /** Returns the pid of the 'init' process */
   pid_t	vc_X_getinitpid(pid_t pid);
+
+
+  xid_t		vc_X_get_filecontext(int fd);
+  int		vc_X_set_filecontext(int fd, xid_t ctx);
+
+  int		vc_X_get_ext2flags(int fd, long *flags);
+  int		vc_X_set_ext2flags(int fd, long set_flags, long del_flags);
 
 
   int		vc_text2cap(char const *);
