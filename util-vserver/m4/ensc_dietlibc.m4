@@ -15,6 +15,42 @@ dnl You should have received a copy of the GNU General Public License
 dnl along with this program; if not, write to the Free Software
 dnl Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+AC_DEFUN([_ENSC_DIETLIBC_C99],
+[
+	AH_TEMPLATE([ENSC_DIETLIBC_C99], [Define to 1 if dietlibc supports C99])
+
+	AC_CACHE_CHECK([whether dietlibc supports C99], [ensc_cv_c_dietlibc_c99],
+	[
+		old_CFLAGS=$CFLAGS
+		old_CC=$CC
+
+		CFLAGS="-std=c99"
+		CC="${DIET:-diet} $CC"
+
+		AC_LANG_PUSH(C)
+		AC_COMPILE_IFELSE([/* */],[
+			AC_COMPILE_IFELSE([
+				#include <stdint.h>
+				#include <sys/cdefs.h>
+				#if defined(inline)
+				#  error 'inline' badly defined
+				#endif
+				volatile uint64_t	a;
+			],
+			[ensc_cv_c_dietlibc_c99=yes],
+			[ensc_cv_c_dietlibc_c99=no])],
+			[ensc_cv_c_dietlibc_c99='skipped (compiler does not support C99)'])
+		AC_LANG_POP
+
+		CC=$old_CC
+		CFLAGS=$old_CFLAGS
+	])
+
+	if test x"$ensc_cv_c_dietlibc_c99" = xyes; then
+		AC_DEFINE(ENSC_DIETLIBC_C99,1)
+	fi
+])
+
 dnl Usage: ENSC_ENABLE_DIETLIBC(<conditional>)
 dnl        <conditional> ... automake-conditional which will be set when
 dnl                          dietlibc shall be enabled
@@ -33,14 +69,17 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 		      [: ${DIET:=diet}
 		       which "$DIET" >/dev/null 2>/dev/null && use_dietlibc=detected || use_dietlibc=detected_no])
 
+	ensc_have_dietlibc=no
 	case x"$use_dietlibc" in
 	    xdetected)
 		AM_CONDITIONAL($1, true)
 		AC_MSG_RESULT([yes (autodetected)])
+		ensc_have_dietlibc=1
 		;;
 	    xforced)
 		AM_CONDITIONAL($1, true)
 		AC_MSG_RESULT([yes (forced)])
+		ensc_have_dietlibc=1
 		;;
 	    xdetected_no)
 		AM_CONDITIONAL($1, false)
@@ -54,4 +93,8 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 		AC_MSG_ERROR([internal error, use_dietlibc was "$use_dietlibc"])
 		;;
 	esac
+
+	if test x"$ensc_have_dietlibc" != xno; then
+		_ENSC_DIETLIBC_C99
+	fi
 ])
