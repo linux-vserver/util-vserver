@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
   char		dstfile[PATH_MAX];
   int		fd;
   char		buf[sizeof(int)*3+2];
-  ctx_t		ctx;
+  xid_t		ctx;
   ssize_t	len;
   ssize_t	len1 = strlen(argv[1]);
 

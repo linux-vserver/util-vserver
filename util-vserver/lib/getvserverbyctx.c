@@ -29,7 +29,7 @@
 #include <unistd.h>
 
 char *
-vc_getVserverByCtx(ctx_t ctx, vcCfgStyle *style, char const *revdir)
+vc_getVserverByCtx(xid_t ctx, vcCfgStyle *style, char const *revdir)
 {
   if (revdir==0) revdir = DEFAULT_PKGSTATEREVDIR;
 

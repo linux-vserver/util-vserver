@@ -50,11 +50,41 @@ static int __NR_set_ipv4root_rev2;
 static int __NR_set_ipv4root_rev3;
 static int rev_ipv4root=0;
 
+#if (defined(__pic__) && defined(__i386)) || defined(__hppa__)
+#if defined __dietlibc__
+extern long int syscall (long int __sysno, ...);
+#endif
 
-static _syscall1(int, set_ipv4root_rev0, unsigned long, ip)
-static _syscall2(int, set_ipv4root_rev1, unsigned long, ip, unsigned long, bcast)
-static _syscall3(int, set_ipv4root_rev2, unsigned long *, ip, int, nb, unsigned long, bcast)
-static _syscall4(int, set_ipv4root_rev3, unsigned long *, ip, int, nb, unsigned long, bcast, unsigned long *, mask)
+inline static int
+set_ipv4root_rev0(unsigned long ip)
+{
+  return syscall(__NR_set_ipv4root_rev0, ip);
+}
+
+inline static int
+set_ipv4root_rev1(unsigned long ip, unsigned long bcast)
+{
+  return syscall(__NR_set_ipv4root_rev1, ip, bcast);
+}
+
+inline static int
+set_ipv4root_rev2(unsigned long *ip, int nb, unsigned long bcast)
+{
+  return syscall(__NR_set_ipv4root_rev2, ip, nb, bcast);
+}
+
+inline static int
+set_ipv4root_rev3(unsigned long *ip, int nb, unsigned long bcast, unsigned long * mask)
+{
+  return syscall(__NR_set_ipv4root_rev3, ip, nb, bcast, mask);
+}
+
+#else
+inline static _syscall1(int, set_ipv4root_rev0, unsigned long, ip)
+inline static _syscall2(int, set_ipv4root_rev1, unsigned long, ip, unsigned long, bcast)
+inline static _syscall3(int, set_ipv4root_rev2, unsigned long *, ip, int, nb, unsigned long, bcast)
+inline static _syscall4(int, set_ipv4root_rev3, unsigned long *, ip, int, nb, unsigned long, bcast, unsigned long *, mask)
+#endif
 
 static int def_NR_new_s_context = 273;
 #undef __NR_new_s_context
@@ -62,8 +92,16 @@ static int __NR_new_s_context_rev0;
   //static int __NR_new_s_context_rev1;
 static int rev_s_context=0;
 
-static _syscall3(int, new_s_context_rev0, int, newctx, int, remove_cap, int, flags)
+#if defined(__pic__) && defined(__i386)
+inline static int
+new_s_context_rev0(int newctx, int remove_cap, int flags)
+{
+  return syscall(__NR_new_s_context_rev0, newctx, remove_cap, flags);
+}
+#else
+inline static _syscall3(int, new_s_context_rev0, int, newctx, int, remove_cap, int, flags)
     //static _syscall4(int, new_s_context_rev1, int, nbctx, int *, ctxs, int, remove_cap, int, flags)
+#endif
 
 #if 0
 #undef __NR_set_ctxlimit
@@ -72,12 +110,6 @@ static int rev_set_ctxlimit=-1;
 
 static _syscall2 (int, set_ctxlimit, int, resource, long, limit)
 #endif
-
-#undef __NR_chrootsafe
-static int __NR_chrootsafe=-1;
-static int rev_chrootsafe=-1;
-
-static _syscall1 (int, chrootsafe, const char *, dir)
 
 static bool	is_init = false;
 
@@ -128,16 +160,6 @@ static bool init_internal()
       __NR_set_ipv4root_rev2 =
       __NR_set_ipv4root_rev3 = num;
   }
-
-#if 0  
-  SET_TAG_POS("\n__NR_set_ctxlimit: ");
-  if ( pos!=0 && getNumRevPair(pos, &num, &rev_set_ctxlimit) )
-    __NR_set_ctxlimit = num;
-#endif  
-
-  SET_TAG_POS("\n__NR_chrootsafe: ");
-  if ( pos!=0 && getNumRevPair(pos, &num, &rev_chrootsafe) )
-    __NR_chrootsafe   = num;
 
   SET_TAG_POS("\n__NR_new_s_context: ");
   if ( pos!=0 && getNumRevPair(pos, &num, &rev_s_context) )
@@ -237,20 +259,4 @@ vc_set_ipv4root_legacy(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const 
   }
 
   return vc_set_ipv4root_legacy_internal(ip, nb, bcast, mask);
-}
-
-static ALWAYSINLINE int
-vc_chrootsafe_legacy (const char *dir)
-{
-	init();
-	if (rev_chrootsafe == -1){
-	        vc_tell_unsafe_chroot();
-		return chroot(dir);
-	}else if (rev_chrootsafe == 0){
-		return chrootsafe (dir);
-	}else{
-	        WRITE_MSG(2, "chrootsafe: kernel supports wrong version, application expects version 0\n");
-	}
-	errno = EINVAL;
-	return -1;
 }

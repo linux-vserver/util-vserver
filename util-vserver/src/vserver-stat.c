@@ -85,7 +85,7 @@ char *process_name;
 
 struct ArgInfo {
     enum { tpUNSET, tpCTX, tpPID }	type;
-    ctx_t		ctx;
+    xid_t		ctx;
     pid_t		pid;
     unsigned int	interval;
     bool		shutdown;

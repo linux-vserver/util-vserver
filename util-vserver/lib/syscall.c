@@ -43,7 +43,7 @@
 #if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
 
 int
-vc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
+vc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags)
 {
   CALL_VC(CALL_VC_COMPAT(vc_new_s_context, ctx, remove_cap, flags),
 	  CALL_VC_LEGACY(vc_new_s_context, ctx, remove_cap, flags));
@@ -54,13 +54,6 @@ vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips)
 {
   CALL_VC(CALL_VC_COMPAT(vc_set_ipv4root, bcast, nb, ips),
 	  CALL_VC_LEGACY(vc_set_ipv4root, bcast, nb, ips));
-}
-
-int
-vc_chrootsafe(char const *dir)
-{
-  CALL_VC(CALL_VC_COMPAT(vc_chrootsafe, dir),
-	  CALL_VC_LEGACY(vc_chrootsafe, dir));
 }
 
 #endif

@@ -31,7 +31,7 @@
 int main(int argc, char *argv[])
 {
   char		buf[sizeof(int)*3+2];
-  ctx_t		ctx;
+  xid_t		ctx;
   
   if (argc==1) ctx = vc_X_getctx(0);
   else         ctx = vc_X_getctx(atoi(argv[1]));

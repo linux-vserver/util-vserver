@@ -34,7 +34,7 @@
 
 #include <sys/types.h>
 
-ctx_t
+xid_t
 vc_X_getctx(pid_t pid)
 {
   CALL_VC(CALL_VC_COMPAT(vc_X_getctx, pid),

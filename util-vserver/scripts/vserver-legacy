@@ -41,7 +41,7 @@ mountproc()
 	mkdir -p $1/proc $1/dev/pts
 	if [ ! -d $1/proc/1 ] ; then
 		mount -t proc none $1/proc
-		mount -t devpts none $1/dev/pts
+		mount -t devpts -o gid=5,mode=0620 none $1/dev/pts
 	fi
 }
 umountproc()
@@ -468,6 +468,8 @@ elif [ "$2" = "start" ] ; then
 			STARTCMD="/etc/init.d/rc $INITDEFAULT"
 		elif [ -x $DEFAULT_VSERVERDIR/$1/usr/bin/emerge ] ; then
 			STARTCMD="/sbin/rc default"
+		elif [ -x $DEFAULT_VSERVERDIR/$1/etc/rc.d/rc.M ] ; then
+		        STARTCMD="/etc/rc.d/rc.M"			
  		fi
 
 		DISCONNECT=
@@ -583,6 +585,8 @@ elif [ "$2" = "stop" ] ; then
 			STOPCMD="/etc/init.d/rc 6"
 		elif [ -x $DEFAULT_VSERVERDIR/$1/usr/bin/emerge ] ; then
 			STOPCMD="/sbin/rc shutdown"
+		elif [ -x $DEFAULT_VSERVERDIR/$1/etc/rc.d/rc.6 ] ; then
+		        STOPCMD="/etc/rc.d/rc.6"
  		fi
 
 		for f in $S_FLAGS dummy

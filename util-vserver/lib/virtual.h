@@ -1,6 +1,10 @@
 #ifndef _LINUX_VIRTUAL_H
 #define _LINUX_VIRTUAL_H
 
+
+#define NB_IPV4ROOT     16
+
+
 #define VC_CATEGORY(c)		(((c) >> 24) & 0x3F)
 #define VC_COMMAND(c)		(((c) >> 16) & 0xFF)
 #define VC_VERSION(c)		((c) & 0xFFF)
@@ -10,7 +14,7 @@
 
 /*
 
-  Syscall Matrix V2.2
+  Syscall Matrix V2.3
 
          |VERSION|CREATE |MODIFY |MIGRATE|CONTROL|EXPERIM| |SPECIAL|SPECIAL|
          |STATS  |DESTROY|ALTER  |CHANGE |LIMIT  |TEST   | |       |       |
@@ -43,16 +47,18 @@
 
 */
 
-#define	VC_CAT_VERSION		0
+#define VC_CAT_VERSION		0
 	
+#define VC_CAT_PROCTRL		12
+
 #define VC_CAT_RLIMIT		60
 
 #define VC_CAT_SYSTEST		61
-#define	VC_CAT_COMPAT		63
+#define VC_CAT_COMPAT		63
 	
 /*  interface version */
 
-#define VCI_VERSION		0x00010001
+#define VCI_VERSION		0x00010004
 
 
 
@@ -73,8 +79,6 @@ struct  vcmd_new_s_context_v1 {
 	uint32_t flags;
 };
 
-#define	NB_IPV4ROOT 16
-
 struct  vcmd_set_ipv4root_v3 {
 	/* number of pairs in id */
 	uint32_t broadcast;
@@ -84,15 +88,23 @@ struct  vcmd_set_ipv4root_v3 {
 	} ip_mask_pair[NB_IPV4ROOT];
 };
 
+/*  context signalling */
+
+#define VCMD_ctx_kill		VC_CMD(PROCTRL, 1, 0)
+
+struct  vcmd_ctx_kill_v0 {
+	int32_t pid;
+	int32_t sig;
+};
 
 /*  rlimit vserver commands */
 
-#define VCMD_get_rlimit	    	VC_CMD(RLIMIT, 1, 0)
-#define VCMD_set_rlimit	    	VC_CMD(RLIMIT, 2, 0)
-#define VCMD_get_rlimit_mask  	VC_CMD(RLIMIT, 3, 0)
+#define VCMD_get_rlimit		VC_CMD(RLIMIT, 1, 0)
+#define VCMD_set_rlimit		VC_CMD(RLIMIT, 2, 0)
+#define VCMD_get_rlimit_mask	VC_CMD(RLIMIT, 3, 0)
 
 struct  vcmd_ctx_rlimit_v0 {
-    	uint32_t id;
+	uint32_t id;
 	uint64_t minimum;
 	uint64_t softlimit;
 	uint64_t maximum;
@@ -104,8 +116,8 @@ struct  vcmd_ctx_rlimit_mask_v0 {
 	uint32_t maximum;
 };
 
-#define CRLIM_INFINITY	    	(~0ULL)
-#define CRLIM_KEEP	    	(~1ULL)
+#define CRLIM_INFINITY		(~0ULL)
+#define CRLIM_KEEP		(~1ULL)
 
 
 #endif /* _LINUX_VIRTUAL_H */

@@ -23,9 +23,13 @@
 #include <syscall.h>
 #include <errno.h>
 #include <stdint.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 
-#ifndef __NR_sys_virtual_context
-#  define __NR_sys_virtual_context	273
+#include "internal.h"
+
+#ifndef __NR_vserver
+#  define __NR_vserver	273
 #endif
 
 #define VC_PREFIX	0)
@@ -72,7 +76,7 @@
 #if 1
 #  define CTX_KERNEL2USER(X)	(((X)==(uint32_t)(-1)) ? VC_NOCTX   : \
 				 ((X)==(uint32_t)(-2)) ? VC_SAMECTX : \
-				 (ctx_t)(X))
+				 (xid_t)(X))
 
 #  define CTX_USER2KERNEL(X)	(((X)==VC_RANDCTX) ? (uint32_t)(-1) : \
 				 ((X)==VC_SAMECTX) ? (uint32_t)(-2) : \
@@ -83,10 +87,22 @@
 #endif
 
 
-#ifndef HAVE_SYS_VIRTUAL_CONTEXT
-static UNUSED
-_syscall3(int, sys_virtual_context,
+#ifndef HAVE_VSERVER
+#if defined(__pic__) && defined(__i386)
+inline static UNUSED ALWAYSINLINE
+int vserver(uint32_t cmd, uint32_t id, void *data)
+{
+#if defined __dietlibc__
+  extern long int syscall (long int __sysno, ...);
+#endif
+ 
+  return syscall(__NR_vserver, cmd, id, data);
+}
+#else
+inline static UNUSED ALWAYSINLINE
+_syscall3(int, vserver,
 	  uint32_t, cmd, uint32_t, id, void *, data)
+#endif
 #endif
 
 #endif	//  H_VSERVER_SYSCALL_INTERNAL_H

@@ -30,7 +30,7 @@
 #include <errno.h>
 #include <sys/types.h>
 
-static ctx_t
+static xid_t
 vc_X_getctx_legacy_internal(pid_t pid)
 {
   size_t			bufsize = utilvserver_getProcEntryBufsize();
@@ -43,10 +43,10 @@ vc_X_getctx_legacy_internal(pid_t pid)
   else        return VC_NOCTX;
 }
 
-static ctx_t
+static xid_t
 vc_X_getctx_legacy(pid_t pid)
 {
-  ctx_t		res;
+  xid_t		res;
   do {
     res = vc_X_getctx_legacy_internal(pid);
   } while (res==VC_NOCTX && errno==EAGAIN);

@@ -169,7 +169,7 @@ int main (int argc, char *argv[])
   int			set_mask = 0;
   struct vc_rlimit	limits[32];
   bool			show_all = false;
-  ctx_t			ctx      = VC_SAMECTX;
+  xid_t			ctx      = VC_SAMECTX;
 
   {
     size_t		i;

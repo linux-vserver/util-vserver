@@ -31,7 +31,7 @@
 #include <string.h>
 #include <unistd.h>
 
-static ctx_t
+static xid_t
 getCtxFromFile(char const *pathname)
 {
   int		fd;
@@ -48,7 +48,7 @@ getCtxFromFile(char const *pathname)
   BS;
   char		buf[len+1];
   char		*errptr;
-  ctx_t		res;
+  xid_t		res;
   
   if (TEMP_FAILURE_RETRY(read(fd, buf, len+1))!=len)
     return VC_NOCTX;
@@ -60,7 +60,7 @@ getCtxFromFile(char const *pathname)
   BE;
 }
 
-ctx_t
+xid_t
 vc_getVserverCtx(char const *id, vcCfgStyle style)
 {
   size_t		l1 = strlen(id);

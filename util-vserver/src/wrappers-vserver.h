@@ -23,16 +23,16 @@
 #include <vserver.h>
 
 inline static UNUSED void
-Evc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
+Evc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags)
 {
   FatalErrnoError(vc_new_s_context(ctx,remove_cap,flags)==-1,
 		  "vc_new_s_context()");
 }
 
-inline static UNUSED ctx_t
+inline static UNUSED xid_t
 Evc_X_getctx(pid_t pid)
 {
-  register ctx_t	res = vc_X_getctx(pid);
+  register xid_t	res = vc_X_getctx(pid);
   FatalErrnoError(res==VC_NOCTX, "vc_X_getctx()");
   return res;
 }

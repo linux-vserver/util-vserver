@@ -50,7 +50,7 @@
 
 struct ArgInfo {
     enum { tpUNSET, tpCTX, tpPID }	type;
-    ctx_t		ctx;
+    xid_t		ctx;
     pid_t		pid;
     unsigned int	interval;
     bool		shutdown;
@@ -244,12 +244,12 @@ childFunc(void *args_v)
   return 0;
 }
   
-static ctx_t
+static xid_t
 determineContext(pid_t pid)
 {
   int		fd[2];
   pid_t		chld;
-  ctx_t		res;
+  xid_t		res;
   
   Epipe(fd);
   chld = Efork();

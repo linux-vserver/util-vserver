@@ -68,7 +68,7 @@
 #define DBG_VERBOSE2	(0x2000 | DBG_VERBOSE1)
 
 static char const *	ctx_s = 0;
-static ctx_t		ctx   = VC_NOCTX;
+static xid_t		ctx   = VC_NOCTX;
 static uint32_t		caps  = ~0;
 static int		flags = 0;
 static char const *	mnts  = 0;

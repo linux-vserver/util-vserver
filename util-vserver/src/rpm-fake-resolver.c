@@ -37,7 +37,7 @@
 int wrapper_exit_code = 1;
 
 struct ArgInfo {
-    ctx_t		ctx;
+    xid_t		ctx;
     uid_t		uid;
     gid_t		gid;
     bool		do_fork;

@@ -33,19 +33,19 @@
 #if defined (VC_ENABLE_API_V11)
 
 int
-vc_get_rlimit(ctx_t ctx, int resource, struct vc_rlimit *lim)
+vc_get_rlimit(xid_t ctx, int resource, struct vc_rlimit *lim)
 {
   CALL_VC(CALL_VC_V11(vc_get_rlimit, ctx, resource, lim));
 }
 
 int
-vc_set_rlimit(ctx_t ctx, int resource, struct vc_rlimit const *lim)
+vc_set_rlimit(xid_t ctx, int resource, struct vc_rlimit const *lim)
 {
   CALL_VC(CALL_VC_V11(vc_set_rlimit, ctx, resource, lim));
 }
 
 int
-vc_get_rlimit_mask(ctx_t ctx, struct vc_rlimit_mask *lim)
+vc_get_rlimit_mask(xid_t ctx, struct vc_rlimit_mask *lim)
 {
   CALL_VC(CALL_VC_V11(vc_get_rlimit_mask, ctx, 0, lim));
 }

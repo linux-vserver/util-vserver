@@ -29,6 +29,7 @@ vbuild
 vcheck
 vdu
 vfiles
+vkill
 vlimit
 vreboot
 vserver-stat

@@ -22,7 +22,6 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
 
 #include "vserver-internal.h"
 
@@ -32,7 +31,7 @@
 static inline ALWAYSINLINE UNUSED int
 vc_get_version_internal(int cat)
 {
-  return sys_virtual_context(VC_CMD(VERSION, 0, 0), cat, 0);
+  return vserver(VC_CMD(VERSION, 0, 0), cat, 0);
 }
 
 #endif	//  H_UTIL_VSERVER_LIB_GETVERSION_INTERNAL_H
