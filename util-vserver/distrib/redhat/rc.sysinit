@@ -1,3 +1,4 @@
 #! /bin/sh
 
 rm -f /var/lock/subsys/* /var/run/* /var/run/*/* 2>/dev/null
+true
