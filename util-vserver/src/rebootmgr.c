@@ -37,6 +37,11 @@
 	The vreboot utility is used to send the signal from the vserver
 	environment.
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+#include "compat.h"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -99,13 +104,13 @@ static int rebootmgr_process (int fd, const char *vname)
 		if (strcmp(buf,"reboot\n")==0){
 			char cmd[1000];
 			syslog (LOG_NOTICE,"reboot vserver %s\n",vname);
-			snprintf (cmd,sizeof(cmd)-1,"/usr/sbin/vserver %s restart >>/var/log/boot.log 2>&1",vname);
+			snprintf (cmd,sizeof(cmd)-1,"%s/vserver %s restart >>/var/log/boot.log 2>&1",SBINDIR, vname);
 			system (cmd);
 			ret = 0;
 		}else if (strcmp(buf,"halt\n")==0){
 			char cmd[1000];
 			syslog (LOG_NOTICE,"halt vserver %s\n",vname);
-			snprintf (cmd,sizeof(cmd)-1,"/usr/sbin/vserver %s stop >>/var/log/boot.log 2>&1",vname);
+			snprintf (cmd,sizeof(cmd)-1,"%s/vserver %s stop >>/var/log/boot.log 2>&1",SBINDIR, vname);
 			system (cmd);
 			ret = 0;
 		}else{
@@ -197,7 +202,7 @@ int main (int argc, char *argv[])
 						int fd = sockets[i];
 						if (FD_ISSET(fd,&fdin)){
 							struct sockaddr_un unc;
-							size_t len = sizeof(unc);
+							socklen_t len = sizeof(unc);
 							unc.sun_family = AF_UNIX;
 							fd = accept (fd,(struct sockaddr*)&unc,&len);
 							if (fd != -1){

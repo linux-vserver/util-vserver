@@ -23,11 +23,11 @@ sysvdir			=  $(sysconfdir)/init.d
 vservercfgdir		=  $(sysconfdir)/vservers
 
 include_HEADERS		=  $(lib_HDRS)
-noinst_HEADERS		=  $(src_HDRS)
+noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h
 
 lib_LIBRARIES		=  $(lib_lib_LIBS)
 
-pkglib_SCRIPTS		=  $(distrib_SCRPTS) $(scripts_SCRPTS)
+pkglib_SCRIPTS		=  $(distrib_SCRPTS) $(scripts_SCRPTS) $(src_pkglib_SCRPTS)
 pkglib_DATA		=  $(distrib_DAT) $(scriptscfg_DATA)
 pkglib_PROGRAMS		=  $(src_pkglib_PRGS)
 
@@ -39,14 +39,14 @@ sysv_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
 vservercfg_DATA		=  newvserver.defaults
 
-BUILT_SOURCES		=  linuxcaps.h
+BUILT_SOURCES		=  linuxcaps.h linuxvirtual.h
 
 man_MANS		=  $(man_DATMAN)
 
 EXTRA_DIST		=  $(distrib_SCRPTS) $(distrib_DAT) \
 			   $(sysv_XTRAS) $(sysv_CFG) \
                            $(doc_DAT) $(man_DATMAN) \
-			   $(scripts_SCRPTS) $(scripts_PRGS) $(scripts_XTRAS) \
+			   $(scripts_SCRPTS) $(scripts_XTRAS) \
 			   vserver.spec newvserver.defaults \
                            m4/ensc_cflags.m4 \
 			   THANKS
@@ -54,12 +54,16 @@ EXTRA_DIST		=  $(distrib_SCRPTS) $(distrib_DAT) \
 AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D VERSION=\"$(VERSION)\" -D PKGLIBDIR=\"$(pkglibdir)\" -D _GNU_SOURCE
 AM_CFLAGS		=  -Wall -pedantic
 
-CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) linuxcaps.h
+CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) \
+			   $(BUILT_SOURCES)
 
 
 linuxcaps.h:
 		ln -sf ${kernelincludedir}/linux/capability.h linuxcaps.h
 
+linuxvirtual.h:
+		ln -sf '$(kernelincludedir)/linux/virtual.h' '$@' && test -e '$@' || \
+		ln -sf '$(top_srcdir)/lib/virtual.h' '$@'
 
 include $(top_srcdir)/lib/Makefile-files
 include $(top_srcdir)/src/Makefile-files
