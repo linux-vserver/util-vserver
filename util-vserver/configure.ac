@@ -40,6 +40,7 @@ dnl AC_PROG_RANLIB
 AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
 ENSC_CXXCOMPILER
+ENSC_C99COMPILER
 
 check_paths=$PATH:/sbin:/usr/sbin:/usr/local/sbin
 AC_PATH_PROGS(AWK,     [awk],     [awk],         [ $check_paths ])
@@ -162,3 +163,23 @@ fi
 AH_BOTTOM([#include "compat.h"])
 AC_CONFIG_FILES([util-vserver.spec Makefile distrib/Makefile])
 AC_OUTPUT
+
+AC_MSG_NOTICE([
+
+$PACKAGE_STRING
+
+Features:
+          Use dietlibc: $ensc_have_dietlibc
+    Build C++ programs: $ensc_cv_cxx_cxxcompiler
+    Build C99 programs: $ensc_cv_c99_c99compiler
+        Available APIs: $enable_apis
+         ext2fs Source: $ensc_cv_test_ext2fs_header
+
+Paths:
+                prefix: $prefix
+     sysconf-Directory: $sysconfdir
+         cfg-Directory: $sysconfdir/vservers
+      initrd-Directory: $initrddir
+         Kernelheaders: $kernelincludedir
+       vserver-Rootdir: $vserverdir
+])
