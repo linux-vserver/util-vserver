@@ -21,15 +21,32 @@
 #endif
 
 #include "vserver.h"
-#include "vserver-internal.h"
 #include "linuxvirtual.h"
+
+#if defined(VC_ENABLE_API_FSCOMPAT) && defined(VC_ENABLE_API_V13)
+#  define VC_MULTIVERSION_SYSCALL	1
+#endif
+#include "vserver-internal.h"
 
 #ifdef VC_ENABLE_API_V13
 #  include "syscall_getiattr-v13.hc"
 #endif
 
+#ifdef VC_ENABLE_API_FSCOMPAT
+#  include "syscall_getiattr-fscompat.hc"
+#endif
+
 int
-vc_get_iattr(dev_t dev, ino_t ino, xid_t *xid,  uint32_t *flags, uint32_t *mask)
+vc_get_iattr(char const *filename, xid_t *xid,  uint32_t *flags, uint32_t *mask)
 {
-  CALL_VC(CALL_VC_V13(vc_get_iattr, dev, ino, xid, flags, mask));
+  if ( (mask==0) ||
+       ((*mask&VC_IATTR_XID)  && xid==0) ||
+       ((*mask&~VC_IATTR_XID) && flags==0) ) {
+    errno = EINVAL;
+    return -1;
+  }
+  if ( flags ) *flags &= ~*mask;
+
+  CALL_VC(CALL_VC_V13     (vc_get_iattr, filename, xid, flags, mask),
+	  CALL_VC_FSCOMPAT(vc_get_iattr, filename, xid, flags, mask));
 }

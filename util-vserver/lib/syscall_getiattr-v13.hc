@@ -23,15 +23,15 @@
 #include "vserver.h"
 
 static inline ALWAYSINLINE int
-vc_get_iattr_v13(dev_t dev, ino_t ino,
+vc_get_iattr_v13(char const *filename,
 		 xid_t *xid, uint32_t *flags, uint32_t *mask)
 {
-  struct vcmd_ctx_iattr_v0	attr;
+  struct vcmd_ctx_iattr_v1	attr;
   int				rc;
 
-  attr.ino = ino;
+  attr.file_name = filename;
   
-  rc = vserver(VCMD_get_iattr, dev, &attr);
+  rc = vserver(VCMD_get_iattr, 0, &attr);
   if (xid)   *xid   = CTX_KERNEL2USER(attr.xid);
   if (flags) *flags = attr.flags;
   if (mask)  *mask  = attr.mask;
