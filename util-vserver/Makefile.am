@@ -92,6 +92,7 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 				s!@'GREP'@!$(GREP)!g; \
 				s!@'IP'@!$(IP)!g; \
 				s!@'MOUNT'@!$(MOUNT)!g; \
+				s!@'UMOUNT'@!$(UMOUNT)!g; \
 				s!@'NICE'@!$(NICE)!g; \
 				s!@'VCONFIG'@!$(VCONFIG)!g; \
 				s!@'WC'@!$(WC)!g; \
