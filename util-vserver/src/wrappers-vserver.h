@@ -29,4 +29,12 @@ Evc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
 		  "vc_new_s_context()");
 }
 
+inline static UNUSED ctx_t
+Evc_X_getctx(pid_t pid)
+{
+  register ctx_t	res = vc_X_getctx(pid);
+  FatalErrnoError(res==VC_NOCTX, "vc_X_getctx()");
+  return res;
+}
+
 #endif	//  H_UTIL_VSERVER_SRC_WRAPPERS_VSERVER_H
