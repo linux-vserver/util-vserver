@@ -391,6 +391,24 @@ function getAllVservers
     eval $1='( "${_tmp[@]}" )'
 }
 
+## Usage: _getProcNumberCount <ctx> <var>
+function _getProcNumberCount
+{
+    local var=$2
+    local procnr_cnt=0
+
+    # Use /proc/virtual from kernel 2.6 when possible
+    if test -d "/proc/virtual"; then
+	set -- $($_GREP '^PROC:' "/proc/virtual/$1/limit" 2>/dev/null)
+	procnr_cnt=$2
+    else
+	procnr_cnt=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$_ctx" | $_WC -l )
+    fi
+
+    let procnr_cnt=procnr_cnt+0
+    eval $var=\$procnr_cnt
+}
+
 ## Usage: getVserverCtx <vdir> <result-varname> [<procnumber-varname> [<do-cleanup>]]
 ## Returns: 0 iff vserver is running
 function getVserverStatus
@@ -402,8 +420,8 @@ function getVserverStatus
     eval "$2"=\$_ctx
 
     test "$3"        || return 0
-    local _tmp=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$_ctx" | $_WC -l )
-    let _tmp=_tmp+0
+    local _tmp
+    _getProcNumberCount "$_ctx" _tmp
     eval "$3"=\$_tmp
 
     if test "$_tmp" = 0; then
@@ -418,7 +436,8 @@ function getVserverStatus
 ## Usage: isCtxRunning <ctx>
 function isCtxRunning
 {
-    local _tmp=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$1" | $_WC -l )
+    local _tmp
+    _getProcNumberCount "$1" _tmp
     test $_tmp -gt 0
 }
 
