@@ -48,9 +48,11 @@
 */
 
 #define VC_CAT_VERSION		0
+#define VC_CAT_VSETUP           1
 #define VC_CAT_VHOST		2
 
 #define VC_CAT_PROCALT		10
+#define VC_CAT_PROCMIG          11
 #define VC_CAT_PROCTRL		12
 
 #define VC_CAT_SCHED		14
@@ -58,11 +60,14 @@
 
 #define	VC_CAT_VINFO		46
 
+#define VC_CAT_FLAGS            59
 #define VC_CAT_RLIMIT		60
 
 #define VC_CAT_SYSTEST		61
 #define VC_CAT_COMPAT		63
-	
+
+
+
 /*  interface version */
 
 #define VCI_VERSION		0x00010004
@@ -207,6 +212,25 @@ enum vx_vhi_name_field {
        VHIN_VERSION,
        VHIN_MACHINE,
        VHIN_DOMAINNAME,
+};
+
+#define VCMD_create_context     VC_CMD(VSETUP, 1, 0)
+#define VCMD_migrate_context    VC_CMD(PROCMIG, 1, 0)
+
+#define VCMD_get_flags          VC_CMD(FLAGS, 1, 0)
+#define VCMD_set_flags          VC_CMD(FLAGS, 2, 0)
+struct  vcmd_ctx_flags_v0 {
+        uint64_t flagword;
+        uint64_t mask;
+};
+
+
+#define VCMD_get_ccaps          VC_CMD(FLAGS, 3, 0)
+#define VCMD_set_ccaps          VC_CMD(FLAGS, 4, 0)
+struct  vcmd_ctx_caps_v0 {
+        uint64_t scaps;
+        uint64_t ccaps;
+        uint64_t cmask;
 };
 
 #endif /* _LINUX_VIRTUAL_H */
