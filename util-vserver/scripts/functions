@@ -473,8 +473,7 @@ function setDefaultTTY
 	$2 /dev/null
 
     exec   <$ttyname
-    exec  >>$ttyname
-    exec 2>>$ttyname
+    exec  &>$ttyname
 }
 
 ## Usage: pkgmgmt.guessStyle <vserver> <resultvar>
