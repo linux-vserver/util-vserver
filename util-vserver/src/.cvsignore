@@ -46,6 +46,7 @@ vnamespace
 vps
 vreboot
 vrsetup
+vsched
 vschedule
 vserver-info
 vserver-stat
