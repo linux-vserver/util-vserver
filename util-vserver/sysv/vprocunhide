@@ -12,10 +12,17 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 
-# Source function library.
-. /etc/rc.d/init.d/functions
+f=/etc/rc.d/init.d/functions
+if test -e "$f"; then
+    . "$f"
+    lockfile=/var/lock/subsys/vprocunhide
+else
+    success() { echo .; }
+    passed()  { echo .; }
+    failure() { echo ERROR; }
+    lockfile=/dev/null
+fi
 
-lockfile=/var/lock/subsys/vprocunhide
 
 function start()
 {
@@ -24,7 +31,7 @@ function start()
     rc=$?
     case "$rc" in
 	0)	success;;
-	2)	rc=0; passed;;
+	2)	passed; rc=0;;
 	*)	failure;
     esac
     echo
@@ -62,5 +69,3 @@ case "$1" in
 	exit 2
 	;;
 esac
-
-	
