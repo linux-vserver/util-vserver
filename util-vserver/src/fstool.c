@@ -62,7 +62,8 @@ checkForRace(int fd, char const * name, struct stat const *exp_st)
 inline static bool
 isSpecialDir(char const *d)
 {
-  return (d[0]=='.' && (d[1]=='\0' || (d[1]=='.' && d[2]=='\0')));
+  return ( (d[0]=='.' && !global_args->do_display_dot) ||
+	   (d[0]=='.' && (d[1]=='\0' || (d[1]=='.' && d[2]=='\0'))) );
 }
 
 #define CONCAT_PATHS(LHS, LHS_LEN, RHS)					\
@@ -78,15 +79,23 @@ iterateFilesystem(char const *path)
 {
   bool			do_again = false;
   size_t		path_len = strlen(path);
-  DIR *			dir = Eopendir(".");
   uint64_t		err = 0;
+  struct stat		cur_st;
+  DIR *			dir = opendir(".");
 
-  {
-    struct stat		st;
-    if (lstat(".", &st)==-1) perror("lstat()");
-    else err += handleFile(".", path, &st) ? 0 : 1;
+  if (dir==0) {
+    perror("opendir()");
+    return 1;
   }
 
+  // show current directory entry first
+  if (lstat(".", &cur_st)==-1) perror("lstat()");
+  else err += handleFile(".", path, &cur_st) ? 0 : 1;
+
+  // strip trailing '/'
+  while (path_len>0 && path[path_len-1]=='/') --path_len;
+
+  // process regular files before directories
   for (;;) {
     struct dirent	*ent = Ereaddir(dir);
     struct stat		st;
@@ -128,8 +137,16 @@ iterateFilesystem(char const *path)
 	continue;
       }
 
-      if (!S_ISDIR(st.st_mode)) continue;
-      safeChdir(ent->d_name, &st);
+      if (!S_ISDIR(st.st_mode) ||
+	  (global_args->local_fs && st.st_dev!=cur_st.st_dev))
+	continue;
+
+      if (safeChdir(ent->d_name, &st)==-1) {
+	perror("chdir()");
+	++err;
+	continue;
+      }
+      
       {
 	CONCAT_PATHS(path, path_len, ent->d_name);
 	err += iterateFilesystem(new_path);
@@ -155,8 +172,10 @@ processFile(char const *path)
     return 1;
   }
 
-  if (S_ISDIR(st.st_mode) && !global_args->do_display_dir)
+  if (S_ISDIR(st.st_mode) && !global_args->do_display_dir) {
+    Echdir(path);
     return iterateFilesystem(path);
+  }
   else
     return handleFile(path, path, &st);
 }
@@ -176,6 +195,7 @@ int main(int argc, char *argv[])
     .is_legacy          =  false,
     .do_set             =  false,
     .do_unset           =  false,
+    .local_fs		=  false,
   };
 
   global_args = &args;
@@ -197,6 +217,7 @@ int main(int argc, char *argv[])
       case 's'			:  args.do_set         = true;  break;
       case 'u'			:  args.do_unset       = true;  break;
       case 'c'			:  args.ctx_str        = optarg; break;
+      case 'x'			:  args.local_fs       = true;   break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
