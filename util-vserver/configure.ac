@@ -41,6 +41,15 @@ AC_PROG_LN_S
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
+check_paths=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+AC_PATH_PROGS(AWK,     [awk],     [awk],     [ $check_paths ])
+AC_PATH_PROGS(GREP,    [grep],    [grep],    [ $check_paths ])
+AC_PATH_PROGS(IP,      [ip],      [ip],      [ $check_paths ])
+AC_PATH_PROGS(MOUNT,   [mount],   [mount],   [ $check_paths ])
+AC_PATH_PROGS(NICE,    [nice],    [nice],    [ $check_paths ])
+AC_PATH_PROGS(VCONFIG, [vconfig], [vconfig], [ $check_paths ])
+AC_PATH_PROGS(WC,      [wc],      [wc],      [ $check_paths ])
+
 AC_CHECK_PROGS(CVS2CL, [cvs2cl])
 AM_CONDITIONAL(HAVE_CVS2CL,  [test x"$CVS2CL" != x])
 
