@@ -31,13 +31,24 @@
 
 int main(int argc, char *argv[])
 {
-  char		buf[sizeof(int)*3+2];
-  pid_t		pid;
+  char			buf[sizeof(int)*3+2];
+  xid_t			xid;
+  struct vc_vx_info	info;
   
-  if (argc==1) pid = vc_X_getinitpid(0);
-  else         pid = vc_X_getinitpid(atoi(argv[1]));
+  if (argc==1) xid = vc_get_task_xid(0);
+  else         xid = vc_get_task_xid(atoi(argv[1]));
 
-  utilvserver_fmt_int(buf, pid);
+  if (xid==VC_NOCTX) {
+    perror("vc_get_task_xid()");
+    return EXIT_FAILURE;
+  }
+
+  if (vc_get_vx_info(xid, &info)==-1) {
+    perror("vc_get_vx_info()");
+    return EXIT_FAILURE;
+  }
+
+  utilvserver_fmt_int(buf, info.initpid);
 
   WRITE_STR(1, buf);
   WRITE_MSG(1, "\n");
