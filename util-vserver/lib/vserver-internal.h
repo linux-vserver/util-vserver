@@ -87,7 +87,7 @@
 extern "C" {
 #endif
 
-#ifndef HAVE_SYS_VIRTUAL_CONTEXT
+#ifndef HAVE_VSERVER
 #if defined(__pic__) && defined(__i386)
 inline static UNUSED ALWAYSINLINE
 int vserver(uint32_t cmd, uint32_t id, void *data)
