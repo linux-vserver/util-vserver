@@ -42,7 +42,7 @@ legacy_SCRIPTS		=  $(scripts_legacy_SCRPTS)
 
 sbincfg_DATA		=  $(scripts_sbincfg_DTA)
 
-sbin_SCRIPTS		=  $(scripts_sbin_PRGS)
+sbin_SCRIPTS		=  $(scripts_sbin_PRGS) $(src_sbin_SCRPTS)
 sbin_PROGRAMS		=  $(src_sbin_PRGS)
 noinst_PROGRAMS		=  $(test_PRGS)
 
