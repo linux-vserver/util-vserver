@@ -47,7 +47,7 @@ mountproc()
 	mkdir -p $1/proc $1/dev/pts
 	if [ ! -d $1/proc/1 ] ; then
 		mount -t proc none $1/proc
-		mount -t devpts none $1/dev/pts
+		mount -t devpts -o gid=5,mode=0620 none $1/dev/pts
 	fi
 }
 umountproc()
