@@ -15,6 +15,15 @@
   </link>
   
   <collection name="apps">
+    <collection name="vunify">
+                  <link name="logfile">
+		    <description>
+		     The file where output will be logged to when 'vshelper' is invoked from the
+		     kernel. This should point somewhere e.g. into /var/log.
+		    </description>
+		  </link>
+
+    </collection>
    <collection name="pkgmgmt">
     <link name="base">
      <default>/vservers/.pkg</default>
@@ -459,12 +468,6 @@
 		    </description>
 		  </boolean>
 		                                                                                                                          
-		  <link name="logfile">
-		    <description>
-		     The file where output will be logged to when 'vshelper' is invoked from the
-		     kernel. This should point somewhere e.g. into /var/log.
-		    </description>
-		  </link>
    </collection>
    
    <collection name="vshelper-methods">
