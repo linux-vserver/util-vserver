@@ -16,9 +16,13 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 confdir			=  $(sysconfdir)/vservers
+defaultsdir		=  $(pkglibdir)/defaults
 distribdir		=  $(pkglibdir)/distributions
 confdistribdir		=  $(confdir)/.distributions
+confdefaultsdir		=  $(confdir)/.defaults
+confdefaultsinitdir	=  $(confdefaultsdir)/init
 
+defaults_DATA		=  misc/mtab
 
 nobase_distrib_SCRIPTS	=  redhat/initpost
 
@@ -37,7 +41,8 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT \
 
 EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(nobase_distrib_SCRIPTS) \
-			   $(nobase_confdistrib_DATA)
+			   $(nobase_confdistrib_DATA) \
+			   $(defaults_DATA)
 
 redhat_style		=  rh9 fdr0.95
 
@@ -46,3 +51,5 @@ install-data-hook:
 			l="$(redhat_style)"; for i in $$l; do \
 				ln -s ../redhat/initpost $(DESTDIR)$(distribdir)/$$i/; \
 			done
+			$(mkinstalldirs) $(DESTDIR)$(confdir) $(DESTDIR)$(confdefaultsdir) \
+				$(DESTDIR)$(confdefaultsinitdir)
