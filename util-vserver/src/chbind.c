@@ -20,7 +20,9 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
+
+#include "vserver.h"
+#include "util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,18 +30,59 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
-#include <netinet/in.h>
 #include <net/if.h>
 #include <unistd.h>
 #include <errno.h>
+#include <getopt.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
-#include "vserver.h"
+#define ENSC_WRAPPERS_IO	1
+#define ENSC_WRAPPERS_UNISTD	1
+#include "wrappers.h"
 
-static void usage()
+#define CMD_HELP	0x1000
+#define CMD_VERSION	0x1001
+
+#define CMD_SILENT	0x2000
+#define CMD_IP		0x2001
+#define CMD_BCAST	0x2002
+
+int wrapper_exit_code = 255;
+
+
+static struct option const
+CMDLINE_OPTIONS[] = {
+  { "help",     no_argument,  0, CMD_HELP },
+  { "version",  no_argument,  0, CMD_VERSION },
+  { "silent",   no_argument,  0, CMD_SILENT },
+  { "ip",       required_argument, 0, CMD_IP },
+  { "bcast",    required_argument, 0, CMD_BCAST },
+  { 0,0,0,0 }
+};
+
+static void
+showHelp(int fd, char const *cmd, int res)
 {
-	fprintf (stderr,"chbind version %s\n",VERSION);
-	fprintf (stderr,"chbind [ --silent ] [ --ip ip_num[/mask] ] [ --bcast broadcast ] command argument\n");
-	exit (-1);
+  WRITE_MSG(fd, "Usage:\n  ");
+  WRITE_STR(fd, cmd);
+  WRITE_MSG(fd,
+	    " [--silent] [--ip <ip_num>[/<mask>]] [--bcast <broadcast>] [--] <commands> <args>*\n\n"
+	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
+
+  exit(res);
+}
+
+static void
+showVersion()
+{
+  WRITE_MSG(1,
+	    "chbind " VERSION " -- bind to an ip and execute a program\n"
+	    "This program is part of " PACKAGE_STRING "\n\n"
+	    "Copyright (C) 2003,2004 Enrico Scholz\n"
+	    VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
 }
 
 /*
@@ -49,26 +92,33 @@ static void usage()
 
 	Return != 0 if the device exist.
 */
-static int chbind_devexist (const char *dev)
+static bool
+existsDevice(char const *dev_raw)
 {
-	int ret = 0;
-	FILE *fin = fopen ("/proc/net/dev","r");
-	if (fin != NULL){
-		int len = strlen(dev);
-		char buf[1000];
-		fgets(buf,sizeof(buf)-1,fin);	// Skip one line
-		while (fgets(buf,sizeof(buf)-1,fin)!=NULL){
-			const char *pt = strstr(buf,dev);
-			if (pt != NULL && pt[len] == ':'){
-				ret = 1;
-				break;
-			}
-		}
-		fclose (fin);
-	}
-	return ret;
-}
+  size_t	buf_size=8192;
+  char		dev[strlen(dev_raw)+2];
 
+  strcpy(dev, dev_raw);
+  strcat(dev, ":");
+  for (;;) {
+    char	buf[buf_size];
+    char *	pos;
+    bool	too_small;
+    int		fd=open("/proc/net/dev", O_RDONLY);
+    
+    if (fd==-1) return false;
+    too_small = EreadAll(fd, buf, buf_size);
+    close(fd);
+
+    if (too_small) {
+      buf_size *= 2;
+      continue;
+    }
+
+    pos = strstr(buf, dev);
+    return (pos && (pos==buf || pos[-1]==' ' || pos[-1]=='\n'));
+  }
+}
 
 static int ifconfig_ioctl(
 	int fd,
@@ -87,12 +137,12 @@ static int ifconfig_ioctl(
 */
 int ifconfig_getaddr (
 	const char *ifname,
-	unsigned long *addr,
-	unsigned long *mask,
-	unsigned long *bcast)
+	uint32_t *addr,
+	uint32_t *mask,
+	uint32_t *bcast)
 {
 	int ret = -1;
-	if (chbind_devexist(ifname)){
+	if (existsDevice(ifname)){
 		int skfd = socket(AF_INET, SOCK_DGRAM, 0);
 		*addr = 0;
 		*bcast = 0xffffffff;
@@ -119,118 +169,154 @@ int ifconfig_getaddr (
 	return ret;
 }
 
+static void
+readIP(char const *str, struct vc_ip_mask_pair *ip, uint32_t *bcast)
+{
+  if (ifconfig_getaddr(str, &ip->ip, &ip->mask, bcast)==-1) {
+    char		*pt;
+    char		tmpopt[strlen(str)+1];
+    struct hostent	*h;
 
+    strcpy(tmpopt,str);
+    pt = strchr(tmpopt,'/');
+    
+    if (pt==0)
+      ip->mask = ntohl(0xffffff00);
+    else {
+      *pt++ = '\0';
 
+      // Ok, we have a network size, not a netmask
+      if (strchr(pt,'.')==0) {
+	int		sz = atoi(pt);
+	;
+	for (ip->mask = 0; sz>0; --sz) {
+	  ip->mask >>= 1;
+	  ip->mask  |= 0x80000000;
+	}
+	ip->mask = ntohl(ip->mask);
+      }
+      else { 
+	struct hostent *h = gethostbyname (pt);
+	if (h==0) {
+	  WRITE_MSG(2, "Invalid netmask '");
+	  WRITE_STR(2, pt);
+	  WRITE_MSG(2, "'\n");
+	  exit(wrapper_exit_code);
+	}
+
+	memcpy (&ip->mask, h->h_addr, sizeof(ip->mask));
+      }
+    }
+
+    h = gethostbyname (tmpopt);
+    if (h==0) {
+      WRITE_MSG(2, "Invalid IP number or host name '");
+      WRITE_STR(2, tmpopt);
+      WRITE_MSG(2, "'\n");
+      exit(wrapper_exit_code);
+    }
+
+    memcpy (&ip->ip, h->h_addr,sizeof(ip->ip));
+  }
+}
+
+static void
+readBcast(char const *str, uint32_t *bcast)
+{
+  uint32_t	tmp;
+  if (ifconfig_getaddr(str, &tmp, &tmp, bcast)==-1){
+    struct hostent *h = gethostbyname (str);
+    if (h==0){
+      WRITE_MSG(2, "Invalid broadcast number '");
+      WRITE_STR(2, optarg);
+      WRITE_MSG(2, "'\n");
+      exit(wrapper_exit_code);
+    }
+    memcpy (bcast, h->h_addr,sizeof(*bcast));
+  }
+}
 
 int main (int argc, char *argv[])
 {
-	int ret = -1;
-	int silent = 0;
-	int i;
-	struct vc_ip_mask_pair	ips[16];
-	int nbaddrs = 0;
-	unsigned long bcast = 0xffffffff;
-	for (i=1; i<argc; i++){
-		const char *arg = argv[i];
-		const char *opt = argv[i+1];
-		if (strcmp(arg,"--ip")==0){
-			unsigned long addr,mask;
-			if (nbaddrs == 16){
-				fprintf (stderr,"Too many IP numbers, max 16, ignored\n");
+  bool				is_silent = false;
+  struct vc_ip_mask_pair	ips[16];
+  size_t			nbaddrs = 0;
+  uint32_t			bcast = 0xffffffff;
+  
+  while (1) {
+    int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
+    if (c==-1) break;
 
-			}else if (ifconfig_getaddr(opt,&addr,&mask,&bcast)==-1){
-				unsigned long mask = 0x00ffffff;
-				const char *pt = strchr(opt,'/');
-				char tmpopt[strlen(opt)+1];
-				struct hostent *h;
-				
-				if (pt != NULL){
-					strcpy (tmpopt,opt);
-					tmpopt[pt-opt] = '\0';
-					opt = tmpopt;
-					pt++;
-					if (strchr(pt,'.')==NULL){
-						// Ok, we have a network size, not a netmask
-						int size = atoi(pt);
-						int i;
-						mask = 0;
-						for (i=0; i<size; i++){
-							mask = mask >> 1;
-							mask |= 0x80000000;
-						}
-						mask = ntohl(mask);
-					}else{
-						struct hostent *h = gethostbyname (pt);
-						if (h != NULL){
-							memcpy (&mask,h->h_addr,sizeof(mask));
-						}else{
-							fprintf (stderr,"Invalid netmask: %s\n",pt);
-							usage();
-						}
-					}
-							
-				}
+    switch (c) {
+      case CMD_HELP		:  showHelp(1, argv[0], 0);
+      case CMD_VERSION		:  showVersion();
+      case CMD_SILENT		:  is_silent = true; break;
+      case CMD_BCAST		:  readBcast(optarg, &bcast); break;
+      case CMD_IP		:
+	if (nbaddrs>=16) {
+	  WRITE_MSG(2, "Too many IP numbers, max 16\n");
+	  exit(wrapper_exit_code);
+	}
+	readIP(optarg, ips+nbaddrs, &bcast);
+	++nbaddrs;
+	break;
+      default		:
+	WRITE_MSG(2, "Try '");
+	WRITE_STR(2, argv[0]);
+	WRITE_MSG(2, " --help\" for more information.\n");
+	exit(wrapper_exit_code);
+	break;
+    }
+  }
 
-				h = gethostbyname (opt);
-				if (h == NULL){
-					fprintf (stderr,"Invalid IP number or host name: %s\n",opt);
-					usage();
-				}else{
-					memcpy (&addr,h->h_addr,sizeof(addr));
-					ips[nbaddrs].ip   = addr;
-					ips[nbaddrs].mask = mask;
-					++nbaddrs;
-				}
-			}else{
-			      ips[nbaddrs].ip   = addr;
-			      ips[nbaddrs].mask = mask;
-			      ++nbaddrs;
-			}
-			i++;
-		}else if (strcmp(arg,"--bcast")==0){
-			unsigned long tmp;
-			if (ifconfig_getaddr(opt,&tmp,&tmp,&bcast)==-1){
-				struct hostent *h = gethostbyname (opt);
-				if (h == NULL){
-					fprintf (stderr,"Invalid broadcast number: %s\n",opt);
-					usage();
-				}else{
-					memcpy (&bcast,h->h_addr,sizeof(bcast));
-				}
-			}
-			i++;
-		}else if (strcmp(arg,"--silent")==0){
-			silent = 1;
-		}else{
-			break;
-		}
-	}
-	if (i == argc){
-		usage();
-	}else if (argv[i][0] == '-'){
-		usage();
-	}else{
-	      if (vc_set_ipv4root(bcast,nbaddrs,ips)==0){
-			if (!silent){
-			        int i;
-				printf ("ipv4root is now");
-				for (i=0; i<nbaddrs; i++){
-					unsigned long hostaddr = ntohl(ips[i].ip);
-					printf (" %ld.%ld.%ld.%ld"
-						,hostaddr>>24
-						,(hostaddr>>16)&0xff
-						,(hostaddr>>8)&0xff
-						,hostaddr &0xff);
-				}
-				printf ("\n");
-			}
-			execvp (argv[i],argv+i);
-			fprintf (stderr,"Can't exec %s (%s)\n",argv[i],strerror(errno));
-		}else{
-			fprintf (stderr,"Can't set the ipv4 root (%s)\n",strerror(errno));
-		}
-	}
-	return ret;
+  if (optind==argc) {
+    WRITE_MSG(2, "No command given; try '--help' for more information\n");
+    exit(wrapper_exit_code);
+  }
+  
+
+  if (vc_set_ipv4root(bcast,nbaddrs,ips)!=0) {
+    perror("vc_set_ipv4root()");
+    exit(wrapper_exit_code);
+  }
+
+  if (!is_silent) {
+    size_t		i;
+    
+    WRITE_MSG(1, "ipv4root is now");
+    for (i=0; i<nbaddrs; ++i) {
+      WRITE_MSG(1, " ");
+      WRITE_STR(1, inet_ntoa(*reinterpret_cast(struct in_addr *)(&ips[i].ip)));
+    }
+    WRITE_MSG(1, "\n");
+  }
+
+  Eexecvp (argv[optind],argv+optind);
+  return EXIT_SUCCESS;
 }
 
+#ifdef ENSC_TESTSUITE
+#include <assert.h>
 
+void test()
+{
+  struct vc_ip_mask_pair	ip;
+  uint32_t			bcast;
+
+  bcast = 0;
+  readIP("1.2.3.4", &ip, &bcast);
+  assert(ip.ip==ntohl(0x01020304) && ip.mask==ntohl(0xffffff00) && bcast==0);
+
+  readIP("1.2.3.4/8", &ip, &bcast);
+  assert(ip.ip==ntohl(0x01020304) && ip.mask==ntohl(0xff000000) && bcast==0);
+
+  readIP("1.2.3.4/255.255.0.0", &ip, &bcast);
+  assert(ip.ip==ntohl(0x01020304) && ip.mask==ntohl(0xffff0000) && bcast==0);
+
+  readIP("localhost", &ip, &bcast);
+  assert(ip.ip==ntohl(0x7f000001) && ip.mask==ntohl(0xffffff00) && bcast==0);
+  
+  readIP("lo", &ip, &bcast);
+  assert(ip.ip==ntohl(0x7f000001) && ip.mask==ntohl(0xff000000) && bcast==ntohl(0x7fffffff));
+}
+#endif
