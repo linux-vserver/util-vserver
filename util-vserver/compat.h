@@ -28,6 +28,12 @@
 #  define __STRICT_ANSI__
 #endif
 
+#if defined(__dietlibc__)
+#  define ENSC_FIX_IOCTL(X)	do { if ((X)<-1) { errno=-(X); (X) = -1; } } while (0)
+#else
+#  define ENSC_FIX_IOCTL(X)	do { } while (0)
+#endif
+
 #if defined(__GNUC__)
 #  define UNUSED                __attribute__((__unused__))
 #  define NORETURN              __attribute__((__noreturn__))
