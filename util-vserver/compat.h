@@ -47,4 +47,14 @@
 typedef short int		ctx_t;
 #endif
 
+#if defined(__dietlibc__)
+  #define TEMP_FAILURE_RETRY(expression)				\
+  (__extension__							\
+   ({ long int __result;						\
+   do __result = (long int) (expression);				\
+   while (__result == -1L && errno == EINTR);				\
+  __result; }))
+#endif
+
+
 #endif	//  H_UTIL_VSERVER_COMPAT_H
