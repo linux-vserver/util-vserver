@@ -25,6 +25,8 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 				scripts/vservers.grabinfo.sh \
 				scripts/vpstree \
 				scripts/vserver-copy \
+				scripts/vserver-wrapper \
+				scripts/vsysvwrapper \
 				scripts/vtop \
 				scripts/legacy/distrib-info \
 				scripts/legacy/vps \
