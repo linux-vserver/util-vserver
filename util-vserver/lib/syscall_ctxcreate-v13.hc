@@ -20,7 +20,7 @@
 #  include <config.h>
 #endif
 
-static inline ALWAYSINLINE int
+static inline ALWAYSINLINE xid_t
 vc_ctx_create_v13(xid_t xid)
 {
   xid_t		res = vserver(VCMD_ctx_create, CTX_USER2KERNEL(xid), 0);
