@@ -143,18 +143,18 @@ extern "C" {
   int	vc_migrate_context(xid_t xid);
   
   /* rlimit related functions */
-  typedef uint64_t	vc_limit_t;
+  typedef uint_least64_t	vc_limit_t;
  
   struct vc_rlimit {
-      vc_limit_t min;
-      vc_limit_t soft;
-      vc_limit_t hard;      
+      vc_limit_t	min;
+      vc_limit_t	soft;
+      vc_limit_t	hard;
   };
 
   struct  vc_rlimit_mask {
-      uint32_t min;
-      uint32_t soft;
-      uint32_t hard;
+      uint_least32_t	min;
+      uint_least32_t	soft;
+      uint_least32_t	hard;
   };
 
   int	vc_get_rlimit(xid_t ctx, int resource, struct vc_rlimit *lim);
@@ -170,9 +170,11 @@ extern "C" {
 
 
 
-  int		vc_set_iattr(char const *filename, xid_t xid,  uint32_t flags, uint32_t mask); 
+  int		vc_set_iattr(char const *filename, xid_t xid,
+			     uint_least32_t flags, uint_least32_t mask); 
   int		vc_get_iattr(char const *filename, xid_t * /*@null@*/ xid,
-			     uint32_t * /*@null@*/ flags, uint32_t * /*@null@*/ mask);
+			     uint_least32_t * /*@null@*/ flags,
+			     uint_least32_t * /*@null@*/ mask);
 
   struct vc_vx_info {
       xid_t	xid;
@@ -197,22 +199,29 @@ extern "C" {
   int		vc_cleanup_namespace();
 
   struct  vc_ctx_flags {
-      uint64_t flagword;
-      uint64_t mask;
+      uint_least64_t	flagword;
+      uint_least64_t	mask;
   };
 
-  int		vc_get_flags(xid_t xid, struct vc_ctx_flags *);
-  int		vc_set_flags(xid_t xid, struct vc_ctx_flags const *);
+  int			vc_get_flags(xid_t xid, struct vc_ctx_flags *);
+  int			vc_set_flags(xid_t xid, struct vc_ctx_flags const *);
 
-  uint32_t	vc_textlist2flag(char const *, size_t len,
-				 char const **err_ptr, size_t *err_len);
-  uint32_t	vc_text2flag(char const *, size_t len);
-  char const *	vc_hiflag2text(unsigned int);
+  int			vc_list2flag(char const *, size_t len,
+				     char const **err_ptr, size_t *err_len,
+				     uint_least64_t *flag,
+				     uint_least64_t *mask);
+  uint_least64_t	vc_text2flag(char const *, size_t len);
+  char const *		vc_hiflag2text(uint_least64_t);
+  
+  uint_least32_t	vc_list2flag_compat(char const *, size_t len,
+					    char const **err_ptr, size_t *err_len);
+  uint_least32_t	vc_text2flag_compat(char const *, size_t len);
+  char const *		vc_hiflag2text_compat(uint_least32_t);
   
   int		vc_text2cap(char const *);
   char const *	vc_cap2text(unsigned int);
 
-  inline static int	vc_get_securecaps() {
+  inline static uint_least32_t	vc_get_securecaps() {
     return ( (1<<VC_CAP_LINUX_IMMUTABLE) | (1<<VC_CAP_NET_BROADCAST) |
 	     (1<<VC_CAP_NET_ADMIN) | (1<<VC_CAP_NET_RAW) |
 	     (1<<VC_CAP_IPC_LOCK) | (1<<VC_CAP_IPC_OWNER) |
@@ -250,6 +259,7 @@ extern "C" {
     vcFeatureSet;
 
   bool		vc_isSupported(vcFeatureSet);
+  bool		vc_isSupportedString(char const *);
   
   /* The management part */
 
