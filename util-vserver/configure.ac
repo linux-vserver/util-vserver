@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.29.204, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.29.205, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -88,7 +88,7 @@ AC_ARG_VAR(CC, [The C compiler])
 
 ENSC_INITRDDIR(initrddir)
 ENSC_RELEASE(RELEASE_CPPFLAGS)
-ENSC_ENABLE_DIETLIBC(USE_DIETLIBC)
+ENSC_ENABLE_DIETLIBC(USE_DIETLIBC, [0.24])
 
 if test x"$ensc_have_dietlibc" = xno; then
 	AC_MSG_WARN([***                                                         ***])
