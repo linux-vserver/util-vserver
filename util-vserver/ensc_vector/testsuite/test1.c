@@ -123,4 +123,6 @@ int main()
 	  E(4)==4 && E(5)==5 && E(6)==6 && E(7)==7)); 
 
   Vector_free(&v);
+
+  return 0;
 }

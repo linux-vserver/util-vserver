@@ -28,4 +28,5 @@ extern void	PathInfo_test();
 int main()
 {
   PathInfo_test();
+  return 0;
 }
