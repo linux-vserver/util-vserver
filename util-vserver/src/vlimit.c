@@ -391,7 +391,9 @@ int main (int argc, char *argv[])
   if (ctx==VC_NOCTX)
     ctx = Evc_get_task_xid(0);
 
-  readFromDir(limits, &lim_mask, dir, missing_ok);
+  if (dir)
+    readFromDir(limits, &lim_mask, dir, missing_ok);
+
   setLimits(ctx, limits, lim_mask);
   if (show_all) showAll(ctx);
 
