@@ -381,31 +381,31 @@ function _generateScheduleOptions
 
 function _getInterfaceValue
 {
-    local val=$1
-    local dflt=$2
+    local _giv_val=$1
+    local _giv_dflt=$2
     shift 2
     
-    local i
-    local tmp
+    local _giv_i
+    local _giv_tmp
 
-    for i; do
-	read tmp  <"$i/$val" && break || :
+    for _giv_i; do
+	read _giv_tmp  <"$_giv_i/$_giv_val" && break || :
     done 2>/dev/null
 
-    : ${tmp:=$dflt}
-    eval $val=\$tmp
+    : ${_giv_tmp:=$_giv_dflt}
+    eval $_giv_val=\$_giv_tmp
 }
 
 ## Usage: _transformMask2Prefix <result-varname> <prefix> <mask>
 function _transformMask2Prefix
 {
-    local tmp=$2
+    local _tm2p_tmp=$2
     
-    test "$tmp" || {
-	$_MASK2PREFIX "$3" || tmp=$?
+    test "$_tm2p_tmp" || {
+	$_MASK2PREFIX "$3" || _tm2p_tmp=$?
     }
 
-    eval $1=\$tmp
+    eval $1=\$_tm2p_tmp
     return 0
 }
 
@@ -647,7 +647,19 @@ function _mountVserverInternal
     shift
 
     pushd "$vdir" >/dev/null
-    "$@" $_SECURE_MOUNT -a --chroot --fstab "$fstab"
+    "$@" $_SECURE_MOUNT -a --chroot --fstab "$fstab" --rootfs no
+    popd >/dev/null
+}
+
+function mountRootFS
+{
+    local cfgdir=$1
+    local vdir=$1/vdir
+    local fstab="$cfgdir"/fstab
+
+    test -e "$fstab" || return 0
+    pushd "$vdir" >/dev/null
+    $_SECURE_MOUNT -a --chroot --fstab "$fstab" --rootfs only -n
     popd >/dev/null
 }
 
