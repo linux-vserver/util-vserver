@@ -31,7 +31,7 @@
 
 bool
 Unify_unify(char const *src, struct stat const *src_stat,
-	    char const *dst, struct stat const UNUSED *dst_stat)
+	    char const *dst)
 {
   size_t	l = strlen(dst);
   char		tmpfile[l + sizeof(";XXXXXX")];

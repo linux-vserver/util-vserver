@@ -25,11 +25,17 @@ struct stat;
 
 bool
 Unify_unify(char const *src, struct stat const *src_stat,
-	    char const *dst, struct stat const *dst_stat) NONNULL((1,2,3,4));
+	    char const *dst) NONNULL((1,2,3));
 
 bool
-Unify_deUnify(char const *src, struct stat const *src_stat,
-	      char const *dst, struct stat const *dst_stat) NONNULL((1,2,3,4));
+Unify_copy(char const *src, struct stat const *src_stat,
+	   char const *dst) NONNULL((1,2,3));
+
+bool
+Unify_deUnify(char const *dst) NONNULL((1));
+
+bool
+Unify_setTime(char const *dst, struct stat const *stat) NONNULL((1,2));
 
 
 #define	Unify_isUnified(LHS, RHS)		\
