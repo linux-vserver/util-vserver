@@ -92,6 +92,7 @@ lib_SRCS =  			lib/syscall.c \
 				lib/fmtx-32.c \
 				lib/fmtx-64.c \
 				lib/capabilities.c \
+				lib/isdynamicxid.c \
 				lib/issupported.c \
 				lib/issupportedstring.c \
 				lib/listparser_uint32.c \
