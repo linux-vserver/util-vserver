@@ -23,7 +23,6 @@ scripts_OPTIONS_EXEMPT	=  scripts/distrib-info \
 			   scripts/vapt-get-worker \
 			   scripts/vrpm-worker \
 			   scripts/vrpm-preload \
-			   scripts/vserver-init \
 			   scripts/save_s_context \
 			   scripts/vprofile \
 			   scripts/vservers.grabinfo.sh \
@@ -35,6 +34,11 @@ scripts_OPTIONS_EXEMPT	=  scripts/distrib-info \
 			   scripts/vtop
 
 scripts_DTA		=  scripts/functions \
+			   scripts/vserver-build.apt-rpm \
+			   scripts/vserver-build.functions \
+			   scripts/vserver-build.functions.apt \
+			   scripts/vserver-build.functions.rpm \
+			   scripts/vserver-setup.functions \
 			   scripts/vserver.functions \
 			   scripts/vserver.start \
 			   scripts/vserver.stop \
@@ -44,7 +48,6 @@ scripts_SCRPTS		=  scripts/distrib-info \
 			   scripts/vapt-get-worker \
 			   scripts/vrpm-worker \
 			   scripts/vrpm-preload \
-			   scripts/vserver-init \
 			   scripts/rootshell \
 			   scripts/save_s_context \
 			   scripts/vprofile \
