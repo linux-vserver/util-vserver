@@ -38,6 +38,8 @@
 #include <vector>
 #include <list>
 #include <set>
+#include <cassert>
+
 #include "vutil.h"
 
 using namespace std;
@@ -215,6 +217,12 @@ static int vbuild_copy (
 	return ret;
 }
 
+static void
+prepareVserver(Vserver const &src, char const *dst)
+{
+  assert(false);
+}
+
 int main (int argc, char *argv[])
 {
 	int ret = -1;
@@ -245,8 +253,10 @@ int main (int argc, char *argv[])
 	if (i!=argc-2){
 		usage();
 	}else{
-		string refserv = argv[i++];
-		string newserv = argv[i];
+	        Vserver		refserv(argv[i++]);
+
+		prepareVserver(refserv, argv[i]);
+		Vserver		newserv(argv[i]);
 		list<Package> packages;
 		// Load the files which are not configuration files from
 		// the packages
@@ -257,19 +267,18 @@ int main (int argc, char *argv[])
 		}
 		// Now, we do a recursive copy of refserv into newserv
 		umask (0);
-		mkdir (newserv.c_str(),0755);
 		// Check if it is on the same volume
 		struct stat refst,newst;
-		if (vutil_lstat(refserv,refst)!=-1
-			&& vutil_lstat(newserv,newst)!=1){
+		if (vutil_lstat(refserv.getVdir().c_str(),refst)!=-1
+		    && vutil_lstat(newserv.getVdir().c_str(),newst)!=1){
 			if (refst.st_dev != newst.st_dev){
-				fprintf (stderr,"Can't vbuild %s because it is not on the same volume as %s\n"
-					,newserv.c_str(),refserv.c_str());
+			  fprintf (stderr,"Can't vbuild %s because it is not on the same volume as %s\n",
+				   newserv.getVdir().c_str(),refserv.getVdir().c_str());
 			}else{
 				stats.nbdir = stats.nblink = stats.nbcopy = stats.nbsymlink = 0;
 				stats.nbspc = 0;
 				stats.size_copy = 0;
-				ret = vbuild_copy (refserv,newserv,refst.st_dev,"",files);
+				ret = vbuild_copy (refserv.getVdir(),newserv.getVdir(),refst.st_dev,"",files);
 				if (statistics){
 					printf ("Directory created: %d\n",stats.nbdir);
 					printf ("Files copied     : %d\n",stats.nbcopy);
