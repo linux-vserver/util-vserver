@@ -16,26 +16,15 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
-#endif
-#include "compat.h"
-#include "vserver.h"
-#include "vserver-internal.h"
+#ifndef H_UTIL_VSERVER_LIB_GETCTX_COMPAT_H
+#define H_UTIL_VSERVER_LIB_GETCTX_COMPAT_H
 
-#ifdef VC_ENABLE_API_COMPAT
-#  include "getctx-compat.hc"
-#endif
+#include "getctx-legacy.hc"
 
-#ifdef VC_ENABLE_API_LEGACY
-#  include "getctx-legacy.hc"
-#endif
-
-#include <sys/types.h>
-
-ctx_t
-vc_X_getctx(pid_t pid)
+static inline ALWAYSINLINE ctx_t
+vc_X_getctx_compat(pid_t pid)
 {
-  CALL_VC(CALL_VC_COMPAT(vc_X_getctx, pid),
-	  CALL_VC_LEGACY(vc_X_getctx, pid));
+  return vc_X_getctx_legacy(pid);
 }
+
+#endif	//  H_UTIL_VSERVER_LIB_GETCTX_COMPAT_H

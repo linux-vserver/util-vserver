@@ -16,26 +16,33 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
+#ifndef H_UTIL_VSERVER_LIB_SAFECHROOT_INTERNAL_H
+#define H_UTIL_VSERVER_LIB_SAFECHROOT_INTERNAL_H
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
 #include "compat.h"
-#include "vserver.h"
-#include "vserver-internal.h"
 
-#ifdef VC_ENABLE_API_COMPAT
-#  include "getctx-compat.hc"
-#endif
+#include <stdlib.h>
+#include <unistd.h>
 
-#ifdef VC_ENABLE_API_LEGACY
-#  include "getctx-legacy.hc"
-#endif
-
-#include <sys/types.h>
-
-ctx_t
-vc_X_getctx(pid_t pid)
+#ifndef NDEBUG
+static void
+vc_tell_unsafe_chroot()
 {
-  CALL_VC(CALL_VC_COMPAT(vc_X_getctx, pid),
-	  CALL_VC_LEGACY(vc_X_getctx, pid));
+  static int			flag = -1;
+  if (flag==-1) {
+    char const * const	e = getenv("VC_TELL_UNSAFE_CHROOT");
+    flag = e ? atoi(e) : 0;
+    flag = flag ? 1 : 0;
+  }
+
+  if (flag) write(2, "Unsafe chroot() used\n", 23);
 }
+#else
+static ALWAYSINLINE UNUSED void	vc_tell_unsafe_chroot() {}
+#endif
+
+
+#endif	//  H_UTIL_VSERVER_LIB_SAFECHROOT_INTERNAL_H
