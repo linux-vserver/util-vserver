@@ -43,10 +43,12 @@ declare -a OPTS_VSCHED=()
 
 declare -a VSERVER_EXTRA_CMDS=()
 
+VSHELPER_SYNC_TIMEOUT=30
 USE_VNAMESPACE=
 INTERFACE_CMDS_IDX=0
 _HAVE_INTERFACE_OPTIONS=
 _HAVE_CHBIND_OPTIONS=
+_NEED_VSHELPER_SYNC=
 _IS_FAKEINIT=
 
 INITSTYLE=sysv
@@ -209,7 +211,7 @@ function _generateInitOptions
     getFileValue runlevel_start "$cfgdir"/runlevel
     getFileValue runlevel_start "$cfgdir"/runlevel.start
     getFileValue runlevel_stop  "$cfgdir"/runlevel.stop
-    getFileArray INITKILL_SEQ	"$cfgdir"/killseq
+    getFileArray INITKILL_SEQ	"$cfgdir"/killseq || :
 
     case x"$INITSTYLE" in
 	(xsysv)
@@ -228,6 +230,7 @@ function _generateInitOptions
 	    INITCMD_START=( /sbin/init )
 	    INITCMD_STOP=(  /sbin/init )
 	    _IS_FAKEINIT=1
+	    _NEED_VSHELPER_SYNC=1
 	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
 	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
 	    ;;
@@ -237,7 +240,7 @@ function _generateInitOptions
 	    INITCMD_STOP=(  /sbin/minit-stop  )
 	    _IS_FAKEINIT=1
 	    INITCMD_START_SYNC=( "$_INITSYNC_MINIT_START" "$vdir" )
-	    INITCMD_STOP_SYNC=(  "$_INITSYNC_MINIT_STOP"  "$vdir" )
+	    _NEED_VSHELPER_SYNC=1
 	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
 	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
 	    ;;
@@ -252,17 +255,24 @@ function _generateInitOptions
 	    exit 1;;
     esac
 
-    getFileArray INITCMD_START      "$cfgdir"/cmd.start
-    getFileArray INITCMD_STOP       "$cfgdir"/cmd.stop
-    getFileArray INITCMD_START_SYNC "$cfgdir"/cmd.start-sync
-    getFileArray INITCMD_STOP_SYNC  "$cfgdir"/cmd.stop-sync
-    getFileArray INITCMD_PREPARE    "$cfgdir"/cmd.prepare
+    getFileArray INITCMD_START      "$cfgdir"/cmd.start      || :
+    getFileArray INITCMD_STOP       "$cfgdir"/cmd.stop       || :
+    getFileArray INITCMD_START_SYNC "$cfgdir"/cmd.start-sync || :
+    getFileArray INITCMD_STOP_SYNC  "$cfgdir"/cmd.stop-sync  || :
+    getFileArray INITCMD_PREPARE    "$cfgdir"/cmd.prepare    || :
 
     
-    test -e "$cfgdir"/sync -o "$OPTION_FORCE_SYNC" || {
+    test "$OPTION_FORCE_SYNC" -o -e "$cfgdir"/sync || {
 	INITCMD_START_SYNC=()
 	INITCMD_STOP_SYNC=()
+	_NEED_VSHELPER_SYNC=
     }
+
+    if vshelper.isEnabled; then
+	vshelper.getSyncTimeout "$vdir" VSHELPER_SYNC_TIMEOUT || :
+    else
+	_NEED_VSHELPER_SYNC=
+    fi
 }
 
 function _generateFlagOptions
@@ -301,10 +311,22 @@ function _generateChcontextOptions
     local flag
 
     {
-	read ctx        <"$vdir"/context     || :
-	read hostname   <"$vdir"/hostname    || :
-	read domainname <"$vdir"/domainname  || :
+	read ctx        <"$vdir"/context        || :
+	## LEGACY ALERT
+	read hostname   <"$vdir"/uts/nodename   || read hostname   <"$vdir"/hostname   || :
+	read domainname <"$vdir"/uts/domainname || read domainname <"$vdir"/domainname || :
     } 2>/dev/null
+
+    ## LEGACY ALERT
+    test \( ! -e "$vdir"/hostname   -o -e "$vdir"/uts/nodename   \) -a \
+	 \( ! -e "$vdir"/domainname -o -e "$vdir"/uts/domainname \) || {
+	echo $"\
+The hostname is now configured in 'uts/nodename' but not in 'hostname' anymore;
+the old way is not supported when using 2.6 kernel patches so it is strongly
+recommended to move these files.
+
+The same applies to 'domainname' vs. 'uts/domainname'." >&2
+    }
 
     test -z "$S_CONTEXT" || ctx=$S_CONTEXT
 
@@ -608,6 +630,35 @@ function umountVserver
     popd >/dev/null           || return 1
 
     test "$is_ok"
+}
+
+## Usage: waitForSync <vserver> <vshelper-fifo-varname>
+function initSync
+{
+    test -z "$_NEED_VSHELPER_SYNC" || vshelper.initSync "$1" "$2"
+}
+
+## Usage: waitForSync <vserver> [<vshelper-fifo>]
+function waitForSync
+{
+    local cfgdir=$1
+    local fifo=$2
+    
+    if test "$_NEED_VSHELPER_SYNC"; then
+	$_VSHELPER_SYNC "$fifo" "$VSHELPER_SYNC_TIMEOUT" || \
+	    warning $"\
+A timeout or other error occured while waiting for the synchronization
+signal from vserver '$VSERVER_NAME'.
+The vserver will be killed nevertheless..."
+    elif test "${#INITCMD_STOP_SYNC[@]}" -ne 0; then
+	"${INITCMD_STOP_SYNC[@]}" || \
+	    warning $"\
+Stop-synchronization for vserver '$VSERVER_NAME' failed. The vserver
+will be killed nevertheless..."
+    fi
+
+    test -z "$OPTION_FORCE_SYNC" -a ! -e "$cfgdir"/sync ||
+	sleep 1
 }
 
 function _sourceWrap
