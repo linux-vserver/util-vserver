@@ -623,8 +623,10 @@ function _mountVserverInternal
     local fstab="$1"
     test -e "$fstab" || return 0
     shift
-    
-    "$@" $_SECURE_MOUNT -a --chroot "$vdir" --fstab "$fstab"
+
+    pushd "$vdir" >/dev/null
+    "$@" $_SECURE_MOUNT -a --chroot --fstab "$fstab"
+    popd >/dev/null
 }
 
 function mountVserver

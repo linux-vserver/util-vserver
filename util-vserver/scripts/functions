@@ -291,11 +291,15 @@ function _pkgMountRPM
     _pkgMountBindDir "$RPMETCDIR" /etc/rpm
     test "$RPMLIBDIR" = "/" || _pkgMountBindDir "$RPMLIBDIR" /usr/lib/rpm
 
-    "$_SECURE_MOUNT" --chroot "$VDIR" -n --secure --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
+    pushd "$VDIR" >/dev/null
+
+    "$_SECURE_MOUNT" --chroot -n --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
     test -z "$WORKAROUND_106057" || mount -n --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
 
     test -e "$VDIR"/proc/self/status || \
-	"$_SECURE_MOUNT" --chroot "$VDIR" -n --secure -t proc none /proc
+	"$_SECURE_MOUNT" --chroot -n -t proc none /proc
+
+    popd >/dev/null
 }
 
 function _pkgSetEnvBase

@@ -144,7 +144,7 @@ mountVserverInternal(struct Configuration const *cfg,
     char const *	argv[] = {
       PROG_SECURE_MOUNT,
       "-a",
-      "--chroot", ".",
+      "--chroot",
       "--fstab", path->d,
       0
     };
