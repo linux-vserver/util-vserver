@@ -21,6 +21,6 @@
 
 #include <stdbool.h>
 
-bool	jailIntoTempDir();
+bool	jailIntoTempDir(char const **err_pos);
 
 #endif	//  H_UTIL_VSERVER_LIB_INTERNAL_JAIL_H

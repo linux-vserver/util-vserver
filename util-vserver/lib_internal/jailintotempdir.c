@@ -27,22 +27,25 @@
 #include <unistd.h>
 
 bool
-jailIntoTempDir()
+jailIntoTempDir(char const **err_pos)
 {
+  gid_t const	id    = 1;
   char		buf[] = "/tmp/jaildir.XXXXXX";
-  char const *	d   = mkdtemp(buf);
-  gid_t		id = 1;
+  char const *	d     = mkdtemp(buf);
+  char const *	err   = "mkdtemp()";
 
   if (d==0 ||
-      chdir(d)==-1 ||
-      rmdir(d)==-1 ||
-      chroot(".")==-1 ||
-      setgroups(1, &id)==-1 ||
-      setgid(id)==-1 ||
-      setuid(id)==-1 ||
-      getgid()!=id ||
-      getuid()!=id)
+      (err="chdir()",    chdir(d)==-1) ||
+      (err="rmdir()",    rmdir(d)==-1) ||
+      (err="chroot()",   chroot(".")==-1) ||
+      (err="setgroups()",setgroups(1, &id)==-1) ||
+      (err="setgid()",   setgid(id)==-1) ||
+      (err="setuid()",   setuid(id)==-1) ||
+      (err="getgid()",   getgid()!=id) ||
+      (err="getuid()",   getuid()!=id)) {
+    if (err_pos!=0) *err_pos = err;
     return false;
+  }
 
   return true;
 }
