@@ -29,16 +29,49 @@
 
 int	wrapper_exit_code = 1;
 
+static void
+showHelp(int fd, char const *cmd, int res)
+{
+  WRITE_MSG(fd, "Usage:  ");
+  WRITE_STR(fd, cmd);
+  WRITE_MSG(fd,
+	    " <files>+\n\n"
+	    "This program removes <files> by assuming the current directory\n"
+	    "as a chroot directory.\n\n"
+	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
+  exit(res);
+}
+
+static void
+showVersion()
+{
+  WRITE_MSG(1,
+	    "chroot-rm " VERSION " -- removes files under current directory\n"
+	    "This program is part of " PACKAGE_STRING "\n\n"
+	    "Copyright (C) 2003 Enrico Scholz\n"
+	    VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
+}
+
 int main(int argc, char *argv[])
 {
   int		i;
   int		res;
+  int		idx = 1;
 
   Echroot(".");
   Echdir("/");
 
+  if (argc==1) {
+    WRITE_MSG(2, "No files given; use '--help' for more information\n");
+    return EXIT_FAILURE;
+  }
+  if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
+  if (strcmp(argv[1], "--version")==0) showVersion();
+  if (strcmp(argv[1], "--")==0)        ++idx;
+
   res = EXIT_SUCCESS;
-  for (i=1; i<argc; ++i) {
+  for (i=idx; i<argc; ++i) {
     if (unlink(argv[i])==-1) {
       WRITE_STR(2, argv[i]);
       perror("");
