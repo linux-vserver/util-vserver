@@ -53,8 +53,6 @@ struct Arguments {
 
 struct stat;
 
-static void	visitDirEntry(struct dirent const *) NONNULL((1));
-static void	visitDir(char const *, struct stat const *) NONNULL((1));
 static bool	checkFstat(struct MatchList const * const,
 			   PathInfo const * const,
 			   PathInfo const * const,
@@ -67,7 +65,6 @@ checkDirEntry(PathInfo const *,
 	      bool *, struct stat *, struct stat *) NONNULL((1,2,3,4,5));
 
 static bool	updateSkipDepth(PathInfo const *, bool) NONNULL((1));
-static void	EsafeChdir(char const *, struct stat const *)  NONNULL((1,2));
 static bool	doit(struct MatchList const *,
 		     PathInfo const *, struct stat const *,
 		     char const *dst_path, struct stat const *) NONNULL((1,2,3));

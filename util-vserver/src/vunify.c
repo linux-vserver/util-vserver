@@ -24,6 +24,9 @@
 #include "util.h"
 
 #include "lib_internal/unify.h"
+#include "lib_internal/matchlist.h"
+#include "lib_internal/util-dotfile.h"
+#include "lib_internal/util-safechdir.h"
 #include <lib/vserver.h>
 
 #include <getopt.h>
@@ -237,16 +240,10 @@ updateSkipDepth(PathInfo const *path, bool walk_down)
   return result;
 }
 
-inline static void
-EsafeChdir(char const *path, struct stat const *exp_stat)
-{
-  FatalErrnoError(safeChdir(path, exp_stat)==-1, "safeChdir()");
-}
-
 static bool
 doit(struct MatchList const *mlist,
      PathInfo const *src_path, struct stat const *src_stat,
-     char const *dst_path,     struct stat const *dst_stat)
+     char const *dst_path,     struct stat const UNUSED *dst_stat)
 {
   PathInfo	path = mlist->root;
   char		path_buf[ENSC_PI_APPSZ(path, *src_path)];
@@ -271,24 +268,10 @@ doit(struct MatchList const *mlist,
   
   PathInfo_append(&path, src_path, path_buf);
   return (global_args->do_dry_run ||
-	  (!global_args->do_revert && Unify_unify(  path.d, src_stat, dst_path, dst_stat)) ||
-	  ( global_args->do_revert && Unify_deUnify(path.d, src_stat, dst_path, dst_stat)));
+	  (!global_args->do_revert && Unify_unify  (path.d, src_stat, dst_path)) ||
+	  ( global_args->do_revert && Unify_deUnify(dst_path)));
 }
 
-static void
-printListId(struct MatchList const *l)
-{
-  if (l->id.l>0) {
-    WRITE_MSG(1, "'");
-    write(1, l->id.d, l->id.l);
-    WRITE_MSG(1, "'");
-  }
-  else if (l->root.l>0) {
-    write(1, l->root.d, l->root.l);
-  }
-  else
-    WRITE_MSG(1, "???");
-}
 
 static void
 printSkipReason()
@@ -299,7 +282,7 @@ printSkipReason()
     case rsEXCL_DST	:
     case rsEXCL_SRC	:
       WRITE_MSG(1, "excluded by ");
-      printListId(skip_reason.d.list);
+      MatchList_printId(skip_reason.d.list, 1);
       break;
     case rsFSTAT	:  WRITE_MSG(1, "fstat error"); break;
     case rsNOEXISTS	:  WRITE_MSG(1, "does not exists in refserver(s)"); break;
@@ -312,27 +295,28 @@ printSkipReason()
   WRITE_MSG(1, ")");
 }
 
-static void
+#include "vserver-visitdir.hc"
+
+static uint64_t
 visitDirEntry(struct dirent const *ent)
 {
   bool				is_dir;
   struct MatchList const *	match;
-  struct stat			f_stat;
+  struct stat			f_stat = { .st_dev = 0 };
   char const *			dirname  = ent->d_name;
   PathInfo			path     = global_info.state;
   PathInfo			d_path = {
     .d = dirname,
-    .l = strlen(ent->d_name)
+    .l = strlen(dirname)
   };
   char				path_buf[ENSC_PI_APPSZ(path, d_path)];
   bool				is_dotfile;
   struct stat			src_stat;
+  uint64_t			res = 1;
 
   PathInfo_append(&path, &d_path, path_buf);
 
-  is_dotfile = (dirname[0]=='.' &&
-		(dirname[1]=='\0' || (dirname[1]=='.' && dirname[2]=='\0')));
-  memset(&f_stat, 0, sizeof f_stat);
+  is_dotfile    = isDotfile(dirname);
   skip_reason.r = rsDOTFILE;
 
   if (is_dotfile ||
@@ -349,52 +333,24 @@ visitDirEntry(struct dirent const *ent)
       if (global_args->verbosity>2) printSkipReason();
       WRITE_MSG(1, "\n");
     }
-    return;
+    return 0;
   }
 
   if (is_dir) {
     if (updateSkipDepth(&path, true)) {
-      visitDir(dirname, &f_stat);
+      res = visitDir(dirname, &f_stat);
       updateSkipDepth(&path, false);
     }
+    else
+      res = 0;
   }
   else if (!doit(match, &path, &src_stat, dirname, &f_stat)) {
       // TODO: message
   }
-}
+  else
+    res = 0;
 
-static void
-visitDir(char const *name, struct stat const *expected_stat)
-{
-  int		fd = Eopen(".", O_RDONLY, 0);
-  PathInfo	old_state = global_info.state;
-  PathInfo	rhs_path = {
-    .d = name,
-    .l = strlen(name)
-  };
-  char		new_path[ENSC_PI_APPSZ(global_info.state, rhs_path)];
-  DIR *		dir;
-
-  PathInfo_append(&global_info.state, &rhs_path, new_path);
-
-  if (expected_stat!=0)
-    EsafeChdir(name, expected_stat);
-  
-  dir = Eopendir(".");
-
-  for (;;) {
-    struct dirent		*ent = Ereaddir(dir);
-    if (ent==0) break;
-
-    visitDirEntry(ent);
-  }
-
-  Eclosedir(dir);
-
-  Efchdir(fd);
-  Eclose(fd);
-
-  global_info.state = old_state;
+  return res;
 }
 
 #include "vunify-init.hc"
