@@ -30,7 +30,9 @@ lib_management_SRCS =		lib/createskeleton.c \
 				lib/getvservervdir.c
 lib_v11_SRCS =			lib/syscall_rlimit.c \
 				lib/syscall_kill.c
-lib_v13_SRCS =			lib/syscall_getiattr.c \
+lib_v13_SRCS =			lib/syscall_enternamespace.c \
+				lib/syscall_enternamespace-v13.hc \
+				lib/syscall_getiattr.c \
 				lib/syscall_setiattr.c \
 				lib/syscall_gettaskxid.c \
 				lib/syscall_getvxinfo.c

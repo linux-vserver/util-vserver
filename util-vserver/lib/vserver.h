@@ -185,6 +185,9 @@ extern "C" {
   int		vc_get_vhi_name(xid_t xid, vc_uts_type type, char *val, size_t len);
 
 
+  int		vc_enter_namespace(xid_t xid);
+  
+
   uint32_t	vc_textlist2flag(char const *, size_t len,
 				 char const **err_ptr, size_t *err_len);
   uint32_t	vc_text2flag(char const *, size_t len);
