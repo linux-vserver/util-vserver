@@ -208,7 +208,8 @@ registerXid(struct Vector *vec, struct process_info *process)
 }
 
 // open the process's status file to get the ctx number, and other stat
-struct process_info *get_process_info(char *pid)
+struct process_info *
+get_process_info(char *pid)
 {
   int 				fd;
   char				buffer[1024];
@@ -230,6 +231,8 @@ struct process_info *get_process_info(char *pid)
     WRITE_MSG(2, "): ");
     WRITE_STR(2, strerror(err));
     WRITE_MSG(2, "\n");
+
+    return 0;
   }
   
   memcpy(buffer,     "/proc/", 6); idx  = 6;
@@ -438,8 +441,11 @@ int main(int argc, char **argv)
     if (!isdigit(*dir_entry->d_name))
       continue;
 
-    if (atoi(dir_entry->d_name) != my_pid)
-      registerXid(&xid_data, get_process_info(dir_entry->d_name));
+    if (atoi(dir_entry->d_name) != my_pid) {
+      struct process_info *	info = get_process_info(dir_entry->d_name);
+      if (info)
+	registerXid(&xid_data, info);
+    }
   }
   closedir(proc_dir);
 
