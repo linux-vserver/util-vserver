@@ -9,7 +9,7 @@
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
-Release:	0.2
+Release:	0
 Epoch:		0
 License:	GPL
 Group:		System Environment/Base
