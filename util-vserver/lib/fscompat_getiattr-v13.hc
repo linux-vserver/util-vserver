@@ -24,5 +24,10 @@ inline static ALWAYSINLINE int
 vc_get_iattr_compat_v13(char const UNUSED *filename, dev_t dev, ino_t ino,
 			xid_t *xid, uint32_t *flags, uint32_t *mask)
 {
-  return vc_get_iattr(dev, ino, CTX_USER2KERNEL(xid), flags, mask);
+  int		rc;
+  
+  rc = vc_get_iattr(dev, ino, xid, flags, mask);
+  if (xid) *xid = CTX_KERNEL2USER(*xid);
+
+  return rc;
 }
