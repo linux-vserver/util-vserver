@@ -1,4 +1,4 @@
-core   @LIBDIR@/libvserver.so.*
+lib    @LIBDIR@/libvserver.so.*
 devel  @LIBDIR@/libvserver.a
 devel  @LIBDIR@/libvserver.so
 base   @PKGLIBDIR@/functions
