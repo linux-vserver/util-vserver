@@ -223,8 +223,8 @@ setHostname(char const *name)
 {
   if (name == NULL) return;
   
-  if (vc_set_vhi_name(VC_SAMECTX, vcVHI_NODENAME, name, strlen(name))==-1) {
-    perror("setHostname()");
+  if (sethostname(name, strlen(name))==-1) {
+    perror("sethostname()");
     exit(255);
   }
   if (!global_args->do_silent) {
@@ -239,8 +239,8 @@ setDomainname(char const *name)
 {
   if (name == NULL) return;
   
-  if (vc_set_vhi_name(VC_SAMECTX, vcVHI_DOMAINNAME, name, strlen(name))==-1) {
-    perror("setDomainname()");
+  if (setdomainname(name, strlen(name))==-1) {
+    perror("setdomainname()");
     exit(255);
   }
   if (!global_args->do_silent) {
