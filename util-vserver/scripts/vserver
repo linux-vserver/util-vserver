@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 # based on vserver by Jacques Gelinas
@@ -737,17 +737,17 @@ elif [ "$2" = "service" ] ; then
 	exec $0 $NODEV $SILENT $VSERVER exec /sbin/service "$@"
 elif [ "$2" = "chkconfig" ] ; then
 	VSERVER=$1
+	LEVELS=()
 	shift
 	shift
 	if [ "$1" = "--level" ] ; then
-		shift
-		LEVELS=$1
-		shift
+		LEVELS=( --level "$2" )
+		shift 2
 	fi
 	if [ $# != 2 -a ! -x /vservers/$VSERVER/sbin/chkconfig ] ; then
 		echo Invalid argument, expected vserver name chkconfig [ --level nnn ] service on\|off
 	elif [ -x /vservers/$VSERVER/sbin/chkconfig ] ; then
-		exec $0 --silent $VSERVER exec /sbin/chkconfig "$@"
+		exec $0 --silent $VSERVER exec /sbin/chkconfig "${LEVELS[@]}" "$@"
 	elif [ -x /vservers/$VSERVER/usr/sbin/update-rc.d ] ; then
 		if [ "$2" = "on" -o "$2" = "start" ] ; then
 			$0 --silent $VSERVER exec /usr/sbin/update-rc.d -f $1 remove >/dev/null
