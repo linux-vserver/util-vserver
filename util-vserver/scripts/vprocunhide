@@ -61,8 +61,8 @@ while test -n "$1"; do
 done
 
 findFile UNHIDEFILE \
-    "$CONFDIR"/.defaults/apps/vprocunhide/files \
-    "$PKGLIBDEFAULTDIR"/vprocunhide-files
+    "$__CONFDIR"/.defaults/apps/vprocunhide/files \
+    "$__PKGLIBDEFAULTDIR"/vprocunhide-files
 
 ok=1
 passed=

@@ -33,7 +33,7 @@ function initVariables
 
     test -n "${mirror-unset}" || {
 	local aux
-	findFile aux "$CONFDIR"/.defaults/apps/debootstrap/mirror ''
+	findFile aux "$__CONFDIR"/.defaults/apps/debootstrap/mirror ''
 	test -z "$aux" || read mirror <"$aux"
     }
 }
@@ -54,7 +54,7 @@ function findDebootstrap
         workdir=$dir
         dst=$dir/debootstrap.deb
         
-        findFile DEBOOTSTRAP_URI "$CONFDIR"/.defaults/apps/debootstrap/uri "$PKGLIBDEFAULTDIR"/debootstrap.uri
+        findFile DEBOOTSTRAP_URI "$__CONFDIR"/.defaults/apps/debootstrap/uri "$__PKGLIBDEFAULTDIR"/debootstrap.uri
         read tmp <$DEBOOTSTRAP_URI
         case "$tmp" in
     	(/*)			ln -s "$tmp" "$dst";;
@@ -73,7 +73,7 @@ to util-vserver and removed the known ones. To fix this, go to
 (or a nearby mirror) and search the URL for the most recent *.deb
 package matching your platform. Then, put this URL into
 
-   $CONFDIR/.defaults/apps/debootstrap/uri
+   $__CONFDIR/.defaults/apps/debootstrap/uri
 
 and retry the vserver-build command again.
 EOF

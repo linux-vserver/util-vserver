@@ -164,7 +164,7 @@ function getEnterShell
 
     ENTER_SHELL=()
 
-    getFileValue ENTER_SHELL "$vdir"/shell "$CONFDIR"/.defaults/shell
+    getFileValue ENTER_SHELL "$vdir"/shell "$__CONFDIR"/.defaults/shell
     
     test -n "$ENTER_SHELL" || {
 	local i
@@ -513,7 +513,7 @@ function enableInterfaces
     local i=0
     declare -a var
 
-    lock "$LOCKDIR"/vserver.interfaces
+    lock "$__LOCKDIR"/vserver.interfaces
 
     while test $i -lt $INTERFACE_CMDS_IDX; do
 	eval var='( "${INTERFACE_CMDS_'$i'[@]}" )'
@@ -551,7 +551,7 @@ function disableInterfaces
     local i=$INTERFACE_CMDS_IDX
     declare -a var
 
-    lock "$LOCKDIR"/vserver.interfaces
+    lock "$__LOCKDIR"/vserver.interfaces
     
     while test $i -gt 0; do
 	let --i || :
@@ -660,7 +660,7 @@ function mountVserver
          -e "$cfgdir"/fstab.local -o \
 	 -e "$cfgdir"/fstab.remote || return 0
 
-    findObject -r mtab_src "$cfgdir"/apps/init/mtab "$CONFDIR"/.defaults/init/mtab "$PKGLIBDEFAULTDIR"/mtab /dev/null
+    findObject -r mtab_src "$cfgdir"/apps/init/mtab "$__CONFDIR"/.defaults/init/mtab "$__PKGLIBDEFAULTDIR"/mtab /dev/null
     
     pushd "$vdir" >/dev/null
     $_CHROOT_CAT /etc/mtab <"$mtab_src"
@@ -762,7 +762,7 @@ function execScriptlets
     declare -r flavor=$3
     local base i
 
-    for base in "$vdir"/scripts "$CONFDIR"/.defaults/scripts; do
+    for base in "$vdir"/scripts "$__CONFDIR"/.defaults/scripts; do
 	local	DONT_SKIP_DEFAULTS=
 	local	already_handled=
 	

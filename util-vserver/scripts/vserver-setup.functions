@@ -32,9 +32,9 @@ declare -r SETUP_OPTIONS="confdir:,lockfile:,hostname:,netdev:,netmask:,netprefi
 declare -r SETUP_HELPMSG=$"
     --context   ...  the static context of the vserver [default: none; a dynamic
                      context will be assumed]
-    --confdir   ...  [default: $CONFDIR/<name>]
+    --confdir   ...  [default: $__CONFDIR/<name>]
     --lockfile <filename>
-		...  [default: $RUNDIR/<name>]
+		...  [default: $__RUNDIR/<name>]
     --hostname <hostname>
     --netdev   <device>
     --netbcast <broadcast>
@@ -129,9 +129,9 @@ function _setup_writeInterface
 
 function setup_setDefaults
 {
-    : ${SETUP_CONFDIR:=$CONFDIR/$1}
-    : ${SETUP_LOCKFILE:=$RUNDIR/$1}
-    findFile SETUP_FSTAB "$CONFDIR"/.defaults/fstab "$PKGLIBDEFAULTDIR"/fstab
+    : ${SETUP_CONFDIR:=$__CONFDIR/$1}
+    : ${SETUP_LOCKFILE:=$__RUNDIR/$1}
+    findFile SETUP_FSTAB "$__CONFDIR"/.defaults/fstab "$__PKGLIBDEFAULTDIR"/fstab
 }
 
 function setup_writeOption

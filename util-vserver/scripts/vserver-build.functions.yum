@@ -43,8 +43,8 @@ function yum.installBasePackages
 function yum.initVariables
 {
     findDir  YUMREPOSDEFAULT \
-	"$CONFDIR/.distributions/$DISTRIBUTION/yum.repos.d" \
-	"$DISTRIBDIR/$DISTRIBUTION/yum.repos.d" \
+	"$__CONFDIR/.distributions/$DISTRIBUTION/yum.repos.d" \
+	"$__DISTRIBDIR/$DISTRIBUTION/yum.repos.d" \
 	''
 }
 
@@ -68,9 +68,9 @@ function yum.initFilesystem
     mkdir -p "$PKGCFGDIR"/yum/{etc,cache}
     
     populateDirectory "$PKGCFGDIR/yum/etc" \
-	"$DISTRIBDIR/defaults/yum" \
-	"$DISTRIBDIR/$DISTRIBUTION/yum" \
-	"$CONFDIR/.distributions/$DISTRIBUTION/yum"
+	"$__DISTRIBDIR/defaults/yum" \
+	"$__DISTRIBDIR/$DISTRIBUTION/yum" \
+	"$__CONFDIR/.distributions/$DISTRIBUTION/yum"
 
     ## workaround for yum's automatism to search the configuration in the chroot
     

@@ -22,7 +22,7 @@ function pkgmgmt._setPkgCfgBase
 {
     test -z "$PKGCFGBASE" || return 0
 
-    for item in "\"$CONFDIR/.defaults/apps/pkgmgmt/base\" 1" ${ROOTDIR:+"$ROOTDIR/.pkg"} "$DEFAULT_VSERVERPKGDIR"; do
+    for item in "\"$__CONFDIR/.defaults/apps/pkgmgmt/base\" 1" ${ROOTDIR:+"$ROOTDIR/.pkg"} "$__DEFAULT_VSERVERPKGDIR"; do
 	eval set -- "$item"
 	PKGCFGBASE=$1
 	PKGCFGBASE_REL=$2
@@ -66,12 +66,12 @@ function pkgmgmt.initFilesystem
 	exit 1
     }
 
-    mkdir -p "$SETUP_CONFDIR"/apps/pkgmgmt
+    mkdir -p "${SETUP_CONFDIR:?}"/apps/pkgmgmt
 
     test -z "$PKGCFGDIR" || {
 	ln -s "$PKGCFGDIR" "$SETUP_CONFDIR/apps/pkgmgmt/base"
 
-	test "$_EXECDIR" = / || ln -s "$_EXECDIR" "$SETUP_CONFDIR/apps/pkgmgmt/execdir"
+	test "$_EXECDIR" = / || ln -s "${_EXECDIR:?}" "$SETUP_CONFDIR/apps/pkgmgmt/execdir"
     }
 
 }
@@ -79,5 +79,5 @@ function pkgmgmt.initFilesystem
 function pkgmgmt.initVariables
 {
     pkgmgmt._setPkgCfg
-    findDir  PKGINSTALLDIR         "$CONFDIR/.distributions/$DISTRIBUTION/pkgs"      "$DISTRIBDIR/$DISTRIBUTION/pkgs"     /
+    findDir  PKGINSTALLDIR  "$__CONFDIR/.distributions/$DISTRIBUTION/pkgs"  "$__DISTRIBDIR/$DISTRIBUTION/pkgs"     /
 }

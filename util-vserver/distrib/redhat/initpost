@@ -67,7 +67,7 @@ popd >/dev/null
 pushd "$vdir" &>/dev/null
     : | $_CHROOT_CAT /etc/sysctl.conf
     echo "none    /       none    defaults" | $_CHROOT_CAT /etc/fstab
-    cat "$DISTRIBDIR"/redhat/rc.sysinit     | $_CHROOT_CAT /etc/rc.d/rc.sysinit.vserver
+    cat "$__DISTRIBDIR"/redhat/rc.sysinit   | $_CHROOT_CAT /etc/rc.d/rc.sysinit.vserver
     # TODO: remove race/symlink-attack
     chmod +x etc/rc.d/rc.sysinit.vserver
     subst etc/inittab 's!^\([^#].*:respawn:.* tty\)!#\1!;

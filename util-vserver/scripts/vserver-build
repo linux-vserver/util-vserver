@@ -38,9 +38,9 @@ Options:
     --force     ...  remove/rename already existing vservers with the same name
     -m <method> ...  use method <method>; see below for possible values
     --rootdir <dir>
-                ...  [default: $DEFAULT_VSERVERDIR]
+                ...  [default: $__DEFAULT_VSERVERDIR]
     --pkgbase <dir>
-                ...  [default: $DEFAULT_VSERVERPKGDIR]
+                ...  [default: $__DEFAULT_VSERVERPKGDIR]
       
 cfg-options are: $SETUP_HELPMSG
 
@@ -85,7 +85,7 @@ the GNU General Public License.  This program has absolutely no warranty."
 set -e
 
 declare -a default_opts=()
-test -n "$NO_DEFAULT_OPTS" || getFileArray default_opts "$CONFDIR/.defaults/apps/build/options" || :
+test -n "$NO_DEFAULT_OPTS" || getFileArray default_opts "$__CONFDIR/.defaults/apps/build/options" || :
 
 tmp=$(getopt -o +m:n: --long force,debug,help,version,rootdir:,pkgbase:,$SETUP_OPTIONS -n "$(basename $0)" -- \
 	"${default_opts[@]}" "$@") || exit 1
@@ -122,7 +122,7 @@ setup_setDefaults "$VSERVER_NAME"
 case x"$method" in
     (xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
     (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum|xrpm)
-		. $PKGLIBDIR/vserver-build.$method
+		. $__PKGLIBDIR/vserver-build.$method
 		;;
     (x)		panic $"No build-method specified";;
     (*)		panic $"Unknown build-method '$method'";;

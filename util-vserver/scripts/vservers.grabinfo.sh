@@ -25,7 +25,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 
-cd $DEFAULT_VSERVERDIR
+cd $__DEFAULT_VSERVERDIR
 for vserv in *
 do
 	if [ -f /etc/vservers/$vserv.conf ] ; then
@@ -43,7 +43,7 @@ do
 			esac
 		done
 		echo "  <status>"
-		$SBINDIR/vserver $vserv status
+		$_VSERVER $vserv status
 		echo "  </status>"
 		echo "</m:vserver>"
 	fi

@@ -45,10 +45,10 @@ if [ "$1" = "/" ] ; then
 	CHROOTCMD=
 elif [ -d "$1" ] ; then
 	DISTDIR=$1
-	CHROOTCMD="$SBINDIR/chroot $DISTDIR"
+	CHROOTCMD="$__SBINDIR/chroot $DISTDIR"
 else
-	DISTDIR=$DEFAULT_VSERVERDIR/$1
-	CHROOTCMD="$SBINDIR/chroot $DISTDIR"
+	DISTDIR=$__DEFAULT_VSERVERDIR/$1
+	CHROOTCMD="$__SBINDIR/chroot $DISTDIR"
 fi
 KEY=$2
 shift

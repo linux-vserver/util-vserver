@@ -26,8 +26,8 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 
-USR_SBIN=$SBINDIR
-USR_LIB_VSERVER=$PKGLIBDIR
+USR_SBIN=$__SBINDIR
+USR_LIB_VSERVER=$__PKGLIBDIR
 DEFAULTPATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin
 
 vserver_mknod(){
@@ -54,14 +54,14 @@ umountproc()
 testperm()
 {
 	return
-	PERM=`$_SHOWPERM $DEFAULT_VSERVERDIR/$1/..`
+	PERM=`$_SHOWPERM $__DEFAULT_VSERVERDIR/$1/..`
 	if [ "$PERM" != 000 ] ; then
 		echo
 		echo "**********************************************************"
-		echo $DEFAULT_VSERVERDIR/$1/.. has insecure permissions.
+		echo $__DEFAULT_VSERVERDIR/$1/.. has insecure permissions.
 		echo A vserver administrator may be able to visit the root server.
 		echo To fix this, do
-		echo "	" chmod 000 $DEFAULT_VSERVERDIR/$1/..
+		echo "	" chmod 000 $__DEFAULT_VSERVERDIR/$1/..
 		echo do it anytime you want, even if vservers are running.
 		echo "**********************************************************"
 		echo
@@ -179,27 +179,27 @@ setipopt(){
 # Extract the initial runlevel from the vserver inittab
 get_initdefault()
 {
-	INITDEFAULT=`grep :initdefault $DEFAULT_VSERVERDIR/$1/etc/inittab | sed 's/:/ /g' | ( read a level b; echo $level)`
+	INITDEFAULT=`grep :initdefault $__DEFAULT_VSERVERDIR/$1/etc/inittab | sed 's/:/ /g' | ( read a level b; echo $level)`
 }
 
 # Read the vserver configuration file, reusing the PROFILE value
 # found in /var/run/vservers
 readlastconf()
 {
-	if [ -f $PKGSTATEDIR/$1.ctx ] ; then
-		. $PKGSTATEDIR/$1.ctx
+	if [ -f $__PKGSTATEDIR/$1.ctx ] ; then
+		. $__PKGSTATEDIR/$1.ctx
 		if [ "$S_PROFILE" != "" ] ; then
 			export PROFILE=$S_PROFILE
 		fi
 	fi
 	export PROFILE
-	. $CONFDIR/$1.conf
+	. $__CONFDIR/$1.conf
 }
 usage()
 {
 	echo vserver [ options ] server-name command ...
 	echo
-	echo server-name is a directory in $DEFAULT_VSERVERDIR
+	echo server-name is a directory in $__DEFAULT_VSERVERDIR
 	echo
 	echo The commands are:
 	echo " build   : Create a virtual server by copying the packages"
@@ -269,24 +269,24 @@ if [ $# -lt 2 ] ; then
 	usage
 elif [ "$2" = "build" ] ; then
 	# Either the directory does not exist or is empty
-	NBSUB=`ls $DEFAULT_VSERVERDIR/$1 2>/dev/null | grep -v lost+found | wc -l` 
+	NBSUB=`ls $__DEFAULT_VSERVERDIR/$1 2>/dev/null | grep -v lost+found | wc -l` 
 	NBSUB=`expr $NBSUB`
 	if [ "$NBSUB" != 0 ] ; then
-		echo Virtual server $DEFAULT_VSERVERDIR/$1 already exist
+		echo Virtual server $__DEFAULT_VSERVERDIR/$1 already exist
 	else
-		if [ ! -d $DEFAULT_VSERVERDIR ] ; then
-			mkdir $DEFAULT_VSERVERDIR || exit 1
-			chmod 000 $DEFAULT_VSERVERDIR
-			echo Directory $DEFAULT_VSERVERDIR was created with permissions 000
+		if [ ! -d $__DEFAULT_VSERVERDIR ] ; then
+			mkdir $__DEFAULT_VSERVERDIR || exit 1
+			chmod 000 $__DEFAULT_VSERVERDIR
+			echo Directory $__DEFAULT_VSERVERDIR was created with permissions 000
 		fi
-		mkdir -p $DEFAULT_VSERVERDIR/$1 || exit 1
-		chmod 755 $DEFAULT_VSERVERDIR/$1
+		mkdir -p $__DEFAULT_VSERVERDIR/$1 || exit 1
+		chmod 755 $__DEFAULT_VSERVERDIR/$1
 		if test "$UTIL_VSERVER_AVOID_COPY"; then
-		    mkdir -p $DEFAULT_VSERVERDIR/$1/{etc/rc.d/init.d,sbin,var/run,var/log}
+		    mkdir -p $__DEFAULT_VSERVERDIR/$1/{etc/rc.d/init.d,sbin,var/run,var/log}
 		else
-		    cp -ax /sbin /bin /etc /usr /var /lib $DEFAULT_VSERVERDIR/$1/. || exit 1
+		    cp -ax /sbin /bin /etc /usr /var /lib $__DEFAULT_VSERVERDIR/$1/. || exit 1
 		fi
-		cd $DEFAULT_VSERVERDIR/$1 || exit 1
+		cd $__DEFAULT_VSERVERDIR/$1 || exit 1
 		rm -fr lib/modules/*
 		rm -f var/spool/mail/*
 		rm -f `find var/run -type f`
@@ -324,7 +324,7 @@ elif [ "$2" = "build" ] ; then
 				*.bak|*~|functions|killall|halt|single)
 					;;
 				*)
-					#$USR_LIB_VSERVER/capchroot $DEFAULT_VSERVERDIR/$1 /sbin/chkconfig --level 2345 $serv off
+					#$USR_LIB_VSERVER/capchroot $__DEFAULT_VSERVERDIR/$1 /sbin/chkconfig --level 2345 $serv off
 					$0 --silent $1 chkconfig --level 2345 $serv off
 					;;
 				esac
@@ -340,14 +340,14 @@ elif [ "$2" = "build" ] ; then
 		cp -a "$_VREBOOT" sbin/.
 		ln -sf vreboot sbin/vhalt
 
-		echo Directory $DEFAULT_VSERVERDIR/$1 has been populated
-		if [ ! -d $CONFDIR ] ; then
-			mkdir $CONFDIR
-			chmod 600 $CONFDIR
-			echo Directory $CONFDIR has been created
+		echo Directory $__DEFAULT_VSERVERDIR/$1 has been populated
+		if [ ! -d $__CONFDIR ] ; then
+			mkdir $__CONFDIR
+			chmod 600 $__CONFDIR
+			echo Directory $__CONFDIR has been created
 		fi
-		if [ ! -f $CONFDIR/$1.conf ] ; then
-			CONF=$CONFDIR/$1.conf
+		if [ ! -f $__CONFDIR/$1.conf ] ; then
+			CONF=$__CONFDIR/$1.conf
 			cat >$CONF <<-EOF
 if [ "$PROFILE" = "" ] ; then
 	PROFILE=prod
@@ -422,28 +422,28 @@ S_CAPS=""
 			echo $CONF has been created. Look at it\!
 		fi
 	fi
-elif [ ! -f $CONFDIR/$1.conf ] ; then
-	echo No configuration for this vserver: $CONFDIR/$1.conf
+elif [ ! -f $__CONFDIR/$1.conf ] ; then
+	echo No configuration for this vserver: $__CONFDIR/$1.conf
 	exit 1
-elif [ ! -d $DEFAULT_VSERVERDIR/$1/. ] ; then
-	echo No directory for this vserver: $DEFAULT_VSERVERDIR/$1
+elif [ ! -d $__DEFAULT_VSERVERDIR/$1/. ] ; then
+	echo No directory for this vserver: $__DEFAULT_VSERVERDIR/$1
 	exit 1
 elif [ "$2" = "start" ] ; then
 	echo Starting the virtual server $1
 	testperm $1
 	if ! $0 $1 running
 	then
-		test -x $CONFDIR/$1.sh && $CONFDIR/$1.sh pre-start $1
+		test -x $__CONFDIR/$1.sh && $__CONFDIR/$1.sh pre-start $1
 		IPROOT=
 		IPROOTMASK=
 		IPROOTBCAST=
 		IPROOTDEV=
 		S_NICE=
 		S_FLAGS=
-		. $CONFDIR/$1.conf
+		. $__CONFDIR/$1.conf
 		export PROFILE
 		ifconfig_iproot $1
-		cd $DEFAULT_VSERVERDIR/$1 || exit 1
+		cd $__DEFAULT_VSERVERDIR/$1 || exit 1
 
 		if [ "$PROFILE" != "" ] ; then
 			echo export PROFILE=$PROFILE >etc/PROFILE
@@ -454,7 +454,7 @@ elif [ "$2" = "start" ] ; then
 		chgrp ${UTMP_GROUP:-utmp} var/run/utmp
 		chmod 0664 var/run/utmp
 		rm -f  var/lock/subsys/*
-		mountproc $DEFAULT_VSERVERDIR/$1
+		mountproc $__DEFAULT_VSERVERDIR/$1
 		CTXOPT=
 		HOSTOPT=
 		DOMAINOPT=
@@ -463,11 +463,11 @@ elif [ "$2" = "start" ] ; then
 		CAPS=
 		get_initdefault $1
 		STARTCMD="/etc/rc.d/rc $INITDEFAULT"
-		if [ -x $DEFAULT_VSERVERDIR/$1/etc/init.d/rc ] ; then
+		if [ -x $__DEFAULT_VSERVERDIR/$1/etc/init.d/rc ] ; then
 			STARTCMD="/etc/init.d/rc $INITDEFAULT"
-		elif [ -x $DEFAULT_VSERVERDIR/$1/usr/bin/emerge ] ; then
+		elif [ -x $__DEFAULT_VSERVERDIR/$1/usr/bin/emerge ] ; then
 			STARTCMD="/sbin/rc default"
-		elif [ -x $DEFAULT_VSERVERDIR/$1/etc/rc.d/rc.M ] ; then
+		elif [ -x $__DEFAULT_VSERVERDIR/$1/etc/rc.d/rc.M ] ; then
 		        STARTCMD="/etc/rc.d/rc.M"			
  		fi
 
@@ -516,8 +516,8 @@ elif [ "$2" = "start" ] ; then
 		if [ "$S_NICE" != "" ] ; then
 			NICECMD="nice -$S_NICE"
 		fi
-		mkdir -p $PKGSTATEDIR
-		chmod 700 $PKGSTATEDIR
+		mkdir -p $__PKGSTATEDIR
+		chmod 700 $__PKGSTATEDIR
 		setdefulimit
 		if [ "$ULIMIT" != "" ] ; then
 			ulimit $ULIMIT
@@ -526,22 +526,22 @@ elif [ "$2" = "start" ] ; then
 		#echo CAPS=$CAPS
 		# We switch to /vservers/$1 now, because after the
 		# security context switch /vservers directory becomes a dead zone.
-		cd $DEFAULT_VSERVERDIR/$1
+		cd $__DEFAULT_VSERVERDIR/$1
 		IPOPT=`setipopt $IPROOT`
 		export PATH=$DEFAULTPATH
 		$NICECMD $_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
 			$_CHCONTEXT_COMPAT $SILENT $DISCONNECT $CAPS $FLAGS $CTXOPT $HOSTOPT $DOMAINOPT --secure \
-			$_SAVE_S_CONTEXT $PKGSTATEDIR/$1.ctx \
+			$_SAVE_S_CONTEXT $__PKGSTATEDIR/$1.ctx \
 			$_CAPCHROOT $CHROOTOPT . $STARTCMD
 		sleep 2
-		test ! -x $CONFDIR/$1.sh || $CONFDIR/$1.sh post-start $1
+		test ! -x $__CONFDIR/$1.sh || $__CONFDIR/$1.sh post-start $1
 	fi
 elif [ "$2" = "running" ] ; then
-	if [ ! -f $PKGSTATEDIR/$1.ctx ] ; then
+	if [ ! -f $__PKGSTATEDIR/$1.ctx ] ; then
 		echo Server $1 is not running
 		exit 1
 	else
-		. $PKGSTATEDIR/$1.ctx
+		. $__PKGSTATEDIR/$1.ctx
 		NB=$($USR_SBIN/vps ax | awk '{print $2}' | grep \^$S_CONTEXT\$ | wc -l)
 		#NB=`$_CHCONTEXT_COMPAT --silent --ctx $S_CONTEXT ps ax | wc -l`
 		#NB=`eval expr $NB + 0`
@@ -556,10 +556,10 @@ elif [ "$2" = "running" ] ; then
 elif [ "$2" = "status" ] ; then
 	if $0 $1 running
 	then
-		. $PKGSTATEDIR/$1.ctx
+		. $__PKGSTATEDIR/$1.ctx
 		NB=$($USR_SBIN/vps ax | awk '{print $2}' | grep \^$S_CONTEXT\$ | wc -l)
 		echo $NB processes running
-		echo Vserver uptime: `$USR_LIB_VSERVER/filetime $PKGSTATEDIR/$1.ctx`
+		echo Vserver uptime: `$USR_LIB_VSERVER/filetime $__PKGSTATEDIR/$1.ctx`
 	fi
 elif [ "$2" = "stop" ] ; then
 	echo Stopping the virtual server $1
@@ -572,19 +572,19 @@ elif [ "$2" = "stop" ] ; then
 	readlastconf $1
 	if $0 $1 running
 	then
-		test -x $CONFDIR/$1.sh && $CONFDIR/$1.sh pre-stop $1
+		test -x $__CONFDIR/$1.sh && $__CONFDIR/$1.sh pre-stop $1
 		ifconfig_iproot $1
-		cd $DEFAULT_VSERVERDIR/$1
-		mountproc $DEFAULT_VSERVERDIR/$1
+		cd $__DEFAULT_VSERVERDIR/$1
+		mountproc $__DEFAULT_VSERVERDIR/$1
 		# The fakeinit flag tell us how to turn off the server
 		get_initdefault $1
 		export PREVLEVEL=$INITDEFAULT
 		STOPCMD="/etc/rc.d/rc 6"
-		if [ -x $DEFAULT_VSERVERDIR/$1/etc/init.d/rc ] ; then
+		if [ -x $__DEFAULT_VSERVERDIR/$1/etc/init.d/rc ] ; then
 			STOPCMD="/etc/init.d/rc 6"
-		elif [ -x $DEFAULT_VSERVERDIR/$1/usr/bin/emerge ] ; then
+		elif [ -x $__DEFAULT_VSERVERDIR/$1/usr/bin/emerge ] ; then
 			STOPCMD="/sbin/rc shutdown"
-		elif [ -x $DEFAULT_VSERVERDIR/$1/etc/rc.d/rc.6 ] ; then
+		elif [ -x $__DEFAULT_VSERVERDIR/$1/etc/rc.d/rc.6 ] ; then
 		        STOPCMD="/etc/rc.d/rc.6"
  		fi
 
@@ -608,7 +608,7 @@ elif [ "$2" = "stop" ] ; then
 
 		calculateCaps $S_CAPS
 
-		cd $DEFAULT_VSERVERDIR/$1
+		cd $__DEFAULT_VSERVERDIR/$1
 		IPOPT=`setipopt $IPROOT`
 		export PATH=$DEFAULTPATH
 		$_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
@@ -631,9 +631,9 @@ elif [ "$2" = "stop" ] ; then
 	fi
 	# We umount anyway, because "enter" establish the mount
 	# but when you exit, the server is considered not running
-	umountproc $DEFAULT_VSERVERDIR/$1
+	umountproc $__DEFAULT_VSERVERDIR/$1
 	cd /
-	test -x $CONFDIR/$1.sh && $CONFDIR/$1.sh post-stop $1
+	test -x $__CONFDIR/$1.sh && $__CONFDIR/$1.sh post-stop $1
 	ifconfig_iproot_off $1
 elif [ "$2" = "restart" ] ; then
 	if $0 $1 running
@@ -656,10 +656,10 @@ elif [ "$2" = "suexec" ] ; then
 		IPROOTBCAST=
 		IPROOTDEV=
 		readlastconf $1
-		. $CONFDIR/$1.conf
-		cd $DEFAULT_VSERVERDIR/$1
+		. $__CONFDIR/$1.conf
+		cd $__DEFAULT_VSERVERDIR/$1
 		ifconfig_iproot $1
-		mountproc $DEFAULT_VSERVERDIR/$1
+		mountproc $__DEFAULT_VSERVERDIR/$1
 		PS1="[\u@vserver:$1 \W]"
 		export PS1
 		VSERVER=$1
@@ -700,15 +700,15 @@ elif [ "$2" = "suexec" ] ; then
 		fi
 		if $0 $VSERVER running >/dev/null
 		then
-			. $PKGSTATEDIR/$VSERVER.ctx
-			cd $DEFAULT_VSERVERDIR/$VSERVER
+			. $__PKGSTATEDIR/$VSERVER.ctx
+			cd $__DEFAULT_VSERVERDIR/$VSERVER
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
 			exec $_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
 				$_CHCONTEXT_COMPAT $SILENT $FLAGS $CAPS --secure --ctx $S_CONTEXT \
 				$_CAPCHROOT --suid $USERID . "$@"
 		else
-			test -x $CONFDIR/$1.sh && $CONFDIR/$1.sh pre-start $1
+			test -x $__CONFDIR/$1.sh && $__CONFDIR/$1.sh pre-start $1
 			CTXOPT=
 			HOSTOPT=
 			DOMAINOPT=
@@ -722,13 +722,13 @@ elif [ "$2" = "suexec" ] ; then
 			if [ "$S_DOMAINNAME" != "" ] ; then
 				DOMAINOPT="--domainname $S_DOMAINNAME"
 			fi
-			mkdir -p $PKGSTATEDIR
-			cd $DEFAULT_VSERVERDIR/$VSERVER
+			mkdir -p $__PKGSTATEDIR
+			cd $__DEFAULT_VSERVERDIR/$VSERVER
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
 			exec $_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
 				$_CHCONTEXT_COMPAT $SILENT $FLAGS $CAPS --secure $CTXOPT $HOSTOPT $DOMAINOPT \
-				$_SAVE_S_CONTEXT $PKGSTATEDIR/$VSERVER.ctx \
+				$_SAVE_S_CONTEXT $__PKGSTATEDIR/$VSERVER.ctx \
 				$_CAPCHROOT --suid $USERID $CHROOTOPT . "$@"
 		fi
 	fi
@@ -753,11 +753,11 @@ elif [ "$2" = "chkconfig" ] ; then
 		LEVELS=$1
 		shift
 	fi
-	if [ $# != 2 -a ! -x $DEFAULT_VSERVERDIR/$VSERVER/sbin/chkconfig ] ; then
+	if [ $# != 2 -a ! -x $__DEFAULT_VSERVERDIR/$VSERVER/sbin/chkconfig ] ; then
 		echo Invalid argument, expected vserver name chkconfig [ --level nnn ] service on\|off
-	elif [ -x $DEFAULT_VSERVERDIR/$VSERVER/sbin/chkconfig ] ; then
+	elif [ -x $__DEFAULT_VSERVERDIR/$VSERVER/sbin/chkconfig ] ; then
 		exec $0 --silent $VSERVER exec /sbin/chkconfig "$@"
-	elif [ -x $DEFAULT_VSERVERDIR/$VSERVER/usr/sbin/update-rc.d ] ; then
+	elif [ -x $__DEFAULT_VSERVERDIR/$VSERVER/usr/sbin/update-rc.d ] ; then
 		if [ "$2" = "on" -o "$2" = "start" ] ; then
 			$0 --silent $VSERVER exec /usr/sbin/update-rc.d -f $1 remove >/dev/null
 			exec $0 --silent $VSERVER exec /usr/sbin/update-rc.d $1 start 80 2 3 4 5 . stop 20 0 1 6 . >/dev/null

@@ -106,7 +106,7 @@ i=${#vservers[*]}
 
 while test $i -gt 0; do
     let --i
-    d=$CONFDIR/${vservers[$i]}/apps/init
+    d=$__CONFDIR/${vservers[$i]}/apps/init
     f=$d/mark
     { test -n "$OPTION_MARK" -a -r "$f" && grep -qx "$OPTION_MARK" "$f"; } || \
     { test -z "$OPTION_MARK" && test ! -e "$f"; } || \
@@ -142,12 +142,12 @@ EOF
 } >$makedir/Makefile
 
 for i in "${vservers[@]}"; do
-    d=$CONFDIR/$i/apps/init
+    d="$__CONFDIR/$i"/apps/init
     echo "$i"
     test -e "$d"/depends || continue
     cat "$d"/depends
 done | sort -u | while read vserver; do
-    d=$CONFDIR/$vserver/apps/init
+    d="$__CONFDIR/$vserver"/apps/init
 
     case "$OPTION_FLAVOR" in
 	start)

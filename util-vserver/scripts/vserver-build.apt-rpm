@@ -50,7 +50,7 @@ setup_writeOption "$VSERVER_NAME"
 setup_writeInitialFstab
 
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
-rpm.importGPGPubKeys "$SETUP_CONFDIR" "$CONFDIR/.distributions/$DISTRIBUTION/pubkeys" "$DISTRIBDIR/$DISTRIBUTION/pubkeys"
+rpm.importGPGPubKeys "$SETUP_CONFDIR" "$__CONFDIR/.distributions/$DISTRIBUTION/pubkeys" "$__DISTRIBDIR/$DISTRIBUTION/pubkeys"
 rpm.initDB           "$SETUP_CONFDIR"
 $_VAPT_GET "$SETUP_CONFDIR" -- update
 apt.installBasePackages "$SETUP_CONFDIR" "$PKGINSTALLDIR"

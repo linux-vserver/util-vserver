@@ -45,7 +45,7 @@ function rpm.initVariables
 	RPMDB_PATH=/.rpmdb || \
 	RPMDB_PATH=/dev
 
-    findDir RPMLIBDIR "$CONFDIR/.distributions/$DISTRIBUTION/rpmlib" "$DISTRIBDIR/$DISTRIBUTION/rpmlib" /
+    findDir RPMLIBDIR "$__CONFDIR/.distributions/$DISTRIBUTION/rpmlib" "$__DISTRIBDIR/$DISTRIBUTION/rpmlib" /
 }
 
 function rpm.initFilesystem
@@ -60,9 +60,9 @@ function rpm.initFilesystem
 
     mkdir -p "$PKGCFGDIR"/rpm/{etc,state}
     populateDirectory "$PKGCFGDIR/rpm/etc" \
-	"$DISTRIBDIR/defaults/rpm" \
-	"$DISTRIBDIR/$DISTRIBUTION/rpm" \
-	"$CONFDIR/.distributions/$DISTRIBUTION/rpm"
+	"$__DISTRIBDIR/defaults/rpm" \
+	"$__DISTRIBDIR/$DISTRIBUTION/rpm" \
+	"$__CONFDIR/.distributions/$DISTRIBUTION/rpm"
 
     echo "%_dbpath $RPMDB_PATH" >>"$PKGCFGDIR/rpm/etc/macros"
 
@@ -105,8 +105,8 @@ function rpmlist.initByDistribution()
     declare -a	_rlid_res=() 
     
 
-    findDir _rlid_listdir "$CONFDIR/.distributions/$2/rpmlist.d" \
-			  "$DISTRIBDIR/$2/rpmlist.d" \
+    findDir _rlid_listdir "$__CONFDIR/.distributions/$2/rpmlist.d" \
+			  "$__DISTRIBDIR/$2/rpmlist.d" \
 			  ''
 		    
     test -d "$_rlid_listdir" || return 0

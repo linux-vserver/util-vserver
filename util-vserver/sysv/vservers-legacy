@@ -13,7 +13,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 # Print the vserver name in priority/alpha order
 sortserver(){
 	(
-	cd $CONFDIR
+	cd $__CONFDIR
 	for serv in *.conf
 	do
 	        test -f "$serv" || continue
@@ -28,7 +28,7 @@ sortserver(){
 
 startservers(){
 	echo "Starting the virtual servers"
-	cd $CONFDIR
+	cd $__CONFDIR
 	for name in `sortserver`
 	do
 		ONBOOT=
@@ -59,7 +59,7 @@ case "$1" in
 	;;
   stop)
 	echo "Stopping the virtual servers"
-	cd $CONFDIR
+	cd $__CONFDIR
 	for name in `sortserver -r`
 	do
 		$_VSERVER_LEGACY $name stop
@@ -74,7 +74,7 @@ case "$1" in
 	echo Not implemented
 	;;
   status)
-	cd $CONFDIR
+	cd $__CONFDIR
 	for serv in *.conf
 	do
 		ONBOOT=no

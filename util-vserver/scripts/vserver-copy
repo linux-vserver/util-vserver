@@ -99,7 +99,7 @@ flag a vserver can even be operationally moved to different hardware within
 seconds.
 
 The -i and -d flags can be used to minimally reconfigure the destination
-vserver (rewrites /etc/vservers/newname.conf and $DEFAULT_VSERVERDIR/newname/etc/hosts)
+vserver (rewrites /etc/vservers/newname.conf and $__DEFAULT_VSERVERDIR/newname/etc/hosts)
 
 Options:
 	-h, --help		this help
@@ -143,7 +143,7 @@ rsh=(false)
 colon=":"
 domain=""
 ip=""
-vsroot=$DEFAULT_VSERVERDIR
+vsroot=$__DEFAULT_VSERVERDIR
 
 if [ $# -eq 0 ]; then  # Script invoked with no command-line args?
 	usage
@@ -278,7 +278,7 @@ if [ -n "$ip" ] && \
 fi
 
 # This works both locally and remote
-if ($shcmd $dhost $SBINDIR/vserver $newname running | grep 'is running'); then
+if ($shcmd $dhost $__SBINDIR/vserver $newname running | grep 'is running'); then
 	warn "destination vserver \"$newname\" is running" 
 	error 1 "Cannot copy over a running vserver"
 fi
@@ -290,7 +290,7 @@ info "Attempting to copy $vserver to $dhost$colon$newname"
 
 if $stopstart; then
 	info "Stopping virtual server \"$vserver\" on localhost"
-	$SBINDIR/vserver $vserver stop
+	$__SBINDIR/vserver $vserver stop
 fi
 
 info "Syncing directories"
@@ -365,8 +365,8 @@ fi
 
 if $stopstart; then
 	info "Starting virtual server \"$vserver\" on $dhost"
-	$shcmd $dhost $SBINDIR/vserver $vserver start
-	if ($shcmd $dhost $SBINDIR/vserver $vserver running | \
+	$shcmd $dhost $__SBINDIR/vserver $vserver start
+	if ($shcmd $dhost $__SBINDIR/vserver $vserver running | \
 	grep 'not running'); then
 		error 1 "Virtual server \"$vserver\" failed to start on $dhost"
 	fi

@@ -43,18 +43,18 @@ function apt.installBasePackages
 function apt.initVariables
 {
     findFile APTCONFDEFAULT \
-	"$CONFDIR/.distributions/$DISTRIBUTION/apt.conf" \
-	"$CONFDIR/.defaults/apps/pkgmgmt/apt.conf" \
-	"$DISTRIBDIR/$DISTRIBUTION/apt.conf" \
-	"$DISTRIBDIR/defaults/apt.conf" \
+	"$__CONFDIR/.distributions/$DISTRIBUTION/apt.conf" \
+	"$__CONFDIR/.defaults/apps/pkgmgmt/apt.conf" \
+	"$__DISTRIBDIR/$DISTRIBUTION/apt.conf" \
+	"$__DISTRIBDIR/defaults/apt.conf" \
 	''
 
     findFile APTVENDORDEFAULT \
-	"$CONFDIR/.distributions/$DISTRIBUTION/vendor.conf" \
-	"$CONFDIR/.defaults/apps/pkgmgmt/vendor.conf" \
+	"$__CONFDIR/.distributions/$DISTRIBUTION/vendor.conf" \
+	"$__CONFDIR/.defaults/apps/pkgmgmt/vendor.conf" \
 	/etc/apt/vendors.list \
-	"$DISTRIBDIR/$DISTRIBUTION/vendor.conf" \
-	"$DISTRIBDIR/defaults/vendor.conf" \
+	"$__DISTRIBDIR/$DISTRIBUTION/vendor.conf" \
+	"$__DISTRIBDIR/defaults/vendor.conf" \
 	''
 }
 
@@ -63,9 +63,9 @@ function apt.initFilesystem
     mkdir -p "$PKGCFGDIR"/apt/{etc/sources.list.d,etc/vendors.list.d,etc/apt.conf.d,archives/partial,cache,state/lists/partial}
     
     populateDirectory "$PKGCFGDIR/apt/etc" \
-	"$DISTRIBDIR/defaults/apt" \
-	"$DISTRIBDIR/$DISTRIBUTION/apt" \
-	"$CONFDIR/.distributions/$DISTRIBUTION/apt"
+	"$__DISTRIBDIR/defaults/apt" \
+	"$__DISTRIBDIR/$DISTRIBUTION/apt" \
+	"$__CONFDIR/.distributions/$DISTRIBUTION/apt"
 
     local f="$PKGCFGDIR"/apt/etc/apt.conf
     if test -e "$f"; then

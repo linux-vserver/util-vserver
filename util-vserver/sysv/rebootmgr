@@ -18,14 +18,14 @@ PIDFILE=/var/run/rebootmgr.pid
 case "$1" in
   start)
 	echo "Starting the reboot manager"
-	cd $CONFDIR
+	cd $__CONFDIR
 	VSERVERS=
 	for serv in *.conf
 	do
 		test -f "$serv" || continue
 
 		serv=`basename $serv .conf`
-		if [ -d $DEFAULT_VSERVERDIR/$serv ] ; then
+		if [ -d $__DEFAULT_VSERVERDIR/$serv ] ; then
 			VSERVERS="$VSERVERS $serv"
 		fi
 	done
