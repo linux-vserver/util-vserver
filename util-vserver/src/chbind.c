@@ -302,6 +302,7 @@ void test()
 {
   struct vc_ip_mask_pair	ip;
   uint32_t			bcast;
+  uint32_t			tmp;
 
   bcast = 0;
   readIP("1.2.3.4", &ip, &bcast);
@@ -315,8 +316,10 @@ void test()
 
   readIP("localhost", &ip, &bcast);
   assert(ip.ip==ntohl(0x7f000001) && ip.mask==ntohl(0xffffff00) && bcast==0);
-  
-  readIP("lo", &ip, &bcast);
-  assert(ip.ip==ntohl(0x7f000001) && ip.mask==ntohl(0xff000000) && bcast==ntohl(0x7fffffff));
+
+  if (ifconfig_getaddr("lo", &tmp, &tmp, &tmp)!=-1) {
+    readIP("lo", &ip, &bcast);
+    assert(ip.ip==ntohl(0x7f000001) && ip.mask==ntohl(0xff000000) && bcast==ntohl(0x7fffffff));
+  }
 }
 #endif
