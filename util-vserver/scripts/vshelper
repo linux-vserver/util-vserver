@@ -113,6 +113,9 @@ function doDefaultMethod
 
 #===========
 
+test "$1" != '--version' || showVersion
+test "$1" != '--help'    || showHelp
+
 if ! tty -s; then
     findObject -e _VS_LOGFILE "$CONFDIR"/.defaults/apps/vshelper/logfile /dev/null
     findObject -e _VS_ERRFILE "$CONFDIR"/.defaults/apps/vshelper/logfile /dev/null
@@ -121,14 +124,13 @@ if ! tty -s; then
     exec  >>$_VS_LOGFILE
     exec 2>>$_VS_ERRFILE
 fi
-    
-logging "$(date): vshelper $*"
 
-test "$1" != '--version' || showVersion
-test "$1" != '--help'    || showHelp
+logging "$(date): vshelper $*"
+    
 test "$#" -ge 2 ||
     panic $"vshelper called with missing arguments; try '--help' for more information"
 
+    
 vshelper.isEnabled || exit 0
 ! vshelper.isDebug || set -x
     
