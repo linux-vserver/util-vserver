@@ -66,6 +66,7 @@ CMDLINE_OPTIONS[] = {
   { "version",  no_argument,  0, CMD_VERSION },
   { "cap",        required_argument,  0, CMD_CAP },
   { "ctx",        required_argument,  0, CMD_CTX },
+  { "xid",        required_argument,  0, CMD_CTX },
   { "disconnect", no_argument,        0, CMD_DISCONNECT },
   { "domainname", required_argument,  0, CMD_DOMAINNAME },
   { "flag",       required_argument,  0, CMD_FLAG },
@@ -97,7 +98,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage: ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [--cap [!]<cap_name>] [--secure] [--ctx <num>] [--disconnect]\n"
+	    " [--cap [!]<cap_name>] [--secure] [--xid <num>] [--disconnect]\n"
 	    "       [--domainname <name>] [--hostname <name>] [--flag <flags>+]\n"
 	    "       [--silent] [--] command arguments ...\n"
 	    "\n"
@@ -119,12 +120,12 @@ showHelp(int fd, char const *cmd, int res)
 	    "    repeated several time.\n"
 	    "    See /usr/include/linux/capability.h\n"
 	    "\n"
-	    "--ctx num\n"
+	    "--xid num\n"
 	    "    Select the context. On root in context 0 is allowed to\n"
 	    "    select a specific context.\n"
 	    "    Context number 1 is special. It can see all processes\n"
 	    "    in any contexts, but can't kill them though.\n"
-	    "    Option --ctx may be repeated several times to specify up to 16 contexts.\n"
+	    "    Option --xid may be repeated several times to specify up to 16 contexts.\n"
 
 	    "--disconnect\n"
 	    "    Start the command in background and make the process\n"
@@ -311,7 +312,7 @@ int main (int argc, char *argv[])
 	  WRITE_MSG(2, "Too many contexts given\n");
 	  exit(255);
 	}
-	args.ctxs[args.nbctx++] = atoi(optarg);
+	args.ctxs[args.nbctx++] = Evc_xidopt2xid(optarg, true);
 	break;
 
 	  

@@ -50,6 +50,7 @@ CMDLINE_OPTIONS[] = {
   { "help",     no_argument,  0, CMD_HELP },
   { "version",  no_argument,  0, CMD_VERSION },
   { "ctx",         required_argument, 0, CMD_XID },
+  { "xid",         required_argument, 0, CMD_XID },
   { "fill-rate",   required_argument, 0, CMD_FRATE },
   { "interval",    required_argument, 0, CMD_INTERVAL },
   { "tokens",      required_argument, 0, CMD_TOKENS },
@@ -67,7 +68,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:\n  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [--ctx <xid>] [--fill-rate <rate>] [--interval <interval>] [--tokens <tokens>] [--tokens_min <tokens>] [--tokens_max <tokens>] [--cpu_mask <mask>] [--] [<command> <args>*]\n"
+	    " [--xid <xid>] [--fill-rate <rate>] [--interval <interval>] [--tokens <tokens>] [--tokens_min <tokens>] [--tokens_max <tokens>] [--cpu_mask <mask>] [--] [<command> <args>*]\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
@@ -97,13 +98,13 @@ int main(int argc, char *argv[])
     switch (c) {
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
-      case CMD_XID	:  xid = atoi(optarg); break;
-      case CMD_FRATE	:  sched.fill_rate   = atoi(optarg); break;
-      case CMD_INTERVAL	:  sched.interval    = atoi(optarg); break;
-      case CMD_TOKENS	:  sched.tokens      = atoi(optarg); break;
-      case CMD_TOK_MIN	:  sched.tokens_min  = atoi(optarg); break;
-      case CMD_TOK_MAX	:  sched.tokens_max  = atoi(optarg); break;
-      case CMD_CPU_MASK	:  sched.cpu_mask    = atoi(optarg); break;
+      case CMD_XID	:  xid = Evc_xidopt2xid(optarg,true); break;
+      case CMD_FRATE	:  sched.fill_rate   = atoi(optarg);  break;
+      case CMD_INTERVAL	:  sched.interval    = atoi(optarg);  break;
+      case CMD_TOKENS	:  sched.tokens      = atoi(optarg);  break;
+      case CMD_TOK_MIN	:  sched.tokens_min  = atoi(optarg);  break;
+      case CMD_TOK_MAX	:  sched.tokens_max  = atoi(optarg);  break;
+      case CMD_CPU_MASK	:  sched.cpu_mask    = atoi(optarg);  break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);

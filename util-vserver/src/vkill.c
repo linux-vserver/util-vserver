@@ -35,19 +35,25 @@
 #include <sys/resource.h>
 #include <sys/wait.h>
 
+#define ENSC_WRAPPERS_VSERVER	1
+#include <wrappers.h>
+
 #define CMD_HELP	0x8000
 #define CMD_VERSION	0x8001
 
+int		wrapper_exit_code = 1;
+
 static struct option const
 CMDLINE_OPTIONS[] = {
-  { "help",     no_argument,  0, CMD_HELP },
-  { "version",  no_argument,  0, CMD_VERSION },
+  { "help",     no_argument,        0, CMD_HELP },
+  { "version",  no_argument,        0, CMD_VERSION },
+  { "xid",      required_argument,  0, 'c' },
   { 0,0,0,0 }
 };
 
 struct Arguments
 {
-    xid_t		ctx;
+    xid_t		xid;
     int			sig;
 };
 
@@ -66,7 +72,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-c <ctx>] [-s <signal>] [--] <pid>*\n"
+	    " [--xid|-c <xid>] [-s <signal>] [--] <pid>*\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
@@ -104,7 +110,7 @@ str2sig(char const *str)
 
 #if defined(VC_ENABLE_API_LEGACY)
 inline static ALWAYSINLINE int
-kill_wrapper_legacy(xid_t UNUSED ctx, char const *proc, int UNUSED sig)
+kill_wrapper_legacy(xid_t UNUSED xid, char const *proc, int UNUSED sig)
 {
   pid_t		pid = fork();
   if (pid==-1) {
@@ -126,13 +132,13 @@ kill_wrapper_legacy(xid_t UNUSED ctx, char const *proc, int UNUSED sig)
 }
 
 static int
-kill_wrapper(xid_t ctx, char const *pid, int sig)
+kill_wrapper(xid_t xid, char const *pid, int sig)
 {
-  //printf("kill_wrapper(%u, %s, %i)\n", ctx, pid, sig);
-  if (vc_ctx_kill(ctx,atoi(pid),sig)==-1) {
+  //printf("kill_wrapper(%u, %s, %i)\n", xid, pid, sig);
+  if (vc_ctx_kill(xid,atoi(pid),sig)==-1) {
     int		err = errno;
     if (vc_get_version(VC_CAT_COMPAT)==-1)
-      return kill_wrapper_legacy(ctx, pid, sig);
+      return kill_wrapper_legacy(xid, pid, sig);
     else {
       errno = err;
       perror("vkill: vc_ctx_kill()");
@@ -144,9 +150,9 @@ kill_wrapper(xid_t ctx, char const *pid, int sig)
 }
 #else // VC_ENABLE_API_LEGACY
 inline static int
-kill_wrapper(xid_t ctx, char const *pid, int sig)
+kill_wrapper(xid_t xid, char const *pid, int sig)
 {
-  if (vc_ctx_kill(ctx,atoi(pid),sig)==-1) {
+  if (vc_ctx_kill(xid,atoi(pid),sig)==-1) {
     perror("vkill: vc_ctx_kill()");
     return 1;
   }
@@ -159,7 +165,7 @@ int main(int argc, char *argv[])
 {
   int			fail = 0;
   struct Arguments	args = {
-    .ctx = VC_NOCTX,
+    .xid = VC_NOCTX,
     .sig = SIGTERM,
   };
   
@@ -170,8 +176,8 @@ int main(int argc, char *argv[])
     switch (c) {
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
-      case 'c'		:  args.ctx = atoi(optarg);    break;
-      case 's'		:  args.sig = str2sig(optarg); break;
+      case 'c'		:  args.xid = Evc_xidopt2xid(optarg,true); break;
+      case 's'		:  args.sig = str2sig(optarg);             break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -186,15 +192,15 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  if (args.ctx==VC_NOCTX && optind==argc) {
+  if (args.xid==VC_NOCTX && optind==argc) {
     WRITE_MSG(2, "No pid specified\n");
     return EXIT_FAILURE;
   }
 
   if (optind==argc)
-    fail += kill_wrapper(args.ctx, "0", args.sig);
+    fail += kill_wrapper(args.xid, "0", args.sig);
   else for (;optind<argc;++optind)
-    fail += kill_wrapper(args.ctx, argv[optind], args.sig);
+    fail += kill_wrapper(args.xid, argv[optind], args.sig);
 
   return fail==0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
