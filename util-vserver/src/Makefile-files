@@ -18,7 +18,7 @@
 ##  
 
 src_sbin_CXX_X_PROGS	=  src/vfiles
-src_pkglib_CXX_X_PROGS	=  src/vunify src/vbuild src/vcheck
+src_pkglib_CXX_X_PROGS	=  src/vbuild src/vcheck
 
 src_OPTIONS_EXEMPT	=  src/parserpmdump \
 			   src/readlink \
@@ -81,24 +81,25 @@ src_HDRS =  		src/vutil.h src/vutil.p src/util.h \
 			src/vserver.hh
 
 src_pkglib_SCRPTS =
-src_pkglib_PRGS		=  src/capchroot \
-	     		   src/chroot-cat \
-	     		   src/chroot-rm \
-			   src/fakerunlevel \
-			   src/filetime \
-			   src/ifspec \
-			   src/listdevip \
-			   src/parserpmdump \
-			   src/readlink \
-			   src/showperm \
-			   src/vreboot \
-			   src/save_ctxinfo \
-			   src/secure-mount \
-			   src/mask2prefix \
-			   src/pipe-sync \
-			   src/exec-ulimit \
-			   src/rpm-fake-resolver \
-			   $(src_pkglib_CXX_PROGS)
+src_pkglib_PRGS =	src/capchroot \
+	     		src/chroot-cat \
+	     		src/chroot-rm \
+			src/fakerunlevel \
+			src/filetime \
+			src/ifspec \
+			src/listdevip \
+			src/parserpmdump \
+			src/readlink \
+			src/showperm \
+			src/vreboot \
+			src/save_ctxinfo \
+			src/secure-mount \
+			src/mask2prefix \
+			src/pipe-sync \
+			src/exec-ulimit \
+			src/rpm-fake-resolver \
+			src/vunify \
+			$(src_pkglib_CXX_PROGS)
 
 src_pkglib_LTLIBS	=  src/rpm-fake.la
 src_lib_LTLIBS		=
