@@ -20,12 +20,25 @@ if isVserverRunning "$VSERVER_DIR"; then
     exit 1
 fi
 
+function cleanup()
+{
+    test -z "$is_started"      || return 0
+    test -z "$is_mounted"      || umountVserver     "$VSERVER_DIR" &>/dev/null || :
+    test -z "$have_interfaces" || disableInterfaces "$VSERVER_DIR" &>/dev/null || :
+}
+
+is_started=
+is_mounted=
+have_interfaces=
+
+trap "cleanup" EXIT
+
 set -e
 generateOptions  "$VSERVER_DIR"
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" prepre-start
-enableInterfaces "$VSERVER_DIR"
+enableInterfaces "$VSERVER_DIR" && have_interfaces=1
 
-mountVserver "$VSERVER_DIR"
+mountVserver "$VSERVER_DIR"     && is_mounted=1
 prepareInit  "$VSERVER_DIR"
 
 cd "$VSERVER_DIR"/vdir/
@@ -43,16 +56,17 @@ if $_VSERVER_INFO - FEATURE migrate; then
     $_VCONTEXT   --migrate-self --chroot $SILENT_OPT "${OPTS_VCONTEXT_MIGRATE[@]}" \
     -- "${INITCMD_START[@]}"
 else
-    "${NICE_CMD[@]}" \
-    "$_CHBIND"       "${CHBIND_OPTS[@]}" \
-    "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
-    "$_CHCONTEXT"    "${CHCONTEXT_OPTS[@]}" "${CHCONTEXT_INIT_OPTS[@]}" \
-    "$_SAVE_CTXINFO" "$VSERVER_DIR" \
-    "$_CLEARENV" \
-    "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . \
-    -- "${INITCMD_START[@]}"
+    ${NICE_CMD[@]} \
+    $_CHBIND           "${CHBIND_OPTS[@]}" \
+    $_EXEC_ULIMIT      "$VSERVER_DIR/ulimits" \
+    $_CHCONTEXT_COMPAT "${CHCONTEXT_OPTS[@]}" "${CHCONTEXT_INIT_OPTS[@]}" \
+    $_SAVE_CTXINFO     "$VSERVER_DIR" \
+    $_CLEARENV \
+    $_CAPCHROOT        "${CAPCHROOT_OPTS[@]}" . \
+    ${INITCMD_START[@]}
 fi
 
 "${INITCMD_START_SYNC[@]}"
 
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" post-start
+is_started=1
