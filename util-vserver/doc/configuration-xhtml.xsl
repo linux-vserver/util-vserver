@@ -8,6 +8,8 @@
               doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
               doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"/>
   
+  <xsl:param name="confdir"/>
+
   <xsl:template match="/">
     <html>
       <xsl:apply-templates/>
@@ -31,9 +33,6 @@
 
   <xsl:template name="dir">
     <xsl:param name="thisdir"/>
-    <xsl:message>
-      <xsl:value-of select="$thisdir"/>
-    </xsl:message>
     <xsl:choose>
       <xsl:when test="count(file) + count(symlink) + count(script) + count(dir) > 0">
         <ul>
