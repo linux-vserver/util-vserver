@@ -20,6 +20,7 @@
 src_HDRS		=  src/vutil.h src/vutil.p src/util.h
 
 src_pkglib_PRGS		=  src/capchroot \
+			   src/chroot-rm \
 			   src/fakerunlevel \
 			   src/filetime \
 			   src/ifspec \
@@ -56,6 +57,7 @@ src_chbind_LDADD		=  lib/libvserver.a
 src_chcontext_SOURCES		=  src/chcontext.c
 src_chcontext_LDADD		=  lib/libvserver.a
 
+src_chroot_rm_SOURCES		=  src/chroot-rm.c
 src_fakerunlevel_SOURCES	=  src/fakerunlevel.c
 src_filetime_SOURCES		=  src/filetime.c
 src_ifspec_SOURCES		=  src/ifspec.c
@@ -98,6 +100,8 @@ src/new-namespace$(EXEEXT) src/new-namespace$(OBJEXT)	\
 src/secure-mount$(EXEEXT)  src/secure-mount$(OBJEXT)	\
 src/save_ctxinfo$(EXEEXT)  src/save_ctxinfo$(OBJEXT)	\
 src/mask2prefix$(EXEEXT)   src/mask2prefix$(OBJEXT)	\
+src/chroot-rm$(EXEEXT)     src/chroot-rm$(OBJEXT)	\
+src/fakerunlevel$(EXEEXT)  src/fakerunlevel$(OBJEXT)	\
 		:		CC=$(DIET_CC)
 endif
 
