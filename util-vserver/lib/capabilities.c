@@ -79,8 +79,8 @@ vc_text2cap(char const *str)
 }
 
 char const *
-vc_cap2text(int bit)
+vc_cap2text(unsigned int bit)
 {
-  if (bit<0 || (size_t)bit>=sizeof(CAP2BIT)/sizeof(CAP2BIT[0])) return 0;
+  if ((size_t)bit>=sizeof(CAP2BIT)/sizeof(CAP2BIT[0])) return 0;
   return CAP2BIT[bit].id;
 }
