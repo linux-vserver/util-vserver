@@ -60,9 +60,16 @@ static inline ALWAYSINLINE int
 vc_get_rlimit_mask_v11(ctx_t ctx, int tmp, struct vc_rlimit_mask *lim)
 {
   struct vcmd_ctx_rlimit_v0	vc_lim;
+  int				rc;
 
   (void)tmp;
-  return sys_virtual_context(VC_CMD(RLIMIT, 3, 0), CTX_USER2KERNEL(ctx), &vc_lim);
+
+  rc = sys_virtual_context(VC_CMD(RLIMIT, 3, 0), CTX_USER2KERNEL(ctx), &vc_lim);
+  lim->min  = vc_lim.minimum;
+  lim->soft = vc_lim.softlimit;
+  lim->hard = vc_lim.maximum;
+
+  return rc;
 }
 
 #undef KERN2USR
