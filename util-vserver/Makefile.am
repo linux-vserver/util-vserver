@@ -53,7 +53,7 @@ sysconf_DATA =
 
 DIETPROGS =		$(ENSC_VECTOR_LIBS)
 
-BUILT_SOURCES =		linuxcaps.h pathconfig.h linuxvirtual.h \
+BUILT_SOURCES =		pathconfig.h linuxvirtual.h \
 			.fixups
 
 man_MANS =
@@ -89,7 +89,7 @@ AM_CPPFLAGS		=  -I $(top_srcdir)/lib -I $(top_srcdir)/ensc_wrappers \
 
 CLEANFILES =		$(BUILT_SOURCES) \
 			.*.pathsubst.stamp */.*.pathsubst.stamp */*/.*.pathsubst.stamp \
-			linuxcaps.h pathconfig.h .fixups
+			pathconfig.h .fixups
 
 DISTCLEANFILES =	FEATURES.txt
 
@@ -122,14 +122,6 @@ silent.%:		FORCE
 				grep -v ' is obsoleted' | \
 				grep -v 'warning: #warning'; \
 				rm -f $$t || : )
-
-linuxcaps.h:		${kernelincludedir}/linux/capability.h Makefile
-			@rm -f $@
-			echo '#include <stdint.h>' >$@.tmp
-			$(SED) -e 's!^#include .*!!g;' $< >>$@.tmp
-			@-chmod --reference $< $@.tmp &>/dev/null
-			mv -f $@.tmp $@
-			@chmod a-w $@
 
 
 linuxvirtual.h:
