@@ -228,7 +228,7 @@ Edup2(int oldfd, int newfd)
   return res;
 }
 
-inline static UNUSED void *
+inline static WRAPPER_DECL void *
 Emalloc(size_t size)
 {
   register void               *res = malloc(size);
@@ -237,7 +237,7 @@ Emalloc(size_t size)
 }
 
 /*@unused@*/
-inline static /*@null@*//*@only@*/ void *
+inline static WRAPPER_DECL /*@null@*//*@only@*/ void *
 Erealloc(/*@only@*//*@out@*//*@null@*/ void *ptr,
          size_t new_size)
     /*@ensures maxSet(result) == new_size@*/
@@ -246,6 +246,22 @@ Erealloc(/*@only@*//*@out@*//*@null@*/ void *ptr,
   register void         *res = realloc(ptr, new_size);
   FatalErrnoError(res==0 && new_size!=0, "realloc()");
 
+  return res;
+}
+
+inline static WRAPPER_DECL off_t
+Elseek(int fildes, off_t offset, int whence)
+{
+  off_t         res = lseek(fildes, offset, whence);
+  FatalErrnoError(res==(off_t)-1, "lseek()");
+  return res;
+}
+
+inline static WRAPPER_DECL int
+Emkstemp(char *template)
+{
+  int		res = mkstemp(template);
+  FatalErrnoError(res==-1, "mkstemp()");
   return res;
 }
 
