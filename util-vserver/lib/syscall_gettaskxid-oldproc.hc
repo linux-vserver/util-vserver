@@ -36,7 +36,7 @@ getctx_legacy_internal(pid_t pid)
 }
 
 static inline ALWAYSINLINE xid_t
-vc_get_task_xid_X(pid_t pid)
+vc_get_task_xid_oldproc(pid_t pid)
 {
   xid_t		res;
   do {
