@@ -378,6 +378,11 @@
       </dir>
 
       <dir name="scripts" type="fixed">
+	<description>A directory for scripts. By default, when one of these scripts will be executed,
+	the execution of defaultscripts (within .../.defaults/scripts) will be skipped. To execute
+	them nevertheless, the $DONT_SKIP_DEFAULTS environment variable must be set by one of the
+	in-shellcontext scripts (the non-executable ones).</description>
+	
 	<script name="prepre-start">
 	  <description>&init-script-text; &init-prepre-start;</description>
 	  &init-scriptlet-params;
