@@ -22,6 +22,7 @@
 
 #include "vserver.h"
 #include "pathconfig.h"
+#include "compat-c99.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -43,18 +44,20 @@ getCtxFromFile(char const *pathname)
       (len>50) ||
       (lseek(fd, 0, SEEK_SET)==-1))
     return VC_NOCTX;
-  
-  char	buf[len+1];
-  if (TEMP_FAILURE_RETRY(read(fd, buf, len+1))!=len)
-    return VC_NOCTX;
 
+  BS;
+  char		buf[len+1];
   char		*errptr;
   ctx_t		res;
+  
+  if (TEMP_FAILURE_RETRY(read(fd, buf, len+1))!=len)
+    return VC_NOCTX;
 
   res = strtol(buf, &errptr, 10);
   if (*errptr!='\0' && *errptr!='\n') return VC_NOCTX;
 
   return res;
+  BE;
 }
 
 ctx_t

@@ -23,6 +23,7 @@
 #include "vserver.h"
 #include "internal.h"
 #include "pathconfig.h"
+#include "compat-c99.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -32,6 +33,7 @@ vc_getVserverByCtx(ctx_t ctx, vcCfgStyle *style, char const *revdir)
 {
   if (revdir==0) revdir = DEFAULT_PKGSTATEREVDIR;
 
+  BS;
   vcCfgStyle	cur_style = vcCFG_NONE;
   size_t	l = strlen(revdir);
   size_t	l1;
@@ -61,4 +63,5 @@ vc_getVserverByCtx(ctx_t ctx, vcCfgStyle *style, char const *revdir)
     default		:
       return 0;
   }
+  BE;
 }
