@@ -156,5 +156,5 @@ migrate_cmd=( $_VCONTEXT
 "${create_cmd[@]}" "${chain_cmd[@]}" -- "${migrate_cmd[@]}" --migrate-self -- "$@"
 rc=$?
 
-test "$rc" -ne 254 || exec "${migrate_cmd[@]}" --migrate -- "$@"
+test "$rc" -ne 254 || exec "${migrate_cmd[@]}" --xid "$OPT_CTX" --migrate -- "$@"
 exit $rc
