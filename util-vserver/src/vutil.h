@@ -47,23 +47,23 @@ extern const char K_DUMPFILES[];
 extern const char K_UNIFILES[];
 extern const char K_PKGVERSION[];
 
-class PACKAGE{
+class Package{
 public:
 	string name;
 	string version;	// version + release
-	PACKAGE(string &_name, string &_version)
+	Package(string &_name, string &_version)
 		: name (_name), version(_version)
 	{
 	}
-	PACKAGE(const char *_name, const char *_version)
+	Package(const char *_name, const char *_version)
 		: name (_name), version(_version)
 	{
 	}
-	PACKAGE(const string &line)
+	Package(const string &line)
 	{
 		*this = line;
 	}
-	PACKAGE & operator = (const string &_line)
+	Package & operator = (const string &_line)
 	{
 		string line (_line);
 		string::iterator pos = find (line.begin(),line.end(),'=');
@@ -73,16 +73,16 @@ public:
 		}
 		return *this;
 	}
-	PACKAGE (const PACKAGE &pkg)
+	Package (const Package &pkg)
 	{
 		name = pkg.name;
 		version = pkg.version;
 	}
-	bool operator == (const PACKAGE &v) const
+	bool operator == (const Package &v) const
 	{
 		return name == v.name && version == v.version;
 	}
-	bool operator < (const PACKAGE &v) const
+	bool operator < (const Package &v) const
 	{
 		bool ret = false;
 		if (name < v.name){
@@ -118,10 +118,10 @@ public:
 
 // Check if two package have the same name (but potentially different version)
 class same_name{
-	const PACKAGE &pkg;
+	const Package &pkg;
 public:
-	same_name(const PACKAGE &_pkg) : pkg(_pkg) {}
-	bool operator()(const PACKAGE &p)
+	same_name(const Package &_pkg) : pkg(_pkg) {}
+	bool operator()(const Package &p)
 	{
 		return pkg.name == p.name;
 	}
