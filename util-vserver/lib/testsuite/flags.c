@@ -24,58 +24,96 @@
 #include <assert.h>
 #include <string.h>
 
-#define TEST_T2F(X,Y,Z) assert(vc_text2flag(X,Y)==Z)
-#define TEST_F2T(Y,X) {				\
-    char const *x=vc_hiflag2text(X);		\
+#define TEST_T2F_C(X,Y,Z) assert(vc_text2flag_compat(X,Y)==Z)
+#define TEST_F2T_C(Y,X) {			\
+    char const *x=vc_hiflag2text_compat(X);	\
     assert((x==0 && Y==0) || (x!=0 && Y!=0));	\
     if (x!=0) assert(strcmp(x, Y)==0);		\
   }
 
-#define TEST_LIST(STR,LEN,EXP,ERR_POS,ERR_LEN) {		\
+#define TEST_LIST_C(STR,LEN,EXP,ERR_POS,ERR_LEN) {		\
     char const	*err_ptr;					\
     size_t	err_len;					\
     char	buf[] = STR;					\
     uint32_t	res;						\
-    res = vc_textlist2flag(buf, LEN, &err_ptr, &err_len);	\
+    res = vc_list2flag_compat(buf, LEN, &err_ptr, &err_len);	\
     assert(res==(EXP));						\
     assert(err_len==ERR_LEN);					\
     if (ERR_POS==-1) assert(err_ptr==0);			\
     else             assert(err_ptr==buf+(ERR_POS));		\
   }
 
+//----
+
+#define TEST_T2F(X,Y,Z) assert(vc_text2flag(X,Y)==Z)
+#define TEST_F2T(Y,X) {				\
+    char const *x=vc_hiflag2text(X);		\
+    assert((x==0 && Y==0) || (x!=0 && Y!=0));	\
+    if (x!=0) assert(strcmp(x, Y)==0);		\
+  }
+#define TEST_LIST(STR,LEN,EXP_RES,EXP_FLAG,EXP_MASK,ERR_POS,ERR_LEN) {	\
+    char const		*err_ptr;					\
+    size_t		err_len;					\
+    char		buf[] = STR;					\
+    volatile int	res;						\
+    uint_least64_t	flag=0,mask=0;					\
+    res = vc_list2flag(buf, LEN, &err_ptr, &err_len, &flag, &mask);	\
+    assert(res==(EXP_RES));						\
+    assert(flag==(EXP_FLAG) && mask==(EXP_MASK));			\
+    assert(err_len==ERR_LEN);						\
+    if (ERR_POS==-1) assert(err_ptr==0);				\
+    else             assert(err_ptr==buf+(ERR_POS));			\
+  }
+
 
 int main()
 {
-  TEST_T2F("lock",     0, S_CTX_INFO_LOCK);
-  TEST_T2F("lockXXXX", 4, S_CTX_INFO_LOCK);
-  TEST_T2F("locXXXXX", 3, 0);
-  TEST_T2F("sched",    0, S_CTX_INFO_SCHED);
-  TEST_T2F("nproc",    0, S_CTX_INFO_NPROC);
-  TEST_T2F("private",  0, S_CTX_INFO_PRIVATE);
+  TEST_T2F_C("lock",     0, S_CTX_INFO_LOCK);
+  TEST_T2F_C("lockXXXX", 4, S_CTX_INFO_LOCK);
+  TEST_T2F_C("locXXXXX", 3, 0);
+  TEST_T2F_C("sched",    0, S_CTX_INFO_SCHED);
+  TEST_T2F_C("nproc",    0, S_CTX_INFO_NPROC);
+  TEST_T2F_C("private",  0, S_CTX_INFO_PRIVATE);
+  TEST_T2F_C("fakeinit", 0, S_CTX_INFO_INIT);
+  TEST_T2F_C("hideinfo", 0, S_CTX_INFO_HIDEINFO);
+  TEST_T2F_C("ulimit",   0, S_CTX_INFO_ULIMIT);
+  TEST_T2F_C("XXX",      0, 0);
+  TEST_T2F_C("",         0, 0);
+
+  TEST_F2T_C("lock",     S_CTX_INFO_LOCK);
+  TEST_F2T_C("sched",    S_CTX_INFO_SCHED);
+  TEST_F2T_C("nproc",    S_CTX_INFO_NPROC);
+  TEST_F2T_C("private",  S_CTX_INFO_PRIVATE);
+  TEST_F2T_C("fakeinit", S_CTX_INFO_INIT);
+  TEST_F2T_C("hideinfo", S_CTX_INFO_HIDEINFO);
+  TEST_F2T_C("ulimit",   S_CTX_INFO_ULIMIT);
+  TEST_F2T_C(0,          0);
+  TEST_F2T_C("ulimit",   64 | 128 | 23 );
+  TEST_F2T_C("fakeinit", 23);
+
+  TEST_LIST_C("lock",         0, S_CTX_INFO_LOCK,                  -1,0);
+  TEST_LIST_C("lock,sched,",  0, S_CTX_INFO_LOCK|S_CTX_INFO_SCHED, -1,0);
+  TEST_LIST_C("lock,XXX",     0, S_CTX_INFO_LOCK,                   5,3);
+  TEST_LIST_C("",             0, 0,                                -1,0);
+  TEST_LIST_C("X",            0, 0,                                 0,1);
+  TEST_LIST_C("lock,sched,", 10, S_CTX_INFO_LOCK|S_CTX_INFO_SCHED, -1,0);
+
+  //-------
+
   TEST_T2F("fakeinit", 0, S_CTX_INFO_INIT);
-  TEST_T2F("hideinfo", 0, S_CTX_INFO_HIDEINFO);
-  TEST_T2F("ulimit",   0, S_CTX_INFO_ULIMIT);
   TEST_T2F("XXX",      0, 0);
   TEST_T2F("",         0, 0);
-
-  TEST_F2T("lock",     S_CTX_INFO_LOCK);
-  TEST_F2T("sched",    S_CTX_INFO_SCHED);
-  TEST_F2T("nproc",    S_CTX_INFO_NPROC);
-  TEST_F2T("private",  S_CTX_INFO_PRIVATE);
+  
   TEST_F2T("fakeinit", S_CTX_INFO_INIT);
-  TEST_F2T("hideinfo", S_CTX_INFO_HIDEINFO);
-  TEST_F2T("ulimit",   S_CTX_INFO_ULIMIT);
   TEST_F2T(0,          0);
-  TEST_F2T("ulimit",   64 | 128 | 23 );
-  TEST_F2T("fakeinit", 23);
 
-  TEST_LIST("lock",         0, S_CTX_INFO_LOCK,                  -1,0);
-  TEST_LIST("lock,sched,",  0, S_CTX_INFO_LOCK|S_CTX_INFO_SCHED, -1,0);
-  TEST_LIST("lock,XXX",     0, S_CTX_INFO_LOCK,                   5,3);
-  TEST_LIST("",             0, 0,                                -1,0);
-  TEST_LIST("X",            0, 0,                                 0,1);
-  TEST_LIST("lock,sched,", 10, S_CTX_INFO_LOCK|S_CTX_INFO_SCHED, -1,0);
-
+  TEST_LIST("fakeinit",     0,  0, S_CTX_INFO_INIT, S_CTX_INFO_INIT,-1,0);
+  TEST_LIST("~fakeinit",    0,  0, 0,               S_CTX_INFO_INIT,-1,0);
+  TEST_LIST("!fakeinit",    0,  0, 0,               S_CTX_INFO_INIT,-1,0);
+  TEST_LIST("fakeinit,XXX", 0, -1, S_CTX_INFO_INIT, S_CTX_INFO_INIT, 9,3);
+  TEST_LIST("",             0,  0, 0,               0,              -1,0);
+  TEST_LIST("X",            0, -1, 0,               0,               0,1);
+  
   return 0;
 }
 
