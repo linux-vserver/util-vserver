@@ -63,3 +63,10 @@ Evc_set_flags(xid_t xid, struct vc_ctx_flags const *flags)
 {
   FatalErrnoError(vc_set_flags(xid, flags)==-1, "vc_set_flags()");
 }
+
+inline static WRAPPER_DECL void
+Evc_set_vhi_name(xid_t xid, vc_uts_type type,
+		 char const *val, size_t len)
+{
+  FatalErrnoError(vc_set_vhi_name(xid,type,val,len)==-1, "vc_set_vhi_name()");
+}
