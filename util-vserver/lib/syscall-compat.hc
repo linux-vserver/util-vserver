@@ -35,7 +35,7 @@ vc_new_s_context_compat(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
   msg.remove_cap = remove_cap;
   msg.flags      = flags;
 
-  return sys_virtual_context(VC_CMD(COMPAT, 1, 1), ctx, &msg);
+  return sys_virtual_context(VC_CMD(COMPAT, 1, 1), CTX_USER2KERNEL(ctx), &msg);
 }
 
 static inline ALWAYSINLINE int
