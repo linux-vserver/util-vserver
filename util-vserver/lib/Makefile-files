@@ -62,12 +62,20 @@ lib_v13_SRCS =			lib/syscall_enternamespace.c \
 				lib/syscall_createcontext-v13.hc \
 				lib/syscall_migratecontext.c \
 				lib/syscall_migratecontext-v13.hc \
+				lib/syscall_getccaps.c \
+				lib/syscall_getccaps-v13.hc \
 				lib/syscall_getflags.c \
 				lib/syscall_getflags-v13.hc \
+				lib/syscall_setccaps.c \
+				lib/syscall_setccaps-v13.hc \
 				lib/syscall_setflags.c \
 				lib/syscall_setflags-v13.hc \
 				lib/syscall_setsched.c \
 				lib/syscall_setsched-v13.hc \
+				lib/bcaps-v13.c \
+				lib/bcaps_list-v13.c \
+				lib/ccaps-v13.c \
+				lib/ccaps_list-v13.c \
 				lib/flags-v13.c \
 				lib/flags_list-v13.c
 
@@ -86,6 +94,10 @@ lib_SRCS =  			lib/syscall.c \
 				lib/issupportedstring.c \
 				lib/listparser_uint32.c \
 				lib/listparser_uint64.c \
+				lib/val2text-t2v-uint32.c \
+				lib/val2text-t2v-uint64.c \
+				lib/val2text-v2t-uint32.c \
+				lib/val2text-v2t-uint64.c \
 				lib/parselimit.c \
 				$(lib_legacy_SRCS) \
 				$(lib_compat_SRCS) \
@@ -113,6 +125,7 @@ lib_XHDRS =			lib/syscall-compat.hc \
 				lib/fmtx.hc \
 				lib/fmt-internal.h \
 				lib/listparser.hc \
+				lib/val2text.hc \
 				lib/virtual.h \
 				lib/internal.h \
 				lib/utils-legacy.h \
