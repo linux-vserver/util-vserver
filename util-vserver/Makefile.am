@@ -63,6 +63,10 @@ CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) $(BUILT_SOURCES) \
 			   .*.pathsubst.stamp */.*.pathsubst.stamp \
 			   linuxcaps.h pathconfig.h
 
+AM_INSTALLCHECK_STD_OPTIONS_EXEMPT	=  $(src_OPTIONS_EXEMPT) \
+					   $(scripts_OPTIONS_EXEMPT) \
+					   $(sysv_OPTIONS_EXEMPT)
+
 if USE_DIETLIBC
 DIET			=  diet
 DIET_FLAGS		=
