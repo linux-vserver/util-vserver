@@ -260,10 +260,13 @@ function getAllVservers
 function getVserverStatus
 {
     test -r "$1"/run || return 1
-    eval read "$2" <"$1"/run
+
+    local _ctx
+    read _ctx <"$1"/run
+    eval "$2"=\$_ctx
 
     test "$3"        || return 0
-    local _tmp=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$2" | $_WC -l )
+    local _tmp=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$_ctx" | $_WC -l )
     eval "$3"=\$_tmp
 
     test "$4" -a $_tmp = 0 || return 0
