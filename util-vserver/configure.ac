@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.29.191, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.29.192, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -87,6 +87,16 @@ AC_ARG_VAR(CC, [The C compiler])
 ENSC_INITRDDIR(initrddir)
 ENSC_RELEASE(RELEASE_CPPFLAGS)
 ENSC_ENABLE_DIETLIBC(USE_DIETLIBC)
+
+if test x"$ensc_have_dietlibc" = xno; then
+	AC_MSG_WARN([***                                                         ***])
+	AC_MSG_WARN([*** it is strongly recommended to link util-vserver against ***])
+	AC_MSG_WARN([*** dietlibc;  glibc's NSS functions are very unreliable in ***])
+	AC_MSG_WARN([*** chroot() environments,  so you have to  expect problems ***])
+	AC_MSG_WARN([*** there.                                                  ***])
+	AC_MSG_WARN([***                                                         ***])
+fi
+
 ENSC_KERNEL_HEADERS(kernelincludedir)
 ENSC_UV_VROOTDIR(vserverdir)
 ENSC_CHANGELOG([trunk])
@@ -167,10 +177,12 @@ AH_BOTTOM([#include "compat.h"])
 AC_CONFIG_FILES([util-vserver.spec Makefile distrib/Makefile])
 AC_OUTPUT
 
-ensc_cxx_affected=
-ensc_c99_affected=
-test x"$ensc_cv_cxx_cxxcompiler" = xyes || ensc_cxx_affected=" (affected: vbuild, vcheck)"
-test x"$ensc_cv_c99_c99compiler" = xyes || ensc_c99_affected=" (affected: vunify)"
+ensc_cxx_affected=" (affected: vbuild, vcheck)"
+ensc_c99_affected=" (affected: vunify)"
+ensc_diet_msg=" (you have been warned)"
+test x"$ensc_cv_cxx_cxxcompiler" = xno || ensc_cxx_affected=
+test x"$ensc_cv_c99_c99compiler" = xno || ensc_c99_affected=
+test x"$ensc_have_dietlibc"      = xno || ensc_diet_msg=
 
 AC_MSG_NOTICE([
 
@@ -183,7 +195,7 @@ Features:
                    CFLAGS: '$CFLAGS'
                  CXXFLAGS: '$CXXFLAGS'
                build/host: $build/$host
-             Use dietlibc: $ensc_have_dietlibc
+             Use dietlibc: $ensc_have_dietlibc$ensc_diet_msg
        Build C++ programs: $ensc_cv_cxx_cxxcompiler$ensc_cxx_affected
        Build C99 programs: $ensc_cv_c99_c99compiler$ensc_c99_affected
            Available APIs: $enable_apis

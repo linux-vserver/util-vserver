@@ -237,6 +237,13 @@ int main(int argc, char * argv[])
   };
   int			pid_fd = -1;
 
+#ifndef __dietlibc__
+#  warning  *** rpm-fake-resolver is built against glibc; please do not report errors before trying a dietlibc version ***
+  WRITE_MSG(2,
+	    "***  rpm-fake-resolver was built with glibc;  please do  ***\n"
+	    "***  not report errors before trying a dietlibc version. ***\n");
+#endif
+
   parseArgs(&args, argc, argv);
   if (args.pid_file && args.do_fork)
     pid_fd = Eopen(args.pid_file, O_CREAT|O_WRONLY, 0644);
