@@ -1,0 +1,7 @@
+# rpm     http://ftp.ultra.csn.tu-chemnitz.de/pub/mirror/RedHat/.apt	redhat/beta	os errata
+# rpm-src http://ftp.ultra.csn.tu-chemnitz.de/pub/mirror/RedHat/.apt	redhat/beta	os errata
+
+# rpm	ftp://ftp.tu-chemnitz.de/pub/linux/fedora/redhat			0.95/i386	os updates
+# rpm	ftp://ftp.ussg.iu.edu/pub/linux/fedora/fedora/redhat			0.95/i386	os updates
+# rpm	http://mirrors.usc.edu/pub/linux/fedora/redhat				0.95/i386	os updates
+# rpm	http://sunsite.informatik.rwth-aachen.de/ftp/pub/Linux/fedora/redhat	0.95/i386	os updates
