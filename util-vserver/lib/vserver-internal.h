@@ -205,6 +205,11 @@
 #endif
 
 
+#define ENSC_STRUCT_IDX(STRUCT,ATTR) \
+  ((char*)(&(STRUCT).ATTR) - (char*)(&(STRUCT)))
+#define ENSC_SAME_STRUCT_IDX(LHS,RHS,ATTR) \
+  (ENSC_STRUCT_IDX(LHS,ATTR) == ENSC_STRUCT_IDX(RHS,ATTR))
+
 #define EXT2_IOC_GETCONTEXT		_IOR('x', 1, long)
 #define EXT2_IOC_SETCONTEXT		_IOW('x', 2, long)
 
