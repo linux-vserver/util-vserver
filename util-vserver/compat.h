@@ -22,6 +22,10 @@
 #if defined(__dietlibc__) && defined(__STRICT_ANSI__) && defined(__STDC_VERSION__)
 #  include <sys/cdefs.h>
 #  undef inline
+
+#  undef  __STRICT_ANSI__
+#  include <stdint.h>
+#  define __STRICT_ANSI__
 #endif
 
 #if defined(__GNUC__)
@@ -44,7 +48,8 @@
 #endif
 
 #ifndef HAVE_CTX_T
-typedef short int		ctx_t;
+#include <stdint.h>
+typedef uint32_t		ctx_t;
 #endif
 
 #if defined(__dietlibc__)
