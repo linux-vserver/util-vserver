@@ -33,6 +33,7 @@
 #if defined(__GNUC__)
 #  define VC_ATTR_UNUSED                __attribute__((__unused__))
 #  define VC_ATTR_NORETURN              __attribute__((__noreturn__))
+#  define VC_ATTR_CONST			__attribute__((__const__))
 #  if __GNUC__>3 || (__GNUC__==3 && __GNUC_MINOR__>=3)
 #    define VC_ATTR_NONNULL(ARGS)	__attribute__((__nonnull__ ARGS))
 #    define VC_ATTR_ALWAYSINLINE        __attribute__((__always_inline__))
@@ -51,6 +52,7 @@
 #  define VC_ATTR_NORETURN
 #  define VC_ATTR_ALWAYSINLINE
 #  define VC_ATTR_PURE
+#  define VC_ATTR_CONST
 #endif
 #endif	// IS_DOXYGEN
 
@@ -218,6 +220,14 @@ extern "C" {
   int	vc_set_ipv4root(uint32_t  bcast, size_t nb,
 			struct vc_ip_mask_pair const *ips) VC_ATTR_NONNULL((3));
 
+    /** \brief  Returns the value of NB_IPV4ROOT.
+     *  \ingroup helper
+     *
+     *  This function returns the value of NB_IPV4ROOT which was used when the
+     *  library was built, but \b not the value which is used by the currently
+     *  running kernel. */
+  size_t	vc_get_nb_ipv4root() VC_ATTR_CONST VC_ATTR_PURE;
+
     /** \brief   Creates a context without starting it.
      *  \ingroup syscalls
      *
@@ -248,8 +258,7 @@ extern "C" {
      *                        modified by the vc_set_rlimit() operation.
      *
      *  Else, the interpretation of the value depends on the corresponding
-     *  resource; it might be bytes, pages, seconds or litres of beer.
-     */
+     *  resource; it might be bytes, pages, seconds or litres of beer. */
   typedef uint_least64_t	vc_limit_t;
 
     /** \brief  The limits of a resources.
