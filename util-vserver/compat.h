@@ -61,5 +61,6 @@ typedef uint32_t		ctx_t;
   __result; }))
 #endif
 
+#define FMT_PREFIX		utilvserver_fmt_
 
 #endif	//  H_UTIL_VSERVER_COMPAT_H
