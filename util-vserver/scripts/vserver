@@ -16,6 +16,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+# set -e
+
 : ${UTIL_VSERVER_VARS:=$(dirname $0)/util-vserver-vars}
 test -e "$UTIL_VSERVER_VARS" || {
     echo "Can not find util-vserver installation; aborting..."
@@ -23,6 +25,71 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 . "$_LIB_FUNCTIONS"
+
+### Some local functions
+
+function showHelp()
+{
+    echo \
+$"Usage: $(basename $0) [--] <vserver> <command> <args>*
+
+<vserver> is the name of a vserver.
+
+Possible commands are:
+    start       ... starts the specified vserver
+    stop        ... stops the specified vserver
+    restart     ... restarts the specified vserver; this is the subsequent
+                    execution of a synchronized 'stop' and a 'start'
+    condrestart ... restarts the vserver when it is running already
+    suexec <user> <shell-command> <args*>
+                ... executes a command as the specified user in the vserver
+    exec <shell-command> <args*>
+                ... executes a command as root in the vserver
+    enter       ... executes the configured shell in the vserver
+    chkconfig <chkconfig-options*>
+                ... modifies the init-system; currently, only Red Hat's
+		    chkconfig is supported
+    running     ... succeeds iff the vserver is running
+    status      ... gives out some human readable status information about
+                    the vserver, and succeeds iff the vserver is running
+
+    build <buildopts>*
+                ... builds a new vserver from scratch
+
+Please report bugs to $PACKAGE_BUGREPORT"
+    exit 0
+}
+
+function showVersion()
+{
+    echo \
+$"vserver $PACKAGE_VERSION -- manages the state of vservers
+This program is part of $PACKAGE_STRING
+
+Copyright (C) 2003 Enrico Scholz
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License.  This program has absolutely no warranty."
+    exit 0
+}
+
+
+### main starts here
+
+set +e
+
+tmp=$(getopt -o + --long help,version -n "$0" -- "$@") || exit 1
+eval set -- "$tmp"
+
+while true; do
+    case "$1" in
+	--help)    showHelp $0 ;;
+	--version) showVersion ;;
+	--)	   shift; break;;
+	*)	   echo $"vserver: internal error; arg=='$1'"; exit 1;;
+    esac
+done
+
+test "$2" != build || { shift; exec "$_VSERVER_BUILD" "$@"; }
 
 vserver=$1
 cmd=$2
@@ -84,7 +151,10 @@ case "$2" in
 	getEnterShell "$VSERVER_DIR"
 	exec "$0" "$1" suexec root "${ENTER_SHELL[@]}"
 	;;
-    running|status)
+    running)
+	isVserverRunning "$VSERVER_DIR"
+	;;
+    status)
 	if getVserverStatus "$VSERVER_DIR" ctx procnum; then
 	    echo $"Vserver '$1' is running at context '$ctx'"
 
