@@ -45,12 +45,21 @@
 #  define const_cast(X)         const_cast<X>
 #endif
 
+inline static void *
+Xmemcpy(void * restrict dst, void const * restrict src, size_t len)
+{
+  memcpy(dst, src, len);
+  return (char *)(dst)+len;
+}
 
 inline static void UNUSED
 writeStr(int fd, char const *cmd)
 {
   (void)write(fd, cmd, strlen(cmd));
 }
+
+struct stat;
+int	safeChdir(char const *, struct stat const *exp_stat) NONNULL((1,2));
 
 #define WRITE_MSG(FD,X)		(void)(write(FD,X,sizeof(X)-1))
 #define WRITE_STR(FD,X)		writeStr(FD,X)
