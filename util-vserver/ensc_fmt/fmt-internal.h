@@ -19,7 +19,7 @@
 #ifndef H_UTIL_VSERVER_LIB_FMT_COMMON_H
 #define H_UTIL_VSERVER_LIB_FMT_COMMON_H
 
-static char const DIGITS[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+#define DIGITS			"0123456789abcdefghijklmnopqrstuvwxyz"
 
 #define FMT_P__(X,Y)		X ## Y
 #define FMT_P_(X,Y)		FMT_P__(X,Y)
