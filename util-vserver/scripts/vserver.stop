@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-lock "$LOCKDIR"/vserver."$(echo "$VSERVER_DIR" | tr -dc a-zA-Z0-9)".startup
+lock "$LOCKDIR"/vserver."$($_VSERVER_INFO "$VSERVER_DIR" CANONIFY)".startup
 
 if ! isVserverRunning "$VSERVER_DIR" S_CONTEXT; then
     echo $"vserver '$VSERVER_NAME' is not running; aborting..." >&2
