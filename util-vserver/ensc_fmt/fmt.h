@@ -57,8 +57,8 @@ size_t	FMT_P( xlong)    (char *ptr,          long val);
 
 size_t  FMT_P(uint_base)(char *ptr, unsigned int val, char base);
 size_t  FMT_P( int_base)(char *ptr,          int val, char base);
-size_t  FMT_P(xuint)    (char *ptr, unsigned int val, char base);
-size_t  FMT_P( xint)    (char *ptr,          int val, char base);
+size_t  FMT_P(xuint)    (char *ptr, unsigned int val);
+size_t  FMT_P( xint)    (char *ptr,          int val);
 
 struct timeval;
 size_t	FMT_P(tai64n)(char *ptr, struct timeval const *now);

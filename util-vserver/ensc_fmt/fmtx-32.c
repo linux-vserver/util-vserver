@@ -28,5 +28,5 @@ size_t	FMT_P(xulong)(char *ptr, unsigned long val) ALIASFUNC(xuint32);
 size_t	FMT_P( xlong)(char *ptr,          long val) ALIASFUNC( xint32);
 #endif
 
-size_t	FMT_P(xuint) (char *ptr, unsigned int val, char base) ALIASFUNC(xuint32);
-size_t	FMT_P( xint) (char *ptr,          int val, char base) ALIASFUNC( xint32);
+size_t	FMT_P(xuint) (char *ptr, unsigned int val)  ALIASFUNC(xuint32);
+size_t	FMT_P( xint) (char *ptr,          int val)  ALIASFUNC( xint32);
