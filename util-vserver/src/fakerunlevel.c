@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <grp.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -88,7 +89,8 @@ int main (int argc, char *argv[])
       // value detected at ./configure stage or overridden by $UTMP_GID
       // env-variable
     gid = gid_str ? atoi(gid_str) : UTMP_GID;
-    if (setgid(gid)==-1 ||
+    if (setgroups(1,&gid)==-1 ||
+	setgid(gid)==-1 ||
 	getgid()!=gid) {
       perror("setgid()/getgid()");
       return EXIT_FAILURE;
