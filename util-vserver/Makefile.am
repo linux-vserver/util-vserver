@@ -43,8 +43,9 @@ pkglib_LTLIBRARIES	=  $(src_pkglib_LTLIBS)
 pkglib_SCRIPTS		=  $(scripts_pkglib_SCRPTS)
 pkglib_DATA		=  $(scripts_pkglib_DTA) \
 			   FEATURES.txt
-pkglib_PROGRAMS		=  $(src_pkglib_PRGS)
-legacy_SCRIPTS		=  $(scripts_legacy_SCRPTS)
+pkglib_PROGRAMS =	$(src_pkglib_PRGS)
+legacy_SCRIPTS =	$(scripts_legacy_SCRPTS) $(src_legacy_SCRPTS)
+legacy_PROGRAMS =	$(src_legacy_PRGS)
 
 sbincfg_DATA		=  $(scripts_sbincfg_DTA)
 
