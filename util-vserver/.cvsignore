@@ -1,6 +1,7 @@
 .*-up-to-date
 .buexl
 .deps
+.fixups
 .gdb_history
 .pathconfig.h.pathsubst.stamp
 Build-*
