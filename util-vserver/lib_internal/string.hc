@@ -21,3 +21,15 @@ String_init(String *str)
   str->d = 0;
   str->l = 0;
 }
+
+static inline UNUSED char const *
+String_c_str(String const *str, char *buf)
+{
+  if (str->l==0) return "";
+
+  if (buf!=str->d)
+    abort();	// TODO: copy content
+
+  buf[str->l] = '\0';
+  return buf;
+}
