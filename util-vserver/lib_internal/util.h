@@ -27,11 +27,13 @@
 #include "util-dotfile.h"
 #include "util-exitlikeprocess.h"
 #include "util-io.h"
+#include "util-lockfile.h"
 #include "util-mem.h"
 #include "util-perror.h"
 #include "util-safechdir.h"
 #include "util-unixsock.h"
 
 bool		switchToWatchXid(char const **);
+size_t		canonifyVserverName(char *);
 
 #endif	//  H_UTILVSERVER_LIB_INTERNAL_UTIL_H
