@@ -141,21 +141,22 @@ struct  vcmd_ctx_rlimit_mask_v0 {
 
 /* scheduler vserver commands */
 
-#define VCMD_get_sched		VC_CMD(SCHED, 1, 1)
-#define VCMD_set_sched		VC_CMD(SCHED, 2, 1)
+#define VCMD_set_sched		VC_CMD(SCHED, 1, 1)
 
+/* Options - these ones enable or disable the CTX_SCHED flag */
+#define TBF_SCHED_ENABLE       0x0001
+#define TBF_SCHED_DISABLE      0x0002
 
 /* Structure for context's TBF scheduling priorities */
+struct  vcmd_set_sched_v1 {
+       uint32_t options;
 
-struct  vcmd_tbf_sched_v1 {
-	uint32_t fill_level;
-	uint32_t fill_rate;
-	uint32_t period;
-	uint32_t bucket_size;
+       int32_t fill_rate;
+       int32_t period;
+       int32_t fill_level;
+       int32_t bucket_size;
 };
 
-#define TBFS_PERIOD_AUTO	(0ULL)
-#define TBFS_KEEP_VALUE		(~0ULL)
 
 
 /*  inode vserver commands */
