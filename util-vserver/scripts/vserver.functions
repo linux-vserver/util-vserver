@@ -483,12 +483,12 @@ function _processSingleInterface
 	    echo $"Using 'dummy' (indirect) for interface '$dev' requires a fixed context number; dynamic ctx are not supported" >&2
 	    return 1
 	else
-	    test "$mac" || _generateMac mac "$(basename '$iface')" "$ctx" || return 1
-	    _addInterfaceCmd MODPROBE -o "dummy${ctx}" dummy
-	    _addInterfaceCmd IP_LINK  dev "dummy${ctx}" address "$mac"
+	    test "$mac" || _generateMac mac "$(basename $iface)" "$ctx" || return 1
+	    _addInterfaceCmd MODPROBE dummy "$dev"
+	    _addInterfaceCmd IP_LINK  dev dummy0 address "$mac"
 	    _addInterfaceCmd NAMEIF   "$dev" "$mac"
-	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" ${name:+label "$dev:$name"} dev "$dev"
-	    test -z "$extip" || _addInterfaceCmd IPTABLES "$ip${prefix:+/$prefix}" "$ctx" "$extip"
+	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" dev "$dev"
+	    test -z "$extip" || _addInterfaceCmd IPTABLES "$ip${prefix:+/$prefix}" ${name:+label "$dev:$name"} "$ctx" "$extip"
 	fi
 	INTERFACES=( "${INTERFACES[@]}" "$ip${prefix:+/$prefix}" )
     fi
@@ -500,7 +500,7 @@ function _generateInterfaceOptions
     local iface
     local ctx
 
-    test ! -e "$1"/context || read ctx <"$vdir"/context
+    test ! -e "$1"/context || read ctx <"$1"/context
 
     for iface in "$1/interfaces/"*; do
         test   -d "$iface"          || continue
@@ -520,15 +520,21 @@ function enableInterfaces
 	eval var='( "${INTERFACE_CMDS_'$i'[@]}" )'
 	local type=${var[0]}
 	unset var[0]
-	
+
+	set -- "${var[@]}"
 	case "$type" in
 	    IPTABLES)	;; ## TODO
-	    MODPROBE)	$_MODPROBE "${var[@]}";;
-	    NAMEIF)	$_NAMEIF   "${var[@]}";;
-	    VCONFIG)	$_VCONFIG  add "${var[@]}";;
-	    IP_ADDR)	$_IP addr  add "${var[@]}";;
-	    IP_LINK)	$_IP link  set "${var[@]}";;
-	    IP_ROUTE)	$_IP route add "${var[@]}";;
+	    MODPROBE)
+		local mod=$1
+		local name=$2
+		shift 2
+		$_MODPROBE ${name:+-o "$name"} "$mod" "$@"
+		;;
+	    NAMEIF)	$_NAMEIF   "$@";;
+	    VCONFIG)	$_VCONFIG  add "$@";;
+	    IP_ADDR)	$_IP addr  add "$@";;
+	    IP_LINK)	$_IP link  set "$@";;
+	    IP_ROUTE)	$_IP route add "$@";;
 	    *)		echo "Unknown interface-command type '$type'" >&2; false;;
 	esac
 
@@ -550,14 +556,15 @@ function disableInterfaces
 	local type=${var[0]}
 	unset var[0]
 	
+	set -- "${var[@]}"
 	case "$type" in
 	    IPTABLES)	;; ## TODO
-	    MODPROBE)	$_RMMOD    "${var[@]}";;
+	    MODPROBE)	$_RMMOD "${2:-$1}";;
 	    NAMEIF)	;;
-	    VCONFIG)	$_VCONFIG  rem "${var[@]}";;
-	    IP_ADDR)	$_IP addr  del "${var[@]}";;
+	    VCONFIG)	$_VCONFIG  rem "$@";;
+	    IP_ADDR)	$_IP addr  del "$@";;
 	    IP_LINK)	;; ## Ignore the link-down command for now
-	    IP_ROUTE)	$_IP route del "${var[@]}";;
+	    IP_ROUTE)	$_IP route del "$@";;
 	    *)		echo "Unknown interface-command type '$type'" >&2; false;;
 	esac
     done
