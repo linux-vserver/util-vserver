@@ -20,6 +20,9 @@
 ACLOCAL_AMFLAGS		=  -I m4
 SUBDIRS			=  . distrib
 
+CVS2CL_AMFLAGS		=  $(CVS2CL_TAG) -U cvsusers.map
+CVS2CL_ALLFLAGS        :=  $(CVS2CL_AMFLAGS) $(CVS2CL_FLAGS)
+
 sysvdir			=  $(sysconfdir)/init.d
 confdir			=  $(sysconfdir)/vservers
 
@@ -55,6 +58,7 @@ AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE
 AM_CFLAGS		=  -Wall -pedantic
 
 CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) \
+			   .*.pathsubst.stamp */.*.pathsubst.stamp \
 			   linuxcaps.h pathconfig.h
 
 if USE_DIETLIBC
@@ -66,14 +70,16 @@ endif
 linuxcaps.h:
 			ln -sf ${kernelincludedir}/linux/capability.h linuxcaps.h
 
-%:			%.pathsubst Makefile
+pathconfig.h:		.pathconfig.h.pathsubst.stamp
+.%.pathsubst.stamp:	%.pathsubst Makefile
 			@mkdir -p $$(dirname '$@')
 			sed -e 's!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 				s!@'SBINDIR'@!$(sbindir)!g; \
 				s!@'CONFDIR'@!$(confdir)!g; \
 				s!@'SYSCONFDIR'@!$(sysconfdir)!g' '$<' >'$@.tmp'
-			if cmp -s '$@.tmp' '$@'; then rm -f '$@.tmp'; else rm -f '$@'; mv '$@.tmp' '$@'; fi
-			@chmod a-w '$@'
+			if cmp -s '$@.tmp' '$*'; then rm -f '$@.tmp'; else rm -f '$*'; mv '$@.tmp' '$*'; fi
+			@chmod a-w '$*'
+			@touch '$@'
 
 
 include $(top_srcdir)/lib/Makefile-files
