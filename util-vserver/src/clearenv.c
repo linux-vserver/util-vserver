@@ -23,14 +23,17 @@
 #include "util.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <libgen.h>
 
 static void
 showHelp(int fd, char const *cmd, int res)
 {
+  VSERVER_DECLARE_CMD(cmd);
+  
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    "<cmd> <args>*\n\n"
+	    " <cmd> <args>*\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
