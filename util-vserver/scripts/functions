@@ -282,6 +282,7 @@ function getVserverStatus
 
     test "$3"        || return 0
     local _tmp=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$_ctx" | $_WC -l )
+    let _tmp=_tmp+0
     eval "$3"=\$_tmp
 
     if test "$_tmp" = 0; then
@@ -377,4 +378,42 @@ function callInNamespace
     else
 	"$@"
     fi
+}
+
+## Usage: pkgmgmt.guessStyle <vserver> <resultvar>
+function pkgmgmt.guessStyle()
+{
+    local vdir=$($_VSERVER_INFO "$1" VDIR) || {
+	echo $"Can not determine vserver-root" >&2
+	return 1
+    }
+    local cfgdir=$($_VSERVER_INFO "$1" APPDIR pkgmgmt) || :
+
+    if test "$cfgdir" -a -e "$cfgdir"/style; then
+	read style <"$cfgdir"/style
+    elif test -e "$vdir"/etc/redhat-release -o -e "$vdir"/etc/fedora-release; then
+	style=redhat
+    elif test -e "$vdir"/etc/mandrake-release; then
+	style=mandrake
+    elif test -e "$vdir"/etc/debian_version; then
+	style=debian
+    else
+	echo $"Can not determine packagemanagement style" >&2
+	return 1
+    fi
+
+    eval $2=\$style
+    return 0
+}
+
+## Usage: pkgmgmt.isInternal <vserver>
+## returns true iff <vserver> is configured for internal packagemanagement
+## A typical application is
+## | is_external=
+## | pkgmgmt.isInternal "$vserver" || is_external=1
+function pkgmgmt.isInternal
+{
+    local cfgdir=$($_VSERVER_INFO "$1" APPDIR pkgmgmt) || :
+
+    test -z "$cfgdir" -o ! -d "$cfgdir" -o -e "$cfgdir"/internal
 }
