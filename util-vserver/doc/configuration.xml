@@ -309,7 +309,7 @@
 	<dir name="vshelper" type="fixed">
 	  <file name="sync-timeout">
 	    <description>The timeout in seconds which is used when synchronising vserver startup/shutdown
-	    with the vshelper. When set nowhere else, 30 seconds will be assumed.</description>
+	    with the vshelper. When no set, 30 seconds will be assumed.</description>
 	  </file>
 
 	  <file name="action">
@@ -321,9 +321,9 @@
 
 	  <script type="symbolic" name="event">
 	    <description>When existing. these scripts will be executed *instead* of the default
-	    handler defined in 'action'. Their name must matching the event which caused the
-	    execution of 'vshelper'; e.g. 'restart' or 'poweroff'. See the vs_reboot() function in
-	    the kernel for more details.</description>
+	    handler defined in 'action'. Their name must match the event which caused the execution
+	    of 'vshelper'; e.g. 'restart' or 'poweroff'. See the vs_reboot() function in the kernel
+	    for more details.</description>
 	    <params>
 	      <param id="xid">
 		<description>The xid of the context calling the vshelper</description>
