@@ -22,19 +22,52 @@ fi
 
 function cleanup()
 {
-    test    "$OPTION_DEBUG"    || exec 2>/dev/null >/dev/null
     test -z "$is_started"      || return 0
+
+    if test "$is_configured" -a -z "$is_executed"; then
+	warning $"
+An error occured while executing the vserver startup sequence; when
+there are no other messages, it is very likely that the init-script
+(${INITCMD_START[@]}) failed.
+
+Common causes are:
+* /etc/rc.d/rc on Fedora Core 1 and RH9 fails always; the 'apt-rpm' build
+  method knows how to deal with this, but on existing installations,
+  appending 'true' to this file will help."
+    fi
+
+    if test "$is_executed"; then
+	warning $"
+An error occured after executing the vserver startup sequence. This
+means that some processes may exist in the created context and the
+manual execution of
+
+  $_VSERVER '$VSERVER_NAME' stop
+
+is recommended to fix this."
+    else
+	warning $"
+
+Failed to start vserver '$VSERVER_NAME'"
+    fi
+    
+    test    "$OPTION_DEBUG"    || exec 2>/dev/null >/dev/null
     test -z "$is_mounted"      || umountVserver     "$VSERVER_DIR" || :
     test -z "$have_interfaces" || disableInterfaces "$VSERVER_DIR" || :
 }
 
+is_configured=
+is_executed=
 is_started=
 is_mounted=
+is_vshelper_init=
 have_interfaces=
 
+set -e
 trap "cleanup" EXIT
 
-set -e
+vshelper.doSanityCheck
+
 generateOptions  "$VSERVER_DIR"
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" prepre-start
 enableInterfaces "$VSERVER_DIR" && have_interfaces=1
@@ -47,6 +80,7 @@ execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" pre-start
 
 cd "$VSERVER_DIR"/vdir/
 
+is_configured=1
 if $_VSERVER_INFO - FEATURE migrate; then
     $_CHBIND     "${CHBIND_OPTS[@]}" -- \
     $_VCONTEXT   --create "${OPTS_VCONTEXT_CREATE[@]}" -- \
@@ -70,8 +104,13 @@ else
     $_CAPCHROOT        "${CAPCHROOT_OPTS[@]}" . \
     "${INITCMD_START[@]}"
 fi
+is_executed=1
 
 "${INITCMD_START_SYNC[@]}"
 
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" post-start
+
+is_vshelper_init=1
+! vshelper.isEnabled "$VSERVER_DIR" || vshelper.doInit "$VSERVER_DIR"
+
 is_started=1
