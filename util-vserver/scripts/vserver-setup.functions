@@ -128,6 +128,7 @@ function setup_setDefaults
     : ${SETUP_CONFDIR:=$CONFDIR/$1}
     : ${SETUP_LOCKFILE:=$RUNDIR/$1}
     : ${SETUP_LOCKREVDIR:=$CONFDIR/.defaults/run.rev}
+    findFile SETUP_FSTAB "$CONFDIR"/.defaults/fstab "$PKGLIBDIR"/defaults/fstab
 }
 
 function setup_writeOption
@@ -162,11 +163,7 @@ function setup_writeOption
 
 function setup_writeInitialFstab
 {
-    cat <<EOF >$SETUP_CONFDIR/fstab
-none	/proc		proc	defaults		0 0
-none	/tmp		tmpfs	size=16m,mode=1777	0 0
-none	/dev/pts	devpts	gid=5,mode=620		0 0
-EOF
+    cat "$SETUP_FSTAB" >"$SETUP_CONFDIR"/fstab
 }
 
 function setup_test
