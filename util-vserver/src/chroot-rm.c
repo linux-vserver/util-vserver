@@ -56,11 +56,8 @@ showVersion()
 int main(int argc, char *argv[])
 {
   int		i;
-  int		res;
+  int		res = EXIT_SUCCESS;
   int		idx = 1;
-
-  Echroot(".");
-  Echdir("/");
 
   if (argc==1) {
     WRITE_MSG(2, "No files given; use '--help' for more information\n");
@@ -70,7 +67,9 @@ int main(int argc, char *argv[])
   if (strcmp(argv[1], "--version")==0) showVersion();
   if (strcmp(argv[1], "--")==0)        ++idx;
 
-  res = EXIT_SUCCESS;
+  Echroot(".");
+  Echdir("/");
+  
   for (i=idx; i<argc; ++i) {
     if (unlink(argv[i])==-1) {
       WRITE_STR(2, argv[i]);
