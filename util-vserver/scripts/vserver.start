@@ -29,19 +29,26 @@ declare -a INTERFACES=()
 declare -a START_CMD=()
 
 SILENT_OPT=
+INITSTYLE=sysv
+RUNLEVEL=3
 
 function _generateInterfaceList
 {
     local vdir="$1"
     local iface
-    local ip
+    local ip mask prefix
 
     for iface in "$VSERVER_DIR/interfaces/"*; do
         test   -d "$iface"          || continue
         test ! -e "$iface"/disabled || continue
 
-	read ip  <"$iface"/ip       || continue
-	INTERFACES=( "${INTERFACES[@]}" "$ip" )
+	_getInterfaceValue ip     '' "$iface"
+	_getInterfaceValue mask   '' "$iface" "$iface/.."
+	_getInterfaceValue prefix '' "$iface" "$iface/.."
+	
+	_transformMask2Prefix prefix "$prefix" "$mask"
+	
+	INTERFACES=( "${INTERFACES[@]}" "$ip${prefix:+/$prefix}" )
     done 2>/dev/null
 }
 
@@ -98,14 +105,13 @@ function _generateCapabilityOptions
 function _generateFlagOptions
 {
     local vdir=$1
-    local init_default=3
 
     CHCONTEXT_FLAG_OPTS=()
 
     ## TODO: get_initdefault
-    START_CMD=( /etc/rc.d/rc $init_default )
+    START_CMD=( /etc/rc.d/rc "$RUNLEVEL" )
     test ! -x "$vdir/etc/init.d/rc" || {
-	START_CMD=( /etc/init.d/rc $init_default )
+	START_CMD=( /etc/init.d/rc "$RUNLEVEL" )
     }
     
     test -e "$vdir"/flags || return 0
@@ -118,7 +124,10 @@ function _generateFlagOptions
 		CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}" \
 				      --disconnect --flag --fakeinit )
                 case "$flag" in
-		    minit)	START_CMD=( /sbin/minit-start );;
+		    minit)
+			START_CMD=( /sbin/minit-start )
+			INITSTYLE=minit
+			;;
 		    *)		START_CMD=( /sbin/init );;
 		esac
 		;;
@@ -155,33 +164,60 @@ function _generateChcontextOptions
 		     ${domainname:+--domainname "$domainname"} )
 }
 
+function _getInterfaceValue
+{
+    local val=$1
+    local dflt=$2
+    shift 2
+    
+    local i
+    local tmp
+
+    for i; do
+	read tmp  <"$i/$val" && break || :
+    done 2>/dev/null
+
+    eval $val=${tmp:-$dflt}
+}
+
+function _transformMask2Prefix
+{
+    local tmp=$2
+    
+    test "$tmp" || {
+	$_MASK2PREFIX "$3" || tmp=$?
+    }
+
+    eval $1=$tmp
+    return 0
+}
 
 function enableSingleInterface
 {
     local iface=$1
 
-    local dev
     local ip
+    local dev
+    local prefix
     local mask
     local bcast
     local name
     local scope
 
-    read dev    <"$iface"/dev    || dev=$dev_default
-    read ip     <"$iface"/ip     || { echo $"Can not read ip for '$iface'" >&3; return 1; }
-    read prefix <"$iface"/prefix || prefix=$prefix_default
-    read mask   <"$iface"/mask   || mask=$mask_default
-    read bcast  <"$iface"/bcast  || bcast=$bcast_default
-    read name   <"$iface"/name
-    read scope  <"$iface"/scope
+    _getInterfaceValue ip     '' "$iface"
+    _getInterfaceValue dev    '' "$iface" "$iface/.."
+    _getInterfaceValue prefix '' "$iface" "$iface/.."
+    _getInterfaceValue mask   '' "$iface" "$iface/.."
+    _getInterfaceValue bcast  '' "$iface" "$iface/.."
+    _getInterfaceValue name   '' "$iface"
+    _getInterfaceValue scope  '' "$iface" "$iface/.."
 
+    test "$ip" || { echo $"Can not read ip for '$iface'"; return 1; }
+    
     test ! -e "$iface"/only_ip   || unset dev
     
     if test "$dev"; then
-	test "$prefix" || {
-	    $_MASK2PREFIX "$mask" || prefix=$?
-	    test "$prefix" != 255
-	}
+	_transformMask2Prefix prefix "$prefix" "$mask"
 
 	case "$dev" in
 	    *.*)
@@ -197,24 +233,11 @@ function enableSingleInterface
 		;;
 	esac
 
-	$_IP addr  add "$ip${prefix:+/$prefix}" ${bcast:-broadcast +}${bcast:+broadcast "$bcast"} \
+	$_IP addr  add "$ip${prefix:+/$prefix}" broadcast ${bcast:-+} \
 	           ${name:+label "$dev:$name"} dev "$dev"
 	$_IP route add "$ip""${prefix:+/$prefix}" dev "$dev"
         $_IP link  set "$dev" up
-    fi 2>&3
-}
-
-function setInterfaceDefaults
-{
-    read dev_default    <"$1"/dev
-    read mask_default   <"$1"/mask
-    read prefix_default <"$1"/prefix
-    read bcast_default  <"$1"/bcast
-
-    test -z "mask_default" -o "$prefix_default" || {
-	$_MASK2PREFIX "$mask_default" || prefix_default=$?
-	test "$prefix_default" != 255
-    }
+    fi
 }
 
 function enableInterfaces
@@ -223,27 +246,33 @@ function enableInterfaces
     local VSERVER_NAME=$2
     
     local iface
-
-    local dev_default
-    local mask_default
-    local bcast_default   
-    local prefix_default   
-
     declare -a all_ips
-
-    setInterfaceDefaults 3>&2 2>/dev/null
 
     for iface in "$VSERVER_DIR/interfaces/"*; do
         test   -d "$iface"          || continue
         test ! -e "$iface"/disabled || continue
     
-        enableSingleInterface "$iface" 3>&2 2>/dev/null
+        enableSingleInterface "$iface"
     done
 }
 
+function prepareInit
+{
+    local vdir=$1
+    local style=$2
 
-
-
+    pushd "$vdir/vdir" >/dev/null
+    case "$style" in
+	sysv)
+	    { find var/run  ! -type d -print0; \
+	      find var/lock ! -type d -print0; } | xargs -0r $_CHROOT_RM
+	    $_FAKE_RUNLEVEL "$RUNLEVEL" /var/run/utmp
+	    ;;
+	minit)
+	    ;;
+    esac
+    popd >/dev/null
+}
 
 function generateOptions
 {
@@ -263,19 +292,8 @@ function mountVserver
     declare -a mountopts
 
     test -e "$cfgdir"/fstab || return 0
-
-    cat "$cfgdir"/fstab | while read src dst type opts aux; do
-	test "$src" -a "$dst" -a "$type" -a "$opts" || continue
-
-	if test "$type" = "bind"; then
-	    mountopts=( --bind )
-	else
-	    mountopts=( -type $type -o "$opts" )
-	fi
-	    
-	$_CHBIND "${CHBIND_OPTS[@]}" \
-	    $_MOUNT "${mountopts}" "$src" "$vdir$dst"
-    done
+    $_CHBIND "${CHBIND_OPTS[@]}" \
+	$_SECURE_MOUNT -a --chroot "$vdir" --fstab "$cfgdir"/fstab
 }
 
 function execScriptlets
@@ -306,15 +324,16 @@ if isVserverRunning "$VSERVER_DIR"; then
     exit 1
 fi
 
-execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" pre-start
+execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" prepre-start
 generateOptions  "$VSERVER_DIR"
 enableInterfaces "$VSERVER_DIR" "$VSERVER_NAME"
 
-# TODO: utmp
-
 mountVserver "$VSERVER_DIR"
+prepareInit  "$VSERVER_DIR" "$INITSTYLE"
 
 cd "$VSERVER_DIR"/vdir/
+
+execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" pre-start
 
 "${NICE_CMD[@]}" \
     "$_CHBIND" "${CHBIND_OPTS[@]}" \
@@ -322,4 +341,4 @@ cd "$VSERVER_DIR"/vdir/
     "$_SAVE_CTXINFO" "$VSERVER_DIR" \
     "$_CAPCHROOT" "${CAPCHROOT_OPTS[@]}" . "${START_CMD[@]}"
 
-execScriptlets "$VSERVER_DIR" "$VSERVER_NAME" post-start
+execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" post-start
