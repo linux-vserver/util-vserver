@@ -229,7 +229,7 @@ struct  vcmd_ctx_flags_v0 {
 #define VCMD_get_ccaps          VC_CMD(FLAGS, 3, 0)
 #define VCMD_set_ccaps          VC_CMD(FLAGS, 4, 0)
 struct  vcmd_ctx_caps_v0 {
-        uint64_t scaps;
+        uint64_t bcaps;
         uint64_t ccaps;
         uint64_t cmask;
 };
