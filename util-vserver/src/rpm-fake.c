@@ -624,7 +624,7 @@ removeNamespaceMounts(char const *path, char * const argv[])
 
 
 int
-execv(char const *path, char * const argv[]) __THROW
+execv(char const *path, char * const argv[])
 {
   return removeNamespaceMounts(path, argv);
 }
