@@ -21,51 +21,13 @@
 #endif
 
 #include "fmt.h"
+#include "fmt-internal.h"
 #include <string.h>
-
-static char const DIGITS[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-
-#define FMT_P__(X,Y)		X ## Y
-#define FMT_P_(X,Y)		FMT_P__(X,Y)
-#define FMT_P(X)		FMT_P_(FMT_PREFIX, X)
-
-#define CONCAT__(x,y,z)		x ## y ## z
-#define CONCAT_(x,y,z)		CONCAT__(x,y,z)
-#define CONCAT(x,z)		CONCAT_(x, FMT_BITSIZE, z)
-
-#define FMT_FN(BASE,SZ)					\
-  do {							\
-    register __typeof__(val)	v = val;		\
-    register size_t		l = 0;			\
-  							\
-    if (ptr==0) {					\
-      do {						\
-        ++l;						\
-        v /= BASE;					\
-      } while (v!=0);					\
-    }							\
-    else {						\
-      char			buf[sizeof(val)*SZ];	\
-  							\
-      do {						\
-	register unsigned int	d = v%BASE;		\
-	v /= BASE;					\
-        ++l;						\
-        buf[sizeof(buf)-l] = DIGITS[d];			\
-      } while (v!=0);					\
-  							\
-      memcpy(ptr, buf+sizeof(buf)-l, l);		\
-    }							\
-  							\
-    return l;						\
-  } while (0)
 
 size_t
 CONCAT(FMT_P(uint),_base)(char *ptr, CONCAT(uint_least,_t) val, char base)
 {
-  //if (base==10) FMT_FN(10,3);
-  if (base==16) FMT_FN(16,2);
-
+  if (base==16) return CONCAT(FMT_P(xuint),)(ptr,val);
   FMT_FN(base,8);
 }
 

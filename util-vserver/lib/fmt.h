@@ -39,6 +39,12 @@
 extern "C" {
 #endif
 
+size_t	FMT_P(xuint64)(char *ptr, uint_least64_t val);
+size_t	FMT_P( xint64)(char *ptr,  int_least64_t val);
+
+size_t	FMT_P(xuint32)(char *ptr, uint_least32_t val);
+size_t	FMT_P( xint32)(char *ptr,  int_least32_t val);
+  
 size_t	FMT_P(uint64_base)(char *ptr, uint_least64_t val, char base);
 size_t	FMT_P( int64_base)(char *ptr,  int_least64_t val, char base);
 
@@ -48,13 +54,19 @@ size_t	FMT_P( int32_base)(char *ptr,  int_least32_t val, char base);
 #if __WORDSIZE == 64
 size_t	FMT_P(ulong_base)(char *ptr, unsigned long val, char base) WEAKFUNC(uint64_base);
 size_t	FMT_P( long_base)(char *ptr,          long val, char base) WEAKFUNC( int64_base);
+size_t	FMT_P(xulong)    (char *ptr, unsigned long val)            WEAKFUNC(xuint64);
+size_t	FMT_P( xlong)    (char *ptr,          long val)            WEAKFUNC( xint64);
 #else
 size_t	FMT_P(ulong_base)(char *ptr, unsigned long val, char base) WEAKFUNC(uint32_base);
 size_t	FMT_P( long_base)(char *ptr,          long val, char base) WEAKFUNC( int32_base);
+size_t	FMT_P(xulong)    (char *ptr, unsigned long val, char base) WEAKFUNC(xuint32);
+size_t	FMT_P( xlong)    (char *ptr,          long val, char base) WEAKFUNC( xint32);
 #endif
 
-size_t	FMT_P(uint_base)(char *ptr, unsigned int val, char base) WEAKFUNC(uint32_base);
-size_t	FMT_P( int_base)(char *ptr,          int val, char base) WEAKFUNC( int32_base);
+size_t	FMT_P(uint_base)(char *ptr, unsigned int val, char base)   WEAKFUNC(uint32_base);
+size_t	FMT_P( int_base)(char *ptr,          int val, char base)   WEAKFUNC( int32_base);
+size_t	FMT_P(xuint)    (char *ptr, unsigned int val, char base)   WEAKFUNC(xuint32);
+size_t	FMT_P( xint)    (char *ptr,          int val, char base)   WEAKFUNC( xint32);
 
 
 inline static size_t
