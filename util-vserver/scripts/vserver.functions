@@ -39,8 +39,11 @@ declare -a ENTER_SHELL=()
 declare -a OPTS_VCONTEXT_CREATE=()
 declare -a OPTS_VCONTEXT_MIGRATE=()
 declare -a OPTS_VATTRIBUTE=()
-USE_VNAMESPACE=
+declare -a OPTS_VSCHED=()
 
+declare -a VSERVER_EXTRA_CMDS=()
+
+USE_VNAMESPACE=
 INTERFACE_CMDS_IDX=0
 _HAVE_INTERFACE_OPTIONS=
 _HAVE_CHBIND_OPTIONS=
@@ -322,6 +325,34 @@ function _generateChcontextOptions
     OPTS_VATTRIBUTE=( --secure "${OPTS_VATTRIBUTE[@]}" )
 }
 
+function _generateScheduleOptions
+{
+    local vdir=$1
+    local f="$vdir"/schedule
+    test -e "$f" || return 0
+
+    local fill_rate interval tokens tokens_min tokens_max cpu_mask
+    {
+	{
+	    read fill_rate   && \
+	    read interval    && \
+	    read tokens      && \
+	    read tokens_min  && \
+	    read tokens_max  && \
+	    read cpu_mask    || cpu_mask=
+	} <"$f"
+    } 2>/dev/null
+
+    test "$cpu_mask" || {
+	echo $"Bad content in '$f'; aborting..." >&2
+	false
+    }
+
+    OPTS_VSCHED=( --fill-rate  "$fill_rate"  --interval "$interval" \
+		  --tokens     "$tokens"     --tokens_min "$tokens_min" \
+		  --tokens_max "$tokens_max" --cpu_mask "$cpu_mask" )
+}
+
 function _getInterfaceValue
 {
     local val=$1
@@ -494,6 +525,7 @@ function generateOptions
     _generateNiceCommand       "$1"
     _generateInitOptions       "$1"
     _generateChcontextOptions  "$1"
+    _generateScheduleOptions   "$1"
 
     if test "$_IS_FAKEINIT"; then
 	CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
