@@ -29,6 +29,9 @@ Unify_setTime(char const *dst, struct stat const *st)
 {
   struct utimbuf	utm;
 
+    // skip symlinks
+  if (S_ISLNK(st->st_mode)) return true;
+  
   utm.actime  = st->st_atime;
   utm.modtime = st->st_mtime;
   return utime(dst, &utm)!=-1;
