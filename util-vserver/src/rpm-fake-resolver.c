@@ -56,6 +56,7 @@ struct ArgInfo {
     uid_t		uid;
     gid_t		gid;
     bool		do_fork;
+    bool		in_ctx;
     char const *	pid_file;
     char const *	chroot;
 };
@@ -73,7 +74,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-c <ctx>] [-u <uid>] [-g <gid>] [-r <chroot>] [-n]\n"
+	    " [-c <ctx>] [-u <uid>] [-g <gid>] [-r <chroot>] [-s] [-n]\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
@@ -94,7 +95,7 @@ inline static void
 parseArgs(struct ArgInfo *args, int argc, char *argv[])
 {
   while (1) {
-    int		c = getopt_long(argc, argv, "c:u:g:r:n", CMDLINE_OPTIONS, 0);
+    int		c = getopt_long(argc, argv, "c:u:g:r:ns", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
 
     switch (c) {
@@ -106,6 +107,7 @@ parseArgs(struct ArgInfo *args, int argc, char *argv[])
       case 'g'		:  args->gid = atoi(optarg); break;
       case 'r'		:  args->chroot  = optarg;   break;
       case 'n'		:  args->do_fork = false;    break;
+      case 's'		:  args->in_ctx  = true;     break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -237,12 +239,18 @@ daemonize(struct ArgInfo const UNUSED * args, int pid_fd)
 }
 
 static void
-activateContext(xid_t xid)
+activateContext(xid_t xid, bool in_ctx)
 {
-  if (vc_isSupported(vcFEATURE_MIGRATE)) {
-#warning TODO: activate the context here or migrate to it
-    abort();
+  if (in_ctx) {
+    struct vc_ctx_flags		flags = {
+      .flagword = 0,
+      .mask     = VC_VXF_STATE_SETUP,
+    };
+
+    Evc_set_flags(xid, &flags);
   }
+  else if (vc_isSupported(vcFEATURE_MIGRATE))
+      Evc_migrate_context(xid);
   else 
     Evc_new_s_context(xid, 0, S_CTX_INFO_LOCK);
     //Evc_new_s_context(args.ctx, ~(VC_CAP_SETGID|VC_CAP_SETUID), S_CTX_INFO_LOCK);
@@ -256,7 +264,8 @@ int main(int argc, char * argv[])
     .gid      = 99,
     .do_fork  = true,
     .pid_file = 0,
-    .chroot   = 0
+    .chroot   = 0,
+    .in_ctx   = false,
   };
   int			pid_fd = -1;
 
@@ -274,7 +283,7 @@ int main(int argc, char * argv[])
   if (args.chroot) Echroot(args.chroot);
   Echdir("/");
 
-  activateContext(args.ctx);
+  activateContext(args.ctx, args.in_ctx);
   Esetgroups(0, &args.gid);
   Esetgid(args.gid);
   Esetuid(args.uid);
