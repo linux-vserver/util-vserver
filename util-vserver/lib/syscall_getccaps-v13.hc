@@ -28,6 +28,7 @@ vc_get_ccaps_v13(xid_t xid, struct vc_ctx_caps *caps)
   
   res = vserver(VCMD_get_ccaps, CTX_USER2KERNEL(xid), &k_caps);
   caps->bcaps = k_caps.bcaps;
+  caps->bmask = ~0ull;
   caps->ccaps = k_caps.ccaps;
   caps->cmask = k_caps.cmask;
 

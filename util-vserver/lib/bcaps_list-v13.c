@@ -30,11 +30,9 @@ vc_list2bcap(char const *str, size_t len,
 	     struct vc_err_listparser *err,
 	     struct vc_ctx_caps *caps)
 {
-  uint_least64_t	tmp=0;
-  
   return utilvserver_listparser_uint64(str, len,
 				       err ? &err->ptr : 0,
 				       err ? &err->len : 0,
-				       &caps->bcaps, &tmp,
+				       &caps->bcaps, &caps->bmask,
 				       vc_text2bcap);
 }
