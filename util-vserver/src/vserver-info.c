@@ -32,7 +32,7 @@
 #include <stdbool.h>
 
 typedef enum { tgNONE,tgCONTEXT, tgRUNNING,
-	       tgVDIR, tgNAME, tgCFGDIR }	VserverTag;
+	       tgVDIR, tgNAME, tgCFGDIR, tgAPPDIR }	VserverTag;
 
 static struct {
     char const * const	tag;
@@ -43,7 +43,8 @@ static struct {
   { "RUNNING", tgRUNNING, "gives out '1' when vserver is running; else, it fails without output" },
   { "VDIR",    tgVDIR,    "gives out the root-directory of the vserver" },
   { "NAME",    tgNAME,    "gives out the name of the vserver" },
-  { "CFGDIR",  tgCFGDIR,  "gives out the configuration directory of the vserver" }
+  { "CFGDIR",  tgCFGDIR,  "gives out the configuration directory of the vserver" },
+  { "APPDIR",  tgAPPDIR,  "gives out the name of the toplevel application cfgdir" },
 };
 
 #define TAGS_COUNT	(sizeof(TAGS)/sizeof(TAGS[0]))
@@ -108,7 +109,7 @@ stringToTag(char const *str)
 }
 
 static int
-execQuery(char const *vserver, VserverTag tag)
+execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
 {
   char const *		res = 0;
   char 			buf[sizeof(xid_t)*4 + 16];
@@ -117,6 +118,10 @@ execQuery(char const *vserver, VserverTag tag)
   switch (tag) {
     case tgNAME		:  res = vc_getVserverName(vserver, vcCFG_AUTO); break;
     case tgVDIR		:  res = vc_getVserverVdir(vserver, vcCFG_AUTO); break;
+    case tgCFGDIR	:  res = vc_getVserverCfgDir(vserver, vcCFG_AUTO);     break;
+    case tgAPPDIR	:
+      res = vc_getVserverAppDir(vserver, vcCFG_AUTO, argc==0 ? "" : argv[0]);
+      break;
     case tgCONTEXT	:
       ctx = vc_getVserverCtx(vserver, vcCFG_AUTO, true, 0);
       if (ctx!=VC_NOCTX) {
@@ -129,7 +134,6 @@ execQuery(char const *vserver, VserverTag tag)
       res = (vc_getVserverCtx(vserver, vcCFG_AUTO, false, 0)==VC_NOCTX) ? 0 : "1";
       break;
 
-    case tgCFGDIR	:
     default		:  assert(false); abort();  // TODO
   }
 
@@ -163,7 +167,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (optind+2!=argc) {
+  if (optind+2>argc) {
     WRITE_MSG(2, "No vserver or tag give; please try '--help' for more information.\n");
     exit(1);
   }
@@ -182,5 +186,5 @@ int main(int argc, char *argv[])
     Eclose(fd);
   }
 
-  return execQuery(vserver, tag);
+  return execQuery(vserver, tag, argc-(optind+2), argv+optind+2);
 }
