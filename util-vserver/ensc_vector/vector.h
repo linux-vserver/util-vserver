@@ -30,9 +30,14 @@ struct Vector
     size_t	elem_size;
 };
 
+typedef enum { vecMOVE_FRONT, vecSHIFT_ONCE }		 VectorSelfOrgMethod;
+
 void	Vector_init(struct Vector *, size_t elem_size);
 void	Vector_free(struct Vector *);
 void *	Vector_search(struct Vector *, void const *key, int (*compar)(const void *, const void *));
+void *	Vector_searchSelfOrg(struct Vector *, void const *key,
+			     int (*compar)(const void *, const void *),
+			     VectorSelfOrgMethod method);
 void	Vector_sort(struct Vector *, int (*compar)(const void *, const void *));
 void	Vector_unique(struct Vector *, int (*compar)(const void *, const void *));
 void *	Vector_pushback(struct Vector *);
@@ -41,6 +46,10 @@ void	Vector_popback(struct Vector *);
 void	Vector_resize(struct Vector *vec);
 void	Vector_clear(struct Vector *vec);
 void	Vector_zeroEnd(struct Vector *vec);
+
+static void const *	Vector_searchSelfOrg_const(struct Vector const *, void const *key,
+						   int (*compar)(const void *, const void *),
+						   VectorSelfOrgMethod method);
 static void const *	Vector_search_const(struct Vector const *, void const *key, int (*compar)(const void *, const void *));
 static void *		Vector_begin(struct Vector *);
 static void *		Vector_end(struct Vector *);

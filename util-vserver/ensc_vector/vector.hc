@@ -51,3 +51,11 @@ Vector_search_const(struct Vector const *vec, void const *key, int (*compar)(con
 {
   return Vector_search((struct Vector *)(vec), key, compar);
 }
+
+static inline UNUSED void const *
+Vector_searchSelfOrg_const(struct Vector const *vec, void const *key,
+			   int (*compare)(const void *, const void *),
+			   VectorSelfOrgMethod method)
+{
+  return Vector_searchSelfOrg((struct Vector *)(vec), key, compare, method);
+}
