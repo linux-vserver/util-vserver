@@ -402,7 +402,7 @@ function _getProcNumberCount
 	set -- $($_GREP '^PROC:' "/proc/virtual/$1/limit" 2>/dev/null)
 	procnr_cnt=$2
     else
-	procnr_cnt=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$_ctx" | $_WC -l )
+	procnr_cnt=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$1" | $_WC -l )
     fi
 
     let procnr_cnt=procnr_cnt+0
