@@ -456,8 +456,8 @@ function umountVserver
 	    x#*)	continue;;
 	esac
 
-	$_CHBIND "${CHBIND_OPTS[@]}" \
-	    $_SECURE_UMOUNT "$dst" || is_ok=
+	$_CHBIND "${CHBIND_OPTS[@]}" $_EXEC_CD "$dst" \
+	    $_UMOUNT -lfn . || is_ok=
     done
     popd >/dev/null
 
