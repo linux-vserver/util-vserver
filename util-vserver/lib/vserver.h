@@ -34,14 +34,14 @@
 #  define VC_ATTR_UNUSED                __attribute__((__unused__))
 #  define VC_ATTR_NORETURN              __attribute__((__noreturn__))
 #  define VC_ATTR_CONST			__attribute__((__const__))
-#  if __GNUC__>3 || (__GNUC__==3 && __GNUC_MINOR__>=3)
+#  if __GNUC__*0x10000 + __GNUC_MINOR__*0x100 + __GNUC_PATCHLEVEL__ >= 0x30300
 #    define VC_ATTR_NONNULL(ARGS)	__attribute__((__nonnull__ ARGS))
 #    define VC_ATTR_ALWAYSINLINE        __attribute__((__always_inline__))
 #  else
 #    define VC_ATTR_NONNULL(ARGS)
 #    define VC_ATTR_ALWAYSINLINE
 #  endif
-#  if __GNUC__>3
+#  if __GNUC__*0x10000 + __GNUC_MINOR__*0x100 + __GNUC_PATCHLEVEL__ >= 0x30303
 #    define VC_ATTR_PURE		__attribute__((__pure__))
 #  else
 #    define VC_ATTR_PURE
@@ -370,6 +370,7 @@ extern "C" {
   
   struct  vc_ctx_caps {
       uint_least64_t	bcaps;
+      uint_least64_t	bmask;
       uint_least64_t	ccaps;
       uint_least64_t	cmask;
   };
