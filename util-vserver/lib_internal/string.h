@@ -30,6 +30,10 @@ typedef struct
 static void	String_init(String *);
 void		String_destroy(String *);
 
+#define ENSC_STRING_FIXED(VAL) { .d = VAL, .l = (sizeof(VAL)-1) }
+#define ENSC_STRING_ASSIGN_FIXED(DST,VAL) \
+  { DST.d = (VAL); DST.l = (sizeof(VAL)-1); }
+
 #include "string.hc"
 
 #endif	//  H_UTIL_VSERVER_LIB_INTERNAL_STRING_H
