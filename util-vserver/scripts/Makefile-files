@@ -40,6 +40,7 @@ scripts_pkglib_src_DTA =	scripts/functions \
 				scripts/vserver-build.apt-rpm \
 				scripts/vserver-build.skeleton \
 				scripts/vserver-build.debootstrap \
+				scripts/vserver-build.rpm \
 				scripts/vserver-build.yum \
 				scripts/vserver-build.functions \
 				scripts/vserver-build.functions.apt \

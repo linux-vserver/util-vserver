@@ -1,7 +1,7 @@
 #! /bin/bash
 # $Id$
 
-# Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# Copyright (C) 2003,2004,2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 #  
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -56,6 +56,8 @@ Possible methods are:
     yum     ... -- -d <distribution>
                 ...  installs the base-packages of the given distribution with
 		     help of 'vyum'
+    rpm     ... -- [-d <distribution>] ([--force] [--nodeps] <manifest>)*
+                ...  installs lists of rpm-packages
     skeleton ... -- [<cmd> <args>*]
                 ...  installs a minimal skeleton filesystem, creates the
 		     configuration file and calls an optional command then
@@ -72,7 +74,7 @@ function showVersion()
 $"vserver-build $PACKAGE_VERSION -- initializes a vserver
 This program is part of $PACKAGE_STRING
 
-Copyright (C) 2003 Enrico Scholz
+Copyright (C) 2003,2004,2005 Enrico Scholz
 This program is free software; you may redistribute it under the terms of
 the GNU General Public License.  This program has absolutely no warranty."
     exit 0
@@ -118,7 +120,7 @@ setup_setDefaults "$VSERVER_NAME"
 
 case x"$method" in
     (xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
-    (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum)
+    (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum|xrpm)
 		. $PKGLIBDIR/vserver-build.$method
 		;;
     (x)		panic $"No build-method specified";;
