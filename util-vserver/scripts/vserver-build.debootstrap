@@ -58,7 +58,28 @@ function findDebootstrap
         read tmp <$DEBOOTSTRAP_URI
         case "$tmp" in
     	(/*)			ln -s "$tmp" "$dst";;
-    	(http://*|ftp://*)	$_WGET -nv -O "$dst" "$tmp";;
+    	(http://*|ftp://*)
+	    $_WGET -nv -O "$dst" "$tmp" || {
+		cat <<EOF >&2
+ERROR: Could not download the debootstrap package from
+
+   $dst
+
+Usually, this means that Debian released a new version which is unknown
+to util-vserver and removed the known ones. To fix this, go to
+
+   http://ftp.debian.org/debian/pool/main/d/debootstrap/
+
+(or a nearby mirror) and search the URL for the most recent *.deb
+package matching your platform. Then, put this URL into
+
+   $CONFDIR/.defaults/apps/debootstrap/uri
+
+and retry the vserver-build command again.
+EOF
+		exit 1
+	    }
+	    ;;
     	(*)			echo $"Unsupported URI scheme '$tmp'" >&2
     				exit 1;;
         esac
