@@ -82,6 +82,12 @@
 typedef uint32_t		xid_t;
 #endif
 
+#ifndef HAVE_NID_T
+#include <stdint.h>
+typedef uint32_t		nid_t;
+#endif
+
+
 #if defined(__dietlibc__)
   #define TEMP_FAILURE_RETRY(expression)				\
   (__extension__							\
