@@ -27,7 +27,7 @@ sysvdir			=  $(sysconfdir)/init.d
 confdir			=  $(sysconfdir)/vservers
 
 include_HEADERS		=  $(lib_HDRS)
-noinst_HEADERS		=  $(src_HDRS)
+noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h
 
 lib_LIBRARIES		=  $(lib_lib_LIBS)
 
@@ -101,6 +101,8 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@chmod a-w '$*'
 			@touch '$@'
 
+install-data-local:
+			$(INSTALL) -d -m755 $(DESTDIR)$(localstatedir)/run/vservers
 
 include $(top_srcdir)/lib/Makefile-files
 include $(top_srcdir)/src/Makefile-files
@@ -113,3 +115,4 @@ include $(top_srcdir)/sysv/Makefile-files
 include $(top_srcdir)/m4/gpgsig.am
 include $(top_srcdir)/m4/validate.am
 include $(top_srcdir)/m4/changelog.am
+include $(top_srcdir)/m4/pkgconfig.am
