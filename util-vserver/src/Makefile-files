@@ -53,6 +53,7 @@ src_DIETPROGS		=  src/new-namespace \
 	     		   src/chroot-cat \
 	     		   src/fakerunlevel \
 			   src/pipe-sync \
+			   src/exec-ulimit \
 	     		   src/ctx-kill
 
 src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
@@ -80,6 +81,7 @@ src_pkglib_PRGS		=  src/capchroot \
 			   src/vunify \
 			   src/mask2prefix \
 			   src/pipe-sync \
+			   src/exec-ulimit \
 			   src/rpm-fake.so
 
 src_sbin_PRGS		=  src/chbind \
@@ -111,6 +113,7 @@ src_parserpmdump_SOURCES	=  src/parserpmdump.c
 src_readlink_SOURCES		=  src/readlink.c
 src_rebootmgr_SOURCES		=  src/rebootmgr.c
 src_pipe_sync_SOURCES		=  src/pipe-sync.c
+src_exec_ulimit_SOURCES		=  src/exec-ulimit.c
 
 src_reducecap_SOURCES		=  src/reducecap.c
 src_reducecap_LDADD		=  lib/libvserver.a
