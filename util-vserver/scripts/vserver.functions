@@ -127,6 +127,23 @@ function getEnterShell
     }
 }
 
+## Usage: sendKillSequence <ctx> <signal> [<wait> <signal>]*
+function sendKillSequence
+{
+    local ctx=$1
+    local wait=
+    shift
+
+    while isCtxRunning "$ctx"; do
+	test -z "$wait" || sleep "$wait"
+	
+	$_VKILL -c "$ctx" ${1:+-s "$1"}
+	test "$2" || break
+	wait="$2"
+	shift 2
+    done
+}
+
 function _generateInitOptions
 {
     local vdir=$1
@@ -149,7 +166,7 @@ function _generateInitOptions
     getFileValue runlevel_start "$cfgdir"/runlevel
     getFileValue runlevel_start "$cfgdir"/runlevel.start
     getFileValue runlevel_stop  "$cfgdir"/runlevel.stop
-    getFileArray INITKILL_SEQ	 "$cfgdir"/killseq
+    getFileArray INITKILL_SEQ	"$cfgdir"/killseq
 
     case x"$INITSTYLE" in
 	xsysv)
