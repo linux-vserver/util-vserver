@@ -49,7 +49,7 @@ main(int argc, char *argv[])
 {
   vcCfgStyle	style = (checkArgs(argc, argv), vc_getVserverCfgStyle(argv[1]));
   char const *	name  = vc_getVserverName(argv[1], style);
-  char const *	vdir  = vc_getVserverVdir(argv[1], style);
+  char const *	vdir  = vc_getVserverVdir(argv[1], style, true);
 
   WRITE_MSG(2, "Style: ");
   switch (style) {
