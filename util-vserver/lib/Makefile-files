@@ -21,6 +21,7 @@ lib_legacy_SRCS			=  lib/getprocentry-legacy.c
 lib_management_SRCS		=  lib/getvservername.c \
 				   lib/getvservercfgstyle.c \
 				   lib/getvservervdir.c
+lib_v11_SRCS			=  lib/syscall_rlimit.c
 
 PKGCONFIG_FILES			=  lib/util-vserver
 
@@ -33,12 +34,14 @@ lib_SRCS			=  lib/syscall.c \
 				   lib/int2str.c \
 				   lib/capabilities.c \
 				   $(lib_legacy_SRCS) \
-				   $(lib_management_SRCS)
+				   $(lib_management_SRCS) \
+				   $(lib_v11_SRCS)
 
 lib_HDRS			=  lib/vserver.h
 
 lib_XHDRS                       =  lib/syscall-compat.hc \
 	 			   lib/syscall-legacy.hc \
+				   lib/syscall_rlimit-v11.hc \
 				   lib/getctx-compat.hc \
 				   lib/getctx-legacy.hc \
 				   lib/getinitpid-compat.hc \

@@ -32,7 +32,7 @@
 #include <utime.h>
 #include "vutil.h"
 #include <sys/ioctl.h>
-#include <linux/ext2_fs.h>
+#include "ext2fs.h"
 
 #include <pathconfig.h>
 

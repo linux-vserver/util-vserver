@@ -41,6 +41,7 @@ src_OPTIONS_EXEMPT	=  src/parserpmdump \
 			   src/chcontext \
 			   src/rebootmgr \
 			   src/reducecap \
+			   src/vlimit \
 			   src/vdu \
 			   src/vfiles \
 			   src/vserver-stat
@@ -57,10 +58,12 @@ src_DIETPROGS		=  src/new-namespace \
 	     		   src/fakerunlevel \
 			   src/pipe-sync \
 			   src/exec-ulimit \
+			   src/vlimit \
 	     		   src/ctx-kill
 
 src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
 			   src/wrappers.h src/wrappers-vserver.h \
+			   src/ext2fs.h \
 			   src/compat-pivot_root.h \
 			   src/stack-start.h \
 			   src/vserver.hh
@@ -94,6 +97,7 @@ src_sbin_PRGS		=  src/chbind \
 			   src/reducecap \
 			   src/vdu \
 			   src/new-namespace \
+			   src/vlimit \
 			   src/vserver-stat \
 			   $(src_sbin_CXX_PROGS)
 
@@ -120,6 +124,9 @@ src_exec_ulimit_SOURCES		=  src/exec-ulimit.c
 
 src_reducecap_SOURCES		=  src/reducecap.c
 src_reducecap_LDADD		=  lib/libvserver.a
+
+src_vlimit_SOURCES		=  src/vlimit.c
+src_vlimit_LDADD		=  lib/libvserver.a
 
 src_save_ctxinfo_SOURCES	=  src/save_ctxinfo.c
 src_save_ctxinfo_LDADD		=  lib/libvserver.a

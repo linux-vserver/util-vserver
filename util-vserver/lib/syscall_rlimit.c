@@ -21,47 +21,34 @@
 #endif
 #include "compat.h"
 
-#include "safechroot-internal.hc"
-
 #include "vserver.h"
 #include "vserver-internal.h"
+#include "internal.h"
+#include "linuxvirtual.h"
 
-#include <unistd.h>
+#ifdef VC_ENABLE_API_V11
+#  include "syscall_rlimit-v11.hc"
+#endif
 
-static inline ALWAYSINLINE int
-vc_new_s_context_compat(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
+#if defined (VC_ENABLE_API_V11)
+
+int
+vc_get_rlimit(ctx_t ctx, int resource, struct vc_rlimit *lim)
 {
-  struct vcmd_new_s_context_v1	msg;
-  msg.remove_cap = remove_cap;
-  msg.flags      = flags;
-
-  return sys_virtual_context(VC_CMD(COMPAT, 1, 1), CTX_USER2KERNEL(ctx), &msg);
+  CALL_VC(CALL_VC_V11(vc_get_rlimit, ctx, resource, lim));
 }
 
-static inline ALWAYSINLINE int
-vc_set_ipv4root_compat(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips)
+int
+vc_set_rlimit(ctx_t ctx, int resource, struct vc_rlimit const *lim)
 {
-  struct vcmd_set_ipv4root_v3	msg;
-  size_t			i;
-
-  if (nb>=NB_IPV4ROOT) {
-    errno = -EINVAL;
-    return -1;
-  }
-
-  msg.broadcast = bcast;
-
-  for (i=0; i<nb; ++i) {
-    msg.ip_mask_pair[i].ip   = ips[i].ip;
-    msg.ip_mask_pair[i].mask = ips[i].mask;
-  }
-
-  return sys_virtual_context(VC_CMD(COMPAT, 2, 3), nb, &msg);
+  CALL_VC(CALL_VC_V11(vc_set_rlimit, ctx, resource, lim));
 }
 
-static inline ALWAYSINLINE int
-vc_chrootsafe_compat(char const *dir)
+int
+vc_get_rlimit_mask(ctx_t ctx, struct vc_rlimit_mask *lim)
 {
-  vc_tell_unsafe_chroot();
-  return chroot(dir);
+  CALL_VC(CALL_VC_V11(vc_get_rlimit_mask, ctx, 0, lim));
 }
+    
+
+#endif

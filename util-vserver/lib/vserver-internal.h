@@ -62,6 +62,27 @@
 #  define CALL_VC_LEGACY(F,...) CALL_VC_NOOP
 #endif
 
+#ifdef VC_ENABLE_API_V11
+#  define CALL_VC_V11(F,...)	CALL_VC_GENERAL(0x00010000, v11, F, __VA_ARGS__)
+#else
+#  define CALL_VC_V11(F,...)	CALL_VC_NOOP
+#endif
+
+
+#if 1
+#  define CTX_KERNEL2USER(X)	(((X)==(uint32_t)(-1)) ? VC_NOCTX   : \
+				 ((X)==(uint32_t)(-2)) ? VC_SAMECTX : \
+				 (ctx_t)(X))
+
+#  define CTX_USER2KERNEL(X)	(((X)==VC_RANDCTX) ? (uint32_t)(-1) : \
+				 ((X)==VC_SAMECTX) ? (uint32_t)(-2) : \
+				 (uint32_t)(X))
+#else
+#  define CTX_USER2KERNEL(X)	(X)
+#  define CTX_KERNEL2USER(X)	(X)
+#endif
+
+
 #ifndef HAVE_SYS_VIRTUAL_CONTEXT
 static UNUSED
 _syscall3(int, sys_virtual_context,

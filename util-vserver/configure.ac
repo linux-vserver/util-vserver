@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.24.191, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.25.190, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -93,18 +93,23 @@ AC_ARG_ENABLE([apis],
               [],
 	      [supported_apis=ALL])
 
-test x"$supported_apis" != xALL || supported_apis='legacy,compat'
+test x"$supported_apis" != xALL || supported_apis='legacy,compat,v11'
 old_IFS=$IFS
 IFS=,;
 for i in $supported_apis; do
 	case "$i" in
 		compat)	AC_DEFINE(VC_ENABLE_API_COMPAT, 1, [Enable support for compatibily syscall API]);;
 		legacy) AC_DEFINE(VC_ENABLE_API_LEGACY, 1, [Enable support for old, /proc parsing API]);;
+		v11)    AC_DEFINE(VC_ENABLE_API_V11,    1, [Enable support for API of vserver 1.1.x]);;
 		*)	AC_MSG_ERROR(['$i' is not a supported API]);;
 	esac
 done
 IFS=$old_IFS
 AC_MSG_RESULT([$supported_apis])
+
+AC_CHECK_HEADERS([ext2fs/ext2fs.h], [],
+  [AC_CHECK_HEADERS([linux/ext2_fs.h], [],
+                    [AC_MSG_ERROR([Sorry, do not know, how to include 'ext2fs.h'])])])
 
 AC_CHECK_FUNCS([sys_virtual_context])
 AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])

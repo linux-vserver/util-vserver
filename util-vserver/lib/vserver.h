@@ -1,20 +1,21 @@
-// $Id$
+/* $Id$
 
-// Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-//  
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2, or (at your option)
-// any later version.
-//  
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//  
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+*  Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+*   
+*  This program is free software; you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation; either version 2, or (at your option)
+*  any later version.
+*   
+*  This program is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*   
+*  You should have received a copy of the GNU General Public License
+*  along with this program; if not, write to the Free Software
+*  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
 
 #ifndef H_VSERVER_SYSCALL_H
 #define H_VSERVER_SYSCALL_H
@@ -23,10 +24,17 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#ifndef VC_NOCTX
-#  define VC_NOCTX	((ctx_t)(-1))
-#endif
+/** the value which is returned in error-case (no ctx found) */
+#define VC_NOCTX		((ctx_t)(-1))
+/** the value which means a random (the next free) ctx */
+#define VC_RANDCTX		((ctx_t)(-1))
+/** the value which means the current ctx */
+#define VC_SAMECTX		((ctx_t)(-2))
 
+#define VC_LIM_INFINITY		(~0ULL)
+#define VC_LIM_KEEP		(~1ULL)
+
+  
 #ifndef S_CTX_INFO_LOCK
 #  define S_CTX_INFO_LOCK	1
 #endif
@@ -113,6 +121,26 @@ extern "C" {
   
   int	vc_chrootsafe(char const *dir);
 
+  /* rlimit related functions */
+  typedef uint64_t	vc_limit_t;
+  
+  
+  struct vc_rlimit {
+      vc_limit_t min;
+      vc_limit_t soft;
+      vc_limit_t hard;      
+  };
+
+  struct  vc_rlimit_mask {
+      uint32_t min;
+      uint32_t soft;
+      uint32_t hard;
+  };
+
+  int	vc_get_rlimit(ctx_t ctx, int resource, struct vc_rlimit *lim);
+  int	vc_set_rlimit(ctx_t ctx, int resource, struct vc_rlimit const *lim);
+  int	vc_get_rlimit_mask(ctx_t ctx, struct vc_rlimit_mask *lim);
+
 
     /** Returns the context of the given process. pid==0 means the current process. */
   ctx_t	vc_X_getctx(pid_t pid);
@@ -125,7 +153,7 @@ extern "C" {
   char const *	vc_cap2text(int);
 
   
-  // The management part
+  /* The management part */
 
 #define VC_LIMIT_VSERVER_NAME_LEN	1024
   
@@ -136,8 +164,8 @@ extern "C" {
 
   vcCfgStyle	vc_getVserverCfgStyle(char const *id);
   
-  // Resolves the name of the vserver. The result will be allocated and must
-  // be freed by the caller
+  /** Resolves the name of the vserver. The result will be allocated and must
+      be freed by the caller. */
   char *	vc_getVserverName(char const *id, vcCfgStyle style);
 
   char *	vc_getVserverVdir(char const *id, vcCfgStyle style);

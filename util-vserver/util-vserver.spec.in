@@ -19,7 +19,8 @@ Provides:	vserver = %epoch:%version-%release
 Obsoletes:	vserver < %epoch:%version
 BuildRequires:	mount vconfig gawk iproute
 BuildRequires:	gcc-c++
-%{!?_without_dietlibc:BuildRequires:	dietlibc}
+BuildRequires:	e2fsprogs-devel
+%{!?_without_dietlibc:BuildRequires:	dietlibc >= 0:0.22}
 
 %package core
 Summary:	The core-utilities for util-vserver

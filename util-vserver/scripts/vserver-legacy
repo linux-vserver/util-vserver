@@ -28,9 +28,9 @@ test -e "$UTIL_VSERVER_VARS" || {
 
 USR_SBIN=$SBINDIR
 USR_LIB_VSERVER=$PKGLIBDIR
-
 VSERVERKILLALL_CMD=$USR_LIB_VSERVER/vserverkillall
 DEFAULTPATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin
+
 vserver_mknod(){
 	mknod $1 $2 $3 $4
 	chmod $5 $1
@@ -452,6 +452,8 @@ elif [ "$2" = "start" ] ; then
 
 		rm -f `find var/run -type f`
 		touch var/run/utmp
+		chgrp ${UTMP_GROUP:-utmp} var/run/utmp
+		chmod 0664 var/run/utmp
 		rm -f  var/lock/subsys/*
 		mountproc $DEFAULT_VSERVERDIR/$1
 		CTXOPT=
@@ -464,7 +466,9 @@ elif [ "$2" = "start" ] ; then
 		STARTCMD="/etc/rc.d/rc $INITDEFAULT"
 		if [ -x $DEFAULT_VSERVERDIR/$1/etc/init.d/rc ] ; then
 			STARTCMD="/etc/init.d/rc $INITDEFAULT"
-		fi
+		elif [ -x $DEFAULT_VSERVERDIR/$1/usr/bin/emerge ] ; then
+			STARTCMD="/sbin/rc default"
+ 		fi
 
 		DISCONNECT=
 		FAKEINIT=
@@ -577,7 +581,10 @@ elif [ "$2" = "stop" ] ; then
 		STOPCMD="/etc/rc.d/rc 6"
 		if [ -x $DEFAULT_VSERVERDIR/$1/etc/init.d/rc ] ; then
 			STOPCMD="/etc/init.d/rc 6"
-		fi
+		elif [ -x $DEFAULT_VSERVERDIR/$1/usr/bin/emerge ] ; then
+			STOPCMD="/sbin/rc shutdown"
+ 		fi
+
 		for f in $S_FLAGS dummy
 		do
 			case $f in

@@ -28,6 +28,7 @@ vbuild
 vcheck
 vdu
 vfiles
+vlimit
 vreboot
 vserver-stat
 vunify

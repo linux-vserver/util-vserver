@@ -82,7 +82,7 @@ endif
 linuxcaps.h:		${kernelincludedir}/linux/capability.h Makefile
 			@rm -f $@
 			echo '#include <stdint.h>' >$@.tmp
-			sed -e 's!^#include .*!!g;s!\<__u32\>!uint32_t!g' $< >>$@.tmp
+			sed -e 's!^#include .*!!g;s!\<__u32\>!uint32_t!g;s!\<__user\>!!g;' $< >>$@.tmp
 			@-chmod --reference $< $@.tmp &>/dev/null
 			mv -f $@.tmp $@
 			@chmod a-w $@
