@@ -11,15 +11,30 @@ CONFDIR='@CONFDIR@'
 SYSCONFDIR='@SYSCONFDIR@'
 DISTRIBDIR="$PKGLIBDIR/distributions"
 
+_CAPCHROOT="$PKGLIBDIR/capchroot"
+_CHBIND="$SBINDIR/chbind"
+_CHCONTEXT="$SBINDIR/chcontext"
 _LIB_FUNCTIONS="$PKGLIBDIR/functions"
+_MASK2PREFIX="$PKGLIBDIR/mask2prefix"
 _NEW_NAMESPACE="$SBINDIR/new-namespace"
 _RPM_FAKE_SO="$PKGLIBDIR/rpm-fake.so"
+_SAVE_S_CONTEXT="$PKGLIBDIR/save_s_context"
+_SAVE_CTXINFO="$PKGLIBDIR/save_ctxinfo"
 _SECURE_MOUNT="$PKGLIBDIR/secure-mount"
 _VAPT_GET="$SBINDIR/vapt-get"
 _VAPT_GET_WORKER="$PKGLIBDIR/vapt-get-worker"
+_VPS="$SBINDIR/vps"
 _VRPM="$SBINDIR/vrpm"
 _VRPM_PRELOAD="$PKGLIBDIR/vrpm-preload"
 _VRPM_WORKER="$PKGLIBDIR/vrpm-worker"
+
+_AWK="@AWK@"
+_GREP="@GREP@"
+_IP="@IP@"
+_MOUNT="@MOUNT@"
+_NICE="@NICE@"
+_VCONFIG="@VCONFIG@"
+_WC="@WC@"
 
 
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=106057
