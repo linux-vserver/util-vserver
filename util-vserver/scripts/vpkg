@@ -1,4 +1,5 @@
 #!/bin/bash
+# $Id$
 
 # Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 #  
@@ -22,6 +23,7 @@ test -e "$UTIL_VSERVER_VARS" || {
     exit 1
 }
 . "$UTIL_VSERVER_VARS"
+. "$_LIB_FUNCTIONS"
 
 function showHelp()
 {
@@ -35,7 +37,7 @@ Report bugs to <$PACKAGE_BUGREPORT>."
 function showVersion()
 {
     echo $"\
-pkgmgmt-info $PACKAGE_VERSION -- shows information about packages in vservers
+vpkg $PACKAGE_VERSION -- shows information about packages in vservers
 This program is part of $PACKAGE_STRING
 
 Copyright (C) 2004 Enrico Scholz
@@ -44,23 +46,6 @@ the GNU General Public License.  This program has absolutely no warranty."
     exit 0
 }
 
-function guessStyle()
-{
-    local vdir=$($_VSERVER_INFO "$1" VDIR) || {
-	echo $"Can not determine vserver-root" >&2
-	exit 1
-    }
-
-    if test -e "$vdir"/etc/redhat-release -o -e "$vdir"/etc/fedora-release; then
-	style=redhat
-    elif test -e "$vdir"/etc/mandrake-release; then
-	style=mandrake
-    elif test -e "$vdir"/etc/debian_version; then
-	style=debian
-    else
-	echo $"Can not determine packagemanagement style" >&2
-    fi
-}
 
 case "$1" in
     (--help)	showHelp $(basename $0);;
@@ -86,11 +71,8 @@ vdir=$($_VSERVER_INFO "$1" VDIR) || :
 
 style=
 is_external=
-{   read style <"$cfgdir"/style; } 2>/dev/null
-test "$style" || guessStyle "$vserver"
-
-test ! -d "$cfgdir" -o -e "$cfgdir"/internal || is_external=1
-
+pkgmgmt.guessStyle "$vserver" style || exit 1
+pkgmgmt.isInternal "$vserver"       || is_external=1
 
 cmd=()
 
