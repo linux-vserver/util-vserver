@@ -153,14 +153,19 @@ pathsubst_RULES =	s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			s!@'AWK'@!$(AWK)!g; \
 			s!@'GREP'@!$(GREP)!g; \
 			s!@'IP'@!$(IP)!g; \
+			s!@'IPTABLES'@!$(IPTABLES)!g; \
+			s!@'MODPROBE'@!$(MODPROBE)!g; \
 			s!@'MOUNT'@!$(MOUNT)!g; \
-			s!@'UMOUNT'@!$(UMOUNT)!g; \
+			s!@'NAMEIF'@!$(NAMEIF)!g; \
 			s!@'NICE'@!$(NICE)!g; \
-			s!@'VCONFIG'@!$(VCONFIG)!g; \
 			s!@'PS'@!$(PS)!g; \
+			s!@'RMMOD'@!$(RMMOD)!g; \
+			s!@'TAR'@!$(TAR)!g; \
+			s!@'UMOUNT'@!$(UMOUNT)!g; \
+			s!@'VCONFIG'@!$(VCONFIG)!g; \
 			s!@'WC'@!$(WC)!g; \
 			s!@'WGET'@!$(WGET)!g; \
-			s!@'TAR'@!$(TAR)!g; \
+			s!@'XSLTPROC'@!$(XSLTPROC)!g; \
 			s!@'ENSC_HAVE_C99_COMPILER_TRUE'@!\@ENSC_HAVE_C99_COMPILER_TRUE@ !g; \
 			s!@'ENSC_HAVE_C99_COMPILER_FALSE'@!\@ENSC_HAVE_C99_COMPILER_FALSE@ !g; \
 			s!@'ENSC_HAVE_CXX_COMPILER_TRUE'@!\@ENSC_HAVE_CXX_COMPILER_TRUE@ !g; \
