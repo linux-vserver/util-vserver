@@ -44,6 +44,6 @@ FatalErrnoErrorFail(char const msg[])
 static UNUSED void 
 FatalErrnoError(bool condition, char const msg[]) /*@*/
 {
-  if (!condition)       return;
+  if (__builtin_expect(!condition,true))       return;
   FatalErrnoErrorFail(msg);
 }
