@@ -41,11 +41,12 @@ AC_PROG_LN_S
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
-ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
+ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W -Wno-unused-parameter])
 ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
 
 AC_ARG_VAR(CC, [The C compiler])
 ENSC_KERNEL_HEADERS(kernelincludedir)
+ENSC_UV_VROOTDIR(vserverdir)
 
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([apis],
