@@ -13,9 +13,10 @@ Group:		System Environment/Base
 URL:		http://savannah.nongnu.org/projects/util-vserver/
 Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version/%name-%version.tar.bz2
 BuildRoot:	%_tmppath/%name-%version-%release-root
-#Requires:	util-vserver-core = %epoch:%version-%release
+Requires:	init(@PACKAGE@)
+Requires:	%name-core = %epoch:%version-%release
 Provides:	vserver = %epoch:%version-%release
-Conflicts:	vserver < %epoch:%version
+Obsoletes:	vserver < %epoch:%version
 BuildRequires:	mount vconfig gawk iproute
 BuildRequires:	dietlibc gcc-c++
 
@@ -23,9 +24,16 @@ BuildRequires:	dietlibc gcc-c++
 Summary:	The core-utilities for util-vserver
 Group:		Applications/System
 
+%package build
+Summary:	Tools which can be used to build vservers
+Group:		Applications/System
+Requires:	%name = %epoch:%version-%release
+Requires:	rpm apt
+
 %package sysv
 Summary:	SysV-initscripts for vserver
 Group:		System Environment/Base
+Provides:	init(@PACKAGE@)
 Requires:	%name = %epoch:%version-%release
 Requires:	initscripts
 
@@ -33,6 +41,7 @@ Requires:	initscripts
 Summary:	Header-files and libraries which are needed to develop vserver based applications
 Group:		Development/Libraries
 Requires:	pkgconfig
+
 
 %description
 This package provides the components and a framework to setup virtual
@@ -45,15 +54,17 @@ This requires a special kernel supporting the new new_s_context and
 set_ipv4root system call.
 
 %description core
+%description build
 %description sysv
 %description devel
+
 
 %prep
 %setup -q
 
 
 %build
-%configure
+%configure --with-initrddir=%_initrddir --enable-release
 %__make %{?_smp_mflags}
 
 
@@ -61,10 +72,6 @@ set_ipv4root system call.
 rm -rf $RPM_BUILD_ROOT
 %__make DESTDIR="$RPM_BUILD_ROOT" install
 
-test "%_initrddir" = %_sysconfdir/init.d || {
-	mkdir -p ${RPM_BUILD_ROOT}%_initrddir
-	mv ${RPM_BUILD_ROOT}%_sysconfdir/init.d/* ${RPM_BUILD_ROOT}%_initrddir/
-}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -99,36 +106,95 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %doc AUTHORS COPYING ChangeLog NEWS README THANKS
 %doc doc/FAQ.txt
 %pkglibdir
-%_sbindir/*
-%_mandir/man8/*
-%dir %confdir
-%dir %confdir/.distributions
-%dir %confdir/.distributions/rh*
-%dir %confdir/.distributions/*/apt
-%config(noreplace) %confdir/.distributions/*/apt/sources.list
-%dir /var/run/vservers
+%exclude %pkglibdir/distributions
+%exclude %pkglibdir/distrib-info
+%exclude %pkglibdir/rpm-fake.so
+%exclude %pkglibdir/util-vserver-vars
+%exclude %pkglibdir/vapt-get*
+%exclude %pkglibdir/vrpm*
+%exclude %pkglibdir/vserver-build*
+%exclude %pkglibdir/vserver-setup*
+%exclude %pkglibdir/vunify
+%_sbindir/rebootmgr
+%_sbindir/vdu
+%_sbindir/vfiles
+%_sbindir/vkill
+%_sbindir/vps
+%_sbindir/vpstree
+%_sbindir/vserver
+%_sbindir/vserver-stat
+%_sbindir/vtop
+%_mandir/*/*
+%exclude %_mandir/*/chbind*
+%exclude %_mandir/*/chcontext*
+%exclude %_mandir/*/reducecap*
+%exclude %_mandir/*/distrib-info*
+%exclude %_mandir/*/vserver-copy*
+%exclude %_mandir/*/vrpm*
 
-%if 0
+%dir %confdir/.defaults
+%dir %confdir/.defaults/*
+%pkglibdir/defaults
+
+%attr(000,root,root) %dir /vservers/.pkg
+%attr(000,root,root) %dir /vservers
+
+%dir /var/run/vservers
+%dir /var/run/vservers/rev
+
+
+
 %files core
 %defattr(-,root,root,-)
+%_sbindir/chbind
+%_sbindir/chcontext
+%_sbindir/ctx-kill
+%_sbindir/new-namespace
+%_sbindir/reducecap
+%_sbindir/util-vserver-vars
+%pkglibdir/util-vserver-vars
+%_mandir/*/chbind*
+%_mandir/*/chcontext*
+%_mandir/*/reducecap*
 %dir %pkglibdir
-%pkglibdir/filetime
-%pkglibdir/
-filetime ifspec listdevip mask2prefix readlink save_ctxinfo save_s_context secure-mount showattr showperm util-vserver-vars
 
-chbind chcontext new-namespace reducecap setctxlimit util-vserver-vars
-%endif
+
+%files build
+%defattr(-,root,root,-)
+%_sbindir/vapt-get
+%_sbindir/vrpm
+%_sbindir/vserver-copy
+%dir %pkglibdir
+%pkglibdir/distributions
+%pkglibdir/rpm-fake.so
+%pkglibdir/vapt-get*
+%pkglibdir/vrpm*
+%pkglibdir/vserver-build*
+%pkglibdir/vserver-setup*
+%pkglibdir/vunify
+%_mandir/*/distrib-info*
+%_mandir/*/vserver-copy*
+%exclude %_mandir/*/vrpm*
+
+%dir %confdir/.distributions
+%dir %confdir/.distributions/*
+%dir %confdir/.distributions/*/apt
+%config(noreplace) %confdir/.distributions/*/apt/sources.list
+
+
 
 %files sysv
 %defattr(-,root,root,-)
 %_initrddir/*
 %config(noreplace) %_sysconfdir/vservers.conf
 
+
 %files devel
 %defattr(-,root,root,-)
 %_includedir/*.h
 %_libdir/*.a
 %_libdir/pkgconfig/*
+
 
 %changelog
 * Wed Oct  1 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.23.5-0
