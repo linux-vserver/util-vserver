@@ -70,15 +70,14 @@
 #  define CALL_VC_V11(F,...)	CALL_VC_NOOP
 #endif
 
-  // gcc does not optimize it; disable it for now, since ctx_t is an uint32_t
-#if 0
+#if 1
 #  define CTX_KERNEL2USER(X)	(((X)==(uint32_t)(-1)) ? VC_NOCTX   : \
 				 ((X)==(uint32_t)(-2)) ? VC_SAMECTX : \
-				 (X))
+				 (ctx_t)(X))
 
-#  define CTX_USER2KERNEL(X)	(((X)==VC_NOCTX)   ? (uint32_t)(-1) : \
+#  define CTX_USER2KERNEL(X)	(((X)==VC_RANDCTX) ? (uint32_t)(-1) : \
 				 ((X)==VC_SAMECTX) ? (uint32_t)(-2) : \
-				 (X))
+				 (uint32_t)(X))
 #else
 #  define CTX_USER2KERNEL(X)	(X)
 #  define CTX_KERNEL2USER(X)	(X)
