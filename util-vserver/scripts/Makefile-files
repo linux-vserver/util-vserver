@@ -22,7 +22,8 @@ scriptscfgdir		=  $(sbindir)
 scripts_DTA		=  scripts/functions \
 			   scripts/vserver.functions \
 			   scripts/vserver.start \
-			   scripts/vserver.stop
+			   scripts/vserver.stop \
+			   scripts/vserver.suexec
 
 scripts_SCRPTS		=  scripts/distrib-info \
 			   scripts/vapt-get-worker \
@@ -32,6 +33,7 @@ scripts_SCRPTS		=  scripts/distrib-info \
 			   scripts/rootshell \
 			   scripts/save_s_context \
 			   scripts/vprofile \
+			   scripts/vserver-legacy \
 			   scripts/vserverkillall \
 			   scripts/vservers.grabinfo.sh \
 			   scripts/vsysvwrapper \
