@@ -785,7 +785,7 @@
 			 <description>The default network device.</description>
 			</scalar>
 			<scalar name="prefix">
-			  <description>The default network prefix.</description>
+			  <description>The default network prefix-length.</description>
 			</scalar>
 			<scalar name="mask">
 			  <description>The default network mask.</description>
@@ -815,7 +815,7 @@
 		   <description>The network device.</description>
 		  </scalar>
 		  <scalar name="prefix">
-		   <description>The network prefix.</description>
+		   <description>The network prefix-length.</description>
 		  </scalar>
 		  <scalar name="mask">
 		   <description>The network mask.</description>
