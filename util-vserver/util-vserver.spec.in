@@ -17,6 +17,7 @@ Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version/%n
 BuildRoot:	%_tmppath/%name-%version-%release-root
 Requires:	init(@PACKAGE@)
 Requires:	%name-core = %epoch:%version-%release
+Requires:	%name-lib  = %epoch:%version-%release
 Provides:	vserver = %epoch:%version-%release
 Obsoletes:	vserver < %epoch:%version
 BuildRequires:	mount vconfig gawk iproute
@@ -24,6 +25,10 @@ BuildRequires:	gcc-c++ wget
 BuildRequires:	e2fsprogs-devel
 Requires(post):	%__chattr
 %{!?_without_dietlibc:BuildRequires:	dietlibc >= 0:0.22}
+
+%package lib
+Summary:	Dynamic libraries for util-vserver
+Group:		System Environment/Libraries
 
 %package core
 Summary:	The core-utilities for util-vserver
@@ -63,6 +68,7 @@ can't interact with services in the main server.
 This requires a special kernel supporting the new new_s_context and
 set_ipv4root system call.
 
+%description lib
 %description core
 %description build
 %description sysv
@@ -87,6 +93,10 @@ rm -rf $RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT/%_libdir/*.la
 
 contrib/make-manifest %name $RPM_BUILD_ROOT contrib/manifest.dat
+
+
+%check || :
+%__make check
 
 
 %clean
@@ -124,8 +134,8 @@ test "$1" != 0 || /sbin/chkconfig --del vservers
 test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 
 
-%post   core -p /sbin/ldconfig
-%postun core -p /sbin/ldconfig
+%post   lib -p /sbin/ldconfig
+%postun lib -p /sbin/ldconfig
 
 
 %files -f %name-base.list
@@ -148,6 +158,8 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %dir /var/run/vservers.rev
 
 
+%files lib -f %name-lib.list
+
 %files core -f %name-core.list
 %defattr(-,root,root,-)
 %dir %pkglibdir
@@ -160,8 +172,6 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %dir %confdir/.distributions/*
 %dir %confdir/.distributions/*/apt
 %config(noreplace) %confdir/.distributions/*/apt/sources.list
-
-%exclude %_mandir/*/vrpm*
 
 
 %files legacy -f %name-legacy.list
@@ -182,4 +192,3 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %changelog
 * Wed Oct  1 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.23.5-0
 - Initial build.
-
