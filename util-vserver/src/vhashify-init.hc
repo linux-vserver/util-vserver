@@ -20,6 +20,18 @@
 
 #include <sys/param.h>
 
+static UNUSED void
+freeHashList(HashDirCollection *hash_vec)
+{
+  for (struct HashDirInfo *itm = Vector_begin(hash_vec);
+       itm!=Vector_end(hash_vec);
+       ++itm) {
+    free(const_cast(char *)(itm->path.d));
+  }
+
+  Vector_free(hash_vec);
+}
+
 static size_t
 initHashList(HashDirCollection *hash_vec, char const *hashdir)
 {
@@ -84,7 +96,7 @@ searchHashdir(char const *lhs, char const *rhs)
 {
   size_t	l1  = strlen(lhs);
   size_t	l2  = rhs ? strlen(rhs) : 0;
-  char *	res = Emalloc(l1 + l2);
+  char *	res = Emalloc(l1 + l2 + 1);
   struct stat	st;
 
   strcpy(res, lhs);
@@ -116,21 +128,28 @@ initModeManually(struct Arguments const UNUSED *args, int argc, char *argv[])
 static void
 initModeVserver(struct Arguments const UNUSED *args, int argc, char *argv[])
 {
-  char const				*appdir;
   char const				*hashdir   = args->hash_dir;
-  struct MatchVserverInfo const		dst_vserver = { argv[0], true };
+  struct MatchVserverInfo		vserver = {
+    .name        = argv[0],
+    .use_pkgmgmt = true
+  };
+
+  if (!MatchVserverInfo_init(&vserver)) {
+    WRITE_MSG(2, "Failed to initialize unification for vserver\n");
+    exit(1);
+  }
 
   if (argc!=1) {
     WRITE_MSG(2, "More than one vserver is not supported\n");
     exit(1);
   }
 
-  if (!MatchList_initByVserver(&global_info.dst_list, &dst_vserver, &appdir)) {
+  if (!MatchList_initByVserver(&global_info.dst_list, &vserver)) {
     WRITE_MSG(2, "unification not configured for this vserver\n");
     exit(1);
   }
 
-  if (hashdir==0) hashdir = searchHashdir(appdir, "/hash");
+  if (hashdir==0) hashdir = searchHashdir(vserver.appdir.d, "/hash");
   if (hashdir==0) hashdir = searchHashdir(CONFDIR "/.defaults/apps/vunify/hash", 0);
 
   if (hashdir==0) {
@@ -141,6 +160,6 @@ initModeVserver(struct Arguments const UNUSED *args, int argc, char *argv[])
   global_info.hash_dirs_max_size = initHashList(&global_info.hash_dirs, hashdir);
 
   free(const_cast(char *)(hashdir));
-  free(const_cast(char *)(appdir));
+  MatchVserverInfo_free(&vserver);
 }
 		

@@ -29,8 +29,9 @@ struct Arguments {
     enum {mdMANUALLY, mdVSERVER}	mode; 
     unsigned int			verbosity;
     unsigned int			insecure;
-    bool				do_revert;
     char const *			hash_dir;
+    bool				dry_run;
+    bool				do_refresh;
 };
 
 struct HashDirInfo {
@@ -39,9 +40,9 @@ struct HashDirInfo {
 };
 
 struct SkipReason {
-    enum { rsDOTFILE, rsEXCL, rsTOOSMALL,
-	   rsFSTAT, rsNOEXISTS, rsSYMLINK, rsUNIFIED,
-	   rsSPECIAL, rsDIFFERENT }	r;
+    enum { rsDOTFILE, rsEXCL, rsTOOSMALL, rsUNSUPPORTED,
+	   rsFSTAT,   rsSYMLINK, rsUNIFIED, rsWRONGDEV,
+	   rsSPECIAL, rsGENERAL }	r;
 };
 
 typedef struct Vector		HashDirCollection;

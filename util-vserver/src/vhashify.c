@@ -28,8 +28,9 @@
 #include "lib_internal/unify.h"
 #include "ensc_vector/vector.h"
 
-#include <setjmp.h>
 #include <beecrypt/beecrypt.h>
+
+#include <setjmp.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
@@ -50,9 +51,12 @@
 #include <wrappers.h>
 
 
-#define HASH_BLOCKSIZE		0x10000000
+#define HASH_BLOCKSIZE		0x10000000u
 #define HASH_MINSIZE		0x10
 
+#if HASH_MINSIZE<=0
+#  error HASH_MINSIZE must be not '0'
+#endif
 
 
 #define CMD_HELP		0x8000
@@ -62,6 +66,7 @@
 #define CMD_INSECURE		0x1001
 #define CMD_SLEDGE		0x1002
 #define CMD_MANUALLY		0x1003
+#define CMD_REFRESH		0x1004
 
 struct option const
 CMDLINE_OPTIONS[] = {
@@ -71,6 +76,9 @@ CMDLINE_OPTIONS[] = {
   { "insecure",     no_argument,       	0, CMD_INSECURE },
   { "sledgehammer", no_argument,      	0, CMD_SLEDGE },
   { "manually",     no_argument,	0, CMD_MANUALLY },
+  { "refresh",      no_argument,        0, CMD_REFRESH },
+  { "dry-run",      no_argument,	0, 'n' },
+  { "verbose",      no_argument,	0, 'v' },
   { 0,0,0,0 }
 };
 
@@ -102,19 +110,24 @@ int Global_doRenew() {
   return true;
 }
 
+int Global_isVserverRunning() {
+    // TODO
+  return global_args->insecure<2;
+}
+
 static void
 showHelp(char const *cmd)
 {
   WRITE_MSG(1, "Usage:\n  ");
   WRITE_STR(1, cmd);
   WRITE_MSG(1,
-	    " [-Rnv] <vserver>\n    or\n  ");
+	    " [-nv] [--refresh] <vserver>\n    or\n  ");
   WRITE_STR(1, cmd);
   WRITE_MSG(1,
-	    " --manually [-Rnvx] [--] <hashdir> <path> <excludelist>\n\n"
+	    " --manually [-nv] [--] <hashdir> <path> <excludelist>\n\n"
  	    "  --manually      ...  hashify generic paths; excludelists must be generated\n"
 	    "                       manually\n"
-	    "  -R              ...  revert operation; dehashify files\n"
+	    "  --refresh       ...  hashify already hashified files also\n"
 	    "  -n              ...  do not modify anything; just show what there will be\n"
 	    "                       done (in combination with '-v')\n"
 	    "  -v              ...  verbose mode\n"
@@ -186,10 +199,18 @@ checkFstat(PathInfo const * const basename,
   skip_reason.r = rsTOOSMALL;
   if (st->st_size < HASH_MINSIZE) return false;
   
-  skip_reason.r = rsUNIFIED;
-  if ((!global_args->do_revert && !(st->st_nlink==1 || Unify_isIUnlinkable(basename->d))) ||
-      ( global_args->do_revert &&                      Unify_isIUnlinkable(basename->d)))
-    return false;
+  switch (Unify_isIUnlinkable(basename->d)) {
+    case unifyUNSUPPORTED	:  skip_reason.r = rsUNSUPPORTED; return false;
+    case unifyBUSY		:
+	// do an implicit refresh on busy files when there are no active links
+      if (st->st_nlink>1 && !global_args->do_refresh) {
+	  // TODO: message
+	skip_reason.r = rsUNIFIED;
+	return false;
+      }
+      break;
+    default			:  break;
+  }
 
   return true;
 }
@@ -273,18 +294,16 @@ calculateHashFromFD(int fd, HashPath d_path, struct stat const * const st)
   if (setjmp(bus_error_restore)!=0) goto out;
 
   while (offset < size) {
-    size_t	real_size = size-offset;
-    cur_size = real_size;
-      //cur_size = (real_size + PAGESIZE-1)/PAGESIZE * PAGESIZE;
+    cur_size = size-offset;
     if (cur_size>HASH_BLOCKSIZE) cur_size = HASH_BLOCKSIZE;
 
     buf     = mmap(0, cur_size, PROT_READ, MAP_SHARED, fd, offset);
-    offset += real_size;
-
+    if (buf==0) goto out;
+    
+    offset += cur_size;
     madvise(buf, cur_size, MADV_SEQUENTIAL);	// ignore error...
 
-    if (buf==0) goto out;
-    if (hashFunctionContextUpdate(h_ctx, buf, real_size)==-1) goto out;
+    if (hashFunctionContextUpdate(h_ctx, buf, cur_size)==-1) goto out;
 
     munmap(buf, cur_size);
     buf = 0;
@@ -299,7 +318,7 @@ calculateHashFromFD(int fd, HashPath d_path, struct stat const * const st)
   return res;
 }
 
-bool
+static bool
 calculateHash(PathInfo const *filename, HashPath d_path, struct stat const * const st)
 {
   int		fd  = open(filename->d, O_NOFOLLOW|O_NONBLOCK|O_RDONLY|O_NOCTTY);
@@ -343,7 +362,7 @@ mkdirRecursive(char const *path)
 {
   struct stat		st;
 
-  if (path[0]!='/')       return false; // only absolute paths
+  if (path[0]!='/')        return false; // only absolute paths
   if (lstat(path,&st)!=-1) return true;
 
   char			buf[strlen(path)+1];
@@ -369,7 +388,8 @@ mkdirRecursive(char const *path)
 }
 
 static bool
-resolveCollisions(char *result, PathInfo const *root, HashPath d_path, struct stat *st)
+resolveCollisions(char *result, PathInfo const *root, HashPath d_path,
+		  struct stat *st, struct stat *hash_st)
 {
   strcpy(result, root->d);	// 'root' ends on '/' already (see initHashList())
   strcat(result, d_path);
@@ -383,7 +403,8 @@ resolveCollisions(char *result, PathInfo const *root, HashPath d_path, struct st
   *ptr               = '\0';
   ptr[sizeof(int)*2] = '\0';
 
-  if (!mkdirRecursive(result))
+  if (!global_args->dry_run &&
+      !mkdirRecursive(result))
     return false;
 
   for (;; ++idx) {
@@ -391,9 +412,8 @@ resolveCollisions(char *result, PathInfo const *root, HashPath d_path, struct st
     memset(ptr, '0', sizeof(int)*2 - len);
     memcpy(ptr + sizeof(int)*2 - len, buf, len);
 
-    struct stat		new_st;
-    if (lstat(result, &new_st)==-1) {
-      if (errno!=ENOENT) {
+    if (lstat(result, hash_st)==-1) {
+      if (global_args->dry_run && errno!=ENOENT) {
 	int		old_errno = errno;
 	WRITE_MSG(2, "lstat('");
 	WRITE_STR(2, buf);
@@ -402,23 +422,32 @@ resolveCollisions(char *result, PathInfo const *root, HashPath d_path, struct st
 	return false;
       }
     }
-    else if (!Unify_isUnifyable(st, &new_st))
-      continue;		// continue with next number
+    else if (Unify_isUnified(st, hash_st)) {
+      skip_reason.r = rsUNIFIED;
+      return false;
+    }
+    else if (!Unify_isUnifyable(st, hash_st))
+      continue;		// continue with next number*****
     else
       break;		// ok, we finish here
 
-    int		fd = open(result, O_NOFOLLOW|O_EXCL|O_CREAT|O_WRONLY, 0200);
+    if (!global_args->dry_run) {
+      int		fd = open(result, O_NOFOLLOW|O_EXCL|O_CREAT|O_WRONLY, 0200);
 
-    if (fd==-1) {
-      int		old_errno = errno;
-      WRITE_MSG(2, "open('");
-      WRITE_STR(2, buf);
-      errno = old_errno;
-      perror("')");
-      return false;
+      if (global_args->dry_run && fd==-1) {
+	int		old_errno = errno;
+	WRITE_MSG(2, "open('");
+	WRITE_STR(2, buf);
+	errno = old_errno;
+	perror("')");
+	return false;
+      }
+
+      close(fd);
     }
 
-    close(fd);
+      // HACK: avoid an additional lstat on the resulting hash-file
+    hash_st->st_size = 0;
     break;
   }
 
@@ -427,7 +456,9 @@ resolveCollisions(char *result, PathInfo const *root, HashPath d_path, struct st
 
 static char const *
 checkDirEntry(PathInfo const *path, PathInfo const *basename,
-	      bool *is_dir, struct stat *st, char *result_buf)
+	      bool *is_dir,
+	      struct stat *st, struct stat *hash_st,
+	      char *result_buf)
 {
     //printf("checkDirEntry(%s, %s, %u)\n", path->d, d_path, is_dir);
 
@@ -445,15 +476,81 @@ checkDirEntry(PathInfo const *path, PathInfo const *basename,
     *is_dir = S_ISDIR(st->st_mode);
 
     if (!*is_dir &&
-	!((hash_root_path = HashDirInfo_findDevice(&info->hash_dirs, st->st_dev))!=0 &&
-	  calculateHash(basename, d_path, st) &&
-	  resolveCollisions(result_buf, hash_root_path, d_path, st)))
+	!((skip_reason.r = rsWRONGDEV,
+	   (hash_root_path = HashDirInfo_findDevice(&info->hash_dirs, st->st_dev))!=0) &&
+	  (skip_reason.r = rsGENERAL,
+	   calculateHash(basename, d_path, st)) &&
+	  resolveCollisions(result_buf, hash_root_path, d_path, st, hash_st)))
       return 0;
 
     return result_buf;
   }
 
   return 0;
+}
+
+static void
+printSkipReason()
+{
+  WRITE_MSG(1, " (");
+  switch (skip_reason.r) {
+    case rsDOTFILE	:  WRITE_MSG(1, "dotfile"); break;
+    case rsEXCL		:  WRITE_MSG(1, "excluded"); break;
+    case rsTOOSMALL	:  WRITE_MSG(1, "too small"); break;
+    case rsUNSUPPORTED	:  WRITE_MSG(1, "operation not supported"); break;
+    case rsFSTAT	:  WRITE_MSG(1, "fstat error"); break;
+    case rsSYMLINK	:  WRITE_MSG(1, "symlink"); break;
+    case rsUNIFIED	:  WRITE_MSG(1, "already unified"); break;
+    case rsSPECIAL	:  WRITE_MSG(1, "non regular file"); break;
+    case rsWRONGDEV	:  WRITE_MSG(1, "no matching device"); break;
+    case rsGENERAL	:  WRITE_MSG(1, "general error"); break;
+    default		:  assert(false); abort();
+  }
+  WRITE_MSG(1, ")");
+}
+
+static bool
+doit(char const *src, char const *dst,
+     struct stat const *src_st, struct stat const *dst_st,
+     PathInfo const *path)
+{
+  if (global_args->dry_run || Global_getVerbosity()>=2) {
+    WRITE_MSG(1, "unifying   '");
+    (void)write(1, path->d, path->l);
+    WRITE_MSG(1, "'");
+    
+    if (Global_getVerbosity()>=4) {
+      WRITE_MSG(1, " (to '");
+      WRITE_STR(1, dst);
+      WRITE_MSG(1, "')");
+    }
+
+    WRITE_MSG(1, "\n");
+  }
+
+    // abort here in dry-run mode
+  if (global_args->dry_run) return true;
+
+  if (dst_st->st_size==0) {
+      // file was not unified yet
+    
+    if (Global_isVserverRunning()) {
+      (void)unlink(dst);
+      if (Unify_copy (src, src_st, dst) &&
+	  // the mixed 'dst' and 'src_st' params are intentionally...
+	  Unify_unify(dst, src_st, src, false))
+	return true;
+    }
+    else if (Unify_unify(src, src_st, dst, true))
+      return true;
+
+    (void)unlink(dst);	// cleanup in error-case
+  }
+    // there exists already a reference-file
+  else if (Unify_unify(dst, dst_st, src, false))
+    return true;
+
+  return false;
 }
 
 static uint64_t
@@ -474,7 +571,8 @@ visitDirEntry(struct dirent const *ent)
 
   bool				is_dotfile    = isDotfile(dirname);
   bool				is_dir;
-  struct stat			src_stat;
+  struct stat			src_stat = { .st_mode=0 };
+  struct stat			hash_stat;
   char				tmpbuf[global_info.hash_dirs_max_size +
 				       sizeof(HashPath) + 2];
   
@@ -482,7 +580,22 @@ visitDirEntry(struct dirent const *ent)
 
   if (is_dotfile ||
       (match=checkDirEntry(&path, &tmp_path,
-			   &is_dir, &src_stat, tmpbuf))==0) {
+			   &is_dir, &src_stat, &hash_stat,
+			   tmpbuf))==0) {
+
+    bool	is_link = !is_dotfile && S_ISLNK(src_stat.st_mode);
+
+    if (Global_getVerbosity()>=1 &&
+	(Global_getVerbosity()>=3 || skip_reason.r!=rsUNIFIED) &&
+	((!is_dotfile && !is_link) ||
+	 (Global_getVerbosity()>=6 && is_dotfile) ||
+	 (Global_getVerbosity()>=6 && is_link)) ) {
+      WRITE_MSG(1, "  skipping '");
+      write(1, path.d, path.l);
+      WRITE_MSG(1, "'");
+      if (Global_getVerbosity()>=2) printSkipReason();
+      WRITE_MSG(1, "\n");
+    }
 
     return 0;
   }
@@ -490,8 +603,10 @@ visitDirEntry(struct dirent const *ent)
   if (is_dir) {
     res = visitDir(dirname, &src_stat);
   }
+  else if (doit(dirname, match, &src_stat, &hash_stat, &path))
+    res = 1;
   else {
-    printf("%s <- %s\n", match, path.d);
+      // TODO: message
     res = 0;
   }
 
@@ -506,6 +621,8 @@ int main(int argc, char *argv[])
     .hash_dir           =  0,
     .verbosity		=  0,
     .insecure           =  0,
+    .dry_run            =  false,
+    .do_refresh         =  false,
   };
 
   Vector_init(&global_info.hash_dirs, sizeof(struct HashDirInfo));
@@ -517,7 +634,7 @@ int main(int argc, char *argv[])
 
   global_args = &args;
   while (1) {
-    int		c = getopt_long(argc, argv, "",
+    int		c = getopt_long(argc, argv, "+nv",
 				CMDLINE_OPTIONS, 0);
     if (c==-1) break;
 
@@ -526,8 +643,10 @@ int main(int argc, char *argv[])
       case CMD_VERSION		:  showVersion();
       case CMD_DESTINATION	:  args.hash_dir    = optarg; break;
       case CMD_MANUALLY		:  args.mode        = mdMANUALLY; break;
-      case CMD_INSECURE		:  args.insecure    = 1; break;
-      case CMD_SLEDGE		:  args.insecure    = 2; break;
+      case CMD_INSECURE		:  args.insecure    = 1;    break;
+      case CMD_SLEDGE		:  args.insecure    = 2;    break;
+      case CMD_REFRESH		:  args.do_refresh  = true; break;
+      case 'n'			:  args.dry_run     = true; break;
       case 'v'			:  ++args.verbosity; break;
       default		:
 	WRITE_MSG(2, "Try '");
@@ -560,5 +679,11 @@ int main(int argc, char *argv[])
   signal(SIGBUS, handlerSIGBUS);
   
   Echdir(global_info.dst_list.root.d);
-  visitDir("/", 0);  
+  visitDir("/", 0);
+
+#ifndef NDEBUG
+  MatchList_destroy(&global_info.dst_list);
+  freeHashList(&global_info.hash_dirs);
+  hashFunctionContextFree(&global_info.hash_context);
+#endif
 }
