@@ -30,7 +30,24 @@
 #define DECL(STR, VAL) { STR, sizeof(STR)-1, VAL }
 
 static struct Mapping_uint64 const VALUES[] = {
-  DECL("fakeinit",  S_CTX_INFO_INIT),
+  DECL("lock",      VC_VXF_INFO_LOCK),
+  DECL("nproc",     VC_VXF_INFO_NPROC),
+  DECL("private",   VC_VXF_INFO_PRIVATE),
+  DECL("fakeinit",  VC_VXF_INFO_INIT),
+
+  DECL("hide",      VC_VXF_INFO_HIDE),
+  DECL("ulimit",    VC_VXF_INFO_ULIMIT),
+  DECL("nspace",    VC_VXF_INFO_NSPACE),
+
+  DECL("hard",      VC_VXF_SCHED_HARD),
+  DECL("prio",      VC_VXF_SCHED_PRIO),
+  DECL("pause",     VC_VXF_SCHED_PAUSE),
+
+  DECL("mem",       VC_VXF_VIRT_MEM),
+  DECL("uptime",    VC_VXF_VIRT_UPTIME),
+
+  DECL("setup",     VC_VXF_STATE_SETUP),
+  DECL("init",      VC_VXF_STATE_INIT),
 };
 
 uint_least64_t
