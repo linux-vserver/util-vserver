@@ -160,9 +160,9 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %exclude %_mandir/*/vrpm*
 
 
-%files legacy
+%files legacy -f %name-legacy.list
 %defattr(-,root,root,-)
-%pkglibdir/legacy
+%dir %pkglibdir/legacy
 
 
 %files sysv
