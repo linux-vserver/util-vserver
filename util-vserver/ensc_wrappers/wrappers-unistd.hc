@@ -161,6 +161,15 @@ Edup2(int oldfd, int newfd)
   return res;
 }
 
+inline static WRAPPER_DECL int
+Edup(int fd)
+{
+  register int          res = dup(fd);
+  FatalErrnoError(res==-1, "dup()");
+
+  return res;
+}
+
 inline static WRAPPER_DECL pid_t
 Esetsid()
 {
