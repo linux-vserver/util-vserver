@@ -77,10 +77,7 @@ src_HDRS =  		src/vutil.h src/vutil.p src/util.h \
 			src/compat-pivot_root.h \
 			src/stack-start.h \
 			src/sys_clone.h \
-			src/vunify-matchlist.h \
 			src/vunify.h \
-			src/vunify-compare.hc \
-			src/vunify-doit.hc \
 			src/vunify-init.hc \
 			src/vserver.hh
 
@@ -220,10 +217,8 @@ src_setattr_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 
 src_vunify_SOURCES =		src/vunify.c \
-				src/util-safechdir.c \
-				src/vunify-matchlist.c \
-				src/vunify-debug.c
-src_vunify_LDADD =		lib/libvserver.la
+				src/util-safechdir.c
+src_vunify_LDADD =		lib_internal/libinternal.a lib/libvserver.la
 src_vunify_LDFLAGS =		$(VSERVER_LDFLAGS)
 
 src_vuname_SOURCES =		src/vuname.c
