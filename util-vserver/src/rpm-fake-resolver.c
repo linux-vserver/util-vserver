@@ -182,7 +182,7 @@ run()
   uint8_t	c;
 
   while (true) {
-    Ewrite(2, ".", 1);
+    Ewrite(3, ".", 1);
     Eread (0, &c,  sizeof c);
     switch (c) {
       case 'P'	:  do_getpwnam(); break;
@@ -198,7 +198,13 @@ run()
 static void
 daemonize(struct ArgInfo const UNUSED * args, int pid_fd)
 {
-  pid_t		pid = Efork();
+  int		p[2];
+  pid_t		pid;
+  char		c;
+  
+  Epipe(p);
+  pid = Efork();
+  
   if (pid!=0) {
     if (pid_fd!=-1) {
       char	buf[sizeof(id_t)*3 + 2];
@@ -210,6 +216,9 @@ daemonize(struct ArgInfo const UNUSED * args, int pid_fd)
     }
     _exit(0);
   }
+  Eclose(p[1]);
+  read(p[0], &c, 1);
+  Eclose(p[0]);
 }
 
 int main(int argc, char * argv[])
@@ -218,7 +227,7 @@ int main(int argc, char * argv[])
     .ctx      = VC_RANDCTX,
     .uid      = 99,
     .gid      = 99,
-    .do_fork  = false,
+    .do_fork  = true,
     .pid_file = 0,
     .chroot   = 0
   };
