@@ -99,6 +99,10 @@
 #  include "wrappers-stdlib.hc"
 #endif
 
+#ifdef ENSC_WRAPPERS_SOCKET
+#  include "wrappers-socket.hc"
+#endif
+
 #undef ENSC_DETAIL2
 #undef ENSC_DETAIL1
 #undef ENSC_DOQUOTE_COND
