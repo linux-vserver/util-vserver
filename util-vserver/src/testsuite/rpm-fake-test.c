@@ -27,6 +27,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define ENSC_WRAPPERS_UNISTD	1
 #include <wrappers.h>
