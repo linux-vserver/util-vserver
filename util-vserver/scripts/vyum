@@ -46,10 +46,10 @@ the GNU General Public License.  This program has absolutely no warranty."
     exit 0
 }
 
-tmp=$(getopt -o +q --long help,version,debug,quiet -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o +q --long help,version,debug,quiet,all -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
-declare -a send_through
+declare -a send_through yum_opts
 
 while true; do
     case "$1" in
@@ -57,6 +57,7 @@ while true; do
 	(--version) 	showVersion ;;
 	(--debug)	send_through=( "${send_through[@]}" "$1" ); set -x;;
 	(--quiet|-q)	send_through=( "${send_through[@]}" "$1" );;
+	(--all)         yum_opts=( "${yum_opts[@]}" "$1" );;
 	(--)		shift; break;;
 	(*)	   	echo $"vyum: internal error; arg=='$1'" >&2; exit 1;;
     esac
@@ -69,4 +70,5 @@ VSOMETHING_PKGMGMT=1
 
 export VSOMETHING_TITLE VSOMETHING_WORKER VSOMETHING_PKGMGMT
 
-exec $_VSOMETHING "${send_through[@]}" yum "$@"
+test ${#yum_opts[@]} -eq 0 || yum_opts=( "${yum_opts[@]}" -- )
+exec $_VSOMETHING "${send_through[@]}" yum "${yum_opts[@]}" "$@"
