@@ -21,6 +21,7 @@
 #endif
 
 #include "filecfg.h"
+#include <string.h>
 
 bool
 FileCfg_iterateOverMultiLine(char const *str,
