@@ -25,9 +25,37 @@
 #include "pathconfig.h"
 
 #include <string.h>
+#include <unistd.h>
+#include <sys/param.h>
+#include <fcntl.h>
 
+static char *
+getDir(char *dir, bool physical)
+{
+  int		fd;
+  char		tmp[PATH_MAX];
+
+  if (!physical) return strdup(dir);
+
+  fd = open(".", O_RDONLY);
+  if (fd==-1) return 0;
+
+  if (chdir(dir)!=-1 &&
+      getcwd(tmp, sizeof tmp)!=0)
+    dir = strdup(tmp);
+  else
+    dir = 0;
+
+  if (fchdir(fd)==-1) {
+    write(2, "FATAL error: failed to restore directory\n", 41);
+    abort();
+  }
+  close(fd);
+  return dir;
+}
+       
 char *
-vc_getVserverVdir(char const *id, vcCfgStyle style)
+vc_getVserverVdir(char const *id, vcCfgStyle style, bool physical)
 {
   size_t		l1   = strlen(id);
   char			*res = 0;
@@ -44,7 +72,7 @@ vc_getVserverVdir(char const *id, vcCfgStyle style)
       strcpy(buf,                                    DEFAULT_VSERVERDIR "/");
       strcpy(buf+sizeof(DEFAULT_VSERVERDIR "/") - 1, id);
 
-      res = strdup(buf);
+      res = getDir(buf, physical);
       break;
     }
     
@@ -56,7 +84,7 @@ vc_getVserverVdir(char const *id, vcCfgStyle style)
       strcpy(buf+sizeof(CONFDIR "/")    - 1, id);
       strcpy(buf+sizeof(CONFDIR "/")+l1 - 1, "/vdir");
       
-      res = strdup(buf);
+      res = getDir(buf, physical);
       break;
     }
 
@@ -67,14 +95,16 @@ vc_getVserverVdir(char const *id, vcCfgStyle style)
       strcpy(buf,    id);
       strcpy(buf+l1, "/vdir");
 
-      res = strdup(buf);
+      res = getDir(buf, physical);
       break;
     }
 
     default			:  return 0;
   }
 
-  if (!utilvserver_isDirectory(res, true)) {
+  // ignore physical-case; we went into the directory while determining
+  // the physical path so the directory exists
+  if (!physical && !utilvserver_isDirectory(res, true)) {
     free(res);
     res = 0;
   }

@@ -209,7 +209,7 @@ extern "C" {
 
   /** Returns the path to the vserver root-directory. The result will be
    *  allocated and must be freed by the caller. */
-  char *	vc_getVserverVdir(char const *id, vcCfgStyle style);
+  char *	vc_getVserverVdir(char const *id, vcCfgStyle style, bool physical);
 
   /** Returns the ctx of the given vserver. When vserver is not running and
    *  'honor_static' is false, VC_NOCTX will be returned. Else, when
