@@ -436,6 +436,13 @@ function generateOptions
     _generateChcontextOptions  "$1"
 }
 
+function _isAvoidNamespace
+{
+    test ! -e "$1"/namespace || return 1
+    test -e "$CONFDIR"/.defaults/nonamespace -o \
+         -e "$1"/nonamespace
+}
+
 function mountVserver
 {
     local cfgdir=$1
@@ -455,7 +462,7 @@ function mountVserver
     $_CHBIND "${CHBIND_OPTS[@]}" \
 	$_SECURE_MOUNT -a --chroot "$vdir" --fstab "$cfgdir"/fstab
 
-    test -e "$cfgdir"/nonamespace || \
+    _isAvoidNamespace "$cfgdir" || \
 	$_SECURE_MOUNT --rbind -n "$vdir" "/"
 }
 
@@ -466,9 +473,9 @@ function umountVserver
 
     is_ok=1
 
-    test -e "$cfgdir"/nonamespace || return 0
-    test -e "$cfgdir"/fstab       || return 0
-    test "$_HAVE_CHBIND_OPTIONS"  || _generateChbindOptions "$cfgdir"
+    _isAvoidNamespace "$cfgdir"  || return 0
+    test -e "$cfgdir"/fstab      || return 0
+    test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$cfgdir"
     
     pushd "$vdir/" >/dev/null
     tac "$cfgdir"/fstab | while read src dst tmp; do
