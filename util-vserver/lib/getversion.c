@@ -26,5 +26,5 @@
 int
 vc_get_version(int cat)
 {
-  return vc_get_version(cat);
+  return vc_get_version_internal(cat);
 }
