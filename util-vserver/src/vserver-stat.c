@@ -143,7 +143,7 @@ getUptime()
   uint32_t	msecs=0;
 
     // open the /proc/uptime file
-  fd  = Eopen("/proc/uptime", O_RDONLY, 0);
+  fd  = EopenD("/proc/uptime", O_RDONLY, 0);
   len = Eread(fd, buffer, sizeof buffer);
 
   if (len==sizeof(buffer)) {

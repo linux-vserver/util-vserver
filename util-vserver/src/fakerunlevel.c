@@ -101,7 +101,7 @@ int main (int argc, char *argv[])
     }
 
     umask(002);
-    fd = Eopen(fname, O_WRONLY|O_CREAT|O_APPEND, 0664);
+    fd = EopenD(fname, O_WRONLY|O_CREAT|O_APPEND, 0664);
     Eclose(fd);
 
     utmpname (fname);

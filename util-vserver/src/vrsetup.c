@@ -118,12 +118,12 @@ int main(int argc, char *argv[])
   root_device = argv[optind];
   if (do_setup) real_root_device = argv[optind+1];
 
-  fd = Eopen(root_device, O_RDONLY, 0);
+  fd = EopenD(root_device, O_RDONLY, 0);
   if      (do_increment) Eioctl(fd, VROOT_INC_USE, 0);
   else if (do_decrement) Eioctl(fd, VROOT_DEC_USE, 0);
   else if (do_delete)    Eioctl(fd, VROOT_CLR_DEV, 0);
   else {
-    int		dfd = Eopen(real_root_device, O_RDONLY, 0);
+    int		dfd = EopenD(real_root_device, O_RDONLY, 0);
     Eioctl(fd, VROOT_SET_DEV, (void*)dfd);
     Eclose(dfd);
   }

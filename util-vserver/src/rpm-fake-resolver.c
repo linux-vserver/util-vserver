@@ -248,7 +248,7 @@ int main(int argc, char * argv[])
 
   parseArgs(&args, argc, argv);
   if (args.pid_file && args.do_fork)
-    pid_fd = Eopen(args.pid_file, O_CREAT|O_WRONLY, 0644);
+    pid_fd = EopenD(args.pid_file, O_CREAT|O_WRONLY, 0644);
   
   if (args.chroot) Echroot(args.chroot);
   Echdir("/");

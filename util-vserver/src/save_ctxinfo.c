@@ -75,10 +75,10 @@ int main(int argc, char *argv[])
     return 255;
   }
 
-  Ereadlink(runfile, dstfile, sizeof(dstfile));
+  EreadlinkD(runfile, dstfile, sizeof(dstfile));
   len  = utilvserver_fmt_uint(buf, ctx);
 
-  fd = Eopen(dstfile, O_EXCL|O_CREAT|O_WRONLY, 0644);
+  fd = EopenD(dstfile, O_EXCL|O_CREAT|O_WRONLY, 0644);
   if (write(fd, buf,     len) !=len  ||
       write(fd, "\n",    1)   !=1) {
     perror("save_ctxinfo: write()");
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
   strcat(runfile, ".rev/");
   strcat(runfile, buf);
   unlink(runfile);
-  Esymlink(argv[1], runfile);
+  EsymlinkD(argv[1], runfile);
 
   Eexecv(argv[2], argv+2);
 }
