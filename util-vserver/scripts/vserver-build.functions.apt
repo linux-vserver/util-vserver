@@ -42,7 +42,6 @@ function installBasePackages
 
 function initVariablesApt
 {
-    :
 }
 
 function initFilesystemApt
@@ -50,6 +49,14 @@ function initFilesystemApt
     mkdir -p "$PKGCFGDIR"/apt/{etc,archives/partial,cache,state/lists/partial}
     
     populateDirectory "$PKGCFGDIR/apt/etc" \
+	"$DISTRIBDIR/defaults/apt" \
 	"$DISTRIBDIR/$DISTRIBUTION/apt" \
 	"$CONFDIR/.distributions/$DISTRIBUTION/apt"
+
+    local f="$PKGCFGDIR"/apt/etc/apt.conf
+    if test -e "$f"; then
+	sed -e "s!@APTETCDIR@!$PKGCFGDIR/apt/etc!g" "$f" >"$f.tmp"
+	cmp -s "$f" "$f.tmp" || cat "$f.tmp" >"$f"
+	rm -f "$f.tmp"
+    fi
 }
