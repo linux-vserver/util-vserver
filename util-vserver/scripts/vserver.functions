@@ -41,11 +41,15 @@ declare -a OPTS_VCONTEXT_MIGRATE=()
 declare -a OPTS_VATTRIBUTE=( --flag fakeinit )
 declare -a OPTS_VSCHED=()
 
+declare -a STOPCMD_PREPARE=()
+
 declare -a VSERVER_EXTRA_CMDS=()
 
 VSHELPER_SYNC_TIMEOUT=30
 USE_VNAMESPACE=
 INTERFACE_CMDS_IDX=0
+RUNLEVEL_START=
+RUNLEVEL_STOP=
 _HAVE_INTERFACE_OPTIONS=
 _HAVE_CHBIND_OPTIONS=
 _NEED_VSHELPER_SYNC=
@@ -193,8 +197,6 @@ function _generateInitOptions
 {
     local vdir=$1
     local cfgdir=$vdir/apps/init
-    local runlevel_start
-    local runlevel_stop
     local i f
 
     INITCMD_START=()
@@ -202,28 +204,29 @@ function _generateInitOptions
     INITCMD_START_SYNC=()
     INITCMD_STOP_SYNC=()
     INITCMD_PREPARE=()
+    STOPCMD_PREPARE=()
 
     INITKILL_SEQ=( 15 5 9 )
     CHCONTEXT_INIT_OPTS=()
 
 
     getFileValue INITSTYLE      "$cfgdir"/style
-    getFileValue runlevel_start "$cfgdir"/runlevel
-    getFileValue runlevel_start "$cfgdir"/runlevel.start
-    getFileValue runlevel_stop  "$cfgdir"/runlevel.stop
+    getFileValue RUNLEVEL_START "$cfgdir"/runlevel
+    getFileValue RUNLEVEL_START "$cfgdir"/runlevel.start
+    getFileValue RUNLEVEL_STOP  "$cfgdir"/runlevel.stop
     getFileArray INITKILL_SEQ	"$cfgdir"/killseq || :
 
     case x"$INITSTYLE" in
 	(xsysv)
-	    test "$runlevel_start" || runlevel_start=3
-	    test "$runlevel_stop"  || runlevel_stop=6
+	    test "$RUNLEVEL_START" || RUNLEVEL_START=3
+	    test "$RUNLEVEL_STOP"  || RUNLEVEL_STOP=6
 
 	    for i in /etc/init.d/rc /etc/rc.d/rc; do
 		test -x "$vdir/vdir/$i" || continue
-		INITCMD_START=( "$i" "$runlevel_start" )
-		INITCMD_STOP=(  "$i" "$runlevel_stop"  )
+		INITCMD_START=( "$i" "$RUNLEVEL_START" )
+		INITCMD_STOP=(  "$i" "$RUNLEVEL_STOP"  )
 	    done
-	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL "$runlevel_start" /var/run/utmp )
+	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL "$RUNLEVEL_START" /var/run/utmp )
 	    ;;
 	    
 	(xplain)
@@ -231,8 +234,8 @@ function _generateInitOptions
 	    INITCMD_STOP=(  /sbin/init )
 	    _IS_FAKEINIT=1
 	    _NEED_VSHELPER_SYNC=1
-	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
-	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
+	    test -z "$RUNLEVEL_START" || INITCMD_START=( "${INITCMD_START[@]}" "$RUNLEVEL_START" )
+	    test -z "$RUNLEVEL_STOP"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$RUNLEVEL_STOP"  )
 	    ;;
 	    
 	(xminit)
@@ -241,8 +244,8 @@ function _generateInitOptions
 	    _IS_FAKEINIT=1
 	    INITCMD_START_SYNC=( "$_INITSYNC_MINIT_START" "$vdir" )
 	    _NEED_VSHELPER_SYNC=1
-	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
-	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
+	    test -z "$RUNLEVEL_START" || INITCMD_START=( "${INITCMD_START[@]}" "$RUNLEVEL_START" )
+	    test -z "$RUNLEVEL_STOP"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$RUNLEVEL_STOP"  )
 	    ;;
 
 	(xgentoo)
@@ -602,6 +605,20 @@ function prepareInit
     "${INITCMD_PREPARE[@]}"
     popd >/dev/null
 }
+
+## Usage: prepareInit <vserver-directory>
+function prepareStop
+{
+    pushd "$1/vdir" >/dev/null
+    case "$INITSTYLE" in
+	sysv)
+	    export PREVLEVEL=$RUNLEVEL_START # required by Debian's initscripts
+	    ;;
+    esac
+    "${STOPCMD_PREPARE[@]}"
+    popd >/dev/null
+}
+
 
 function generateOptions
 {
