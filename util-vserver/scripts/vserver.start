@@ -92,6 +92,7 @@ test -z "$OPTION_DEFAULTTTY" || setDefaultTTY "$VSERVER_DIR"
 pushd "$VSERVER_DIR"/vdir/ >/dev/null
 is_configured=1
 if $_VSERVER_INFO - FEATURE migrate; then
+    ${NICE_CMD[@]} \
     $_CHBIND     "${CHBIND_OPTS[@]}" -- \
     $_VCONTEXT   --create "${OPTS_VCONTEXT_CREATE[@]}" -- \
     ${USE_VNAMESPACE:+$_VNAMESPACE --set -- } \
