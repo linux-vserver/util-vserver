@@ -20,18 +20,18 @@
 #  include <config.h>
 #endif
 
-#include "vserver.h"
-#include "vserver-internal.h"
-#include "linuxvirtual.h"
-
-#if defined(VC_ENABLE_API_V13)
-#  include "syscall_migratecontext-v13.hc"
-#endif
-
-#if defined(VC_ENABLE_API_V13)
-int
-vc_migrate_context(xid_t xid)
+static inline ALWAYSINLINE int
+vc_set_cflags_v13(xid_t xid, struct vc_ctx_flags const *flags)
 {
-  CALL_VC(CALL_VC_V13A(vc_migrate_context, xid));
+  struct vcmd_ctx_flags_v0	k_flags;
+
+  if (flags==0) {
+    errno = EFAULT;
+    return -1;
+  }
+
+  k_flags.flagword = flags->flagword;
+  k_flags.mask     = flags->mask;
+  
+  return vserver(VCMD_set_cflags, CTX_USER2KERNEL(xid), &k_flags);
 }
-#endif

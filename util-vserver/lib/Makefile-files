@@ -19,8 +19,8 @@
 
 lib_VERSION =			0.0.0
 
-lib_compat_SRCS =		lib/flags-compat.c \
-				lib/flags_list-compat.c
+lib_compat_SRCS =		lib/cflags-compat.c \
+				lib/cflags_list-compat.c
 lib_legacy_SRCS =		lib/getprocentry-legacy.c
 lib_management_SRCS =		lib/createskeleton.c \
 				lib/getvserverbyctx.c \
@@ -37,7 +37,11 @@ lib_v11_SRCS =			lib/syscall_rlimit.c \
 				lib/syscall_rlimit-v11.hc \
 				lib/syscall_kill.c  \
 				lib/syscall_kill-v11.hc
-lib_v13_SRCS =			lib/syscall_enternamespace.c \
+lib_v13_SRCS =			lib/syscall_ctxmigrate.c \
+				lib/syscall_ctxmigrate-v13.hc \
+				lib/syscall_ctxcreate.c \
+				lib/syscall_ctxcreate-v13.hc \
+				lib/syscall_enternamespace.c \
 				lib/syscall_enternamespace-v13.hc \
 				lib/syscall_setnamespace.c \
 				lib/syscall_setnamespace-v13.hc \
@@ -61,26 +65,22 @@ lib_v13_SRCS =			lib/syscall_enternamespace.c \
 				lib/syscall_setvhiname.c \
 				lib/syscall_setvhiname-v13.hc \
 				lib/syscall_setvhiname-olduts.hc \
-				lib/syscall_createcontext.c \
-				lib/syscall_createcontext-v13.hc \
-				lib/syscall_migratecontext.c \
-				lib/syscall_migratecontext-v13.hc \
 				lib/syscall_getccaps.c \
 				lib/syscall_getccaps-v13.hc \
-				lib/syscall_getflags.c \
-				lib/syscall_getflags-v13.hc \
+				lib/syscall_getcflags.c \
+				lib/syscall_getcflags-v13.hc \
 				lib/syscall_setccaps.c \
 				lib/syscall_setccaps-v13.hc \
-				lib/syscall_setflags.c \
-				lib/syscall_setflags-v13.hc \
+				lib/syscall_setcflags.c \
+				lib/syscall_setcflags-v13.hc \
 				lib/syscall_setsched.c \
 				lib/syscall_setsched-v13.hc \
 				lib/bcaps-v13.c \
 				lib/bcaps_list-v13.c \
 				lib/ccaps-v13.c \
 				lib/ccaps_list-v13.c \
-				lib/flags-v13.c \
-				lib/flags_list-v13.c
+				lib/cflags-v13.c \
+				lib/cflags_list-v13.c
 
 PKGCONFIG_FILES =		lib/util-vserver
 

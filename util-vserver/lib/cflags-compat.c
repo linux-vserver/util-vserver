@@ -42,7 +42,7 @@ static struct {
 };
 
 uint_least32_t
-vc_text2flag_compat(char const *str, size_t len)
+vc_text2cflag_compat(char const *str, size_t len)
 {
   size_t	i;
   if (len==0) len=strlen(str);
@@ -56,7 +56,7 @@ vc_text2flag_compat(char const *str, size_t len)
 }
 
 char const *
-vc_hiflag2text_compat(uint_least32_t val)
+vc_hicflag2text_compat(uint_least32_t val)
 {
   size_t	i;
   size_t	idx;

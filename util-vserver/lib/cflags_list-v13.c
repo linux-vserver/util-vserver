@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2004 Enrico Scholz <>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,20 +20,19 @@
 #  include <config.h>
 #endif
 
-static inline ALWAYSINLINE int
-vc_get_flags_v13(xid_t xid, struct vc_ctx_flags *flags)
+#include "vserver.h"
+#include "internal.h"
+
+#include <string.h>
+
+int
+vc_list2cflag(char const *str, size_t len,
+	     struct vc_err_listparser *err,
+	     struct vc_ctx_flags *flags)
 {
-  struct vcmd_ctx_flags_v0	k_flags;
-  int				res;
-
-  if (flags==0) {
-    errno = EFAULT;
-    return -1;
-  }
-  
-  res = vserver(VCMD_get_flags, CTX_USER2KERNEL(xid), &k_flags);
-  flags->flagword = k_flags.flagword;
-  flags->mask     = k_flags.mask;
-
-  return res;
+  return utilvserver_listparser_uint64(str, len,
+				       err ? &err->ptr : 0,
+				       err ? &err->len : 0,
+				       &flags->flagword, &flags->mask,
+				       vc_text2cflag);
 }

@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2004 Enrico Scholz <>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,18 +20,43 @@
 #  include <config.h>
 #endif
 
-static inline ALWAYSINLINE int
-vc_set_flags_v13(xid_t xid, struct vc_ctx_flags const *flags)
-{
-  struct vcmd_ctx_flags_v0	k_flags;
+#include "vserver.h"
+#include <string.h>
 
-  if (flags==0) {
-    errno = EFAULT;
-    return -1;
+uint_least32_t
+vc_list2cflag_compat(char const *str, size_t len,
+		    struct vc_err_listparser *err)
+{
+  uint32_t		res = 0;
+
+  if (len==0) len = strlen(str);
+  
+  for (;len>0;) {
+    char const		*ptr = strchr(str, ',');
+    size_t		cnt  = ptr ? (size_t)(ptr-str) : len;
+    unsigned int	tmp;
+
+    if (cnt>=len) { cnt=len; len=0; }
+    else len-=(cnt+1);
+    
+    tmp = vc_text2cflag_compat(str,cnt);
+
+    if (tmp!=0) res |= tmp;
+    else {
+      if (err) {
+	err->ptr = str;
+	err->len = cnt;
+      }
+      return res;
+    }
+
+    if (ptr==0) break;
+    str = ptr+1;
   }
 
-  k_flags.flagword = flags->flagword;
-  k_flags.mask     = flags->mask;
-  
-  return vserver(VCMD_set_flags, CTX_USER2KERNEL(xid), &k_flags);
+  if (err) {
+    err->ptr = 0;
+    err->len = 0;
+  }
+  return res;
 }

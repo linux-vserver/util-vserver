@@ -25,13 +25,18 @@
 #include "linuxvirtual.h"
 
 #if defined(VC_ENABLE_API_V13)
-#  include "syscall_getflags-v13.hc"
+#  include "syscall_setcflags-v13.hc"
 #endif
 
 #if defined(VC_ENABLE_API_V13)
 int
-vc_get_flags(xid_t xid, struct vc_ctx_flags *flags)
+vc_set_cflags(xid_t xid, struct vc_ctx_flags const *flags)
 {
-  CALL_VC(CALL_VC_V13A(vc_get_flags, xid, flags));
+  if (flags==0) {
+    errno = EFAULT;
+    return -1;
+  }
+  
+  CALL_VC(CALL_VC_V13A(vc_set_cflags, xid, flags));
 }
 #endif

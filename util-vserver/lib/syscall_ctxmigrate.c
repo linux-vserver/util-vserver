@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2004 Enrico Scholz <>
+// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,18 +21,17 @@
 #endif
 
 #include "vserver.h"
-#include "internal.h"
+#include "vserver-internal.h"
+#include "linuxvirtual.h"
 
-#include <string.h>
+#if defined(VC_ENABLE_API_V13)
+#  include "syscall_ctxmigrate-v13.hc"
+#endif
 
+#if defined(VC_ENABLE_API_V13)
 int
-vc_list2flag(char const *str, size_t len,
-	     struct vc_err_listparser *err,
-	     struct vc_ctx_flags *flags)
+vc_ctx_migrate(xid_t xid)
 {
-  return utilvserver_listparser_uint64(str, len,
-				       err ? &err->ptr : 0,
-				       err ? &err->len : 0,
-				       &flags->flagword, &flags->mask,
-				       vc_text2flag);
+  CALL_VC(CALL_VC_V13A(vc_ctx_migrate, xid));
 }
+#endif

@@ -55,7 +55,7 @@ static struct Mapping_uint64 const VALUES[] = {
 };
 
 uint_least64_t
-vc_text2flag(char const *str, size_t len)
+vc_text2cflag(char const *str, size_t len)
 {
   ssize_t	idx = utilvserver_value2text_uint64(str, len,
 						    VALUES, DIM_OF(VALUES));
@@ -64,7 +64,7 @@ vc_text2flag(char const *str, size_t len)
 }
 
 char const *
-vc_loflag2text(uint_least64_t *val)
+vc_locflag2text(uint_least64_t *val)
 {
   ssize_t	idx = utilvserver_text2value_uint64(val,
 						    VALUES, DIM_OF(VALUES));

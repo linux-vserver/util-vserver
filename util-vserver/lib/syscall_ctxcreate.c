@@ -20,10 +20,18 @@
 #  include <config.h>
 #endif
 
-static inline ALWAYSINLINE int
-vc_create_context_v13(xid_t xid)
-{
-  xid_t		res = vserver(VCMD_create_context, CTX_USER2KERNEL(xid), 0);
+#include "vserver.h"
+#include "vserver-internal.h"
+#include "linuxvirtual.h"
 
-  return CTX_KERNEL2USER(res);
+#if defined(VC_ENABLE_API_V13)
+#  include "syscall_ctxcreate-v13.hc"
+#endif
+
+#if defined(VC_ENABLE_API_V13)
+xid_t
+vc_ctx_create(xid_t xid)
+{
+  CALL_VC(CALL_VC_V13A(vc_ctx_create, xid));
 }
+#endif

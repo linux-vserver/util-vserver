@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2004 Enrico Scholz <>
+// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,43 +20,8 @@
 #  include <config.h>
 #endif
 
-#include "vserver.h"
-#include <string.h>
-
-uint_least32_t
-vc_list2flag_compat(char const *str, size_t len,
-		    struct vc_err_listparser *err)
+static inline ALWAYSINLINE int
+vc_ctx_migrate_v13(xid_t xid)
 {
-  uint32_t		res = 0;
-
-  if (len==0) len = strlen(str);
-  
-  for (;len>0;) {
-    char const		*ptr = strchr(str, ',');
-    size_t		cnt  = ptr ? (size_t)(ptr-str) : len;
-    unsigned int	tmp;
-
-    if (cnt>=len) { cnt=len; len=0; }
-    else len-=(cnt+1);
-    
-    tmp = vc_text2flag_compat(str,cnt);
-
-    if (tmp!=0) res |= tmp;
-    else {
-      if (err) {
-	err->ptr = str;
-	err->len = cnt;
-      }
-      return res;
-    }
-
-    if (ptr==0) break;
-    str = ptr+1;
-  }
-
-  if (err) {
-    err->ptr = 0;
-    err->len = 0;
-  }
-  return res;
+  return vserver(VCMD_ctx_migrate, CTX_USER2KERNEL(xid), 0);
 }

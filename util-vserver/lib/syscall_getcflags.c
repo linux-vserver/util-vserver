@@ -20,8 +20,18 @@
 #  include <config.h>
 #endif
 
-static inline ALWAYSINLINE int
-vc_migrate_context_v13(xid_t xid)
+#include "vserver.h"
+#include "vserver-internal.h"
+#include "linuxvirtual.h"
+
+#if defined(VC_ENABLE_API_V13)
+#  include "syscall_getcflags-v13.hc"
+#endif
+
+#if defined(VC_ENABLE_API_V13)
+int
+vc_get_cflags(xid_t xid, struct vc_ctx_flags *flags)
 {
-  return vserver(VCMD_migrate_context, CTX_USER2KERNEL(xid), 0);
+  CALL_VC(CALL_VC_V13A(vc_get_cflags, xid, flags));
 }
+#endif
