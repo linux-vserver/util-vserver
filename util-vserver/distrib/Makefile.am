@@ -48,7 +48,7 @@ redhat_style		=  rh9 fc1
 
 install-data-hook:
 			l="$(redhat_style)"; for i in $$l; do \
-				ln -s ../redhat/initpost $(DESTDIR)$(distribdir)/$$i/; \
+				ln -sf ../redhat/initpost $(DESTDIR)$(distribdir)/$$i/; \
 			done
 			$(mkinstalldirs) $(DESTDIR)$(confdir) $(DESTDIR)$(confdefaultsdir) \
 				$(DESTDIR)$(confdefaultsinitdir)
