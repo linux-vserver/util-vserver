@@ -44,6 +44,7 @@ typedef enum { tgNONE,tgCONTEXT, tgRUNNING,
 	       tgAPIVER,
 	       tgINITPID, tgINITPID_PID,
 	       tgXID, tgUTS, tgSYSINFO,
+	       tgFEATURE,
 }	VserverTag;
 
 static struct {
@@ -65,6 +66,7 @@ static struct {
 				   "context, sysname, nodename, release, version, "
 				   "machine and domainname") },
   { "SYSINFO",     tgSYSINFO,     "gives out information about the systen" },
+  { "FEATURE",     tgFEATURE,     "returns 0 iff the queried feature is supported" },
 };
 
 int wrapper_exit_code = 1;
@@ -290,6 +292,12 @@ getContext(char *buf, char const *vserver)
 }
 
 static int
+testFeature(int argc, char *argv[])
+{
+  return (argc>0 && vc_isSupportedString(argv[0])) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static int
 execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
 {
   char const *		res = 0;
@@ -318,6 +326,7 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
     case tgAPIVER	:  res = getAPIVer(buf);               break;
     case tgUTS		:  res = getUTS(buf, xid, argc, argv); break;
     case tgSYSINFO	:  return printSysInfo(buf);           break;
+    case tgFEATURE	:  return testFeature(argc,argv);      break;
     
     default		:  assert(false); abort();  // TODO
   }
