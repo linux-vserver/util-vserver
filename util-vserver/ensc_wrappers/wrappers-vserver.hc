@@ -70,3 +70,9 @@ Evc_set_vhi_name(xid_t xid, vc_uts_type type,
 {
   FatalErrnoError(vc_set_vhi_name(xid,type,val,len)==-1, "vc_set_vhi_name()");
 }
+
+inline static WRAPPER_DECL void
+Evc_get_ccaps(xid_t xid, struct vc_ctx_caps *caps)
+{
+  FatalErrnoError(vc_get_ccaps(xid, caps)==-1, "vc_get_ccaps()");
+}
