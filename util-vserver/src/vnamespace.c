@@ -33,6 +33,7 @@
 
 #define ENSC_WRAPPERS_PREFIX	"vnamespace: "
 #define ENSC_WRAPPERS_UNISTD	1
+#define ENSC_WRAPPERS_VSERVER	1
 #include <wrappers.h>
 
 #ifndef CLONE_NEWNS
@@ -157,7 +158,10 @@ int main(int argc, char *argv[])
       case 'n'		:  do_new     = true; break;
       case 's'		:  do_set     = true; break;
       case 'c'		:  do_cleanup = true; break;
-      case 'e'		:  do_enter   = true; xid = atol(optarg); break;
+      case 'e'		:
+	do_enter = true;
+	xid      = Evc_xidopt2xid(optarg,true);
+	break;
 
       default		:
 	WRITE_MSG(2, "Try '");

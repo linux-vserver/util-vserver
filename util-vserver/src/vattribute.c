@@ -163,11 +163,11 @@ int main(int argc, char *argv[])
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
       case CMD_SET	:  break; // default op currently
-      case CMD_XID	:  args.xid = atoi(optarg); break;
-      case CMD_FLAG	:  parseFlags(optarg, &args.flags);      break;
-      case CMD_CCAP	:  parseCCaps(optarg, &args.caps);       break;
-      case CMD_BCAP	:  parseBCaps(optarg, &args.caps);       break;
-      case CMD_SECURE	:  parseSecure(&args.flags, &args.caps); break;
+      case CMD_XID	:  args.xid = Evc_xidopt2xid(optarg,true); break;
+      case CMD_FLAG	:  parseFlags(optarg, &args.flags);        break;
+      case CMD_CCAP	:  parseCCaps(optarg, &args.caps);         break;
+      case CMD_BCAP	:  parseBCaps(optarg, &args.caps);         break;
+      case CMD_SECURE	:  parseSecure(&args.flags, &args.caps);   break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);

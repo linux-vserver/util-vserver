@@ -303,8 +303,8 @@ int main (int argc, char *argv[])
       case CMD_SILENTEXIST	:  args.is_silentexist = true;   break;
       case CMD_SYNCSOCK		:  args.sync_sock      = optarg; break;
       case CMD_SYNCMSG		:  args.sync_msg       = optarg; break;
-      case CMD_XID		:  args.xid            = atol(optarg); break;
-      case CMD_UID		:  args.uid            = atol(optarg); break;
+      case CMD_UID		:  args.uid = atol(optarg);      break;
+      case CMD_XID		:  args.xid = Evc_xidopt2xid(optarg,true); break;
       case CMD_SILENT		:  --args.verbosity; break;
       case CMD_MIGRATESELF	:
 	args.do_migrate     = true;

@@ -39,6 +39,7 @@
 #define ENSC_WRAPPERS_FCNTL	1
 #define ENSC_WRAPPERS_IO	1
 #define ENSC_WRAPPERS_UNISTD	1
+#define ENSC_WRAPPERS_VSERVER	1
 #include <wrappers.h>
 
 typedef enum { tgNONE,tgCONTEXT, tgRUNNING,
@@ -377,7 +378,7 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
 {
   char const *		res = 0;
   char 			buf[sizeof(xid_t)*4 + 1024];
-  xid_t			xid = *vserver!='\0' ? (xid_t)(atoi(vserver)) : VC_SAMECTX;
+  xid_t			xid = *vserver!='\0' ? vc_xidopt2xid(vserver,true,0) : VC_SAMECTX;
 
   memset(buf, 0, sizeof buf);
   switch (tag) {

@@ -172,13 +172,6 @@ setFromDir(char const *pathname, bool is_missingok, xid_t xid)
   }
 }
 
-static xid_t
-str2xid(char const *str)
-{
-  if (strcmp(str,"self")==0) return Evc_get_task_xid(0);
-  else                       return atoi(str);
-}
-
 static size_t
 findUtsIdx(char const *str, size_t len)
 {
@@ -244,8 +237,8 @@ int main(int argc, char *argv[])
       case CMD_MISSINGOK:  args.is_missingok = true;   break;
       case 'g'		:  args.do_set       = false;  break;
       case 's'		:  args.do_set       = true;   break;
-      case 'x'		:  args.xid          = str2xid(optarg); break;
-      case 't'		:  registerValue(optarg, args.tags);    break;
+      case 'x'		:  args.xid = Evc_xidopt2xid(optarg,true); break;
+      case 't'		:  registerValue(optarg, args.tags);       break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
