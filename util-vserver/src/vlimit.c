@@ -75,7 +75,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-c|--ctx <ctx>] [-a|--all] [-MSH  --<nr> <value>]*\n"
+	    " [-c <ctx>] [-a|--all] [-MSH  --<nr> <value>]*\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
