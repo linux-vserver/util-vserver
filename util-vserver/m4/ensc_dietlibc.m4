@@ -54,6 +54,9 @@ AC_DEFUN([_ENSC_DIETLIBC_C99],
 dnl Usage: ENSC_ENABLE_DIETLIBC(<conditional>[,<min-version>])
 dnl        <conditional> ... automake-conditional which will be set when
 dnl                          dietlibc shall be enabled
+dnl        provides:
+dnl        * $ENSC_VERSION_DIETLIBC_NUM and
+dnl        * $ENSC_VERSION_DIETLIBC
 
 AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 [
@@ -71,29 +74,33 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 
 	if test "$use_dietlibc" = detected -a '$2'; then
 	    _dietlibc_ver=$(${DIET:-diet} -v 2>&1 | sed '1p;d')
+	    _dietlibc_ver=${_dietlibc_ver##*diet version }
 	    _dietlibc_ver=${_dietlibc_ver##*dietlibc-}
 	    _dietlibc_ver_maj=${_dietlibc_ver%%.*}
 	    _dietlibc_ver_min=${_dietlibc_ver##*.}
-	    _dietlibc_ver_min=${_dietlibc_ver_min%% *}
+	    _dietlibc_ver_min=${_dietlibc_ver_min%%[!0-9]*}
 	    _dietlibc_cmp=$2
 	    _dietlibc_cmp_maj=${_dietlibc_cmp%%.*}
 	    _dietlibc_cmp_min=${_dietlibc_cmp##*.}
 
-	    ensc_version_dietlibc=$_dietlibc_ver_maj.$_dietlibc_ver_min
+	    ENSC_VERSION_DIETLIBC=$_dietlibc_ver_maj.$_dietlibc_ver_min
 
 	    let _dietlibc_ver=_dietlibc_ver_maj*1000+_dietlibc_ver_min 2>/dev/null || _dietlibc_ver=0
 	    let _dietlibc_cmp=_dietlibc_cmp_maj*1000+_dietlibc_cmp_min
 
 	    test $_dietlibc_ver -ge $_dietlibc_cmp || use_dietlibc=detected_old
 	else
-	    ensc_version_dietlibc=
+	    ENSC_VERSION_DIETLIBC=
+	    _dietlibc_ver=-1
         fi
 
+	ENSC_VERSION_DIETLIBC_NUM=$_dietlibc_ver
 	ensc_have_dietlibc=no
+
 	case x"$use_dietlibc" in
 	    xdetected)
 		AM_CONDITIONAL($1, true)
-		AC_MSG_RESULT([yes (autodetected, $ensc_version_dietlibc)])
+		AC_MSG_RESULT([yes (autodetected, $ENSC_VERSION_DIETLIBC)])
 		ensc_have_dietlibc=yes
 		;;
 	    xforced)
@@ -107,7 +114,7 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 		;;
 	    xdetected_old)
 		AM_CONDITIONAL($1, false)
-		AC_MSG_RESULT([no (too old; $2+ required, $ensc_version_dietlibc found)])
+		AC_MSG_RESULT([no (too old; $2+ required, $ENSC_VERSION_DIETLIBC found)])
 		;;
 	    xforced_no)
 		AM_CONDITIONAL($1, false)
@@ -120,5 +127,21 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 
 	if test x"$ensc_have_dietlibc" != xno; then
 		_ENSC_DIETLIBC_C99
+	fi
+])
+
+
+dnl Usage: ENSC_DIETLIBC_SANITYCHECK
+AC_DEFUN([ENSC_DIETLIBC_SANITYCHECK],
+[
+	AC_REQUIRE([AC_CANONICAL_HOST])
+	AC_REQUIRE([ENSC_ENABLE_DIETLIBC])
+
+	if test "$host_cpu" = x86_64 -a $ENSC_VERSION_DIETLIBC_NUM -le 0027; then
+		AC_MSG_WARN([***                                                             ***])
+		AC_MSG_WARN([*** dietlibc<=0.27 is known to be broken for x86_64 systems     ***])
+		AC_MSG_WARN([*** please make sure that at least the environ.S fix is applied ***])
+		AC_MSG_WARN([*** and lib/__nice.c added                                      ***])
+		AC_MSG_WARN([***                                                             ***])
 	fi
 ])
