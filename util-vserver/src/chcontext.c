@@ -206,7 +206,7 @@ setFlags(char const *str, uint32_t *flags)
 {
   struct vc_err_listparser	err;
   
-  *flags = vc_list2flag_compat(str, 0, &err);
+  *flags = vc_list2cflag_compat(str, 0, &err);
 
   if (err.ptr!=0) {
     WRITE_MSG(2, "Unknown flag '");

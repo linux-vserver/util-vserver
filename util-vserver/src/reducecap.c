@@ -254,7 +254,7 @@ int main (int argc, char *argv[])
       case CMD_FLAG		: {
 	struct vc_err_listparser	err;
 	
-	flags = vc_list2flag_compat(optarg, 0, &err);
+	flags = vc_list2cflag_compat(optarg, 0, &err);
 	if (err.ptr!=0) {
 	  WRITE_MSG(2, "Unknown flag '");
 	  write(2, err.ptr, err.len);

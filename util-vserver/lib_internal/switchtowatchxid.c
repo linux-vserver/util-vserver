@@ -34,13 +34,13 @@ switchToWatchXid(char const **errptr)
   if (vc_get_task_xid(0)==1) return true;
 
   if (vc_isSupported(vcFEATURE_MIGRATE)) {
-    if (vc_create_context(1)==VC_NOCTX) {
+    if (vc_ctx_create(1)==VC_NOCTX) {
       if (errno!=EEXIST) {
 	if (errptr) *errptr = "vc_create_context()";
 	return false;
       }
 
-      if (vc_migrate_context(1)==-1) {
+      if (vc_ctx_migrate(1)==-1) {
 	if (errptr) *errptr = "vc_migrate_context()";
 	return false;
       }

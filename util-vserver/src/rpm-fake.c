@@ -180,7 +180,7 @@ setupContext(xid_t xid, char const **xid_str)
     xid_t	rc=VC_NOCTX;
 
     if ((xid==VC_DYNAMIC_XID || !vc_is_dynamic_xid(xid)) &&
-	(rc=vc_create_context(xid))==VC_NOCTX &&
+	(rc=vc_ctx_create(xid))==VC_NOCTX &&
 	errno!=EEXIST) {
       perror(ENSC_WRAPPERS_PREFIX "vc_create_context()");
       exit(255);
@@ -530,7 +530,7 @@ execvWorker(char const *path, char * const argv[])
   int		res = -1;
 
   if (vc_isSupported(vcFEATURE_MIGRATE))
-    res = vc_migrate_context(ctx);
+    res = vc_ctx_migrate(ctx);
   else
 #ifdef VC_ENABLE_API_COMPAT  
     res = vc_new_s_context(ctx,caps,flags);

@@ -247,10 +247,10 @@ activateContext(xid_t xid, bool in_ctx)
       .mask     = VC_VXF_STATE_SETUP,
     };
 
-    Evc_set_flags(xid, &flags);
+    Evc_set_cflags(xid, &flags);
   }
   else if (vc_isSupported(vcFEATURE_MIGRATE))
-      Evc_migrate_context(xid);
+      Evc_ctx_migrate(xid);
   else {
 #ifdef VC_ENABLE_API_COMPAT
     Evc_new_s_context(xid, 0, S_CTX_INFO_LOCK);

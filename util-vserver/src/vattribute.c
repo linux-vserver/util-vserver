@@ -95,7 +95,7 @@ parseFlags(char const *str, struct vc_ctx_flags *flags)
   struct vc_err_listparser	err;
   int				rc;
 
-  rc = vc_list2flag(str,0, &err, flags);
+  rc = vc_list2cflag(str,0, &err, flags);
   
   if (rc==-1) {
     WRITE_MSG(2, "Unknown flag '");
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
       vc_set_ccaps(args.xid, &args.caps)==-1)
     perror(ENSC_WRAPPERS_PREFIX "vc_set_ccaps()");
   else if (args.flags.mask &&
-	   vc_set_flags(args.xid, &args.flags)==-1)
+	   vc_set_cflags(args.xid, &args.flags)==-1)
     perror(ENSC_WRAPPERS_PREFIX "vc_set_flags()");
   else if (optind<argc)
     EexecvpD(argv[optind], argv+optind);

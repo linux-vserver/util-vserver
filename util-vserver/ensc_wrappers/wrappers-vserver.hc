@@ -37,29 +37,29 @@ Evc_get_task_xid(pid_t pid)
 }
 
 inline static WRAPPER_DECL xid_t
-Evc_create_context(xid_t xid)
+Evc_ctx_create(xid_t xid)
 {
-  register xid_t	res = vc_create_context(xid);
-  FatalErrnoError(res==VC_NOCTX, "vc_create_context()");
+  register xid_t	res = vc_ctx_create(xid);
+  FatalErrnoError(res==VC_NOCTX, "vc_ctx_create()");
   return res;
 }
 
 inline static WRAPPER_DECL void
-Evc_migrate_context(xid_t xid)
+Evc_ctx_migrate(xid_t xid)
 {
-  FatalErrnoError(vc_migrate_context(xid)==-1, "vc_migrate_context()");
+  FatalErrnoError(vc_ctx_migrate(xid)==-1, "vc_ctx_migrate()");
 }
 
 inline static WRAPPER_DECL void
-Evc_get_flags(xid_t xid, struct vc_ctx_flags *flags)
+Evc_get_cflags(xid_t xid, struct vc_ctx_flags *flags)
 {
-  FatalErrnoError(vc_get_flags(xid, flags)==-1, "vc_get_flags()");
+  FatalErrnoError(vc_get_cflags(xid, flags)==-1, "vc_get_cflags()");
 }
 
 inline static WRAPPER_DECL void
-Evc_set_flags(xid_t xid, struct vc_ctx_flags const *flags)
+Evc_set_cflags(xid_t xid, struct vc_ctx_flags const *flags)
 {
-  FatalErrnoError(vc_set_flags(xid, flags)==-1, "vc_set_flags()");
+  FatalErrnoError(vc_set_cflags(xid, flags)==-1, "vc_set_cflags()");
 }
 
 inline static WRAPPER_DECL void
