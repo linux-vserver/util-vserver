@@ -63,7 +63,7 @@ AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D VERSION=\"$(VERSION)\" -D PKGLIBDIR=\"$(
 AM_CFLAGS		=  -Wall -pedantic
 
 CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) \
-			   $(linuxconf_GENFILES) \
+			   $(linuxconf_GENFILES) $(src_GENFILES) \
 			   $(BUILT_SOURCES)
 
 

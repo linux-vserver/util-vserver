@@ -45,6 +45,8 @@ src_sbin_PRGS		=  src/chbind \
 			   src/vkill \
 			   src/vserver-stat
 
+src_GENFILES		=  src/setattr
+
 src_capchroot_SOURCES		=  src/capchroot.c
 src_capchroot_LDADD		=  lib/libvserver.a
 
