@@ -23,7 +23,6 @@ SUBDIRS			=  . distrib
 CVS2CL_AMFLAGS		=  $(CVS2CL_TAG) -U cvsusers.map
 CVS2CL_ALLFLAGS        :=  $(CVS2CL_AMFLAGS) $(CVS2CL_FLAGS)
 
-sysvdir			=  $(sysconfdir)/init.d
 confdir			=  $(sysconfdir)/vservers
 
 include_HEADERS		=  $(lib_HDRS)
@@ -40,7 +39,7 @@ sbin_SCRIPTS		=  $(scripts_PRGS)
 sbin_PROGRAMS		=  $(src_sbin_PRGS)
 noinst_PROGRAMS		=  $(test_PRGS)
 
-sysv_SCRIPTS		=  $(sysv_SCRPTS)
+initrd_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
 
 DIETPROGS		=  $(src_DIETPROGS) $(tests_DIETPROGS)
@@ -59,7 +58,7 @@ EXTRA_DIST		=  $(sysv_XTRAS) $(sysv_CFG) \
 			   m4/ensc_cxxcompiler.m4 \
 			   THANKS
 
-AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE
+AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE $(RELEASE_CPPFLAGS)
 
 CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) $(BUILT_SOURCES) \
 			   .*.pathsubst.stamp */.*.pathsubst.stamp \
@@ -87,6 +86,8 @@ pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			   s!@'CONFDIR'@!$(confdir)!g; \
 			   s!@'SYSCONFDIR'@!$(sysconfdir)!g; \
 			   s!@'PKGSTATEDIR'@!$(pkgstatedir)!g; \
+			   s!@'VSERVERDIR'@!$(vserverdir)!g; \
+			   s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
 			   s!@'PACKAGE'@!$(PACKAGE)!g; \
 			   s!@'PACKAGE_BUGREPORT'@!$(PACKAGE_BUGREPORT)!g; \
 			   s!@'PACKAGE_NAME'@!$(PACKAGE_NAME)!g; \
@@ -117,8 +118,12 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@touch '$@'
 
 pkgstatedir		=  $(localstatedir)/run/vservers
-install-data-local:
-			$(INSTALL) -d -m755 $(DESTDIR)$(pkgstatedir)
+vserverdir		=  /vservers
+vserverpkgdir		=  $(vserverdir)/.pkg
+
+install-data-hook:
+			$(mkinstalldirs) -m 755 $(DESTDIR)$(pkgstatedir)/rev
+			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
 
 if USE_DIETLIBC
 $(DIETPROGS):		LIBTOOL=$(LIBTOOL) --tag CC
