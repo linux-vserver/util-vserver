@@ -57,6 +57,10 @@ Unify_unify(char const *src, struct stat const UNUSED *src_stat,
   }
 
   // and rename the old file to this name
+
+  // NOTE: this rename() is race-free; when an attacker makes 'tmpfile' a
+  // directory, the operation would fail; when making it a symlink to a file
+  // or directory, the symlink but not the file/directory would be overridden
   if (rename(dst, tmpfile)==-1) {
     perror("rename()");
     goto err;
