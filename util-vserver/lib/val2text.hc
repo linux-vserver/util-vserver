@@ -34,7 +34,7 @@
 									\
     for (i=0; i<map_len; ++i)						\
       if (len==map[i].len &&						\
-	  strncmp(map[i].id, str, len)==0)				\
+	  strncasecmp(map[i].id, str, len)==0)				\
 	return i;							\
 									\
     return -1;								\
