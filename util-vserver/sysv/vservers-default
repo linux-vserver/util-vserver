@@ -1,0 +1,25 @@
+#!/bin/sh
+# chkconfig: - 98 02
+# description: Wrapper to start the default vservers
+
+## The *basename* of the lockfile; this must be the same name like
+## this if the initscript. Else, the vservers will not be stopped at
+## shutdown
+#LOCKFILE=vserver-default
+
+## Number of vservers which shall be started in parallel; since most
+## initmethods are spending much time time in sleeps, it is safe to
+## use a high number here
+#NUMPARALLEL=99
+
+## The vserver-flavor; the 'default' vservers will be started very late
+## which may be inappropriately for early services like nameservers or
+## VPN tunnels. By copying this initscript to a new name and adapting
+## the startup-position (for RH/Fedora the numbers in line 2), other
+## vservers can be selected. Identification of vservers happens by
+## putting the flavor into /etc/vservers/<vserver-id>/apps/init/mark.
+#MARK=default
+
+export MARK NUMPARALLEL LOCKFILE
+exec /usr/lib/util-vserver/vserver-wrapper "$@"
+
