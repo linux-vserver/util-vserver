@@ -142,4 +142,5 @@ lib_DIETPROGS =			lib/lib_libvserver_la-% \
 				lib/lib_libvserver_pic_a-% \
 				$(lib_testsuite_DIETPROGS)
 
+include $(srcdir)/lib/apidoc/Makefile-files
 include $(srcdir)/lib/testsuite/Makefile-files
