@@ -41,7 +41,8 @@ lib_LTLIBRARIES		=  $(lib_lib_LTLIBS) $(src_lib_LTLIBS)
 pkglib_LTLIBRARIES	=  $(src_pkglib_LTLIBS)
 
 pkglib_SCRIPTS		=  $(scripts_pkglib_SCRPTS)
-pkglib_DATA		=  $(scripts_pkglib_DTA)
+pkglib_DATA		=  $(scripts_pkglib_DTA) \
+			   FEATURES.txt
 pkglib_PROGRAMS		=  $(src_pkglib_PRGS)
 legacy_SCRIPTS		=  $(scripts_legacy_SCRPTS)
 
@@ -86,6 +87,9 @@ CLEANFILES =		$(sysv_GENSCRPTS) $(scripts_CLEANFILES) $(BUILT_SOURCES) \
 			$(contrib_CLEANFILES) \
 			.*.pathsubst.stamp */.*.pathsubst.stamp */*/.*.pathsubst.stamp \
 			linuxcaps.h pathconfig.h
+
+DISTCLEANFILES =	FEATURES.txt
+
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT	=  $(src_OPTIONS_EXEMPT) \
 					   $(scripts_OPTIONS_EXEMPT) \
