@@ -4,4 +4,8 @@ Jacques Gelinas <jack@solucorp.qc.ca>,
     who wrote and maintains the 'vserver' package on which util-vserver
     is based on
 
+Sam Vilain,
+    for providing man-pages and patches used in the Debian package
+
+
 all the other people, who contributed to the original 'vserver' package
