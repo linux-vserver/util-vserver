@@ -1,6 +1,6 @@
 ## $Id$
 
-# Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# Copyright (C) 2003,2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 #  
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,6 +45,7 @@ sbincfg_DATA		=  $(scripts_sbincfg_DTA)
 sbin_SCRIPTS		=  $(scripts_sbin_PRGS) $(src_sbin_SCRPTS)
 sbin_PROGRAMS		=  $(src_sbin_PRGS)
 noinst_PROGRAMS		=  $(test_PRGS)
+noinst_DATA		=  $(contrib_DTA)
 
 initrd_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
@@ -55,13 +56,14 @@ BUILT_SOURCES		=  linuxcaps.h pathconfig.h linuxvirtual.h
 
 man_MANS		=  $(man_DATMAN)
 
-EXTRA_PROGRAMS		=  $(src_EXTRA_PROGS)
-EXTRA_DIST		=  $(sysv_XTRAS) $(sysv_CFG) \
-                           $(doc_DAT) $(man_DATMAN) \
-			   $(scripts_XTRAS) $(src_XTRAS) \
-			   pathconfig.h.pathsubst \
-			   util-vserver.spec \
-			   THANKS
+EXTRA_PROGRAMS =	$(src_EXTRA_PROGS)
+EXTRA_DIST =		$(sysv_XTRAS) $(sysv_CFG) \
+                        $(doc_DAT) $(man_DATMAN) \
+			$(scripts_XTRAS) $(src_XTRAS) \
+			$(contrib_XTRAS) \
+			pathconfig.h.pathsubst \
+			util-vserver.spec \
+			THANKS
 
 check_PROGRAMS		=  $(src_check_PRGS)
 check_SCRIPTS		=  $(src_check_SCRPTS)
@@ -71,9 +73,10 @@ TESTS_ENVIRONMENT	=  $(src_TESTS_ENV)
 
 AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE $(RELEASE_CPPFLAGS)
 
-CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_CLEANFILES) $(BUILT_SOURCES) \
-			   .*.pathsubst.stamp */.*.pathsubst.stamp */*/.*.pathsubst.stamp \
-			   linuxcaps.h pathconfig.h
+CLEANFILES =		$(sysv_GENSCRPTS) $(scripts_CLEANFILES) $(BUILT_SOURCES) \
+			$(contrib_CLEANFILES) \
+			.*.pathsubst.stamp */.*.pathsubst.stamp */*/.*.pathsubst.stamp \
+			linuxcaps.h pathconfig.h
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT	=  $(src_OPTIONS_EXEMPT) \
 					   $(scripts_OPTIONS_EXEMPT) \
@@ -118,6 +121,7 @@ pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			   s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
 			   s!@'INITRDDIR'@!$(initrddir)!g; \
 			   s!@'LIBDIR'@!$(libdir)!g; \
+			   s!@'MANDIR'@!$(mandir)!g; \
 			   s!@'INCLUDEDIR'@!$(includedir)!g; \
 			   s!@'PACKAGE_BUGREPORT'@!$(PACKAGE_BUGREPORT)!g; \
 			   s!@'PACKAGE_NAME'@!$(PACKAGE_NAME)!g; \
@@ -179,6 +183,7 @@ include $(top_srcdir)/man/Makefile-files
 include $(top_srcdir)/scripts/Makefile-files
 include $(top_srcdir)/tests/Makefile-files
 include $(top_srcdir)/sysv/Makefile-files
+include $(top_srcdir)/contrib/Makefile-files
 
 include $(top_srcdir)/m4/gpgsig.am
 include $(top_srcdir)/m4/validate.am
