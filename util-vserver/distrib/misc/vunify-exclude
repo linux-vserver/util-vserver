@@ -1,0 +1,10 @@
+/dev
+/etc
+/home
+/proc
+/mnt
+/root
+/selinux
+/sys
+/tmp
+/var
