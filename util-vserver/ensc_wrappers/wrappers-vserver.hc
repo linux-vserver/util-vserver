@@ -81,6 +81,18 @@ Evc_set_ccaps(xid_t xid, struct vc_ctx_caps const *caps)
   FatalErrnoError(vc_set_ccaps(xid, caps)==-1, "vc_set_ccaps()");
 }
 
+inline static WRAPPER_DECL void
+Evc_set_namespace()
+{
+  FatalErrnoError(vc_set_namespace()==-1, "vc_set_namespace()");
+}
+
+inline static WRAPPER_DECL void
+Evc_enter_namespace(xid_t xid)
+{
+  FatalErrnoError(vc_enter_namespace(xid)==-1, "vc_enter_namespace()");
+}
+
 inline static WRAPPER_DECL xid_t
 Evc_xidopt2xid(char const *id, bool honor_static)
 {
