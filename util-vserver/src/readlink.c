@@ -1,7 +1,6 @@
 // $Id$
 
 // Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-// based on readlink.cc by Jacques Gelinas
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,35 +16,65 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-/*
-	Copyright Jacques Gelinas jack@solucorp.qc.ca
-	Distributed under the Gnu Public License, see the License file
-	in this package.
-*/
-#include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
+#include "util.h"
+
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
 #include <unistd.h>
+#include <stdio.h>
+
+static void
+showHelp(char const *cmd)
+{
+  WRITE_MSG(1, "Usage:  ");
+  WRITE_STR(1, cmd);
+  WRITE_MSG(1,
+	    " [--] <filename>\n"
+	    "\n"
+	    "Display value of a symbolic link on standard output.\n"
+	    "\n"
+	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
+  exit(0);
+}
+
+static void
+showVersion()
+{
+  WRITE_MSG(1,
+	    "readlink " VERSION " -- display value of symlink\n"
+	    "This program is part of " PACKAGE_STRING "\n\n"
+	    "Copyright (C) 2004 Enrico Scholz\n"
+	    VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
+}
+
 
 int main (int argc, char *argv[])
 {
-	int ret = -1;
-	if (argc != 2){
-		fprintf (stderr,"readlink symlink-file\n");
-		fprintf (stderr,"Prints the contents of a symlink\n");
-	}else{
-		char buf[PATH_MAX];
-		int len = readlink (argv[1],buf,sizeof(buf)-1);
-		if (len > 0){
-			buf[len] = '\0';
-			printf ("%s\n",buf);
-			ret = 0;
-		}else{
-			fprintf (stderr,"readlink failed for file %s (%s)\n"
-				,argv[1],strerror(errno));
-		}
-	}
-	return ret;
+  char			buf[PATH_MAX + 2];
+  int			idx = 1;
+  int			len;
+  
+  if (argc>=2) {
+    if (strcmp(argv[1], "--help")   ==0) showHelp(argv[0]);
+    if (strcmp(argv[1], "--version")==0) showVersion();
+    if (strcmp(argv[1], "--")       ==0) ++idx;
+  }
+  if (argc<idx+1)
+    WRITE_MSG(2, "No filename specified; use '--help' for more information\n");
+  else if ((len=readlink(argv[idx], buf, sizeof(buf)-2))==-1)
+    PERROR_Q("readlink", argv[idx]);
+  else {
+    buf[len++] = '\n';
+    write(1, buf, len);
+    return EXIT_SUCCESS;
+  }
+
+  return EXIT_FAILURE;
 }
 
