@@ -32,13 +32,18 @@
 #include <getopt.h>
 #include <sys/param.h>
 
-#include "linuxcaps.h"
-
 #define ENSC_WRAPPERS_PREFIX	"reducecap: "
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_UNISTD	1
 #include <wrappers.h>
 
+
+  // dirty hack...
+#define  __u32 uint32_t
+#define  __user
+#include "linuxcaps.h"
+#undef   __user
+#undef   __u32
 
 #define CMD_HELP	0x1000
 #define CMD_VERSION	0x1001
