@@ -516,6 +516,8 @@ function enableInterfaces
     local i=0
     declare -a var
 
+    lock "$LOCKDIR"/vserver.interfaces
+
     while test $i -lt $INTERFACE_CMDS_IDX; do
 	eval var='( "${INTERFACE_CMDS_'$i'[@]}" )'
 	local type=${var[0]}
@@ -530,16 +532,19 @@ function enableInterfaces
 		shift 2
 		$_MODPROBE ${name:+-o "$name"} "$mod" "$@"
 		;;
-	    NAMEIF)	$_NAMEIF   "$@";;
-	    VCONFIG)	$_VCONFIG  add "$@";;
-	    IP_ADDR)	$_IP addr  add "$@";;
-	    IP_LINK)	$_IP link  set "$@";;
-	    IP_ROUTE)	$_IP route add "$@";;
-	    *)		echo "Unknown interface-command type '$type'" >&2; false;;
+	    NAMEIF)		$_NAMEIF "$@";;
+	    VCONFIG)		$_VCONFIG  add   "$@";;
+	    IP_ADDR)		$_IP addr  add   "$@";;
+	    IP_ADDR_FLUSH)	$_IP addr  flush "$@";;
+	    IP_LINK)		$_IP link  set   "$@";;
+	    IP_ROUTE)		$_IP route add   "$@";;
+	    *)			echo "Unknown interface-command type '$type'" >&2; false;;
 	esac
 
 	let ++i
     done
+
+    unlock 1
 }
 
 function disableInterfaces
@@ -549,6 +554,8 @@ function disableInterfaces
     local i=$INTERFACE_CMDS_IDX
     declare -a var
 
+    lock "$LOCKDIR"/vserver.interfaces
+    
     while test $i -gt 0; do
 	let --i || :
 
@@ -558,16 +565,19 @@ function disableInterfaces
 	
 	set -- "${var[@]}"
 	case "$type" in
-	    IPTABLES)	;; ## TODO
-	    MODPROBE)	$_RMMOD "${2:-$1}";;
-	    NAMEIF)	;;
-	    VCONFIG)	$_VCONFIG  rem "$@";;
-	    IP_ADDR)	$_IP addr  del "$@";;
-	    IP_LINK)	;; ## Ignore the link-down command for now
-	    IP_ROUTE)	$_IP route del "$@";;
-	    *)		echo "Unknown interface-command type '$type'" >&2; false;;
+	    IPTABLES)		;; ## TODO
+	    MODPROBE)		$_RMMOD "${2:-$1}";;
+	    NAMEIF)		;;
+	    VCONFIG)		$_VCONFIG  rem "$@";;
+	    IP_ADDR)		$_IP addr  del "$@";;
+	    IP_ADDR_FLUSH)	;;
+	    IP_LINK)		;; ## Ignore the link-down command for now
+	    IP_ROUTE)		$_IP route del "$@";;
+	    *)			echo "Unknown interface-command type '$type'" >&2; false;;
 	esac
     done
+
+    unlock 1
 }
 
 ## Usage: prepareInit <vserver-directory>
