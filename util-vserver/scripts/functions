@@ -78,7 +78,7 @@ function _pkgMountBindDir()
 function _pkgSetVarsBase
 {
     case "$vserver" in
-	/*)
+	./*|/*)
 	    if test -d "$vserver/vdir"; then
 		BASEDIR=$vserver
 		VDIR=$(getPhysicalDir "$vserver/vdir")
