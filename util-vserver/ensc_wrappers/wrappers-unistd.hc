@@ -43,10 +43,16 @@ Echroot(char const path[])
   FatalErrnoError(chroot(path)==-1, "chroot()");
 }
 
-inline static WRAPPER_DECL void
+inline static WRAPPER_DECL NORETURN void
 Eexecv(char const *path, char *argv[])
 {
   FatalErrnoError(execv(path,argv)==-1, "execv()");
+}
+
+inline static WRAPPER_DECL NORETURN void
+Eexecvp(char const *path, char *argv[])
+{
+  FatalErrnoError(execvp(path,argv)==-1, "execvp()");
 }
 
 inline static WRAPPER_DECL void
