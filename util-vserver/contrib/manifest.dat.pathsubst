@@ -35,6 +35,7 @@ base   @PKGLIBDIR@/exec-ulimit
 base   @PKGLIBDIR@/fakerunlevel
 base   @PKGLIBDIR@/filetime
 base   @PKGLIBDIR@/ifspec
+base   @PKGLIBDIR@/keep-ctx-alive
 base   @PKGLIBDIR@/listdevip
 base   @PKGLIBDIR@/mask2prefix
 base   @PKGLIBDIR@/parserpmdump
@@ -68,6 +69,7 @@ core   @SBINDIR@/reducecap
 core   @SBINDIR@/setattr
 core   @SBINDIR@/showattr
 build  @SBINDIR@/vapt-get
+core   @SBINDIR@/vattribute
 core   @SBINDIR@/vcontext
 core   @SBINDIR@/vnamespace
 base   @SBINDIR@/vdu
