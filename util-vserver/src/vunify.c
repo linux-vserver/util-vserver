@@ -131,26 +131,25 @@ checkFstat(struct MatchList const * const mlist,
   }
 
   assert(*dst_fstat!=0);
-  
-  {
-    PathInfo		src_path = mlist->root;
-    char		src_path_buf[ENSC_PI_APPSZ(src_path, *path)];
 
-    PathInfo_append(&src_path, path, src_path_buf);
+  
+  PathInfo	src_path = mlist->root;
+  char		src_path_buf[ENSC_PI_APPSZ(src_path, *path)];
+
+  PathInfo_append(&src_path, path, src_path_buf);
 
     // source file does not exist
-    skip_reason.r = rsNOEXISTS;
-    if (lstat(src_path.d, src_fstat)==-1) return false;
+  skip_reason.r = rsNOEXISTS;
+  if (lstat(src_path.d, src_fstat)==-1) return false;
 
     // these are directories; this succeeds everytime
-    if (S_ISDIR((*dst_fstat)->st_mode) && S_ISDIR(src_fstat->st_mode)) return true;
+  if (S_ISDIR((*dst_fstat)->st_mode) && S_ISDIR(src_fstat->st_mode)) return true;
 
     // both files are different, so return false
-    skip_reason.r = rsDIFFERENT;
-    if ((!global_args->do_revert && !Unify_isUnifyable(*dst_fstat, src_fstat)) ||
-	( global_args->do_revert && !Unify_isUnified  (*dst_fstat, src_fstat)))
-      return false;
-  }
+  skip_reason.r = rsDIFFERENT;
+  if ((!global_args->do_revert && !Unify_isUnifyable(*dst_fstat, src_fstat)) ||
+      ( global_args->do_revert && !Unify_isUnified  (*dst_fstat, src_fstat)))
+    return false;
 
   // these are the same files
   return true;
@@ -268,7 +267,7 @@ doit(struct MatchList const *mlist,
   
   PathInfo_append(&path, src_path, path_buf);
   return (global_args->do_dry_run ||
-	  (!global_args->do_revert && Unify_unify  (path.d, src_stat, dst_path)) ||
+	  (!global_args->do_revert && Unify_unify  (path.d, src_stat, dst_path, false)) ||
 	  ( global_args->do_revert && Unify_deUnify(dst_path)));
 }
 
