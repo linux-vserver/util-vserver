@@ -160,37 +160,42 @@ int main()
 
   TEST_LIST("lock,nproc,private,fakeinit,hideinfo,ulimit,namespace,"
 	    "sched_hard,sched_prio,sched_pause,"
-	    "virt_mem,virt_uptime,virt_cpu,"
-	    "hide_mount,hide_netif,state_setup,state_init",
+	    "virt_mem,virt_uptime,virt_cpu,virt_load,"
+	    "hide_mount,hide_netif,state_setup,state_init,"
+	    "fork_rss,prolific,igneg_nice",
 	    0, 0,
 	    VC_VXF_INFO_LOCK|VC_VXF_INFO_NPROC|VC_VXF_INFO_PRIVATE|VC_VXF_INFO_INIT|
 	    VC_VXF_INFO_HIDEINFO|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NAMESPACE|
 	    VC_VXF_SCHED_HARD|VC_VXF_SCHED_PRIO|VC_VXF_SCHED_PAUSE|
-	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|VC_VXF_VIRT_CPU|
+	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|VC_VXF_VIRT_CPU|VC_VXF_VIRT_LOAD|
 	    VC_VXF_HIDE_MOUNT|VC_VXF_HIDE_NETIF|
-	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT,
+	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT|
+	    VC_VXF_FORK_RSS|VC_VXF_PROLIFIC|VC_VXF_IGNEG_NICE,
 
 	    VC_VXF_INFO_LOCK|VC_VXF_INFO_NPROC|VC_VXF_INFO_PRIVATE|VC_VXF_INFO_INIT|
 	    VC_VXF_INFO_HIDEINFO|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NAMESPACE|
 	    VC_VXF_SCHED_HARD|VC_VXF_SCHED_PRIO|VC_VXF_SCHED_PAUSE|
-	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|VC_VXF_VIRT_CPU|
+	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|VC_VXF_VIRT_CPU|VC_VXF_VIRT_LOAD|
 	    VC_VXF_HIDE_MOUNT|VC_VXF_HIDE_NETIF|
-	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT,
+	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT|
+	    VC_VXF_FORK_RSS|VC_VXF_PROLIFIC|VC_VXF_IGNEG_NICE,
 
 	    -1,0);
 
   TEST_LIST("~lock,~nproc,~private,~fakeinit,~hideinfo,~ulimit,~namespace,"
 	    "~sched_hard,~sched_prio,~sched_pause,"
-	    "~virt_mem,~virt_uptime,~virt_cpu,"
-	    "~hide_mount,~hide_netif,~state_setup,~state_init",
+	    "~virt_mem,~virt_uptime,~virt_cpu,~virt_load,"
+	    "~hide_mount,~hide_netif,~state_setup,~state_init,"
+	    "~fork_rss,~prolific,~igneg_nice",
 	    0, 0,
 	    0,
 	    VC_VXF_INFO_LOCK|VC_VXF_INFO_NPROC|VC_VXF_INFO_PRIVATE|VC_VXF_INFO_INIT|
 	    VC_VXF_INFO_HIDEINFO|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NAMESPACE|
 	    VC_VXF_SCHED_HARD|VC_VXF_SCHED_PRIO|VC_VXF_SCHED_PAUSE|
-	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|VC_VXF_VIRT_CPU|
+	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|VC_VXF_VIRT_CPU|VC_VXF_VIRT_LOAD|
 	    VC_VXF_HIDE_MOUNT|VC_VXF_HIDE_NETIF|
-	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT,
+	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT|
+	    VC_VXF_FORK_RSS|VC_VXF_PROLIFIC|VC_VXF_IGNEG_NICE,
 
 	    -1,0);
   
