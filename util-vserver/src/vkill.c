@@ -52,7 +52,7 @@ CMDLINE_OPTIONS[] = {
 
 struct Arguments
 {
-    ctx_t		ctx;
+    xid_t		ctx;
     int			sig;
 };
 
@@ -77,7 +77,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-c <ctx>] [-s <signal>] [--] [<pid>]+\n"
+	    " [-c <ctx>] [-s <signal>] [--] <pid>*\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
@@ -113,8 +113,9 @@ str2sig(char const *str)
   return res;
 }
 
-static int
-kill_wrapper_legacy(ctx_t ctx, char const *proc, int sig)
+#if defined(VC_ENABLE_API_LEGACY)
+inline static ALWAYSINLINE int
+kill_wrapper_legacy(xid_t ctx, char const *proc, int sig)
 {
   pid_t		pid = fork();
   if (pid==-1) {
@@ -136,7 +137,7 @@ kill_wrapper_legacy(ctx_t ctx, char const *proc, int sig)
 }
 
 static int
-kill_wrapper(ctx_t ctx, char const *pid, int sig)
+kill_wrapper(xid_t ctx, char const *pid, int sig)
 {
   //printf("kill_wrapper(%u, %s, %i)\n", ctx, pid, sig);
   if (vc_ctx_kill(ctx,atoi(pid),sig)==-1) {
@@ -152,6 +153,18 @@ kill_wrapper(ctx_t ctx, char const *pid, int sig)
   
   return 0;
 }
+#else // VC_ENABLE_API_LEGACY
+inline static int
+kill_wrapper(xid_t ctx, char const *pid, int sig)
+{
+  if (vc_ctx_kill(ctx,atoi(pid),sig)==-1) {
+    perror("vc_ctx_kill()");
+    return 1;
+  }
+  return 0;
+}
+#endif
+
 
 int main(int argc, char *argv[])
 {
