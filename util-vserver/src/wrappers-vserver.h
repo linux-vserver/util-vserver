@@ -30,10 +30,10 @@ Evc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags)
 }
 
 inline static UNUSED xid_t
-Evc_X_getctx(pid_t pid)
+Evc_get_task_xid(pid_t pid)
 {
-  register xid_t	res = vc_X_getctx(pid);
-  FatalErrnoError(res==VC_NOCTX, "vc_X_getctx()");
+  register xid_t	res = vc_get_task_xid(pid);
+  FatalErrnoError(res==VC_NOCTX, "vc_get_task_xid()");
   return res;
 }
 

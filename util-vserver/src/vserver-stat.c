@@ -253,13 +253,13 @@ free_ctx(struct ctx_list *list)
 // open the process's status file to get the ctx number, and other stat
 struct process_info *get_process_info(char *pid)
 {
-  int 		fd;
-  char		buffer[1024];
-  char		*p;
-  size_t		idx, l=strlen(pid);
-  static struct process_info process;
+  int 				fd;
+  char				buffer[1024];
+  char				*p;
+  size_t			idx, l=strlen(pid);
+  static struct process_info	process;
 
-  process.s_context = vc_X_getctx(atoi(pid));
+  process.s_context = vc_get_task_xid(atoi(pid));
 
   
   memcpy(buffer,     "/proc/", 6); idx  = 6;

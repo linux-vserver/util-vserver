@@ -33,8 +33,8 @@ int main(int argc, char *argv[])
   char		buf[sizeof(int)*3+2];
   xid_t		ctx;
   
-  if (argc==1) ctx = vc_X_getctx(0);
-  else         ctx = vc_X_getctx(atoi(argv[1]));
+  if (argc==1) ctx = vc_get_task_xid(0);
+  else         ctx = vc_get_task_xid(atoi(argv[1]));
 
   utilvserver_fmt_int(buf, ctx);
 

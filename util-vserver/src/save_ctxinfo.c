@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   strcpy(runfile,      argv[1]);
   strcpy(runfile+len1, "/run");
 
-  ctx=Evc_X_getctx(0);
+  ctx=Evc_get_task_xid(0);
 
   if (ctx==0) {
     WRITE_MSG(2, "save_ctxinfo: Can not operate in context 0\n");

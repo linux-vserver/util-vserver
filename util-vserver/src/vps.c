@@ -96,7 +96,7 @@ extractCtx(char *pid_str)
   while (*pid_str==' ') ++pid_str;
   pid = atoi(pid_str);
 
-  return vc_X_getctx(pid);
+  return vc_get_task_xid(pid);
 }
 
 static char const *
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "--version")==0) showVersion();
   }
     
-  if (vc_X_getctx(0)!=1)
+  if (vc_get_task_xid(0)!=1)
     Evc_new_s_context(1, vc_get_securecaps(), 0);
 
   Epipe(p);
