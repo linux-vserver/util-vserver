@@ -17,38 +17,45 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-sysv_OPTIONS_EXEMPT	=  $(sysv_GENSCRPTS)
+AM_INSTALLCHECK_STD_OPTIONS_EXEMPT +=	\
+			$(sysv_src_SCRPTS) \
+			$(sysv_gen_SCRPTS)
 
-sysv_XTRAS		=  sysv/rebootmgr.subst \
-			   sysv/v_gated.subst \
-			   sysv/v_httpd.subst \
-			   sysv/v_named.subst \
-			   sysv/v_portmap.subst \
-			   sysv/v_sendmail.subst \
-			   sysv/v_smb.subst \
-			   sysv/v_sshd.subst \
-			   sysv/v_xinetd.subst \
-			   sysv/vservers.subst
+sysv_src_SCRPTS =	sysv/vprocunhide
+sysv_gen_SCRPTS =	sysv/rebootmgr \
+			sysv/v_gated \
+			sysv/v_httpd \
+			sysv/v_named \
+			sysv/v_portmap \
+			sysv/v_sendmail \
+			sysv/v_smb \
+			sysv/v_sshd \
+			sysv/v_xinetd \
+			sysv/vservers
+sysv_conf_DTA =		sysv/vservers.conf
 
-sysv_GENSCRPTS		=  sysv/rebootmgr \
-			   sysv/v_gated \
-			   sysv/v_httpd \
-			   sysv/v_named \
-			   sysv/v_portmap \
-			   sysv/v_sendmail \
-			   sysv/v_smb \
-			   sysv/v_sshd \
-			   sysv/v_xinetd \
-			   sysv/vservers
+sysconf_DATA +=		$(sysv_conf_DTA)
+EXTRA_DIST +=		sysv/rebootmgr.subst \
+			sysv/v_gated.subst \
+			sysv/v_httpd.subst \
+			sysv/v_named.subst \
+			sysv/v_portmap.subst \
+			sysv/v_sendmail.subst \
+			sysv/v_smb.subst \
+			sysv/v_sshd.subst \
+			sysv/v_xinetd.subst \
+			sysv/vservers.subst \
+			$(sysv_src_SCRPTS) \
+			$(sysv_conf_DTA)
 
-sysv_SCRPTS		=  $(sysv_GENSCRPTS)
+initrd_SCRIPTS +=	$(sysv_src_SCRPTS) \
+			$(sysv_gen_SCRPTS)
 
-sysv_CFG		=  sysv/vservers.conf
+CLEANFILES +=		$(sysv_gen_SCRPTS)
 
-
-sysv_SUBSTRULE		=  s!/usr/lib/util-vserver!$(pkglibdir)!g; \
-			   s!^USR_SBIN=/usr/sbin$$!USR_SBIN=$(sbindir)!g; \
-                           s!^DEFAULT_VSERVERDIR=/vservers$$!DEFAULT_VSERVERDIR=$(vserverdir)!g
+sysv_SUBSTRULE =	s!/usr/lib/util-vserver!$(pkglibdir)!g; \
+			s!^USR_SBIN=/usr/sbin$$!USR_SBIN=$(sbindir)!g; \
+                        s!^DEFAULT_VSERVERDIR=/vservers$$!DEFAULT_VSERVERDIR=$(vserverdir)!g
 
 sysv/%:			sysv/%.subst
 			@mkdir -p $$(dirname '$@')
