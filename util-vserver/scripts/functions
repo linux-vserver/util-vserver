@@ -237,6 +237,13 @@ function pkgInit
     _PKG_VSERVER=$vserver
 }
 
+function isAvoidNamespace
+{
+    test ! -e "$1"/namespace || return 1
+    test -e "$CONFDIR"/.defaults/nonamespace -o \
+         -e "$1"/nonamespace
+}
+
 function getAllVservers
 {
     local i
