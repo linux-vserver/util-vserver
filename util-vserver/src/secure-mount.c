@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <sys/mount.h>
@@ -57,6 +58,8 @@
 
 #define MNTPOINT	"/etc"
 
+typedef enum { rfsYES, rfsNO, rfsONLY }		RootFsOption;
+
 struct MountInfo {
     char const *	src;
     char const *	dst;
@@ -72,6 +75,7 @@ struct Options {
     bool		do_chroot;
     bool		ignore_mtab;
     bool		mount_all;
+    RootFsOption	rootfs;
 
     int			cur_dir_fd;
     int			cur_rootdir_fd;
@@ -84,6 +88,7 @@ struct Options {
 #define OPTION_CHROOT	1028
 #define OPTION_SECURE	1029
 #define OPTION_RBIND	1030
+#define OPTION_ROOTFS	1031
 
 #define XFLAG_NOAUTO	0x01
 
@@ -95,6 +100,7 @@ CMDLINE_OPTIONS[] = {
   { "move",    no_argument,       0, OPTION_MOVE },
   { "mtab",    required_argument, 0, OPTION_MTAB },
   { "fstab",   required_argument, 0, OPTION_FSTAB },
+  { "rootfs",  required_argument, 0, OPTION_ROOTFS },
   { "chroot",  no_argument,	  0, OPTION_CHROOT },
   { "secure",  no_argument,       0, OPTION_SECURE },
   { "rbind",   no_argument,       0, OPTION_RBIND },
@@ -155,9 +161,9 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [--help] [--version] [--bind] [--move] [--rbind] [-t <type>] [-n]\n"
-	    "            [--mtab <filename>] [--fstab <filename>] [--chroot] \n"
-	    "            -a|([-o <options>] [--] <src> <dst>)\n\n"
+	    " [--help] [--version] [--bind] [--move] [--rbind] [-t <type>] [--chroot]\n"
+	    "            [--mtab <filename>] [--fstab <filename>] [--rootfs yes|no|only]\n"
+	    "            [-n] -a|([-o <options>] [--] <src> <dst>)\n\n"
 	    "Executes mount-operations under the current directory: it assumes sources in\n"
 	    "the current root-dir while destinations are expected in the chroot environment.\n\n"
 	    "For non-trivial mount-operations it uses the external 'mount' program which\n"
@@ -176,6 +182,11 @@ showHelp(int fd, char const *cmd, int res)
             "  --fstab <filename>       ...  use <filename> as an alternative fstab file;\n"
             "                                this option has an effect only with the '-a'\n"
             "                                option [default: /etc/fstab]\n"
+	    "  --rootfs yes|no|only     ...  specifies how to handle an entry for a rootfs\n"
+	    "                                ('/') when processing an fstab file. 'yes' will\n"
+	    "                                mount it among the other entries, 'only' will\n"
+	    "                                mount only the rootfs entry, and 'no' will ignore\n"
+	    "                                it and mount only the other entries [default: yes]\n"
             "  -a                       ...  mount everything listed in the fstab-file\n\n"
             "  <src>                    ...  the source-filesystem; this path is absolute\n"
             "                                to the current root-filesystem. Only valid\n"
@@ -542,13 +553,17 @@ mountFstab(struct Options const *opt)
 	  goto err1;
 
 	case prIGNORE	:  break;
-	case prDOIT	:
+	case prDOIT	: {
+	  bool		is_rootfs = (strcmp(mnt.dst, "/")==0);
 	  chdir("/");
-	  if (!mountSingle(&mnt, opt)) {
+	  if (( is_rootfs && opt->rootfs==rfsNO) ||
+	      (!is_rootfs && opt->rootfs==rfsONLY)) { /* ignore the entry */ }
+	  else if (!mountSingle(&mnt, opt)) {
 	    showFstabPosition(2, opt->fstab, line_nr, 1);
 	    WRITE_MSG(2, ": failed to mount fstab-entry\n");
 	  }
 	  break;
+	}
 	default		:
 	  assert(false);
       }
@@ -571,6 +586,20 @@ initFDs(struct Options *opt)
   Efcntl(opt->cur_rootdir_fd, F_SETFD, FD_CLOEXEC);
 }
 
+static RootFsOption
+parseRootFS(char const *str)
+{
+  if      (strcasecmp(str, "yes")==0)  return rfsYES;
+  else if (strcasecmp(str, "no")==0)   return rfsNO;
+  else if (strcasecmp(str, "only")==0) return rfsONLY;
+  else {
+    WRITE_MSG(2, "secure-mount: invalid option for '--rootfs': '");
+    WRITE_STR(2, str);
+    WRITE_MSG(2, "'\n");
+    exit(wrapper_exit_code);
+  }
+}
+
 int main(int argc, char *argv[])
 {
   struct MountInfo	mnt = {
@@ -589,7 +618,8 @@ int main(int argc, char *argv[])
     .ignore_mtab    = false,
     .mount_all      = false,
     .cur_dir_fd     = -1,
-    .cur_rootdir_fd = -1
+    .cur_rootdir_fd = -1,
+    .rootfs         = rfsYES
   };
 
   while (1) {
@@ -609,6 +639,7 @@ int main(int argc, char *argv[])
       case OPTION_MTAB	:  opt.mtab        = optarg;  break;
       case OPTION_FSTAB	:  opt.fstab       = optarg;  break;
       case OPTION_CHROOT:  opt.do_chroot   = true;    break;
+      case OPTION_ROOTFS:  opt.rootfs      = parseRootFS(optarg); break;
       case OPTION_SECURE:
 	WRITE_MSG(2, "secure-mount: The '--secure' option is deprecated...\n");
 	break;
