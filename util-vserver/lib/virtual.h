@@ -179,7 +179,7 @@ struct  vcmd_ctx_iattr_v1 {
 
 #define IATTR_BARRIER	0x00010000
 #define	IATTR_IUNLINK	0x00020000
-
+#define IATTR_IMMUTABLE	0x00040000
 
 
 /* vinfo commands */
