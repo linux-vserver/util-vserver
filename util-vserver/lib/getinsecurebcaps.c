@@ -22,8 +22,8 @@
 
 #include "vserver.h"
 
-uint_least32_t
-vc_get_insecurecaps()
+uint_least64_t
+vc_get_insecurebcaps()
 {
   return ( (1<<VC_CAP_LINUX_IMMUTABLE) | (1<<VC_CAP_NET_BROADCAST) |
 	   (1<<VC_CAP_NET_ADMIN) | (1<<VC_CAP_NET_RAW) |
