@@ -66,46 +66,20 @@ showVersion()
   exit(0);
 }
 
-static bool
-setFile(char const *name, char const * display_name, struct stat const *exp_st)
-{
-  bool		res = false;
-  int		fd = open(name, O_RDONLY);
-  int		rc;
-
-  if (fd==-1) {
-    perror("open()");
-    return false;
-  }
-
-  // this is still needed... the file must be open so that vc_set_iattr()
-  // operates on a known file/inode
-  if (!exp_st ||
-      !checkForRace(fd, name, exp_st))
-    goto err;
-
-  rc = vc_set_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
-			   global_args->ctx, 0, VC_IATTR_XID);
-  
-  if (rc==-1) {
-    perror(display_name);
-    goto err;
-  }
-
-  res = true;
-
-  err:
-  close(fd);
-  return res;
-}
-
 bool
 handleFile(char const *name, char const * display_name,
 	   struct stat const *exp_st)
 {
-  if (!S_ISREG(exp_st->st_mode)) return true;
+  int	rc = vc_set_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
+				 global_args->ctx, 0, VC_IATTR_XID,
+				 &exp_st->st_mode);
   
-  return setFile(name, display_name, exp_st);
+  if (rc==-1) {
+    perror(display_name);
+    return false;
+  }
+
+  return true;
 }
 
 void
