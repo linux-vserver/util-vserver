@@ -76,14 +76,21 @@ showVersion()
 static size_t
 writeContextInfo(xid_t ctx, char const *name)
 {
-  char		buf[sizeof(ctx)*3+1];
-  size_t	l   = utilvserver_fmt_ulong(buf, ctx);
   size_t	l1  = name==0 ? 0 : strlen(name);
   size_t	res = CTXNR_WIDTH + 1;
+  
+  if (ctx==VC_NOCTX) {
+    if (3<CTXNR_WIDTH) write(1, CONTEXT_PLACE, CTXNR_WIDTH-3);
+    write(1, "ERR ", 4);
+  }
+  else {
+    char	buf[sizeof(ctx)*3+1];
+    size_t	l = utilvserver_fmt_ulong(buf, ctx);
 
-  if (l<CTXNR_WIDTH) write(1, CONTEXT_PLACE, CTXNR_WIDTH-l);
-  write(1, buf, l);
-  write(1, " ", 1);
+    if (l<CTXNR_WIDTH) write(1, CONTEXT_PLACE, CTXNR_WIDTH-l);
+    write(1, buf, l);
+    write(1, " ", 1);
+  }
 
   if (l1!=0) {
     assert(name!=0);
@@ -251,7 +258,7 @@ int main(int argc, char *argv[])
   
   processOutput(data, len);
 
-  exitLikeProcess(pid);
+  exitLikeProcess(pid, "ps");
   perror("exitLikeProcess()");
   return wrapper_exit_code;
 }
