@@ -49,5 +49,5 @@ vserver_start_vserver_start_bin_SOURCES = \
 
 vserver_start_vserver_start_bin_LDADD =		$(VSERVER_LDADDS) \
 						$(LIBINTERNAL) \
-						libensc_vector.a
+						$(LIBENSCVECTOR)
 vserver_start_vserver_start_bin_LDFLAGS =	$(VSERVER_LDFLGS)
