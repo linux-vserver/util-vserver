@@ -64,12 +64,12 @@ new_s_context(int rev,
 	      int nbctx,  int *ctxs, int remove_cap, int flags)
 {
   int		ret;
-  
+
   switch (rev) {
     case 0	:
     {
       int	ctx;
-      
+
       switch (nbctx) {
 	case 0	:  ctx = -1;      break;
 	case 1	:  ctx = ctxs[0]; break;
@@ -103,7 +103,7 @@ initVserverSyscalls(int s_context_NR)
 static int
 getAndClearEnv(char const *key, int dflt)
 {
-  char	*env = getenv(key);
+  char		*env = getenv(key);
   int		res;
 
   if (env==0 || env[0]=='\0') res = dflt;
@@ -142,7 +142,7 @@ fixPreloadEnv()
     char	*end_pos = pos + sizeof(LIBNAME);
     bool	is_end = (end_pos[-1]=='\0');
     char	*start_pos;
-    
+
     end_pos[-1] = '\0';
     start_pos   = strrchr(env, ':');
     if (start_pos==0) start_pos = env;
@@ -223,13 +223,18 @@ removeNamespaceMounts(char const *path, char * const argv[])
       .argv = argv,
       .mnts = mnts,
     };
-    
+
+      // the rpmlib signal-handler is still active; use the default one to
+      // make wait4() working...
+    signal(SIGCHLD, SIG_DFL);
+
     pid_t	pid = clone(removeNamespaceMountsChild, buf+sizeof(buf)/2,
 			    CLONE_NEWNS|SIGCHLD|CLONE_VFORK, &params);
 
     if (pid==-1) return -1;
-    while ((p=waitpid(pid, &status, 0))==-1 &&
+    while ((p=wait4(pid, &status, 0,0))==-1 &&
 	   (errno==EINTR || errno==EAGAIN)) ;
+
     if (p==-1)   return -1;
 
     if (WIFEXITED(status))   exit(WEXITSTATUS(status));
