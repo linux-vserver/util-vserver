@@ -1,7 +1,8 @@
 body {
   font-size: 12pt;
-  background-color: fuchsia;
+  background-color: #ffc3df;
   margin: 0px;
+  background-image: url("./flowers.png");
 }
 
 span.directory {
