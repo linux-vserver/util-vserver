@@ -87,7 +87,7 @@ showVersion()
 }
 
 static void
-setFlags(char const *str, struct vc_ctx_flags *flags)
+parseFlags(char const *str, struct vc_ctx_flags *flags)
 {
   struct vc_err_listparser	err;
   int				rc;
@@ -103,7 +103,7 @@ setFlags(char const *str, struct vc_ctx_flags *flags)
 }
 
 static void
-setBCaps(char const *str, struct vc_ctx_caps *caps)
+parseBCaps(char const *str, struct vc_ctx_caps *caps)
 {
   struct vc_err_listparser	err;
   int				rc;
@@ -119,7 +119,7 @@ setBCaps(char const *str, struct vc_ctx_caps *caps)
 }
 
 static void
-setCCaps(char const *str, struct vc_ctx_caps *caps)
+parseCCaps(char const *str, struct vc_ctx_caps *caps)
 {
   struct vc_err_listparser	err;
   int				rc;
@@ -135,12 +135,12 @@ setCCaps(char const *str, struct vc_ctx_caps *caps)
 }
 
 static void
-setSecure(struct vc_ctx_flags UNUSED * flags,
-	  struct vc_ctx_caps  UNUSED * caps)
+parseSecure(struct vc_ctx_flags UNUSED * flags,
+	    struct vc_ctx_caps  UNUSED * caps)
 {
-  caps->ccaps = ~vc_get_securecaps();
+  caps->ccaps = ~0;
   caps->cmask = ~0;
-  caps->bcaps = ~0;
+  caps->bcaps = ~vc_get_securecaps();
 }
 
 int main(int argc, char *argv[])
@@ -160,10 +160,10 @@ int main(int argc, char *argv[])
       case CMD_VERSION	:  showVersion();
       case CMD_SET	:  break; // default op currently
       case CMD_XID	:  args.xid = atoi(optarg); break;
-      case CMD_FLAG	:  setFlags(optarg, &args.flags);      break;
-      case CMD_CCAP	:  setCCaps(optarg, &args.caps);       break;
-      case CMD_BCAP	:  setBCaps(optarg, &args.caps);       break;
-      case CMD_SECURE	:  setSecure(&args.flags, &args.caps); break;
+      case CMD_FLAG	:  parseFlags(optarg, &args.flags);      break;
+      case CMD_CCAP	:  parseCCaps(optarg, &args.caps);       break;
+      case CMD_BCAP	:  parseBCaps(optarg, &args.caps);       break;
+      case CMD_SECURE	:  parseSecure(&args.flags, &args.caps); break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -175,9 +175,11 @@ int main(int argc, char *argv[])
 
   if (args.xid==VC_NOCTX) args.xid = Evc_get_task_xid(0);
 
-  if (vc_set_ccaps(args.xid, &args.caps)==-1)
+  if ((args.caps.cmask || args.caps.bcaps) &&
+      vc_set_ccaps(args.xid, &args.caps)==-1)
     perror(ENSC_WRAPPERS_PREFIX "vc_set_ccaps()");
-  else if (vc_set_flags(args.xid, &args.flags)==-1)
+  else if (args.flags.mask &&
+	   vc_set_flags(args.xid, &args.flags)==-1)
     perror(ENSC_WRAPPERS_PREFIX "vc_set_flags()");
   else if (optind<argc)
     EexecvpD(argv[optind], argv+optind);
