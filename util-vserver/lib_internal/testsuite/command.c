@@ -36,7 +36,7 @@ main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  Command_init(&cmd, 5);
+  Command_init(&cmd);
   for (i=2; i<argc; ++i)
     Command_appendParameter(&cmd, argv[i]);
 
