@@ -44,8 +44,8 @@ src_testsuite_XTRAS =			$(src_testsuite_check_src_SCRPTS)
 
 src_testsuite_rpm_fake_test_SOURCES =	src/testsuite/rpm-fake-test.c
 
-src_testsuite_vunify_functest_SOURCES =	src/testsuite/vunify-functest.c \
-					src/vunify-matchlist.c
+src_testsuite_vunify_functest_SOURCES =	src/testsuite/vunify-functest.c
+src_testsuite_vunify_functest_LDADD =	lib_internal/libinternal.a
 src_testsuite_vunify_functest_CPPFLAGS=	$(AM_CPPFLAGS) $(src_testsuite_CPPFLAGS)
 
 

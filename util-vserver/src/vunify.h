@@ -19,7 +19,7 @@
 #ifndef H_UTIL_VSERVER_SRC_VUNIFY_H
 #define H_UTIL_VSERVER_SRC_VUNIFY_H
 
-#include "vunify-matchlist.h"
+#include "lib_internal/matchlist.h"
 
 struct dirent;
 struct WalkdownInfo
@@ -51,6 +51,7 @@ struct Arguments {
     bool				do_renew;
 };
 
+struct stat;
 
 static void	visitDirEntry(struct dirent const *) NONNULL((1));
 static void	visitDir(char const *, struct stat const *) NONNULL((1));

@@ -20,7 +20,7 @@
 #  include <config.h>
 #endif
 
-#include "vunify-matchlist.h"
+#include "lib_internal/matchlist.h"
 
 int wrapper_exit_code = 1;
 extern void	PathInfo_test();
