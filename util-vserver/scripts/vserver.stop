@@ -36,7 +36,7 @@ cd "$VSERVER_DIR"/vdir/
     "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . "${INITCMD_STOP[@]}"
 
 "${INITCMD_STOP_SYNC[@]}"
-"$_CTX_KILL" -c "$S_CONTEXT" -- "${INITKILL_SEQ[@]}"
+sendKillSequence  "$S_CONTEXT" "${INITKILL_SEQ[@]}"
 
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" post-stop
     
