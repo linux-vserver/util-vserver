@@ -33,5 +33,5 @@ RPM_FAKE_CTX=-1 \
 RPM_FAKE_RESOLVER=$srcdir/src/rpm-fake-resolver \
 RPM_FAKE_CHROOT=$tmpdir \
 RPM_FAKE_NAMESPACE_MOUNTS=/proc \
-LD_PRELOAD=$srcdir/src/rpm-fake.so \
+LD_PRELOAD=./src/.libs/rpm-fake.so \
 ./src/testsuite/rpm-fake-test <$srcdir/src/testsuite/data/rpm-fake-test.inp
