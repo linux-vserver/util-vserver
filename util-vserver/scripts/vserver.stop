@@ -19,12 +19,12 @@
 lock "$LOCKDIR"/vserver."$($_VSERVER_INFO "$VSERVER_DIR" CANONIFY)".startup
 
 if ! isVserverRunning "$VSERVER_DIR" S_CONTEXT; then
-    echo $"vserver '$VSERVER_NAME' is not running; aborting..." >&2
+    warning $"vserver '$VSERVER_NAME' is not running" >&2
     test "$OPTION_DEBUG" || exec 2>/dev/null >/dev/null
     umountVserver     "$VSERVER_DIR" || :
     disableInterfaces "$VSERVER_DIR" || :
     unlock
-    exit 1
+    exit 0
 fi
 
 function cleanup

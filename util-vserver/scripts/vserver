@@ -181,7 +181,7 @@ test -d "$VSERVER_DIR" || {
     echo $"\
 Can not find vserver-setup; please make sure that the vserver configuration
 is located at $VSERVER_DIR/."
-    exit 1
+    exit 5
 } >&2
 
 if test -e "$VSERVER_DIR"/name; then
@@ -257,8 +257,8 @@ case "$2" in
 	    fi
 	    exit 0
 	else
-	    msg $"Vserver '$vserver' is not running"
-	    exit 1
+	    msg $"Vserver '$vserver' is stopped"
+	    exit 3
 	fi
 	;;
     (*)

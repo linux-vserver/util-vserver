@@ -19,8 +19,8 @@
 lock "$LOCKDIR"/vserver."$($_VSERVER_INFO "$VSERVER_DIR" CANONIFY)".startup
 
 if isVserverRunning "$VSERVER_DIR"; then
-    echo $"vserver '$VSERVER_NAME' already running; aborting..." >&2
-    exit 1
+    warning $"vserver '$VSERVER_NAME' already running"
+    exit 0
 fi
 
 function cleanup()
