@@ -105,13 +105,13 @@ invokeIpAddr(struct Interface const *iface)
 }
 
 static bool
-addVLAN(struct Interface const *iface)
+addVLAN(struct Interface const UNUSED *iface)
 {
   abort();	// TODO: implement me
 }
 
 static bool
-addIndirect(struct Interface const *iface)
+addIndirect(struct Interface const UNUSED *iface)
 {
   abort();	// TODO: implement me
 }

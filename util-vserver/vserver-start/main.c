@@ -138,7 +138,7 @@ setCFlag(xid_t xid, uint_least64_t value)
   Evc_set_cflags(xid, &flags);
 }
 
-int main(int argc, char *argv[])
+int main(int UNUSED argc, char UNUSED *argv[])
 {
   Cfg_init(&cfg);
   

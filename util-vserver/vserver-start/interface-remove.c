@@ -23,7 +23,7 @@
 #include "interface.h"
 
 bool
-Iface_remove(struct Interface const *iface)
+Iface_remove(struct Interface const UNUSED *iface)
 {
   return true;
 }

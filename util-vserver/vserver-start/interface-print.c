@@ -23,7 +23,7 @@
 #include "interface.h"
 
 void
-Iface_print(struct Interface const *iface, int fd)
+Iface_print(struct Interface const UNUSED *iface, int UNUSED fd)
 {
   
 }
