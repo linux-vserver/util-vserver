@@ -23,24 +23,38 @@ if ! isVserverRunning "$VSERVER_DIR" S_CONTEXT; then
     exit 1
 fi
 
+function cleanup
+{
+    test ! -p "$sync_fifo" || {
+	rm -f "$sync_fifo"
+	rmdir $(dirname "$sync_fifo")
+    }
+}
+
+sync_fifo=
+trap "cleanup" EXIT
+
 set -e
 generateOptions   "$VSERVER_DIR"
 set +e
 
+vshelper.doDestroy "$VSERVER_DIR" "$S_CONTEXT"
+initSync           "$VSERVER_DIR" sync_fifo
+
 cd "$VSERVER_DIR"/vdir/
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
-
 cd "$VSERVER_DIR"/vdir/
 
+fail=
 if test "$_IS_FAKEINIT" && \
    $_VSERVER_INFO - FEATURE vkill && \
    initpid=$($_VSERVER_INFO "$S_CONTEXT" INITPID 2>/dev/null); then
-    $_VKILL -s INT -- "$initpid" && "${INITCMD_STOP_SYNC[@]}" || :
+    $_VKILL -s INT -- "$initpid" || fail=1
 elif $_VSERVER_INFO - FEATURE migrate; then
     "${NICE_CMD[@]}" \
     ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT" -- } \
     $_VCONTEXT $SILENT_OPT --migrate --chroot --xid "$S_CONTEXT" -- \
-    "${INITCMD_STOP[@]}" && "${INITCMD_STOP_SYNC[@]}" || :
+    "${INITCMD_STOP[@]}" || fail=1
 else
     "${NICE_CMD[@]}" \
     "$_CHBIND"       "${CHBIND_OPTS[@]}" \
@@ -48,10 +62,13 @@ else
     ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT"} \
     $_CHCONTEXT_COMPAT    "${CHCONTEXT_OPTS[@]}" \
     "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" "." \
-    "${INITCMD_STOP[@]}" && "${INITCMD_STOP_SYNC[@]}" || :
+    "${INITCMD_STOP[@]}" || fail=1
 fi
 
-sendKillSequence  "$S_CONTEXT" "${INITKILL_SEQ[@]}"
+test "$fail" || waitForSync "$VSERVER_DIR" "$sync_fifo"
+
+vshelper.doDestroy "$VSERVER_DIR" "$S_CONTEXT"
+sendKillSequence   "$S_CONTEXT" "${INITKILL_SEQ[@]}"
 
 ## Small hack... isVserverRunning removes stale runfiles as a sideeffect
 ! isVserverRunning  "$VSERVER_DIR" || \
