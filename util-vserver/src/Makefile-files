@@ -42,6 +42,7 @@ src_sbin_PRGS		=  src/chbind \
 			   src/vlimit \
 			   src/vdu \
 			   src/vfiles \
+			   src/vkill \
 			   src/vserver-stat
 
 src_capchroot_SOURCES		=  src/capchroot.c
@@ -68,6 +69,10 @@ src_reducecap_LDADD		=  lib/libvserver.a
 
 src_vlimit_SOURCES		=  src/vlimit.c
 src_vlimit_LDADD		=  lib/libvserver.a
+
+src_vkill_SOURCES		=  src/vkill.c
+src_vkill_LDADD			=  lib/libvserver.a
+src_vkill_CPPFLAGS		=  $(AM_CPPFLAGS) -DLEGACYDIR=\"$(legacydir)\"
 
 src_showattr_SOURCES		=  src/showattr.c
 src_showperm_SOURCES		=  src/showperm.c
