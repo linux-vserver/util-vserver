@@ -75,7 +75,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-c <ctx>] [-a|--all] [-MSH  --<nr> <value>]*\n"
+	    " -c <xid> [-a|--all] [-MSH  --<nr> <value>]*\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
@@ -122,9 +122,9 @@ showAll(int ctx)
   struct vc_rlimit_mask	mask;
   size_t		i;
 
-  if (vc_get_rlimit_mask(-2, &mask)==-1) {
+  if (vc_get_rlimit_mask(ctx, &mask)==-1) {
     perror("vc_get_rlimit_mask()");
-    //exit(1);
+    exit(1);
   }
 
   for (i=0; i<32; ++i) {
@@ -170,7 +170,7 @@ int main (int argc, char *argv[])
   int			set_mask = 0;
   struct vc_rlimit	limits[32];
   bool			show_all = false;
-  xid_t			ctx      = VC_SAMECTX;
+  xid_t			ctx      = VC_NOCTX;
 
   {
     size_t		i;
@@ -222,6 +222,11 @@ int main (int argc, char *argv[])
 	return EXIT_FAILURE;
 	break;
     }
+  }
+
+  if (ctx==VC_NOCTX) {
+    WRITE_MSG(2, "No context specified; try '--help' for more information\n");
+    return EXIT_FAILURE;
   }
 
   setLimits(ctx, limits, lim_mask);
