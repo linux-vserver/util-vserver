@@ -31,6 +31,7 @@ extern "C" {
     uint32_t	mask;
   };
 
+  int	vc_get_version(int cat);
   int	vc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags);
   int	vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips);
   int	vc_chrootsafe(char const *dir);
