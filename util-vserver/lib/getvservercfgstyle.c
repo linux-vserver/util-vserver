@@ -42,6 +42,7 @@ isAbsPath(char const *p)
 }
 
 #define ISDIR	utilvserver_isDirectory(buf, true)
+#define ISFILE	utilvserver_isFile(buf, true)
 
 vcCfgStyle
 vc_getVserverCfgStyle(char const *id)
@@ -80,7 +81,7 @@ vc_getVserverCfgStyle(char const *id)
       strcpy(buf+sizeof(CONFDIR "/") - 1,    id);
       strcpy(buf+sizeof(CONFDIR "/")+l1 - 1, ".conf");
 
-      if (!ISDIR) res = vcCFG_NONE;
+      if (!ISFILE) res = vcCFG_NONE;
     }
   }
 
