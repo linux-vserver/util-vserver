@@ -76,6 +76,12 @@
 #  define CALL_VC_V11(F,...)	CALL_VC_NOOP
 #endif
 
+#ifdef VC_ENABLE_API_V13
+#  define CALL_VC_V13(F,...)	CALL_VC_GENERAL(0x00010000, v13, F, __VA_ARGS__)
+#else
+#  define CALL_VC_V13(F,...)	CALL_VC_NOOP
+#endif
+
 
 #if 1
 #  define CTX_KERNEL2USER(X)	(((X)==(uint32_t)(-1)) ? VC_NOCTX   : \
