@@ -24,6 +24,11 @@
 #include "fmt-internal.h"
 #include <string.h>
 
+#define STRINGIFY_(X)	#X
+#define STRINGIFY(X)	STRINGIFY_(X)
+#define ALIASFUNC(X)	__attribute__((__alias__(STRINGIFY(FMT_P(X)))))
+
+
 size_t
 CONCAT(FMT_P(xuint),)(char *ptr, CONCAT(uint_least,_t) val)
 {

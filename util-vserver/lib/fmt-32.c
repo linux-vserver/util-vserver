@@ -22,3 +22,11 @@
 
 #define FMT_BITSIZE	32
 #include "fmt.hc"
+
+#if __WORDSIZE==FMT_BITSIZE
+size_t	FMT_P(ulong_base)(char *ptr, unsigned long val, char base) ALIASFUNC(uint32_base);
+size_t	FMT_P( long_base)(char *ptr,          long val, char base) ALIASFUNC( int32_base);
+#endif
+
+size_t	FMT_P(uint_base)(char *ptr, unsigned int val, char base)   ALIASFUNC(uint32_base);
+size_t	FMT_P( int_base)(char *ptr,          int val, char base)   ALIASFUNC( int32_base);

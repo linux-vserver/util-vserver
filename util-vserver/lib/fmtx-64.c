@@ -22,3 +22,8 @@
 
 #define FMT_BITSIZE	64
 #include "fmtx.hc"
+
+#if __WORDSIZE==FMT_BITSIZE
+size_t	FMT_P(xulong)(char *ptr, unsigned long val) ALIASFUNC(xuint64);
+size_t	FMT_P( xlong)(char *ptr,          long val) ALIASFUNC( xint64);
+#endif

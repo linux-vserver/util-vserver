@@ -30,10 +30,6 @@
 #define FMT_P_(X,Y)	FMT_P__(X,Y)
 #define FMT_P(X)	FMT_P_(FMT_PREFIX, X)
 
-#define STRINGIFY_(X)	#X
-#define STRINGIFY(X)	STRINGIFY_(X)
-#define WEAKFUNC(X)	__attribute__((__weak__,__alias__(STRINGIFY(FMT_P(X)))))
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,22 +47,15 @@ size_t	FMT_P( int64_base)(char *ptr,  int_least64_t val, char base);
 size_t	FMT_P(uint32_base)(char *ptr, uint_least32_t val, char base);
 size_t	FMT_P( int32_base)(char *ptr,  int_least32_t val, char base);
 
-#if __WORDSIZE == 64
-size_t	FMT_P(ulong_base)(char *ptr, unsigned long val, char base) WEAKFUNC(uint64_base);
-size_t	FMT_P( long_base)(char *ptr,          long val, char base) WEAKFUNC( int64_base);
-size_t	FMT_P(xulong)    (char *ptr, unsigned long val)            WEAKFUNC(xuint64);
-size_t	FMT_P( xlong)    (char *ptr,          long val)            WEAKFUNC( xint64);
-#else
-size_t	FMT_P(ulong_base)(char *ptr, unsigned long val, char base) WEAKFUNC(uint32_base);
-size_t	FMT_P( long_base)(char *ptr,          long val, char base) WEAKFUNC( int32_base);
-size_t	FMT_P(xulong)    (char *ptr, unsigned long val)            WEAKFUNC(xuint32);
-size_t	FMT_P( xlong)    (char *ptr,          long val)            WEAKFUNC( xint32);
-#endif
+size_t	FMT_P(ulong_base)(char *ptr, unsigned long val, char base);
+size_t	FMT_P( long_base)(char *ptr,          long val, char base);
+size_t	FMT_P(xulong)    (char *ptr, unsigned long val);
+size_t	FMT_P( xlong)    (char *ptr,          long val);
 
-size_t	FMT_P(uint_base)(char *ptr, unsigned int val, char base)   WEAKFUNC(uint32_base);
-size_t	FMT_P( int_base)(char *ptr,          int val, char base)   WEAKFUNC( int32_base);
-size_t	FMT_P(xuint)    (char *ptr, unsigned int val, char base)   WEAKFUNC(xuint32);
-size_t	FMT_P( xint)    (char *ptr,          int val, char base)   WEAKFUNC( xint32);
+size_t  FMT_P(uint_base)(char *ptr, unsigned int val, char base);
+size_t  FMT_P( int_base)(char *ptr,          int val, char base);
+size_t  FMT_P(xuint)    (char *ptr, unsigned int val, char base);
+size_t  FMT_P( xint)    (char *ptr,          int val, char base);
 
 inline static size_t
 FMT_P(uint64)(char *ptr, uint_least64_t val)
@@ -122,7 +111,7 @@ FMT_P(int)(char *ptr, int val)
 }
 #endif
 
-#undef WEAKFUNC
+#undef ALIASFUNC
 #undef STRINGIFY
 #undef STRINGIFY_
 #undef FMT_P
