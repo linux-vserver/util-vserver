@@ -42,6 +42,7 @@
 #define CMD_TOK_MIN		0x4004
 #define CMD_TOK_MAX		0x4005
 #define CMD_CPU_MASK		0x4006
+#define CMD_PRIO_BIAS		0x4007
 
 int			wrapper_exit_code = 255;
 
@@ -49,14 +50,20 @@ struct option const
 CMDLINE_OPTIONS[] = {
   { "help",     no_argument,  0, CMD_HELP },
   { "version",  no_argument,  0, CMD_VERSION },
-  { "ctx",         required_argument, 0, CMD_XID },
-  { "xid",         required_argument, 0, CMD_XID },
-  { "fill-rate",   required_argument, 0, CMD_FRATE },
-  { "interval",    required_argument, 0, CMD_INTERVAL },
-  { "tokens",      required_argument, 0, CMD_TOKENS },
-  { "tokens_min",  required_argument, 0, CMD_TOK_MIN },
-  { "tokens_max",  required_argument, 0, CMD_TOK_MAX },
-  { "cpu_mask",    required_argument, 0, CMD_CPU_MASK },
+  { "ctx",           required_argument, 0, CMD_XID },
+  { "xid",           required_argument, 0, CMD_XID },
+  { "fill-rate",     required_argument, 0, CMD_FRATE },
+  { "interval",      required_argument, 0, CMD_INTERVAL },
+  { "tokens",        required_argument, 0, CMD_TOKENS },
+  { "tokens_min",    required_argument, 0, CMD_TOK_MIN },
+  { "tokens-min",    required_argument, 0, CMD_TOK_MIN },
+  { "tokens_max",    required_argument, 0, CMD_TOK_MAX },
+  { "tokens-max",    required_argument, 0, CMD_TOK_MAX },
+  { "prio_bias",     required_argument, 0, CMD_PRIO_BIAS },
+  { "prio-bias",     required_argument, 0, CMD_PRIO_BIAS },
+  { "priority_bias", required_argument, 0, CMD_PRIO_BIAS },
+  { "priority-bias", required_argument, 0, CMD_PRIO_BIAS },
+  { "cpu_mask",      required_argument, 0, CMD_CPU_MASK },
   {0,0,0,0}
 };
 
@@ -68,7 +75,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:\n  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [--xid <xid>] [--fill-rate <rate>] [--interval <interval>] [--tokens <tokens>] [--tokens_min <tokens>] [--tokens_max <tokens>] [--cpu_mask <mask>] [--] [<command> <args>*]\n"
+	    " [--xid <xid>] [--fill-rate <rate>] [--interval <interval>] [--tokens <tokens>] [--tokens-min <tokens>] [--tokens-max <tokens>] [--prio-bias <bias>] [--] [<command> <args>*]\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
@@ -86,11 +93,16 @@ showVersion()
   exit(0);
 }
 
+#define SETVAL(ATTR,MASK) \
+  sched.ATTR      = atoi(optarg); \
+  sched.set_mask |= MASK;
+
 int main(int argc, char *argv[])
 {
   xid_t			xid   = VC_NOCTX;
-  struct vc_set_sched	sched = { 0,0,0,0,0,0 };
-  bool			do_it = false;
+  struct vc_set_sched	sched = {
+    .set_mask = 0
+  };
   
   while (1) {
     int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
@@ -99,13 +111,16 @@ int main(int argc, char *argv[])
     switch (c) {
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
-      case CMD_XID	:  xid = Evc_xidopt2xid(optarg,true);              break;
-      case CMD_FRATE	:  sched.fill_rate   = atoi(optarg); do_it = true; break;
-      case CMD_INTERVAL	:  sched.interval    = atoi(optarg); do_it = true; break;
-      case CMD_TOKENS	:  sched.tokens      = atoi(optarg); do_it = true; break;
-      case CMD_TOK_MIN	:  sched.tokens_min  = atoi(optarg); do_it = true; break;
-      case CMD_TOK_MAX	:  sched.tokens_max  = atoi(optarg); do_it = true; break;
-      case CMD_CPU_MASK	:  sched.cpu_mask    = atoi(optarg); do_it = true; break;
+      case CMD_XID	:  xid = Evc_xidopt2xid(optarg,true);         break;
+      case CMD_FRATE	:  SETVAL(fill_rate,     VC_VXSM_FILL_RATE);  break;
+      case CMD_INTERVAL	:  SETVAL(interval,      VC_VXSM_INTERVAL);   break;
+      case CMD_TOKENS	:  SETVAL(tokens,        VC_VXSM_TOKENS);     break;
+      case CMD_TOK_MIN	:  SETVAL(tokens_min,    VC_VXSM_TOKENS_MIN); break;
+      case CMD_TOK_MAX	:  SETVAL(tokens_max,    VC_VXSM_TOKENS_MAX); break;
+      case CMD_PRIO_BIAS:  SETVAL(priority_bias, VC_VXSM_PRIO_BIAS);  break;
+      case CMD_CPU_MASK	:
+	WRITE_MSG(2, "vsched: WARNING: the '--cpu_mask' parameter is deprecated and will not have any effect\n");
+	break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -120,7 +135,7 @@ int main(int argc, char *argv[])
     exit(wrapper_exit_code);
   }
 
-  if (!do_it && optind==argc) {
+  if (sched.set_mask==0 && optind==argc) {
     WRITE_MSG(2, "Neither an option nor a program was specified; try '--help' for more information\n");
     exit(wrapper_exit_code);
   }
@@ -128,7 +143,7 @@ int main(int argc, char *argv[])
   if (xid==VC_NOCTX)
     xid = Evc_get_task_xid(0);
 
-  if (do_it && vc_set_sched(xid, &sched)==-1) {
+  if (sched.set_mask!=0 && vc_set_sched(xid, &sched)==-1) {
     perror("vc_set_sched()");
     exit(255);
   }
