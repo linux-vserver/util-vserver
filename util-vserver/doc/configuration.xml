@@ -825,12 +825,19 @@
 		  </scalar>
 		  <scalar name="name">
 		   <description>
-		    When this file exists, the interface will be named with the text in this file.
+		    When this file exists, the interface will be named
+		    with the text in this file. Without such an entry,
+		    the IP will not be shown by 'ifconfig' but by 'ip
+		    addr ls' only.  Such a labeled interface is known
+		    as an "alias" also (e.g. 'eth0:foo').
 		   </description>
 		  </scalar>
 		  <boolean name="nodev">
 		   <description>
-		    When this file exists, the interface will be assumed to exist already.
+		    When this file exists, the interface will be
+		    assumed to exist already. This can be used to
+		    assign primary interfaces which are created by
+		    the host or another vserver.
 		   </description>
 		  </boolean>
    </collection>
