@@ -72,6 +72,7 @@ src_DIETPROGS =		src/new-namespace \
 			src/vcontext \
 			src/vcopy \
 			src/vkill \
+			src/vschedule \
 			src/vrsetup \
 			src/vserver-stat \
 			src/vserver-info
@@ -132,6 +133,7 @@ src_sbin_PRGS =		src/chbind \
 			src/vkill \
 			src/vnamespace \
 			src/vrsetup \
+			src/vschedule \
 			src/vserver-stat \
 			src/vserver-info \
 			src/vuname \
@@ -151,6 +153,10 @@ src_chcontext_compat_LDFLAGS =	$(VSERVER_LDFLAGS)
 src_vcontext_SOURCES		=  src/vcontext.c
 src_vcontext_LDADD		=  $(VSERVER_LDADDS) lib_internal/libinternal.a
 src_vcontext_LDFLAGS		=  $(VSERVER_LDFLAGS)
+
+src_vschedule_SOURCES		=  src/vschedule.c
+src_vschedule_LDADD		=  $(VSERVER_LDADDS)
+src_vschedule_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_chroot_cat_SOURCES		=  src/chroot-cat.c
 src_chroot_rm_SOURCES		=  src/chroot-rm.c
