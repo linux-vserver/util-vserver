@@ -20,6 +20,8 @@
 #  include <config.h>
 #endif
 
+#undef NDEBUG
+
 #include "ensc_vector/list.h"
 #include "ensc_vector/list-internal.h"
 
