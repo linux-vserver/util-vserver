@@ -140,6 +140,9 @@ create_cmd=( $_VCONTEXT --create --silentexist
 
 chain_cmd=()
 
+old_IFS=$IFS
+IFS=,$IFS
+
 test -z "$OPT_DOMAINNAME$OPT_HOSTNAME" || \
     chain_cmd=( "${chain_cmd[@]}"
 		--
@@ -150,14 +153,16 @@ test -z "$OPT_DOMAINNAME$OPT_HOSTNAME" || \
 chain_cmd=( "${chain_cmd[@]}"
 		--
 		$_VATTRIBUTE --set
-		${OPT_CAPS:+--bcap "${OPT_CAPS[@]}"}
-		${OPT_FLAGS:+--flag "${OPT_FLAGS[@]}"}
+		${OPT_CAPS:+--bcap "${OPT_CAPS[*]}"}
+		${OPT_FLAGS:+--flag "${OPT_FLAGS[*]}"}
 		${OPT_SECURE:+--secure} )
 		
 migrate_cmd=( $_VCONTEXT
 	      ${OPT_SILENT:+--silent}
 	      ${OPT_DISCONNECT:+--disconnect}
 	      $OPT_INITPID )
+
+IFS=$old_IFS
 
 "${create_cmd[@]}" "${chain_cmd[@]}" -- \
     "${migrate_cmd[@]}" --endsetup --migrate-self -- "$@"
