@@ -24,6 +24,7 @@ CVS2CL_AMFLAGS		=  $(CVS2CL_TAG) -U cvsusers.map --show-dead
 CVS2CL_ALLFLAGS        :=  $(CVS2CL_AMFLAGS) $(CVS2CL_FLAGS)
 
 confdir			=  $(sysconfdir)/vservers
+confdefaultsdir		=  $(confdir)/.defaults
 sbincfgdir		=  $(sbindir)
 
 include_HEADERS		=  $(lib_HDRS)
@@ -139,6 +140,9 @@ vserverpkgdir		=  $(vserverdir)/.pkg
 
 install-data-hook:
 			$(mkinstalldirs) -m 755 $(DESTDIR)$(pkgstatedir) $(DESTDIR)$(pkgstaterevdir)
+			$(mkinstalldirs) -m 755 $(DESTDIR)$(confdefaultsdir)/{apps/pkgmgmt,files}
+			f=$(DESTDIR)$(confdefaultsdir)/vdirbase; test -e "$$f" || ln -s '$(vserverdir)'     "$$f"
+			f=$(DESTDIR)$(confdefaultsdir)/run.rev;  test -e "$$f" || ln -s '$(pkgstaterevdir)' "$$f"
 
 install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
