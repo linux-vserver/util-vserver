@@ -33,6 +33,8 @@ declare -a INITCMD_START_SYNC=()
 declare -a INITCMD_STOP=()
 declare -a INITCMD_STOP_SYNC=()
 declare -a INITCMD_PREPARE=()
+declare -a INITKILL_SEQ=()
+declare -a ENTER_SHELL=()
 
 INTERFACE_CMDS_IDX=0
 
@@ -119,6 +121,24 @@ function _generateCapabilityOptions
     done <"$vdir"/capabilities
 }
 
+function getEnterShell
+{
+    local vdir=$1
+
+    ENTER_SHELL=()
+    
+    _getFileValue ENTER_SHELL	 "$vdir"/shell
+    
+    test "$ENTER_SHELL" || {
+	local i
+	for i in "/bin/bash -login" "/bin/sh -l" /bin/csh; do
+	    set -- $i
+	    test -x "$vdir/vdir/$1" || continue
+	    ENTER_SHELL=( "$@" )
+	    break
+	done
+    }
+}
 
 function _generateInitOptions
 {
@@ -133,13 +153,16 @@ function _generateInitOptions
     INITCMD_START_SYNC=()
     INITCMD_STOP_SYNC=()
     INITCMD_PREPARE=()
-    
+
+    INITKILL_SEQ=( 15 5 9 )
     CHCONTEXT_INIT_OPTS=()
-    
+
+
     _getFileValue INITSTYLE      "$cfgdir"/style
     _getFileValue runlevel_start "$cfgdir"/runlevel
     _getFileValue runlevel_start "$cfgdir"/runlevel.start
     _getFileValue runlevel_stop  "$cfgdir"/runlevel.stop
+    _getFileArray INITKILL_SEQ	 "$cfgdir"/killseq
 
     case x"$INITSTYLE" in
 	xsysv)
@@ -179,6 +202,7 @@ function _generateInitOptions
     _getFileArray INITCMD_START_SYNC "$cfgdir"/cmd.start-sync
     _getFileArray INITCMD_STOP_SYNC  "$cfgdir"/cmd.stop-sync
     _getFileArray INITCMD_PREPARE    "$cfgdir"/cmd.prepare
+
     
     test -e "$cfgdir"/sync -o "$OPTION_FORCE_SYNC" || {
 	INITCMD_START_SYNC=()
