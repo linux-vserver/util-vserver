@@ -141,11 +141,11 @@ function setup_writeOption
     local cfgdir=$SETUP_CONFDIR
     local i
 
-    mkdir -p "$cfgdir/interfaces" "$cfgdir"/apps/init
+    mkdir -p "$cfgdir"/interfaces "$cfgdir"/apps/init "$cfgdir"/uts
 
     _setup_writeSingleOption "$name"            "$cfgdir"/name
     _setup_writeSingleOption "$SETUP_CONTEXT"   "$cfgdir"/context
-    _setup_writeSingleOption "$SETUP_HOSTNAME"  "$cfgdir"/hostname
+    _setup_writeSingleOption "$SETUP_HOSTNAME"  "$cfgdir"/uts/nodename
     _setup_writeSingleOption "$SETUP_NETDEV"    "$cfgdir"/interfaces/dev
     _setup_writeSingleOption "$SETUP_NETMASK"   "$cfgdir"/interfaces/mask
     _setup_writeSingleOption "$SETUP_NETPREFIX" "$cfgdir"/interfaces/prefix
@@ -162,8 +162,10 @@ function setup_writeOption
 	echo "$i"
     done >"$cfgdir"/flags
 
-    ln -s "$SETUP_LOCKFILE"   "$cfgdir/run"
-    ln -s "$SETUP_LOCKREVDIR" "$cfgdir/run.rev"
+    ln -s "$SETUP_LOCKFILE"   "$cfgdir"/run
+    ln -s "$SETUP_LOCKREVDIR" "$cfgdir"/run.rev
+    ln -s uts/nodename        "$cfgdir"/hostname
+    ln -s uts/domainname      "$cfgdir"/domainname
 }
 
 function setup_writeInitialFstab
