@@ -24,6 +24,8 @@ lib_compat_SRCS =		lib/flags-compat.c \
 lib_legacy_SRCS =		lib/getprocentry-legacy.c
 lib_management_SRCS =		lib/createskeleton.c \
 				lib/getvserverbyctx.c \
+				lib/getvserverbyctx-compat.hc \
+				lib/getvserverbyctx-v13.hc \
 				lib/getvservercfgstyle.c \
 				lib/getvserverappdir.c \
 				lib/getvservercfgdir.c \
