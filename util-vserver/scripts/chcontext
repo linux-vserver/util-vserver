@@ -131,19 +131,19 @@ done
 
 create_cmd=( $_VCONTEXT --create
 	     ${OPT_SILENT:+--silent}
-	     ${OPT_CTX:+--xid "$OPT_CTX"} )
+	     ${OPT_CTX:+--xid "$OPT_CTX"}
+	     -- )
 
 chain_cmd=()
 
 test -z "$OPT_DOMAINNAME$OPT_HOSTNAME" || \
     chain_cmd=( "${chain_cmd[@]}"
-		--
-		$_VUNAME -s
-		${OPT_DOMAINNAME:+--domainname "$OPT_DOMAINNAME"}
-		${OPT_HOSTNAME:+--nodename "$OPT_HOSTNAME"} )
+		$_VUNAME --set
+		--xid self
+		${OPT_DOMAINNAME:+-t domainname="$OPT_DOMAINNAME"}
+		${OPT_HOSTNAME:+-t nodename="$OPT_HOSTNAME"} )
 
 chain_cmd=( "${chain_cmd[@]}"
-	    --
 		$_VATTRIBUTE --set
 		${OPT_CAPS:+--cap "${OPT_CAPS[@]}"}
 		${OPT_FLAGS:+--flag "${OPT_FLAGS[@]}"}
