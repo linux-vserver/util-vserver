@@ -57,6 +57,8 @@ base   @PKGLIBDIR@/vreboot
 build  @PKGLIBDIR@/vrpm-preload
 build  @PKGLIBDIR@/vrpm-worker
 build  @PKGLIBDIR@/vserver-build
+sysv   @PKGLIBDIR@/vserver-wrapper
+sysv   @PKGLIBDIR@/vsysvwrapper
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vcopy
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vunify
 base   @PKGLIBDIR@/vservers.grabinfo.sh
