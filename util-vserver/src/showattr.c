@@ -17,13 +17,20 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+#include "compat.h"
+
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-#include <linux/ext2_fs.h>
+
+#include "ext2fs.h"
+
 
 // Patch to help compile this utility on unpatched kernel source
 #ifndef EXT2_IMMUTABLE_FILE_FL

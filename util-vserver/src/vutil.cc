@@ -18,6 +18,14 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 #pragma implementation
+
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+#include "compat.h"
+
+#undef PACKAGE
+
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -28,7 +36,9 @@
 #include <utime.h>
 #include "vutil.h"
 #include <sys/ioctl.h>
-#include <linux/ext2_fs.h>
+
+#include "ext2fs.h"
+
 
 bool testmode;
 int debug;

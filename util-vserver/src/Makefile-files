@@ -17,7 +17,8 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-src_HDRS		=  src/vutil.h src/vutil.p
+src_HDRS		=  src/vutil.h src/vutil.p \
+			   src/ext2fs.h
 
 src_pkglib_SCRPTS	=  src/setattr
 src_pkglib_PRGS		=  src/capchroot \
