@@ -268,4 +268,3 @@ FILE *vutil_execdistcmd (const char *key, Vserver const &vserver, const char *ar
 	}
 	return ret;
 }
-
