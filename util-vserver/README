@@ -114,4 +114,70 @@ Gentoo
 
 
 
+Notes for distributors:
+=======================
+
+To generate FHS compliant paths, call configure with
+
+| ./configure --prefix=/usr --mandir=/usr/share/man \
+|             --sysconfdir=/etc --localstatedir=/var \
+|             --with-vrootdir=<an FHS compliant path for /vservers>
+
+Except the '--with-vrootdir' option, rpm's '%configure' option will
+expand to this.
+
+
+There exists a 'make install-distribution' target which installs
+files outside of the configured 'prefix'. In particular, these files are:
+
+* the /sbin/vshelper symlink
+* the /vservers and related directories (or whatever you configured
+  with '--with-vrootdir')
+
+Without this rule, 'make distcheck' would fail.
+
+
+It might be needed also, to call 'setattr --barrier /vservers' in an
+after-installation script.
+
+
+
+Which version shall I use?
+==========================
+
+As you probably know, two branches of 'util-vserver' are existing: the
+'stable' one, and the 'alpha' one. This terms are to be understood as
+a level of the featureset stability but not of the software stability.
+
+E.g. 'stable' is not really stable: it has huge security problems and
+missing functionality. But you can expect that the current configuration
+will work in future versions also.
+
+In the opposite, the 'alpha' branch does not have known security issues
+and works well on author's system. But it may happen that some behavior
+or configuration options change. With 'alpha' you should be still able
+to use vservers created with the 'stable' branch, but you may encounter
+some oddities -- especially on kernel 2.6 systems (e.g. 'vserver-stat'
+will show the names of old vservers).
+
+
+So let me summarize:
+
+* when you have productive vservers running for some years already, stay
+  at the 'stable' branch. A change to 'alpha' will need a completely
+  rewritten configuration which must be perhaps changed again.
+
+* when you are new at vservers, use the 'alpha' branch. You will have
+  to learn the principles of vserver configuration for both branches
+  but 'alpha' makes some things easier.
+
+* when you have existing vservers and want all the new kernel 2.6
+  functionality, use the 'alpha' branch.
+
+
+A last note: the 'alpha' branch works both with the stable 2.4 and the
+development 2.6 kernel patch.
+
+
+
 ## $Id$
