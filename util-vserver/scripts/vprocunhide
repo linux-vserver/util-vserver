@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+
+: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo $"Can not find util-vserver installation; aborting...">&2
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+. "$_LIB_FUNCTIONS"
+
+function showHelp()
+{
+    echo $\
+"Usage: vprocunhide
+
+Return values:
+    0  ...  no errors
+    1  ...  some files where changes but there occured errors on other ones
+    2  ...  operation failed on every file
+
+Report bugs to <$PACKAGE_BUGREPORT>."
+    exit 0
+}
+
+function showVersion()
+{
+    echo \
+$"vprocunhide $PACKAGE_VERSION -- unhides /proc entries
+This program is part of $PACKAGE_STRING
+
+Copyright (C) 2004 Enrico Scholz
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License.  This program has absolutely no warranty."
+    exit 0
+}
+
+
+while test "$1"; do
+    case "$1" in
+	--help)		showHelp;;
+	--version)	showVersion;;
+    esac
+done
+
+findFile UNHIDEFILE \
+    "$CONFDIR"/.defaults/apps/vprocunhide/files \
+    "$PKGLIBDEFAULTDIR"/vprocunhide-files
+
+ok=1
+passed=
+while read filename; do
+    param=
+    case "$filename" in
+	*/)	param=-R;;
+	*)	;;
+    esac
+
+    set -- $filename
+    test -e "$1" || continue
+    
+    $_SETATTR -x $param --!hide "$@" &&	passed=1 || ok=
+done <"$UNHIDEFILE"
+
+test "$ok"     && exit 0 || \
+test "$passed" && exit 1 || \
+exit 2
