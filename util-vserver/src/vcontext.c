@@ -259,14 +259,19 @@ doit(struct Arguments const *args, char *argv[])
     }
 
     if (args->is_fakeinit) {
-      struct vc_ctx_flags	flags;
-      Evc_get_flags(xid, &flags);
-#warning !!! IMPLEMENT ME !!!
-	//if (flags.mask
-      if (0) {
+      struct vc_ctx_flags	test_flags;
+      struct vc_ctx_flags	flags = {
+	.flagword = S_CTX_INFO_INIT,
+	.mask     = S_CTX_INFO_INIT
+      };
+      
+      Evc_get_flags(xid, &test_flags);
+      if ((flags.mask & S_CTX_INFO_INIT)==0) {
 	WRITE_MSG(2, "vcontext: context has already a fakeinit-process\n");
 	exit(255);
       }
+
+      Evc_set_flags(xid, &flags);
     }
 
     if (args->do_migrate)
