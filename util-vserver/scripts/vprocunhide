@@ -18,7 +18,7 @@
 
 : ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
 test -e "$UTIL_VSERVER_VARS" || {
-    echo $"Can not find util-vserver installation; aborting...">&2
+    echo $"Can not find util-vserver installation (the file '$UTIL_VSERVER_VARS' would be expected); aborting..." >&2
     exit 1
 }
 . "$UTIL_VSERVER_VARS"
