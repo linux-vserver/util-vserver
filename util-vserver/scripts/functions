@@ -15,6 +15,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+_VS_NEWLINE='
+'
+declare -r _VS_NEWLINE=${_VS_NEWLINE:0-1}
+
 function findObject
 {
     local mod=$1
@@ -62,8 +66,20 @@ function _pkgSetVarsBase
 {
     case "$vserver" in
 	/*)
-	    echo "not supported yet"
-	    exit 1
+	    if test -d "$vserver/vdir"; then
+		BASEDIR=$vserver
+		VDIR=$(getPhysicalDir "$vserver/vdir")
+		
+		PKGDIR=$BASEDIR/apps/pkgmgmt
+		test -d "$PKGDIR" || {
+		    echo "Can not find configuration-directory for package-managment tools"
+		    exit 1
+		}
+		findDir EXECDIR      $PKGDIR/execdir     /
+	    else
+		VDIR=$(getPhysicalDir "$vserver")
+		PKGDIR=
+	    fi
 	    ;;
         *)
     	    BASEDIR=$CONFDIR/$vserver
@@ -96,39 +112,35 @@ function _pkgSetVarsBase
 
 function _pkgSetVarsRPM
 {
-    case "$vserver" in
-	/*)
-	    echo "not supported yet"
-	    exit 1
-	    ;;
-	    
-        *)
-	    findDir RPMETCDIR    $PKGDIR/rpmetc      $PKGDIR/base/rpm/etc       /etc/rpm
-	    findDir RPMSTATEDIR  $PKGDIR/rpmstate    $PKGDIR/base/rpm/state
+    if test "$PKGDIR"; then
+	findDir RPMETCDIR    $PKGDIR/rpmetc      $PKGDIR/base/rpm/etc       /etc/rpm
+	findDir RPMSTATEDIR  $PKGDIR/rpmstate    $PKGDIR/base/rpm/state
 
-	    findDir RPMLIBDIR    $PKGDIR/rpmlib	 /
+	findDir RPMLIBDIR    $PKGDIR/rpmlib	 /
 
-	    RPMSTATEDIR=$(getPhysicalDir "$RPMSTATEDIR")
-	    RPMETCDIR=$(getPhysicalDir "$RPMETCDIR")
-	    ;;
-    esac
+    else
+	findDir RPMETCDIR    "$VDIR"/etc/rpm     /etc/rpm
+	findDir RPMSTATEDIR  "$VDIR"/var/lib/rpm
+	RPMLIBDIR=/
+    fi
+    
+    RPMSTATEDIR=$(getPhysicalDir "$RPMSTATEDIR")
+    RPMETCDIR=$(getPhysicalDir "$RPMETCDIR")
 }
 
 function _pkgSetVarsApt
 {
-    case "$vserver" in
-	/*)
-	    echo "not supported yet"
-	    exit 1
-	    ;;
-	    
-        *)
-	    findDir APTETCDIR    $PKGDIR/aptetc      $PKGDIR/base/apt/etc       /etc/apt
-	    findDir APTSTATEDIR  $PKGDIR/aptstate    $PKGDIR/base/apt/state
-	    findDir APTCACHEDIR  $PKGDIR/aptcache    $PKGDIR/base/apt/cache
-	    findDir APTARCHIVDIR $PKGDIR/aptarchives $PKGDIR/base/apt/archives  /var/cache/apt/archives
-	    ;;
-    esac
+    if test "$PKGDIR"; then
+	findDir APTETCDIR    $PKGDIR/aptetc      $PKGDIR/base/apt/etc       /etc/apt
+	findDir APTSTATEDIR  $PKGDIR/aptstate    $PKGDIR/base/apt/state
+	findDir APTCACHEDIR  $PKGDIR/aptcache    $PKGDIR/base/apt/cache
+	findDir APTARCHIVDIR $PKGDIR/aptarchives $PKGDIR/base/apt/archives  /var/cache/apt/archives
+    else
+	findDir APTETCDIR    "$VDIR"/etc/apt       	/etc/apt
+	findDir APTSTATEDIR  "$VDIR"/var/state/apt
+	findDir APTCACHEDIR  "$VDIR"/var/cache/apt
+	findDir APTARCHIVDIR "$VDIR"/var/cache/apt/archives /var/cache/apt/archives
+    fi
 }
 
 function _pkgMountBase
@@ -212,15 +224,17 @@ function pkgInit
 function getAllVservers
 {
     local i
-    local var=$1
+    declare -a tmp=()
 
     for i in $CONFDIR/*; do
 	test   -d "$i"          || continue
 	test ! -e "$i"/disabled || continue
 	test   -d "$i"/vdir     || continue
 
-	eval "$var=\"$var ${i##$CONFDIR/}\""
+	tmp=( "${tmp[@]}" "${i##$CONFDIR/}")
     done
+
+    eval $1=\$tmp
 }
 
 ## Usage: getVserverCtx <vdir> <result-varname> [<procnumber-varname> [<do-cleanup>]]
@@ -249,4 +263,20 @@ function isVserverRunning
     test $procnum != 0                  || return 1
     test -z "$2" || eval "$2"=\$ctx
     return 0
+}
+
+## Called as 'getFileValue <varname> <filename>'
+function getFileValue
+{
+    test -r "$2" || return 0
+    eval read "$1" <"$2"
+}
+
+## Called as 'getFileArray <varname> <filename>'
+function getFileArray
+{
+    test -r "$2" || return 0
+    
+    local IFS=$_VS_NEWLINE
+    eval "$1"='( $(< "$2") )'
 }
