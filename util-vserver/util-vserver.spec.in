@@ -16,7 +16,8 @@ Conflicts:	vserver < %epoch:%version
 Summary:	Linuxconf administration modules for vservers
 Group:		Applications/System
 Requires:	%name = %epoch:%version-%release
-
+Provides:	vserver-admin = %epoch:%version-%release
+Conflicts:	vserver-admin < %epoch:%version
 
 %description
 This package provides the components and a framework to setup virtual
