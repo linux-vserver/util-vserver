@@ -25,7 +25,6 @@ src_pkglib_C99_PROGS =	src/vunify src/vcopy
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 			src/parserpmdump \
-			src/readlink \
 			src/showperm \
 			src/vbuild \
 			src/vcheck \
@@ -33,9 +32,7 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 			src/save_ctxinfo \
 			src/mask2prefix \
 			src/pipe-sync \
-			src/capchroot \
 			src/chroot-cat \
-			src/filetime \
 			src/ifspec \
 			src/rebootmgr \
 			src/vdu \
@@ -44,6 +41,9 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 
 
 DIETPROGS +=		src/chcontext-compat \
+			src/capchroot \
+			src/filetime \
+			src/readlink \
 	     		src/secure-mount \
 	     		src/save_ctxinfo \
 	     		src/mask2prefix \
@@ -96,13 +96,8 @@ pkglib_PROGRAMS +=	src/capchroot \
 			src/clearenv \
 			src/fakerunlevel \
 			src/filetime \
-			src/ifspec \
 			src/keep-ctx-alive \
-			src/listdevip \
-			src/parserpmdump \
 			src/readlink \
-			src/showperm \
-			src/vreboot \
 			src/save_ctxinfo \
 			src/secure-mount \
 			src/mask2prefix \
@@ -111,6 +106,13 @@ pkglib_PROGRAMS +=	src/capchroot \
 			src/rpm-fake-resolver \
 			$(src_pkglib_C99_X_PROGS) \
 			$(src_pkglib_CXX_X_PROGS)
+
+legacy_PROGRAMS +=	src/ifspec \
+			src/listdevip \
+			src/parserpmdump \
+			src/rebootmgr \
+			src/showperm \
+			src/vreboot
 
 pkglib_LTLIBRARIES +=	src/rpm-fake.la
 
@@ -121,7 +123,6 @@ sbin_PROGRAMS +=	src/chbind \
 			src/vps \
 			src/showattr \
 			src/setattr \
-			src/rebootmgr \
 			src/reducecap \
 			src/vdu \
 			src/vattribute \
@@ -138,6 +139,7 @@ sbin_PROGRAMS +=	src/chbind \
 
 src_capchroot_SOURCES		=  src/capchroot.c
 src_capchroot_LDADD		=  lib/libvserver.la
+src_capchroot_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_chbind_SOURCES		=  src/chbind.c
 src_chbind_LDADD		=  $(VSERVER_LDADDS)
@@ -155,12 +157,15 @@ src_vsched_SOURCES		=  src/vsched.c
 src_vsched_LDADD		=  $(VSERVER_LDADDS)
 src_vsched_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
+src_filetime_SOURCES		=  src/filetime.c
+src_filetime_LDADD		=  $(VSERVER_LDADDS)
+src_filetime_LDFLAGS		=  $(VSERVER_LDFLAGS)
+
 src_chroot_cat_SOURCES		=  src/chroot-cat.c
 src_chroot_rm_SOURCES		=  src/chroot-rm.c
 src_clearenv_SOURCES		=  src/clearenv.c
 src_exec_cd_SOURCES		=  src/exec-cd.c
 src_fakerunlevel_SOURCES	=  src/fakerunlevel.c
-src_filetime_SOURCES		=  src/filetime.c
 src_ifspec_SOURCES		=  src/ifspec.c
 src_listdevip_SOURCES		=  src/listdevip.c
 src_parserpmdump_SOURCES	=  src/parserpmdump.c
