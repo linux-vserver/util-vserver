@@ -19,15 +19,25 @@ confdir			=  $(sysconfdir)/vservers
 distribdir		=  $(pkglibdir)/distributions
 confdistribdir		=  $(confdir)/.distributions
 
+nobase_distrib_SCRIPTS	=  redhat/initpost
+
 nobase_distrib_DATA	=  defaults/devs \
 			   defaults/rpm/macros \
 			   rh9/apt/rpmpriorities \
-			   rh9.0.93/apt/rpmpriorities \
+			   fdr0.95/apt/rpmpriorities \
 			   rh9/pkgs/01 rh9/pkgs/02 \
-			   rh9.0.93/pkgs/01 rh9.0.93/pkgs/02
+			   fdr0.95/pkgs/01 fdr0.95/pkgs/02
 
 nobase_confdistrib_DATA	=  rh9/apt/sources.list \
-			   rh9.0.93/apt/sources.list
+			   fdr0.95/apt/sources.list
 
 EXTRA_DIST		=  $(nobase_distrib_DATA) \
+			   $(nobase_distrib_SCRIPTS) \
 			   $(nobase_confdistrib_DATA)
+
+redhat_style		=  rh9 fdr0.95
+
+install-data-hook:
+			l="$(redhat_style)"; for i in $$l; do \
+				ln -s ../redhat/initpost $(DESTDIR)$(distribdir)/$$i/; \
+			done
