@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <signal.h>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>
@@ -40,16 +41,27 @@ Unify_unify(char const *src, struct stat const UNUSED *src_stat,
   bool		res = false;
   struct stat	st;
   bool		lstat_succeeded;
+  sigset_t	mask_new, mask_old;
+  int		old_errno;
 
   // at first, set the ILI flags on 'src'
   if (vc_set_iattr(src,
 		   0,
 		   VC_IATTR_IUNLINK|VC_IATTR_IMMUTABLE,
-		   VC_IATTR_IUNLINK|VC_IATTR_IMMUTABLE)==-1)
+		   VC_IATTR_IUNLINK|VC_IATTR_IMMUTABLE)==-1) {
+    perror("vc_set_iattr()");
     return false;
+  }
 
   lstat_succeeded = lstat(dst, &st)==0;
 
+  sigfillset(&mask_new);
+  if (sigprocmask(SIG_SETMASK, &mask_new, &mask_old)==-1) {
+    perror("sigprocmask()");
+    return false;
+  }
+    
+  
   // check if 'dst' already exists
   // when ignore_zero is true, do not make backups of empty destinations
   if (lstat_succeeded && (st.st_size>0 || !ignore_zero)) {
@@ -61,7 +73,8 @@ Unify_unify(char const *src, struct stat const UNUSED *src_stat,
 
     if (fd==-1) {
       perror("mkstemp()");
-      return false;
+      tmpfile[0] = '\0';
+      goto err;
     }
 
       // and rename the old file to this name
@@ -95,11 +108,14 @@ Unify_unify(char const *src, struct stat const UNUSED *src_stat,
   res = true;
 
   err:
-  if (tmpfile[0]!='\0') {
-    int	old_errno = errno;
-    unlink(tmpfile);
-    errno = old_errno;
-  }
+  old_errno = errno;
 
+  if (tmpfile[0]!='\0')
+    unlink(tmpfile);
+
+  if (sigprocmask(SIG_SETMASK, &mask_old, 0)==-1)
+    perror("sigprocmask()");
+
+  errno     = old_errno;
   return res;
 }
