@@ -24,7 +24,8 @@ ENSC_VECTOR_SRCS =		ensc_vector/vector-clear.c \
 				ensc_vector/vector-resize.c \
 				ensc_vector/vector-search.c \
 				ensc_vector/vector-sort.c \
-				ensc_vector/vector-unique.c
+				ensc_vector/vector-unique.c \
+				ensc_vector/vector-zeroend.c
 
 ENSC_VECTOR_HDRS =		ensc_vector/vector.h \
 				ensc_vector/vector.hc

@@ -40,6 +40,7 @@ void *	Vector_insert(struct Vector *, void const *key, int (*compar)(const void 
 void	Vector_popback(struct Vector *);
 void	Vector_resize(struct Vector *vec);
 void	Vector_clear(struct Vector *vec);
+void	Vector_zeroEnd(struct Vector *vec);
 static void const *	Vector_search_const(struct Vector const *, void const *key, int (*compar)(const void *, const void *));
 static void *		Vector_begin(struct Vector *);
 static void *		Vector_end(struct Vector *);
