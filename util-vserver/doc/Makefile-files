@@ -27,7 +27,7 @@ doc_gen_DOCS =			doc/configuration.html \
 
 doc_configuration_SRCS =	doc/configuration.xml \
 				doc/configuration.xsd \
-				doc/configuration-flowers.css \
+				doc/configuration-flower.css \
 				doc/configuration-lsd.css \
 				doc/configuration-lsd1.css \
 				doc/configuration-xhtml.xsl \
