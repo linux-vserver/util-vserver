@@ -29,6 +29,7 @@
 #include <errno.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <sys/select.h>
 
 #define ENSC_WRAPPERS_PREFIX	"keep-ctx-alive: "
 #define ENSC_WRAPPERS_VSERVER	1
