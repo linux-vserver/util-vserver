@@ -32,5 +32,5 @@
 int
 vc_add_dlimit(char const *filename, xid_t xid, uint32_t flags)
 {
-  CALL_VC(CALL_VC_V13(vc_add_dlimit, filename, xid, flags));
+  CALL_VC(CALL_VC_V13B(vc_add_dlimit, filename, xid, flags));
 }

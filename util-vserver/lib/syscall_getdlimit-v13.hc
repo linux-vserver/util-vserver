@@ -23,8 +23,8 @@
 #include "vserver.h"
 
 static inline ALWAYSINLINE int
-vc_get_dlimit_v13(char const *filename, xid_t xid,
-		  uint_least32_t flags, struct vc_ctx_dlimit *limits)
+vc_get_dlimit_v13b(char const *filename, xid_t xid,
+		   uint_least32_t flags, struct vc_ctx_dlimit *limits)
 {
   int				rc;
   struct vcmd_ctx_dlimit_v0	attr = {

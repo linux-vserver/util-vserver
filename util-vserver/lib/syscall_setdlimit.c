@@ -33,5 +33,5 @@ int
 vc_set_dlimit(char const *filename, xid_t xid,
 	      uint_least32_t flags, struct vc_ctx_dlimit const *limits)
 {
-  CALL_VC(CALL_VC_V13(vc_set_dlimit, filename, xid, flags, limits));
+  CALL_VC(CALL_VC_V13B(vc_set_dlimit, filename, xid, flags, limits));
 }
