@@ -90,7 +90,6 @@ src_pkglib_PRGS =	src/capchroot \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
 			src/clearenv \
-			src/enter-namespace \
 			src/fakerunlevel \
 			src/filetime \
 			src/ifspec \
@@ -123,6 +122,7 @@ src_sbin_PRGS =		src/chbind \
 			src/rebootmgr \
 			src/reducecap \
 			src/vdu \
+			src/enter-namespace \
 			src/new-namespace \
 			src/vlimit \
 			src/vkill \
