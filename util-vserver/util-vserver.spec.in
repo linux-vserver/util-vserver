@@ -16,7 +16,7 @@ Group:		System Environment/Base
 URL:		http://savannah.nongnu.org/projects/util-vserver/
 Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version/%name-%version.tar.bz2
 BuildRoot:	%_tmppath/%name-%version-%release-root
-Requires:	init(@PACKAGE@)
+Requires:	init(%name)
 Requires:	%name-core = %epoch:%version-%release
 Requires:	%name-lib  = %epoch:%version-%release
 Requires:	diffutils mktemp sed
@@ -52,7 +52,7 @@ Requires(postun):	%confdir
 %package sysv
 Summary:		SysV-initscripts for vserver
 Group:			System Environment/Base
-Provides:		init(@PACKAGE@)
+Provides:		init(%name) = sysv
 Requires:		make diffutils
 Requires:		initscripts
 Requires:		%name = %epoch:%version-%release
