@@ -22,6 +22,8 @@
 #include "compat.h"
 #include "lib_internal/util-io.h"
 #include "lib_internal/util-mem.h"
+#include "lib_internal/util-safechdir.h"
+#include "lib_internal/util-dotfile.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -48,9 +50,6 @@
 #endif
 
 #define DIM_OF(X)		(sizeof(X)/sizeof((X)[0]))
-
-struct stat;
-int	safeChdir(char const *, struct stat const *exp_stat) NONNULL((1,2));
 
 void	exitLikeProcess(int pid) NORETURN;
 
