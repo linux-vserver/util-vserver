@@ -1,3 +1,13 @@
+Version 0.29
+============
+
+	- further compilation fixes
+
+	- adapted the 'vserver ... build' command to the new barrier
+	  mechanism
+
+	
+
 Version 0.28
 ============
 	
