@@ -1,0 +1,70 @@
+#!/bin/sh
+
+# Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# based on distrib/install-rh9.0 by Jacques Gelinas
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+# This script creates a vserver from RedHat Fedora Core 1 CD. Only
+# the first CD is used and must be mounted in /mnt/cdrom.
+# Specify the name of the vserver
+# "install-fc1 test" will create /vservers/test
+
+: ${UTIL_VSERVER_VARS:=$(dirname $0)/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo "Can not find util-vserver installation; aborting..."
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+
+USR_LIB_VSERVER=$PKGLIBDIR
+
+if [ $# -lt 1 ] ; then
+	echo install-fc1 vserver-id [ type ]
+	echo type minimum means, minimum package for a server
+	echo type large means, all packages on the first CD
+elif [ -d $VROOTDIR/$1/var/lib/rpm ] ; then
+	echo $VROOTDIR/$1 already exist
+elif [ ! -d /mnt/cdrom/Fedora/RPMS ] ; then
+	echo No rpms in /mnt/cdrom/Fedora/RPMS. Is the CD mounted \?
+else
+	VROOT=$VROOTDIR/$1
+	$USR_LIB_VSERVER/install-pre.sh $1
+	mkdir -p $VROOT/proc
+	mount -t proc none $VROOT/proc
+	mount -t devpts none $VROOT/dev/pts
+	mkdir -p $VROOT/var/lib/rpm
+	rpm --root $VROOT --initdb
+	if [ "$2" = "minimum" ] ; then
+		echo `cat $USR_LIB_VSERVER/fc1-minimum | wc -l` packages to install
+		cd /mnt/cdrom/Fedora/RPMS
+		rpm --root $VROOT -Uvh `cat $USR_LIB_VSERVER/fc1-minimum`
+	else
+		PKGS=`ls /mnt/cdrom/Fedora/RPMS/*.noarch.rpm \
+			 /mnt/cdrom/Fedora/RPMS/*.i386.rpm`
+		for except in control-center iptables kernel-pcmcia-cs\
+			nfs-utils pciutils quota rp-pppoe tcpdump \
+			lokkit kudzu-devel pciutils-devel \
+			redhat-config-securitylevel redhat-config-nfs
+		do
+			PKGS=`ls $PKGS | grep -v $except`
+		done
+		echo `echo $PKGS | wc -w` packages to install
+		rpm --root $VROOT -Uvh $PKGS --nodeps
+	fi
+	umount $VROOT/proc
+	umount $VROOT/dev/pts
+	$USR_LIB_VSERVER/install-post.sh $1
+fi
