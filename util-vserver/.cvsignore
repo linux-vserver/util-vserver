@@ -1,4 +1,4 @@
-.X_usr_local_etc-up-to-date
+.*-up-to-date
 .deps
 COPYING
 ChangeLog
@@ -15,6 +15,7 @@ depcomp
 install-sh
 missing
 mkinstalldirs
+pathconfig.h
 stamp-h1
 stamp-h2
 util-vserver-*.tar.bz2*
