@@ -71,10 +71,10 @@ while read filename; do
     case "$filename" in
 	(\#*)	continue;;
 	(-*)	params=( --admin         --hide ); filename=${filename#-};;
-	(~*)	params=( --admin --watch --hide ); filename=${filename#-};;
-	(:*)	params=(         --watch --hide ); filename=${filename#-};;
-	(!*)	params=(                 --hide ); filename=${filename#-};;
-	(+*)	params=(                --!hide ); filename=${filename#-};;
+	(~*)	params=( --admin --watch --hide ); filename=${filename#~};;
+	(:*)	params=(         --watch --hide ); filename=${filename#:};;
+	(!*)	params=(                 --hide ); filename=${filename#!};;
+	(+*)	params=(                --!hide ); filename=${filename#+};;
 	(*)	params=(                --!hide );;
     esac
 	
