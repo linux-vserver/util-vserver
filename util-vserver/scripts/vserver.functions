@@ -1,4 +1,4 @@
-#! /bin/bash
+# $Id$  --*- sh -*--
 
 # Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 #  
@@ -24,6 +24,7 @@ declare -a CHBIND_OPTS=()
 declare -a CAP_OPTS=()
 declare -a CHCONTEXT_INIT_OPTS=()
 declare -a CHCONTEXT_FLAG_OPTS=()
+declare -a CHCONTEXT_DISCONNECT=()
 declare -a CHCONTEXT_OPTS=()
 declare -a CAPCHROOT_OPTS=()
 declare -a INTERFACES=()
@@ -144,8 +145,8 @@ function _generateInitOptions
 {
     local vdir=$1
     local cfgdir=$vdir/apps/init
-    local runlevel_start=3
-    local runlevel_stop=6
+    local runlevel_start
+    local runlevel_stop
     local i f
 
     INITCMD_START=()
@@ -166,6 +167,9 @@ function _generateInitOptions
 
     case x"$INITSTYLE" in
 	xsysv)
+	    test "$runlevel_start" || runlevel_start=3
+	    test "$runlevel_stop"  || runlevel_stop=6
+
 	    for i in /etc/init.d/rc /etc/rc.d/rc; do
 		test -x "$vdir/vdir/$i" || continue
 		INITCMD_START=( "$i" "$runlevel_start" )
@@ -177,7 +181,8 @@ function _generateInitOptions
 	xplain)
 	    INITCMD_START=( /sbin/init )
 	    INITCMD_STOP=(  /sbin/init )
-	    CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
+	    CHCONTEXT_INIT_OPTS=(  --flag fakeinit )
+	    CHCONTEXT_DISCONNECT=( --disconnect )
 	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
 	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
 	    ;;
@@ -185,7 +190,8 @@ function _generateInitOptions
 	xminit)
 	    INITCMD_START=( /sbin/minit-start )
 	    INITCMD_STOP=(  /sbin/minit-stop  )
-	    CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
+	    CHCONTEXT_INIT_OPTS=(  --flag fakeinit )
+	    CHCONTEXT_DISCONNECT=( --disconnect )
 	    INITCMD_START_SYNC=( "$_INITSYNC_MINIT_START" "$vdir" )
 	    INITCMD_STOP_SYNC=(  "$_INITSYNC_MINIT_STOP"  "$vdir" )
 	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
@@ -223,8 +229,8 @@ function _generateFlagOptions
 	    x|x#)		;;
 	    dummy)		;;
 	    fakeinit)
-		CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}" 
-				      --disconnect --flag --fakeinit )
+		CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}" --flag fakeinit )
+		CHCONTEXT_DISCONNECT=( --disconnect )
 		;;
 	    *)
 	    	CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}"
@@ -433,8 +439,16 @@ function mountVserver
 {
     local cfgdir=$1
     local vdir=$1/vdir
+    local mtab_src
 
     test -e "$cfgdir"/fstab || return 0
+
+    findObject -r mtab_src "$CONFDIR"/.defaults/init/mtab "$vdir"/apps/init/mtab /dev/null
+    
+    pushd "$vdir" >/dev/null
+    $_CHROOT_CAT /etc/mtab <"$mtab_src"
+    popd >/dev/null
+
     $_CHBIND "${CHBIND_OPTS[@]}" \
 	$_SECURE_MOUNT -a --chroot "$vdir" --fstab "$cfgdir"/fstab
 }
