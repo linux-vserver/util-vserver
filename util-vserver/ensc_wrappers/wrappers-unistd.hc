@@ -200,3 +200,9 @@ Elseek(int fildes, off_t offset, int whence)
   FatalErrnoError(res==(off_t)-1, "lseek()");
   return res;
 }
+
+inline static WRAPPER_DECL void
+Enice(int n)
+{
+  FatalErrnoError(nice(n)==-1, "nice()");
+}
