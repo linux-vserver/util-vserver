@@ -68,6 +68,7 @@ install-data-hook:
 				ln -sf ../redhat/initpre  $(DESTDIR)$(distribdir)/$$i/; \
 			done
 			$(mkinstalldirs) $(DESTDIR)$(confdir) \
+				$(DESTDIR)$(confdistribdir)/.common/pubkeys \
 				$(DESTDIR)$(confdefaultsdir) \
-				$(DESTDIR)$(confdefaultsdir)/apps \
+				$(DESTDIR)$(confdefaultsdir)/apps/vunify/hash \
 				$(DESTDIR)$(confdefaultsdir)/files
