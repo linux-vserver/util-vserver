@@ -31,6 +31,9 @@ AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([1.9 gnits dist-bzip2 subdir-objects])
 AM_MAINTAINER_MODE
 
+AC_CANONICAL_BUILD
+AC_CANONICAL_HOST
+
 AC_SUBST(GPG_KEY, "0x7AE5D4B5922F7AF9!")
 
 # Checks for programs.
@@ -103,6 +106,7 @@ if test x"$ensc_have_dietlibc" = xno; then
 	AC_MSG_WARN([***                                                         ***])
 	AM_CONDITIONAL(USE_DIETLIBC_COMPAT, false)
 else
+	ENSC_DIETLIBC_SANITYCHECK
 	ENSC_DIETLIBC_NEED_COMPAT(USE_DIETLIBC_COMPAT)
 fi
 
