@@ -24,7 +24,7 @@ Obsoletes:	vserver < %epoch:%version
 BuildRequires:	mount vconfig gawk iproute
 BuildRequires:	gcc-c++ wget
 BuildRequires:	e2fsprogs-devel
-BuildRequires:	doxygen tetex-latex
+BuildRequires:	doxygen tetex-latex libxslt
 Requires(post):	%__chattr
 %{!?_without_dietlibc:BuildRequires:	dietlibc >= 0:0.22}
 
@@ -86,7 +86,9 @@ set_ipv4root system call.
 %build
 %configure --with-initrddir=%_initrddir --enable-release \
            %{?_without_dietlibc:--disable-dietlibc}
-%__make %{?_smp_mflags} all doc
+
+%__make %{?_smp_mflags} all
+%__make %{?_smp_mflags} doc
 
 
 %install
@@ -150,6 +152,7 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING ChangeLog NEWS README THANKS
 %doc doc/FAQ.txt
+%doc doc/*.html doc/*.css
 %dir %pkglibdir
 %dir %confdefaultdir
 %dir %confdefaultdir/init
