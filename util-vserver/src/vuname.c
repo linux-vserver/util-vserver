@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
   assert(DIM_OF(UTS_MAPPING) == DIM_OF(args.handle_opts));
   
   while (1) {
-    int		c = getopt_long(argc, argv, "gsx:", CMDLINE_OPTIONS, 0);
+    int		c = getopt_long(argc, argv, "+gsx:", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
 
     if (c>=CMD_UTSCONTEXT && c<=CMD_UTSDOMAINNAME)

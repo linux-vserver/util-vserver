@@ -336,7 +336,7 @@ int main (int argc, char *argv[])
   }
   
   while (1) {
-    int		c = getopt_long(argc, argv, "MSHndhvac:", CMDLINE_OPTIONS, 0);
+    int		c = getopt_long(argc, argv, "+MSHndhvac:", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
 
     if (2048<=c && c<2048+32) {
