@@ -19,9 +19,18 @@
 ChangeLog.sed:
 				test "$(srcdir)" != "."
 
+if HAVE_CVS2CL
+ChangeLog:			Makefile
+				if test "$(srcdir)" = "." -a -d CVS; then	\
+					$(CVS2CL) $(CVS2CL_ALLFLAGS) -f $@;	\
+				fi
+else
+if HAVE_RCS2LOG
 ChangeLog:			ChangeLog.sed Makefile
 				if test "$(srcdir)" = "." -a -d CVS; then	\
-					rcs2log -l 0 -c /dev/stdout | sed -f $< >$@;	\
+					$(RCS2LOG) -l 0 -c /dev/stdout | sed -f $< >$@;	\
 				fi
+endif
+endif
 
 .PHONY:	ChangeLog
