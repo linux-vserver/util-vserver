@@ -18,7 +18,9 @@
 ##  
 
 lib_legacy_SRCS			=  lib/getprocentry-legacy.c
-
+lib_management_SRCS		=  lib/getvservername.c \
+				   lib/getvservercfgstyle.c \
+				   lib/getvservervdir.c
 
 PKGCONFIG_FILES			=  lib/util-vserver
 
@@ -30,7 +32,8 @@ lib_SRCS			=  lib/syscall.c \
 				   lib/uint2str.c \
 				   lib/int2str.c \
 				   lib/capabilities.c \
-				   $(lib_legacy_SRCS)
+				   $(lib_legacy_SRCS) \
+				   $(lib_management_SRCS)
 
 lib_HDRS			=  lib/vserver.h
 
