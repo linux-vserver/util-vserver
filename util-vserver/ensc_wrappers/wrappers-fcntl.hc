@@ -53,3 +53,12 @@ EmkdirD(const char *pathname, mode_t mode)
   ENSC_DETAIL1(msg, "mkdir", pathname, 1);
   FatalErrnoError(mkdir(pathname,mode)==-1, msg);
 }
+
+inline static WRAPPER_DECL int
+Efcntl(int fd, int cmd, long arg)
+{
+  register int		res = fcntl(fd, cmd, arg);
+  FatalErrnoError(res==-1, "fcntl()");
+
+  return res;
+}
