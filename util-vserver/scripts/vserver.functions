@@ -38,7 +38,7 @@ declare -a ENTER_SHELL=()
 
 declare -a OPTS_VCONTEXT_CREATE=()
 declare -a OPTS_VCONTEXT_MIGRATE=()
-declare -a OPTS_VATTRIBUTE=()
+declare -a OPTS_VATTRIBUTE=( --flag fakeinit )
 declare -a OPTS_VSCHED=()
 
 declare -a VSERVER_EXTRA_CMDS=()
@@ -610,8 +610,7 @@ function generateOptions
 
     if test "$_IS_FAKEINIT"; then
 	CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
-	OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --flag fakeinit )
-	OPTS_VCONTEXT_MIGRATE=( "${OPTS_VCONTEXT_MIGRATE[@]}" --fakeinit --disconnect )
+	OPTS_VCONTEXT_MIGRATE=( "${OPTS_VCONTEXT_MIGRATE[@]}" --initpid --disconnect )
     fi
 }
 
