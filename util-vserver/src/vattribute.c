@@ -70,6 +70,9 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd,
 	    " --set [--xid <xid>] [--bcap [~!]<cap>] [--ccap [~!]<cap>] [--flag [~!]<flag>] [--secure] -- [<program> <args>*]\n"
 	    "\n"
+	    " --bcap <cap>   ...  system capability to be removed\n"
+	    " --cap  <cap>   ...  context capability to be added\n"
+	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
   exit(res);
@@ -138,9 +141,10 @@ static void
 parseSecure(struct vc_ctx_flags UNUSED * flags,
 	    struct vc_ctx_caps  UNUSED * caps)
 {
-  caps->ccaps = ~0;
-  caps->cmask = ~0;
-  caps->bcaps = ~vc_get_securecaps();
+  caps->ccaps = ~0ull;
+  caps->cmask = ~0ull;
+  caps->bcaps =  vc_get_securecaps();
+  caps->bmask = ~0ull;
 }
 
 int main(int argc, char *argv[])
@@ -148,7 +152,7 @@ int main(int argc, char *argv[])
   struct Arguments		args = {
     .xid   = VC_NOCTX,
     .flags = { .flagword = 0, .mask = 0 },
-    .caps  = { .bcaps = 0, .ccaps = 0, .cmask = 0 },
+    .caps  = { .bcaps = 0, .bmask = 0,.ccaps = 0, .cmask = 0 },
   };
   
   while (1) {
@@ -174,8 +178,9 @@ int main(int argc, char *argv[])
   }
 
   if (args.xid==VC_NOCTX) args.xid = Evc_get_task_xid(0);
+  args.caps.bcaps = ~args.caps.bcaps;
 
-  if ((args.caps.cmask || args.caps.bcaps) &&
+  if ((args.caps.cmask || args.caps.bmask) &&
       vc_set_ccaps(args.xid, &args.caps)==-1)
     perror(ENSC_WRAPPERS_PREFIX "vc_set_ccaps()");
   else if (args.flags.mask &&
