@@ -46,21 +46,22 @@ src_OPTIONS_EXEMPT	=  src/parserpmdump \
 
 
 
-src_DIETPROGS		=  src/new-namespace \
-	     		   src/secure-mount \
-	     		   src/save_ctxinfo \
-	     		   src/mask2prefix \
-	     		   src/chroot-cat \
-	     		   src/chroot-rm \
-			   src/exec-cd \
-	     		   src/fakerunlevel \
-			   src/pipe-sync \
-			   src/exec-ulimit \
-			   src/vlimit \
-			   src/vunify \
-			   src/rpm-fake-resolver \
-			   src/vkill \
-			   src/vserver-stat
+src_DIETPROGS =		src/new-namespace \
+	     		src/secure-mount \
+	     		src/save_ctxinfo \
+	     		src/mask2prefix \
+	     		src/chroot-cat \
+	     		src/chroot-rm \
+			src/exec-cd \
+	     		src/fakerunlevel \
+			src/pipe-sync \
+			src/exec-ulimit \
+			src/vlimit \
+			src/vunify \
+			src/rpm-fake-resolver \
+			src/vkill \
+			src/vserver-stat \
+			src/vserver-info
 
 src_HDRS =  		src/vutil.h src/vutil.p src/util.h \
 			src/wrappers.h src/wrappers-vserver.h \
@@ -96,17 +97,18 @@ src_pkglib_PRGS		=  src/capchroot \
 src_pkglib_LTLIBS	=  src/rpm-fake.la
 src_lib_LTLIBS		=
 
-src_sbin_PRGS		=  src/chbind \
-			   src/chcontext \
-			   src/exec-cd \
-			   src/rebootmgr \
-			   src/reducecap \
-			   src/vdu \
-			   src/new-namespace \
-			   src/vlimit \
-			   src/vkill \
-			   src/vserver-stat \
-			   $(src_sbin_CXX_PROGS)
+src_sbin_PRGS =		src/chbind \
+			src/chcontext \
+			src/exec-cd \
+			src/rebootmgr \
+			src/reducecap \
+			src/vdu \
+			src/new-namespace \
+			src/vlimit \
+			src/vkill \
+			src/vserver-stat \
+			src/vserver-info \
+			$(src_sbin_CXX_PROGS)
 
 src_capchroot_SOURCES		=  src/capchroot.c
 src_capchroot_LDADD		=  lib/libvserver.la
@@ -162,6 +164,10 @@ src_rpm_fake_resolver_LDADD	=  lib/libvserver.la
 src_rpm_fake_resolver_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_mask2prefix_SOURCES		=  src/mask2prefix.c
+
+src_vserver_info_SOURCES	=  src/vserver-info.c
+src_vserver_info_LDADD		=  lib/libvserver.la
+src_vserver_info_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
 src_vserver_stat_LDADD		=  lib/libvserver.la
