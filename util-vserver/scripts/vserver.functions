@@ -228,6 +228,7 @@ function _generateFlagOptions
     while read flag; do
 	case x"$flag" in
 	    x|x#)		;;
+	    xnamespace)		;;
 	    xfakeinit)
 		CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
 		;;
@@ -237,6 +238,9 @@ function _generateFlagOptions
 		;;
 	esac
     done <"$vdir"/flags
+
+    isAvoidNamespace "$cfgdir" || \
+	CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}" --flag namespace )
 }
 
 function _generateChcontextOptions
