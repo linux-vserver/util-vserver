@@ -100,17 +100,23 @@ Ewrite(int fd, void const *ptr, size_t len)
   return res;
 }
 
-inline static WRAPPER_DECL void
+inline static WRAPPER_DECL size_t
 Ereadlink(const char *path, char *buf, size_t bufsiz)
 {
-  FatalErrnoError(readlink(path, buf, bufsiz)==-1, "readlink()");
+  size_t	res = readlink(path, buf, bufsiz);
+  FatalErrnoError((ssize_t)(res)==-1, "readlink()");
+
+  return res;
 }
 
-inline static WRAPPER_DECL void
+inline static WRAPPER_DECL size_t
 EreadlinkD(const char *path, char *buf, size_t bufsiz)
 {
+  size_t	res = readlink(path, buf, bufsiz);
   ENSC_DETAIL1(msg, "readlink", path, 1);
-  FatalErrnoError(readlink(path, buf, bufsiz)==-1, msg);
+  FatalErrnoError((ssize_t)(res)==-1, msg);
+
+  return res;
 }
 
 inline static WRAPPER_DECL void
