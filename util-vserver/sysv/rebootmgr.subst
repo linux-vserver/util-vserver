@@ -17,6 +17,8 @@ case "$1" in
 	VSERVERS=
 	for serv in *.conf
 	do
+		test -f "$serv" || continue
+		
 		serv=`basename $serv .conf`
 		if [ -d $VROOTDIR/$serv ] ; then
 			VSERVERS="$VSERVERS $serv"
