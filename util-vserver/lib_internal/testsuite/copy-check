@@ -19,7 +19,7 @@
 set -e
 
 dir=$(mktemp -d ${TMP:-/var/tmp}/copy-check.XXXXXX)
-trap "ls -l $dir; rm -rf $dir" EXIT
+trap "rm -rf $dir" EXIT
 
 COPY=${libinternaltestsuitedir:-$(dirname "$0")}/copy
 
@@ -28,7 +28,7 @@ test -x "$COPY"
 function doit()
 {
     $COPY  $dir/$nr-in $dir/$nr-out
-    cmp -s $dir/$nr-in $dir/$nr-out
+    LANG=C cmp -s $dir/$nr-in $dir/$nr-out
 }
 
 ## Usage: execCheck <nr> [<dd-args>*]
@@ -68,7 +68,10 @@ execCheck 07 bs=4099 count=1 seek=1
 execCheck 08 bs=4100 count=1 seek=1
 
 ### Check 9: huge sparse file copy
-execCheck 09 bs=1024 count=1 seek=$[ 1024*1024 * 5 ]
+test x"$ensc_use_expensive_tests" != xyes ||
+    execCheck 09 bs=1024 count=1 seek=$[ 1024*1024 * 5 ]
 
-# ls -l $dir/*
-# du    $dir/*
+test x"$ensc_test_debug" != xyes || {
+    ls -l $dir/* 
+    du    $dir/*
+}
