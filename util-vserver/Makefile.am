@@ -24,6 +24,7 @@ CVS2CL_ALLFLAGS        :=  $(CVS2CL_AMFLAGS) $(CVS2CL_FLAGS)
 
 sysvdir			=  $(sysconfdir)/init.d
 vservercfgdir		=  $(sysconfdir)/vservers
+legacydir		=  $(pkglibdir)/legacy
 
 include_HEADERS		=  $(lib_HDRS)
 noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h
@@ -33,6 +34,8 @@ lib_LIBRARIES		=  $(lib_lib_LIBS)
 pkglib_SCRIPTS		=  $(distrib_SCRPTS) $(scripts_SCRPTS) $(src_pkglib_SCRPTS)
 pkglib_DATA		=  $(distrib_DAT) $(scriptscfg_DATA)
 pkglib_PROGRAMS		=  $(src_pkglib_PRGS)
+
+legacy_SCRIPTS		=  $(scripts_LEGSCRPTS)
 
 sbin_SCRIPTS		=  $(scripts_PRGS) $(linuxconf_SCRPTS)
 sbin_PROGRAMS		=  $(src_sbin_PRGS)
