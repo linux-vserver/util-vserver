@@ -445,7 +445,7 @@ function mountVserver
 
     test -e "$cfgdir"/fstab || return 0
 
-    findObject -r mtab_src "$vdir"/apps/init/mtab "$CONFDIR"/.defaults/init/mtab /dev/null
+    findObject -r mtab_src "$vdir"/apps/init/mtab "$CONFDIR"/.defaults/init/mtab "$PKGLIBDEFAULTDIR"/mtab /dev/null
     
     pushd "$vdir" >/dev/null
     $_CHROOT_CAT /etc/mtab <"$mtab_src"
