@@ -50,6 +50,8 @@ AC_DEFUN([ENSC_KERNEL_HEADERS],
 		ensc_cv_path_kernelheaders=$ensc_cv_path_kerneldir/include
 	])
 
-	$1=$ensc_cv_path_kernelheaders
-	AC_SUBST($1)
+	if test x"$1" != x; then
+		$1=$ensc_cv_path_kernelheaders
+		AC_SUBST($1)
+	fi
 ])
