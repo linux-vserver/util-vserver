@@ -49,6 +49,7 @@ exec ${_APT_GET:-apt-get} \
     -o "Dir::Bin::rpm=$RPM_BINARY" \
     -o "Dir::Etc=$APTETCDIR" \
     -o "RPM::Order=true" \
+    -o "RPM::PM=external" \
     "$@"
 
 #export PS1='@@ '
