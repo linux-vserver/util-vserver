@@ -29,15 +29,29 @@ lib_management_SRCS =		lib/createskeleton.c \
 				lib/getvservername.c \
 				lib/getvservervdir.c
 lib_v11_SRCS =			lib/syscall_rlimit.c \
-				lib/syscall_kill.c
+				lib/syscall_rlimit-v11.hc \
+				lib/syscall_kill.c  \
+				lib/syscall_kill-v11.hc
 lib_v13_SRCS =			lib/syscall_enternamespace.c \
 				lib/syscall_enternamespace-v13.hc \
 				lib/syscall_getiattr.c \
+				lib/syscall_getiattr-fscompat.hc \
+				lib/syscall_getiattr-v13.hc \
 				lib/syscall_setiattr.c \
+				lib/syscall_setiattr-fscompat.hc \
+				lib/syscall_setiattr-v13.hc \
 				lib/syscall_gettaskxid.c \
-				lib/syscall_getvxinfo.c
-lib_uts_SRCS =			lib/syscall_getvhiname.c \
-				lib/syscall_setvhiname.c
+				lib/syscall_gettaskxid-v13.hc \
+				lib/syscall_gettaskxid-oldproc.hc \
+				lib/syscall_getvxinfo.c \
+				lib/syscall_getvxinfo-v13.hc \
+				lib/syscall_getvxinfo-oldproc.hc \
+				lib/syscall_getvhiname.c \
+				lib/syscall_getvhiname-v13.hc \
+				lib/syscall_getvhiname-olduts.hc \
+				lib/syscall_setvhiname.c \
+				lib/syscall_setvhiname-v13.hc \
+				lib/syscall_setvhiname-olduts.hc
 
 PKGCONFIG_FILES =		lib/util-vserver
 
@@ -55,27 +69,12 @@ lib_SRCS =  			lib/syscall.c \
 				$(lib_legacy_SRCS) \
 				$(lib_management_SRCS) \
 				$(lib_v11_SRCS) \
-				$(lib_v13_SRCS) \
-				$(lib_uts_SRCS)
+				$(lib_v13_SRCS)
 
 lib_HDRS =			lib/vserver.h
 
 lib_XHDRS =			lib/syscall-compat.hc \
 	 			lib/syscall-legacy.hc \
-				lib/syscall_rlimit-v11.hc \
-				lib/syscall_kill-v11.hc \
-				lib/syscall_getiattr-fscompat.hc \
-				lib/syscall_getiattr-v13.hc \
-				lib/syscall_gettaskxid-v13.hc \
-				lib/syscall_gettaskxid-oldproc.hc \
-				lib/syscall_getvxinfo-v13.hc \
-				lib/syscall_getvxinfo-oldproc.hc \
-				lib/syscall_getvhiname-v13.hc \
-				lib/syscall_getvhiname-olduts.hc \
-				lib/syscall_setiattr-fscompat.hc \
-				lib/syscall_setiattr-v13.hc \
-				lib/syscall_setvhiname-v13.hc \
-				lib/syscall_setvhiname-olduts.hc \
 				lib/createskeleton-full.hc \
 				lib/createskeleton-short.hc \
 				lib/getversion-internal.hc \
