@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 #define VAL2TEXT(TYPE,SHORT)						\
   ssize_t								\
