@@ -1,0 +1,5 @@
+version 0.23.6
+==============
+
+	- fixed '--level' option on 'vserver ... chkconfig'
+	- fixed built in sysv (broken sed invocation)
