@@ -72,7 +72,7 @@ TESTS_ENVIRONMENT	=  $(src_TESTS_ENV)
 AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE $(RELEASE_CPPFLAGS)
 
 CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_CLEANFILES) $(BUILT_SOURCES) \
-			   .*.pathsubst.stamp */.*.pathsubst.stamp \
+			   .*.pathsubst.stamp */.*.pathsubst.stamp */*/.*.pathsubst.stamp \
 			   linuxcaps.h pathconfig.h
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT	=  $(src_OPTIONS_EXEMPT) \
@@ -107,6 +107,7 @@ else
 endif
 
 pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
+			   s!@'LEGACYDIR'@!$(legacydir)!g; \
 			   s!@'SBINDIR'@!$(sbindir)!g; \
 			   s!@'CONFDIR'@!$(confdir)!g; \
 			   s!@'SYSCONFDIR'@!$(sysconfdir)!g; \
@@ -130,6 +131,7 @@ pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			   s!@'UMOUNT'@!$(UMOUNT)!g; \
 			   s!@'NICE'@!$(NICE)!g; \
 			   s!@'VCONFIG'@!$(VCONFIG)!g; \
+			   s!@'PS'@!$(PS)!g; \
 			   s!@'WC'@!$(WC)!g
 
 pathconfig.h:		.pathconfig.h.pathsubst.stamp
