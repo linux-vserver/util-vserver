@@ -195,10 +195,12 @@ fi
 ensc_cxx_affected=" (affected: vbuild, vcheck)"
 ensc_c99_affected=" (affected: vunify, vcopy)"
 ensc_diet_msg=" (you have been warned)"
+ensc_diet_version_msg=" ($ensc_version_dietlibc)"
 ensc_diet_compat_msg=" (using -lcompat)"
 test x"$ensc_cv_cxx_cxxcompiler"    = xno || ensc_cxx_affected=
 test x"$ensc_cv_c99_c99compiler"    = xno || ensc_c99_affected=
 test x"$ensc_have_dietlibc"         = xno || ensc_diet_msg=
+test x"$ensc_version_dietlibc"     != x   || ensc_diet_version_msg=
 test x"$ensc_have_dietlibc$ensc_cv_c_dietlibc_compat" = xyesyes || ensc_diet_compat_msg=
 
 AH_BOTTOM([#include "compat.h"])
@@ -211,7 +213,7 @@ Features:
                    CFLAGS: '$CFLAGS'
                  CXXFLAGS: '$CXXFLAGS'
                build/host: $build/$host
-             Use dietlibc: $ensc_have_dietlibc$ensc_diet_msg$ensc_diet_compat_msg
+             Use dietlibc: $ensc_have_dietlibc$ensc_diet_version_msg$ensc_diet_msg$ensc_diet_compat_msg
        Build C++ programs: $ensc_cv_cxx_cxxcompiler$ensc_cxx_affected
        Build C99 programs: $ensc_cv_c99_c99compiler$ensc_c99_affected
            Available APIs: $enable_apis

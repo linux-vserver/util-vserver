@@ -79,17 +79,21 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 	    _dietlibc_cmp_maj=${_dietlibc_cmp%%.*}
 	    _dietlibc_cmp_min=${_dietlibc_cmp##*.}
 
+	    ensc_version_dietlibc=$_dietlibc_ver_maj.$_dietlibc_ver_min
+
 	    let _dietlibc_ver=_dietlibc_ver_maj*1000+_dietlibc_ver_min 2>/dev/null || _dietlibc_ver=0
 	    let _dietlibc_cmp=_dietlibc_cmp_maj*1000+_dietlibc_cmp_min
 
 	    test $_dietlibc_ver -ge $_dietlibc_cmp || use_dietlibc=detected_old
+	else
+	    ensc_version_dietlibc=
         fi
 
 	ensc_have_dietlibc=no
 	case x"$use_dietlibc" in
 	    xdetected)
 		AM_CONDITIONAL($1, true)
-		AC_MSG_RESULT([yes (autodetected)])
+		AC_MSG_RESULT([yes (autodetected, $ensc_version_dietlibc)])
 		ensc_have_dietlibc=yes
 		;;
 	    xforced)
@@ -103,7 +107,7 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 		;;
 	    xdetected_old)
 		AM_CONDITIONAL($1, false)
-		AC_MSG_RESULT([no (too old; $2+ required)])
+		AC_MSG_RESULT([no (too old; $2+ required, $ensc_version_dietlibc found)])
 		;;
 	    xforced_no)
 		AM_CONDITIONAL($1, false)
