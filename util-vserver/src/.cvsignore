@@ -42,4 +42,5 @@ vreboot
 vrsetup
 vserver-info
 vserver-stat
+vuname
 vunify
