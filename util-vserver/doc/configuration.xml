@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+
 <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
           xsi:noNamespaceSchemaLocation="file:configuration.xsd">
 
@@ -291,8 +293,10 @@
    <elements>
     <element name="fakeinit">
      <description>
-      The new process will believe it is process number 1. Useful to run a real 
-      /sbin/init in a vserver.
+      The new process will believe it is process number 1. Useful to
+      run a real /sbin/init in a vserver. Warning: this flag should
+      not be used unless you know what you are doing. Often, it is
+      better to use the 'plain' initstyle.
      </description>
     </element>
     <element name="lock">
@@ -860,8 +864,8 @@
  
   <collection name="rlimits">
    <description>
-			 A directory with resource limits. Possible resources are cpu, data, fsize, locks,
-			 memlock, nofile, nproc, rss and/or stack. This configuration will be honored
+			 A directory with resource limits. Possible resources are cpu, fsize, data, stack,
+			 core, rss, nproc, nofile, memlock, as and locks. This configuration will be honored
                          for kernel 2.6 only.
 			</description>                                                                                                                 
 			<scalar name="resource" type="symbolic">
