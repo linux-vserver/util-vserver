@@ -133,11 +133,11 @@ dnl Check for the APIs to be used
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([apis],
 	      [AC_HELP_STRING([--enable-apis=APIS],
-			      [enable support for the given apis; possible values are: legacy,compat,v11,v13,fscompat,ALL (default: ALL)])],
+			      [enable support for the given apis; possible values are: legacy,compat,v11,v13,fscompat,net,ALL (default: all except 'legacy')])],
               [],
-	      [enable_apis=ALL])
+	      [enable_apis=compat,v11,v13,fscompat,net])
 
-test x"$enable_apis" != xALL || enable_apis='legacy,compat,v11,v13,fscompat'
+test x"$enable_apis" != xALL || enable_apis='legacy,compat,v11,v13,fscompat,net'
 enable_api_oldproc=
 enable_api_olduts=
 old_IFS=$IFS
@@ -157,6 +157,7 @@ for i in $enable_apis; do
 				enable_api_olduts=1
 				;;
 		v13)    	AC_DEFINE(VC_ENABLE_API_V13,      1, [Enable support for API of vserver 1.3.x]);;
+		net)		AC_DEFINE(VC_ENABLE_API_NET,      1, [Enable support for network context API]);;
 		fscompat)	AC_DEFINE(VC_ENABLE_API_FSCOMPAT, 1, [Enable support for filesystem compatibility API]);;
 		*)		AC_MSG_ERROR(['$i' is not a supported API]);;
 	esac
