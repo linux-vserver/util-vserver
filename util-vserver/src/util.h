@@ -20,6 +20,8 @@
 #define H_UTIL_VSERVER_SRC_UTIL_H
 
 #include "compat.h"
+#include "lib_internal/util-io.h"
+#include "lib_internal/util-mem.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -47,26 +49,11 @@
 
 #define DIM_OF(X)		(sizeof(X)/sizeof((X)[0]))
 
-inline static void *
-Xmemcpy(void * restrict dst, void const * restrict src, size_t len)
-{
-  memcpy(dst, src, len);
-  return (char *)(dst)+len;
-}
-
-inline static void UNUSED
-writeStr(int fd, char const *cmd)
-{
-  (void)write(fd, cmd, strlen(cmd));
-}
-
 struct stat;
 int	safeChdir(char const *, struct stat const *exp_stat) NONNULL((1,2));
 
 void	exitLikeProcess(int pid) NORETURN;
 
-#define WRITE_MSG(FD,X)		(void)(write(FD,X,sizeof(X)-1))
-#define WRITE_STR(FD,X)		writeStr(FD,X)
 
 #define VSERVER_DECLARE_CMD(CMD)     \
   char		buf[strlen(CMD)+1];  \
