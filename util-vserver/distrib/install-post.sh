@@ -18,7 +18,15 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 # Complete the installation of a vserver
-USR_LIB_VSERVER=$(dirname $0)
+: ${UTIL_VSERVER_VARS:=$(dirname $0)/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo "Can not find util-vserver installation; aborting..."
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+
+USR_LIB_VSERVER=$PKGLIBDIR
+
 vserver_mknod()
 {
 	mknod $1 $2 $3 $4
@@ -28,7 +36,7 @@ vserver_mknod()
 if [ $# != 1 ] ; then
 	echo install-post.sh vserver
 else
-	VROOT=/vservers/$1
+	VROOT=$VROOTDIR/$1
 	rm -fr $VROOT/dev
 	mkdir $VROOT/dev && chmod 755 $VROOT/dev
 	mkdir $VROOT/dev/pts
@@ -51,7 +59,7 @@ else
 			*.bak|*~|functions|killall|halt|single)
 				;;
 			*)
-				$USR_LIB_VSERVER/capchroot /vservers/$1 /sbin/chkconfig --level 2345 $serv off
+				$USR_LIB_VSERVER/capchroot $VROOTDIR/$1 /sbin/chkconfig --level 2345 $serv off
 				;;
 			esac
 		done

@@ -17,6 +17,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+: ${UTIL_VSERVER_VARS:=$(dirname $0)/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo "Can not find util-vserver installation; aborting..."
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+
 vserver_mknod()
 {
 	mknod $1 $2 $3 $4
@@ -27,8 +34,8 @@ if [ $# != 1 ] ; then
 	echo install-pre.sh vserver
 else
 	mkdir -p /etc/vservers
-	mkdir -p /vservers 2>/dev/null
-	VROOT=/vservers/$1
+	mkdir -p $VROOTDIR 2>/dev/null
+	VROOT=$VROOTDIR/$1
 	rm -fr $VROOT/dev
 	mkdir -p $VROOT/dev && chmod 755 $VROOT/dev
 	mkdir $VROOT/dev/pts

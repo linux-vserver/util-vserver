@@ -22,17 +22,25 @@
 # Specify the name of the vserver
 # "install-rh9.0 test" will create /vservers/test
 
-USR_LIB_VSERVER=$(dirname $0)
+: ${UTIL_VSERVER_VARS:=$(dirname $0)/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo "Can not find util-vserver installation; aborting..."
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+
+USR_LIB_VSERVER=$PKGLIBDIR
+
 if [ $# -lt 1 ] ; then
 	echo install-rh9.0 vserver-id [ type ]
 	echo type minimum means, minimum package for a server
 	echo type large means, all packages on the first CD
-elif [ -d /vservers/$1/var/lib/rpm ] ; then
-	echo /vservers/$1 already exist
+elif [ -d $VROOTDIR/$1/var/lib/rpm ] ; then
+	echo $VROOTDIR/$1 already exist
 elif [ ! -d /mnt/cdrom/RedHat/RPMS ] ; then
 	echo No rpms in /mnt/cdrom/RedHat/RPMS. Is the CD mounted \?
 else
-	VROOT=/vservers/$1
+	VROOT=$VROOTDIR/$1
 	$USR_LIB_VSERVER/install-pre.sh $1
 	mkdir -p $VROOT/proc
 	mount -t proc none $VROOT/proc
