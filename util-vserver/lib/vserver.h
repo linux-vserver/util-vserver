@@ -192,7 +192,8 @@ extern "C" {
 
 
   int		vc_enter_namespace(xid_t xid);
-
+  int		vc_set_namespace();
+  int		vc_cleanup_namespace();
 
   struct  vc_ctx_flags {
       uint64_t flagword;
