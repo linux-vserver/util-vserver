@@ -19,7 +19,6 @@ BuildRoot:	%_tmppath/%name-%version-%release-root
 Requires:	init(@PACKAGE@)
 Requires:	%name-core = %epoch:%version-%release
 Requires:	%name-lib  = %epoch:%version-%release
-Requires:	make
 Provides:	vserver = %epoch:%version-%release
 Obsoletes:	vserver < %epoch:%version
 BuildRequires:	mount vconfig gawk iproute
@@ -47,9 +46,10 @@ Requires:	rpm apt wget binutils tar
 Summary:	SysV-initscripts for vserver
 Group:		System Environment/Base
 Provides:	init(@PACKAGE@)
+Requires:	make diffutils
 Requires:	%name = %epoch:%version-%release
 Requires:	initscripts
-Requires(pre,postun):	%_initrddir
+Requires(pre,postun):	%_initrddir %pkglibdir
 
 %package legacy
 Summary:	Legacy utilities for util-vserver
@@ -118,7 +118,7 @@ f="%confdefaultdir/run.rev";  test -L "$f" -o -e "$f" || ln -s /var/run/vservers
 
 %define v_services	httpd named portmap sendmail smb sshd xinetd
 %post sysv
-%chkconfig --add vservers
+%chkconfig --add vservers-default
 %chkconfig --add rebootmgr
 %chkconfig --add vprocunhide
 
@@ -137,7 +137,7 @@ test "$1" != 0 || %_initrddir/rebootmgr   stop &>/dev/null || :
 
 test "$1" != 0 || %chkconfig --del vprocunhide
 test "$1" != 0 || %chkconfig --del rebootmgr
-test "$1" != 0 || %chkconfig --del vservers
+test "$1" != 0 || %chkconfig --del vservers-default
 
 
 %postun sysv
@@ -191,7 +191,7 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 %dir %pkglibdir/legacy
 
 
-%files sysv
+%files sysv -f %name-sysv.list
 %defattr(-,root,root,-)
 %config %_initrddir/*
 %config(noreplace) %_sysconfdir/vservers.conf
@@ -204,6 +204,9 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 
 
 %changelog
+* Mon Mar 15 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.29.202-0
+- use file-list for sysv scripts also
+
 * Sat Mar  6 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.29.198-0
 - added vprocunhide-service support
 - added doxygen support
