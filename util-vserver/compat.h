@@ -19,7 +19,7 @@
 #ifndef H_UTIL_VSERVER_COMPAT_H
 #define H_UTIL_VSERVER_COMPAT_H
 
-#if defined(__dietlibc__) && defined(__STRICT_ANSI__) && defined(__STDC_VERSION__)
+#if defined(__dietlibc__) && !defined(ENSC_DIETLIBC_C99) && defined(__STRICT_ANSI__) && defined(__STDC_VERSION__)
 #  include <sys/cdefs.h>
 #  undef inline
 
