@@ -137,13 +137,13 @@ extern "C" {
     /** Sets the ipv4root information.
      *  \precondition: nb<16 */
   int	vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips);
-  
-  /* rlimit related functions */
-  typedef uint64_t	vc_limit_t;
 
   xid_t	vc_create_context(xid_t xid);
   int	vc_migrate_context(xid_t xid);
   
+  /* rlimit related functions */
+  typedef uint64_t	vc_limit_t;
+ 
   struct vc_rlimit {
       vc_limit_t min;
       vc_limit_t soft;
@@ -231,7 +231,14 @@ extern "C" {
     if (vc_get_iattr(filename, &res, 0,0)==-1) return VC_NOCTX;
     return res;
   }
-  
+
+
+  typedef enum { vcFEATURE_VKILL,  vcFEATURE_IATTR,   vcFEATURE_RLIMIT,
+		 vcFEATURE_COMPAT, vcFEATURE_MIGRATE, vcFEATURE_NAMESPACE,
+		 vcFEATURE_SCHED,  vcFEATURE_VINFO,   vcFEATURE_VHI }
+    vcFeatureSet;
+
+  bool		vc_isSupported(vcFeatureSet);
   
   /* The management part */
 
