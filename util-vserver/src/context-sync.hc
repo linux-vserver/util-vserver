@@ -83,7 +83,7 @@ waitOnSync(pid_t pid, int p[2][2], bool is_prevent_race)
   
   Eclose(p[1][1]);
   l = Eread(p[1][0], &c, 1);
-  if (l!=1) exitLikeProcess(pid,0);
+  if (l!=1) exitLikeProcess(pid,0, wrapper_exit_code);
   l = Eread(p[1][0], &c, 1);
-  if (l!=0) exitLikeProcess(pid,0);
+  if (l!=0) exitLikeProcess(pid,0, wrapper_exit_code);
 }

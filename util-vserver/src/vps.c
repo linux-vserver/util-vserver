@@ -27,6 +27,7 @@
 #include <lib/fmt.h>
 #include <assert.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_STDLIB	1
@@ -231,6 +232,8 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "--version")==0) showVersion();
   }
 
+  signal(SIGCHLD, SIG_DFL);
+
   if (!switchToWatchXid(&errptr)) {
     perror(errptr);
     exit(wrapper_exit_code);
@@ -257,8 +260,5 @@ int main(int argc, char *argv[])
   Eclose(p[0]);
   
   processOutput(data, len);
-
-  exitLikeProcess(pid, "ps");
-  perror("exitLikeProcess()");
-  return wrapper_exit_code;
+  exitLikeProcess(pid, "ps", wrapper_exit_code);
 }

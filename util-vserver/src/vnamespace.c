@@ -95,6 +95,9 @@ static void
 newNamespace(char const *cmd)
 {
   pid_t		pid;
+
+  signal(SIGCHLD, SIG_DFL);
+  
 #ifdef NDEBUG    
   pid = sys_clone(CLONE_NEWNS|CLONE_VFORK|SIGCHLD, 0);
 #else
@@ -108,7 +111,7 @@ newNamespace(char const *cmd)
     case 0	:
       break;
     default	:
-      exitLikeProcess(pid, cmd);
+      exitLikeProcess(pid, cmd, wrapper_exit_code);
   }
 }
 
