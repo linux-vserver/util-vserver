@@ -30,28 +30,28 @@
 #define DECL(STR, VAL) { STR, sizeof(STR)-1, VAL }
 
 static struct Mapping_uint64 const VALUES[] = {
-  DECL("lock",      VC_VXF_INFO_LOCK),
-  DECL("nproc",     VC_VXF_INFO_NPROC),
-  DECL("private",   VC_VXF_INFO_PRIVATE),
-  DECL("fakeinit",  VC_VXF_INFO_INIT),
+  DECL("lock",		VC_VXF_INFO_LOCK),
+  DECL("nproc",		VC_VXF_INFO_NPROC),
+  DECL("private",	VC_VXF_INFO_PRIVATE),
+  DECL("fakeinit",	VC_VXF_INFO_INIT),
 
-  DECL("hideinfo",  VC_VXF_INFO_HIDEINFO),
-  DECL("ulimit",    VC_VXF_INFO_ULIMIT),
-  DECL("namespace", VC_VXF_INFO_NAMESPACE),
+  DECL("hideinfo",	VC_VXF_INFO_HIDEINFO),
+  DECL("ulimit",	VC_VXF_INFO_ULIMIT),
+  DECL("namespace",	VC_VXF_INFO_NAMESPACE),
 
-  DECL("hard",      VC_VXF_SCHED_HARD),
-  DECL("prio",      VC_VXF_SCHED_PRIO),
-  DECL("pause",     VC_VXF_SCHED_PAUSE),
+  DECL("sched_hard",    VC_VXF_SCHED_HARD),
+  DECL("sched_prio",    VC_VXF_SCHED_PRIO),
+  DECL("sched_pause",   VC_VXF_SCHED_PAUSE),
 
-  DECL("mem",       VC_VXF_VIRT_MEM),
-  DECL("uptime",    VC_VXF_VIRT_UPTIME),
-  DECL("cpu",       VC_VXF_VIRT_CPU),
+  DECL("virt_mem",      VC_VXF_VIRT_MEM),
+  DECL("virt_uptime",   VC_VXF_VIRT_UPTIME),
+  DECL("virt_cpu",      VC_VXF_VIRT_CPU),
 
-  DECL("hidemount", VC_VXF_HIDE_MOUNT),
-  DECL("hidenetif", VC_VXF_HIDE_NETIF),
+  DECL("hide_mount",	VC_VXF_HIDE_MOUNT),
+  DECL("hide_netif",	VC_VXF_HIDE_NETIF),
 
-  DECL("setup",     VC_VXF_STATE_SETUP),
-  DECL("init",      VC_VXF_STATE_INIT),
+  DECL("state_setup",   VC_VXF_STATE_SETUP),
+  DECL("state_init",    VC_VXF_STATE_INIT),
 };
 
 uint_least64_t

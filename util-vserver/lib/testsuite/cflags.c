@@ -133,7 +133,10 @@ int main()
 
   TEST_LIST("^4,~^2",       0,  0, 0x10,            0x14,           -1,0);
 
-  TEST_LIST("lock,nproc,private,fakeinit,hideinfo,ulimit,namespace,hard,prio,pause,mem,uptime,cpu,hidemount,hidenetif,setup,init",
+  TEST_LIST("lock,nproc,private,fakeinit,hideinfo,ulimit,namespace,"
+	    "sched_hard,sched_prio,sched_pause,"
+	    "virt_mem,virt_uptime,virt_cpu,"
+	    "hide_mount,hide_netif,state_setup,state_init",
 	    0, 0,
 	    VC_VXF_INFO_LOCK|VC_VXF_INFO_NPROC|VC_VXF_INFO_PRIVATE|VC_VXF_INFO_INIT|
 	    VC_VXF_INFO_HIDEINFO|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NAMESPACE|
@@ -151,7 +154,10 @@ int main()
 
 	    -1,0);
 
-  TEST_LIST("~lock,~nproc,~private,~fakeinit,~hideinfo,~ulimit,~namespace,~hard,~prio,~pause,~mem,~uptime,~cpu,~hidemount,~hidenetif,~setup,~init",
+  TEST_LIST("~lock,~nproc,~private,~fakeinit,~hideinfo,~ulimit,~namespace,"
+	    "~sched_hard,~sched_prio,~sched_pause,"
+	    "~virt_mem,~virt_uptime,~virt_cpu,"
+	    "~hide_mount,~hide_netif,~state_setup,~state_init",
 	    0, 0,
 	    0,
 	    VC_VXF_INFO_LOCK|VC_VXF_INFO_NPROC|VC_VXF_INFO_PRIVATE|VC_VXF_INFO_INIT|
