@@ -76,3 +76,9 @@ Evc_get_ccaps(xid_t xid, struct vc_ctx_caps *caps)
 {
   FatalErrnoError(vc_get_ccaps(xid, caps)==-1, "vc_get_ccaps()");
 }
+
+inline static WRAPPER_DECL void
+Evc_set_ccaps(xid_t xid, struct vc_ctx_caps const *caps)
+{
+  FatalErrnoError(vc_set_ccaps(xid, caps)==-1, "vc_set_ccaps()");
+}
