@@ -347,7 +347,11 @@ function _processSingleInterface
 
     test "$ip" || { echo $"Can not read ip for '$iface'"  >&2; return 1; }
     
-    test ! -e "$iface"/only_ip   || unset dev
+    test ! -e "$iface"/only_ip || {
+	echo $"The 'only_ip' flag for interface '$iface' is deprecated; use 'nodev' instead of" >&2
+	unset dev
+    }
+    test ! -e "$iface"/nodev   || unset dev
     
     if test "$dev"; then
 	_transformMask2Prefix prefix "$prefix" "$mask"
