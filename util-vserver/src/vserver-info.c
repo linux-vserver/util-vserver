@@ -48,7 +48,7 @@ typedef enum { tgNONE,tgCONTEXT, tgID, tgRUNNING,
 	       tgAPIVER, tgPXID,
 	       tgINITPID, tgINITPID_PID,
 	       tgXID, tgUTS, tgSYSINFO,
-	       tgFEATURE,
+	       tgFEATURE, tgCANONIFY,
 }	VserverTag;
 
 static struct {
@@ -74,6 +74,7 @@ static struct {
   { "SYSINFO",     tgSYSINFO,     "gives out information about the systen" },
   { "FEATURE",     tgFEATURE,     "returns 0 iff the queried feature is supported" },
   { "PXID",        tgPXID,        "returns the xid of the parent context" },
+  { "CANONIFY",    tgCANONIFY,    "canonifies the vserver-name and removes dangerous characters" },
 };
 
 int wrapper_exit_code = 1;
@@ -387,7 +388,7 @@ static int
 execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
 {
   char const *		res = 0;
-  char 			buf[sizeof(xid_t)*4 + 1024];
+  char 			buf[sizeof(xid_t)*4 + 1024 + strlen(vserver)];
 
   memset(buf, 0, sizeof buf);
   switch (tag) {
@@ -404,6 +405,11 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
       res = (vc_getVserverCtx(vserver, vcCFG_AUTO, false, 0)==VC_NOCTX) ? 0 : "1";
       break;
 
+    case tgCANONIFY	:
+      strcpy(buf, vserver);
+      if (canonifyVserverName(buf)>0) res = buf;
+      break;
+      
     case tgCONTEXT	:  res = getContext(buf, vserver,
 					    argc==0 || str2bool(argv[0])); break;
     case tgINITPID_PID	:  res = getInitPidPid(buf, vserver);  break;
@@ -412,6 +418,7 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
     case tgPXID		:  res = getPXid(buf, vserver);        break;
     case tgSYSINFO	:  return printSysInfo(buf);           break;
     case tgFEATURE	:  return testFeature(argc,argv);      break;
+
 
     default		: {
       xid_t		xid = *vserver!='\0' ? vc_xidopt2xid(vserver,true,0) : VC_SAMECTX;
