@@ -23,12 +23,15 @@ SETUP_NETBCAST=
 SETUP_LOCKFILE=
 SETUP_LOCKREVDIR=
 SETUP_CONFDIR=
+SETUP_CONTEXT=
 
 declare -a SETUP_INTERFACES=()
 declare -a SETUP_FLAGS=()
 
-declare -r SETUP_OPTIONS="confdir:,lockfile:,lockrevdir:,hostname:,netdev:,netmask:,netprefix:,netbcast:,interface:,flags:"
+declare -r SETUP_OPTIONS="confdir:,lockfile:,lockrevdir:,hostname:,netdev:,netmask:,netprefix:,netbcast:,interface:,flags:,context:"
 declare -r SETUP_HELPMSG=$"
+    --context   ...  the static context of the vserver [default: none; a dynamic
+                     context will be assumed]
     --confdir   ...  [default: $CONFDIR/<name>]
     --lockfile <filename>
 		...  [default: $RUNDIR/<name>]
@@ -58,22 +61,23 @@ declare -r SETUP_HELPMSG=$"
 function setup_setOption2
 {
     case "$1" in
-	--confdir)	SETUP_CONFDIR=$2;;
-	--lockfile)	SETUP_LOCKFILE=$2;;
-	--lockrevdir)	SEUTP_LOCKREVDIR=$2;;
-	--hostname)	SETUP_HOSTNAME=$2;;
-	--netdev)	SETUP_NETDEV=$2;;
-	--netmask)	SETUP_NETMASK=$2;;
-	--netprefix)	SETUP_NETPREFIX=$2;;
-	--netbcast)	SETUP_NETBCAST=$2;;
-	--interface)	SETUP_INTERFACES=( "${SETUP_INTERFACES[@]}" "$2" );;
-	--flags)	old_IFS=$IFS
+	(--context)	SETUP_CONTEXT=$2;;
+	(--confdir)	SETUP_CONFDIR=$2;;
+	(--lockfile)	SETUP_LOCKFILE=$2;;
+	(--lockrevdir)	SEUTP_LOCKREVDIR=$2;;
+	(--hostname)	SETUP_HOSTNAME=$2;;
+	(--netdev)	SETUP_NETDEV=$2;;
+	(--netmask)	SETUP_NETMASK=$2;;
+	(--netprefix)	SETUP_NETPREFIX=$2;;
+	(--netbcast)	SETUP_NETBCAST=$2;;
+	(--interface)	SETUP_INTERFACES=( "${SETUP_INTERFACES[@]}" "$2" );;
+	(--flags)	old_IFS=$IFS
 			IFS=,
 			set -- $2
 			SETUP_FLAGS=( "${SETUP_FLAGS[@]}" "$@" )
 			IFS=$old_IFS
 			;;
-	*)		return 1;;
+	(*)		return 1;;
     esac
 
     return 0
@@ -135,6 +139,7 @@ function setup_writeOption
     mkdir -p "$cfgdir/interfaces"
 
     _setup_writeSingleOption "$name"            "$cfgdir"/name
+    _setup_writeSingleOption "$SETUP_CONTEXT"   "$cfgdir"/context
     _setup_writeSingleOption "$SETUP_HOSTNAME"  "$cfgdir"/hostname
     _setup_writeSingleOption "$SETUP_NETDEV"    "$cfgdir"/interfaces/dev
     _setup_writeSingleOption "$SETUP_NETMASK"   "$cfgdir"/interfaces/mask
