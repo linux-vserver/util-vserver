@@ -31,23 +31,24 @@ pkglib_SCRIPTS		=  $(distrib_SCRPTS) $(scripts_SCRPTS) $(src_pkglib_SCRPTS)
 pkglib_DATA		=  $(distrib_DAT) $(scriptscfg_DATA)
 pkglib_PROGRAMS		=  $(src_pkglib_PRGS)
 
-sbin_SCRIPTS		=  $(scripts_PRGS)
+sbin_SCRIPTS		=  $(scripts_PRGS) $(linuxconf_SCRPTS)
 sbin_PROGRAMS		=  $(src_sbin_PRGS)
 noinst_PROGRAMS		=  $(test_PRGS)
 
 sysv_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
-vservercfg_DATA		=  newvserver.defaults
+vservercfg_DATA		=  $(linuxconf_cfg_DTA)
 
 BUILT_SOURCES		=  linuxcaps.h linuxvirtual.h
 
-man_MANS		=  $(man_DATMAN)
+man_MANS		=  $(man_DATMAN) $(linuxconf_DATMAN)
 
 EXTRA_DIST		=  $(distrib_SCRPTS) $(distrib_DAT) \
 			   $(sysv_XTRAS) $(sysv_CFG) \
-                           $(doc_DAT) $(man_DATMAN) \
+                           $(doc_DAT) $(man_DATMAN) $(linuxconf_DATMAN) \
 			   $(scripts_SCRPTS) $(scripts_XTRAS) \
-			   vserver.spec newvserver.defaults \
+			   $(linuxconf_XTRAS) \
+			   vserver.spec \
                            m4/ensc_cflags.m4 \
 			   THANKS
 
@@ -55,6 +56,7 @@ AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D VERSION=\"$(VERSION)\" -D PKGLIBDIR=\"$(
 AM_CFLAGS		=  -Wall -pedantic
 
 CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) \
+			   $(linuxconf_GENFILES) \
 			   $(BUILT_SOURCES)
 
 
@@ -73,6 +75,7 @@ include $(top_srcdir)/man/Makefile-files
 include $(top_srcdir)/scripts/Makefile-files
 include $(top_srcdir)/tests/Makefile-files
 include $(top_srcdir)/sysv/Makefile-files
+include $(top_srcdir)/linuxconf/Makefile-files
 
 include $(top_srcdir)/m4/gpgsig.am
 include $(top_srcdir)/m4/validate.am

@@ -1,0 +1,529 @@
+#!/usr/bin/shellmod
+# This module is used to create a new virtual private server
+
+# This module may be use inside linuxconf
+# Do linuxconf --modulemain shellmod --setmod @SBINDIR@/newvserver
+
+# Load shellmod support function
+. /usr/lib/linuxconf/lib/shellmod-lib.sh
+
+USR_SBIN=@SBINDIR@
+USR_LIB_VSERVER=@PKGLIBDIR@
+VSERVER_CMD=$USR_SBIN/vserver
+CHBIND_CMD=$USR_SBIN/chbind
+CHCONTEXT_CMD=$USR_SBIN/chcontext
+SAVE_S_CONTEXT_CMD=$USR_LIB_VSERVER/save_s_context
+CAPCHROOT_CMD=$USR_LIB_VSERVER/capchroot
+VSERVERKILLALL_CMD=$USR_LIB_VSERVER/vserverkillall
+
+
+usage(){
+	cat <<-EOF >&2
+
+newvserver [ options ]
+
+    Interactive utility to create vservers.
+
+Options:
+    --name: Set the name of the new vserver.
+    --desc: Set the description.
+    --unify 1/0: Turn on unification on and off.
+    --hostname: Set the host name of the new vserver
+    --ip: Set the IP number(s)
+    --ondev: Install the IP numbers as IP aliases on device.
+    --clone: Create the vserver from another one or a distribution CD.
+
+The distribution CD are identified by special strings:
+    #rh9.0m: RedHat 9 minimal
+    #rh9.0f: RedHat 9 complete first CD
+    #rh8.0m: RedHat 8 minimal
+    #rh8.0f: RedHat 8 complete first CD
+    #rh7.3m: RedHat 7.3 minimal
+    #rh7.3f: RedHat 7.3 complete first CD
+    #rh7.2m: RedHat 7.2 minimal
+    #rh7.2f: RedHat 7.2 complete first CD
+
+EOF
+}
+
+register(){
+	qecho regmenu main MENU_MISCSERV "Create a new vserver"
+}
+
+check_name(){
+	LEN=`echo -n $1 | wc -c`
+	SMALL=`expr $LEN \<= 10`
+	if [ "$SMALL" = "1" ] ; then
+		return 0
+	fi
+	return 1
+}
+
+check_hostname(){
+	case $1 in
+	*\.*)
+		return 0
+		;;
+	*)
+		;;
+	esac
+	return 1
+}
+
+check_ip(){
+	case $1 in
+	*\.*\.*\.*)
+		return 0
+		;;
+	*)
+		;;
+	esac
+	return 1
+}
+
+check_device(){
+	if [ "$1" = "" ] ; then
+		return 1;
+	fi
+	return 0
+}
+
+# Tell the user to mount the CD
+check_cd(){
+	echo defval s1 "Make sure the $1"
+	echo defval s1 "is mounted on /mnt/cdrom"
+	echo defval s1
+	echo defval s1 "Execute \"mount /mnt/cdrom\" if not"
+	echo notice =s1
+}
+
+# Set a fake fstab and mtab in a vserver
+# $1 is the vserver path (/vserver/id)
+set_fstab(){
+	mkdir -p $1/etc
+	echo /dev/hdv1	/	ext2	defaults	1	1 >$1/etc/fstab
+	echo /dev/hdv1	/	ext2	rw	1	1 >$1/etc/mtab
+}
+
+# Show a progress bar during installation
+# The sub-process sends the number of output line first, then the lines
+execprogress(){
+	LOG=$1
+	title=$2
+	desc=$3
+	shift; shift; shift
+	$* |
+	(
+		>$LOG
+		read SIZE rest
+		qecho DIALOG
+		qecho settype DIATYPE_POPUP
+		qecho newf_str p1 "Package"
+		qecho newf_gauge s1 "$desc" 0 $SIZE
+		qecho show "$title" "$SIZE $rest"
+		nb=0
+		while read pkg line
+		do
+			nb=`expr $nb + 1`
+			printf "%-20s %s\n" $pkg $line >>$LOG
+			qecho newf_str p1 "Package" "$pkg"
+			qecho newf_gauge s1 "$desc" $nb $SIZE
+			qecho show "$title" "$SIZE $rest"
+		done
+		qecho end
+	)
+}
+
+# install some packages with a progress bar
+installpkgs(){
+	LOG=$1
+	shift
+	execprogress $LOG "Installing" "Packages installed" $*
+}
+
+# Point d'entré du module
+main(){
+	name=
+	desc=
+	clone=/
+	unify=1
+	hostname=
+	ip=
+	ondev=eth0
+	if [ -f /etc/vservers/newvserver.defaults ] ; then
+		source /etc/vservers/newvserver.defaults
+	fi
+	while [ "$1" != "" ]
+	do
+		case $1 in
+		--help)
+			usage
+			exit
+			;;
+		--name)
+			name=$2
+			shift; shift
+			;;
+		--desc)
+			desc=$2
+			shift; shift
+			;;
+		--unify)
+			unify=$2
+			shift; shift
+			;;
+		--hostname)
+			hostname=$2
+			shift; shift
+			;;
+		--ip)
+			ip="$2"
+			shift; shift
+			;;
+		--ondev)
+			ondev=$2
+			shift; shift
+			;;
+		--clone)
+			clone=$2
+			shift; shift
+			;;
+		*)
+			qecho error "Invalid option $1"
+			exit 1
+		esac
+	done
+	qecho DIALOG
+	qecho newf_title top 1 top
+	qecho newf_str name "Vserver name (max 10 chars)" $name
+	qecho newf_str desc "Vserver description" "$desc"
+	qecho newf_list clone "Clone vserver" $clone
+	for conf in /etc/vservers/*.conf
+	do
+		case $conf in
+		/etc/vservers/\*.conf)
+			;;
+		*)
+			DESC=`grep "# Description:" $conf | ( read a b c; echo $c)`
+			qecho listitem `basename $conf .conf` "$DESC"
+			;;
+		esac
+	done
+	qecho listitem / "Root server"
+	qecho listitem "#rh9.0m" "From RedHat 9.0 CDrom/Minimal"
+	qecho listitem "#rh9.0f" "From RedHat 9.0 CDrom/Full"
+	qecho listitem "#rh8.0m" "From RedHat 8.0 CDrom/Minimal"
+	qecho listitem "#rh8.0f" "From RedHat 8.0 CDrom/Full"
+	qecho listitem "#rh7.3m" "From RedHat 7.3 CDrom/Minimal"
+	qecho listitem "#rh7.3f" "From RedHat 7.3 CDrom/Full"
+	qecho listitem "#rh7.2" "From RedHat 7.2 CDrom"
+	#qecho listitem "#mdk8.2m" "From Mandrake 8.2 CDrom/Minimal"
+	#qecho listitem "#mdk8.2f" "From Mandrake 8.2 CDrom/Full"
+	qecho newf_chk unify "Unified mode" 1 "Share disk space" $unify
+
+	qecho newf_title Networking 1 Networking
+	qecho newf_str hostname "Host name" $hostname
+	qecho newf_info "" "Up to 16 IP numbers"
+	qecho newf_str ip "IP number(s)" "$ip"
+	qecho newf_str ondev "Install IP on device" $ondev
+
+	qecho newf_title Authentication 1 Authentication
+	qecho newf_pass pass1 "Root password"
+	qecho newf_pass pass2 "Root password (retype)"
+	qecho newf_chk usemd5 "Password format" 1 "Use MD5"
+	qecho newf_chk useshadow "Password location" 1 "/etc/shadow"
+
+	qecho newf_title NIS/LDAP 1 NIS/LDAP
+	qecho newf_str nisserver  "NIS server"
+	qecho newf_str domainname "NIS domainname"
+	qecho newf_str ldapserver "LDAP server"
+	qecho newf_str ldapbasedn "LDAP base dn"
+
+	qecho newf_title Services 1 Services
+	qecho newf_chk crond  "crond"  1 "Scheduled tasks"
+	qecho newf_chk httpd  "httpd"  0 "Web server"
+	qecho newf_chk sshd   "sshd"   1 "Secure shell server"
+	qecho newf_chk cleansshd ""    1 "Redo sshd server keys"
+	qecho newf_chk syslog "syslog" 1 "Message logger"
+	qecho newf_chk xinetd "xinetd" 0 "On demand inet service"
+	qecho newf_chk nscd   "nscd"   0 "Name service cache daemon"
+
+	qecho newf_title "Backup profile" 1 "Backup profile"
+	qecho newf_str bkhostname "Host name"
+	qecho newf_info "" "Up to 16 IP numbers"
+	qecho newf_str bkip "IP number(s)"
+	qecho newf_str bkondev "Install IP on device" eth0
+
+	qecho newf_title Extra 1 Extra
+	qecho newf_chk onboot "Start server" 0 "at boot time"
+	qecho newf_str priority "Start priority" 100
+	qecho newf_str nice "Nice level"
+	qecho newf_info "Available flags" "lock nproc sched hideinfo private"
+	qecho newf_str flags "Flags" "lock nproc"
+	qecho newf_str ulimit "Vserver ulimit" "-H -u 1000"
+
+
+	qecho newf_title "Shared directories" 1 "Shared directories"
+	qecho newf_str dir1 "Directory"
+	qecho newf_str dir2 "Directory"
+	qecho newf_str dir3 "Directory"
+	qecho newf_str dir4 "Directory"
+
+	qecho newf_title "Excluded directories" 1 "Excluded directories"
+	qecho newf_info "" "Won't copy files in those directories"
+	qecho newf_str exdir1 "Directory" "/var/log"
+	qecho newf_str exdir2 "Directory" "/var/run"
+	qecho newf_str exdir3 "Directory" "/var/spool/mail"
+	qecho newf_str exdir4 "Directory" "/tmp"
+	qecho newf_str exdir5 "Directory" ""
+	qecho newf_str exdir6 "Directory" ""
+
+
+	while true
+	do
+		qecho edit "Vserver basic setup" 
+		dispatch
+		if [ $CODE != "accept" ] ; then
+			break
+		elif ! check_name $name ; then
+			qecho error "You must provide a name (10 chars max)"
+		elif ! check_hostname $hostname ; then
+			qecho error "You must provide a valid/fully qualified host name"
+		elif ! check_ip $ip ; then
+			qecho error "You must provide a valid IP number"
+		elif ! check_device $ondev ; then
+			qecho error "You must provide a valid network device"
+		elif [ "$pass1" != "" -a "$pass1" != "$pass2" ] ; then
+			echo defval s1 The two passwords differ.
+			echo defval s1 You must re-enter the root password.
+			echo error =s1
+		else
+			STARTTIME=`date +%s`
+			ONBOOT=no
+			if [ "$onboot" = "1" ] ; then
+				ONBOOT=yes
+			fi
+			VROOT=/vservers/$name
+			CONF=/etc/vservers/$name.conf
+			$USR_LIB_VSERVER/install-pre.sh $name
+			rm -f $CONF >/dev/null 2>/dev/null
+			echo "# Description: $desc" >>$CONF
+			echo >>$CONF
+			echo "if [ \"$PROFILE\" = \"\" ]; then" >>$CONF
+			echo "	PROFILE=prod" >>$CONF
+			echo "fi" >>$CONF
+			echo "case \$PROFILE in" >>$CONF
+			echo "prod)" >>$CONF
+			echo "	# Select the IP number(s) assigned to the virtual server" >>$CONF
+			echo "	# These IPs will be defined as IP alias" >>$CONF
+			echo "	# The alias will be setup on IPROOTDEV" >>$CONF
+			echo "	# You can specify the device if needed" >>$CONF
+			echo "	# IPROOT=\"eth0:1.2.3.4 eth1:3.4.5.6\" " >>$CONF
+			echo "	IPROOT=\"$ip\"" >>$CONF
+			echo "	# You can define on which device the IP alias will be done" >>$CONF
+			echo "	# The IP alias will be set when the server is started and unset" >>$CONF
+			echo "	# when the server is stopped" >>$CONF
+			echo "	# The netmask and broadcast are computed by default from IPROOTDEV" >>$CONF
+			echo "	#IPROOTMASK=" >>$CONF
+			echo "	#IPROOTBCAST=" >>$CONF
+			echo "	IPROOTDEV=$ondev" >>$CONF
+			echo "	# You can set a different host name for the vserver" >>$CONF
+			echo "	# If empty, the host name of the main server is used" >>$CONF
+			echo "	S_HOSTNAME=$hostname" >>$CONF
+			echo "	;;" >>$CONF
+			echo "backup)" >>$CONF
+			echo "	IPROOT=\"$bkip\"" >>$CONF
+			echo "	#IPROOTMASK=" >>$CONF
+			echo "	#IPROOTBCAST=" >>$CONF
+			echo "	IPROOTDEV=$bkondev" >>$CONF
+			echo "	S_HOSTNAME=$bkhostname" >>$CONF
+			echo "	;;" >>$CONF
+			echo "esac" >>$CONF
+			echo "# Set ONBOOT to yes or no if you want to enable this" >>$CONF
+			echo "# virtual server at boot time" >>$CONF
+			echo "ONBOOT=$ONBOOT" >>$CONF
+			echo "# Control the start order of the vservers" >>$CONF
+			echo "# Lower value start first" >>$CONF
+			echo "PRIORITY=$priority" >>$CONF
+			echo "# You can set a different NIS domain for the vserver" >>$CONF
+			echo "# If empty, the current on is kept" >>$CONF
+			echo "# Set it to \"none\" to have no NIS domain set" >>$CONF
+			echo "S_DOMAINNAME=$domainname" >>$CONF
+			echo "# You can set the priority level (nice) of all process in the vserver" >>$CONF
+			echo "# Even root won't be able to raise it" >>$CONF
+			echo "S_NICE=$nice" >>$CONF
+			echo "# You can set various flags for the new security context" >>$CONF
+			echo "# lock: Prevent the vserver from setting new security context" >>$CONF
+			echo "# sched: Merge scheduler priority of all processes in the vserver" >>$CONF
+			echo "#        so that it acts a like a single one." >>$CONF
+			echo "# nproc: Limit the number of processes in the vserver according to ulimit" >>$CONF
+			echo "#        (instead of a per user limit, this becomes a per vserver limit)" >>$CONF
+			echo "# private: No other process can join this security context. Even root" >>$CONF
+			echo "# Do not forget the quotes around the flags" >>$CONF
+			echo "S_FLAGS=\"$flags\"" >>$CONF
+			echo "# You can set various ulimit flags and they will be inherited by the" >>$CONF
+			echo "# vserver. You enter here various command line argument of ulimit" >>$CONF
+			echo "# ULIMIT=\"-H -u 200\"" >>$CONF
+			echo "# The example above, combined with the nproc S_FLAGS will limit the" >>$CONF
+			echo "# vserver to a maximum of 200 processes" >>$CONF
+			echo "ULIMIT=\"$ulimit\"" >>$CONF
+			echo "# You can set various capabilities. By default, the vserver are run" >>$CONF
+			echo "# with a limited set, so you can let root run in a vserver and not" >>$CONF
+			echo "# worry about it. He can\'t take over the machine. In some cases" >>$CONF
+			echo "# you can to give a little more capabilities \(such as CAP_NET_RAW\)" >>$CONF
+			echo "# S_CAPS=\"CAP_NET_RAW\"" >>$CONF
+			echo "S_CAPS=\"\"" >>$CONF
+			echo "# Select an unused context (this is optional)" >>$CONF
+			echo "# The default is to allocate a free context on the fly" >>$CONF
+			echo "# In general you don't need to force a context" >>$CONF
+			echo "#S_CONTEXT=" >>$CONF
+
+			# Now we create the optional companion startup script
+			# for the vserver
+			SCRIPT=/etc/vservers/$name.sh
+			echo "#!/bin/sh" >$SCRIPT
+			echo 'case $1 in' >>$SCRIPT
+			echo "pre-start)" >>$SCRIPT
+			for dir in $dir1 $dir2 $dir3 $dir4  none
+			do
+				if [ "$dir" != "none" ] ; then
+					echo "	mkdir -p $VROOT/$dir" >>$SCRIPT
+					echo "	mount --bind $dir $VROOT/$dir" >>$SCRIPT
+				fi
+			done
+			echo "	;;" >>$SCRIPT
+			echo "post-start)" >>$SCRIPT
+			echo "	;;" >>$SCRIPT
+			echo "pre-stop)" >>$SCRIPT
+			echo "	;;" >>$SCRIPT
+			echo "post-stop)" >>$SCRIPT
+			for dir in $dir1 $dir2 $dir3 $dir4  none
+			do
+				if [ "$dir" != "none" ] ; then
+					echo "	umount $VROOT/$dir" >>$SCRIPT
+				fi
+			done
+			echo "	;;" >>$SCRIPT
+			echo '*)' >>$SCRIPT
+	    	echo '	echo $0 pre-start' >>$SCRIPT
+			echo '	echo $0 pre-stop' >>$SCRIPT
+			echo '	echo $0 post-start' >>$SCRIPT
+			echo '	echo $0 post-stop' >>$SCRIPT
+			echo "	;;" >>$SCRIPT
+			echo "esac" >>$SCRIPT
+			chmod +x $SCRIPT
+
+			LOG=/var/run/newvserver.log.$$
+			if [ "$clone" = "/" ] ; then
+				# Unification does not work on / yet
+				$VSERVER_CMD $name build >$LOG
+			elif [ "$clone" = "#rh7.2" ] ; then
+				check_cd "first RedHat 7.2 CD"
+				set_fstab $VROOT
+				installpkgs $LOG $USR_LIB_VSERVER/install-rh7.2 $name
+			elif [ "$clone" = "#rh7.3m" -o "$clone" = "#rh7.3f" ] ; then
+				check_cd "first RedHat 7.3 CD"
+				set_fstab $VROOT
+				if [ "$clone" = "#rh7.3m" ] ;then
+					installpkgs $LOG $USR_LIB_VSERVER/install-rh7.3 $name minimum
+				else
+					installpkgs $LOG $USR_LIB_VSERVER/install-rh7.3 $name full
+				fi
+			elif [ "$clone" = "#rh8.0m" -o "$clone" = "#rh8.0f" ] ; then
+				check_cd "first RedHat 8.0 CD"
+				set_fstab $VROOT
+				if [ "$clone" = "#rh8.0m" ] ;then
+					installpkgs $LOG $USR_LIB_VSERVER/install-rh8.0 $name minimum
+				else
+					installpkgs $LOG $USR_LIB_VSERVER/install-rh8.0 $name full
+				fi
+			elif [ "$clone" = "#rh9.0m" -o "$clone" = "#rh9.0f" ] ; then
+				check_cd "first RedHat 9.0 CD"
+				set_fstab $VROOT
+				if [ "$clone" = "#rh9.0m" ] ;then
+					installpkgs $LOG $USR_LIB_VSERVER/install-rh9.0 $name minimum
+				else
+					installpkgs $LOG $USR_LIB_VSERVER/install-rh9.0 $name full
+				fi
+			elif [ "$unify" = "0" ] ; then
+				cp -ax /vservers/$clone/. $VROOT/. >$LOG
+			else
+				EXCLOPT=
+				for dir in $exdir1 $exdir2 $exdir3 $exdir4  $exdir5 $exdir6 none
+				do
+					if [ "$dir" != "none" ] ; then
+						EXCLOPT="$EXCLOPT --excldir $dir"
+					fi
+				done
+				$USR_LIB_VSERVER/vbuild $EXCLOPT --stats /vservers/$clone $VROOT >$LOG
+			fi
+			rm -f $VROOT/var/run/utmp
+			$USR_LIB_VSERVER/fakerunlevel 3 $VROOT/var/run/utmp
+			test "$crond" = 1 && $VSERVER_CMD $name chkconfig crond on >/dev/null
+			test "$httpd" = 1 && $VSERVER_CMD $name chkconfig httpd on >/dev/null
+			test "$sshd" = 1 && $VSERVER_CMD $name chkconfig sshd on >/dev/null
+			if [ "$cleansshd" = 1 ] ; then
+				echo Deleting sshd server keys >>$LOG
+				rm -f $VROOT/etc/ssh/*_key
+				rm -f $VROOT/etc/ssh/*_key.pub
+			fi
+			test "$syslog" = 1 && $VSERVER_CMD $name chkconfig syslog on >/dev/null
+			test "$xinetd" = 1 && $VSERVER_CMD $name chkconfig xinetd on >/dev/null
+			test "$nscd" = 1 && $VSERVER_CMD $name chkconfig nscd on >/dev/null
+			host0=`echo $hostname | sed 's/\./ /g' | ( read a b; echo $a)`
+			echo $ip $hostname $host0 localhost >$VROOT/etc/hosts
+			RHNETWORK=$VROOT/etc/sysconfig/network
+			if [ -f $RHNETWORK ] ; then
+				cat $RHNETWORK | grep -v HOSTNAME >/tmp/newvserver.tmp.$$
+				cp /tmp/newvserver.tmp.$$ $RHNETWORK
+				echo HOSTNAME=$hostname >>$RHNETWORK
+			fi
+			# Umount proc and /dev/pts
+			$VSERVER_CMD $name stop >/dev/null
+			ENDTIME=`date +%s`
+			DURATION=`expr $ENDTIME - $STARTTIME`
+
+			echo defval s1 Server $name was installed in $VROOT
+			echo defval s1 The configuration file /etc/vservers/$name.conf was created
+			echo defval s1 The script /etc/vservers/$name.sh was created
+			echo defval s1 Vserver $name was created in $DURATION seconds
+			echo defval s1 
+			cat $LOG | while read line
+			do
+				echo defval s1 $line
+			done
+			echo notice =s1
+			rm -f $LOG
+			# Finish some stuff: root password, account policies
+			if [ -x $VROOT/usr/sbin/authconfig ] ; then
+				SHADOWOPT=
+				MD5OPT=
+				NISOPT=
+				LDAPOPT=
+				if [ "$usemd5" = "1" ] ; then
+					MD5OPT=--usemd5
+				fi
+				if [ "$useshadow" = "1" ] ; then
+					SHADOWOPT=--useshadow
+				fi
+				if [ "$nisserver" != "" ] ; then
+					NISOPT="--nisserver $nisserver --nisdomain $domainname"
+				fi
+				if [ "$ldapserver" != "" ] ; then
+					LDAPOPT="--ldapserver $ldapserver --ldapbasedn $ldapbasedn"
+				fi
+				$VSERVER_CMD $name exec /usr/sbin/authconfig \
+					--nostart --kickstart \
+					$SHADOWOPT $MD5OPT $NISOPT $LDAPOPT
+			fi
+			if [ "$pass1" != "" ] ; then
+				(echo $pass1; sleep 5; echo $pass1) \
+					| $VSERVER_CMD --silent $name exec passwd >/dev/null
+ 			fi
+			break
+		fi
+	done
+	qecho end
+}
+
+dispatch
