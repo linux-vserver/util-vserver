@@ -88,7 +88,10 @@ pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			   s!@'PKGSTATEDIR'@!$(pkgstatedir)!g; \
 			   s!@'VSERVERDIR'@!$(vserverdir)!g; \
 			   s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
-			   s!@'PACKAGE'@!$(PACKAGE)!g; \
+			   s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
+			   s!@'INITRDDIR'@!$(initrddir)!g; \
+			   s!@'LIBDIR'@!$(libdir)!g; \
+			   s!@'INCLUDEDIR'@!$(includedir)!g; \
 			   s!@'PACKAGE_BUGREPORT'@!$(PACKAGE_BUGREPORT)!g; \
 			   s!@'PACKAGE_NAME'@!$(PACKAGE_NAME)!g; \
 			   s!@'PACKAGE_STRING'@!$(PACKAGE_STRING)!g; \
@@ -118,7 +121,6 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@touch '$@'
 
 pkgstatedir		=  $(localstatedir)/run/vservers
-vserverdir		=  /vservers
 vserverpkgdir		=  $(vserverdir)/.pkg
 
 install-data-hook:
