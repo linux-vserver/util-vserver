@@ -237,17 +237,17 @@ function pkgInit
 function getAllVservers
 {
     local i
-    declare -a tmp=()
+    declare -a _tmp=()
 
     for i in $CONFDIR/*; do
 	test   -d "$i"          || continue
 	test ! -e "$i"/disabled || continue
 	test   -d "$i"/vdir     || continue
 
-	tmp=( "${tmp[@]}" "${i##$CONFDIR/}")
+	_tmp=( "${_tmp[@]}" "${i##$CONFDIR/}")
     done
 
-    eval $1=\$tmp
+    eval $1='( "${_tmp[@]}" )'
 }
 
 ## Usage: getVserverCtx <vdir> <result-varname> [<procnumber-varname> [<do-cleanup>]]
