@@ -35,8 +35,8 @@ noinst_HEADERS =	$(src_HDRS) $(lib_XHDRS) \
 			$(ENSC_WRAPPERS_HDRS) \
 			compat.h compat-c99.h
 
-noinst_LIBRARIES	=  $(src_lib_LIBS) $(ENSC_VECTOR_LIBS)
-lib_LIBRARIES		=  $(lib_lib_LIBS) $(lib_internal_LIBS)
+noinst_LIBRARIES	=  $(src_lib_LIBS) $(ENSC_VECTOR_LIBS) $(lib_internal_LIBS)
+lib_LIBRARIES		=  $(lib_lib_LIBS)
 lib_LTLIBRARIES		=  $(lib_lib_LTLIBS) $(src_lib_LTLIBS)
 pkglib_LTLIBRARIES	=  $(src_pkglib_LTLIBS)
 
@@ -91,15 +91,28 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT	=  $(src_OPTIONS_EXEMPT) \
 					   $(scripts_OPTIONS_EXEMPT) \
 					   $(sysv_OPTIONS_EXEMPT)
 
+LIBTOOL_CC =		@LIBTOOL@ --tag CC
+LIBTOOL_CXX =		@LIBTOOL@ --tag CXX
+LIBTOOL =		$(LIBTOOL_CC)
+
 if USE_DIETLIBC
 DIET			=  diet
 DIET_FLAGS		=
 DIET_CC		       :=  $(DIET) $(DIET_FLAGS) $(CC)
-DIET_LIBTOOL	       :=  $(LIBTOOL) --tag CC
+DIET_LIBTOOL	       :=  $(LIBTOOL_CC)
 VSERVER_LDFLAGS	       :=  -static
 else
 VSERVER_LDFLAGS	       :=
 endif
+
+if USE_DIETLIBC_COMPAT
+DIET_COMPAT_LDADDS =	-lcompat
+else
+DIET_COMPAT_LDADDS =
+endif
+
+VSERVER_LDADDS =	lib/libvserver.la  $(DIET_COMPAT_LDADDS)
+
 
 linuxcaps.h:		${kernelincludedir}/linux/capability.h Makefile
 			@rm -f $@
