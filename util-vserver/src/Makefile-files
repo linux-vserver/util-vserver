@@ -137,13 +137,13 @@ sbin_PROGRAMS +=	src/chbind \
 			src/vuname \
 			$(src_sbin_CXX_X_PROGS)
 
-src_capchroot_SOURCES		=  src/capchroot.c
-src_capchroot_LDADD		=  lib/libvserver.la
-src_capchroot_LDFLAGS		=  $(VSERVER_LDFLAGS)
+src_capchroot_SOURCES =		src/capchroot.c
+src_capchroot_LDADD =		$(VSERVER_LDADDS)
+src_capchroot_LDFLAGS =		$(VSERVER_LDFLAGS)
 
-src_chbind_SOURCES		=  src/chbind.c
-src_chbind_LDADD		=  $(VSERVER_LDADDS)
-src_chbind_LDFLAGS		=  $(VSERVER_LDFLAGS)
+src_chbind_SOURCES =		src/chbind.c
+src_chbind_LDADD =		$(VSERVER_LDADDS)
+src_chbind_LDFLAGS =		$(VSERVER_LDFLAGS)
 
 src_chcontext_compat_SOURCES =	src/chcontext.c
 src_chcontext_compat_LDADD =	$(VSERVER_LDADDS) lib_internal/libinternal.a
