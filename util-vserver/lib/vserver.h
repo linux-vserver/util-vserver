@@ -84,7 +84,7 @@
 #define VC_CAP_SYS_TTY_CONFIG   	26
 #define VC_CAP_MKNOD            	27
 #define VC_CAP_LEASE            	28
-#define VC_CAP_OPENDEV          	29
+#define VC_CAP_QUOTACTL          	29
 
 
 #ifdef __cplusplus
