@@ -84,6 +84,12 @@
 	    at startup via initscript.</description>
 	  </symlink>
 	</dir>
+
+	<dir name="vunify" type="fixed">
+	  <file name="exclude">
+	    <description>Static list of excluded files.</description>
+	  </file>
+	</dir>
       </dir>
     </dir>
 
@@ -261,6 +267,24 @@
 	  <symlink name="tty">
 	    <description>A symlink to the TTY device where input/output will be redirected from/to
 	    at startup via initscript.</description>
+	  </symlink>
+	</dir> <!-- ...apps/init -->
+
+	<dir name="vunify" type="fixed">
+	  <description>This directory contains configuration data required for vserver
+	  unification.</description>
+	  
+	  <file name="exclude">
+	    <description>Static list of excluded files. This list supports an rsync syntax: when a
+	    file is prefixed by '+', it is a candidate for unification; when there is no prefix or a
+	    '-' it will be excluded. Shell-wildcards are allowed for the filenames.</description>
+	  </file>
+
+	  <symlink name="refserver.X">
+	    <description>These are symlinks to the configuration directory
+	    (e.g. CONFDIR/vservers/&lt;idgt;) of a refserver. There may be multiple such symlinks
+	    but they must be prefixed by 'refserver.' and will be processed in alphanumerical
+	    order.</description>
 	  </symlink>
 	</dir>
       </dir>
