@@ -17,8 +17,9 @@
 
 if ! isVserverRunning "$VSERVER_DIR" S_CONTEXT; then
     echo $"vserver '$VSERVER_NAME' is not running; aborting..." >&2
-    umountVserver     "$VSERVER_DIR" &>/dev/null || :
-    disableInterfaces "$VSERVER_DIR" &>/dev/null || :
+    test "$OPTION_DEBUG" || exec 2>/dev/null >/dev/null
+    umountVserver     "$VSERVER_DIR" || :
+    disableInterfaces "$VSERVER_DIR" || :
     exit 1
 fi
 

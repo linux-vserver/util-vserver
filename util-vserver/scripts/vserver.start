@@ -22,9 +22,10 @@ fi
 
 function cleanup()
 {
+    test    "$OPTION_DEBUG"    || exec 2>/dev/null >/dev/null
     test -z "$is_started"      || return 0
-    test -z "$is_mounted"      || umountVserver     "$VSERVER_DIR" &>/dev/null || :
-    test -z "$have_interfaces" || disableInterfaces "$VSERVER_DIR" &>/dev/null || :
+    test -z "$is_mounted"      || umountVserver     "$VSERVER_DIR" || :
+    test -z "$have_interfaces" || disableInterfaces "$VSERVER_DIR" || :
 }
 
 is_started=
