@@ -39,10 +39,11 @@
 static UNUSED void 
 FatalErrnoError(bool condition, char const msg[]) /*@*/
 {
+  extern int	wrapper_exit_code;
+
   if (!condition)       return;
   perror(msg);
 
-  extern int	wrapper_exit_code;
   exit(wrapper_exit_code);
 }
 
