@@ -73,7 +73,7 @@ res=255
 for i in "${vservers[@]}"; do
     cnt=$[ cnt + 1 ]
 
-    test "$is_quiet" || {
+    test -n "$is_quiet" || {
 	colorize bold echo -n "vaptget: operating on vserver "
 	colorize bold colorize emph echo "$i"
 	xtermTitle "vaptget: operating on vserver '$i'  [$cnt/${#vservers[@]}]"
@@ -87,12 +87,12 @@ for i in "${vservers[@]}"; do
     fi
     res=$?
 
-    test $res -eq 0 -o "$is_quiet" || {
+    test $res -eq 0 -o -n "$is_quiet" || {
 	colorize error echo -n $"vapt-get failed on vserver '$i' with errorcode $res"
 	echo
     }
 	
-    test "$is_quiet" || echo
+    test -n "$is_quiet" || echo
 done
 
 test "$cnt" -ge 0 || echo "No vservers specified" >&2

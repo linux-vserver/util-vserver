@@ -73,7 +73,7 @@ function doInternalMethod
 	    
 	(sync)
 	    local f=${METHOD_ARGS[0]}
-	    test "$f" ||
+	    test -n "$f" ||
 		panic $"Insufficent arguments for method '$method' and vserver '$VSERVER'"
 
 	    test -p "$f" ||
@@ -86,7 +86,7 @@ function doInternalMethod
 	    local script
 	    findObject -x script "$CONFDIR"/.defaults/apps/vshelper-methods/"$method" "$PKGLIBDIR"/vshelper-methods/"$method" ''
 	    
-	    test '$script' || {
+	    test -n '$script' || {
 		warning $"No handler for internal method '$method' found"
 		exit 1
 	    }

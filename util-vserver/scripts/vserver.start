@@ -30,7 +30,7 @@ function cleanup()
     test -z "$startsync_pipe"  || $_RM -f "$startsync_pipe"
     test -z "$is_started"      || { unlock; return 0; }
 
-    if test "$is_configured" -a -z "$is_executed"; then
+    if test -n "$is_configured" -a -z "$is_executed"; then
 	warning $"
 An error occured while executing the vserver startup sequence; when
 there are no other messages, it is very likely that the init-script
@@ -42,7 +42,7 @@ Common causes are:
   appending 'true' to this file will help."
     fi
 
-    if test "$is_executed"; then
+    if test -n "$is_executed"; then
 	warning $"
 An error occured after executing the vserver startup sequence. This
 means that some processes may exist in the created context and the
@@ -57,7 +57,7 @@ is recommended to fix this."
 Failed to start vserver '$VSERVER_NAME'"
     fi
 
-    test    "$OPTION_DEBUG"    || exec 2>/dev/null >/dev/null
+    test -n "$OPTION_DEBUG"    || exec 2>/dev/null >/dev/null
     test -z "$is_mounted"      || umountVserver     "$VSERVER_DIR" || :
     test -z "$have_interfaces" || disableInterfaces "$VSERVER_DIR" || :
 
@@ -109,7 +109,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
     $_VCONTEXT   --migrate-self --endsetup --chroot $SILENT_OPT "${OPTS_VCONTEXT_MIGRATE[@]}" -- \
     "${INITCMD_START[@]}"
 else
-    if test "$_IS_FAKEINIT"; then
+    if test -n "$_IS_FAKEINIT"; then
 	startsync_pipe=$($_MKTEMP /tmp/vserver-start.XXXXXX)
 	$_RM -f "$startsync_pipe"
 	$_MKFIFO -m600 "$startsync_pipe"	## safe, since mkfifo does not follow symlinks

@@ -83,7 +83,7 @@ the GNU General Public License.  This program has absolutely no warranty."
 set -e
 
 declare -a default_opts=()
-test "$NO_DEFAULT_OPTS" || getFileArray default_opts "$CONFDIR/.defaults/apps/build/options" || :
+test -n "$NO_DEFAULT_OPTS" || getFileArray default_opts "$CONFDIR/.defaults/apps/build/options" || :
 
 tmp=$(getopt -o +m:n: --long force,debug,help,version,rootdir:,pkgbase:,$SETUP_OPTIONS -n "$(basename $0)" -- \
 	"${default_opts[@]}" "$@") || exit 1
@@ -105,16 +105,14 @@ while true; do
 	(--)	    shift; break;;
 	(*)
 	    { setup_setOption2 "$1" "$2" && shift; } || \
-	    { echo $"vserver-build: internal error."; exit 1; } >&2
+	      panic $"vserver-build: internal error."
 	    ;;
     esac
     shift
 done
 
-test "$VSERVER_NAME" || {
-    echo $"Name of vserver not specified"
-    exit 1
-} >&2
+test -n "$VSERVER_NAME" ||
+    panic $"Name of vserver not specified"
 
 setup_setDefaults "$VSERVER_NAME"
 
@@ -123,10 +121,6 @@ case x"$method" in
     (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum)
 		. $PKGLIBDIR/vserver-build.$method
 		;;
-    (x)		echo $"No build-method specified" >&2
-		exit 1
-		;;
-    (*)		echo $"Unknown build-method '$method'" >&2
-		exit 1
-		;;
+    (x)		panic $"No build-method specified";;
+    (*)		panic $"Unknown build-method '$method'";;
 esac

@@ -53,7 +53,7 @@ the GNU General Public License.  This program has absolutely no warranty."
 }
 
 
-while test "$1"; do
+while test -n "$1"; do
     case "$1" in
 	--help)		showHelp;;
 	--version)	showVersion;;
@@ -90,6 +90,6 @@ while read filename; do
     $_SETATTR -x "${params[@]}" "$@" &&	passed=1 || ok=
 done <"$UNHIDEFILE"
 
-test "$ok"     && exit 0 || \
-test "$passed" && exit 2 || \
+test -n "$ok"     && exit 0 || \
+test -n "$passed" && exit 2 || \
 exit 3

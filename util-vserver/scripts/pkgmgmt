@@ -60,7 +60,7 @@ function init()
 function _createDirs()
 {
     for i; do
-	test "$i" || continue
+	test -n "$i" || continue
 	mkdir -p -m755 "$i"
     done
 }
@@ -138,7 +138,7 @@ function _mountFilesystems()
 	echo "Can not determine configuration directory for '$1'; ..." >&2
 	return 1
     }
-    test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1"
+    test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1"
     
     _mountFilesystemsInternal "$cfgdir"/fstab       $_CHBIND "${CHBIND_OPTS[@]}" || return 1
     _mountFilesystemsInternal "$cfgdir"/fstab.local $_CHBIND "${CHBIND_OPTS[@]}" || return 1
@@ -152,14 +152,14 @@ function _umountFilesystems()
     }
     local vdir=$cfgdir/vdir
     local is_ok=1
-    test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1"
+    test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1"
 
     pushd "$vdir/" >/dev/null || return 1
 	_umountVserverInternal  "$cfgdir"/fstab.local                              || is_ok=
 	_umountVserverInternal  "$cfgdir"/fstab       $_CHBIND "${CHBIND_OPTS[@]}" || is_ok=
     popd >/dev/null           || return 1
     
-    test "$is_ok"
+    test -n "$is_ok"
 }
 
 function processVserver_RH()
@@ -186,7 +186,7 @@ function processVserver_RH()
 
     ## Create directories and assign variables where configuration
     ## can/will be found on the host
-    if test "$is_internalize"; then
+    if test -n "$is_internalize"; then
 	pushd "$vdir" >/dev/null
 
 	test ! -L var/lib/rpm || {
@@ -205,7 +205,7 @@ function processVserver_RH()
 	
 	popd >/dev/null
 	
-	if test "$have_apt"; then
+	if test -n "$have_apt"; then
 	    findDir APTETCDIR    "$cfgdir"/aptetc "$cfgdir"/base/apt/etc /etc/apt /
 	fi
 
@@ -215,7 +215,7 @@ function processVserver_RH()
 	mkdir -m755 -p "$cfgdir"
 	local need_base=
 
-	if test "$have_apt"; then
+	if test -n "$have_apt"; then
 	    findDir APTETCDIR    "$cfgdir"/aptetc      "$cfgdir"/base/apt/etc       /
 	    findDir APTSTATEDIR  "$cfgdir"/aptstate    "$cfgdir"/base/apt/state     /
 	    findDir APTCACHEDIR  "$cfgdir"/aptcache    "$cfgdir"/base/apt/cache     /
@@ -247,8 +247,8 @@ function processVserver_RH()
     fi
 
     ## Copy the files...
-    if test "$is_internalize"; then
-	if test "$have_apt"; then
+    if test -n "$is_internalize"; then
+	if test -n "$have_apt"; then
 	    _copySecure "$vdir" "$APTETCDIR" /etc/apt
 	    pushd "$vdir" >/dev/null
 		_hashAuto /etc/apt/apt.conf '/'
@@ -259,7 +259,7 @@ function processVserver_RH()
 	_copySecure "$vdir" "$RPMSTATEDIR" /var/lib/rpm
 
     else
-	if test "$have_apt"; then
+	if test -n "$have_apt"; then
 	    _copySecureRev "$vdir" /etc/apt "$APTETCDIR"
 	    _unhashAuto "$APTETCDIR"/apt.conf '/'
 	fi
@@ -269,7 +269,7 @@ function processVserver_RH()
     fi
 
     ## Cleanups...
-    if test "$is_internalize"; then
+    if test -n "$is_internalize"; then
 	:
     else
 	tmpdir=$($_MKTEMPDIR /var/tmp/pgmgmt.XXXXXX)
@@ -281,7 +281,7 @@ function processVserver_RH()
     fi
 
     ## Finish it...
-    if test "$is_internalize"; then
+    if test -n "$is_internalize"; then
 	$_TOUCH "$cfgdir"/internal
     else
 	$_RM -f "$cfgdir"/internal
@@ -293,7 +293,7 @@ function processVserver_Debian()
     local vserver=$1
     local is_internalize=$2
 
-    if test "$is_internalize"; then
+    if test -n "$is_internalize"; then
 	echo $"Debian vservers should be internalized everytime; do not know how to handle '$vserver'" >&2
     else
 	echo $"External packagemanagement is not supported for Debian vserver" >&2
@@ -367,7 +367,7 @@ while true; do
     shift
 done
 
-test "$1" || {
+test -n "$1" || {
     echo $"No vserver specified; try '--help' for more information"
     exit 1
 } >&2

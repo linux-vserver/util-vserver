@@ -35,13 +35,13 @@ function rpm.importGPGPubKeys
 	done
     done
 
-    test "$pkgs" || return 0
+    test -n "$pkgs" || return 0
     "$_VRPM" "$dst" -- --import "${pkgs[@]}"
 }
 
 function rpm.initVariables
 {
-    test "$WORKAROUND_106057" && \
+    test -n "$WORKAROUND_106057" && \
 	RPMDB_PATH=/.rpmdb || \
 	RPMDB_PATH=/dev
 

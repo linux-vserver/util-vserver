@@ -91,7 +91,7 @@ case "$style" in
 		;;
 	esac
 	
-	if test "$is_external"; then
+	if test -n "$is_external"; then
 	    have_apt=1
 	    test -d "$cfgdir"/base/apt -o -d "$cfgdir"/aptetc || have_apt=
 	else
@@ -101,7 +101,7 @@ case "$style" in
 	    done
 	fi
 	
-	if test "$is_external"; then
+	if test -n "$is_external"; then
 	    if test "$have_apt" -a "$apt_param"; then
 		cmd=( "$_VAPT_GET" "$vserver" -- "${apt_param[@]}" )
 	    else
@@ -125,7 +125,7 @@ case "$style" in
 		;;
 	esac
 
-	if test "$is_external"; then
+	if test -n "$is_external"; then
 	    echo $"'external' packagemanagement is not supported for Debian" >&2
 	    exit 1
 	else

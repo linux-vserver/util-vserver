@@ -31,11 +31,11 @@ function findObject
     shift 2
     
     for _fo_i; do
-	test "$_fo_i"            || continue
+	test -n "$_fo_i"         || continue
 	test ! $_fo_mod "$_fo_i" || { _fo_file=$_fo_i; break; }
     done
 
-    test -z "$_fo_i" -o "$_fo_file" || {
+    test -z "$_fo_i" -o -n "$_fo_file" || {
 	echo "Can not find file for '$_fo_var'; aborting"
 	exit 1
     } >&2
@@ -62,7 +62,7 @@ function findAndCopy
     shift
     findFile tmp "$@"
 
-    test "$tmp" -a -s "$tmp" || return 0
+    test -n "$tmp" -a -s "$tmp" || return 0
     $_CP -af "$tmp" "$dst"
 }
 
@@ -74,7 +74,7 @@ function getPhysicalDir
 ## Usage: logging <message>
 function logging
 {
-    if test "$_VS_LOGFILE"; then
+    if test -n "$_VS_LOGFILE"; then
 	echo "$@" >>"$_VS_LOGFILE"
     else
 	echo "$@"
@@ -84,7 +84,7 @@ function logging
 ## Usage: warning <message>
 function warning
 {
-    if test "$_VS_ERRFILE"; then
+    if test -n "$_VS_ERRFILE"; then
 	echo "$@" >>"$_VS_ERRFILE"
     else
 	echo "$@" >&2
@@ -94,7 +94,7 @@ function warning
 ## Usage: panic <message>
 function panic
 {
-    if test "$_VS_ERRFILE"; then
+    if test -n "$_VS_ERRFILE"; then
 	echo "$@" >>"$_VS_ERRFILE"
     else
 	echo "$@" >&2
@@ -115,7 +115,7 @@ function execute
 function isNumber
 {
     local tmp
-    let tmp=$1+0 2>/dev/null || test -z "${1//0/}" -a "$1" || return 1
+    let tmp=$1+0 2>/dev/null || test -z "${1//0/}" -a -n "$1" || return 1
     return 0
 }
 
@@ -130,7 +130,7 @@ function colorize
     else
 	local	cfile
 	findFile cfile "$CONFDIR"/.defaults/styles/"$style" ''
-	if test "$cfile"; then
+	if test -n "$cfile"; then
 	  $_CAT "$cfile"
 	else
 	  case "$style" in
@@ -242,7 +242,7 @@ function _pkgSetVarsBase
 
 function _pkgSetVarsRPM
 {
-    if test "$PKGDIR"; then
+    if test -n "$PKGDIR"; then
 	findDir RPMETCDIR    $PKGDIR/rpmetc      $PKGDIR/base/rpm/etc       /etc/rpm
 	findDir RPMSTATEDIR  $PKGDIR/rpmstate    $PKGDIR/base/rpm/state
 
@@ -260,7 +260,7 @@ function _pkgSetVarsRPM
 
 function _pkgSetVarsApt
 {
-    if test "$PKGDIR"; then
+    if test -n "$PKGDIR"; then
 	findDir APTETCDIR    $PKGDIR/aptetc      $PKGDIR/base/apt/etc       /etc/apt
 	findDir APTSTATEDIR  $PKGDIR/aptstate    $PKGDIR/base/apt/state
 	findDir APTCACHEDIR  $PKGDIR/aptcache    $PKGDIR/base/apt/cache
@@ -278,7 +278,7 @@ function _pkgSetVarsApt
 
 function _pkgSetVarsYum
 {
-    if test "$PKGDIR"; then
+    if test -n "$PKGDIR"; then
 	findDir YUMETCDIR    $PKGDIR/yumetc      $PKGDIR/base/yum/etc       /etc
 	findDir YUMCACHEDIR  $PKGDIR/yumcache    $PKGDIR/base/yum/cache
     else
@@ -321,7 +321,7 @@ function _pkgMountRPM
 
 function _pkgSetEnvBase
 {
-    test "$EXECDIR"   = "/" || {
+    test "$EXECDIR" = "/" || {
 	PATH=$EXECDIR:$PATH
 	LD_LIBRARY_PATH=$EXECDIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
     }
@@ -444,7 +444,7 @@ function getVserverStatus
     read _gvs_ctx <"$1"/run
     eval "$2"=\$_gvs_ctx
 
-    test "$3"        || return 0
+    test -n "$3"     || return 0
     local _gvs_tmp
     _getProcNumberCount "$_gvs_ctx" _gvs_tmp
     eval "$3"=\$_gvs_tmp
@@ -472,7 +472,7 @@ function isVserverRunning
     local _ivr_ctx _ivr_procnum
 
     getVserverStatus "$1" _ivr_ctx _ivr_procnum 1 || return 1
-    test $_ivr_procnum != 0                       || return 1
+    test "$_ivr_procnum" != 0                     || return 1
     test -z "$2" || eval "$2"=\$_ivr_ctx
     return 0
 }
@@ -485,7 +485,7 @@ function getFileValue
     shift
 
     findFile _gfv_file "$@" ''
-    test "$_gfv_file" -a -r "$_gfv_file" || return 0
+    test -n "$_gfv_file" -a -r "$_gfv_file" || return 0
     eval read "$_gfv_var" <"$_gfv_file"
 }
 
@@ -543,7 +543,7 @@ function callInNamespace
     ctx=$( $_VSERVER_INFO "$1" CONTEXT f ) || ctx=
 
     shift
-    if test "$ctx"; then
+    if test -n "$ctx"; then
 	$_VNAMESPACE --enter "$ctx" -- "$@"
     else
 	"$@"
@@ -574,7 +574,7 @@ function pkgmgmt.guessStyle()
     }
     local _pgs_cfgdir=$($_VSERVER_INFO "$1" APPDIR pkgmgmt) || :
 
-    if test "$_pgs_cfgdir" -a -e "$_pgs_cfgdir"/style; then
+    if test -n "$_pgs_cfgdir" -a -e "$_pgs_cfgdir"/style; then
 	read style <"$_pgs_cfgdir"/style
     elif test -e "$_pgs_vdir"/etc/redhat-release -o -e "$_pgs_vdir"/etc/fedora-release; then
 	style=redhat
@@ -613,7 +613,7 @@ function pkgmgmt.isAptAvailable
     local is_internal="$3"
     
     local have_apt i
-    if test "$is_internal"; then
+    if test -n "$is_internal"; then
 	have_apt=1
 	test -d "$cfgdir"/base/apt -o -d "$cfgdir"/aptetc || have_apt=
     else
@@ -623,7 +623,7 @@ function pkgmgmt.isAptAvailable
 	done
     fi
 
-    test "$have_apt" && return 0 || return 1
+    test -n "$have_apt" && return 0 || return 1
 }
 
 ## Usage: pkgmgmt.isYumAvailable <cfgdir> <vdir> [<is-internal>]
@@ -634,7 +634,7 @@ function pkgmgmt.isYumAvailable
     local is_internal="$3"
     
     local have_yum i
-    if test "$is_internal"; then
+    if test -n "$is_internal"; then
 	have_yum=1
 	test -d "$cfgdir"/base/yum -o -d "$cfgdir"/yumetc || have_yum=
     else
@@ -644,7 +644,7 @@ function pkgmgmt.isYumAvailable
 	done
     fi
 
-    test "$have_yum" && return 0 || return 1
+    test -n "$have_yum" && return 0 || return 1
 }
 
 
@@ -731,7 +731,7 @@ function vshelper.isEnabled
     local f=${1:+$1-}disabled
     test ! -e "$CONFDIR"/.defaults/apps/vshelper/"$f"       || return 1
     $_VSERVER_INFO - FEATURE vshelper                       || return 1
-    if test "$2"; then
+    if test -n "$2"; then
 	local appdir=$($_VSERVER_INFO "$2" APPDIR vshelper) || return 0
 	test -z "$2" -o ! -e "$appdir/$f"                   || return 1
     fi
@@ -789,7 +789,7 @@ function vshelper.doInit
 {
     vshelper.isEnabled || return 0
     
-    local xid=$($_VSERVER_INFO "$1" CONTEXT false) && test "$xid" || {
+    local xid=$($_VSERVER_INFO "$1" CONTEXT false) && test -n "$xid" || {
 	warning $"vshelper.init: can not determine xid of vserver '$vserver'; returned value was '$xid'"
 	return 1
     }
@@ -801,7 +801,7 @@ function vshelper.doInit
     echo "$1" >"$f"
     set +C
     
-    if test "$2"; then
+    if test -n "$2"; then
 	shift 1
 	local i
 	for i; do
@@ -843,7 +843,7 @@ function vshelper.getSyncTimeout
     local _vgst_file _vgst_tmp
 
     findFile _vgst_file ${_vgst_appdir:+"$_vgst_appdir"/sync-timeout} "$CONFDIR"/.defaults/apps/vshelper/sync-timeout ''
-    test "$_vgst_file" || return 1
+    test -n "$_vgst_file" || return 1
     read _vgst_tmp <"$_vgst_file"
     eval $2=\$_vgst_tmp
 }
@@ -853,7 +853,7 @@ function _rpmFake.getCapFlags
 {
     local ctx=$1
     
-    if test "$ctx" && ! $_VSERVER_INFO - FEATURE migrate; then
+    if test -n "$ctx" && ! $_VSERVER_INFO - FEATURE migrate; then
 	set -- $($_CHCONTEXT_COMPAT --xid 1 \
 	    $_SH -c "$_CAT /proc/[0-9]*/status | $_EGREP '^(CapBset|s_context|ctxflags)'" | \
 	    $_GREP -B 1 -A 1 "^s_context: $ctx " | \
@@ -862,7 +862,7 @@ function _rpmFake.getCapFlags
 	set --
     fi
 
-    if test "$3"; then
+    if test -n "$3"; then
 	RPM_FAKE_CAP=$[ ~0x$1 ]
 	RPM_FAKE_FLAGS=$3
     else

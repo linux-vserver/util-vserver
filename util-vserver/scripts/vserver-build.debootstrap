@@ -31,7 +31,7 @@ function initVariables
 {
     base.initVariables
 
-    test "${mirror-unset}" || {
+    test -n "${mirror-unset}" || {
 	local aux
 	findFile aux "$CONFDIR"/.defaults/apps/debootstrap/mirror ''
 	test -z "$aux" || read mirror <"$aux"

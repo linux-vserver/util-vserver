@@ -83,7 +83,7 @@ res=255
 for i in "${vservers[@]}"; do
     cnt=$[ cnt + 1 ]
 
-    test "$is_quiet" || {
+    test -n "$is_quiet" || {
 	colorize bold echo -n "vrpm: operating on vserver "
 	colorize bold colorize emph echo "$i"
 	xtermTitle "vrpm: operating on vserver '$i'  [$cnt/${#vservers[@]}]"
@@ -102,7 +102,7 @@ for i in "${vservers[@]}"; do
 	echo
     }
 
-    test "$is_quiet" || echo
+    test -n "$is_quiet" || echo
 done
 
 test -z "$do_unify" || echo "unify currently unsupported" >&2

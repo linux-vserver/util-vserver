@@ -63,7 +63,7 @@ SILENT_OPT=
 
 : ${VSERVER_NAME:=$(basename "$VSERVER_DIR")}
 
-if test -e "$VSERVER_DIR"/noisy -o "$OPTION_VERBOSE"; then
+if test -e "$VSERVER_DIR"/noisy -o -n "$OPTION_VERBOSE"; then
     SILENT_OPT=
 else
     SILENT_OPT='--silent'
@@ -75,7 +75,7 @@ function _generateChbindOptions
     local i
     local bcast=
 
-    test "$_HAVE_INTERFACE_OPTIONS" || _generateInterfaceOptions "$vdir"
+    test -n "$_HAVE_INTERFACE_OPTIONS" || _generateInterfaceOptions "$vdir"
 
     local f=$vdir/interfaces/bcast
     getFileValue bcast "$f"
@@ -166,7 +166,7 @@ function getEnterShell
 
     getFileValue ENTER_SHELL "$vdir"/shell "$CONFDIR"/.defaults/shell
     
-    test "$ENTER_SHELL" || {
+    test -n "$ENTER_SHELL" || {
 	local i
 	for i in "/bin/bash -login" "/bin/sh -l" /bin/csh; do
 	    set -- $i
@@ -188,7 +188,7 @@ function sendKillSequence
 	test -z "$wait" || sleep "$wait"
 	
 	$_VKILL -c "$ctx" ${1:+-s "$1"} 2>/dev/null || :
-	test "$2" || break
+	test -n "$2" || break
 	wait="$2"
 	shift 2
     done
@@ -219,8 +219,8 @@ function _generateInitOptions
 
     case x"$INITSTYLE" in
 	(xsysv)
-	    test "$RUNLEVEL_START" || RUNLEVEL_START=3
-	    test "$RUNLEVEL_STOP"  || RUNLEVEL_STOP=6
+	    test -n "$RUNLEVEL_START" || RUNLEVEL_START=3
+	    test -n "$RUNLEVEL_STOP"  || RUNLEVEL_STOP=6
 
 	    for i in /etc/init.d/rc /etc/rc.d/rc; do
 		test -x "$vdir/vdir/$i" || continue
@@ -266,7 +266,7 @@ function _generateInitOptions
     getFileArray INITCMD_PREPARE    "$cfgdir"/cmd.prepare    || :
 
     
-    test "$OPTION_FORCE_SYNC" -o -e "$cfgdir"/sync || {
+    test -n "$OPTION_FORCE_SYNC" -o -e "$cfgdir"/sync || {
 	INITCMD_START_SYNC=()
 	INITCMD_STOP_SYNC=()
 	_NEED_VSHELPER_SYNC=
@@ -358,7 +358,7 @@ function _generateScheduleOptions
 	} <"$f"
     } 2>/dev/null
 
-    test "$prio_bias" || {
+    test -n "$prio_bias" || {
 	echo $"Bad content in '$f'; aborting..." >&2
 	false
     }
@@ -390,7 +390,7 @@ function _transformMask2Prefix
 {
     local _tm2p_tmp=$2
     
-    test "$_tm2p_tmp" || {
+    test -n "$_tm2p_tmp" || {
 	$_MASK2PREFIX "$3" || _tm2p_tmp=$?
     }
 
@@ -441,8 +441,8 @@ function _processSingleInterface
     _getInterfaceValue scope  '' "$iface" "$iface/.."
     _getInterfaceValue mac    '' "$iface"
 
-    test "$ip" || { echo $"Can not read ip for '$iface'"  >&2; return 1; }
-    test "$dev" -o -e "$iface"/nodev || {
+    test -n "$ip" || { echo $"Can not read ip for '$iface'"  >&2; return 1; }
+    test -n "$dev" -o -e "$iface"/nodev || {
 	echo $"No device specified for '$iface'" >&2
 	return 1;
     }
@@ -475,11 +475,11 @@ function _processSingleInterface
 	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" broadcast ${bcast:-+} ${name:+label "$dev:$name"} dev "$dev"
 	    #_addInterfaceCmd IP_ROUTE "$ip${prefix:+/$prefix}" dev "$dev"
 	    _addInterfaceCmd IP_LINK  "$dev" $up
-	elif ! test "$ctx"; then
+	elif ! test -n "$ctx"; then
 	    echo $"Using 'dummy' (indirect) for interface '$dev' requires a fixed context number; dynamic ctx are not supported" >&2
 	    return 1
 	else
-	    test "$mac" || _generateMac mac "$(basename $iface)" "$ctx" || return 1
+	    test -z "$mac" || _generateMac mac "$(basename $iface)" "$ctx" || return 1
 	    _addInterfaceCmd MODPROBE dummy "$dev"
 	    _addInterfaceCmd IP_LINK  dev dummy0 address "$mac"
 	    _addInterfaceCmd NAMEIF   "$dev" "$mac"
@@ -546,7 +546,7 @@ function enableInterfaces
 
 function disableInterfaces
 {
-    test "$_HAVE_INTERFACE_OPTIONS" || _generateInterfaceOptions "$1"
+    test -n "$_HAVE_INTERFACE_OPTIONS" || _generateInterfaceOptions "$1"
 
     local i=$INTERFACE_CMDS_IDX
     declare -a var
@@ -614,13 +614,13 @@ function prepareStop
 function generateOptions
 {
     _generateInterfaceOptions  "$1"
-    test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1" 
+    test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1" 
     _generateNiceCommand       "$1"
     _generateInitOptions       "$1"
     _generateChcontextOptions  "$1"
     _generateScheduleOptions   "$1"
 
-    if test "$_IS_FAKEINIT"; then
+    if test -n "$_IS_FAKEINIT"; then
 	CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
 	OPTS_VCONTEXT_MIGRATE=( "${OPTS_VCONTEXT_MIGRATE[@]}" --initpid --disconnect )
     fi
@@ -666,7 +666,7 @@ function mountVserver
     $_CHROOT_CAT /etc/mtab <"$mtab_src"
     popd >/dev/null
 
-    test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$cfgdir"
+    test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$cfgdir"
 
     test -z "$NAMESPACE_CLEANUP" || isAvoidNamespace "$cfgdir" || \
 	$_VNAMESPACE --cleanup
@@ -688,7 +688,7 @@ function _umountVserverInternal
     $_TAC "$fstab" | {
 	is_ok=1
 	while read src dst tmp; do
-	    test "$tmp" || continue
+	    test -n "$tmp" || continue
 	    case x"$src" in
 		(x\#*)	continue;;
 	    esac
@@ -696,7 +696,7 @@ function _umountVserverInternal
 	
 	    "$@" $_EXEC_CD "$dst" $_UMOUNT -lfn . || is_ok=
 	done
-	test "$is_ok"
+	test -n "$is_ok"
     }
 }
 
@@ -709,14 +709,14 @@ function umountVserver
     isAvoidNamespace "$cfgdir"    || return 0
     test -e "$cfgdir"/fstab -o \
          -e "$cfgdir"/fstab.local || return 0
-    test "$_HAVE_CHBIND_OPTIONS"  || _generateChbindOptions "$cfgdir"
+    test -n "$_HAVE_CHBIND_OPTIONS"  || _generateChbindOptions "$cfgdir"
     
     pushd "$vdir/" >/dev/null || return 1
 	_umountVserverInternal  "$cfgdir"/fstab.local                              || is_ok=
 	_umountVserverInternal  "$cfgdir"/fstab       $_CHBIND "${CHBIND_OPTS[@]}" || is_ok=
     popd >/dev/null           || return 1
 
-    test "$is_ok"
+    test -n "$is_ok"
 }
 
 ## Usage: waitForSync <vserver> <vshelper-fifo-varname>
@@ -731,13 +731,13 @@ function waitForSync
     local cfgdir=$1
     local fifo=$2
     
-    if test "$_NEED_VSHELPER_SYNC"; then
+    if test -n "$_NEED_VSHELPER_SYNC"; then
 	$_VSHELPER_SYNC "$fifo" "$VSHELPER_SYNC_TIMEOUT" || \
 	    warning $"\
 A timeout or other error occured while waiting for the synchronization
 signal from vserver '$VSERVER_NAME'.
 The vserver will be killed nevertheless..."
-    elif test "${#INITCMD_STOP_SYNC[@]}" -ne 0; then
+    elif test -n "${#INITCMD_STOP_SYNC[@]}" -ne 0; then
 	"${INITCMD_STOP_SYNC[@]}" || \
 	    warning $"\
 Stop-synchronization for vserver '$VSERVER_NAME' failed. The vserver
@@ -774,7 +774,7 @@ function execScriptlets
 	    $start "$i" "$flavor" "$name"
 	done
 
-	test -z "$already_handled" -o "$DONT_SKIP_DEFAULTS" || break
+	test -z "$already_handled" -o -n "$DONT_SKIP_DEFAULTS" || break
     done
 }
 

@@ -30,7 +30,7 @@ for bin in `which rpm` /bin/rpm /usr/lib/rpm/rpm${RPM_FLAVOR:-i} ""; do
     ldd "$bin" &>/dev/null && break
 done
 
-test "$bin" ||
+test -x "$bin" ||
     panic $"No dynamically linked rpm binary found; exiting..."
 
 rpmFake.init "$CUR_VSERVER"

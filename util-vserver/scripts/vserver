@@ -166,7 +166,7 @@ case "$vserver" in
 	  ;;
 esac
 
-if test "$allow_legacy"; then
+if test -n "$allow_legacy"; then
     do_legacy=
     test ! -e "$VSERVER_DIR/legacy" || do_legacy=1
     test -d "$VSERVER_DIR" -o ! -e "$CONFDIR/$vserver.conf" || do_legacy=1
@@ -195,7 +195,7 @@ else
     VSERVER_NAME=$(basename "$VSERVER_DIR")
 fi
 
-test "$2" != start -o "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" || \
+test "$2" != start -o -n "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" || \
     exec $_VNAMESPACE --new -- $_VSERVER ----nonamespace "${OPTIONS_ORIG[@]}"
 
 . $PKGLIBDIR/vserver.functions
