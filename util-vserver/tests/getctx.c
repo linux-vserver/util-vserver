@@ -22,15 +22,24 @@
 
 #include "compat.h"
 #include "vserver.h"
+#include "internal.h"
+#include "src/util.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 int main(int argc, char *argv[])
 {
-  if (argc==1) printf("%i\n", vc_X_getctx(0));
-  else         printf("%i\n", vc_X_getctx(atoi(argv[1])));
+  char		buf[32];
+  ctx_t		ctx;
+  
+  if (argc==1) ctx = vc_X_getctx(0);
+  else         ctx = vc_X_getctx(atoi(argv[1]));
+
+  utilvserver_int2str(buf, sizeof buf, ctx, 10);
+
+  WRITE_STR(1, buf);
+  WRITE_MSG(1, "\n");
 
   return 0;
 }
