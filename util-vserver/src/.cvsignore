@@ -3,6 +3,7 @@
 capchroot
 chbind
 chcontext
+ctxlimit
 fakerunlevel
 filetime
 ifspec

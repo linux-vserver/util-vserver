@@ -38,6 +38,7 @@ src_sbin_PRGS		=  src/chbind \
 			   src/chcontext \
 			   src/rebootmgr \
 			   src/reducecap \
+			   src/ctxlimit \
 			   src/vdu \
 			   src/vfiles \
 			   src/vserver-stat
@@ -63,6 +64,9 @@ src_rebootmgr_CPPFLAGS		=  $(AM_CPPFLAGS) -DSBINDIR=\"$(sbindir)\" -DVROOTDIR=\"
 
 src_reducecap_SOURCES		=  src/reducecap.c
 src_reducecap_LDADD		=  lib/libvserver.a
+
+src_ctxlimit_SOURCES		=  src/ctxlimit.c
+src_ctxlimit_LDADD		=  lib/libvserver.a
 
 src_showattr_SOURCES		=  src/showattr.c
 src_showperm_SOURCES		=  src/showperm.c
