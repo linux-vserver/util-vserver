@@ -180,9 +180,10 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@chmod a-w '$*'
 			@touch '$@'
 
-pkgstatedir		=  $(localstatedir)/run/vservers
-pkgstaterevdir		=  $(pkgstatedir).rev
-vserverpkgdir		=  $(vserverdir)/.pkg
+pkgstatedir =		$(localstatedir)/run/vservers
+pkgstaterevdir =	$(pkgstatedir).rev
+vserverpkgdir =		$(vserverdir)/.pkg
+vshelperstatedir =	$(localstatedir)/run/vshelper
 
 fix_SCRPTS		=  $(addprefix $(pkglibdir)/, $(notdir $(pkglib_SCRIPTS))) \
 			   $(addprefix $(legacydir)/, $(notdir $(legacy_SCRIPTS))) \
@@ -192,8 +193,8 @@ fix_SCRPTS		=  $(addprefix $(pkglibdir)/, $(notdir $(pkglib_SCRIPTS))) \
 install-data-hook:	install-fix-script-paths install-create-dirs
 
 install-create-dirs:
-			$(mkinstalldirs) -m 755 $(DESTDIR)$(pkgstatedir) $(DESTDIR)$(pkgstaterevdir)
-			$(mkinstalldirs) -m 755 $(DESTDIR)$(confdefaultsdir)/{apps/pkgmgmt,files}
+			$(mkinstalldirs) -m 755 $(DESTDIR)$(pkgstatedir) $(DESTDIR)$(pkgstaterevdir) $(DESTDIR)$(vshelperstatedir)
+			$(mkinstalldirs) -m 755 $(DESTDIR)$(confdefaultsdir)
 			f=$(DESTDIR)$(confdefaultsdir)/vdirbase; test -e "$$f" || ln -sf '$(vserverdir)'     "$$f"
 			f=$(DESTDIR)$(confdefaultsdir)/run.rev;  test -e "$$f" || ln -sf '$(pkgstaterevdir)' "$$f"
 
@@ -206,7 +207,13 @@ install-fix-script-paths:
 				rm -f "$$f.tmp"; \
 			done
 
-install-vserverdir:
+install-distribution:	_install-vserverdir _install-vshelperlink
+
+_install-vshelperlink:
+			$(mkinstalldirs) $(DESTDIR)/sbin
+			ln -sf ..$(pkglibdir)/vshelper $(DESTDIR)/sbin/vshelper
+
+_install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
 
 if USE_DIETLIBC
