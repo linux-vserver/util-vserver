@@ -117,7 +117,9 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
   
   switch (tag) {
     case tgNAME		:  res = vc_getVserverName(vserver, vcCFG_AUTO); break;
-    case tgVDIR		:  res = vc_getVserverVdir(vserver, vcCFG_AUTO); break;
+    case tgVDIR		:
+      res = vc_getVserverVdir(vserver, vcCFG_AUTO, argc>0 && atoi(argv[0]));
+      break;
     case tgCFGDIR	:  res = vc_getVserverCfgDir(vserver, vcCFG_AUTO);     break;
     case tgAPPDIR	:
       res = vc_getVserverAppDir(vserver, vcCFG_AUTO, argc==0 ? "" : argv[0]);
