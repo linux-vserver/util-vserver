@@ -222,3 +222,22 @@ function getAllVservers
 	eval "$var=\"$var ${i##$CONFDIR/}\""
     done
 }
+
+function isVserverRunning
+{
+    local vdir=$1
+    test -r "$vdir/run"   || return 1
+
+    local ctx
+    read ctx <"$vdir"/run || { echo "Failed to read ctx information" >&2; return 0; }
+    
+    local cnt=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$ctx" | $_WC -l )
+
+    if test $cnt = 0; then
+	## Remove old lock-file
+	rm -f $(readlink "$vdir/run")
+	return 1
+    else
+	return 0
+    fi
+}
