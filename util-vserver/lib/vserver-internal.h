@@ -35,9 +35,11 @@
 #  define __NR_vserver	ENSC_SYSCALL__NR_vserver
 #endif
 
+inline static ALWAYSINLINE void vc_noop0() {}
+
 #define VC_PREFIX	0)
-#define VC_SUFFIX	else (void)((void)0
-#define CALL_VC_NOOP	(void)0
+#define VC_SUFFIX	else (void)(vc_noop0()
+#define CALL_VC_NOOP	vc_noop0()
 #define CALL_VC_GENERAL(ID, SUFFIX, FUNC, ...)				\
   VC_PREFIX; VC_SELECT(ID) return FUNC ## _ ## SUFFIX(__VA_ARGS__); VC_SUFFIX
 
