@@ -63,7 +63,7 @@ writeStr(int fd, char const *cmd)
 struct stat;
 int	safeChdir(char const *, struct stat const *exp_stat) NONNULL((1,2));
 
-void	exitLikeProcess(int pid);
+void	exitLikeProcess(int pid) NORETURN;
 
 #define WRITE_MSG(FD,X)		(void)(write(FD,X,sizeof(X)-1))
 #define WRITE_STR(FD,X)		writeStr(FD,X)
