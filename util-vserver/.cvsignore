@@ -31,8 +31,10 @@ ltmain.sh
 missing
 mkinstalldirs
 pathconfig.h
+releases
 stamp-h1
 stamp-h2
+tmp
 util-vserver*.diff*
 util-vserver*.patch*
 util-vserver-*.tar.bz2*
