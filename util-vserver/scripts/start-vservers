@@ -102,7 +102,9 @@ vservers=( "$@" )
 test -z  "$OPTION_ALL" || getAllVservers vservers
 
 makedir=$(mktemp -d /tmp/vserver-init.XXXXXX)
-trap "rm -rf $makedir" EXIT
+okfile=$(mktemp     /tmp/vserver-init.XXXXXX)
+passedfile=$(mktemp /tmp/vserver-init.XXXXXX)
+trap "rm -rf $makedir $resultfile $passedfile" EXIT
 
 defaulttty="$CONFDIR/.defaults/apps/init/tty"
 test -c "$defaulttty" || defaulttty=$(tty)
@@ -119,8 +121,10 @@ esac
     cat <<EOF
 TTY = ${defaulttty}
 .%.stamp:
-${TAB}$test_cmd || \
-${TAB}${_VSERVER} --sync ${OPTION_DEBUG:+--debug} "\$*" ${OPTION_FLAVOR} >\$(TTY) 2>\$(TTY) <\$(TTY)
+${TAB}$test_cmd || { \
+${TAB}echo -n '.' >>$passedfile ; \
+${TAB}$_VSERVER --sync ${OPTION_DEBUG:+--debug} "\$*" ${OPTION_FLAVOR} >\$(TTY) 2>\$(TTY) <\$(TTY) ; }
+${TAB}echo -n '.' >>$okfile
 ${TAB}@touch "\$@"
 EOF
 
@@ -137,7 +141,7 @@ i=${#vservers[*]}
 while test $i -gt 0; do
     let --i
     d=$CONFDIR/${vservers[$i]}/apps/init
-    { test "$OPTION_MARK"    && grep -sx "$OPTION_MARK" "$d"/mark; } || \
+    { test "$OPTION_MARK"    && grep -qx "$OPTION_MARK" "$d"/mark; } || \
     { test -z "$OPTION_MARK" && test ! -e "$d"/mark; } || \
     unset vservers[$i]
 done
@@ -177,3 +181,8 @@ done
 
 #cat $makedir/Makefile
 make -k ${NOOPTION_DEBUG:+-s} ${OPTION_PARALLEL:+-j$OPTION_PARALLEL} -C $makedir
+
+test -s "$passedfile"          || exit 0
+test -s "$okfile"              || exit 1
+cmp -s "$passedfile" "$okfile" || exit 2
+exit 0
