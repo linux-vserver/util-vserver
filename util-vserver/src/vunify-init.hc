@@ -47,22 +47,29 @@ initModeManually(struct Arguments const UNUSED *args, int argc, char *argv[])
 static void
 initModeVserver(struct Arguments const UNUSED *args, int argc, char *argv[])
 {
-  char const				*appdir;
-  struct MatchVserverInfo const		dst_vserver = { argv[0], true };
+  struct MatchVserverInfo		vserver = {
+    .name        = argv[0],
+    .use_pkgmgmt = true
+  };
+
+  if (!MatchVserverInfo_init(&vserver)) {
+    WRITE_MSG(2, "Failed to initialize unification for this vserver\n");
+    exit(1);
+  }
   
   if (argc!=1) {
     WRITE_MSG(2, "More than one vserver is not supported\n");
     exit(1);
   }
 
-  if (!MatchList_initByVserver(&global_info.dst_list, &dst_vserver, &appdir)) {
+  if (!MatchList_initByVserver(&global_info.dst_list, &vserver)) {
     WRITE_MSG(2, "unification not configured for this vserver\n");
     exit(1);
   }
 
   MatchList_initRefserverList(&global_info.src_lists.v,
 			      &global_info.src_lists.l,
-			      appdir);
-  
-  free(const_cast(char *)(appdir));
+			      vserver.appdir.d);
+
+  MatchVserverInfo_free(&vserver);
 }

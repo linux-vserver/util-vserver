@@ -69,25 +69,47 @@ static void
 initModeVserver(int argc, char *argv[])
 {
   int					count       = argc;
-  struct MatchVserverInfo const		src_vserver = { argv[1], true  };
-  struct MatchVserverInfo const		dst_vserver = { argv[0], false };
-  
+  struct MatchVserverInfo		src_vserver = {
+    .name        = argv[1],
+    .use_pkgmgmt = true
+  };
+
+  if (!MatchVserverInfo_init(&src_vserver)) {
+    WRITE_MSG(2, "Failed to initialize unification for source-vserver\n");
+    exit(1);
+  }
 
   if (count!=2) {
     WRITE_MSG(2, "Bad arguments; try '--help' for more information\n");
     exit(1);
   }
 
-  if (!MatchList_initByVserver(&global_info.src_list, &src_vserver, 0)) {
+  if (!MatchList_initByVserver(&global_info.src_list, &src_vserver)) {
     WRITE_MSG(2, "unification not configured for source vserver\n");
     exit(1);
   }
 
+  MatchVserverInfo_free(&src_vserver);
+
+
+  
+  struct MatchVserverInfo		dst_vserver = {
+    .name        = argv[0],
+    .use_pkgmgmt = false
+  };
+  
   if (!global_args->is_strict)
     createSkeleton(dst_vserver.name);
-
-  if (!MatchList_initByVserver(&global_info.dst_list, &dst_vserver, 0)) {
+  
+  if (!MatchVserverInfo_init(&dst_vserver)) {
+    WRITE_MSG(2, "Failed to initialize unification for destination-vserver\n");
+    exit(1);
+  }
+  
+  if (!MatchList_initByVserver(&global_info.dst_list, &dst_vserver)) {
     WRITE_MSG(2, "unification not configured for destination vserver\n");
     exit(1);
   }
+
+  MatchVserverInfo_free(&dst_vserver);
 }
