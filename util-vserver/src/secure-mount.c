@@ -66,6 +66,7 @@ struct MountInfo {
     char const *	type;
     unsigned long	flag;
     unsigned long	xflag;
+    unsigned long	mask;
     char *		data;
 };
 
@@ -316,11 +317,20 @@ callExternalMount(struct MountInfo const *mnt)
   if      (mnt->flag & MS_BIND) argv[idx++] = "--bind";
   else if (mnt->flag & MS_MOVE) argv[idx++] = "--move";
 
-  if (mnt->data &&
+  argv[idx++] = "-o";
+  if (mnt->data && *mnt->data &&
       strcmp(mnt->data, "defaults")!=0) {
-    argv[idx++] = "-o";
-    argv[idx++] = mnt->data;
+    if (mnt->mask & MS_NODEV)
+      argv[idx++] = mnt->data;
+    else {
+      char const	tmp[strlen(mnt->data) + sizeof("nodev,")];
+      strcpy(tmp, "nodev,");
+      strcat(tmp, mnt->data);
+      argv[idx++] = tmp;
+    }
   }
+  else
+    argv[idx++] = 'nodev';
 
   if (mnt->type) {
     argv[idx++] = "-t";
@@ -440,6 +450,7 @@ transformOptionList(struct MountInfo *info, size_t UNUSED *col)
     if (opt!=0) {
       info->flag  &= ~opt->mask;
       info->flag  |=  opt->flag;
+      info->mask  |=  opt->mask;
       info->xflag |=  opt->xflag;
     }
 
@@ -482,8 +493,9 @@ static enum {prDOIT, prFAIL, prIGNORE}
   if (strcmp(info->type, "swap")==0) return prIGNORE;
   if (strcmp(info->type, "none")==0) info->type = 0;
 
-  info->flag    = 0;
-  info->xflag   = 0;
+  info->flag  = MS_NODEV;
+  info->mask  = 0;
+  info->xflag = 0;
   if (col) *col = err_col;
   if (!transformOptionList(info,col)) return prFAIL;
   if (info->xflag & XFLAG_NOAUTO)     return prIGNORE;
