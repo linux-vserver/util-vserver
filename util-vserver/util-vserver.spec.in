@@ -18,7 +18,7 @@
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
-Release:	%release_func 0.13
+Release:	%release_func 0
 License:	GPL
 Group:		System Environment/Base
 URL:		http://savannah.nongnu.org/projects/util-vserver/
@@ -85,7 +85,7 @@ Requires:		pkgconfig
 
 
 %description
-This package provides the components and a framework to setup virtual
+util-vserver provides the components and a framework to setup virtual
 servers.  A virtual server runs inside a linux server. It is nevertheless
 highly independent. As such, you can run various services with normal
 configuration. The various vservers can't interact with each other and
@@ -95,11 +95,66 @@ This requires a special kernel supporting the new new_s_context and
 set_ipv4root system call.
 
 %description lib
+util-vserver provides the components and a framework to setup virtual
+servers.  A virtual server runs inside a linux server. It is nevertheless
+highly independent. As such, you can run various services with normal
+configuration. The various vservers can't interact with each other and
+can't interact with services in the main server.
+
+This package contains the shared libraries needed by all other
+'util-vserver' subpackages.
+
 %description core
+util-vserver provides the components and a framework to setup virtual
+servers.  A virtual server runs inside a linux server. It is nevertheless
+highly independent. As such, you can run various services with normal
+configuration. The various vservers can't interact with each other and
+can't interact with services in the main server.
+
+This package contains utilities which are required to communicate with
+the Linux-Vserver enabled kernel.
+
+
 %description build
+util-vserver provides the components and a framework to setup virtual
+servers.  A virtual server runs inside a linux server. It is nevertheless
+highly independent. As such, you can run various services with normal
+configuration. The various vservers can't interact with each other and
+can't interact with services in the main server.
+
+This package contains utilities which assist in building Vservers.
+
 %description sysv
+util-vserver provides the components and a framework to setup virtual
+servers.  A virtual server runs inside a linux server. It is nevertheless
+highly independent. As such, you can run various services with normal
+configuration. The various vservers can't interact with each other and
+can't interact with services in the main server.
+
+This package contains the SysV initscripts which start and stop
+VServers and related tools.
+
+
 %description legacy
+util-vserver provides the components and a framework to setup virtual
+servers.  A virtual server runs inside a linux server. It is nevertheless
+highly independent. As such, you can run various services with normal
+configuration. The various vservers can't interact with each other and
+can't interact with services in the main server.
+
+This package contains the tools which are needed to work with VServers
+having an old-style configuration.
+
+
 %description devel
+util-vserver provides the components and a framework to setup virtual
+servers.  A virtual server runs inside a linux server. It is nevertheless
+highly independent. As such, you can run various services with normal
+configuration. The various vservers can't interact with each other and
+can't interact with services in the main server.
+
+This package contains header files and libraries which are needed to
+develop VServer related applications.
 
 
 %prep
