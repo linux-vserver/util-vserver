@@ -1,0 +1,21 @@
+#! /bin/sh
+
+test -n "$1" || {
+    echo "No target directory given; aborting...">&2
+    exit 1
+}
+
+test -d "$1"/CVS || {
+    echo "Target directory does not seem to be CVS managed; aborting..." >&2
+    exit 1
+}
+
+tmp=$(mktemp -d /tmp/uv.XXXXXX)/doc || exit 1
+trap "rm -rf $tmp" EXIT
+
+mkdir -p "$tmp"/{apidoc/html,conf}
+install -p -m644 doc/*.css doc/*.html             "$tmp"/conf/
+install -p -m644 lib/apidoc/latex/refman.pdf      "$tmp"/apidoc/refman.pdf
+install -p -m644 lib/apidoc/html/*.{css,html,png} "$tmp"/apidoc/html/
+
+rsync -av --delete --exclude=css --exclude=img --exclude=CVS --exclude=.symlinks --exclude=.htaccess "$tmp"/ "$1"/
