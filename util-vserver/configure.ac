@@ -111,19 +111,27 @@ AC_ARG_ENABLE([apis],
 	      [enable_apis=ALL])
 
 test x"$enable_apis" != xALL || enable_apis='legacy,compat,v11,v13,fscompat'
+enable_api_oldproc=
 old_IFS=$IFS
 IFS=,;
 for i in $enable_apis; do
 	case "$i" in
-		compat)	AC_DEFINE(VC_ENABLE_API_COMPAT, 1, [Enable support for compatibily syscall API]);;
-		legacy) AC_DEFINE(VC_ENABLE_API_LEGACY, 1, [Enable support for old, /proc parsing API]);;
-		v11)    AC_DEFINE(VC_ENABLE_API_V11,    1, [Enable support for API of vserver 1.1.x]);;
-		v13)    AC_DEFINE(VC_ENABLE_API_V13,    1, [Enable support for API of vserver 1.3.x]);;
-		fscompat)	AC_DEFINE(VC_ENABLE_API_FSCOMPAT,    1, [Enable support for filesystem compatibility API]);;
-		*)	AC_MSG_ERROR(['$i' is not a supported API]);;
+		compat)		AC_DEFINE(VC_ENABLE_API_COMPAT,   1, [Enable support for compatibility syscall API])
+				enable_api_oldproc=1;;
+		legacy) 	AC_DEFINE(VC_ENABLE_API_LEGACY,   1, [Enable support for old, /proc parsing API])
+				enable_api_old_proc=1;;
+		v11)    	AC_DEFINE(VC_ENABLE_API_V11,      1, [Enable support for API of vserver 1.1.x])
+				enable_api_oldproc=1;;
+		v13)    	AC_DEFINE(VC_ENABLE_API_V13,      1, [Enable support for API of vserver 1.3.x]);;
+		fscompat)	AC_DEFINE(VC_ENABLE_API_FSCOMPAT, 1, [Enable support for filesystem compatibility API]);;
+		*)		AC_MSG_ERROR(['$i' is not a supported API]);;
 	esac
 done
 IFS=$old_IFS
+if test x"$enable_api_oldproc" != x; then
+	AC_DEFINE(VC_ENABLE_API_OLDPROC, 1, [Enable API for a backward compatible /proc parsing])
+	enable_apis="$enable_apis,oldproc"
+fi
 AC_MSG_RESULT([$enable_apis])
 
 AC_LANG_PUSH(C++)
