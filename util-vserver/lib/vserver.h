@@ -454,7 +454,7 @@ extern "C" {
   typedef enum { vcFEATURE_VKILL,  vcFEATURE_IATTR,   vcFEATURE_RLIMIT,
 		 vcFEATURE_COMPAT, vcFEATURE_MIGRATE, vcFEATURE_NAMESPACE,
 		 vcFEATURE_SCHED,  vcFEATURE_VINFO,   vcFEATURE_VHI,
-                 vcFEATURE_VSHELPER }
+                 vcFEATURE_VSHELPER0, vcFEATURE_VSHELPER }
     vcFeatureSet;
 
   bool		vc_isSupported(vcFeatureSet) VC_ATTR_CONST;
