@@ -28,8 +28,6 @@
 extern "C" {
 #endif
 
-  typedef short int	ctx_t;
-
 int call_new_s_context(int nbctx, int ctxs[], int remove_cap, int flags);
 int call_set_ipv4root (unsigned long ip[], int nb,
 		       unsigned long bcast, unsigned long mask[]);
