@@ -115,13 +115,40 @@ readSingleLimit(struct rlimit *lim, char const *fname_base)
   return is_modified;
 }
 
+static void
+showHelp(int fd, char const *cmd, int res)
+{
+  WRITE_MSG(fd, "Usage:  ");
+  WRITE_STR(fd, cmd);
+  WRITE_STR(fd,
+	    "<ulimit-cfgdir> <cmd> <argv>*\n\n"
+	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
+  exit(res);
+}
+
+static void
+showVersion()
+{
+  WRITE_MSG(1,
+	    "exec-ulimit " VERSION " -- executes programs with resource limits\n"
+	    "This program is part of " PACKAGE_STRING "\n\n"
+	    "Copyright (C) 2003 Enrico Scholz\n"
+	    VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
+}
+
 int main(int argc, char *argv[])
 {
   size_t		i;
   int			cur_fd = Eopen(".", O_RDONLY, 0);
-  
+
+  if (argc==2) {
+    if (strcmp(argv[1], "--help")==0)    showHelp(1,argv[0],0);
+    if (strcmp(argv[1], "--version")==0) showVersion();
+  }
+
   if (argc<3) {
-    WRITE_MSG(2, "Usage: exec-ulimit <ulimit-cfgdir> <cmd> <argv>*\n");
+    WRITE_MSG(2, "Bad parameter count; use '--help' for more information.\n");
     exit(255);
   }
 
