@@ -531,7 +531,7 @@ elif [ "$2" = "start" ] ; then
 		IPOPT=`setipopt $IPROOT`
 		export PATH=$DEFAULTPATH
 		$NICECMD $_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
-			$_CHCONTEXT $SILENT $DISCONNECT $CAPS $FLAGS $CTXOPT $HOSTOPT $DOMAINOPT --secure \
+			$_CHCONTEXT_COMPAT $SILENT $DISCONNECT $CAPS $FLAGS $CTXOPT $HOSTOPT $DOMAINOPT --secure \
 			$_SAVE_S_CONTEXT /var/run/vservers/$1.ctx \
 			$_CAPCHROOT $CHROOTOPT . $STARTCMD
 		sleep 2
@@ -544,7 +544,7 @@ elif [ "$2" = "running" ] ; then
 	else
 		. /var/run/vservers/$1.ctx
 		NB=$($USR_SBIN/vps ax | awk '{print $2}' | grep \^$S_CONTEXT\$ | wc -l)
-		#NB=`$_CHCONTEXT --silent --ctx $S_CONTEXT ps ax | wc -l`
+		#NB=`$_CHCONTEXT_COMPAT --silent --ctx $S_CONTEXT ps ax | wc -l`
 		#NB=`eval expr $NB + 0`
 		if [ "$NB" -gt 0 ] ; then
 			echo Server $1 is running
@@ -613,7 +613,7 @@ elif [ "$2" = "stop" ] ; then
 		IPOPT=`setipopt $IPROOT`
 		export PATH=$DEFAULTPATH
 		$_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
-			$_CHCONTEXT $SILENT $CAPS --secure --ctx $S_CONTEXT \
+			$_CHCONTEXT_COMPAT $SILENT $CAPS --secure --ctx $S_CONTEXT \
 			$_CAPCHROOT . $STOPCMD
 
 		if test "$IS_MINIT"; then
@@ -627,7 +627,7 @@ elif [ "$2" = "stop" ] ; then
 
 		echo Killing all processes
 		$_CHBIND --silent $IPOPT --bcast $IPROOTBCAST \
-			$_CHCONTEXT $CAPS --secure --silent --ctx $S_CONTEXT \
+			$_CHCONTEXT_COMPAT $CAPS --secure --silent --ctx $S_CONTEXT \
 			$VSERVERKILLALL_CMD
 	fi
 	# We umount anyway, because "enter" establish the mount
@@ -706,7 +706,7 @@ elif [ "$2" = "suexec" ] ; then
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
 			exec $_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
-				$_CHCONTEXT $SILENT $FLAGS $CAPS --secure --ctx $S_CONTEXT \
+				$_CHCONTEXT_COMPAT $SILENT $FLAGS $CAPS --secure --ctx $S_CONTEXT \
 				$_CAPCHROOT --suid $USERID . "$@"
 		else
 			test -x /etc/vservers/$1.sh && /etc/vservers/$1.sh pre-start $1
@@ -728,7 +728,7 @@ elif [ "$2" = "suexec" ] ; then
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
 			exec $_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
-				$_CHCONTEXT $SILENT $FLAGS $CAPS --secure $CTXOPT $HOSTOPT $DOMAINOPT \
+				$_CHCONTEXT_COMPAT $SILENT $FLAGS $CAPS --secure $CTXOPT $HOSTOPT $DOMAINOPT \
 				$_SAVE_S_CONTEXT /var/run/vservers/$VSERVER.ctx \
 				$_CAPCHROOT --suid $USERID $CHROOTOPT . "$@"
 		fi
