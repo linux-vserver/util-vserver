@@ -164,14 +164,22 @@ AH_BOTTOM([#include "compat.h"])
 AC_CONFIG_FILES([util-vserver.spec Makefile distrib/Makefile])
 AC_OUTPUT
 
+ensc_cxx_affected=
+ensc_c99_affected=
+test x"$ensc_cv_cxx_cxxcompiler" = xyes || ensc_cxx_affected=" (affected: vbuild, vcheck)"
+test x"$ensc_cv_c99_c99compiler" = xyes || ensc_c99_affected=" (affected: vunify)"
+
 AC_MSG_NOTICE([
 
 $PACKAGE_STRING
 
 Features:
+              CPPFLAGS: '$CPPFLAGS'
+                CFLAGS: '$CFLAGS'
+              CXXFLAGS: '$CXXFLAGS'
           Use dietlibc: $ensc_have_dietlibc
-    Build C++ programs: $ensc_cv_cxx_cxxcompiler
-    Build C99 programs: $ensc_cv_c99_c99compiler
+    Build C++ programs: $ensc_cv_cxx_cxxcompiler$ensc_cxx_affected
+    Build C99 programs: $ensc_cv_c99_c99compiler$ensc_c99_affected
         Available APIs: $enable_apis
          ext2fs Source: $ensc_cv_test_ext2fs_header
 
