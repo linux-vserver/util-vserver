@@ -185,6 +185,15 @@
 #define VC_VXC_SECURE_MOUNT		0x00010000ull
 
 
+#define VC_VXSM_FILL_RATE          	0x0001
+#define VC_VXSM_INTERVAL           	0x0002
+#define VC_VXSM_TOKENS             	0x0010
+#define VC_VXSM_TOKENS_MIN         	0x0020
+#define VC_VXSM_TOKENS_MAX         	0x0040
+#define VC_VXSM_PRIO_BIAS          	0x0100
+
+
+
 /** \defgroup  syscalls Syscall wrappers
  *  Functions which are calling the vserver syscall directly. */
 
@@ -580,9 +589,6 @@ extern "C" {
   inline static uint_least64_t	vc_get_insecureccaps() {
     return ~(VC_VXC_SET_UTSNAME|VC_VXC_ICMP_PING);
   }
-  inline static uint_least64_t	vc_get_insecureflags() {
-    return VC_VXF_HIDE_NETIF;
-  }
   
   inline static int	vc_setfilecontext(char const *filename, xid_t xid) {
     return vc_set_iattr(filename, xid, 0, VC_IATTR_XID);
@@ -596,12 +602,13 @@ extern "C" {
 
 
   struct vc_set_sched {
-      int32_t	fill_rate;
-      int32_t	interval;
-      int32_t	tokens;
-      int32_t	tokens_min;
-      int32_t	tokens_max;
-      uint64_t	cpu_mask;
+      uint_least32_t	set_mask;
+      int_least32_t	fill_rate;
+      int_least32_t	interval;
+      int_least32_t	tokens;
+      int_least32_t	tokens_min;
+      int_least32_t	tokens_max;
+      int_least32_t	priority_bias;
   };
 
   int		vc_set_sched(xid_t xid, struct vc_set_sched const *);
