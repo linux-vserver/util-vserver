@@ -62,6 +62,7 @@ scripts_pkglib_src_SCRPTS =	scripts/pkgmgmt \
 				scripts/vserver-build \
 				scripts/vserver-wrapper \
 				scripts/vservers.grabinfo.sh \
+				scripts/vshelper \
 				scripts/vsysvwrapper
 
 scripts_legacy_src_SCRPTS =	scripts/legacy/save_s_context \

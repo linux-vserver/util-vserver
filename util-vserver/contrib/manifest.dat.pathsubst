@@ -91,6 +91,7 @@ base   @SBINDIR@/vserver
 build  @SBINDIR@/vserver-copy
 core   @SBINDIR@/vserver-info
 base   @SBINDIR@/vserver-stat
+base   @SBINDIR@/vshelper
 base   @SBINDIR@/vtop
 core   @SBINDIR@/vuname
 devel  @INCLUDEDIR@/vserver.h
