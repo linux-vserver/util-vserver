@@ -30,8 +30,8 @@ lib_SRCS			=  lib/syscall.c \
 				   lib/getctx.c \
 				   lib/getinitpid.c \
 				   lib/getversion.c \
-				   lib/uint2str.c \
-				   lib/int2str.c \
+				   lib/fmt-32.c \
+				   lib/fmt-64.c \
 				   lib/capabilities.c \
 				   $(lib_legacy_SRCS) \
 				   $(lib_management_SRCS) \
@@ -48,6 +48,8 @@ lib_XHDRS                       =  lib/syscall-compat.hc \
 				   lib/getinitpid-legacy.hc \
 				   lib/getversion-internal.hc \
 				   lib/safechroot-internal.hc \
+				   lib/fmt.hc \
+				   lib/fmt.h \
 				   lib/virtual.h \
 				   lib/internal.h \
 				   lib/utils-legacy.h \

@@ -1,4 +1,4 @@
-// $Id$    --*- c++ -*--
+// $Id$    --*- c -*--
 
 // Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 //  
@@ -19,36 +19,6 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
 
-#include <assert.h>
-#include <stdbool.h>
-#include <string.h>
-
-size_t
-utilvserver_uint2str(char *buf, size_t len, unsigned int val, unsigned char base)
-{
-  char			*ptr = buf+len-1;
-  register size_t	res;
-  if (base>=36 || len==0) return 0;
-
-  *ptr = '\0';
-  while (ptr>buf) {
-    unsigned char	digit = val%base;
-    
-    --ptr;
-    *ptr = (digit<10 ? '0'+digit :
-	    digit<36 ? 'a'+digit-10 :
-	    (assert(false),'?'));
-
-    val /= base;
-    if (val==0) break;
-  }
-
-  assert(ptr>=buf && ptr<=buf+len-1);
-	 
-  res = buf+len-ptr;
-  memmove(buf, ptr, res);
-
-  return res-1;
-}
+#define FMT_BITSIZE	32
+#include "fmt.hc"

@@ -1,4 +1,4 @@
-// $Id$    --*- c++ -*--
+// $Id$    --*- c -*--
 
 // Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 //  
@@ -19,21 +19,6 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
 
-#include "internal.h"
-
-size_t
-utilvserver_int2str(char *buf, size_t len, signed int val, unsigned char base)
-{
-  int		offset = 0;
-  
-  if (val<0 && len>0) {
-    *buf++ = '-';
-    --len;
-    offset = 1;
-    val    = -val;
-  }
-
-  return utilvserver_uint2str(buf, len, val, base)+offset;
-}
+#define FMT_BITSIZE	64
+#include "fmt.hc"

@@ -30,13 +30,13 @@
 
 int main(int argc, char *argv[])
 {
-  char		buf[32];
+  char		buf[sizeof(int)*3+2];
   ctx_t		ctx;
   
   if (argc==1) ctx = vc_X_getctx(0);
   else         ctx = vc_X_getctx(atoi(argv[1]));
 
-  utilvserver_int2str(buf, sizeof buf, ctx, 10);
+  utilvserver_fmt_int(buf, ctx);
 
   WRITE_STR(1, buf);
   WRITE_MSG(1, "\n");

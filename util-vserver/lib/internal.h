@@ -19,16 +19,14 @@
 #ifndef H_UTIL_VSERVER_LIB_INTERNAL_H
 #define H_UTIL_VSERVER_LIB_INTERNAL_H
 
+#include "fmt.h"
 #include <stdlib.h>
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-size_t		utilvserver_uint2str(char *buf, size_t len,
-				     unsigned int val, unsigned char base);
-size_t		utilvserver_int2str(char *buf, size_t len,
-				    signed int val, unsigned char base);
 int		utilvserver_checkCompatVersion();
 
 #ifdef __cplusplus

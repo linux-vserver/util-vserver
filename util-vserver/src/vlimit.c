@@ -102,11 +102,9 @@ appendLimit(char *ptr, bool do_it, vc_limit_t lim)
       ptr += 3;
     }
     else {
-      memcpy(ptr, "0x", 2);
-      ptr += 2;
-
-      ptr += utilvserver_uint2str(ptr, 20, (lim>>32),      16);
-      ptr += utilvserver_uint2str(ptr, 20, lim&0xffffffff, 16);
+      memcpy(ptr, "0x", 2); ptr += 2;
+      
+      ptr += utilvserver_fmt_uint64_base(ptr, lim, 16);
       *ptr = ' ';
     }
   }
@@ -140,7 +138,7 @@ showAll(int ctx)
     }
 
     memset(buf, ' ', sizeof buf);
-    ptr += utilvserver_uint2str(ptr, 100, i, 10);
+    ptr += utilvserver_fmt_uint(ptr, i);
     *ptr = ' ';
 
     ptr  = appendLimit(buf+10, mask.min &bitmask, limit.min);

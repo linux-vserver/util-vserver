@@ -31,13 +31,13 @@
 
 int main(int argc, char *argv[])
 {
-  char		buf[32];
+  char		buf[sizeof(int)*3+2];
   pid_t		pid;
   
   if (argc==1) pid = vc_X_getinitpid(0);
   else         pid = vc_X_getinitpid(atoi(argv[1]));
 
-  utilvserver_int2str(buf, sizeof buf, pid, 10);
+  utilvserver_fmt_int(buf, pid);
 
   WRITE_STR(1, buf);
   WRITE_MSG(1, "\n");

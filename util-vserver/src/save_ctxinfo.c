@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
   char		runfile[(checkParams(argc,argv),strlen(argv[1])) + sizeof("/run.rev/99999")];
   char		dstfile[PATH_MAX];
   int		fd;
-  char		buf[6];
+  char		buf[sizeof(int)*3+2];
   ctx_t		ctx;
   ssize_t	len;
   ssize_t	len1 = strlen(argv[1]);
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
   }
 
   Ereadlink(runfile, dstfile, sizeof(dstfile));
-  len  = utilvserver_uint2str(buf, sizeof(buf), ctx, 10);
+  len  = utilvserver_fmt_uint(buf, ctx);
 
   fd = Eopen(dstfile, O_EXCL|O_CREAT|O_WRONLY, 0644);
   if (write(fd, buf,     len) !=len  ||

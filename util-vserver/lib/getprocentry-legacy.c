@@ -43,7 +43,7 @@ utilvserver_getProcEntry(pid_t pid,
 			 char *str,
 			 char *buf, size_t bufsize)
 {
-  char			status_name[ sizeof("/proc/01234/status") ];
+  char			status_name[ sizeof("/proc//status") + sizeof(unsigned int)*3 + 1 ];
   int			fd;
   size_t		len;
   char *		res = 0;
@@ -56,9 +56,7 @@ utilvserver_getProcEntry(pid_t pid,
   if (pid==0) strcpy(status_name, "/proc/self/status");
   else {
     strcpy(status_name, "/proc/");
-    len = utilvserver_uint2str(status_name+sizeof("/proc/")-1,
-			       sizeof(status_name)-sizeof("/proc//status")+1,
-			       pid, 10);
+    len = utilvserver_fmt_uint(status_name+sizeof("/proc/")-1, pid);
     strcpy(status_name+sizeof("/proc/")+len-1, "/status");
   }
 
