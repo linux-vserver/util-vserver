@@ -129,41 +129,42 @@ else
 			ln -sf '$(top_srcdir)/lib/virtual.h' '$@'
 endif
 
-pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
-			   s!@'LEGACYDIR'@!$(legacydir)!g; \
-			   s!@'SBINDIR'@!$(sbindir)!g; \
-			   s!@'CONFDIR'@!$(confdir)!g; \
-			   s!@'SYSCONFDIR'@!$(sysconfdir)!g; \
-			   s!@'PKGSTATEDIR'@!$(pkgstatedir)!g; \
-			   s!@'PKGSTATEREVDIR'@!$(pkgstaterevdir)!g; \
-			   s!@'VSERVERDIR'@!$(vserverdir)!g; \
-			   s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
-			   s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
-			   s!@'INITRDDIR'@!$(initrddir)!g; \
-			   s!@'LIBDIR'@!$(libdir)!g; \
-			   s!@'MANDIR'@!$(mandir)!g; \
-			   s!@'INCLUDEDIR'@!$(includedir)!g; \
-			   s!@'PACKAGE'@!$(PACKAGE)!g; \
-			   s!@'PACKAGE_BUGREPORT'@!$(PACKAGE_BUGREPORT)!g; \
-			   s!@'PACKAGE_NAME'@!$(PACKAGE_NAME)!g; \
-			   s!@'PACKAGE_STRING'@!$(PACKAGE_STRING)!g; \
-			   s!@'PACKAGE_TARNAME'@!$(PACKAGE_TARNAME)!g; \
-			   s!@'PACKAGE_VERSION'@!$(PACKAGE_VERSION)!g; \
-			   s!@'AWK'@!$(AWK)!g; \
-			   s!@'GREP'@!$(GREP)!g; \
-			   s!@'IP'@!$(IP)!g; \
-			   s!@'MOUNT'@!$(MOUNT)!g; \
-			   s!@'UMOUNT'@!$(UMOUNT)!g; \
-			   s!@'NICE'@!$(NICE)!g; \
-			   s!@'VCONFIG'@!$(VCONFIG)!g; \
-			   s!@'PS'@!$(PS)!g; \
-			   s!@'WC'@!$(WC)!g; \
-			   s!@'WGET'@!$(WGET)!g; \
-			   s!@'TAR'@!$(TAR)!g; \
-			   s!@'ENSC_HAVE_C99_COMPILER_TRUE'@!\@ENSC_HAVE_C99_COMPILER_TRUE@ !g; \
-			   s!@'ENSC_HAVE_C99_COMPILER_FALSE'@!\@ENSC_HAVE_C99_COMPILER_FALSE@ !g; \
-			   s!@'ENSC_HAVE_CXX_COMPILER_TRUE'@!\@ENSC_HAVE_CXX_COMPILER_TRUE@ !g; \
-			   s!@'ENSC_HAVE_CXX_COMPILER_FALSE'@!\@ENSC_HAVE_CXX_COMPILER_FALSE@ !g;
+pathsubst_RULES =	s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
+			s!@'LEGACYDIR'@!$(legacydir)!g; \
+			s!@'SBINDIR'@!$(sbindir)!g; \
+			s!@'CONFDIR'@!$(confdir)!g; \
+			s!@'SYSCONFDIR'@!$(sysconfdir)!g; \
+			s!@'PKGSTATEDIR'@!$(pkgstatedir)!g; \
+			s!@'PKGSTATEREVDIR'@!$(pkgstaterevdir)!g; \
+			s!@'VSERVERDIR'@!$(vserverdir)!g; \
+			s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
+			s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
+			s!@'VSHELPERSTATEDIR'@!$(vshelperstatedir)!g; \
+			s!@'INITRDDIR'@!$(initrddir)!g; \
+			s!@'LIBDIR'@!$(libdir)!g; \
+			s!@'MANDIR'@!$(mandir)!g; \
+			s!@'INCLUDEDIR'@!$(includedir)!g; \
+			s!@'PACKAGE'@!$(PACKAGE)!g; \
+			s!@'PACKAGE_BUGREPORT'@!$(PACKAGE_BUGREPORT)!g; \
+			s!@'PACKAGE_NAME'@!$(PACKAGE_NAME)!g; \
+			s!@'PACKAGE_STRING'@!$(PACKAGE_STRING)!g; \
+			s!@'PACKAGE_TARNAME'@!$(PACKAGE_TARNAME)!g; \
+			s!@'PACKAGE_VERSION'@!$(PACKAGE_VERSION)!g; \
+			s!@'AWK'@!$(AWK)!g; \
+			s!@'GREP'@!$(GREP)!g; \
+			s!@'IP'@!$(IP)!g; \
+			s!@'MOUNT'@!$(MOUNT)!g; \
+			s!@'UMOUNT'@!$(UMOUNT)!g; \
+			s!@'NICE'@!$(NICE)!g; \
+			s!@'VCONFIG'@!$(VCONFIG)!g; \
+			s!@'PS'@!$(PS)!g; \
+			s!@'WC'@!$(WC)!g; \
+			s!@'WGET'@!$(WGET)!g; \
+			s!@'TAR'@!$(TAR)!g; \
+			s!@'ENSC_HAVE_C99_COMPILER_TRUE'@!\@ENSC_HAVE_C99_COMPILER_TRUE@ !g; \
+			s!@'ENSC_HAVE_C99_COMPILER_FALSE'@!\@ENSC_HAVE_C99_COMPILER_FALSE@ !g; \
+			s!@'ENSC_HAVE_CXX_COMPILER_TRUE'@!\@ENSC_HAVE_CXX_COMPILER_TRUE@ !g; \
+			s!@'ENSC_HAVE_CXX_COMPILER_FALSE'@!\@ENSC_HAVE_CXX_COMPILER_FALSE@ !g;
 
 pathconfig.h:		.pathconfig.h.pathsubst.stamp
 .%.pathsubst.stamp:	%.pathsubst Makefile
