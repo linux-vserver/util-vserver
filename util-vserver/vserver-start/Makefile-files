@@ -24,8 +24,13 @@ endif
 ## HACK: for now...
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT +=		vserver-start/vserver.start.bin
 
-vserver_start_vserver_start_bin_SOURCES =	vserver-start/main.c \
+vserver_start_vserver_start_bin_SOURCES = \
+						vserver-start/main.c \
+						vserver-start/mount.c \
+						vserver-start/mount.h \
 						vserver-start/scriptlets.c \
+						vserver-start/undo.c \
+						vserver-start/undo.h \
 						vserver-start/vshelper.c \
 						vserver-start/vshelper.h \
 						vserver-start/interface.c \
@@ -34,6 +39,8 @@ vserver_start_vserver_start_bin_SOURCES =	vserver-start/main.c \
 						vserver-start/interface-read.c \
 						vserver-start/interface-free.hc \
 						vserver-start/interface-init.hc \
+						vserver-start/interface-remove.c \
+						vserver-start/interface-print.c \
 						vserver-start/configuration.c \
 						vserver-start/configuration-init.c \
 						vserver-start/configuration.h \
@@ -42,4 +49,4 @@ vserver_start_vserver_start_bin_SOURCES =	vserver-start/main.c \
 vserver_start_vserver_start_bin_LDADD =		$(VSERVER_LDADDS) \
 						lib_internal/libinternal.a \
 						libensc_vector.a
-vserver_start_vserver_start_bin_LDFLAGS =	$(VSERVER_LDFLAGS)
+vserver_start_vserver_start_bin_LDFLAGS =	$(VSERVER_LDFLGS)
