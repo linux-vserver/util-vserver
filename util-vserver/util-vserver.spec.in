@@ -13,7 +13,7 @@
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
-Release:	0
+Release:	0.3
 Epoch:		0
 License:	GPL
 Group:		System Environment/Base
@@ -26,7 +26,7 @@ Requires:	%name-lib  = %epoch:%version-%release
 Requires:	diffutils mktemp sed
 Provides:	vserver = %epoch:%version-%release
 Obsoletes:	vserver < %epoch:%version
-BuildRequires:	mount vconfig gawk iproute
+BuildRequires:	mount vconfig gawk iproute iptables
 BuildRequires:	gcc-c++ wget
 BuildRequires:	e2fsprogs-devel
 BuildRequires:	doxygen tetex-latex
@@ -133,24 +133,16 @@ rm -rf $RPM_BUILD_ROOT
 f="%confdefaultdir/vdirbase"; test -L "$f" -o -e "$f" || ln -s /vservers             "$f"
 f="%confdefaultdir/run.rev";  test -L "$f" -o -e "$f" || ln -s /var/run/vservers.rev "$f"
 
-%__chattr +t /vservers || :
+%_sbindir/setattr --barrier /vservers || :
 
 
-%define v_services	httpd named portmap sendmail smb sshd xinetd gated
 %post sysv
 %chkconfig --add vservers-default
 %chkconfig --add vprocunhide
 
-for i in %v_services; do
-	%chkconfig --add v_$i
-done
 
 
 %preun sysv
-test "$1" != 0 || for i in %v_services; do
-	%chkconfig --del v_$i
-done
-
 test "$1" != 0 || %_initrddir/vprocunhide stop &>/dev/null || :
 
 test "$1" != 0 || %chkconfig --del vprocunhide
@@ -165,12 +157,32 @@ test "$1" = 0  || %_initrddir/vprocunhide condrestart >/dev/null || :
 %postun lib -p /sbin/ldconfig
 
 
+## Temporary workaround to remove old v_* files; it will conflict
+## somehow with the -legacy package but can be fixed by reinstalling
+## this package.
+## TODO: remove me in the final .spec file
+%define v_services	httpd named portmap sendmail smb sshd xinetd gated
+%triggerun sysv -- util-vserver-sysv<0.30.198
+test "$1" != 0 || for i in %v_services; do
+	%chkconfig --del v_$i || :
+done
+
+
 %post legacy
 %chkconfig --add rebootmgr
 %chkconfig --add vservers-legacy
 
+for i in %v_services; do
+	%chkconfig --add v_$i
+done
+
+
 %preun legacy
 test "$1" != 0 || %_initrddir/rebootmgr   stop &>/dev/null || :
+
+test "$1" != 0 || for i in %v_services; do
+	%chkconfig --del v_$i
+done
 
 test "$1" != 0 || %chkconfig --del rebootmgr
 test "$1" != 0 || %chkconfig --del vservers-legacy
@@ -228,6 +240,11 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 
 
 %changelog
+* Wed Jan 26 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.30.198-0.3
+- updated BuildRequires:
+- use 'setattr --barrier' instead of 'chattr +t' in the %post scriptlet
+- moved the v_* initscripts to legacy 
+
 * Thu Sep  9 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.30.194-0
 - documented switches for 'rpmbuild'
 
