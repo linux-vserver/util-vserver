@@ -20,8 +20,8 @@
 #  include <config.h>
 #endif
 
+#include "lib_internal/coreassert.h"
 #include "vserver.h"
-#include <assert.h>
 
 #define TEST(BUF, RES, VAL)			\
   do {						\

@@ -20,8 +20,9 @@
 #  include <config.h>
 #endif
 
+#include "lib_internal/coreassert.h"
+
 #include "lib/fmt.h"
-#include <assert.h>
 #include <string.h>
 
 #define TEST(VAL, EXP) {			\
