@@ -4,6 +4,7 @@ chrootsafe
 escaperoot
 forkbomb
 getctx
+getinitpid
 testipc
 testlimit
 testopenf
