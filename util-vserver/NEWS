@@ -12,6 +12,7 @@ Version 0.24
 
 	- added QUOTACTL capability, removed OPENDEV capability
 
+	- made location of vservers-rootdir configurable (
 	
 	
 version 0.23.6
