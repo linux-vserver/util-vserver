@@ -355,6 +355,25 @@
 	  </file>
 	</dir>
       </dir>
+
+      <dir name="ulimits" type="fixed">
+	<description>A directory with ulimits.</description>
+
+	<file name="resource" type="symbolic">
+	  <description>A file which contains the hard- and soft-limit of the given resource in the
+	  first line. The special keyword 'inf' is recognized.</description>
+	</file>
+
+	<file name="resource.hard" type="symbolic">
+	  <description>A file which contains the hard- of the given resource in the first line. The
+	  special keyword 'inf' is recognized.</description>
+	</file>
+
+	<file name="resource.soft" type="symbolic">
+	  <description>A file which contains the soft- of the given resource in the first line. The
+	  special keyword 'inf' is recognized.</description>
+	</file>
+      </dir>
     </dir>
   </topleveldir>
 </cfgdirdoc>
