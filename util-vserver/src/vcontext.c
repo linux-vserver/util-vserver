@@ -56,11 +56,7 @@
 #define CMD_SYNCMSG		0x4009
 #define CMD_MIGRATESELF		0x400a
 #define CMD_ENDSETUP		0x400b
-
-#if 0
-#define CMD_CCAP		0x2002
-#define CMD_BCAP		0x2005
-#endif
+#define CMD_SILENTEXIST		0x400c
 
 struct option const
 CMDLINE_OPTIONS[] = {
@@ -75,12 +71,11 @@ CMDLINE_OPTIONS[] = {
   { "endsetup",     no_argument,        0, CMD_ENDSETUP },
   { "disconnect",   no_argument,	0, CMD_DISCONNECT },
   { "silent",       no_argument,       	0, CMD_SILENT },
+  { "silentexist",  no_argument,       	0, CMD_SILENTEXIST },
   { "uid",          required_argument,  0, CMD_UID },
   { "chroot",       no_argument,       	0, CMD_CHROOT },
   { "syncsock",     required_argument, 	0, CMD_SYNCSOCK },
   { "syncmsg",      required_argument, 	0, CMD_SYNCMSG },
-//  { "ccap",         required_argument,  0, CMD_CCAP },
-//  { "bcap",         required_argument,  0, CMD_BCAP },
   { 0,0,0,0 },
 };
 
@@ -91,13 +86,13 @@ struct Arguments {
     bool		do_disconnect;
     bool		do_endsetup;
     bool		is_fakeinit;
+    bool		is_silentexist;
     int			verbosity;
     bool		do_chroot;
     uid_t		uid;
     xid_t		xid;
     char const *	sync_sock;
     char const *	sync_msg;
-    //struct vc_ctx_caps  caps;
 };
 
 int		wrapper_exit_code = 255;
@@ -121,6 +116,8 @@ showHelp(int fd, char const *cmd, int res)
 	    "    --endsetup      ...  clear the setup flag; usefully for migrate only\n"
 	    "    --disconnect    ...  start program in background\n"
 	    "    --silent        ...  be silent\n"
+	    "    --silentexist   ...  be silent when context exists already; usefully\n"
+	    "                         for '--create' only\n"
 	    "    --syncsock <file-name>\n"
 	    "                    ...  before executing the program, send a message\n"
 	    "                         to the socket and wait until it closes.\n"
@@ -147,51 +144,7 @@ showVersion()
   exit(0);
 }
 
-static inline ALWAYSINLINE int
-initSync(int p[2], bool do_disconnect)
-{
-  if (!do_disconnect) return 0;
-
-  Epipe(p);
-  fcntl(p[1], F_SETFD, FD_CLOEXEC);
-  return Efork();
-}
-
-static inline ALWAYSINLINE void
-doSyncStage1(int p[2], bool do_disconnect)
-{
-  int	fd;
-
-  if (!do_disconnect) return;
-  
-  fd = Eopen("/dev/null", O_RDONLY, 0);
-  Esetsid();
-  Edup2(fd, 0);
-  Eclose(p[0]);
-  if (fd!=0) Eclose(fd);
-  Ewrite(p[1], ".", 1);
-}
-
-static inline ALWAYSINLINE void
-doSyncStage2(int p[2], bool do_disconnect)
-{
-  if (!do_disconnect) return;
-
-  Ewrite(p[1], "X", 1);
-}
-
-static void
-waitOnSync(pid_t pid, int p[2])
-{
-  int		c;
-  size_t	l;
-
-  Eclose(p[1]);
-  l = Eread(p[0], &c, 1);
-  if (l!=1) exitLikeProcess(pid);
-  l = Eread(p[0], &c, 1);
-  if (l!=0) exitLikeProcess(pid);
-}
+#include "context-sync.hc"
 
 static inline ALWAYSINLINE void
 tellContext(xid_t ctx, bool do_it)
@@ -203,9 +156,9 @@ tellContext(xid_t ctx, bool do_it)
 
   l = utilvserver_fmt_long(buf,ctx);
 
-  WRITE_MSG(2, "New security context is ");
-  write(2, buf, l);
-  WRITE_MSG(2, "\n");
+  WRITE_MSG(1, "New security context is ");
+  write(1, buf, l);
+  WRITE_MSG(1, "\n");
 }
 
 static int
@@ -250,101 +203,36 @@ doExternalSync(int fd, char const *msg)
   Eshutdown(fd, SHUT_WR);
 
   if (TEMP_FAILURE_RETRY(recv(fd, &c, 1, MSG_NOSIGNAL))!=0) {
-    WRITE_MSG(2, "vcontext: unexpected external synchronization event\n");
+    WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "unexpected external synchronization event\n");
     exit(255);
   }
 
   Eclose(fd);
 }
 
-static void UNUSED
-dropPrivs(xid_t xid)
-{
-  extern int capget (struct __user_cap_header_struct *,
-		     struct __user_cap_data_struct *);
-  extern int capset (struct __user_cap_header_struct *,
-		     struct __user_cap_data_struct *);
-  struct vc_ctx_caps			caps;
-  struct __user_cap_header_struct	header;
-  struct __user_cap_data_struct		user;
-
-  header.version = _LINUX_CAPABILITY_VERSION;
-  header.pid     = 0;
-  
-  Evc_get_ccaps(xid, &caps);
-  if (capget(&header, &user)==-1)
-    perror(ENSC_WRAPPERS_PREFIX "capget()");
-  else if ( (user.permitted   &= caps.ccaps),
-	    (user.effective   &= user.permitted),
-	    (user.inheritable &= user.permitted),
-	    capset(&header, &user)==-1 )
-    perror(ENSC_WRAPPERS_PREFIX "capset()");
-  else
-    return;
-
-  exit(wrapper_exit_code);
-}
-
-#if 0
-static void
-parseBCaps(char const *str, struct vc_ctx_caps *caps)
-{
-  struct vc_err_listparser	err;
-  int				rc;
-
-  rc = vc_list2bcap(str,0, &err, caps);
-  
-  if (rc==-1) {
-    WRITE_MSG(2, "Unknown bcap '");
-    write(2, err.ptr, err.len);
-    WRITE_MSG(2, "'\n");
-    exit(wrapper_exit_code);
-  }
-}
-
-static void
-parseCCaps(char const *str, struct vc_ctx_caps *caps)
-{
-  struct vc_err_listparser	err;
-  int				rc;
-
-  rc = vc_list2ccap(str,0, &err, caps);
-  
-  if (rc==-1) {
-    WRITE_MSG(2, "Unknown ccap '");
-    write(2, err.ptr, err.len);
-    WRITE_MSG(2, "'\n");
-    exit(wrapper_exit_code);
-  }
-}
-
-static void
-parseSecure(struct vc_ctx_flags UNUSED * flags,
-	    struct vc_ctx_caps  UNUSED * caps)
-{
-  caps->ccaps = ~0;
-  caps->cmask = ~0;
-  caps->bcaps = ~vc_get_securecaps();
-}
-#endif
-
 static inline ALWAYSINLINE int
 doit(struct Arguments const *args, char *argv[])
 {
-  int			p[2];
+  int			p[2][2];
   pid_t			pid = initSync(p, args->do_disconnect);
   
   if (pid==0) {
     xid_t			xid;
     int				ext_sync_fd = connectExternalSync(args->sync_sock);
+
+    doSyncStage0(p, args->do_disconnect);
     
     if (args->do_create) {
       xid = vc_create_context(args->xid);
       if (xid==VC_NOCTX) {
-	if (errno==EEXIST) return 254;
-	else {
-	  perror(ENSC_WRAPPERS_PREFIX "vc_create_context()");
-	  return wrapper_exit_code;
+	switch (errno) {
+	  case EEXIST	:
+	    if (!args->is_silentexist)
+	      perror(ENSC_WRAPPERS_PREFIX "vc_create_context()");
+	    return 254;
+	  default	:
+	    perror(ENSC_WRAPPERS_PREFIX "vc_create_context()");
+	    return wrapper_exit_code;
 	}
       }
       tellContext(xid, args->verbosity>=1);
@@ -357,18 +245,13 @@ doit(struct Arguments const *args, char *argv[])
 
     setFlags(args, xid);
 
-#if 0
-    if (args->do_migrate ||  args->do_migrateself)
-      dropPrivs(xid);
-#endif
-
     if (args->do_migrate && !args->do_migrateself)
       Evc_migrate_context(xid);
 
     if (args->uid!=(uid_t)(-1) && getuid()!=args->uid) {
       Esetuid(args->uid);
       if (getuid()!=args->uid) {
-	WRITE_MSG(2, "vcontext: Something went wrong while changing the UID\n");
+	WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "Something went wrong while changing the UID\n");
 	exit(255);
       }
     }
@@ -378,19 +261,13 @@ doit(struct Arguments const *args, char *argv[])
     execvp (argv[optind],argv+optind);
     doSyncStage2(p, args->do_disconnect);
 
-    PERROR_Q("chcontext: execvp", argv[optind]);
+    PERROR_Q(ENSC_WRAPPERS_PREFIX "execvp", argv[optind]);
     exit(255);
   }
 
   assert(args->do_disconnect);
-
-#warning add an additional sync here  
-  if (!jailIntoTempDir()) {
-    perror(ENSC_WRAPPERS_PREFIX "jailIntoTempDir()");
-    exit(255);
-  }
     
-  waitOnSync(pid, p);
+  waitOnSync(pid, p, args->xid!=VC_DYNAMIC_XID && args->do_migrate);
   return EXIT_SUCCESS;
 }
 
@@ -403,6 +280,7 @@ int main (int argc, char *argv[])
     .do_disconnect  = false,
     .do_endsetup    = false,
     .is_fakeinit    = false,
+    .is_silentexist = false,
     .verbosity      = 1,
     .uid            = -1,
     .xid            = VC_DYNAMIC_XID,
@@ -416,22 +294,18 @@ int main (int argc, char *argv[])
     switch (c) {
       case CMD_HELP		:  showHelp(1, argv[0], 0);
       case CMD_VERSION		:  showVersion();
-      case CMD_CREATE		:  args.do_create     = true; break;
-      case CMD_MIGRATE		:  args.do_migrate    = true; break;
-      case CMD_DISCONNECT	:  args.do_disconnect = true; break;
-      case CMD_ENDSETUP		:  args.do_endsetup   = true; break;
-      case CMD_FAKEINIT		:  args.is_fakeinit   = true; break;
-      case CMD_CHROOT		:  args.do_chroot     = true; break;
-      case CMD_SILENT		:  --args.verbosity;          break;
-      case CMD_XID		:  args.xid           = atol(optarg); break;
-      case CMD_UID		:  args.uid           = atol(optarg); break;
-      case CMD_SYNCSOCK		:  args.sync_sock     = optarg;    break;
-      case CMD_SYNCMSG		:  args.sync_msg      = optarg;    break;
-#if 0	
-      case CMD_CCAP		:  parseCCaps(optarg, &args.caps); break;
-      case CMD_BCAP		:  parseBCaps(optarg, &args.caps); break;
-      case CMD_SECURE		:  parseSecure(&args.caps);        break;
-#endif
+      case CMD_CREATE		:  args.do_create      = true;   break;
+      case CMD_MIGRATE		:  args.do_migrate     = true;   break;
+      case CMD_DISCONNECT	:  args.do_disconnect  = true;   break;
+      case CMD_ENDSETUP		:  args.do_endsetup    = true;   break;
+      case CMD_FAKEINIT		:  args.is_fakeinit    = true;   break;
+      case CMD_CHROOT		:  args.do_chroot      = true;   break;
+      case CMD_SILENTEXIST	:  args.is_silentexist = true;   break;
+      case CMD_SYNCSOCK		:  args.sync_sock      = optarg; break;
+      case CMD_SYNCMSG		:  args.sync_msg       = optarg; break;
+      case CMD_XID		:  args.xid            = atol(optarg); break;
+      case CMD_UID		:  args.uid            = atol(optarg); break;
+      case CMD_SILENT		:  --args.verbosity; break;
       case CMD_MIGRATESELF	:
 	args.do_migrate     = true;
 	args.do_migrateself = true;
@@ -456,7 +330,7 @@ int main (int argc, char *argv[])
   else if (!args.do_migrate && args.is_fakeinit)
     WRITE_MSG(2, "'--fakeinit' is possible in combination with '--migrate' only\n");
   else if (!args.do_create && args.xid==VC_DYNAMIC_XID)
-    WRITE_MSG(2, "vcontext: Can not migrate to an unknown context\n");
+    WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "Can not migrate to an unknown context\n");
   else if (optind>=argc)
     WRITE_MSG(2, "No command given; use '--help' for more information.\n");
   else
