@@ -36,6 +36,7 @@
 #include <sys/wait.h>
 
 #define ENSC_WRAPPERS_VSERVER	1
+#define ENSC_WRAPPERS_UNISTD	1
 #include <wrappers.h>
 
 #define CMD_HELP	0x8000
