@@ -34,6 +34,7 @@
 #include <assert.h>
 #include <utime.h>
 #include <libgen.h>
+#include <sys/param.h>
 
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_FCNTL	1
@@ -126,18 +127,39 @@ bool Global_doRenew() {
 static Operation
 checkDirEntry(PathInfo const *path, struct stat const *st)
 {
-  struct WalkdownInfo const * const	info     = &global_info;
+  struct WalkdownInfo const * const	info = &global_info;
+  MatchType				res;
 
-  if (S_ISDIR(st->st_mode)) return opDIR;
-  if (S_ISLNK(st->st_mode) ||
-      !S_ISREG(st->st_mode)) return opSKIP;
-  
-    // Check if it is in the exclude/include list of the destination vserver and
-    // abort when it is not matching an allowed entry
-  if (!MatchList_compare(&info->dst_list, path->d) ||
-      !MatchList_compare(&info->src_list, path->d)) return opCOPY;
+  // when marked as 'skip' in the first excludelist already, we do not need to
+  // visit the second one since it could not change that.
+  res=MatchList_compare(&info->dst_list, path->d);
+  if (res!=stSKIP) {
+    MatchType		tmp = MatchList_compare(&info->src_list, path->d);
 
-  return opUNIFY;
+    // stINCLUDE gets overridden by stEXCLUDE+stSKIP, and stEXCLUDE by stSKIP.
+    // Using the MAX() macro is a hack but it works
+    res=MAX(res,tmp);
+  }
+
+  // non-skipped directories are marked as opDIR
+  if (res!=stSKIP && S_ISDIR(st->st_mode))
+    return opDIR;
+
+  // non-skipped symlinks will be copied always
+  if (res!=stSKIP && S_ISLNK(st->st_mode))
+    return opCOPY;
+
+  // skipped files or non regular files (character/block devices) will be skipped
+  // always
+  if (res==stSKIP || !S_ISREG(st->st_mode))
+    return opSKIP;
+
+  switch (res) {
+    case stINCLUDE	:  return opUNIFY;
+    case stEXCLUDE	:  return opCOPY;
+    case stSKIP		:  assert(false); // already handled above
+    default		:  assert(false); abort();
+  }
 }
 
 static bool
@@ -146,7 +168,25 @@ doit(Operation op,
      PathInfo const *src_path, struct stat const *exp_stat,
      PathInfo const *show_path)
 {
-  if (global_args->do_dry_run || global_args->verbosity>0) {
+#if 0
+  struct stat		st;
+
+  if (lstat(dst_path->d, &st)!=-1) {
+    if (global_args->do_keep &&
+	(!S_ISDIR(exp_stat->st_mode) || S_ISDIR(st.st_mode))) {
+      // when keep-mode is enable and, do nothing
+      if (global_args->do_dry_run || global_args->verbosity>1) {
+	WRITE_MSG(1, "keeping  '");
+	write(1, show_path->d, show_path->l);
+	WRITE_MSG(1, "'\n");
+      }
+      return true;
+    }
+    
+  }
+#endif
+  
+  if (global_args->do_dry_run || global_args->verbosity>1) {
     if      (op==opUNIFY)   WRITE_MSG(1, "linking  '");
     else if (op==opCOPY)    WRITE_MSG(1, "copying  '");
     else if (op==opDIR)     WRITE_MSG(1, "creating '");
