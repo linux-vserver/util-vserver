@@ -22,6 +22,7 @@
 
 #include "pathconfig.h"
 #include "util.h"
+#include "sys_clone.h"
 
 #include <vserver.h>
 
@@ -523,10 +524,10 @@ removeNamespaceMounts(char const *path, char * const argv[])
       // make wait4() working...
     signal(SIGCHLD, SIG_DFL);
 
-#ifdef NDEBUG    
-    pid = syscall(__NR_clone, CLONE_NEWNS|SIGCHLD|CLONE_VFORK, 0);
+#ifdef NDEBUG
+    pid = sys_clone(CLONE_NEWNS|SIGCHLD|CLONE_VFORK, 0);
 #else
-    pid = syscall(__NR_clone, CLONE_NEWNS|SIGCHLD, 0);
+    pid = sys_clone(CLONE_NEWNS|SIGCHLD, 0);
 #endif
 
     switch (pid) {
