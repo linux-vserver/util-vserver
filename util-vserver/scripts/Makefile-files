@@ -19,7 +19,8 @@
 
 scriptscfgdir		=  $(sbindir)
 
-scripts_DTA		=  scripts/functions
+scripts_DTA		=  scripts/functions \
+			   scripts/vserver.start
 
 scripts_SCRPTS		=  scripts/distrib-info \
 			   scripts/vapt-get-worker \
@@ -46,7 +47,7 @@ scripts_PRGS		=  scripts/vapt-get \
 scriptscfg_DATA		=  scripts/util-vserver-vars
 
 scripts_XTRAS		=  scripts/util-vserver-vars.pathsubst \
-			   scripts/functions
+			   $(scripts_DTA)
 
 scripts_GENSCRPTS	=  scripts/util-vserver-vars
 
