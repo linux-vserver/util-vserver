@@ -196,9 +196,14 @@ extern "C" {
   int		vc_set_vhi_name(xid_t xid, vc_uts_type type, char const *val, size_t len);
   int		vc_get_vhi_name(xid_t xid, vc_uts_type type, char *val, size_t len);
 
+
+  uint32_t	vc_textlist2flag(char const *, size_t len,
+				 char const **err_ptr, size_t *err_len);
+  uint32_t	vc_text2flag(char const *, size_t len);
+  char const *	vc_hiflag2text(unsigned int);
   
   int		vc_text2cap(char const *);
-  char const *	vc_cap2text(int);
+  char const *	vc_cap2text(unsigned int);
 
   inline static int	vc_get_securecaps() {
     return ( (1<<VC_CAP_LINUX_IMMUTABLE) | (1<<VC_CAP_NET_BROADCAST) |
