@@ -17,41 +17,45 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-noinst_LIBRARIES +=			lib_internal/libinternal.a
-noinst_HEADERS +=			lib_internal/matchlist.h \
-					lib_internal/pathinfo.h \
-					lib_internal/string.h \
-					lib_internal/unify.h \
-					lib_internal/util.h \
-					lib_internal/util-cast.h \
-					lib_internal/util-commonstrings.h \
-					lib_internal/util-declarecmd.h \
-					lib_internal/util-dimof.h \
-					lib_internal/util-dotfile.h \
-					lib_internal/util-exitlikeprocess.h \
-					lib_internal/util-io.h \
-					lib_internal/util-mem.h \
-					lib_internal/util-perror.h \
-					lib_internal/util-safechdir.h \
-					lib_internal/util-unixsock.h \
-					lib_internal/string.hc
+noinst_LIBRARIES +=		lib_internal/libinternal.a
+noinst_HEADERS += \
+				lib_internal/jail.h \
+				lib_internal/matchlist.h \
+				lib_internal/pathinfo.h \
+				lib_internal/string.h \
+				lib_internal/unify.h \
+				lib_internal/util.h \
+				lib_internal/util-cast.h \
+				lib_internal/util-commonstrings.h \
+				lib_internal/util-declarecmd.h \
+				lib_internal/util-dimof.h \
+				lib_internal/util-dotfile.h \
+				lib_internal/util-exitlikeprocess.h \
+				lib_internal/util-io.h \
+				lib_internal/util-mem.h \
+				lib_internal/util-perror.h \
+				lib_internal/util-safechdir.h \
+				lib_internal/util-unixsock.h \
+				lib_internal/string.hc
 
-lib_internal_libinternal_a_SOURCES =	lib_internal/matchlist-appendfiles.c \
-					lib_internal/matchlist-compare.c \
-					lib_internal/matchlist-destroy.c \
-					lib_internal/matchlist-init.c \
-					lib_internal/matchlist-initbyvserver.c \
-					lib_internal/matchlist-initmanually.c \
-					lib_internal/matchlist-initrefserverlist.c \
-					lib_internal/matchlist-printid.c \
-					lib_internal/pathinfo-append.c \
-					lib_internal/pathinfo-test.c \
-					lib_internal/string-destroy.c \
-					lib_internal/unify-copy.c \
-					lib_internal/unify-deunify.c \
-					lib_internal/unify-settime.c \
-					lib_internal/unify-unify.c \
-					lib_internal/util-exitlikeprocess.c \
-					lib_internal/util-safechdir.c
+lib_internal_libinternal_a_SOURCES = \
+				lib_internal/jailintotempdir.c \
+				lib_internal/matchlist-appendfiles.c \
+				lib_internal/matchlist-compare.c \
+				lib_internal/matchlist-destroy.c \
+				lib_internal/matchlist-init.c \
+				lib_internal/matchlist-initbyvserver.c \
+				lib_internal/matchlist-initmanually.c \
+				lib_internal/matchlist-initrefserverlist.c \
+				lib_internal/matchlist-printid.c \
+				lib_internal/pathinfo-append.c \
+				lib_internal/pathinfo-test.c \
+				lib_internal/string-destroy.c \
+				lib_internal/unify-copy.c \
+				lib_internal/unify-deunify.c \
+				lib_internal/unify-settime.c \
+				lib_internal/unify-unify.c \
+				lib_internal/util-exitlikeprocess.c \
+				lib_internal/util-safechdir.c
 
-DIETPROGS +=				lib_internal/libinternal.a
+DIETPROGS +=			lib_internal/libinternal.a
