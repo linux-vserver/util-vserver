@@ -124,17 +124,18 @@ showAll(int ctx)
 
   if (vc_get_rlimit_mask(-2, &mask)==-1) {
     perror("vc_get_rlimit_mask()");
-    exit(1);
+    //exit(1);
   }
 
   for (i=0; i<32; ++i) {
     uint32_t		bitmask = (1<<i);
     struct vc_rlimit	limit;
     char		buf[100], *ptr=buf;
-    
+
+    if (((mask.min|mask.soft|mask.hard) & bitmask)==0) continue;
     if (vc_get_rlimit(ctx, i, &limit)==-1) {
       perror("vc_get_rlimit()");
-      continue;
+      //continue;
     }
 
     memset(buf, ' ', sizeof buf);
