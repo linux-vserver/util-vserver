@@ -383,7 +383,8 @@ doit(struct Arguments const *args, char *argv[])
   }
 
   assert(args->do_disconnect);
-  
+
+#warning add an additional sync here  
   if (!jailIntoTempDir()) {
     perror(ENSC_WRAPPERS_PREFIX "jailIntoTempDir()");
     exit(255);
