@@ -91,8 +91,11 @@ cd "$tmpdir"
 ######  do the real work
 
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
-rpm.importGPGPubKeys "$SETUP_CONFDIR" "$__CONFDIR/.distributions/$DISTRIBUTION/pubkeys" "$__DISTRIBDIR/$DISTRIBUTION/pubkeys"
 rpm.initDB           "$SETUP_CONFDIR"
+rpm.importGPGPubKeys "$SETUP_CONFDIR" \
+    "$__CONFDIR/.distributions/$DISTRIBUTION/pubkeys" \
+    "$__CONFDIR/.distributions/.common/pubkeys" \
+    "$__DISTRIBDIR/$DISTRIBUTION/pubkeys"
 
 opts=()
 for i; do
