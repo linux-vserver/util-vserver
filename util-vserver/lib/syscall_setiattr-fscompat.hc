@@ -25,28 +25,22 @@
 #include "ioctl-setxflg.hc"
 #include "ioctl-getxflg.hc"
 
+#include <fcntl.h>
+
 static inline ALWAYSINLINE int
-vc_set_iattr_compat_fscompat(char const *filename,
-			     dev_t dev, ino_t ino, xid_t xid,
-			     uint32_t flags, uint32_t mask,
-			     mode_t const *mode)
+vc_set_iattr_fscompat(char const *filename,
+		      xid_t xid,
+		      uint32_t flags, uint32_t mask)
 {
   int			fd;
   struct stat		st;
   int			stat_rc;
 
-  if (mode!=0 && !S_ISREG(*mode) && !S_ISDIR(*mode)) return 0;
-  
   fd = open(filename, O_RDONLY);
   if (fd==-1) return -1;
     
   stat_rc = fstat(fd, &st);
   if (stat_rc==-1) goto err;
-
-  if (st.st_dev!=dev || st.st_ino!=ino) {
-    errno = EINVAL;
-    goto err;
-  }
 
   if ( (mask&VC_IATTR_IUNLINK) ) {
     int const		tmp = VC_IMMUTABLE_FILE_FL|VC_IMMUTABLE_LINK_FL;
@@ -57,8 +51,10 @@ vc_set_iattr_compat_fscompat(char const *filename,
   }
 
   if ( (mask&VC_IATTR_BARRIER) ) {
-    if (fchmod(fd, (flags&VC_IATTR_BARRIER) ? 0 :
-	       (st.st_mode| (mode ? *mode : 0500)))==-1)
+    mode_t	m = ((flags&VC_IATTR_BARRIER) ? 0 :
+		     st.st_mode ? st.st_mode : 0500);
+    
+    if (fchmod(fd, m)==-1)
       goto err;
   }
 
