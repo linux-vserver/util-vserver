@@ -36,7 +36,9 @@ nobase_distrib_DATA	=  defaults/devs \
 			   defaults/apt/apt.conf \
 			   rh9/apt/rpmpriorities rh9/pkgs/01 rh9/pkgs/02 \
 			   fc1/apt/rpmpriorities fc1/pkgs/01 fc1/pkgs/02 \
-			   fc2/apt/rpmpriorities fc2/pkgs/01 fc2/pkgs/02
+			   fc2/apt/rpmpriorities fc2/pkgs/01 fc2/pkgs/02 \
+			   suse91/apt/sources.list suse91/pkgs/01 suse91/pkgs/02 \
+			   suse91/rpm/macros
 
 nobase_confdistrib_DATA	=  rh9/apt/sources.list \
 			   fc1/apt/sources.list \
