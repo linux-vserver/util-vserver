@@ -18,8 +18,10 @@
 ##  
 
 lib_legacy_SRCS			=  lib/getprocentry-legacy.c
-lib_management_SRCS		=  lib/getvservername.c \
+lib_management_SRCS		=  lib/getvserverbyctx.c \
 				   lib/getvservercfgstyle.c \
+				   lib/getvserverctx.c \
+				   lib/getvservername.c \
 				   lib/getvservervdir.c
 lib_v11_SRCS			=  lib/syscall_rlimit.c
 
@@ -32,6 +34,8 @@ lib_SRCS			=  lib/syscall.c \
 				   lib/getversion.c \
 				   lib/fmt-32.c \
 				   lib/fmt-64.c \
+				   lib/fmtx-32.c \
+				   lib/fmtx-64.c \
 				   lib/capabilities.c \
 				   $(lib_legacy_SRCS) \
 				   $(lib_management_SRCS) \
@@ -48,8 +52,10 @@ lib_XHDRS                       =  lib/syscall-compat.hc \
 				   lib/getinitpid-legacy.hc \
 				   lib/getversion-internal.hc \
 				   lib/safechroot-internal.hc \
-				   lib/fmt.hc \
 				   lib/fmt.h \
+				   lib/fmt.hc \
+				   lib/fmtx.hc \
+				   lib/fmt-internal.h \
 				   lib/virtual.h \
 				   lib/internal.h \
 				   lib/utils-legacy.h \
