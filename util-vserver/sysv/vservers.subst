@@ -1,0 +1,89 @@
+#!/bin/sh
+# chkconfig: 345 98 10
+# description: The vservers service is used to start and stop all
+#              the virtual servers.
+
+USR_SBIN=/usr/sbin
+
+
+# Print the vserver name in priority/alpha order
+sortserver(){
+	(
+	cd /etc/vservers
+	for serv in *.conf
+	do
+		PRIORITY=100
+		. $serv
+		printf "%03d %s\n" $PRIORITY `basename $serv .conf`
+	done
+	) | sort $* | (while read a b; do echo $b; done)
+}
+
+startservers(){
+	echo "Starting the virtual servers"
+	cd /etc/vservers
+	for name in `sortserver`
+	do
+		ONBOOT=
+		. $name.conf
+		if [ "$ONBOOT" = "yes" ] ; then
+			$USR_SBIN/vserver $name start
+		else
+			echo virtual server $name not configured for on boot start
+		fi
+	done
+}
+
+BACKGROUND=off
+if [ -f /etc/vservers.conf ] ; then
+	. /etc/vservers.conf
+fi
+
+
+# See how we were called.
+case "$1" in
+  start)
+	if [ "$BACKGROUND" = "yes" ] ; then
+		startservers >/dev/tty8 </dev/tty8 2>/dev/tty8 &
+	else
+		startservers
+	fi
+	touch /var/lock/subsys/vservers
+	;;
+  stop)
+	echo "Stopping the virtual servers"
+	cd /etc/vservers
+	for name in `sortserver -r`
+	do
+		$USR_SBIN/vserver $name stop
+	done
+	rm -f /var/lock/subsys/vservers
+	;;
+  restart)
+	$0 stop
+	$0 start
+	;;
+  reload)
+	echo Not implemented
+	;;
+  status)
+	cd /etc/vservers
+	for serv in *.conf
+	do
+		ONBOOT=no
+		name=`basename $serv .conf`
+		. $serv
+		echo -n ONBOOT=$ONBOOT " "
+		$USR_SBIN/vserver $name running
+	done
+	;;
+  *)
+	echo "Usage: vservers {start|stop|restart|reload|status}"
+	exit 1
+esac
+
+exit 0
+
+
+
+

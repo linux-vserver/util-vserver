@@ -1,0 +1,72 @@
+#!/bin/sh
+
+# Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# based on distrib-info by Jacques Gelinas
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+  
+
+# This scripts knows about every possible distribution (well, it should)
+# It is passed a vserver name and a key (a command). The key represent a task.
+# It executes the command and output on stdout.
+# For example
+# distrib-info vserver1 pkgversion
+# If vserver1 is a redhat system, it executes
+# rpm -qa --queryformat "%{name}=%{version}-%{release}
+USR_LIB_VSERVER=$(dirname $0)
+
+if [ "$1" = "" ] ; then
+	echo distrib-info vserver-name command [ args ... ] >&2
+	echo Commands are: >&2
+	echo dumpfiles: Shows all files owned by a package >&2
+	echo pkgversion: reports all packages and their version/release >&2
+	echo unifiles: reports all unify-able file of a package >&2
+	exit 1
+fi
+if [ "$1" = "/" ] ; then
+	DISTDIR=/
+	CHROOTCMD=
+elif [ -d "$1" ] ; then
+	DISTDIR=$1
+	CHROOTCMD="/usr/sbin/chroot $DISTDIR"
+else
+	DISTDIR=/vservers/$1
+	CHROOTCMD="/usr/sbin/chroot $DISTDIR"
+fi
+KEY=$2
+shift
+shift
+if [ -f $DIRDIR/etc/redhat-release -o -f $DISTDIR/etc/mandrake-release ] ; then
+	case $KEY in
+	pkgversion)
+		$CHROOTCMD /bin/rpm -qa --queryformat "%{name}=%{version}-%{release}\n"
+		;;
+	unifiles)
+		# We remove /etc and /var/log to make sure no special file
+		# there will be unified
+		$CHROOTCMD /bin/rpm -ql --dump $* \
+			| $USR_LIB_VSERVER/parserpmdump /etc/
+		;;
+	dumpfiles)
+		$CHROOTCMD /bin/rpm -ql $*
+		;;
+	*)
+		echo unknown request $KEY >&2
+		;;
+	esac
+else
+	echo Distribution not supported yet >&2
+fi
+

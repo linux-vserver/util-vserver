@@ -1,0 +1,82 @@
+.TH "newvserver" "8" "0.1.0" "Jacques Gelinas <jack@solucorp.qc.ca>" "System Administration"
+.SH "NAME"
+.LP 
+newvserver \- The newvserver is an interactive tool to create new vservers.
+.SH "SYNTAX"
+.LP 
+newvserver [ options ]
+
+.SH "DESCRIPTION"
+.LP 
+newvserver \- The newvserver creates new vservers interactivly. It provides
+a graphical user interface as well as a text user interface. You can
+configure most aspect of the vserver (name, description, hostname, IP number,
+root password, ...), select a source and then perform the creation.
+
+A vserver may be created by cloning another one, cloning the root server
+or by performing a minimal installation from a distribution CD (RedHat
+supported so far).
+
+.SH "Default values"
+.LP
+The file /etc/vservers/newvserver.defaults is sourced to get default
+input value for many fields. If you are creating many vservers
+(you will :-) ), you may want to edit this file and enter suitable
+values such as your domain name, IP network, etc...
+
+
+.SH "OPTIONS"
+.LP 
+.TP
+.I --help:
+Presents a summary of the options.
+.TP
+.I --name:
+Set the name of the new vserver.
+.TP
+.I --desc:
+Set the description.
+.TP
+.I --unify 1/0:
+Turn on unification on and off.
+.TP
+.I --hostname:
+Set the host name of the new vserver
+.TP
+.I --ip:
+Set the IP number(s)
+.TP
+.I --ondev:
+Install the IP numbers as IP aliases on device.
+.TP
+.I --clone:
+Create the vserver from another one or a distribution CD.
+.TP
+The distribution CD are identified by special strings:
+    #rh8.0m: RedHat 8 minimal
+    #rh8.0f: RedHat 8 complete first CD
+    #rh7.3m: RedHat 7.3 minimal
+    #rh7.3f: RedHat 7.3 complete first CD
+    #rh7.2m: RedHat 7.2 minimal
+    #rh7.2f: RedHat 7.2 complete first CD
+
+.SH "FILES"
+.LP 
+\fI/etc/vservers/*.conf\fP 
+.P
+\fI/etc/vservers/*.sh\fP 
+.P
+\fI/etc/vservers/newvserver.defaults\fP 
+.P
+\fI/vservers/*\fP 
+
+.SH "AUTHORS"
+.LP 
+This Man page was written by Jacques Gelinas.
+.SH "SEE ALSO"
+.LP 
+vserver(8)
+vserver\-stat(8)
+distrib-info(8)
+vbuild(8)
+

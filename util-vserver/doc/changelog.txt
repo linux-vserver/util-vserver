@@ -1,0 +1,20 @@
+
+                               Object not found!
+
+          The  requested URL was not found on this server. If you entered
+          the URL manually please check your spelling and try again.
+
+          If  you  think  this  is  a  server  error,  please contact the
+          [1]webmaster
+
+Error 404
+
+
+    [2]remtk
+    ven 18 jui 2003 11:41:32 EDT
+    Apache/2.0.40 (Red Hat Linux)
+
+Références
+
+   1. mailto:root@localhost
+   2. http://remtk/

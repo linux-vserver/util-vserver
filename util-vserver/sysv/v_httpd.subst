@@ -1,0 +1,6 @@
+#!/bin/sh
+# chkconfig: - 85 15
+# description: Wrapper to start httpd bound to a single IP
+USR_LIB_VSERVER=/usr/lib/util-vserver
+exec $USR_LIB_VSERVER/vsysvwrapper httpd $*
+

@@ -1,0 +1,40 @@
+.TH "vserver-stat" "8" "0.1.0" "Klavs Klavsen <kl@vsen.dk>" "System Administration"
+.SH "NAME"
+.LP 
+vserver\-stat 
+.SH "SYNTAX"
+.LP 
+vserver\-stat 
+
+.SH "DESCRIPTION"
+.LP 
+vserver\-stat \- The vserver\-stat utility shows informations about all the active contexts.
+
+        CTX#            Context number
+                        #0 = root context
+                        #1 = monitoring context
+        PROC QTY        Quantity of processes in each
+		       	context
+        VSZ             Number of pages of virtual
+	 			memory
+        RSS             Resident set size
+        utime           User\-mode CPU time
+		 		accumulated
+        ctime           Kernel\-mode CPU time
+ 				accumulated
+.SH "FILES"
+.LP 
+\fI/usr/sbin/vserver\-stat\fP 
+
+
+.SH "EXAMPLES"
+.LP 
+Please contribute some, if you feel it's important.
+.SH "AUTHORS"
+.LP 
+This Man page was written by Klavs Klavsen <kl@vsen.dk> and based upon the helpful output from the program itself and the documentation on the Virtual Server site <http://www.solucorp.qc.ca/miscprj/s_context.hc?prjstate=1&nodoc=0>
+.SH "SEE ALSO"
+.LP 
+chcontext(8) rebootmgr(8) reducecap(8)
+chbind(8) vps(8) vrpm(8) vserver(8)
+vtop(8) vpstree(8)

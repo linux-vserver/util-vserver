@@ -1,0 +1,6 @@
+#!/bin/sh
+# chkconfig: - 80 30
+# description: Wrapper to start sendmail bound to a single IP
+USR_LIB_VSERVER=/usr/lib/util-vserver
+exec $USR_LIB_VSERVER/vsysvwrapper sendmail $*
+

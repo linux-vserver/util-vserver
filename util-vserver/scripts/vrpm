@@ -1,0 +1,105 @@
+#!/bin/sh
+
+# Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# based on vrpm by Jacques Gelinas
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+# Wrapper to update/install package in many vservers at once
+
+: ${UTIL_VSERVER_VARS:=$(dirname $0)/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo "Can not find util-vserver installation; aborting..."
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+
+usage(){
+	echo vrpm: Install/Updates packages in several vservers at once
+	echo vrpm vservers ... -- rpm options and packages
+	echo vrpm \[--unify\] ALL -- rpm options and packages
+	echo vrpm \[--unify\] server1 server2 -- -Uvh package.rpm
+	echo
+	echo vrpm is executed in the root server
+	echo "--unify run vunify on the vserver for the updated packages"
+}
+UNIFY=no
+if [ "$1" = "--unify" ] ; then
+	UNIFY=yes
+	shift
+fi
+if [ $# = 0 ] ; then
+	usage
+else
+	SERVERS=
+	while [ $# -gt 0 -a "$1" != "--" ]
+	do
+		if [ "$1" = "ALL" ] ; then
+			SERVERS=`cd /vservers && ls`
+		else
+			SERVERS="$SERVERS $1"
+		fi
+		shift
+	done
+	if [ "$1" != "--" ] ; then
+		usage
+	elif [ "$SERVERS" = "" ] ; then
+		echo no server specified
+		echo
+		usage
+	else
+		shift
+		for serv in $SERVERS
+		do
+			# We try to run the rpm command in the same security
+			# context than the vserver, if running.
+			# This way, process operations will be done in the proper
+			# context
+			# If the vserver is not running, chcontext will
+			# pick an unused one.
+			CTXOPT=""
+			CTXFILE=/var/run/vservers/$serv.ctx
+			if [ -f $CTXFILE ] ; then
+				source $CTXFILE
+				CTXOPT="--ctx $S_CONTEXT"
+			fi
+			#echo rpm --root /vservers/$serv $*
+			echo Updating server $serv
+			/usr/sbin/chcontext --silent $CTXOPT rpm --root /vservers/$serv $*
+		done
+		if [ "$UNIFY" = "yes" ] ; then
+			PACKAGES=
+			for pkg in $*
+			do
+				case $pkg in
+				-*)
+					# RPM options ?
+					;;
+				--*)
+					# RPM options ?
+					;;
+				*)
+					pkg=`rpm -qp $pkg --queryformat %{name}`
+					PACKAGES="$PACKAGES $pkg"
+					;;
+				esac
+			done
+			echo Unification
+			$PKGLIBDIR/vunify --excldir /var/log $SERVERS -- $PACKAGES
+		fi
+	fi
+fi
+	
+

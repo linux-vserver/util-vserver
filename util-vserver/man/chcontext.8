@@ -1,0 +1,103 @@
+.TH "chcontext" "1" "0.1.0" "Klavs Klavsen <kl@vsen.dk>" "System Administration"
+.SH "NAME"
+.LP 
+chcontext \- chcontext allocates a new security context and executes a command in that context.
+.SH "SYNTAX"
+.LP 
+chcontext [\fIoptions\fP] <\fIcommand arguments\fP>
+.SH "DESCRIPTION"
+.LP 
+chcontext allocates a new security context and executes a command in that context.
+By default, a new/unused context is allocated
+.SH "OPTIONS"
+.LP 
+.TP 
+\fB\-\-cap\fR CAP_NAME
+Add a capability from the command. This option may be repeated several time. See /usr/include/linux/capability.h In general, this option is used with the \-\-secure option. \-\-secure removes most critical capabilities and \-\-cap adds specific ones.
+.TP 
+\fB\-\-cap\fR !CAP_NAME
+Remove a capability from the command. This option may be repeated several time. See /usr/include/linux/capability.h
+.TP 
+\fB\-\-ctx\fR num
+Select the context. Only root in context 0 is allowed to select a specific context.
+Context number 1 is special. It can see all processes in any contexts, but can't kill them though.
+.TP 
+\fB\-\-disconnect\fR
+Start the command in background and make the process a child of process 1.
+.TP 
+\fB\-\-domainname\fR new_domainname
+Set the domainname (NIS) in the new security context.
+Use "none" to unset the domainname.
+.TP 
+\fB\-\-flag\fR
+Set one flag in the new or current security context. The following flags are supported. The option may be used several time.
+   lock: The new process is trapped and can't use
+         chcontext anymore.
+   sched: The new process and its children will
+          share a common execution priority.
+   nproc: Limit the number of process in the 
+          vserver according to ulimit setting.
+          Normally, ulimit is a per user thing.
+          With this flag, it becomes a per vserver
+          thing.
+   private: No one can join this security context
+            once created.
+.TP 
+\fB\-\-hostname\fR new_hostname
+Set the hostname in the new security context.
+This is needed because if you create a less privileged security context, it may be unable to change its hostname.
+.TP 
+\fB\-\-secure\fR
+Remove all the capabilities to make a virtual server trustable.
+.TP 
+\fB\-\-silent\fR
+Do not print the allocated context number.
+.LP 
+Information about context is found in /proc/self/status
+.SH "FILES"
+.LP 
+\fI/usr/sbin/chcontext\fP 
+
+
+.SH "EXAMPLES"
+.LP 
+# You must be root, running X.              
+# We start an xterm in another security context   
+/usr/sbin/chcontext xterm &
+
+# We check, there is no xterm running, yet we can
+# see it.
+ps ax | grep xterm
+
+# Are we running in security context 0
+# We check the s_context line in /proc/self/status
+cat /proc/self/status
+
+# Ok we in security context 0
+# Try the security context 1
+/usr/sbin/chcontext \-\-ctx 1 ps ax | grep xterm
+
+# Ok, we see the xterm, we try to kill it
+/usr/sbin/chcontext \-\-ctx 1 killall xterm
+
+# No, security context 1 can see, but can't kill
+# let's find out in which security context this
+# xterm is running
+/usr/sbin/chcontext \-\-ctx 1 ps ax | grep xterm
+
+# Ok, this is PID XX. We need the security context
+/usr/sbin/chcontext \-\-ctx 1 cat /proc/XX/status
+
+# We see the s_context, this is SS.
+# We want to kill this process
+/usr/sbin/chcontext \-\-ctx SS killall xterm
+.LP 
+Please contribute some, if you feel it's important.
+.SH "AUTHORS"
+.LP 
+This Man page was written by Klavs Klavsen <kl@vsen.dk> and based upon the helpful output from the program itself and the documentation on the Virtual Server site <http://www.solucorp.qc.ca/miscprj/s_context.hc?prjstate=1&nodoc=0>
+.SH "SEE ALSO"
+.LP 
+chbind(8) rebootmgr(8) reducecap(8)
+vps(8) vpstree(8) vrpm(8) vserver(8)
+vserver\-stat(8) vtop(8)

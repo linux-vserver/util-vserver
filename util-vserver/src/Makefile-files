@@ -1,0 +1,84 @@
+## $Id$  -*- makefile -*-
+
+## Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+##  
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+##  
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##  
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+##  
+
+src_HDRS		=  src/vutil.h src/vutil.p
+
+src_pkglib_PRGS		=  src/capchroot \
+			   src/fakerunlevel \
+			   src/filetime \
+			   src/ifspec \
+			   src/listdevip \
+			   src/parserpmdump \
+			   src/readlink \
+			   src/showattr \
+			   src/showperm \
+			   src/vbuild \
+			   src/vcheck \
+			   src/vreboot \
+			   src/vunify
+
+src_sbin_PRGS		=  src/chbind \
+			   src/chcontext \
+			   src/rebootmgr \
+			   src/reducecap \
+			   src/setctxlimit \
+			   src/vdu \
+			   src/vfiles \
+			   src/vserver-stat
+
+src_capchroot_SOURCES		=  src/capchroot.c
+src_capchroot_LDADD		=  lib/libvserver.a
+
+src_chbind_SOURCES		=  src/chbind.c
+src_chbind_LDADD		=  lib/libvserver.a
+
+src_chcontext_SOURCES		=  src/chcontext.c
+src_chcontext_LDADD		=  lib/libvserver.a
+
+src_fakerunlevel_SOURCES	=  src/fakerunlevel.c
+src_filetime_SOURCES		=  src/filetime.c
+src_ifspec_SOURCES		=  src/ifspec.c
+src_listdevip_SOURCES		=  src/listdevip.c
+src_parserpmdump_SOURCES	=  src/parserpmdump.c
+src_readlink_SOURCES		=  src/readlink.c
+src_rebootmgr_SOURCES		=  src/rebootmgr.c
+
+src_reducecap_SOURCES		=  src/reducecap.c
+src_reducecap_LDADD		=  lib/libvserver.a
+
+src_setctxlimit_SOURCES		=  src/setctxlimit.c
+src_setctxlimit_LDADD		=  lib/libvserver.a
+
+src_showattr_SOURCES		=  src/showattr.c
+src_showperm_SOURCES		=  src/showperm.c
+src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc
+src_vdu_SOURCES			=  src/vdu.c
+src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc
+src_vreboot_SOURCES		=  src/vreboot.c
+
+src_vserver_stat_SOURCES	=  src/vserver-stat.c
+src_vserver_stat_LDADD		=  lib/libvserver.a
+
+src_vunify_SOURCES		=  src/vunify.cc src/vutil.cc
+src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc
+
+
+## Local Variables:
+## compile-command: "make -C .. -k"
+## End:

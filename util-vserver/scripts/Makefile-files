@@ -1,0 +1,50 @@
+## $Id$  -*- makefile -*-
+
+## Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+##  
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+##  
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##  
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+##  
+
+scriptscfgdir		=  $(sbindir)
+
+scripts_SCRPTS		=  scripts/distrib-info \
+			   scripts/rootshell \
+			   scripts/save_s_context \
+			   scripts/vprofile \
+			   scripts/vserverkillall \
+			   scripts/vservers.grabinfo.sh \
+			   scripts/vsysvwrapper \
+			   scripts/vunify.old.sh
+
+scripts_PRGS		=  scripts/vkill \
+			   scripts/vps \
+			   scripts/vpstree \
+			   scripts/vrpm \
+			   scripts/vserver \
+			   scripts/vserver-copy \
+			   scripts/vtop
+
+scriptscfg_DATA		=  scripts/util-vserver-vars
+
+scripts_XTRAS		=  scripts/util-vserver-vars.subst
+scripts_GENSCRPTS	=  scripts/util-vserver-vars
+
+scripts/%:		scripts/%.subst
+			@mkdir -p $$(dirname '$@')
+			sed -e 's!@'PKGLIBDIR'@!$(pkglibdir)!g; \
+				s!@'SBINDIR'@!$(sbindir)!g' '$<' >'$@.tmp'
+			@-rm -f '$@'
+			mv '$@.tmp' '$@'
+			@chmod a-w '$@'

@@ -1,0 +1,74 @@
+.TH "vserver" "8" "0.1.0" "Klavs Klavsen <kl@vsen.dk>" "System Administration"
+.SH "NAME"
+.LP 
+vserver \- The vserver utility enables you to control different aspects of your vservers.
+.SH "SYNTAX"
+.LP 
+vserver [ options ] [vserver name] [options]
+
+.SH "DESCRIPTION"
+.LP 
+vserver \- The vserver utility enables you to control different aspects of your vservers, such as stopping and starting them, and services within them.
+.SH "OPTIONS"
+.LP 
+.TP 
+\fBbuild\fR Create a virtual server by copying the packages of the root server
+.TP 
+\fBenter\fR Enter in the virtual server context and starts a shell. Same as "vserver name exec /bin/sh\".
+.TP 
+\fBexec\fR Exec a command in the virtual server context as root.
+syntax: vserver name exec command ...
+.TP 
+\fBsuexec\fR Exec a command in the virtual server context under some user id.
+syntax: vserver name suexec userid command ...
+.TP 
+\fBservice\fR Control a service inside a vserver. 
+syntax: vserver name service service\-name (start/stop/restart etc.)
+.TP 
+\fBstart\fR Starts the various services in the vserver.
+It uses the default runlevel found in the
+.B /etc/inittab
+file of the vserver.
+.TP 
+\fBstop\fR Ends all services and kills the remaining processes.
+.TP 
+\fBrunning\fR Tells if a virtual server is running. It returns proper exit code, so you can use it as a test.
+.TP
+\fBstatus\fR Tells various information about the state of a virtual server:
+running status, number of running processes and uptime.
+.TP
+.I --nodev
+do not configure the IP devices associated with the vserver. This
+is useful to execute some commands on the vserver (or enter it)
+without making it active on the network. Especially useful if you
+have an active copy of the vserver moved to another server on the
+network.
+.TP
+.I --silent
+cuts most informative messages.
+
+.SH "FILES"
+.LP 
+\fI/usr/sbin/vserver\fP 
+.P
+\fI/etc/vservers/*.conf\fP 
+.P
+\fI/etc/vservers/*.sh\fP 
+.P
+\fI/vservers/*\fP 
+
+.SH "EXAMPLES"
+.LP 
+Please contribute some, if you feel it's important.
+.SH "AUTHORS"
+.LP 
+This Man page was written by Klavs Klavsen <kl@vsen.dk> and based upon the helpful output from the program itself and the documentation on the Virtual Server site <http://www.solucorp.qc.ca/miscprj/s_context.hc?prjstate=1&nodoc=0>
+.SH "SEE ALSO"
+.LP 
+chbind(8) chcontext(8)
+newvserver(8)
+rebootmgr(8) reducecap(8)
+vps(8) vpstree(8)
+vrpm(8)
+vserver\-stat(8) 
+vtop(8)

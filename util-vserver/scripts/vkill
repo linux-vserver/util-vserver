@@ -1,0 +1,60 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# based on vkill by Philip Snyder
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+# kill wrapper for vserver. 
+# Philip Snyder <psnyder@vizional.com>
+# 2002/02/06 19:00 PST
+
+
+$PROC = $ARGV[0];
+
+# Grab the output from a context query against this process id
+open(PH, "/usr/sbin/chcontext --silent --ctx 1 cat /proc/$PROC/status 2>&1 |");
+
+# Loop through the output
+while (<PH>) {
+
+  # Searching for a line that looks like this:
+  # s_context: #
+  if (/^s_context: ([0-9]+)/) {
+
+    print "Process id $PROC was found in security context $1.\n";
+
+    # Make sure the process is in a vserver context
+    if ($1 > 0) {
+
+      # Since we have the context and the process id, we can kill it
+      print " + Killing... ";
+      `/usr/sbin/chcontext --ctx $1 kill $PROC`;
+      print "[done]\n";
+
+    } else {
+
+      # Not in vserver context, so its a process on the actual server
+      print " + Killing... ";
+      `kill $PROC`;
+      print "[done]\n";
+
+    }
+    exit;
+  }
+}
+
+print "Process id $PROC not found.\n";
+exit

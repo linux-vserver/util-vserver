@@ -1,0 +1,11 @@
+#!/bin/sh
+# chkconfig: - 91 35
+# description: Wrapper to start smb bound to a single IP
+USR_LIB_VSERVER=/usr/lib/util-vserver
+exec $USR_LIB_VSERVER/vsysvwrapper smb $*
+
+
+
+
+
+

@@ -1,0 +1,38 @@
+.TH "rebootmgr" "8" "0.1.0" "Klavs Klavsen <kl@vsen.dk>" "System Administration"
+.SH "NAME"
+.LP 
+rebootmgr \- rebootmgr stops and starts one or more vservers at your command.
+.SH "SYNTAX"
+.LP 
+rebootmgr \fIvserver\-name\fP [\fIvserver\-name\fP ...] \fICommand\fP
+.SH "DESCRIPTION"
+.LP 
+The chbind utility executes a command, and locks the resulting process and its children into using a specific IP number/Interface, no matter what it is told in it's configuration. This applies to services and client connection as well.
+.SH "OPTIONS"
+.LP 
+.TP 
+\fB\-\-ip\fR ip_number/interface
+Binds the process to the given IP number or Interface.
+.TP 
+\fB\-\-silent\fR
+Do not complain.
+
+.SH "FILES"
+.LP 
+\fI/usr/sbin/rebootmgr\fP 
+
+
+.SH "EXAMPLES"
+.LP 
+If I wanted to ensure my httpd listened only on my eth0 interface, I could do:
+chbind \-\-ip eth0 /etc/rc.d/init.d/httpd start
+.LP 
+Please contribute some, if you feel it's important.
+.SH "AUTHORS"
+.LP 
+This Man page was written by Klavs Klavsen <kl@vsen.dk> and based upon the helpful output from the program itself and the documentation on the Virtual Server site <http://www.solucorp.qc.ca/miscprj/s_context.hc?prjstate=1&nodoc=0>
+.SH "SEE ALSO"
+.LP 
+chcontext(8) chbind(8) reducecap(8)
+vps(8) vpstree(8) vrpm(8) vserver(8)
+vserver\-stat(8) vtop(8)

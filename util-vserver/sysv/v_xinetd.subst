@@ -1,0 +1,6 @@
+#!/bin/sh
+# chkconfig: - 56 50
+# description: Wrapper to start xinetd bound to a single IP
+USR_LIB_VSERVER=/usr/lib/util-vserver
+exec $USR_LIB_VSERVER/vsysvwrapper xinetd $*
+

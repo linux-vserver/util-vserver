@@ -1,0 +1,50 @@
+.TH "distrib-info" "8" "0.1.0" "Jacques Gelinas <jack@solucorp.qc.ca>" "System Administration"
+.SH "NAME"
+.LP 
+distrib-info \- A distribution independant utility to retrieve package information.
+.SH "SYNTAX"
+.LP 
+distrib-info vserver-name command [options]
+
+.SH "DESCRIPTION"
+.LP 
+distrib-info \- This utility provides a solution to hide some differences
+between Linux distributions. The various utilities (vunify, vbuild, ...)
+need package information to perform their task. They call distrib-info
+to retrieve this information. distrib-info is the only one understanding
+the various distribution out there.
+.TP
+This utility is only used as a back-end for other utilities such as
+vunify and vbuild.
+.SH "OPTIONS"
+.LP 
+.TP 
+\fBdumpfiles\fR reports all files owned by a package.
+.TP
+\fBpkgversion\fR reports all packages and version.
+.TP
+\fBunifiles\fR reports the files of a package which may be shared by
+several virtual servers. Generally, this excludes all configuration files.
+
+.SH "EXAMPLES"
+.LP 
+The following command will report all packages in the vserver ref80.
+The package will be presented with the version/release.
+
+	distrib-info ref80 pkgversion
+
+To get the list of unify-able (sharable) file in package sendmail
+of the vserver ref80, we do
+
+	distrib-info ref80 unifiles sendmail
+.SH "FILES"
+.LP
+	/usr/lib/vservers/distrib-info
+.SH "AUTHORS"
+.LP 
+This Man page was written by Jacques Gelinas <jack@solucorp.qc.ca>.
+.SH "SEE ALSO"
+.LP 
+vbuild(8) vfiles(8) vunify(8)
+newvserver(8)
+

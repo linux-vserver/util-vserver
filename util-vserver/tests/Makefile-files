@@ -1,0 +1,34 @@
+## $Id$  -*- makefile -*-
+
+## Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+##  
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+##  
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##  
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+##  
+
+test_PRGS		=  tests/chrootsafe \
+			   tests/escaperoot \
+			   tests/forkbomb \
+			   tests/testipc \
+			   tests/testlimit \
+			   tests/testopenf
+
+tests_chrootsafe_SOURCES	=  tests/chrootsafe.cc
+tests_chrootsafe_LDADD		=  lib/libvserver.a
+
+tests_escaperoot_SOURCES	=  tests/escaperoot.cc
+tests_forkbomb_SOURCES		=  tests/forkbomb.cc
+tests_testipc_SOURCES		=  tests/testipc.cc
+tests_testlimit_SOURCES		=  tests/testlimit.cc
+tests_testopenf_SOURCES		=  tests/testopenf.cc

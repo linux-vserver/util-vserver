@@ -1,0 +1,48 @@
+#!/bin/sh
+# $Id$	--*- sh -*--
+
+# Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# based on distrib/install-rh7.2 by Jacques Gelinas
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+# This script creates a vserver from RedHat 7.2 CD. Only
+# the first CD is used and must be mounted in /mnt/cdrom.
+# Specify the name of the vserver
+# "install-rh7.2 test" will create /vservers/test
+
+USR_LIB_VSERVER=$(dirname $0)
+if [ $# != 1 ] ; then
+	echo install-rh7.2 vserver-id
+elif [ -d /vservers/$1/var/lib/rpm ] ; then
+	echo /vservers/$1 already exist
+elif [ ! -d /mnt/cdrom/RedHat/RPMS ] ; then
+	echo No rpms in /mnt/cdrom/RedHat/RPMS. Is the CD mounted \?
+else
+	echo `ls /mnt/cdrom/RedHat/RPMS/*.noarch.rpm \
+		/mnt/cdrom/RedHat/RPMS/*.i386.rpm | wc -l` packages to install
+	VROOT=/vservers/$1
+	mkdir -p $VROOT/proc
+	mount -t proc none $VROOT/proc
+	mkdir -p $VROOT/var/lib/rpm
+	rpm --root $VROOT --initdb
+	rpm --root $VROOT -Uvh \
+		/mnt/cdrom/RedHat/RPMS/*.noarch.rpm \
+		/mnt/cdrom/RedHat/RPMS/*.i386.rpm
+	$USR_LIB_VSERVER/install-post.sh $1
+	umount $VROOT/proc
+fi
+
+
