@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdio.h>
+#include <assert.h>
 
 static void
 showHelp(int fd, char const *cmd, int res)
@@ -50,22 +51,11 @@ showVersion()
   exit(0);
 }
 
-static volatile sig_atomic_t	timeout_flag = 0;
-
-void alarmHandler(int UNUSED sig)
-{
-  timeout_flag = 1;
-}
-
 int main(int argc, char *argv[])
 {
   int			fd;
   int			idx = 1;
-  struct sigaction	act = {
-    .sa_handler = alarmHandler,
-    .sa_flags   = SA_ONESHOT,
-  };
-  sigfillset(&act.sa_mask);
+  struct timeval	timeout;
 
   if (argc>=2) {
     if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
@@ -78,25 +68,38 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-
-  if (sigaction(SIGALRM, &act, 0)==-1) {
-    perror("vshelper-sync: sigaction()");
-    return EXIT_FAILURE;
-  }
-  alarm(atoi(argv[idx+1]));
-  
-  fd = open(argv[idx], O_RDONLY,0);
-  if (timeout_flag) return EXIT_FAILURE;
+  fd = open(argv[idx], O_RDONLY|O_NONBLOCK, 0);
   if (fd==-1) {
     perror("vshelper-sync: open()");
     return EXIT_FAILURE;
   }
-  
+
+  timeout.tv_sec = atoi(argv[idx+1]);
+
   for (;;) {
     char	buf[512];
-    ssize_t	len = read(fd,buf,sizeof buf);
+    ssize_t	len;
+    fd_set	fds;
+
+    FD_ZERO(&fds);
+    FD_SET(fd, &fds);
+
+#ifndef __linux
+#  error vshelper relies on the Linux select() behavior (timeout holds remaining time)
+#endif
+
+    switch (select(fd+1, &fds, 0,0, &timeout)) {
+      case 0	:  return EXIT_FAILURE;	// timeout
+      case -1	:
+	perror("vshelper: select()");
+	return EXIT_FAILURE;
+      default	:  break;
+    }
+
+    assert(FD_ISSET(fd, &fds));
+
+    len = read(fd,buf,sizeof buf);
     if (len==0) break;
-    if (timeout_flag) return EXIT_FAILURE;
     if (len==-1) {
       perror("vshelper-sync: read()");
       return EXIT_FAILURE;
@@ -104,4 +107,4 @@ int main(int argc, char *argv[])
   }
 
   return EXIT_SUCCESS;
-  }  
+}  
