@@ -112,12 +112,11 @@ static UNUSED bool
 copyMMap(int in_fd, int out_fd)
 {
   off_t			in_len   = lseek(in_fd, 0, SEEK_END);
-  volatile void const	*in_buf  = 0;
-  volatile void		*out_buf = 0;
+  void const * volatile in_buf   = 0;
+  void       * volatile	out_buf  = 0;
   
-  volatile loff_t	in_size  = 0;
-  loff_t		out_size = 0;
-  volatile bool		res      = false;
+  loff_t volatile	buf_size = 0;
+  bool   volatile 	res      = false;
 
   if (in_len==-1) return false;
   if (in_len>0 &&
@@ -127,36 +126,35 @@ copyMMap(int in_fd, int out_fd)
   
   bus_error = 0;
   if (sigsetjmp(bus_error_restore, 1)==0) {
-    off_t		offset = 0;
+    off_t		offset   = 0;
 
     while (offset < in_len) {
-      in_size = in_len - offset;
-      if (in_size > MMAP_BLOCKSIZE) in_size = MMAP_BLOCKSIZE;
+      buf_size = in_len - offset;
+      if (buf_size > MMAP_BLOCKSIZE) buf_size = MMAP_BLOCKSIZE;
       
-      in_buf   = mmap(0, in_size,  PROT_READ,  MAP_SHARED, in_fd,  offset);
-      if (in_buf==0)  goto out;
+      if ((in_buf  = mmap(0, buf_size, PROT_READ,  MAP_SHARED,  in_fd, offset))==0 ||
+	  (out_buf = mmap(0, buf_size, PROT_WRITE, MAP_SHARED, out_fd, offset))==0) {
+	perror("mmap()");
+	goto out;
+      }
 
-      out_size = in_size;
-      out_buf  = mmap(0, out_size, PROT_WRITE, MAP_SHARED, out_fd, offset);
-      if (out_buf==0) goto out;
-
-      offset  += in_size;
-      madvise(const_cast(void *)(in_buf),  in_size, MADV_SEQUENTIAL);
-      madvise((void *)out_buf,            out_size, MADV_SEQUENTIAL);
+      offset  += buf_size;
+      madvise(const_cast(void *)(in_buf),  buf_size, MADV_SEQUENTIAL);
+      madvise(out_buf,                     buf_size, MADV_SEQUENTIAL);
 
       TESTSUITE_COPY_CODE;
-      copyMem((void *)out_buf, (void *)in_buf, in_size);
+      copyMem(out_buf, in_buf, buf_size);
 
-      munmap(const_cast(void *)(in_buf),  in_size); in_buf  = 0;
-      munmap((void*)out_buf,             out_size); out_buf = 0;
+      munmap(const_cast(void *)(in_buf),  buf_size);  in_buf = 0;
+      munmap(out_buf,                     buf_size); out_buf = 0;
     }
 
     res = true;
   }
 
   out:
-  if (in_buf!=0)  munmap(const_cast(void *)(in_buf),  in_size);
-  if (out_buf!=0) munmap((void *)out_buf,            out_size);
+  if (in_buf !=0) munmap(const_cast(void *)(in_buf),  buf_size);
+  if (out_buf!=0) munmap(out_buf,                     buf_size);
 
   return res;
 }
