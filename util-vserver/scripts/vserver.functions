@@ -737,7 +737,7 @@ function waitForSync
 A timeout or other error occured while waiting for the synchronization
 signal from vserver '$VSERVER_NAME'.
 The vserver will be killed nevertheless..."
-    elif test -n "${#INITCMD_STOP_SYNC[@]}" -ne 0; then
+    elif test "${#INITCMD_STOP_SYNC[@]}" -ne 0; then
 	"${INITCMD_STOP_SYNC[@]}" || \
 	    warning $"\
 Stop-synchronization for vserver '$VSERVER_NAME' failed. The vserver
