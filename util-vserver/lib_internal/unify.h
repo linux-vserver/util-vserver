@@ -19,9 +19,8 @@
 #ifndef H_UTIL_VSERVER_LIB_INTERNAL_UNIFY_H
 #define H_UTIL_VSERVER_LIB_INTERNAL_UNIFY_H
 
+#include <sys/stat.h>
 #include <stdbool.h>
-
-struct stat;
 
 bool
 Unify_unify(char const *src, struct stat const *src_stat,

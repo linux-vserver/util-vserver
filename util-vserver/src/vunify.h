@@ -21,6 +21,8 @@
 
 #include "lib_internal/matchlist.h"
 
+#include <sys/stat.h>
+
 struct dirent;
 struct WalkdownInfo
 {
@@ -50,8 +52,6 @@ struct Arguments {
     bool				local_fs;
     bool				do_renew;
 };
-
-struct stat;
 
 static bool	checkFstat(struct MatchList const * const,
 			   PathInfo const * const,
