@@ -35,6 +35,7 @@ showperm
 src_rpm_fake_la-rpm-fake.lo
 vbuild
 vcheck
+vcontext
 vcopy
 vdu
 vfiles
