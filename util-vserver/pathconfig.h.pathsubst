@@ -31,4 +31,6 @@
 #define MOUNT_PROG	"@MOUNT@"
 #define UMOUNT_PROG	"@UMOUNT@"
 
+#define RESOLVER_PROG	PKGLIBDIR "/rpm-fake-resolver"
+
 #endif	//  H_UTIL_VSERVER_PATHCONFIG_H
