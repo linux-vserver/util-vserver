@@ -63,7 +63,7 @@ copyReg(char const *src, struct stat const *src_stat,
 	char const *dst)
 {
   int		in_fd  = open(src, O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_LARGEFILE);
-  int		out_fd = in_fd==-1 ? -1 : open(dst, O_CREAT|O_EXCL, 0200);
+  int		out_fd = in_fd==-1 ? -1 : open(dst, O_RDWR|O_CREAT|O_EXCL, 0200);
   bool		res    = false;
   
   if (in_fd==-1 || out_fd==-1 ||
@@ -74,7 +74,7 @@ copyReg(char const *src, struct stat const *src_stat,
     ssize_t	l = read(in_fd, buf, sizeof buf);
     if (l==-1) goto err;
     if (l==0)  break;
-    if (!WwriteAll(out_fd, buf, l, 0)) return false;
+    if (!WwriteAll(out_fd, buf, l, 0)) goto err;
   }
 
   res = true;
