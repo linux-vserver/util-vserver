@@ -218,7 +218,7 @@ static int vbuild_copy (
 }
 
 static void
-prepareVserver(Vserver const &src, char const *dst)
+prepareVserver(Vserver const UNUSED &src, char const UNUSED *dst)
 {
   assert(false);
 }
