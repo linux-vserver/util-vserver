@@ -1,0 +1,8 @@
+# rpm     http://ftp.ultra.csn.tu-chemnitz.de/pub/mirror/fedora/core/.apt	1/i386	os patches updates
+# rpm-src http://ftp.ultra.csn.tu-chemnitz.de/pub/mirror/fedora/core/.apt	1/i386	os patches updates
+
+# rpm	ftp://ftp.ussg.iu.edu/pub/linux/fedora/fedora/fedora			1/i386	os updates
+# rpm	ftp://ftp.tu-chemnitz.de/pub/linux/fedora/fedora			1/i386	os updates
+# rpm	http://mirrors.usc.edu/pub/linux/fedora/fedora				1/i386	os updates
+# rpm	http://sunsite.informatik.rwth-aachen.de/ftp/pub/Linux/fedora/fedora	1/i386	os updates
+# rpm	http://download.fedora.us/fedora/fedora					1/i386	os updates
