@@ -4,6 +4,7 @@ capchroot
 chbind
 chcontext
 chroot-rm
+ctx-kill
 fakerunlevel
 filetime
 ifspec
@@ -16,6 +17,7 @@ rebootmgr
 reducecap
 save_ctxinfo
 secure-mount
+secure-umount
 setctxlimit
 showattr
 showperm
