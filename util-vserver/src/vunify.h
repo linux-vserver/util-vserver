@@ -35,7 +35,7 @@ struct WalkdownInfo
 struct SkipReason {
     enum { rsDOTFILE, rsEXCL_DST, rsEXCL_SRC,
 	   rsFSTAT, rsNOEXISTS, rsSYMLINK, rsUNIFIED,
-	   rsDIFFERENT }	r;
+	   rsSPECIAL, rsDIFFERENT }	r;
 
     union {
 	struct MatchList const *	list;
@@ -57,17 +57,18 @@ static void	visitDir(char const *, struct stat const *) NONNULL((1));
 static bool	checkFstat(struct MatchList const * const,
 			   PathInfo const * const,
 			   PathInfo const * const,
-			   struct stat const ** const,
-			   struct stat * const) NONNULL((1,2,3,4,5));
+			   struct stat const ** const, struct stat * const,
+			   struct stat *) NONNULL((1,2,3,4,5,6,7));
 
 static struct MatchList const *
 checkDirEntry(PathInfo const *,
 	      PathInfo const *,
-	      bool *, struct stat *) NONNULL((1,2,3,4));
+	      bool *, struct stat *, struct stat *) NONNULL((1,2,3,4,5));
 
 static bool	updateSkipDepth(PathInfo const *, bool) NONNULL((1));
 static void	EsafeChdir(char const *, struct stat const *)  NONNULL((1,2));
-static bool	doit(struct MatchList const *, PathInfo const *,
-		     char const *dst_path) NONNULL((1,2,3));
+static bool	doit(struct MatchList const *,
+		     PathInfo const *, struct stat const *,
+		     char const *dst_path, struct stat const *) NONNULL((1,2,3));
 
 #endif	//  H_UTIL_VSERVER_SRC_VUNIFY_H
