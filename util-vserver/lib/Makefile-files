@@ -17,10 +17,20 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-lib_SRCS			=  lib/syscall.c
+lib_SRCS			=  lib/syscall.c \
+				   lib/getctx.c \
+				   lib/int2str.c
+
 lib_HDRS			=  lib/vserver.h
+
+lib_XHDRS			=  lib/internal.h
 
 lib_lib_LIBS			=  lib/libvserver.a
 
-lib_libvserver_a_SOURCES	=  lib/syscall.c
-lib_libvserver_a_CPPFLAGS	=  -I$(kernelincludedir)
+lib_libvserver_a_SOURCES	=  $(lib_SRCS)
+lib_libvserver_a_CPPFLAGS	=  -I$(kernelincludedir) -D_REENTRANT
+# _REENTRANT is needed for dietlibc to use __error_location
+
+if USE_DIETLIBC
+lib/%$(EXEEXT) lib/%$(OBJEXT):	CC=$(DIET_CC)
+endif
