@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.23.195, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.23.196, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -90,7 +90,7 @@ ENSC_INITRDDIR(initrddir)
 ENSC_RELEASE(RELEASE_CPPFLAGS)
 ENSC_ENABLE_DIETLIBC(USE_DIETLIBC)
 ENSC_KERNEL_HEADERS(kernelincludedir)
-
+ENSC_UV_VROOTDIR(vserverdir)
 
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([apis],
