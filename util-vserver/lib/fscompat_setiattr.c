@@ -39,8 +39,9 @@
 int
 vc_set_iattr_compat(char const *filename,
 		    dev_t dev, ino_t ino, xid_t xid,
-		    uint32_t flags, uint32_t mask)
+		    uint32_t flags, uint32_t mask,
+		    mode_t const UNUSED *mode)
 {
   CALL_VC(CALL_VC_V13     (vc_set_iattr_compat, filename, dev, ino, xid, flags, mask),
-	  CALL_VC_FSCOMPAT(vc_set_iattr_compat, filename, dev, ino, xid, flags, mask));
+	  CALL_VC_FSCOMPAT(vc_set_iattr_compat, filename, dev, ino, xid, flags, mask, mode));
 }

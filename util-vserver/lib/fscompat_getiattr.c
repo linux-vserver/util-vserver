@@ -39,7 +39,8 @@
 int
 vc_get_iattr_compat(char const *filename,
 		    dev_t dev, ino_t ino,
-		    xid_t * xid, uint32_t * flags, uint32_t * mask)
+		    xid_t * xid, uint32_t * flags, uint32_t * mask,
+		    mode_t const UNUSED *mode)
 {
   if ( (mask==0) ||
        ((*mask&VC_IATTR_XID)  && xid==0) ||
@@ -50,5 +51,5 @@ vc_get_iattr_compat(char const *filename,
   if ( flags ) *flags &= ~*mask;
 
   CALL_VC(CALL_VC_V13     (vc_get_iattr_compat, filename, dev, ino, xid, flags, mask),
-	  CALL_VC_FSCOMPAT(vc_get_iattr_compat, filename, dev, ino, xid, flags, mask));
+	  CALL_VC_FSCOMPAT(vc_get_iattr_compat, filename, dev, ino, xid, flags, mask, mode));
 }
