@@ -133,7 +133,7 @@ getUptime()
   char		buffer[64];
   char *	errptr;
   size_t	len;
-  time_t	secs;
+  uint64_t	secs;
   uint32_t	msecs=0;
 
     // open the /proc/uptime file
