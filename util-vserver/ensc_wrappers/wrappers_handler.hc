@@ -24,13 +24,18 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-static UNUSED void 
-FatalErrnoError(bool condition, char const msg[]) /*@*/
+static inline ALWAYSINLINE NORETURN void
+FatalErrnoErrorFail(char const msg[])
 {
   extern int	wrapper_exit_code;
 
-  if (!condition)       return;
   perror(msg);
-
   exit(wrapper_exit_code);
+}
+
+static UNUSED void 
+FatalErrnoError(bool condition, char const msg[]) /*@*/
+{
+  if (!condition)       return;
+  FatalErrnoErrorFail(msg);
 }
