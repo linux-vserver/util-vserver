@@ -254,6 +254,7 @@ int main (int argc, char *argv[])
 		// Now, we do a recursive copy of refserv into newserv
 		umask (0);
 		mkdir (newserv.c_str(),0755);
+		setext2flag(newserv.c_str(), false, 0);
 		// Check if it is on the same volume
 		struct stat refst,newst;
 		if (vutil_lstat(refserv,refst)!=-1

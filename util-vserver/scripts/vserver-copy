@@ -298,6 +298,11 @@ if $stopstart; then
 	$SBINDIR/vserver $vserver stop
 fi
 
+test "$dhost" || {
+    mkdir -p -m755 $target
+    chattr -t $target
+}
+
 info "Syncing directories"
 # trailing slashes very important in the rsync!
 if ! rsync -avxz $rsflag $shcmd $vroot/ $dhost$colon$target/; then
