@@ -37,7 +37,7 @@
 #if defined(__GNUC__)
 #  define UNUSED                __attribute__((__unused__))
 #  define NORETURN              __attribute__((__noreturn__))
-#  if __GNUC__>3 || (__GNUC__==3 && __GNUC__MINOR>=3)
+#  if __GNUC__>3 || (__GNUC__==3 && __GNUC_MINOR__>=3)
 #    define NONNULL(ARGS)	__attribute__((__nonnull__ ARGS))
 #    define ALWAYSINLINE        __attribute__((__always_inline__))
 #  else
