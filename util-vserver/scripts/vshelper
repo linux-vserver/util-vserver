@@ -154,7 +154,7 @@ while true; do
 done
 
 vserver_id=$($_VSERVER_INFO "$responsible_xid" ID) ||
-    panic $"No responsible vserver found for resonsible xid '$responsible_xid' ($XID); aborting..."
+    panic $"No responsible vserver found for xid '$responsible_xid' ($XID); aborting..."
     
 test "$XID" = "$responsible_xid" || {
     logging "Giving 'vshelper' task for '$XID' to parent vserver '$vserver_id' ($responsible_xid)"
