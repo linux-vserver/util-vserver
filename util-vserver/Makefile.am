@@ -47,7 +47,7 @@ EXTRA_DIST		=  $(sysv_XTRAS) $(sysv_CFG) \
                            $(doc_DAT) $(man_DATMAN) \
 			   $(scripts_SCRPTS) $(scripts_PRGS) $(scripts_XTRAS) \
 			   pathconfig.h.pathsubst \
-			   vserver.spec \
+			   util-vserver.spec \
                            m4/ensc_cflags.m4 \
 			   THANKS
 

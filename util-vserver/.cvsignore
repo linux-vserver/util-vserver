@@ -20,5 +20,6 @@ stamp-h1
 stamp-h2
 util-vserver-*.tar.bz2*
 util-vserver-*.tar.gz
+util-vserver.spec
 vserver.spec
 vserverx-*.tar.*

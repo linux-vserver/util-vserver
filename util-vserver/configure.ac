@@ -99,5 +99,5 @@ AC_SUBST(kernelincludedir)
 AC_MSG_RESULT($kernelincludedir/linux)
 		
 
-AC_CONFIG_FILES([vserver.spec Makefile distrib/Makefile])
+AC_CONFIG_FILES([util-vserver.spec Makefile distrib/Makefile])
 AC_OUTPUT
