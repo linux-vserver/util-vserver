@@ -25,52 +25,34 @@
 #include "compat.h"
 
 #include "vserver.h"
-#include "vserver-internal.h"
-#include "internal.h"
+#include "utils-legacy.h"
 
-#include <string.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <errno.h>
-#include <unistd.h>
+#include <sys/types.h>
 
-#define CTX_TAG		"\ns_context: "
+static ctx_t
+vc_X_getctx_legacy_internal(pid_t pid)
+{
+  size_t			bufsize = utilvserver_getProcEntryBufsize();
+  char				buf[bufsize];
+  char				*pos = 0;
+
+  pos = utilvserver_getProcEntry(pid, "\ns_context: ", buf, bufsize);
+
+  if (pos!=0) return atoi(pos);
+  else        return VC_NOCTX;
+}
 
 static ctx_t
 vc_X_getctx_legacy(pid_t pid)
 {
-  static volatile size_t	bufsize=4097;
-    // TODO: is this really race-free?
-  size_t			cur_bufsize = bufsize;
-  int				fd;
-  char				status_name[ sizeof("/proc/01234/status") ];
-  char				buf[cur_bufsize];
-  size_t			len;
-  char				*pos = 0;
+  ctx_t		res;
+  do {
+    res = vc_X_getctx_legacy_internal(pid);
+  } while (res==VC_NOCTX && errno==EAGAIN);
 
-  strcpy(status_name, "/proc/");
-  len = utilvserver_uint2str(status_name+sizeof("/proc/")-1,
-			     sizeof(status_name)-sizeof("/proc//status")+1,
-			     pid, 10);
-  strcpy(status_name+sizeof("/proc/")+len-1, "/status");
-
-  fd = open(status_name, O_RDONLY);
-  if (fd==-1) return VC_NOCTX;
-
-  len = read(fd, buf, cur_bufsize);
-  close(fd);
-
-  if (len<cur_bufsize) {
-    buf[len] = '\0';
-    pos      = strstr(buf, CTX_TAG);
-  }
-  else if (len!=(size_t)-1) {
-    bufsize  = cur_bufsize * 2 - 1;
-    errno    = EAGAIN;
-  }
-
-  if (pos!=0) return atoi(pos+sizeof(CTX_TAG)-1);
-  else        return VC_NOCTX;
+  return res;
 }
+
 
 #endif	//  H_UTIL_VSERVER_LIB_GETCTX_LEGACY_H
