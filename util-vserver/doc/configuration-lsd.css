@@ -1,12 +1,12 @@
 body {
   font-size: 12pt;
-  background-color: pink;
+  background-color: fuchsia;
   margin: 0px;
 }
 
 span.directory {
   background-color: green;
-  color: cyan;
+  color: aqua;
 }
 
 span.symlink {
@@ -16,7 +16,7 @@ span.symlink {
 
 span.script {
   background-color: blue;
-  color: grey;
+  color: gray;
 }
 
 span.symbolic:before { content: "<"; }
