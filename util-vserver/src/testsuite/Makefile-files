@@ -46,12 +46,12 @@ EXTRA_DIST +=				$(src_testsuite_check_src_SCRPTS)
 src_testsuite_rpm_fake_test_SOURCES =	src/testsuite/rpm-fake-test.c
 
 src_testsuite_vunify_functest_SOURCES =	src/testsuite/vunify-functest.c
-src_testsuite_vunify_functest_LDADD =	lib_internal/libinternal.a
+src_testsuite_vunify_functest_LDADD =	$(LIBINTERNAL)
 src_testsuite_vunify_functest_CPPFLAGS=	$(AM_CPPFLAGS) $(src_testsuite_CPPFLAGS)
 
 
 src_testsuite_chcontext_test_SOURCES =	src/testsuite/chcontext-test.c
-src_testsuite_chcontext_test_LDADD =	lib/libvserver.la lib_internal/libinternal.a
+src_testsuite_chcontext_test_LDADD =	lib/libvserver.la $(LIBINTERNAL)
 
 
 src_testsuite_chbind_test_SOURCES =	src/testsuite/chbind-test.c

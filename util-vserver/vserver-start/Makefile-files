@@ -48,6 +48,6 @@ vserver_start_vserver_start_bin_SOURCES = \
 						vserver-start/vserver-start.h
 
 vserver_start_vserver_start_bin_LDADD =		$(VSERVER_LDADDS) \
-						lib_internal/libinternal.a \
+						$(LIBINTERNAL) \
 						libensc_vector.a
 vserver_start_vserver_start_bin_LDFLAGS =	$(VSERVER_LDFLGS)

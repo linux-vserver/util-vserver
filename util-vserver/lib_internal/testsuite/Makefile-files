@@ -24,8 +24,8 @@ endif
 
 
 lib_internal_testsuite_command_SOURCES =	lib_internal/testsuite/command.c
-lib_internal_testsuite_command_LDADD =		lib_internal/libinternal.a \
+lib_internal_testsuite_command_LDADD =		$(LIBINTERNAL) \
 						libensc_vector.a
 
 lib_internal_testsuite_filecfg_ml_SOURCES =	lib_internal/testsuite/filecfg-ml.c
-lib_internal_testsuite_filecfg_ml_LDADD =	lib_internal/libinternal.a
+lib_internal_testsuite_filecfg_ml_LDADD =	$(LIBINTERNAL)
