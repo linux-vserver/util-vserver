@@ -125,7 +125,7 @@ function lock
 {
     local tmp=$(mktemp /tmp/vserver-lock.XXXXXX)
     rm -f $tmp
-    mkfifo -m600 $tmp
+    mkfifo -m700 $tmp
 
     sleep 10
     $_LOCKFILE "$1" $tmp $2 &
