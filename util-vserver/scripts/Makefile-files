@@ -17,16 +17,20 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-scripts_OPTIONS_EXEMPT		=  scripts/distrib-info \
-				   scripts/vapt-get-worker \
-				   scripts/vrpm-worker \
-				   scripts/vrpm-preload \
-				   scripts/save_s_context \
-				   scripts/vservers.grabinfo.sh \
-				   scripts/vpstree \
-				   scripts/vserver-copy \
-				   scripts/vtop \
-				   scripts/legacy/vps
+scripts_OPTIONS_EXEMPT =	scripts/distrib-info \
+				scripts/vapt-get-worker \
+				scripts/vrpm-worker \
+				scripts/vrpm-preload \
+				scripts/save_s_context \
+				scripts/vservers.grabinfo.sh \
+				scripts/vpstree \
+				scripts/vserver-copy \
+				scripts/vtop \
+				scripts/legacy/vps \
+				scripts/legacy/save_s_context \
+				scripts/legacy/vserver \
+				scripts/legacy/vserverkillall
+
 
 scripts_pkglib_src_DTA		=  scripts/functions \
 				   scripts/vserver-build.apt-rpm \
@@ -76,9 +80,10 @@ scripts_pkglib_SCRPTS		=  $(scripts_pkglib_src_SCRPTS)
 scripts_legacy_SCRPTS		=  $(scripts_legacy_src_SCRPTS) $(scripts_legacy_gen_SCRPTS)
 scripts_pkglib_DTA		=  $(scripts_pkglib_src_DTA) $(scripts_pkglib_gen_DTA)
 
-scripts_CLEANFILES		=  $(scripts_pkglib_gen_DTA) \
-				   $(scripts_sbin_gen_PRGS) \
-				   $(scripts_sbincfg_gen_DTA)
+scripts_CLEANFILES =		$(scripts_pkglib_gen_DTA) \
+				$(scripts_sbin_gen_PRGS) \
+				$(scripts_sbincfg_gen_DTA) \
+				$(scripts_legacy_gen_SCRPTS)
 
 scripts_XTRAS			=  $(scripts_pkglib_src_DTA) \
 				   $(scripts_pkglib_src_SCRPTS) \
