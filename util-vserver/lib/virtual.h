@@ -54,6 +54,8 @@
 #define VC_CAT_SCHED		14
 #define VC_CAT_INODE		38
 
+#define	VC_CAT_VINFO		46
+
 #define VC_CAT_RLIMIT		60
 
 #define VC_CAT_SYSTEST		61
@@ -168,6 +170,20 @@ struct  vcmd_ctx_iattr_v0 {
 #define	IATTR_IUNLINK	0x00020000
 
 
+
+/* vinfo commands */
+
+#define	VCMD_task_xid		VC_CMD(VINFO, 1, 0)
+#define	VCMD_task_nid		VC_CMD(VINFO, 2, 0)
+
+#define	VCMD_vx_info		VC_CMD(VINFO, 5, 0)
+#define	VCMD_nx_info		VC_CMD(VINFO, 6, 0)
+
+struct  vcmd_vx_info_v0 {
+    uint32_t xid;
+    uint32_t initpid;
+    /* more to come */
+};
 
 
 #endif /* _LINUX_VIRTUAL_H */
