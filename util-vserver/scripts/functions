@@ -242,7 +242,8 @@ function pkgInit
 
 function isAvoidNamespace
 {
-    test ! -e "$1"/namespace || return 1
+    $_VSERVER_INFO - FEATURE namespace || return 1
+    test ! -e "$1"/namespace           || return 1
     test -e "$CONFDIR"/.defaults/nonamespace -o \
          -e "$1"/nonamespace
 }
