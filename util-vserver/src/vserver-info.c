@@ -52,7 +52,7 @@ typedef enum { tgNONE,tgCONTEXT, tgID, tgRUNNING,
 	       tgINITPID, tgINITPID_PID,
 	       tgXID, tgUTS, tgSYSINFO,
 	       tgFEATURE, tgCANONIFY,
-	       tgVERIFYCAP,
+	       tgVERIFYCAP, tgXIDTYPE,
 }	VserverTag;
 
 static struct {
@@ -80,6 +80,7 @@ static struct {
   { "PXID",        tgPXID,        "returns the xid of the parent context" },
   { "CANONIFY",    tgCANONIFY,    "canonifies the vserver-name and removes dangerous characters" },
   { "VERIFYCAP",   tgVERIFYCAP,   "test if the kernel supports linux capabilities" },
+  { "XIDTYPE",     tgXIDTYPE,     "returns the type of the given XID" },
 };
 
 int wrapper_exit_code = 1;
@@ -209,9 +210,9 @@ getAPIVer(char *buf)
 }
 
 static char *
-getXid(char *buf, char const *vserver)
+getXid(char *buf, char const *pid_str)
 {
-  pid_t		pid = atoi(vserver);
+  pid_t		pid = atoi(pid_str);
   xid_t		xid = vc_get_task_xid(pid);
 
   if (xid==VC_NOCTX) perror("vc_get_task_xid()");
@@ -412,6 +413,31 @@ getContext(char *buf, char const *vserver, bool allow_only_static)
   return buf;
 }
 
+static char const *
+getXIDType(xid_t xid, int argc, char *argv[])
+{
+  char const *		tp;
+  
+  switch (vc_getXIDType(xid)) {
+    case vcTYPE_INVALID		:  tp = "invalid"; break;
+    case vcTYPE_MAIN		:  tp = "main";    break;
+    case vcTYPE_WATCH		:  tp = "watch";   break;
+    case vcTYPE_STATIC		:  tp = "static";  break;
+    case vcTYPE_DYNAMIC		:  tp = "dynamic"; break;
+    default			:  tp = 0;         break;
+  }
+
+  if (argc==0 || tp==0)
+    return tp;
+
+  while (argc>0) {
+    --argc;
+    if (strcasecmp(argv[argc], tp)==0) return tp;
+  }
+
+  return 0;
+}
+
 static int
 testFeature(int argc, char *argv[])
 {
@@ -468,6 +494,7 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
 	case tgID	:  res = vc_getVserverByCtx(xid,0,0);  break;
 	case tgINITPID	:  res = getInitPid(buf, xid);         break;
 	case tgUTS	:  res = getUTS(buf, xid, argc, argv); break;
+	case tgXIDTYPE	:  res = getXIDType(xid, argc, argv);  break;
     
 	default		:  assert(false); abort();  // TODO
       }
