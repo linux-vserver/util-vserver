@@ -60,6 +60,8 @@ build  @PKGLIBDIR@/vrpm-preload
 build  @PKGLIBDIR@/vrpm-worker
 build  @PKGLIBDIR@/vserver-build
 sysv   @PKGLIBDIR@/vserver-wrapper
+base   @PKGLIBDIR@/vshelper
+base   @PKGLIBDIR@/vshelper-sync
 sysv   @PKGLIBDIR@/vsysvwrapper
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vcopy
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vunify
@@ -91,7 +93,6 @@ base   @SBINDIR@/vserver
 build  @SBINDIR@/vserver-copy
 core   @SBINDIR@/vserver-info
 base   @SBINDIR@/vserver-stat
-base   @SBINDIR@/vshelper
 base   @SBINDIR@/vtop
 core   @SBINDIR@/vuname
 devel  @INCLUDEDIR@/vserver.h
