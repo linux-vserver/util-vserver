@@ -35,7 +35,7 @@ typedef enum { tgNONE,tgCONTEXT, tgRUNNING,
 	       tgVDIR, tgNAME, tgCFGDIR, tgAPPDIR,
 	       tgAPIVER,
 	       tgINITPID, tgINITPID_PID,
-	       tgXID,
+	       tgXID, tgUTS,
 }	VserverTag;
 
 static struct {
@@ -52,7 +52,10 @@ static struct {
   { "INITPID",     tgINITPID,     "gives out the initpid of the given context" },
   { "INITPID_PID", tgINITPID_PID, "gives out the initpid of the given pid" },
   { "XID",         tgXID,         "gives out the context-id of the given pid" },
-  { "APIVER",      tgAPIVER,      "gives out the version of the kernel API" }
+  { "APIVER",      tgAPIVER,      "gives out the version of the kernel API" },
+  { "UTS",         tgUTS,         ("gives out an uts-entry; possible entries are "
+				   "context, sysname, nodename, release, version, "
+				   "machine and domainname") },
 };
 
 int wrapper_exit_code = 1;
@@ -114,12 +117,28 @@ stringToTag(char const *str)
   return tgNONE;
 }
 
+static vc_uts_type
+utsText2Tag(char const *str)
+{
+  if      (strcmp(str, "context")   ==0) return vcVHI_CONTEXT;
+  else if (strcmp(str, "sysname")   ==0) return vcVHI_SYSNAME;
+  else if (strcmp(str, "nodename")  ==0) return vcVHI_NODENAME;
+  else if (strcmp(str, "release")   ==0) return vcVHI_RELEASE;
+  else if (strcmp(str, "version")   ==0) return vcVHI_VERSION;
+  else if (strcmp(str, "machine")   ==0) return vcVHI_MACHINE;
+  else if (strcmp(str, "domainname")==0) return vcVHI_DOMAINNAME;
+  else {
+    WRITE_MSG(2, "Unknown UTS tag\n");
+    exit(1);
+  }
+}
+
 static int
 execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
 {
   char const *		res = 0;
-  char 			buf[sizeof(xid_t)*4 + 16];
-  xid_t			ctx;
+  char 			buf[sizeof(xid_t)*4 + 1024];
+  xid_t			xid = *vserver!='\0' ? (xid_t)(atoi(vserver)) : VC_SAMECTX;
 
   memset(buf, 0, sizeof buf);
   switch (tag) {
@@ -133,9 +152,9 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
       break;
       
     case tgCONTEXT	:
-      ctx = vc_getVserverCtx(vserver, vcCFG_AUTO, true, 0);
-      if (ctx!=VC_NOCTX) {
-	utilvserver_fmt_long(buf, ctx);
+      xid = vc_getVserverCtx(vserver, vcCFG_AUTO, true, 0);
+      if (xid!=VC_NOCTX) {
+	utilvserver_fmt_long(buf, xid);
 	res = buf;
       }
       break;
@@ -147,7 +166,8 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
     case tgXID		:
     {
       pid_t	pid = atoi(vserver);
-      xid_t	xid = vc_get_task_xid(pid);
+
+      xid = vc_get_task_xid(pid);
       if (xid==VC_NOCTX) perror("vc_get_task_xid()");
       else {
 	utilvserver_fmt_long(buf, xid);
@@ -158,7 +178,6 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
 
     case tgINITPID	:
     {
-      xid_t			xid = *vserver!='\0' ? (xid_t)(atoi(vserver)) : VC_SAMECTX;
       struct vc_vx_info		info;
       if (vc_get_vx_info(xid, &info)==-1) perror("vc_get_vx_info()");
       else {
@@ -171,9 +190,9 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
     case tgINITPID_PID	:
     {
       pid_t			pid = atoi(vserver);
-      xid_t			xid = vc_get_task_xid(pid);
       struct vc_vx_info		info;
 
+      xid = vc_get_task_xid(pid);
       if (xid==VC_NOCTX) perror("vc_get_task_xid()");
       else if (vc_get_vx_info(xid, &info)==-1) perror("vc_get_vx_info()");
       else {
@@ -194,6 +213,41 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
       }
       break;
     }
+
+    case tgUTS		:
+    {
+      if (argc>0) {
+	vc_uts_type	type = utsText2Tag(argv[0]);
+	if (vc_get_vhi_name(xid, type, buf, sizeof(buf)-1)==-1)
+	  perror("vc_get_vhi_name()");
+	else
+	  res=buf;
+      }
+      else {
+	bool		is_passed = false;
+	char		tmp[128];
+#define APPEND_UTS(TYPE) \
+	(((vc_get_vhi_name(xid, TYPE, tmp, sizeof(tmp)-1)!=-1) && (strcat(buf, tmp), strcat(buf, " "), is_passed=true)) || \
+	 (strcat(buf, "??? ")))
+
+	APPEND_UTS(vcVHI_CONTEXT) &&
+	  APPEND_UTS(vcVHI_SYSNAME) &&
+	  APPEND_UTS(vcVHI_NODENAME) &&
+	  APPEND_UTS(vcVHI_RELEASE) &&
+	  APPEND_UTS(vcVHI_VERSION) &&
+	  APPEND_UTS(vcVHI_MACHINE) &&
+	  APPEND_UTS(vcVHI_DOMAINNAME) &&
+	  is_passed &&
+	  (res = buf);
+
+	if (!is_passed)
+	  perror("vc_get_vhi_name()");
+
+#undef APPEND_UTS
+      }
+      break;
+    }
+    
     default		:  assert(false); abort();  // TODO
   }
 
