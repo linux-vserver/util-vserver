@@ -32,8 +32,11 @@
 static struct Mapping_uint64 const VALUES[] = {
   DECL("utsname", VC_VXC_SET_UTSNAME),
   DECL("rlimit",  VC_VXC_SET_RLIMIT),
-  DECL("ping",    VC_VXC_ICMP_PING),
+  DECL("icmp",    VC_VXC_RAW_ICMP),
   DECL("mount",   VC_VXC_SECURE_MOUNT),
+  DECL("remount", VC_VXC_SECURE_REMOUNT),
+    // some deprecated values...
+  DECL("ping",    VC_VXC_RAW_ICMP),
 };
 
 uint_least64_t
