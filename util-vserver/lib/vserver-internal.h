@@ -26,8 +26,8 @@
 #include <asm/unistd.h>
 #include <errno.h>
 
-#ifndef __NR_sys_vserver
-#  define __NR_sys_vserver	273
+#ifndef __NR_vserver
+#  define __NR_vserver	273
 #endif
 
 #define VC_PREFIX	0)
@@ -90,13 +90,13 @@ extern "C" {
 #ifndef HAVE_SYS_VIRTUAL_CONTEXT
 #if defined(__pic__) && defined(__i386)
 inline static UNUSED ALWAYSINLINE
-int sys_vserver(uint32_t cmd, uint32_t id, void *data)
+int vserver(uint32_t cmd, uint32_t id, void *data)
 {
-  return syscall(__NR_sys_vserver, cmd, id, data);
+  return syscall(__NR_vserver, cmd, id, data);
 }
 #else
 inline static UNUSED ALWAYSINLINE
-_syscall3(int, sys_vserver,
+_syscall3(int, vserver,
 	  uint32_t, cmd, uint32_t, id, void *, data)
 #endif
 #endif

@@ -35,7 +35,7 @@ vc_get_rlimit_v11(ctx_t ctx, int resource, struct vc_rlimit *lim)
   int				rc;
 
   vc_lim.id        = resource;
-  rc = sys_vserver(VC_CMD(RLIMIT, 1, 0), CTX_USER2KERNEL(ctx), &vc_lim);
+  rc = vserver(VC_CMD(RLIMIT, 1, 0), CTX_USER2KERNEL(ctx), &vc_lim);
   lim->min  = KERN2USR(vc_lim.minimum);
   lim->soft = KERN2USR(vc_lim.softlimit);
   lim->hard = KERN2USR(vc_lim.maximum);
@@ -53,7 +53,7 @@ vc_set_rlimit_v11(ctx_t ctx, int resource, struct vc_rlimit const *lim)
   vc_lim.softlimit = USR2KERN(lim->soft);
   vc_lim.maximum   = USR2KERN(lim->hard);
 
-  return sys_vserver(VC_CMD(RLIMIT, 2, 0), CTX_USER2KERNEL(ctx), &vc_lim);
+  return vserver(VC_CMD(RLIMIT, 2, 0), CTX_USER2KERNEL(ctx), &vc_lim);
 }
 
 static inline ALWAYSINLINE int
@@ -64,7 +64,7 @@ vc_get_rlimit_mask_v11(ctx_t ctx, int tmp, struct vc_rlimit_mask *lim)
 
   (void)tmp;
 
-  rc = sys_vserver(VC_CMD(RLIMIT, 3, 0), CTX_USER2KERNEL(ctx), &vc_lim);
+  rc = vserver(VC_CMD(RLIMIT, 3, 0), CTX_USER2KERNEL(ctx), &vc_lim);
   lim->min  = vc_lim.minimum;
   lim->soft = vc_lim.softlimit;
   lim->hard = vc_lim.maximum;

@@ -28,5 +28,5 @@ vc_ctx_kill_v11(ctx_t ctx, pid_t pid, int sig)
     .sig = sig
   };
 
-  return sys_vserver(VC_CMD(PROCTRL, 1, 0), ctx, &param);
+  return vserver(VC_CMD(PROCTRL, 1, 0), ctx, &param);
 }

@@ -30,7 +30,7 @@
 static inline ALWAYSINLINE int
 vc_get_version_internal(int cat)
 {
-  return sys_vserver(VC_CMD(VERSION, 0, 0), cat, 0);
+  return vserver(VC_CMD(VERSION, 0, 0), cat, 0);
 }
 
 #endif	//  H_UTIL_VSERVER_LIB_GETVERSION_INTERNAL_H
