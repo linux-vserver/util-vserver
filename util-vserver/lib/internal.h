@@ -32,6 +32,7 @@ extern "C" {
 
 int	utilvserver_checkCompatVersion();
 bool	utilvserver_isDirectory(char const *path, bool follow_link);
+bool	utilvserver_isFile(char const *path, bool follow_link);
 
 int	utilvserver_listparser_uint32(char const *str, size_t len,
 				      char const **err_ptr, size_t *err_len,
