@@ -41,7 +41,7 @@
 #define LIBNAME		"rpm-fake.so"
 #define PLATFORM_FILE	"/etc/rpm/platform"
 
-#define INIT(FILE,FUNC)	FUNC##_func = dlsym(FILE, #FUNC)
+#define INIT(FILE,FUNC)	FUNC##_func = ((__typeof__(FUNC) *) (dlsym(FILE, #FUNC)))
 #define DECLARE(FUNC)	static __typeof__(FUNC) *       FUNC##_func = 0
 
 static bool		is_initialized = false;
