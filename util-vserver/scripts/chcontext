@@ -110,7 +110,7 @@ OPT_DISCONNECT=
 OPT_FLAGS=()
 OPT_SECURE=
 OPT_SILENT=
-OPT_FAKEINIT=
+OPT_INITPID=
 
 while true; do
     case "$1" in
@@ -122,9 +122,8 @@ while true; do
 	--domainname)	OPT_DOMAINNAME=$2; shift;;
 	--hostname)	OPT_HOSTNAME=$2;   shift;;
 	--flag)
-	    test "$2" = "fakeinit" && \
-		OPT_FAKEINIT=--fakeinit ||
-		OPT_FLAGS=( "${OPT_FLAGS[@]}" "$2" )
+	    test "$2" != "fakeinit" || OPT_INITPID=--initpid
+	    OPT_FLAGS=( "${OPT_FLAGS[@]}" "$2" )
 	    shift
 	    ;;
 	--secure)	OPT_SECURE=1;;
@@ -158,7 +157,7 @@ chain_cmd=( "${chain_cmd[@]}"
 migrate_cmd=( $_VCONTEXT
 	      ${OPT_SILENT:+--silent}
 	      ${OPT_DISCONNECT:+--disconnect}
-	      $OPT_FAKEINIT )
+	      $OPT_INITPID )
 
 "${create_cmd[@]}" "${chain_cmd[@]}" -- \
     "${migrate_cmd[@]}" --endsetup --migrate-self -- "$@"

@@ -48,7 +48,7 @@
 #define CMD_XID			0x4000
 #define CMD_CREATE		0x4001
 #define CMD_MIGRATE		0x4003
-#define CMD_FAKEINIT		0x4002
+#define CMD_INITPID		0x4002
 #define CMD_DISCONNECT		0x4004
 #define CMD_UID			0x4005
 #define CMD_CHROOT		0x4006
@@ -69,7 +69,7 @@ CMDLINE_OPTIONS[] = {
   { "create",     no_argument,       0, CMD_CREATE },
   { "migrate",    no_argument,       0, CMD_MIGRATE },
   { "migrate-self", no_argument,       	0, CMD_MIGRATESELF },
-  { "fakeinit",     no_argument,       	0, CMD_FAKEINIT },
+  { "initpid",      no_argument,       	0, CMD_INITPID },
   { "endsetup",     no_argument,        0, CMD_ENDSETUP },
   { "disconnect",   no_argument,	0, CMD_DISCONNECT },
   { "silent",       no_argument,       	0, CMD_SILENT },
@@ -78,6 +78,9 @@ CMDLINE_OPTIONS[] = {
   { "chroot",       no_argument,       	0, CMD_CHROOT },
   { "syncsock",     required_argument, 	0, CMD_SYNCSOCK },
   { "syncmsg",      required_argument, 	0, CMD_SYNCMSG },
+#if 1  
+  { "fakeinit",     no_argument,       	0, CMD_INITPID },	// compatibility
+#endif  
   { 0,0,0,0 },
 };
 
@@ -87,7 +90,7 @@ struct Arguments {
     bool		do_migrateself;
     bool		do_disconnect;
     bool		do_endsetup;
-    bool		is_fakeinit;
+    bool		is_initpid;
     bool		is_silentexist;
     int			verbosity;
     bool		do_chroot;
@@ -113,7 +116,7 @@ showHelp(int fd, char const *cmd, int res)
 	    "<opts> can be:\n"
 	    "    --chroot	 ...  chroot into current directory\n"
 	    "    --uid <uid>     ...  change uid\n"
-	    "    --fakeinit      ...  set current process as general process reaper\n"
+	    "    --initpid       ...  set current process as general process reaper\n"
 	    "                         for ctx (possible for --migrate only)\n"
 	    "    --endsetup      ...  clear the setup flag; usefully for migrate only\n"
 	    "    --disconnect    ...  start program in background\n"
@@ -184,7 +187,7 @@ setFlags(struct Arguments const *args, xid_t xid)
 {
   struct vc_ctx_flags	flags = { 0,0 };
 
-  if (args->is_fakeinit)
+  if (args->is_initpid)
     flags.mask |=  VC_VXF_STATE_INIT;
 
   if (args->do_endsetup)
@@ -284,7 +287,7 @@ int main (int argc, char *argv[])
     .do_migrateself = false,
     .do_disconnect  = false,
     .do_endsetup    = false,
-    .is_fakeinit    = false,
+    .is_initpid     = false,
     .is_silentexist = false,
     .verbosity      = 1,
     .uid            = -1,
@@ -303,7 +306,7 @@ int main (int argc, char *argv[])
       case CMD_MIGRATE		:  args.do_migrate     = true;   break;
       case CMD_DISCONNECT	:  args.do_disconnect  = true;   break;
       case CMD_ENDSETUP		:  args.do_endsetup    = true;   break;
-      case CMD_FAKEINIT		:  args.is_fakeinit    = true;   break;
+      case CMD_INITPID		:  args.is_initpid     = true;   break;
       case CMD_CHROOT		:  args.do_chroot      = true;   break;
       case CMD_SILENTEXIST	:  args.is_silentexist = true;   break;
       case CMD_SYNCSOCK		:  args.sync_sock      = optarg; break;
@@ -334,8 +337,8 @@ int main (int argc, char *argv[])
     WRITE_MSG(2, "Neither '--create' nor '--migrate specified; try '--help' for more information\n");
   else if (args.do_create  &&  args.do_migrate)
     WRITE_MSG(2, "Can not specify '--create' and '--migrate' at the same time; try '--help' for more information\n");
-  else if (!args.do_migrate && args.is_fakeinit)
-    WRITE_MSG(2, "'--fakeinit' is possible in combination with '--migrate' only\n");
+  else if (!args.do_migrate && args.is_initpid)
+    WRITE_MSG(2, "'--initpid' is possible in combination with '--migrate' only\n");
   else if (!args.do_create && args.xid==VC_DYNAMIC_XID)
     WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "Can not migrate to an unknown context\n");
   else if (optind>=argc)
