@@ -528,7 +528,7 @@ function umountVserver
 
     is_ok=1
 
-    isAvoidNamespace "$cfgdir"  || return 0
+    isAvoidNamespace "$cfgdir"   || return 0
     test -e "$cfgdir"/fstab      || return 0
     test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$cfgdir"
     
