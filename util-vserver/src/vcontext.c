@@ -27,11 +27,15 @@
 #include <getopt.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 
 #define ENSC_WRAPPERS_PREFIX	"vcontext: "
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_FCNTL	1
+#define ENSC_WRAPPERS_SOCKET	1
+#define ENSC_WRAPPERS_IOSOCK	1
 #include <wrappers.h>
 
 #define CMD_HELP		0x1000
@@ -44,6 +48,8 @@
 #define CMD_UID			0x4005
 #define CMD_CHROOT		0x4006
 #define CMD_SILENT		0x4007
+#define CMD_SYNCSOCK		0x4008
+#define CMD_SYNCMSG		0x4009
 
 struct option const
 CMDLINE_OPTIONS[] = {
@@ -58,6 +64,8 @@ CMDLINE_OPTIONS[] = {
   { "silent",     no_argument,       0, CMD_SILENT },
   { "uid",        no_argument,       0, CMD_UID },
   { "chroot",     no_argument,       0, CMD_CHROOT },
+  { "syncsock",   required_argument, 0, CMD_SYNCSOCK },
+  { "syncmsg",    required_argument, 0, CMD_SYNCMSG },
   { 0,0,0,0 },
 };
 
@@ -70,6 +78,8 @@ struct Arguments {
     bool		do_chroot;
     uid_t		uid;
     xid_t		xid;
+    char const *	sync_sock;
+    char const *	sync_msg;
 };
 
 int		wrapper_exit_code = 255;
@@ -90,7 +100,17 @@ showHelp(int fd, char const *cmd, int res)
 	    "    --uid <uid>     ...  change uid\n"
 	    "    --fakeinit      ...  set current process as general process reaper\n"
 	    "                         for ctx (possible for --migrate only)\n"
+	    "    --disconnect    ...  start program in background\n"
 	    "    --silent        ...  be silent\n"
+	    "    --syncsock <file-name>\n"
+	    "                    ...  before executing the program, send a message\n"
+	    "                         to the socket and wait until it closes.\n"
+	    "                         <file-name> must be a SOCK_STREAM unix socket\n"
+	    "    --syncmsg <message>\n"
+	    "                    ...  use <message> as synchronization message; by\n"
+	    "                         default, 'ok' will be used\n"
+	    "\n"
+	    "'vcontext --create' exits with code 254 iff the context exists already.\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
@@ -169,6 +189,40 @@ tellContext(xid_t ctx, bool do_it)
   WRITE_MSG(2, "\n");
 }
 
+static int
+connectExternalSync(char const *filename)
+{
+  int			fd;
+  struct sockaddr_un	addr;
+  
+  if (filename==0) return -1;
+
+  ENSC_INIT_UNIX_SOCK(addr, filename);
+
+  fd = Esocket(PF_UNIX, SOCK_STREAM, 0);
+  Econnect(fd, &addr, sizeof(addr));
+
+  return fd;
+}
+
+static void
+doExternalSync(int fd, char const *msg)
+{
+  char		c;
+  
+  if (fd==-1) return;
+
+  if (msg) EsendAll(fd, msg, strlen(msg));
+  Eshutdown(fd, SHUT_WR);
+
+  if (TEMP_FAILURE_RETRY(recv(fd, &c, 1, MSG_NOSIGNAL))!=0) {
+    WRITE_MSG(2, "vcontext: unexpected external synchronization event\n");
+    exit(255);
+  }
+
+  Eclose(fd);
+}
+
 static inline ALWAYSINLINE int
 doit(struct Arguments const *args, char *argv[])
 {
@@ -177,8 +231,17 @@ doit(struct Arguments const *args, char *argv[])
   
   if (pid==0) {
     xid_t	xid;
+    int		ext_sync_fd = connectExternalSync(args->sync_sock);
+    
     if (args->do_create) {
-      xid = Evc_create_context(args->xid);
+      xid = vc_create_context(args->xid);
+      if (xid==VC_NOCTX) {
+	if (errno==EEXIST) return 254;
+	else {
+	  perror(ENSC_WRAPPERS_PREFIX "vc_create_context()");
+	  return wrapper_exit_code;
+	}
+      }
       tellContext(xid, args->verbosity>=1);
     }
     else
@@ -209,6 +272,7 @@ doit(struct Arguments const *args, char *argv[])
     if (args->do_migrate)
       Evc_migrate_context(xid);
 
+    doExternalSync(ext_sync_fd, args->sync_msg);
     doSyncStage1(p, args->do_disconnect);
     execvp (argv[optind],argv+optind);
     doSyncStage2(p, args->do_disconnect);
@@ -231,6 +295,7 @@ int main (int argc, char *argv[])
     .verbosity     = 1,
     .uid           = -1,
     .xid           = VC_DYNAMIC_XID,
+    .sync_msg      = "ok",
   };
   
   while (1) {
@@ -248,6 +313,8 @@ int main (int argc, char *argv[])
       case CMD_SILENT		:  --args.verbosity;          break;
       case CMD_XID		:  args.xid           = atol(optarg); break;
       case CMD_UID		:  args.uid           = atol(optarg); break;
+      case CMD_SYNCSOCK		:  args.sync_sock     = optarg; break;
+      case CMD_SYNCMSG		:  args.sync_msg      = optarg; break;
 
       default		:
 	WRITE_MSG(2, "Try '");
