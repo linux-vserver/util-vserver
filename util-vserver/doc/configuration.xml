@@ -17,7 +17,18 @@
       <default>/vservers</default>
       <description>A link to the default vserver rootdirectory.</description>
     </link>
-    
+
+
+    <boolean name="nonamespace">
+      <description>
+Disable namespace usage globally. It can be overridden for a single
+vserver by setting the 'namespace' flag there.
+
+In this mode the /vservers directory must have the 'barrier'
+attribute. Else, common chroot(2) exploits are possible.
+      </description>
+    </boolean>
+
     <link name="run.rev">
       <description>
 Path of the vserver run reverse directory. This directory contains
@@ -262,6 +273,23 @@ url="http://savannah.nongnu.org/cgi-bin/viewcvs/util-vserver/util-vserver/lib/cc
 for possible values.
       </description>
     </list>
+
+    <boolean name="namespace">
+      <description>
+Overrides the global 'nonamespace' flag and enables namespace usage
+for the current vserver.
+      </description>
+    </boolean>
+
+    <boolean name="nonamespace">
+      <description>
+Disables namespace usage for the current vserver.
+
+In this mode the /vservers directory must have the 'barrier'
+attribute. Else, common chroot(2) exploits are possible.
+      </description>
+    </boolean>
+
     <hash name="schedule">
       <description>
 [experimental; name is subject of possible change] Contains the
