@@ -6,11 +6,13 @@ INSTALL
 Makefile
 aclocal.m4
 autom4te.cache
+autoscan.log
 compile
 config.h
 config.h.in
 config.log
 config.status
+configure.scan
 depcomp
 install-sh
 linuxcaps.h
@@ -18,8 +20,11 @@ missing
 mkinstalldirs
 stamp-h1
 stamp-h2
+util-vserver*.diff*
+util-vserver*.patch*
 util-vserver-*.tar.bz2*
 util-vserver-*.tar.gz
+util-vserver-0.23.94__0.23.95.patch
 util-vserver.spec
 vserver.spec
 vserverx-*.tar.*
