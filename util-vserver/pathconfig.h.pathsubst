@@ -28,10 +28,11 @@
 #define DEFAULT_VSERVERPKGDIR	"@VSERVERPKGDIR@"
 #define DEFAULT_PKGSTATEREVDIR	"@PKGSTATEREVDIR@"
 
-#define MOUNT_PROG	"@MOUNT@"
-#define UMOUNT_PROG	"@UMOUNT@"
-#define PS_PROG		"@PS@"
+#define MOUNT_PROG		"@MOUNT@"
+#define UMOUNT_PROG		"@UMOUNT@"
+#define PS_PROG			"@PS@"
 
-#define RESOLVER_PROG	PKGLIBDIR "/rpm-fake-resolver"
+#define VPKG_PROG		PKGLIBDIR "/vpkg"
+#define RESOLVER_PROG		PKGLIBDIR "/rpm-fake-resolver"
 
 #endif	//  H_UTIL_VSERVER_PATHCONFIG_H
