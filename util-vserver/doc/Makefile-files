@@ -20,7 +20,11 @@
 doc_DAT =		doc/FAQ.txt \
 			doc/changelog.txt \
 			doc/intro.txt \
-			doc/compatibility.html
+			doc/compatibility.html \
+			doc/compat-xhtml.xsl \
+			doc/compatibility.dtd \
+			doc/compatibility.xml \
+			doc/configuration.xml
 
 doc/compatibility.html:		STYLESHEET=$(srcdir)/doc/compat-xhtml.xsl
 doc/compatibility.html:		$(srcdir)/doc/compat-xhtml.xsl
