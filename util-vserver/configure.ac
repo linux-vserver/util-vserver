@@ -41,8 +41,6 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
-dnl AC_PROG_RANLIB
-AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
 ENSC_CXXCOMPILER
 ENSC_C99COMPILER
@@ -106,9 +104,15 @@ if test x"$ensc_have_dietlibc" = xno; then
 	AC_MSG_WARN([***                                                         ***])
 	AM_CONDITIONAL(USE_DIETLIBC_COMPAT, false)
 else
+	enable_static=no
+
 	ENSC_DIETLIBC_SANITYCHECK
 	ENSC_DIETLIBC_NEED_COMPAT(USE_DIETLIBC_COMPAT)
 fi
+
+
+dnl AC_PROG_RANLIB
+AC_PROG_LIBTOOL
 
 
 ENSC_KERNEL_HEADERS(kernelincludedir)
@@ -129,6 +133,8 @@ AC_ARG_ENABLE([internal-headers],
 AM_CONDITIONAL(ENSC_ENABLE_INTERNAL_HEADERS, [test x"$enable_internal_headers" = xyes])
 AC_MSG_RESULT([$enable_internal_headers])
 
+
+AM_CONDITIONAL(CAN_BEECRYPT_WITH_DIETLIBC, false)
 
 dnl Check for the APIs to be used
 AC_MSG_CHECKING([for supported APIs])
