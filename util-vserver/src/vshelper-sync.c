@@ -59,8 +59,13 @@ void alarmHandler(int UNUSED sig)
 
 int main(int argc, char *argv[])
 {
-  int		fd;
-  int		idx = 1;
+  int			fd;
+  int			idx = 1;
+  struct sigaction	act = {
+    .sa_handler = alarmHandler,
+    .sa_flags   = SA_ONESHOT,
+  };
+  sigfillset(&act.sa_mask);
 
   if (argc>=2) {
     if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
@@ -74,7 +79,10 @@ int main(int argc, char *argv[])
   }
 
 
-  signal(SIGALRM, alarmHandler);
+  if (sigaction(SIGALRM, &act, 0)==-1) {
+    perror("vshelper-sync: sigaction()");
+    return EXIT_FAILURE;
+  }
   alarm(atoi(argv[idx+1]));
   
   fd = open(argv[idx], O_RDONLY,0);
@@ -96,4 +104,4 @@ int main(int argc, char *argv[])
   }
 
   return EXIT_SUCCESS;
-}
+  }  
