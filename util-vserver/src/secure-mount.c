@@ -232,7 +232,7 @@ fchroot(int fd)
 static int
 writeX(int fd, void const *buf, size_t len)
 {
-  if (write(fd, buf, len)!=len) return -1;
+  if ((size_t)(write(fd, buf, len))!=len) return -1;
   return 0;
 }
 
@@ -442,7 +442,7 @@ transformOptionList(struct MountInfo *info)
   while (isspace(*PTR)) ++PTR
 
 static enum {prDOIT, prFAIL, prIGNORE}
-parseFstabLine(struct MountInfo	*info, char *buf, struct Options const *opt)
+parseFstabLine(struct MountInfo	*info, char *buf)
 {
   while (isspace(*buf)) ++buf;
   if (*buf=='#')  return prIGNORE;
@@ -505,7 +505,7 @@ mountFstab(struct Options const *opt)
       struct MountInfo	mnt;
       char *		new_ptr = strtok_r(0, "\n", &ptrptr);
 
-      switch (parseFstabLine(&mnt, ptr, opt)) {
+      switch (parseFstabLine(&mnt, ptr)) {
 	case prFAIL	:
 	  WRITE_MSG(2, "Failed to parse/mount fstab-line beginning with '");
 	  WRITE_STR(2, ptr);
@@ -567,7 +567,7 @@ int main(int argc, char *argv[])
     if (c==-1) break;
     
     switch (c) {
-      case 'h'		:  showHelp(2, argv[0], 0);
+      case 'h'		:  showHelp(1, argv[0], 0);
       case 'v'		:  showVersion();
       case 't'		:  mnt.type = optarg;         break;
       case 'n'		:  opt.ignore_mtab = true;    break;
