@@ -34,6 +34,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/mount.h>
+#include <sys/ioctl.h>
 
 #define WRAPPER_DECL	UNUSED ALWAYSINLINE
 
@@ -263,6 +264,13 @@ Emkstemp(char *template)
   int		res = mkstemp(template);
   FatalErrnoError(res==-1, "mkstemp()");
   return res;
+}
+
+inline static WRAPPER_DECL void
+Eioctl(int fd, int request, void *p)
+{
+  int   res = ioctl(fd, request, p);
+  FatalErrnoError(res<0, "ioctl()");
 }
 
 #undef WRAPPER_DECL
