@@ -25,9 +25,11 @@
 #include "compat.h"
 
 #include "vserver-internal.h"
+
+#define _LINUX_TYPES_H 1
 #include "linuxvirtual.h"
 
-static inline ALWAYSINLINE int
+static inline ALWAYSINLINE UNUSED int
 vc_get_version_internal(int cat)
 {
   return sys_virtual_context(VC_CMD(VERSION, 0, 0), cat, 0);

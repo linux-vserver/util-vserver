@@ -24,6 +24,8 @@
 #include "compat.h"
 #include "vserver.h"
 #include "vserver-internal.h"
+
+#define _LINUX_TYPES_H 1
 #include "linuxvirtual.h"
 
 #ifdef VC_ENABLE_API_COMPAT    
