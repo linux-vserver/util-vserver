@@ -233,6 +233,16 @@ extern "C" {
   }
 
 
+  struct vc_set_sched {
+      int32_t	fill_rate;
+      int32_t	period;
+      int32_t	fill_level;
+      int32_t	bucket_size;
+  };
+
+  int		vc_set_sched(xid_t xid, struct vc_set_sched const *);
+  
+  
   typedef enum { vcFEATURE_VKILL,  vcFEATURE_IATTR,   vcFEATURE_RLIMIT,
 		 vcFEATURE_COMPAT, vcFEATURE_MIGRATE, vcFEATURE_NAMESPACE,
 		 vcFEATURE_SCHED,  vcFEATURE_VINFO,   vcFEATURE_VHI }
