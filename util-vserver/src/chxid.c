@@ -98,7 +98,7 @@ bool
 handleFile(char const *name, char const * display_name,
 	   struct stat const *exp_st)
 {
-  if (S_ISLNK(exp_st->st_mode)) return true;
+  if (!S_ISREG(exp_st->st_mode)) return true;
   
   return setFile(name, display_name, exp_st);
 }

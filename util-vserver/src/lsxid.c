@@ -110,7 +110,7 @@ handleFile(char const *name, char const *display_name,
 
   memset(buf, ' ', sizeof buf);
 
-  if (S_ISLNK(exp_st->st_mode)) {
+  if (!S_ISREG(exp_st->st_mode)) {
     memcpy(buf, "-------", 7);
     write(1, buf, sizeof buf);
     need_write = false;

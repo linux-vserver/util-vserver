@@ -119,7 +119,7 @@ handleFileLegacy(char const *name, char const *display_name,
 {
   long		flags;
 
-  if (S_ISLNK(exp_st->st_mode)) {
+  if (!S_ISREG(exp_st->st_mode)) {
     write(1, display_name, strlen(display_name));
     write(1, "  -\n", 2);
     return true;
@@ -149,7 +149,7 @@ handleFile(char const *name, char const *display_name,
     return handleFileLegacy(name, display_name, exp_st);
 #endif
   
-  if (S_ISLNK(exp_st->st_mode)) {
+  if (!S_ISREG(exp_st->st_mode)) {
     write(1, "--------", 8);
   }
   else {
