@@ -109,14 +109,14 @@ base   @MANDIR@/*/vpstree.*
 base   @MANDIR@/*/vserver-stat*
 base   @MANDIR@/*/vserver.*
 base   @MANDIR@/*/vtop*
-sysv   @CONFIG@ @INITRDDIR@/v_gated
-sysv   @CONFIG@ @INITRDDIR@/v_httpd
-sysv   @CONFIG@ @INITRDDIR@/v_named
-sysv   @CONFIG@ @INITRDDIR@/v_portmap
-sysv   @CONFIG@ @INITRDDIR@/v_sendmail
-sysv   @CONFIG@ @INITRDDIR@/v_smb
-sysv   @CONFIG@ @INITRDDIR@/v_sshd
-sysv   @CONFIG@ @INITRDDIR@/v_xinetd
+legacy @CONFIG@ @INITRDDIR@/v_gated
+legacy @CONFIG@ @INITRDDIR@/v_httpd
+legacy @CONFIG@ @INITRDDIR@/v_named
+legacy @CONFIG@ @INITRDDIR@/v_portmap
+legacy @CONFIG@ @INITRDDIR@/v_sendmail
+legacy @CONFIG@ @INITRDDIR@/v_smb
+legacy @CONFIG@ @INITRDDIR@/v_sshd
+legacy @CONFIG@ @INITRDDIR@/v_xinetd
 sysv   @CONFIG@ @INITRDDIR@/vprocunhide
 sysv   @CONFIG@ @INITRDDIR@/vservers-default
 legacy @CONFIG@ @INITRDDIR@/rebootmgr
