@@ -150,14 +150,16 @@ struct  vcmd_tbf_sched_v1 {
 
 /*  inode vserver commands */
 
-#define VCMD_get_iattr		VC_CMD(INODE, 1, 0)
-#define VCMD_set_iattr		VC_CMD(INODE, 2, 0)
+#define VCMD_get_iattr_v0       VC_CMD(INODE, 1, 0)
+#define VCMD_set_iattr_v0       VC_CMD(INODE, 2, 0)
+#define VCMD_get_iattr          VC_CMD(INODE, 1, 1)
+#define VCMD_set_iattr          VC_CMD(INODE, 2, 1)
 
-struct  vcmd_ctx_iattr_v0 {
-	uint64_t ino;
-	uint32_t xid;
-	uint32_t flags;
-	uint32_t mask;
+struct  vcmd_ctx_iattr_v1 {
+        const char *file_name;
+        uint32_t xid;
+        uint32_t flags;
+        uint32_t mask;
 };
 
 #define IATTR_XID	0x01000000
@@ -203,6 +205,5 @@ enum vx_vhi_name_field {
        VHIN_MACHINE,
        VHIN_DOMAINNAME,
 };
-
 
 #endif /* _LINUX_VIRTUAL_H */
