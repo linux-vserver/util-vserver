@@ -1,2 +1,4 @@
+.gdb_history
+.*.stamp
 util-vserver-vars
 vps

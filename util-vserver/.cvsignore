@@ -1,5 +1,7 @@
 .*-up-to-date
 .deps
+.gdb_history
+.pathconfig.h.pathsubst.stamp
 COPYING
 ChangeLog
 INSTALL

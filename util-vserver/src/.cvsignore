@@ -1,5 +1,7 @@
 .deps
 .dirstamp
+.gdb_history
+.libs
 capchroot
 chbind
 chcontext
@@ -20,11 +22,13 @@ readlink
 rebootmgr
 reducecap
 rpm-fake-resolver
+rpm-fake.la
 save_ctxinfo
 secure-mount
 setctxlimit
 showattr
 showperm
+src_rpm_fake_la-rpm-fake.lo
 vbuild
 vcheck
 vdu
