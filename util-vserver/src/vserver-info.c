@@ -52,7 +52,8 @@ static struct {
     VserverTag const	val;
     char const * const	descr;
 }  const TAGS[] = {
-  { "CONTEXT", tgCONTEXT, "the current and/or assigned context" },
+  { "CONTEXT", tgCONTEXT, ("the current and/or assigned context; when an optinal argument "
+			   "evaluates to false,only the current context will be printed") },
   { "RUNNING", tgRUNNING, "gives out '1' when vserver is running; else, it fails without output" },
   { "VDIR",    tgVDIR,    "gives out the root-directory of the vserver" },
   { "NAME",    tgNAME,    "gives out the name of the vserver" },
@@ -282,9 +283,10 @@ printSysInfo(char *buf)
 }
 
 static char *
-getContext(char *buf, char const *vserver)
+getContext(char *buf, char const *vserver, bool allow_only_static)
 {
-  xid_t		xid = vc_getVserverCtx(vserver, vcCFG_AUTO, true, 0);
+  xid_t		xid = vc_getVserverCtx(vserver, vcCFG_AUTO,
+				       allow_only_static, 0);
   if (xid==VC_NOCTX) return 0;
   
   utilvserver_fmt_long(buf, xid);
@@ -295,6 +297,12 @@ static int
 testFeature(int argc, char *argv[])
 {
   return (argc>0 && vc_isSupportedString(argv[0])) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+static bool
+str2bool(char const *str)
+{
+  return atoi(str)!=0 || strchr("yYtY", str[0])!=0;
 }
 
 static int
@@ -319,7 +327,8 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
       res = (vc_getVserverCtx(vserver, vcCFG_AUTO, false, 0)==VC_NOCTX) ? 0 : "1";
       break;
 
-    case tgCONTEXT	:  res = getContext(buf, vserver);     break;
+    case tgCONTEXT	:  res = getContext(buf, vserver,
+					    argc==0 || str2bool(argv[0])); break;
     case tgXID		:  res = getXid(buf, vserver);         break;
     case tgINITPID	:  res = getInitPid(buf, xid);         break;
     case tgINITPID_PID	:  res = getInitPidPid(buf, vserver);  break;
