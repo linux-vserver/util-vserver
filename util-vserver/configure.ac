@@ -47,7 +47,7 @@ ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
 AC_ARG_VAR(CC, [The C compiler])
 ENSC_KERNEL_HEADERS(kernelincludedir)
 ENSC_UV_VROOTDIR(vserverdir)
-
+ENSC_CHANGELOG([SYSCALL_SWITCH])
 
 AC_MSG_CHECKING([whether to enable linuxconf modules])
 AC_ARG_ENABLE([linuxconf],
