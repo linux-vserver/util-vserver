@@ -3,6 +3,7 @@
 capchroot
 chbind
 chcontext
+chroot-rm
 fakerunlevel
 filetime
 ifspec
