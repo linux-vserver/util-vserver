@@ -51,7 +51,7 @@ AC_DEFUN([_ENSC_DIETLIBC_C99],
 	fi
 ])
 
-dnl Usage: ENSC_ENABLE_DIETLIBC(<conditional>)
+dnl Usage: ENSC_ENABLE_DIETLIBC(<conditional>[,<min-version>])
 dnl        <conditional> ... automake-conditional which will be set when
 dnl                          dietlibc shall be enabled
 
@@ -69,6 +69,21 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 		      [: ${DIET:=diet}
 		       which "$DIET" >/dev/null 2>/dev/null && use_dietlibc=detected || use_dietlibc=detected_no])
 
+	if test "$use_dietlibc" = detected -a '$2'; then
+	    _dietlibc_ver=$(${DIET:-diet} -v 2>&1 | sed '1p;d')
+	    _dietlibc_ver=${_dietlibc_ver##*dietlibc-}
+	    _dietlibc_ver_maj=${_dietlibc_ver%%.*}
+	    _dietlibc_ver_min=${_dietlibc_ver##*.}
+	    _dietlibc_cmp=$2
+	    _dietlibc_cmp_maj=${_dietlibc_cmp%%.*}
+	    _dietlibc_cmp_min=${_dietlibc_cmp%%.*}
+
+	    let _dietlibc_ver=_dietlibc_ver_maj*1000+_dietlibc_ver_min 2>/dev/null || _dietlibc_ver=0
+	    let _dietlibc_cmp=_dietlibc_cmp_maj*1000+_dietlibc_cmp_min
+
+	    test $_dietlibc_ver -ge $_dietlibc_cmp || use_dietlibc=detected_old
+        fi
+
 	ensc_have_dietlibc=no
 	case x"$use_dietlibc" in
 	    xdetected)
@@ -84,6 +99,10 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 	    xdetected_no)
 		AM_CONDITIONAL($1, false)
 		AC_MSG_RESULT([no (detected)])
+		;;
+	    xdetected_old)
+		AM_CONDITIONAL($1, false)
+		AC_MSG_RESULT([no (too old; $2 required)])
 		;;
 	    xforced_no)
 		AM_CONDITIONAL($1, false)
