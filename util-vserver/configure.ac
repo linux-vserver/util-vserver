@@ -61,7 +61,8 @@ ENSC_PATHPROG(XSLTP,     xsltp,    [:])
 ENSC_PATHPROG(XSLTPROC,  xsltproc, [:])
 
 
-AM_CONDITIONAL(HAVE_XSLTP, test "$XSLTP" != ':')
+AM_CONDITIONAL(HAVE_XSLTP,    test "$XSLTP"    != ':')
+AM_CONDITIONAL(HAVE_XSLTPROC, test "$XSLTPROC" != ':')
 	
 
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
@@ -89,11 +90,30 @@ else
 	AC_MSG_RESULT(yes)
 fi
 
+AC_MSG_CHECKING([whether to enable expensive tests])
+AC_ARG_ENABLE([expensive-tests],
+	      [AC_HELP_STRING([--disable-expensive-tests],
+			      [disable tests which might be expensive on some systems (default: no)])],
+	      [case "$enableval" in
+		 (yes|no)  use_expensive_tests=$enableval;;
+		 (*)       AC_MSG_ERROR(['$enableval' is not a valid value for '--disable-expensive-tests']);;
+	       esac],
+              [ use_expensive_tests=yes ])
+AC_MSG_RESULT($use_expensive_tests)
+
+AC_SUBST(ENSC_USE_EXPENSIVE_TESTS, "$use_expensive_tests")
+
+
 AC_ARG_VAR(CC, [The C compiler])
 
 ENSC_INITRDDIR(initrddir)
 ENSC_RELEASE(RELEASE_CPPFLAGS)
-ENSC_ENABLE_DIETLIBC(USE_DIETLIBC, [0.24])
+
+dnl ###########################
+dnl
+dnl {some dietlibc related tests
+dnl
+ENSC_ENABLE_DIETLIBC(USE_DIETLIBC, [0.25])
 
 if test x"$ensc_have_dietlibc" = xno; then
 	AC_MSG_WARN([***                                                         ***])
@@ -104,39 +124,56 @@ if test x"$ensc_have_dietlibc" = xno; then
 	AC_MSG_WARN([***                                                         ***])
 	AM_CONDITIONAL(USE_DIETLIBC_COMPAT, false)
 else
+	# HACK: libtool does not have cmdline options to build only
+	# dynamic libraries; this can be done with the
+	# '--disable-static' ./configure option only.  As our static
+	# libraries will be build with dietlibc, we have to do set
+	# this option which is evaluated by 'AC_PROG_LIBTOOL'
+ 	# below.  Therefore, this macro must not be called earlier.
 	enable_static=no
 
 	ENSC_DIETLIBC_SANITYCHECK
 	ENSC_DIETLIBC_NEED_COMPAT(USE_DIETLIBC_COMPAT)
 fi
 
-
-dnl AC_PROG_RANLIB
+# HACK: see comments at 'enable_static' above
 AC_PROG_LIBTOOL
+dnl
+dnl dietlibc stuff ends here}
+dnl
+dnl ##########################
 
 
 ENSC_KERNEL_HEADERS(kernelincludedir)
 ENSC_UV_VROOTDIR(vserverdir)
 ENSC_CHANGELOG([trunk])
 
-dnl Check whether to use external kernel headers
+
+dnl ##########################
+dnl
+dnl {Check whether to use external kernel headers
+dnl
 AC_MSG_CHECKING([whether to use internal kernel headers])
 AC_ARG_ENABLE([internal-headers],
               [AC_HELP_STRING([--disable-internal-headers],
                               [use vserver specific headers from the kernel instead of the shipped versions (default: no)])],
               [case "$enableval" in
-	          yes|no) ;;
-	          *)      AC_MSG_ERROR(['$i' is not a supported value for '--disable-internal-headers']);;
+	          (yes|no) ;;
+	          (*)      AC_MSG_ERROR(['$i' is not a supported value for '--disable-internal-headers']);;
 	       esac],
               [enable_internal_headers=yes])
 
 AM_CONDITIONAL(ENSC_ENABLE_INTERNAL_HEADERS, [test x"$enable_internal_headers" = xyes])
 AC_MSG_RESULT([$enable_internal_headers])
+dnl
+dnl the check regarding external kernel headers ends here}
+dnl
+dnl ##########################
 
-
-AM_CONDITIONAL(CAN_BEECRYPT_WITH_DIETLIBC, false)
-
-dnl Check for the APIs to be used
+dnl ##########################
+dnl
+dnl {Check for the APIs to be used
+dnl
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([apis],
 	      [AC_HELP_STRING([--enable-apis=APIS],
@@ -151,22 +188,22 @@ old_IFS=$IFS
 IFS=,;
 for i in $enable_apis; do
 	case "$i" in
-		compat)		AC_DEFINE(VC_ENABLE_API_COMPAT,   1, [Enable support for compatibility syscall API])
+		(compat)	AC_DEFINE(VC_ENABLE_API_COMPAT,   1, [Enable support for compatibility syscall API])
 				enable_api_oldproc=1
 				enable_api_olduts=1
 				;;
-		legacy) 	AC_DEFINE(VC_ENABLE_API_LEGACY,   1, [Enable support for old, /proc parsing API])
+		(legacy) 	AC_DEFINE(VC_ENABLE_API_LEGACY,   1, [Enable support for old, /proc parsing API])
 				enable_api_old_proc=1
 				enable_api_olduts=1
 				;;
-		v11)    	AC_DEFINE(VC_ENABLE_API_V11,      1, [Enable support for API of vserver 1.1.x])
+		(v11)    	AC_DEFINE(VC_ENABLE_API_V11,      1, [Enable support for API of vserver 1.1.x])
 				enable_api_oldproc=1
 				enable_api_olduts=1
 				;;
-		v13)    	AC_DEFINE(VC_ENABLE_API_V13,      1, [Enable support for API of vserver 1.3.x]);;
-		net)		AC_DEFINE(VC_ENABLE_API_NET,      1, [Enable support for network context API]);;
-		fscompat)	AC_DEFINE(VC_ENABLE_API_FSCOMPAT, 1, [Enable support for filesystem compatibility API]);;
-		*)		AC_MSG_ERROR(['$i' is not a supported API]);;
+		(v13)    	AC_DEFINE(VC_ENABLE_API_V13,      1, [Enable support for API of vserver 1.3.x]);;
+		(net)		AC_DEFINE(VC_ENABLE_API_NET,      1, [Enable support for network context API]);;
+		(fscompat)	AC_DEFINE(VC_ENABLE_API_FSCOMPAT, 1, [Enable support for filesystem compatibility API]);;
+		(*)		AC_MSG_ERROR(['$i' is not a supported API]);;
 	esac
 done
 IFS=$old_IFS
@@ -179,6 +216,11 @@ if test x"$enable_api_olduts" != x; then
 	enable_apis="$enable_apis,olduts"
 fi
 AC_MSG_RESULT([$enable_apis])
+dnl
+dnl the check for used APIs ends here}
+dnl
+dnl ##########################
+
 
 ENSC_SYSCALLNR(vserver,273)
 ENSC_SYSCALL
@@ -190,6 +232,43 @@ AC_CHECK_TYPES(nid_t,,,[#include <sys/types.h>])
 
 AC_CHECK_HEADERS([sys/capability.h])
 
+
+dnl ########################
+dnl
+dnl {check for beecrypt
+dnl
+if test x"$ensc_cv_c99_c99compiler" = xyes; then
+	ensc_have_beecrypt=yes
+
+	if test x"$ensc_have_beecrypt" = xyes; then
+		AC_CHECK_HEADER([beecrypt/beecrypt.h], [ : ],
+				[ ensc_have_beecrypt=no ])
+	fi
+			
+	if test x"$ensc_have_beecrypt" = xyes; then
+		AC_CHECK_LIB(beecrypt, hashFunctionContextInit, [ : ],
+			     [ ensc_have_beecrypt=no ])
+	fi
+
+	if test x"$ensc_have_beecrypt" != xyes; then
+		AC_MSG_WARN([
+****
+**** 'beecrypt' could not be found;
+**** this will disable the build of 'vhashify'
+****])
+	fi
+else
+	ensc_have_beecrypt=no
+fi
+
+AM_CONDITIONAL(ENSC_HAVE_BEECRYPT, test x"$ensc_have_beecrypt" = xyes)
+AM_CONDITIONAL(ENSC_CAN_BEECRYPT_WITH_DIETLIBC, false)
+dnl
+dnl beecrypt stuff ends here}
+dnl
+dnl ########################
+
+
 dnl BIG HACK! Do some autodetection here!
 AC_DEFINE(UTMP_GID, [22], [The utmp gid-number])
 
@@ -197,9 +276,14 @@ if false; then
 	AC_DEFINE(HAVE_GROWING_STACK, [1], [Define to 1 if the stack is on growing addresses])
 fi
 
+AC_DEFINE(_FILE_OFFSET_BITS, [64], [Use 64bit interface for filesystem operations])
 
+dnl ########################
+dnl
+dnl {The final info-page
+dnl
 ensc_cxx_affected=" (affected: vbuild, vcheck)"
-ensc_c99_affected=" (affected: vunify, vcopy)"
+ensc_c99_affected=" (affected: vunify, vcopy, vhashify, vdlimit)"
 ensc_diet_msg=" (you have been warned)"
 ensc_diet_version_msg=" ($ensc_version_dietlibc)"
 ensc_diet_compat_msg=" (using -lcompat)"
@@ -209,7 +293,8 @@ test x"$ensc_have_dietlibc"         = xno || ensc_diet_msg=
 test x"$ensc_version_dietlibc"     != x   || ensc_diet_version_msg=
 test x"$ensc_have_dietlibc$ensc_cv_c_dietlibc_compat" = xyesyes || ensc_diet_compat_msg=
 
-AH_BOTTOM([#include "compat.h"])
+AH_BOTTOM([#include "compat.h"
+])
 AC_CONFIG_COMMANDS_PRE([
 			FEATURES_TXT="\
 Features:
@@ -238,6 +323,11 @@ Paths:
 "
 			echo "$FEATURES_TXT" >FEATURES.txt
 			])
+dnl
+dnl final info-page ends here}
+dnl
+dnl ########################
+
 AC_CONFIG_FILES([util-vserver.spec Makefile distrib/Makefile lib/apidoc/Doxyfile])
 AC_OUTPUT
 
