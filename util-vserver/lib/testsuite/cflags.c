@@ -31,7 +31,7 @@
 #define TEST_F2T_C(Y,X) {				\
     char const *x=vc_hicflag2text_compat(X);		\
     assert((x==0 && Y==0) || (x!=0 && Y!=0));		\
-    if (x!=0 && Y!=0) assert(strcmp(x, Y)==0);		\
+    if (x!=0 && Y!=0) assert(strcmp(x, Y ? Y : "")==0);	\
   }
 
 #define TEST_LIST_C(STR,LEN,EXP,ERR_POS,ERR_LEN) {	\
@@ -52,7 +52,7 @@
     uint_least64_t x = (X);					\
     char const *rc=vc_locflag2text(&x);				\
     assert((rc==0 && Y==0) || (rc!=0 && Y!=0));			\
-    if (rc!=0 && Y!=0) assert(strcmp(rc, Y)==0);		\
+    if (rc!=0 && Y!=0) assert(strcmp(rc, Y ? Y : "")==0);	\
   }
 #define TEST_LIST(STR,LEN,EXP_RES,EXP_FLAG,EXP_MASK,ERR_POS,ERR_LEN) {	\
     struct vc_err_listparser	err;					\
