@@ -24,12 +24,12 @@
 #define CONCAT_TWO_ARGS(BUF, LHS,RHS)			\
   size_t		BUF ## l1 = strlen(LHS);	\
   size_t		BUF ## l2 = strlen(RHS);	\
-  char			BUF[BUF ## l1 + BUF ## l2 + 2];	\
+  char			BUF[BUF##l1 + BUF##l2 + 2];	\
   							\
-  memcpy(BUF,      LHS, BUF ## l1 + 1);			\
-  if (BUF ## l2>0) {					\
-    memcpy(BUF+BUF ## l1,   "/", BUF ## l1);		\
-    memcpy(BUF+BUF ## l1+1, RHS, BUF ## l2+1);		\
+  memcpy(BUF,      LHS, BUF##l1 + 1);			\
+  if (BUF##l2 > 0) {					\
+    BUF[ BUF##l1 ] = '/';				\
+    memcpy(BUF+ BUF##l1 + 1, RHS, BUF##l2 + 1);		\
   }
 
 static inline int
