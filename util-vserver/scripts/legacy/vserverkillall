@@ -20,7 +20,7 @@
 # This script kills all process it can finds
 # Only useful if you are using a security context.
 # It does nothing in context 0
-USR_LIB_VSERVER=$(dirname $0)
+USR_LIB_VSERVER=/usr/lib/util-vserver
 CTX=`grep ^s_context /proc/self/status | sed s/s_context:// | (read a b; echo $a)`
 CTX=`eval expr $CTX + 0`
 if [ "$CTX" = 0 ] ; then
