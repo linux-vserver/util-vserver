@@ -33,7 +33,7 @@
 
 #define CTX_TAG		"\ns_context: "
 
-static ctx_t
+static xid_t
 vc_X_getctx_legacy(pid_t pid)
 {
   static volatile size_t	bufsize=4097;

@@ -38,9 +38,9 @@
 #  define MS_MOVE		8192
 #endif
 
-#ifndef HAVE_CTX_T
+#ifndef HAVE_XID_T
 #include <stdint.h>
-typedef uint32_t		ctx_t;
+typedef uint32_t		xid_t;
 #endif
 
 #endif	//  H_UTIL_VSERVER_COMPAT_H

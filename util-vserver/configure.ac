@@ -107,7 +107,7 @@ AC_CHECK_HEADERS([ext2fs/ext2fs.h], [],
 
 AC_CHECK_FUNCS([sys_virtual_context])
 AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
-AC_CHECK_TYPES(ctx_t,,,[#include <sys/types.h>])
+AC_CHECK_TYPES(xid_t,,,[#include <sys/types.h>])
 
 AC_CONFIG_FILES([util-vserver.spec Makefile])
 AC_OUTPUT

@@ -25,11 +25,11 @@
 #include <sys/types.h>
 
 /** the value which is returned in error-case (no ctx found) */
-#define VC_NOCTX		((ctx_t)(-1))
+#define VC_NOCTX		((xid_t)(-1))
 /** the value which means a random (the next free) ctx */
-#define VC_RANDCTX		((ctx_t)(-1))
+#define VC_RANDCTX		((xid_t)(-1))
 /** the value which means the current ctx */
-#define VC_SAMECTX		((ctx_t)(-2))
+#define VC_SAMECTX		((xid_t)(-2))
 
 #define VC_LIM_INFINITY		(~0ULL)
 #define VC_LIM_KEEP		(~1ULL)
@@ -52,7 +52,7 @@ extern "C" {
      *  - VC_SAMECTX  which means the current context (just for changing caps and flags)
      *  - VC_RANDCTX  which means the next free context; this value can be used by
      *                ordinary users also */
-  int	vc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags);
+  int	vc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags);
 
     /** Sets the ipv4root information.
      *  \precondition: nb<16 */
@@ -76,19 +76,19 @@ extern "C" {
       uint32_t hard;
   };
 
-  int	vc_get_rlimit(ctx_t ctx, int resource, struct vc_rlimit *lim);
-  int	vc_set_rlimit(ctx_t ctx, int resource, struct vc_rlimit const *lim);
-  int	vc_get_rlimit_mask(ctx_t ctx, struct vc_rlimit_mask *lim);
+  int	vc_get_rlimit(xid_t ctx, int resource, struct vc_rlimit *lim);
+  int	vc_set_rlimit(xid_t ctx, int resource, struct vc_rlimit const *lim);
+  int	vc_get_rlimit_mask(xid_t ctx, struct vc_rlimit_mask *lim);
 
 
   /** sends a signal to a context/pid
       Special values for pid are:
       * -1   which means every process in ctx except the init-process
       *  0   which means every process in ctx inclusive the init-process */
-  int	vc_ctx_kill(ctx_t ctx, pid_t pid, int sig);
+  int	vc_ctx_kill(xid_t ctx, pid_t pid, int sig);
   
     /** Returns the context of the given process. pid==0 means the current process. */
-  ctx_t	vc_X_getctx(pid_t pid);
+  xid_t	vc_X_getctx(pid_t pid);
     
 #ifdef __cplusplus
 }

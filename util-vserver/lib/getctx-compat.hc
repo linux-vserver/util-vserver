@@ -21,7 +21,7 @@
 
 #include "getctx-legacy.hc"
 
-static inline ALWAYSINLINE ctx_t
+static inline ALWAYSINLINE xid_t
 vc_X_getctx_compat(pid_t pid)
 {
   return vc_X_getctx_legacy(pid);

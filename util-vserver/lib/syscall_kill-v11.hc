@@ -21,7 +21,7 @@
 #endif
 
 static inline ALWAYSINLINE int
-vc_ctx_kill_v11(ctx_t ctx, pid_t pid, int sig)
+vc_ctx_kill_v11(xid_t ctx, pid_t pid, int sig)
 {
   struct vcmd_ctx_kill_v0	param = {
     .pid = pid,

@@ -29,7 +29,7 @@
 #include <unistd.h>
 
 static inline ALWAYSINLINE int
-vc_new_s_context_compat(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
+vc_new_s_context_compat(xid_t ctx, unsigned int remove_cap, unsigned int flags)
 {
   struct vcmd_new_s_context_v1	msg;
   msg.remove_cap = remove_cap;

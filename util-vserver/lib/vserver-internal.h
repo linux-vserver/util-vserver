@@ -73,7 +73,7 @@
 #if 1
 #  define CTX_KERNEL2USER(X)	(((X)==(uint32_t)(-1)) ? VC_NOCTX   : \
 				 ((X)==(uint32_t)(-2)) ? VC_SAMECTX : \
-				 (ctx_t)(X))
+				 (xid_t)(X))
 
 #  define CTX_USER2KERNEL(X)	(((X)==VC_RANDCTX) ? (uint32_t)(-1) : \
 				 ((X)==VC_SAMECTX) ? (uint32_t)(-2) : \

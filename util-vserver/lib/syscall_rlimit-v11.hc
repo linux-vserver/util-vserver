@@ -29,7 +29,7 @@
    ((LIMIT)==VC_LIM_KEEP)     ? CRLIM_KEEP     : (LIMIT))
 
 static inline ALWAYSINLINE int
-vc_get_rlimit_v11(ctx_t ctx, int resource, struct vc_rlimit *lim)
+vc_get_rlimit_v11(xid_t ctx, int resource, struct vc_rlimit *lim)
 {
   struct vcmd_ctx_rlimit_v0	vc_lim;
   int				rc;
@@ -44,7 +44,7 @@ vc_get_rlimit_v11(ctx_t ctx, int resource, struct vc_rlimit *lim)
 }
 
 static inline ALWAYSINLINE int
-vc_set_rlimit_v11(ctx_t ctx, int resource, struct vc_rlimit const *lim)
+vc_set_rlimit_v11(xid_t ctx, int resource, struct vc_rlimit const *lim)
 {
   struct vcmd_ctx_rlimit_v0	vc_lim;
 
@@ -57,7 +57,7 @@ vc_set_rlimit_v11(ctx_t ctx, int resource, struct vc_rlimit const *lim)
 }
 
 static inline ALWAYSINLINE int
-vc_get_rlimit_mask_v11(ctx_t ctx, int tmp, struct vc_rlimit_mask *lim)
+vc_get_rlimit_mask_v11(xid_t ctx, int tmp, struct vc_rlimit_mask *lim)
 {
   struct vcmd_ctx_rlimit_v0	vc_lim;
   int				rc;

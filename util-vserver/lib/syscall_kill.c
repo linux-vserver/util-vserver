@@ -30,7 +30,7 @@
 #endif
 
 int
-vc_ctx_kill(ctx_t ctx, pid_t pid, int sig)
+vc_ctx_kill(xid_t ctx, pid_t pid, int sig)
 {
   CALL_VC(CALL_VC_V11(vc_ctx_kill, ctx, pid, sig));
 }
