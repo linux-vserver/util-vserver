@@ -38,7 +38,7 @@ struct nx_info {
 };
 
 
-extern spinlock_t iplist_lock;
+extern spinlock_t nxlist_lock;
 extern struct list_head nx_infos;
 
 
@@ -47,6 +47,13 @@ struct nx_info *create_nx_info(void);
 
 extern struct nx_info *find_nx_info(int);
 extern int nx_info_id_valid(int);
+
+struct in_ifaddr;
+struct net_device;
+
+int ifa_in_nx_info(struct in_ifaddr *, struct nx_info *);
+int dev_in_nx_info(struct net_device *, struct nx_info *);
+
 
 #endif	/* __KERNEL__ */
 

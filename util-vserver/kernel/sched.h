@@ -105,17 +105,26 @@ static inline void vx_consume_token(struct vx_info *vxi)
 	atomic_dec(&vxi->sched.tokens);
 }
 
-static inline int vx_need_resched(struct task_struct *p, struct vx_info *vxi)
+static inline int vx_need_resched(struct task_struct *p)
 {
-	p->time_slice--;
+#ifdef	CONFIG_VSERVER_HARDCPU
+	struct vx_info *vxi = p->vx_info;
+
 	if (vxi) {
 		int tokens;
+
+		p->time_slice--;
+		if (atomic_read(&vxi->vx_refcount) < 1)
+			printk("need_resched: p=%p, s=%ld, ref=%d, id=%d/%d\n",
+				p, p->state, atomic_read(&vxi->vx_refcount),
+				vxi->vx_id, p->xid);
 		if ((tokens = vx_tokens_avail(vxi)) > 0)
 			vx_consume_token(vxi);
-
 		return ((p->time_slice == 0) || (tokens < 1));
-	} else
-		return (p->time_slice == 0);
+	}
+#endif
+	p->time_slice--;
+	return (p->time_slice == 0);
 }
 
 
