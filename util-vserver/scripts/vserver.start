@@ -53,6 +53,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
     ${USE_VNAMESPACE:+$_VNAMESPACE --set -- } \
     $_VLIMIT     --dir "$VSERVER_DIR"/rlimits --missingok -- \
     $_VUNAME     --xid self --dir "$VSERVER_DIR"/uts     --missingok -- \
+    "${VSERVER_EXTRA_CMDS[@]}"
     $_VUNAME     --xid self --set -t context="$VSERVER_DIR" -- \
     $_VATTRIBUTE --set "${OPTS_VATTRIBUTE[@]}" -- \
     $_SAVE_CTXINFO "$VSERVER_DIR" \
