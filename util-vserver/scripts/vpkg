@@ -84,7 +84,7 @@ case "$style" in
 	    ## rpm outputs sometimes '(contains no files)', so return
 	    ## only the valid output
 	    (get-conffiles)
-		rpm_param=( -qac --pipe "sed '\!^/!p;d'" );;
+		rpm_param=( -qac --pipe "$_SED '\!^/!p;d'" );;
 	    (install)
 		rpm_param=( -Uvh "$@" )
 		apt_param=( install "$@" )

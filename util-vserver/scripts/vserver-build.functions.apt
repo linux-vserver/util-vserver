@@ -69,14 +69,14 @@ function apt.initFilesystem
 
     local f="$PKGCFGDIR"/apt/etc/apt.conf
     if test -e "$f"; then
-	sed -e "s!@APTETCDIR@!$PKGCFGDIR/apt/etc!g" "$f" >"$f.tmp"
-	cmp -s "$f" "$f.tmp" || cat "$f.tmp" >"$f"
-	rm -f "$f.tmp"
+	$_SED -e "s!@APTETCDIR@!$PKGCFGDIR/apt/etc!g" "$f" >"$f.tmp"
+	$_CMP -s "$f" "$f.tmp" || $_CAT "$f.tmp" >"$f"
+	$_RM -f "$f.tmp"
     fi
 
     test -z "$APTCONFDEFAULT" || \
-	ln -s "$APTCONFDEFAULT"   "$PKGCFGDIR"/apt/etc/apt.conf.d/default.conf
+	$_LN_S "$APTCONFDEFAULT"   "$PKGCFGDIR"/apt/etc/apt.conf.d/default.conf
 
     test -z "$APTVENDORDEFAULT" || \
-	ln -s "$APTVENDORDEFAULT" "$PKGCFGDIR"/apt/etc/vendors.list.d/default.conf
+	$_LN_S "$APTVENDORDEFAULT" "$PKGCFGDIR"/apt/etc/vendors.list.d/default.conf
 }

@@ -17,7 +17,7 @@
 
 function cleanUp
 {
-    test ! -d "$workdir"  || rm -rf "$workdir"
+    test ! -d "$workdir"  || $_RM -rf "$workdir"
 }
 
 function init
@@ -50,7 +50,7 @@ function findDebootstrap
 {
     pushd . &>/dev/null
     DEBOOTSTRAP=$(which debootstrap 2>/dev/null) || {
-        dir=$(mktemp -d /var/tmp/debootstrap.XXXXXX)
+        dir=$($_MKTEMPDIR /var/tmp/debootstrap.XXXXXX)
         workdir=$dir
         dst=$dir/debootstrap.deb
         
@@ -60,7 +60,7 @@ function findDebootstrap
     	(/*)			ln -s "$tmp" "$dst";;
     	(http://*|ftp://*)
 	    $_WGET -nv -O "$dst" "$tmp" || {
-		cat <<EOF >&2
+		$_CAT <<EOF >&2
 ERROR: Could not download the debootstrap package from
 
    $dst
@@ -96,8 +96,8 @@ EOF
 
 function fixupDebian
 {
-    rm -rf "$1"/dev
-    mv "$1"/dev.X "$1"/dev
+    $_RM -rf "$1"/dev
+    $_MV "$1"/dev.X "$1"/dev
 }
 
 

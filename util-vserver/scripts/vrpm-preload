@@ -31,9 +31,9 @@ function getCapFlags
     
     if test "$ctx" && ! $_VSERVER_INFO - FEATURE migrate; then
 	set -- $($_CHCONTEXT_COMPAT --xid 1 \
-	    sh -c "cat /proc/[0-9]*/status | egrep '^(CapBset|s_context|ctxflags)'" | \
-	    grep -B 1 -A 1 "^s_context: $ctx " | \
-	    sed -e '1,3p;d' | awk '{ print $2 }')
+	    $_SH -c "$_CAT /proc/[0-9]*/status | $_EGREP '^(CapBset|s_context|ctxflags)'" | \
+	    $_GREP -B 1 -A 1 "^s_context: $ctx " | \
+	    $_SED -e '1,3p;d' | $_AWK '{ print $2 }')
     else
 	set --
     fi

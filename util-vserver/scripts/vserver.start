@@ -27,7 +27,7 @@ function cleanup()
 {
     set +e
 
-    test -z "$startsync_pipe"  || rm -f "$startsync_pipe"
+    test -z "$startsync_pipe"  || $_RM -f "$startsync_pipe"
     test -z "$is_started"      || { unlock; return 0; }
 
     if test "$is_configured" -a -z "$is_executed"; then
@@ -109,9 +109,9 @@ if $_VSERVER_INFO - FEATURE migrate; then
     "${INITCMD_START[@]}"
 else
     if test "$_IS_FAKEINIT"; then
-	startsync_pipe=$(mktemp /tmp/vserver-start.XXXXXX)
-	rm -f "$startsync_pipe"
-	mkfifo -m600 "$startsync_pipe"	## safe, since mkfifo does not follow symlinks
+	startsync_pipe=$($_MKTEMP /tmp/vserver-start.XXXXXX)
+	$_RM -f "$startsync_pipe"
+	$_MKFIFO -m600 "$startsync_pipe"	## safe, since mkfifo does not follow symlinks
     fi
     
     ${NICE_CMD[@]} \

@@ -113,10 +113,10 @@ while test $i -gt 0; do
     unset vservers[$i]
 done
 
-makedir=$(mktemp -d /tmp/vserver-init.XXXXXX)
-okfile=$(mktemp     /tmp/vserver-init.XXXXXX)
-passedfile=$(mktemp /tmp/vserver-init.XXXXXX)
-trap "rm -rf $makedir $resultfile $passedfile" EXIT
+makedir=$($_MKTEMPDIR /tmp/vserver-init.XXXXXX)
+okfile=$($_MKTEMP     /tmp/vserver-init.XXXXXX)
+passedfile=$($_MKTEMP /tmp/vserver-init.XXXXXX)
+trap "$_RM -rf $makedir $resultfile $passedfile" EXIT
 
 test_cmd=false
 case "$OPTION_FLAVOR" in
@@ -174,7 +174,7 @@ done
 #cat $makedir/Makefile
 make -k ${NOOPTION_DEBUG:+-s} ${OPTION_PARALLEL:+-j$OPTION_PARALLEL} -C $makedir
 
-test -s "$passedfile"          || exit 0
-test -s "$okfile"              || exit 1
-cmp -s "$passedfile" "$okfile" || exit 2
+test  -s "$passedfile"           || exit 0
+test  -s "$okfile"               || exit 1
+$_CMP -s "$passedfile" "$okfile" || exit 2
 exit 0

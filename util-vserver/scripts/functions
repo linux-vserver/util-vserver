@@ -63,7 +63,7 @@ function findAndCopy
     findFile tmp "$@"
 
     test "$tmp" -a -s "$tmp" || return 0
-    cp -af "$tmp" "$dst"
+    $_CP -af "$tmp" "$dst"
 }
 
 function getPhysicalDir
@@ -125,13 +125,13 @@ function colorize
     local	style=$1
     shift
     
-    if ! tty -s; then
+    if ! $_TTY -s; then
 	"$@"
     else
 	local	cfile
 	findFile cfile "$CONFDIR"/.defaults/styles/"$style" ''
 	if test "$cfile"; then
-	  cat "$cfile"
+	  $_CAT "$cfile"
 	else
 	  case "$style" in
 	    (bold)	echo -ne "\e[1m";;
@@ -151,7 +151,7 @@ function colorize
 ## Usage: xtermTitle <title>
 function xtermTitle
 {
-    tty -s || return 0
+    $_TTY -s || return 0
     echo -ne "\e]0;$@\007"
 }
 
@@ -159,12 +159,12 @@ _VS_LOCKS=''
 ## Usage: lock <lockfile> [<timeout>]
 function lock
 {
-    local tmp=$(mktemp /tmp/vserver-lock.XXXXXX)
-    rm -f $tmp
-    mkfifo -m600 $tmp
+    local tmp=$($_MKTEMP /tmp/vserver-lock.XXXXXX)
+    $_RM -f $tmp
+    $_MKFIFO -m600 $tmp
 
     $_LOCKFILE "$1" $tmp $2 &
-    grep -q true $tmp 2>/dev/null || return 1
+    $_GREP -q true $tmp 2>/dev/null || return 1
     
     _VS_LOCKS="$! $_VS_LOCKS"
 }
@@ -189,7 +189,7 @@ function _pkgMountBindDir()
 {
     test "$1" != "$2" || return 0
 
-    mount -n --bind "$1" "$2"
+    $_MOUNT -n --bind "$1" "$2"
 }
 
 function _pkgSetVarsBase
@@ -293,11 +293,11 @@ function _pkgMountRPM
 
     pushd "$VDIR" >/dev/null
 
-    "$_SECURE_MOUNT" --chroot -n --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
+    $_SECURE_MOUNT --chroot -n --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
     test -z "$WORKAROUND_106057" || mount -n --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
 
     test -e "$VDIR"/proc/self/status || \
-	"$_SECURE_MOUNT" --chroot -n -t proc none /proc
+	$_SECURE_MOUNT --chroot -n -t proc none /proc
 
     popd >/dev/null
 }
@@ -426,7 +426,7 @@ function getVserverStatus
 
     if test "$_tmp" = 0; then
 	local runfile=$($_READLINK "$1/run")
-	test -z "$4" || rm -f "$runfile"
+	test -z "$4" || $_RM -f "$runfile"
 	return 1
     fi
 
@@ -484,11 +484,11 @@ function checkComponents
     for i; do
 	local failed=
 	case "$i" in
-	    core)	test -x "$_CHBIND"           || failed=1;;
-	    build)	test -x "$_VSERVER_BUILD"    || failed=1;;
-	    sysv)	test -x "$INITRDDIR/vserver" || failed=1;;
-	    devel)	test -d "$INCLUDEDIR/vserver.h" || failed=1;;
-	    *)		echo "Unknown component '$i'" >&2
+	    (core)	test -x "$_CHBIND"           || failed=1;;
+	    (build)	test -x "$_VSERVER_BUILD"    || failed=1;;
+	    (sysv)	test -x "$INITRDDIR/vserver" || failed=1;;
+	    (devel)	test -d "$INCLUDEDIR/vserver.h" || failed=1;;
+	    (*)		echo "Unknown component '$i'" >&2
 			return false
 			;;
 	esac
@@ -626,7 +626,7 @@ function vshelper.doSanityCheck
     else
 	vshelper=$(cat "$proc_file")
 
-	cmp -s "$vshelper" "$_VSHELPER" || {
+	$_CMP -s "$vshelper" "$_VSHELPER" || {
 	    warnings=( "${warnings[@]}"
 		       $"The configured vshelper '$vshelper' does not match the 'vshelper'
   script of the util-vserver package"
@@ -751,7 +751,7 @@ function vshelper.doInit
     local f="$VSHELPERSTATEDIR/$xid"
     
     set -C
-    rm -f "$f"
+    $_RM -f "$f"
     echo "$1" >"$f"
     set +C
     
@@ -773,19 +773,19 @@ function vshelper.doDestroy
 {
     vshelper.isEnabled || return 0
 
-    rm -f "$VSHELPERSTATEDIR/$2"
+    $_RM -f "$VSHELPERSTATEDIR/$2"
 }
 
 ## Usage: vshelper.initSync <vserver> <pipe-varname>
 function vshelper.initSync
 {
-    local tmpdir=$(mktemp -d /tmp/vserver-stop.XXXXXX) || {
+    local tmpdir=$($_MKTEMPDIR /tmp/vserver-stop.XXXXXX) || {
 	warning $"Failed to generate temporary directory for vshelper sync"
 	return 1
     }
 
     local fifo="$tmpdir"/pipe
-    mkfifo -m700 "$fifo"
+    $_MKFIFO -m700 "$fifo"
     vshelper.doInit "$1" sync "$fifo"
     eval $2=\$fifo
 }
