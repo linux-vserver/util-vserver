@@ -134,7 +134,8 @@ function _mountFilesystemsInternal()
 
 function _mountFilesystems()
 {
-    local cfgdir=$($_VSERVER_INFO "$1" CFGDIR) || {
+    local cfgdir
+    cfgdir=$($_VSERVER_INFO "$1" CFGDIR) || {
 	echo "Can not determine configuration directory for '$1'; ..." >&2
 	return 1
     }
@@ -146,7 +147,8 @@ function _mountFilesystems()
 
 function _umountFilesystems()
 {
-    local cfgdir=$($_VSERVER_INFO "$1" CFGDIR) || {
+    local cfgdir
+    cfgdir=$($_VSERVER_INFO "$1" CFGDIR) || {
 	echo "Can not determine configuration directory for '$1'; ..." >&2
 	return 1
     }

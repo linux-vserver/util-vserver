@@ -530,7 +530,8 @@ function checkComponents
 ## Usage: isKernelAPI <ver> [<cmp-modifier>]
 function isKernelAPI
 {
-    local api=$($_VSERVER_INFO - APIVER) || api=0
+    local api
+    api=$($_VSERVER_INFO - APIVER) || api=0
     test $[ $api ] -${2:-ge} $[ $1 ]
 }
 
@@ -568,7 +569,8 @@ function setDefaultTTY
 ## Usage: pkgmgmt.guessStyle <vserver> <resultvar>
 function pkgmgmt.guessStyle()
 {
-    local _pgs_vdir=$($_VSERVER_INFO "$1" VDIR) || {
+    local _pgs_vdir
+    _pgs_vdir=$($_VSERVER_INFO "$1" VDIR) || {
 	echo $"Can not determine vserver-root" >&2
 	return 1
     }
@@ -732,7 +734,8 @@ function vshelper.isEnabled
     test ! -e "$CONFDIR"/.defaults/apps/vshelper/"$f"       || return 1
     $_VSERVER_INFO - FEATURE vshelper                       || return 1
     if test -n "$2"; then
-	local appdir=$($_VSERVER_INFO "$2" APPDIR vshelper) || return 0
+	local appdir
+	appdir=$($_VSERVER_INFO "$2" APPDIR vshelper)       || return 0
 	test -z "$2" -o ! -e "$appdir/$f"                   || return 1
     fi
 
@@ -745,7 +748,8 @@ function vshelper.isDebug
     test ! -e "$CONFDIR"/.defaults/apps/vshelper/debug	    || return 1
     $_VSERVER_INFO - FEATURE vshelper                       || return 1
     if test -n "$1"; then
-	local appdir=$($_VSERVER_INFO "$1" APPDIR vshelper) || return 1
+	local appdir
+	appdir=$($_VSERVER_INFO "$1" APPDIR vshelper)       || return 1
 	test -z "$1" -o ! -e "$appdir/debug"                || return 1
     fi
 
@@ -784,7 +788,9 @@ function vshelper._getHandlerInternal
 ## Usage: vshelper.getHandler <result-var> <vserver> <action>
 function vshelper.getHandler
 {
-    local _vgh_appdir=$($_VSERVER_INFO "$2" APPDIR vshelper) || _vgh_appdir=
+    local _vgh_appdir
+    _vgh_appdir=$($_VSERVER_INFO "$2" APPDIR vshelper) || _vgh_appdir=
+
     declare -a _vgh_search_list=( X )
     ## HACK: when we are in 'set -u' mode, empty lists are causing errors
 
@@ -802,7 +808,8 @@ function vshelper.doInit
 {
     vshelper.isEnabled || return 0
     
-    local xid=$($_VSERVER_INFO "$1" CONTEXT false) && test -n "$xid" || {
+    local xid
+    xid=$($_VSERVER_INFO "$1" CONTEXT false) && test -n "$xid" || {
 	warning $"vshelper.init: can not determine xid of vserver '$vserver'; returned value was '$xid'"
 	return 1
     }
@@ -838,7 +845,8 @@ function vshelper.doDestroy
 ## Usage: vshelper.initSync <vserver> <pipe-varname>
 function vshelper.initSync
 {
-    local _vis_tmpdir=$($_MKTEMPDIR /tmp/vserver-stop.XXXXXX) || {
+    local _vis_tmpdir
+    _vis_tmpdir=$($_MKTEMPDIR /tmp/vserver-stop.XXXXXX) || {
 	warning $"Failed to generate temporary directory for vshelper sync"
 	return 1
     }
@@ -852,8 +860,8 @@ function vshelper.initSync
 ## Usage: vshelper.getSyncTimeout <vserver> <varname>
 function vshelper.getSyncTimeout
 {
-    local _vgst_appdir=$($_VSERVER_INFO "$1" APPDIR vshelper) || _vgst_appdir=
-    local _vgst_file _vgst_tmp
+    local _vgst_appdir _vgst_file _vgst_tmp
+    _vgst_appdir=$($_VSERVER_INFO "$1" APPDIR vshelper) || _vgst_appdir=
 
     findFile _vgst_file ${_vgst_appdir:+"$_vgst_appdir"/sync-timeout} "$CONFDIR"/.defaults/apps/vshelper/sync-timeout ''
     test -n "$_vgst_file" || return 1
