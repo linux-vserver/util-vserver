@@ -15,15 +15,6 @@
   </link>
   
   <collection name="apps">
-    <collection name="vunify">
-                  <link name="logfile">
-		    <description>
-		     The file where output will be logged to when 'vshelper' is invoked from the
-		     kernel. This should point somewhere e.g. into /var/log.
-		    </description>
-		  </link>
-
-    </collection>
    <collection name="pkgmgmt">
     <link name="base">
      <default>/vservers/.pkg</default>
@@ -178,44 +169,82 @@
    The configuration directory for the vserver vserver-name.
   </description>
   
+  <link name="vdir">
+   <description>
+    Path of the vserver root directory
+   </description>
+  </link>
+
+  <link name="run">
+   <description>
+    Path of the vserver run directory
+   </description>
+  </link>
+
+  <link name="run.rev">
+   <description>
+    Path of the vserver run reverse directory
+   </description>
+  </link>
+  
   <list name="bcapabilities">
    <description>
-    [experimental; name is subject of possible change] Contains the system capabilities.
+    [experimental; name is subject of possible change] Contains the system capabilities. See
+    <ulink url="http://savannah.nongnu.org/cgi-bin/viewcvs/util-vserver/util-vserver/lib/bcaps-v13.c?rev=HEAD">lib/bcaps-v13.c</ulink>
+    for possible values.
    </description>
   </list>
   <list name="ccapabilities">
    <description>
-    [experimental; name is subject of possible change] Contains the context capabilities.
+    [experimental; name is subject of possible change] Contains the context capabilities. See
+    <ulink url="http://savannah.nongnu.org/cgi-bin/viewcvs/util-vserver/util-vserver/lib/ccaps-v13.c?rev=HEAD">lib/ccaps-v13.c</ulink>
+    for possible values.
    </description>
   </list>
   <hash name="schedule">
    <description>
     [experimental; name is subject of possible change] Contains the scheduler parameters, 
     one per line.
+    
+    The Hard CPU limit uses a mechanism called a Token Bucket.
+    the concept is simple: you have a bucket of a certain size
+    which is filled with a specified amount R of tokens each
+    interval T until the maximum is reached (excess tokens
+    are spilled). At each timer tick, a running process consumes
+    one token from the bucket, unless the bucket is empty. If the
+    bucket is empty the process is put in the hold queue. When the
+    bucket has been refilled to at least M tokens, all on hold 
+    processes are rescheduled.
    </description>
    <keys>
     <key name="fill-rate">
      <description>
+      Amount of tokens append to the bucket each interval.
      </description>
     </key>
     <key name="interval">
      <description>
+      The intervall between refills of amount 'fill_rate'. This value is express in ticks.
      </description>
     </key>
     <key name="tokens">
      <description>
+      Initial bucket contents.
      </description>
     </key>
      <key name="tokens-min">
      <description>
+      The minimum amount of tokens required to unhold processes
      </description>
     </key>
     <key name="tokens-max">
      <description>
+      The bucket size.
      </description>
     </key>
     <key name="cpu-mask">
      <description>
+      Unused at the moment.
      </description>
     </key>
    </keys>
@@ -255,7 +284,9 @@
   </scalar>
   <list name="flags">
    <description>
-    Contains per line a flag.
+    Contains per line a flag. See
+    <ulink url="http://savannah.nongnu.org/cgi-bin/viewcvs/util-vserver/util-vserver/lib/cflags-v13.c?rev=HEAD">lib/cflags-v13.c</ulink>
+    for possible values.
    </description>
    <elements>
     <element name="fakeinit">
@@ -469,6 +500,12 @@
 		    </description>
 		  </boolean>
 		                                                                                                                          
+    <link name="logfile">
+      <description>
+       The file where output will be logged to when 'vshelper' is invoked from the
+       kernel. This should point somewhere e.g. into /var/log.
+      </description>
+    </link>
    </collection>
    
    <collection name="vshelper-methods">
@@ -789,8 +826,7 @@
 		  </scalar>
 		  <boolean name="nodev">
 		   <description>
-		    When this file exists, the interface will be assumed to exist already. A
-		    former name for this flag was 'only_ip' which is deprecated now.
+		    When this file exists, the interface will be assumed to exist already.
 		   </description>
 		  </boolean>
    </collection>
@@ -799,7 +835,8 @@
   <collection name="ulimits">
 			<description>
 			 A directory with ulimits. Possible resources are cpu, data, fsize, locks,
-			 memlock, nofile, nproc, rss and/or stack.
+			 memlock, nofile, nproc, rss and/or stack. This configuration will be honored
+                         for kernel 2.4 only.
 			</description>                                                                                                                 
 			<scalar name="resource" type="symbolic">
 			  <description>
@@ -823,8 +860,9 @@
  
   <collection name="rlimits">
    <description>
-			 A directory with ulimits. Possible resources are cpu, data, fsize, locks,
-			 memlock, nofile, nproc, rss and/or stack.
+			 A directory with resource limits. Possible resources are cpu, data, fsize, locks,
+			 memlock, nofile, nproc, rss and/or stack. This configuration will be honored
+                         for kernel 2.6 only.
 			</description>                                                                                                                 
 			<scalar name="resource" type="symbolic">
 			  <description>
@@ -841,6 +879,12 @@
 			<scalar name="resource.soft" type="symbolic">
 			  <description>
 			   A file which contains the soft- of the given resource in the first line. The
+			   special keyword 'inf' is recognized.
+			  </description>
+			</scalar>
+			<scalar name="resource.min" type="symbolic">
+			  <description>
+			   A file which contains the guaranted minimum of the given resource in the first line. The
 			   special keyword 'inf' is recognized.
 			  </description>
 			</scalar>
