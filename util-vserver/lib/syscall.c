@@ -23,7 +23,7 @@
 
 #include "vserver.h"
 #include "vserver-internal.h"
-#include "virtual-inc.h"
+#include "linuxvirtual.h"
 
 #ifdef VC_ENABLE_API_COMPAT    
 #  include "syscall-compat.hc"
