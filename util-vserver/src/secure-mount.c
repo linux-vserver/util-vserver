@@ -16,13 +16,12 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-  // secure-mount <general mount(8) options> [--secure] [--chroot <dir>]
+  // secure-mount <general mount(8) options> [--chroot]
   //              [--mtab <mtabfile>] [--fstab <fstabfile>]
   //
-  // Executes mount-operations in the given chroot-dir: it assumes sources in
-  // the current root-dir while destinations are expected in the chroot
-  // environment.  When '--secure' is given, the destination must not contain
-  // symlinks.
+  // Executes mount-operations under the current directory: it assumes sources
+  // in the current root-dir while destinations are expected in the chroot
+  // environment.
 
 
 #ifdef HAVE_CONFIG_H
@@ -51,6 +50,9 @@
 #include <libgen.h>
 #include <signal.h>
 
+#define ENSC_WRAPPERS_FCNTL	1
+#include <wrappers.h>
+
 #define MNTPOINT	"/etc"
 
 struct MountInfo {
@@ -65,11 +67,11 @@ struct MountInfo {
 struct Options {
     char const *	mtab;
     char const *	fstab;
-    char const *	rootdir;
+    bool		do_chroot;
     bool		ignore_mtab;
     bool		mount_all;
-    bool		is_secure;
 
+    int			cur_dir_fd;
     int			cur_rootdir_fd;
 };
 
@@ -91,7 +93,7 @@ CMDLINE_OPTIONS[] = {
   { "move",    no_argument,       0, OPTION_MOVE },
   { "mtab",    required_argument, 0, OPTION_MTAB },
   { "fstab",   required_argument, 0, OPTION_FSTAB },
-  { "chroot",  required_argument, 0, OPTION_CHROOT },
+  { "chroot",  no_argument,	  0, OPTION_CHROOT },
   { "secure",  no_argument,       0, OPTION_SECURE },
   { "rbind",   no_argument,       0, OPTION_RBIND },
   { 0, 0, 0, 0 }
@@ -141,6 +143,8 @@ static struct FstabOption {
   { "nouser",     0,              0,               0, false },
 };
 
+int			wrapper_exit_code = 1;
+
 static void
 showHelp(int fd, char const *cmd, int res)
 {
@@ -150,11 +154,10 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
 	    " [--help] [--version] [--bind] [--move] [--rbind] [-t <type>] [-n]\n"
-	    "            [--mtab <filename>] [--fstab <filename>] [--chroot <dirname>] \n"
-	    "            [--secure] -a|([-o <options>] [--] <src> <dst>)\n\n"
-	    "Executes mount-operations in the given chroot-dir: it assumes sources in the\n"
-	    "current root-dir while destinations are expected in the chroot environment.\n"
-	    "When '--secure' is given, the destination must not contain symlinks.\n\n"
+	    "            [--mtab <filename>] [--fstab <filename>] [--chroot] \n"
+	    "            -a|([-o <options>] [--] <src> <dst>)\n\n"
+	    "Executes mount-operations under the current directory: it assumes sources in\n"
+	    "the current root-dir while destinations are expected in the chroot environment.\n\n"
 	    "For non-trivial mount-operations it uses the external 'mount' program which\n"
 	    "can be overridden by the $MOUNT environment variable.\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
@@ -179,73 +182,6 @@ isSameObject(struct stat const *lhs,
 {
   return (lhs->st_dev==rhs->st_dev &&
 	  lhs->st_ino==rhs->st_ino);
-}
-
-static int
-chdirSecure(char const *dir)
-{
-  char		tmp[strlen(dir)+1], *ptr;
-  char const	*cur;
-
-  strcpy(tmp, dir);
-  cur = strtok_r(tmp, "/", &ptr);
-  while (cur) {
-    struct stat		pre_stat, post_stat;
-
-    if (lstat(cur, &pre_stat)==-1) return -1;
-    
-    if (!S_ISDIR(pre_stat.st_mode)) {
-      errno = ENOENT;
-      return -1;
-    }
-    if (S_ISLNK(pre_stat.st_mode)) {
-      errno = EINVAL;
-      return -1;
-    }
-
-    if (chdir(cur)==-1)            return -1;
-    if (stat(".", &post_stat)==-1) return -1;
-
-    if (!isSameObject(&pre_stat, &post_stat)) {
-      char	dir[PATH_MAX];
-      
-      WRITE_MSG(2, "Possible symlink race ATTACK at '");
-      WRITE_STR(2, getcwd(dir, sizeof(dir)));
-      WRITE_MSG(2, "'\n");
-
-      errno = EINVAL;
-      return -1;
-    }
-
-    cur = strtok_r(0, "/", &ptr);
-  }
-
-  return 0;
-}
-
-static int
-verifyPosition(char const *mntpoint, char const *dir1, char const *dir2)
-{
-  struct stat		pre_stat, post_stat;
-
-  if (stat(mntpoint, &pre_stat)==-1)       return -1;
-  if (chroot(dir1)==-1 || chdir(dir2)==-1) return -1;
-  if (stat(".", &post_stat)==-1)           return -1;
-
-  if (!isSameObject(&pre_stat, &post_stat)) {
-    char	dir[PATH_MAX];
-      
-    WRITE_MSG(2, "Possible symlink race ATTACK at '");
-    WRITE_STR(2, getcwd(dir, sizeof(dir)));
-    WRITE_MSG(2, "' within '");
-    WRITE_STR(2, dir1);
-    WRITE_STR(2, "'\n");
-
-    errno = EINVAL;
-    return -1;
-  }
-
-  return 0;
 }
 
 static int
@@ -276,6 +212,16 @@ getType(struct MountInfo const *mnt)
   else                                      return mnt->type;
 }
 
+inline static void
+restoreRoot(struct Options const *opt)
+{
+  if (opt->do_chroot!=0 && fchroot(opt->cur_rootdir_fd)==-1) {
+    perror("secure-mount: fchdir(\"/\")");
+    WRITE_MSG(2, "Failed to restore root-directory; aborting\n");
+    exit(1);
+  }
+}
+
 static int
 updateMtab(struct MountInfo const *mnt, struct Options const *opt)
 {
@@ -283,28 +229,22 @@ updateMtab(struct MountInfo const *mnt, struct Options const *opt)
   int		fd;
   assert(opt->mtab!=0);
 
-  if (opt->rootdir!=0 &&
-      chroot(opt->rootdir)==-1) {
-      perror("secure-mount: chroot()");
+  if (opt->do_chroot && fchroot(opt->cur_dir_fd)==-1) {
+      perror("secure-mount: fchroot(\".\")");
       return -1;
   }
 
   fd=open(opt->mtab, O_CREAT|O_APPEND|O_WRONLY, 0644);
   
-  if (fd==-1) perror("secure-mount: open(<mtab>)");
-  
-  if (fchroot(opt->cur_rootdir_fd)==-1) {
-    perror("secure-mount: fchroot()");
-    goto err1;
+  if (fd==-1) {
+    perror("secure-mount: open(<mtab>)");
+    goto err0;
   }
-
-  if (fd==-1) goto err0;
 
   if (flock(fd, LOCK_EX)==-1) {
     perror("secure-mount: flock()");
     goto err1;
   }
-
 
   if (writeStrX(fd, mnt->src)==-1 ||
       writeStrX(fd, " ")==-1 ||
@@ -321,7 +261,9 @@ updateMtab(struct MountInfo const *mnt, struct Options const *opt)
   res = 0;
 
   err1:	close(fd);
-  err0:	return res;
+  err0:
+  restoreRoot(opt);
+  return res;
 }
 
 static bool
@@ -375,35 +317,49 @@ callExternalMount(struct MountInfo const *mnt)
   return (WIFEXITED(status)) && (WEXITSTATUS(status)==0);
 }
 
+inline static bool
+secureChdir(char const *dir, struct Options const *opt)
+{
+  int		dir_fd;
+  bool		res = false;
+  
+  if (opt->do_chroot!=0 && fchroot(opt->cur_dir_fd)==-1) {
+    perror("secure-mount: fchroot(\".\")");
+    return false;
+  }
+
+  if (chdir(dir)==-1) {
+    PERROR_Q("secure-mount: chdir", dir);
+    goto err;
+  }
+
+  dir_fd = open(".", O_RDONLY|O_DIRECTORY);
+  if (dir_fd==-1) {
+    perror("secure-mount: open(\".\")");
+    goto err;
+  }
+
+  restoreRoot(opt);
+  if (fchdir(dir_fd)==-1)
+    PERROR_Q("secure-mount: fchdir", dir);
+  else
+    res = true;
+  
+  close(dir_fd);
+  return res;
+
+  err:
+  restoreRoot(opt);
+  return false;
+}
+
 static bool
 mountSingle(struct MountInfo const *mnt, struct Options const *opt)
 {
-  char const	*dir = mnt->dst;
-
   assert(mnt->dst!=0);
   
-  if (opt->rootdir!=0) {
-    if (chdir(opt->rootdir)==-1) {
-      PERROR_Q("secure-mount: chdir", opt->rootdir);
-      return false;
-    }
-
-    while (*dir=='/') ++dir;
-  }
-
-  if (opt->is_secure) {
-    if (chdirSecure(dir)==-1) {
-      PERROR_Q("secure-mount: chdirSecure", dir);
-      return false;
-    }
-  }
-  else {
-    if (*dir!='\0' &&
-	chdir(dir)==-1) {
-      PERROR_Q("secure-mount: chdir", dir);
-      return false;
-    }
-  }
+  if (!secureChdir(mnt->dst, opt))
+    return false;
 
   if (mnt->flag & (MS_BIND|MS_MOVE)) {
     if (mount(mnt->src, ".",
@@ -413,18 +369,8 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
       return false;
     }
   }
-  else {
-    if (!callExternalMount(mnt)) return false;
-  }
-
-    // Check if directories were moved between the chdirSecure() and mount(2)
-  if ((mnt->flag&MS_BIND) && opt->rootdir!=0 &&
-      (verifyPosition(mnt->src, opt->rootdir, mnt->dst)==-1 ||
-       fchroot(opt->cur_rootdir_fd)==-1)) {
-    perror("secure-mount: verifyPosition/fchroot");
-      // TODO: what is with unmounting?
+  else if (!callExternalMount(mnt))
     return false;
-  }
 
   if (!opt->ignore_mtab &&
       updateMtab(mnt, opt)==-1) {
@@ -575,6 +521,16 @@ mountFstab(struct Options const *opt)
   err0: return res;
 }
 
+static void
+initFDs(struct Options *opt)
+{
+  opt->cur_dir_fd     = Eopen(".", O_RDONLY|O_DIRECTORY, 0);
+  opt->cur_rootdir_fd = Eopen("/", O_RDONLY|O_DIRECTORY, 0);
+
+  Efcntl(opt->cur_dir_fd,     F_SETFD, FD_CLOEXEC);
+  Efcntl(opt->cur_rootdir_fd, F_SETFD, FD_CLOEXEC);
+}
+
 int main(int argc, char *argv[])
 {
   struct MountInfo	mnt = {
@@ -589,21 +545,12 @@ int main(int argc, char *argv[])
   struct Options	opt = {
     .mtab           = "/etc/mtab",
     .fstab          = "/etc/fstab",
-    .rootdir        = 0,
+    .do_chroot      = 0,
     .ignore_mtab    = false,
     .mount_all      = false,
-    .is_secure      = false,
+    .cur_dir_fd     = -1,
     .cur_rootdir_fd = -1
   };
-
-  opt.cur_rootdir_fd = open("/", O_RDONLY|O_DIRECTORY);
-
-  if (opt.cur_rootdir_fd==-1) {
-    perror("secure-mount: open(\"/\")");
-    return EXIT_FAILURE;
-  }
-
-  signal(SIGCHLD, SIG_DFL);
 
   while (1) {
     int		c = getopt_long(argc, argv, "ht:nao:", CMDLINE_OPTIONS, 0);
@@ -621,8 +568,10 @@ int main(int argc, char *argv[])
       case OPTION_MOVE	:  mnt.flag       |= MS_MOVE; break;
       case OPTION_MTAB	:  opt.mtab        = optarg;  break;
       case OPTION_FSTAB	:  opt.fstab       = optarg;  break;
-      case OPTION_CHROOT:  opt.rootdir     = optarg;  break;
-      case OPTION_SECURE:  opt.is_secure   = true;    break;
+      case OPTION_CHROOT:  opt.do_chroot   = true;    break;
+      case OPTION_SECURE:
+	WRITE_MSG(2, "secure-mount: The '--secure' option is deprecated...\n");
+	break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -632,11 +581,15 @@ int main(int argc, char *argv[])
     }
   }
 
+
   if (opt.mount_all && optind<argc) {
     WRITE_MSG(2, "Can not specify <src> and '-a' at the same time\n");
     return EXIT_FAILURE;
   }
 
+  initFDs(&opt);
+  signal(SIGCHLD, SIG_DFL);
+  
   if (opt.mount_all) {
     if (!mountFstab(&opt)) return EXIT_FAILURE;
     else                   return EXIT_SUCCESS;
