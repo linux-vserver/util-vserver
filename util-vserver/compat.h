@@ -37,6 +37,7 @@
 #if defined(__GNUC__)
 #  define UNUSED                __attribute__((__unused__))
 #  define NORETURN              __attribute__((__noreturn__))
+#  define CONST			__attribute__((__const__))
 #  if __GNUC__>3 || (__GNUC__==3 && __GNUC_MINOR__>=3)
 #    define NONNULL(ARGS)	__attribute__((__nonnull__ ARGS))
 #    define ALWAYSINLINE        __attribute__((__always_inline__))
@@ -55,6 +56,7 @@
 #  define NORETURN
 #  define ALWAYSINLINE
 #  define PURE
+#  define CONST
 #endif
 
 #if !defined(__STDC_VERSION__) || (__STDC_VERSION__<199901L)
