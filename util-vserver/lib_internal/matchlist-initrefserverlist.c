@@ -64,17 +64,26 @@ MatchList_initRefserverList(struct MatchList **lst, size_t *cnt,
     char const 			*tmp   = entries[i]->d_name;
     size_t			l      = strlen(tmp);
     char			vname[sizeof("./") + l];
-    struct MatchVserverInfo	vserver = { vname, true };
+    struct MatchVserverInfo	vserver = {
+      .name        = vname,
+      .use_pkgmgmt = true
+    };
+
+    if (!MatchVserverInfo_init(&vserver)) {
+      WRITE_MSG(2, "failed to initialize unification of reference vserver\n");
+      exit(1);
+    }
 
     memcpy(vname,   "./", 2);
     memcpy(vname+2, tmp,  l+1);
     
-    if (!MatchList_initByVserver((*lst)+i, &vserver, 0)) {
+    if (!MatchList_initByVserver((*lst)+i, &vserver)) {
       WRITE_MSG(2, "unification for reference vserver not configured\n");
       exit(1);
     }
 
     free(entries[i]);
+    MatchVserverInfo_free(&vserver);
   }
   free(entries);
 

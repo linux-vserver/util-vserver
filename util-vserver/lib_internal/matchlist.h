@@ -21,6 +21,9 @@
 
 #include "pathinfo.h"
 #include "string.h"
+#include "pathinfo.h"
+
+#include <lib/vserver.h>
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -50,18 +53,22 @@ struct MatchList
 struct MatchVserverInfo
 {
     char const 		*name;
+
+    vcCfgStyle		style;
+    PathInfo		vdir;
+    PathInfo		appdir;
+    
     bool		use_pkgmgmt;
 };
 
 void		MatchList_init(struct MatchList *, char const *root,
 			       size_t count) NONNULL((1,2));
 bool		MatchList_initByVserver(struct MatchList *,
-					struct MatchVserverInfo const *vserver,
-					char const **res_appdir) NONNULL((1,2));
+					struct MatchVserverInfo const *vserver) NONNULL((1,2));
 void		MatchList_initManually(struct MatchList *list,
 				       struct MatchVserverInfo const *vserver,
 				       char const *vdir,
-				       char const *exclude_file) NONNULL((1,3,4));
+				       char const *exclude_file) NONNULL((1,4));
 void		MatchList_initRefserverList(struct MatchList **, size_t *cnt,
 					    char const *dir) NONNULL((1,2,3));
 void		MatchList_destroy(struct MatchList *) NONNULL((1));
@@ -76,5 +83,9 @@ const *		MatchList_find(struct MatchList const *,
 			       char const *path) NONNULL((1,2));
 
 void		MatchList_printId(struct MatchList const *, int fd) NONNULL((1));
+
+
+bool		MatchVserverInfo_init(struct MatchVserverInfo *);
+void		MatchVserverInfo_free(struct MatchVserverInfo *);
 
 #endif	//  H_UTIL_VSERVER_LIB_INTERNAL_MATCHLIST_H

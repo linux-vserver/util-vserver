@@ -157,10 +157,20 @@ MatchList_initManually(struct MatchList *list,
 
   char			**expr_files  = 0;
   size_t		expr_count    = 0;
+  size_t		len;
 
+  assert((vdir==0 && vserver!=0) || (vdir!=0 && vserver==0));
+
+  if (vserver) {
+    vdir = vserver->vdir.d;
+    len  = vserver->vdir.l;
+  }
+  else
+    len  = strlen(vdir);
+  
   if (Global_getVerbosity()>=1) {
     WRITE_MSG(1, "Initializing exclude-list for ");
-    WRITE_STR(1, vdir);
+    (void)write(1, vdir, len);
     if (vserver!=0) {
       WRITE_MSG(1, " (");
       WRITE_STR(1, vserver->name);
@@ -182,11 +192,11 @@ MatchList_initManually(struct MatchList *list,
 		    buf+1);
   }
 
-  MatchList_init(list, vdir, fixed_count + expr_count);
+  MatchList_init(list, strdup(vdir), fixed_count + expr_count);
   list->buf       = Emalloc(sizeof(void *) * 3);
   list->buf[0]    = buf[0];
   list->buf[1]    = buf[1];
-  list->buf[2]    = vdir;
+  list->buf[2]    = list->root.d;
   list->buf_count = 3;
 
   MatchList_appendFiles(list, 0,           fixed_files, fixed_count, false);

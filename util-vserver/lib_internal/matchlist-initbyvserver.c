@@ -26,47 +26,26 @@
 
 #include "vserver.h"
 
-
+#include <assert.h>
 
 bool
 MatchList_initByVserver(struct MatchList *list,
-			struct MatchVserverInfo const *vserver,
-			char const **res_appdir)
+			struct MatchVserverInfo const *vserver)
 {
-  vcCfgStyle	style;
-  char const	*vdir;
-  char const 	*appdir;
+  assert(vserver->appdir!=0 && vserver->vdir!=0);
+  
+  size_t const	l = vserver->appdir.l;
+  char		tmp[l + sizeof("/exclude")];
+  char const *	excl_list;
 
-  style  = vc_getVserverCfgStyle(vserver->name);
-  vdir   = vc_getVserverVdir(  vserver->name, style, true);
-  appdir = vc_getVserverAppDir(vserver->name, style, "vunify");
+  memcpy(tmp,   vserver->appdir.d, l);
+  memcpy(tmp+l, "/exclude", 9);
 
-  if (vdir==0 || appdir==0) {
-    free((char *)appdir);
-    free((char *)vdir);
-    return false;
-  }
+  excl_list = tmp;
+  if (access(excl_list, R_OK)==-1) excl_list = CONFDIR   "/.defaults/apps/vunify/exclude";
+  if (access(excl_list, R_OK)==-1) excl_list = PKGLIBDIR "/defaults/vunify-exclude";
 
-  {
-    size_t		l1 = strlen(appdir);
-    char		tmp[l1 + sizeof("/exclude")];
-    char const *	excl_list;
-
-    memcpy(tmp,    appdir, l1);
-    memcpy(tmp+l1, "/exclude", 9);
-
-    excl_list = tmp;
-    if (access(excl_list, R_OK)==-1) excl_list = CONFDIR   "/.defaults/apps/vunify/exclude";
-    if (access(excl_list, R_OK)==-1) excl_list = PKGLIBDIR "/defaults/vunify-exclude";
-
-      // 'vdir' is transferred to matchlist and must not be free'ed here
-    MatchList_initManually(list, vserver, vdir, excl_list);
-  }
-
-  if (res_appdir!=0)
-    *res_appdir = appdir;
-  else
-    free((char *)appdir);
+  MatchList_initManually(list, vserver, 0, excl_list);
   
   return true;
 }
