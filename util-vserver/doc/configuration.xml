@@ -222,8 +222,8 @@
 	  </file>
 
 	  <file name="style">
-	    <description>Contains the init-style; possible values are 'sysv', 'plain' and
-	    'minit'.</description>
+	    <description>Contains the init-style; possible values are 'sysv', 'plain', 'minit' and
+	    'gentoo'.</description>
 	  </file>
 
 	  <file name="runlevel">
@@ -278,6 +278,17 @@
 	    <description>A symlink to the TTY device where input/output will be redirected from/to
 	    at startup via initscript.</description>
 	  </symlink>
+
+	  <file name="mark">
+	    <description>This file is used to mark group of vservers which shall be started/stopped
+	    together by the initscript. Content is a simple string like 'default'.</description>
+	  </file>
+
+	  <file name="depends">
+	    <description>This file is used to configure vservers which must be running before the
+	    current vserver can be started. At shutdown, the current vserver will be stopped before
+	    its dependencies. Content of this file are vserver ids (one name per line).</description>
+	  </file>
 	</dir> <!-- ...apps/init -->
 
 	<dir name="vunify" type="fixed">
