@@ -110,6 +110,7 @@ OPT_DISCONNECT=
 OPT_FLAGS=()
 OPT_SECURE=
 OPT_SILENT=
+OPT_FAKEINIT=
 
 while true; do
     case "$1" in
@@ -120,7 +121,12 @@ while true; do
 	--disconnect)	OPT_DISCONNECT=1;;
 	--domainname)	OPT_DOMAINNAME=$2; shift;;
 	--hostname)	OPT_HOSTNAME=$2;   shift;;
-	--flag)		OPT_FLAGS=( "${OPT_FLAGS[@]}" "$2" ); shift;;
+	--flag)
+	    test "$2" = "fakeinit" && \
+		OPT_FAKEINIT=--fakeinit ||
+		OPT_FLAGS=( "${OPT_FLAGS[@]}" "$2" )
+	    shift
+	    ;;
 	--secure)	OPT_SECURE=1;;
 	--silent)	OPT_SILENT=1;;
 	--)		shift; break;;
@@ -131,30 +137,31 @@ done
 
 create_cmd=( $_VCONTEXT --create
 	     ${OPT_SILENT:+--silent}
-	     ${OPT_CTX:+--xid "$OPT_CTX"}
-	     -- )
+	     ${OPT_CTX:+--xid "$OPT_CTX"} )
 
 chain_cmd=()
 
 test -z "$OPT_DOMAINNAME$OPT_HOSTNAME" || \
     chain_cmd=( "${chain_cmd[@]}"
-		$_VUNAME --set
-		--xid self
+		--
+		$_VUNAME --set --xid self
 		${OPT_DOMAINNAME:+-t domainname="$OPT_DOMAINNAME"}
-		${OPT_HOSTNAME:+-t nodename="$OPT_HOSTNAME"} )
+		${OPT_HOSTNAME:+  -t nodename="$OPT_HOSTNAME"} )
 
 chain_cmd=( "${chain_cmd[@]}"
+		--
 		$_VATTRIBUTE --set
-		${OPT_CAPS:+--cap "${OPT_CAPS[@]}"}
+		${OPT_CAPS:+--bcap "${OPT_CAPS[@]}"}
 		${OPT_FLAGS:+--flag "${OPT_FLAGS[@]}"}
-		${OPT_SECURE:+--secure}
-		--flag !setup )
+		${OPT_SECURE:+--secure} )
 		
 migrate_cmd=( $_VCONTEXT
 	      ${OPT_SILENT:+--silent}
-	      ${OPT_DISCONNECT:+--disconnect} )
+	      ${OPT_DISCONNECT:+--disconnect}
+	      $OPT_FAKEINIT )
 
-"${create_cmd[@]}" "${chain_cmd[@]}" -- "${migrate_cmd[@]}" --migrate-self -- "$@"
+"${create_cmd[@]}" "${chain_cmd[@]}" -- \
+    "${migrate_cmd[@]}" --endsetup --migrate-self -- "$@"
 rc=$?
 
 test "$rc" -ne 254 || exec "${migrate_cmd[@]}" --xid "$OPT_CTX" --migrate -- "$@"
