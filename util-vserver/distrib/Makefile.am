@@ -22,7 +22,8 @@ confdistribdir		=  $(confdir)/.distributions
 confdefaultsdir		=  $(confdir)/.defaults
 confdefaultsinitdir	=  $(confdefaultsdir)/init
 
-defaults_DATA		=  misc/mtab
+defaults_DATA =  	misc/mtab \
+			misc/vunify-exclude
 
 nobase_distrib_SCRIPTS	=  redhat/initpost
 
