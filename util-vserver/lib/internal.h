@@ -27,9 +27,23 @@
 extern "C" {
 #endif
 
-int		utilvserver_checkCompatVersion();
-bool		utilvserver_isDirectory(char const *path, bool follow_link);
+int	utilvserver_checkCompatVersion();
+bool	utilvserver_isDirectory(char const *path, bool follow_link);
 
+int	utilvserver_listparser_uint32(char const *str, size_t len,
+				      char const **err_ptr, size_t *err_len,
+				      uint_least32_t *flag,
+				      uint_least32_t *mask,
+				      uint_least32_t (*func)(char const*,
+							     size_t)) NONNULL((0,4,5,6));
+  
+int	utilvserver_listparser_uint64(char const *str, size_t len,
+				      char const **err_ptr, size_t *err_len,
+				      uint_least64_t *flag,
+				      uint_least64_t *mask,
+				      uint_least64_t (*func)(char const*,
+							     size_t)) NONNULL((0,4,5,6));
+  
 #ifdef __cplusplus
 }
 #endif
