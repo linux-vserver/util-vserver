@@ -3,4 +3,5 @@
 .libs
 .libs
 command
+copy
 filecfg-ml
