@@ -17,6 +17,15 @@
 
 check_PROGRAMS +=		lib_internal/testsuite/command
 
+if ENSC_HAVE_C99_COMPILER
+check_PROGRAMS +=		lib_internal/testsuite/filecfg-ml
+TESTS +=			lib_internal/testsuite/filecfg-ml
+endif
+
+
 lib_internal_testsuite_command_SOURCES =	lib_internal/testsuite/command.c
 lib_internal_testsuite_command_LDADD =		lib_internal/libinternal.a \
 						libensc_vector.a
+
+lib_internal_testsuite_filecfg_ml_SOURCES =	lib_internal/testsuite/filecfg-ml.c
+lib_internal_testsuite_filecfg_ml_LDADD =	lib_internal/libinternal.a
