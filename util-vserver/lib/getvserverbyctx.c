@@ -28,40 +28,14 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "getvserverbyctx-compat.hc"
+#include "getvserverbyctx-v13.hc"
+
 char *
 vc_getVserverByCtx(xid_t ctx, vcCfgStyle *style, char const *revdir)
 {
-  if (revdir==0) revdir = DEFAULT_PKGSTATEREVDIR;
-
-  {
-  vcCfgStyle	cur_style = vcCFG_NONE;
-  size_t	l = strlen(revdir);
-  size_t	l1;
-  char		path[l + sizeof(unsigned int)*3 + 2 + sizeof("/name")];
-
-  strcpy(path, revdir);
-  path[l]      = '/';
-  l1 = utilvserver_fmt_uint(path+l+1, ctx);
-  path[l+1+l1] = '\0';
-
-  if (style==0 || *style==vcCFG_AUTO) {
-    if (access(path, F_OK)==0) cur_style = vcCFG_RECENT_FULL;
-      // TODO: handle legacy
-  }
+  if (vc_isSupported(vcFEATURE_MIGRATE))
+    return vc_getVserverByCtx_v13(ctx, style, revdir);
   else
-    cur_style = *style;
-
-  switch (cur_style) {
-    case vcCFG_RECENT_SHORT	:
-    case vcCFG_RECENT_FULL	:
-	// check if expected ctx == actual ctx
-      if (vc_getVserverCtx(path, vcCFG_RECENT_FULL, false, 0)!=ctx) return 0;
-
-      if (style) *style = vcCFG_RECENT_FULL;
-      return strdup(path);
-	// TODO: handle legacy
-    default		:
-      return 0;
-  }
-  }
+    return vc_getVserverByCtx_compat(ctx, style, revdir);
 }
