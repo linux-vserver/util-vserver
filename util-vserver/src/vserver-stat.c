@@ -38,6 +38,8 @@
 #include "util.h"
 #include "internal.h"
 
+#include <ensc_vector/vector.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -64,17 +66,15 @@
 
 int	wrapper_exit_code = 1;
 
-struct ctx_list
+struct XidData
 {
-	xid_t ctx;
-	int process_count;
-	int VmSize_total;
-	int VmRSS_total;
-	long start_time_oldest;
-	long stime_total, utime_total;
-	char name[CTX_NAME_MAX_LEN];
-	struct ctx_list *next;
-} *my_ctx_list;
+    xid_t	xid;
+    int		process_count;
+    int		VmSize_total;
+    int		VmRSS_total;
+    long	start_time_oldest;
+    long	stime_total, utime_total;
+};
 
 struct process_info
 {
@@ -85,8 +85,6 @@ struct process_info
 	long cstime, cutime;	// cumulative time of process and reaped children
 	xid_t s_context;
 };
-
-char *process_name;
 
 struct ArgInfo {
     enum { tpUNSET, tpCTX, tpPID }	type;
@@ -169,75 +167,45 @@ getUptime()
   return secs*100 + msecs;
 }
 
-// insert a new record to the list
-static struct ctx_list *
-insert_ctx(int ctx, struct ctx_list *next)
+static int
+cmpData(void const *xid_v, void const *map_v)
 {
-	struct ctx_list *new;
+  xid_t const * const			xid = xid_v;
+  struct XidData const * const		map = map_v;
+  int	res = *xid - map->xid;
 
-	new = (struct ctx_list *)malloc(sizeof(struct ctx_list));
-	new->ctx = ctx;
-	new->process_count = 0;
-	new->VmSize_total = 0;
-	new->VmRSS_total = 0;
-	new->utime_total = 0;
-	new->stime_total = 0;
-	new->start_time_oldest = 0;
-	new->next = next;
-	new->name[0] = '\0';
-
-	return new;
+  return res;
 }
 
-// compute the process info into the list
 static void
-add_ctx(struct ctx_list *list, struct process_info *process)
+registerXid(struct Vector *vec, struct process_info *process)
 {
-	list->process_count ++;
-	list->VmSize_total += process->VmSize;
-	list->VmRSS_total += process->VmRSS;
-	list->utime_total += process->utime + process->cutime;
-	list->stime_total += process->stime + process->cstime;
+  struct XidData	*res;
 
-	if (list->start_time_oldest == 0) // first entry
-		list->start_time_oldest = process->start_time;
-	else
-		if (list->start_time_oldest > process->start_time)
-			list->start_time_oldest = process->start_time;
-}
-
-// increment the count number in the ctx record using ctx number
-static void
-count_ctx(struct ctx_list **ptr, struct process_info *process)
-{
-  for (;;) {
-    if (*ptr==0 || (*ptr)->ctx > process->s_context) {
-      *ptr = insert_ctx(process->s_context, *ptr);
-      break;
-    }
-
-    if ((*ptr)->ctx == process->s_context)
-      break;
-
-    ptr = &(*ptr)->next;
+  res = Vector_search(vec, &process->s_context, cmpData);
+  if (res==0) {
+    res = Vector_insert(vec, &process->s_context, cmpData);
+    res->xid           = process->s_context;
+    res->process_count = 0;
+    res->VmSize_total  = 0;
+    res->VmRSS_total   = 0;
+    res->utime_total   = 0;
+    res->stime_total   = 0;
+    res->start_time_oldest = 0;
   }
 
-  add_ctx(*ptr, process);
+  ++res->process_count;
+  res->VmSize_total += process->VmSize;
+  res->VmRSS_total  += process->VmRSS;
+  res->utime_total  += process->utime + process->cutime;
+  res->stime_total  += process->stime + process->cstime;
+
+  if (res->start_time_oldest == 0) // first entry
+    res->start_time_oldest = process->start_time;
+  else
+    if (res->start_time_oldest > process->start_time)
+      res->start_time_oldest = process->start_time;
 }
-
-// free mem
-static void
-free_ctx(struct ctx_list *list)
-{
-	struct ctx_list *prev;
-
-	for(;list != NULL; list = prev)
-	{
-		prev = list->next;		
-		free(list);
-	}
-}
-
 
 // open the process's status file to get the ctx number, and other stat
 struct process_info *get_process_info(char *pid)
@@ -248,7 +216,12 @@ struct process_info *get_process_info(char *pid)
   size_t			idx, l=strlen(pid);
   static struct process_info	process;
 
+#if 1
   process.s_context = vc_get_task_xid(atoi(pid));
+#else
+#  warning Compiling in debug-code
+  process.s_context = random()%6;
+#endif
 
   if (process.s_context==VC_NOCTX) {
     int		err=errno;
@@ -290,8 +263,6 @@ struct process_info *get_process_info(char *pid)
 	
   return &process;
 }
-
-
 
 static size_t
 fillUintZero(char *buf, unsigned long val, size_t cnt)
@@ -384,36 +355,40 @@ shortenTime(char *buf, uint64_t t)
   memcpy(buf+10-(ptr-tmp), tmp, ptr-tmp);
 }
 
-void showContexts(struct ctx_list *list)
+static void
+showContexts(struct Vector *vec)
 {
   uint64_t	uptime = getUptime();
+  struct XidData const *	ptr     = Vector_begin_const(vec);
+  struct XidData const * const	end_ptr = Vector_end_const(vec);
+  
 
   WRITE_MSG(1, "CTX   PROC    VSZ    RSS  userTIME   sysTIME    UPTIME NAME\n");
-  while (list!=0) {
+  for (; ptr<end_ptr; ++ptr) {
     char	buf[sizeof(xid_t)*3 + 512];
     char	tmp[sizeof(int)*3 + 2];
     size_t	l;
 
     memset(buf, ' ', sizeof(buf));
-    l = utilvserver_fmt_long(buf, list->ctx);
-    l = utilvserver_fmt_long(tmp, list->process_count);
+    l = utilvserver_fmt_long(buf, ptr->xid);
+    l = utilvserver_fmt_long(tmp, ptr->process_count);
     memcpy(buf+10-l, tmp, l);
 
-    shortenMem (buf+10, list->VmSize_total);
-    shortenMem (buf+17, list->VmRSS_total);
-    shortenTime(buf+24, list->utime_total);
-    shortenTime(buf+34, list->stime_total);
-    shortenTime(buf+44, uptime - list->start_time_oldest);
+    shortenMem (buf+10, ptr->VmSize_total);
+    shortenMem (buf+17, ptr->VmRSS_total);
+    shortenTime(buf+24, ptr->utime_total);
+    shortenTime(buf+34, ptr->stime_total);
+    shortenTime(buf+44, uptime - ptr->start_time_oldest);
 
-    switch (list->ctx) {
+    switch (ptr->xid) {
       case 0		:  strncpy(buf+55, "root server",       20); break;
       case 1		:  strncpy(buf+55, "monitoring server", 20); break;
       default		: {
-	char *	name     = 0;
-	char *	cfgpath  = 0;
+	char *		name     = 0;
+	char *		cfgpath  = 0;
 	vcCfgStyle	cfgstyle = vcCFG_AUTO;
 
-	if ((cfgpath = vc_getVserverByCtx(list->ctx, &cfgstyle, 0))!=0 &&
+	if ((cfgpath = vc_getVserverByCtx(ptr->xid, &cfgstyle, 0))!=0 &&
 	    (name    = vc_getVserverName(cfgpath, cfgstyle))!=0)
 	  strncpy(buf+55, name, 20);
 	free(name);
@@ -423,19 +398,15 @@ void showContexts(struct ctx_list *list)
 
     write(1, buf, 80);
     write(1, "\n", 1);
-
-    list = list->next;
   }
 }
 
 int main(int argc, char **argv)
 {
-  DIR *proc_dir;
-  struct dirent *dir_entry;
-  pid_t my_pid;
-
-    // for error msg
-  process_name = argv[0];
+  DIR *			proc_dir;
+  struct dirent*	dir_entry;
+  pid_t			my_pid;
+  struct Vector		xid_data;
 
   if (argc==2) {
     if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
@@ -453,13 +424,11 @@ int main(int argc, char **argv)
     // try to switch in context 1
   if (vc_get_task_xid(0)!=1)
     Evc_new_s_context(1, 0,0);
+#else
+#  warning Compiling in debug-code
 #endif
-	
-    // create the fist...
-  my_ctx_list = insert_ctx(0, NULL);
-    // init with the default name for the context 0
-  strncpy(my_ctx_list->name, "root server", CTX_NAME_MAX_LEN);
 
+  Vector_init(&xid_data, sizeof(struct XidData));
 
   Echdir(PROC_DIR_NAME);
   proc_dir = Eopendir(".");
@@ -470,16 +439,16 @@ int main(int argc, char **argv)
       continue;
 
     if (atoi(dir_entry->d_name) != my_pid)
-      count_ctx(&my_ctx_list, get_process_info(dir_entry->d_name));
-		
+      registerXid(&xid_data, get_process_info(dir_entry->d_name));
   }
   closedir(proc_dir);
 
     // output the ctx_list	
-  showContexts(my_ctx_list);
+  showContexts(&xid_data);
 
-    // free the ctx_list
-  free_ctx(my_ctx_list);
-
+#ifndef NDEBUG
+  Vector_free(&xid_data);
+#endif
+  
   return 0;
 }
