@@ -26,7 +26,9 @@
 #include <vserver.h>
 #include <getopt.h>
 #include <fcntl.h>
+#include <errno.h>
 
+#define ENSC_WRAPPERS_PREFIX	"vcontext: "
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_FCNTL	1
@@ -75,12 +77,13 @@ int		wrapper_exit_code = 255;
 static void
 showHelp(int fd, char const *cmd, int res)
 {
-  WRITE_MSG(fd, "Usage: ");
+  WRITE_MSG(fd, "Usage:\n    ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [--xid <xid>] <opts>* [--] <program> <args>*\n"
-	    " --create [--migrate] [--xid <xid>] <opts>* [--] <program> <args>*\n"
-	    " --migrate  --xid <xid> <opts>* [--] <program> <args>*\n"
+	    " --create [--xid <xid>] <opts>* [--] <program> <args>*\n    ");
+  WRITE_STR(fd, cmd);
+  WRITE_MSG(fd,
+	    " --migrate --xid <xid>  <opts>* [--] <program> <args>*\n"
 	    "\n"
 	    "<opts> can be:\n"
 	    "    --chroot	 ...  chroot into current directory\n"
@@ -100,7 +103,7 @@ showVersion()
   WRITE_MSG(1,
 	    "vcontext " VERSION " -- manages the creation of security contexts\n"
 	    "This program is part of " PACKAGE_STRING "\n\n"
-	    "Copyright (C) 2003,2004 Enrico Scholz\n"
+	    "Copyright (C) 2004 Enrico Scholz\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
   exit(0);
 }
@@ -166,10 +169,60 @@ tellContext(xid_t ctx, bool do_it)
   WRITE_MSG(2, "\n");
 }
 
+static inline ALWAYSINLINE int
+doit(struct Arguments const *args, char *argv[])
+{
+  int			p[2];
+  pid_t			pid = initSync(p, args->do_disconnect);
+  
+  if (pid==0) {
+    xid_t	xid;
+    if (args->do_create) {
+      xid = Evc_create_context(args->xid);
+      tellContext(xid, args->verbosity>=1);
+    }
+    else
+      xid = args->xid;
+
+    if (args->do_chroot)
+      Echroot(".");
+
+    if (args->uid!=(uid_t)(-1) && getuid()!=args->uid) {
+      Esetuid(args->uid);
+      if (getuid()!=args->uid) {
+	WRITE_MSG(2, "vcontext: Something went wrong while changing the UID\n");
+	exit(255);
+      }
+    }
+
+    if (args->is_fakeinit) {
+      struct vc_ctx_flags	flags;
+      Evc_get_flags(xid, &flags);
+#warning !!! IMPLEMENT ME !!!
+	//if (flags.mask
+      if (0) {
+	WRITE_MSG(2, "vcontext: context has already a fakeinit-process\n");
+	exit(255);
+      }
+    }
+
+    if (args->do_migrate)
+      Evc_migrate_context(xid);
+
+    doSyncStage1(p, args->do_disconnect);
+    execvp (argv[optind],argv+optind);
+    doSyncStage2(p, args->do_disconnect);
+
+    PERROR_Q("chcontext: execvp", argv[optind]);
+    exit(255);
+  }
+
+  waitOnSync(pid, p);
+  return EXIT_SUCCESS;
+}
+
 int main (int argc, char *argv[])
 {
-  pid_t				pid;
-  int				p[2];
   struct Arguments		args = {
     .do_create     = false,
     .do_migrate    = false,
@@ -205,67 +258,18 @@ int main (int argc, char *argv[])
     }
   }
 
-  if (optind>=argc) {
-    WRITE_MSG(2, "No command given; use '--help' for more information.\n");
-    exit(255);
-  }
-
   if (!args.do_create && !args.do_migrate)
-    args.do_create = args.do_migrate = true;
-
-  if (!args.do_migrate && args.is_fakeinit) {
+    WRITE_MSG(2, "Neither '--create' nor '--migrate specified; try '--help' for more information\n");
+  else if (args.do_create  &&  args.do_migrate)
+    WRITE_MSG(2, "Can not specify '--create' and '--migrate' at the same time; try '--help' for more information\n");
+  else if (!args.do_migrate && args.is_fakeinit)
     WRITE_MSG(2, "'--fakeinit' is possible in combination with '--migrate' only\n");
-    exit(255);
-  }
-
-  if (!args.do_create && args.xid==VC_DYNAMIC_XID) {
+  else if (!args.do_create && args.xid==VC_DYNAMIC_XID)
     WRITE_MSG(2, "vcontext: Can not migrate to an unknown context\n");
-    exit(255);
-  }
+  else if (optind>=argc)
+    WRITE_MSG(2, "No command given; use '--help' for more information.\n");
+  else
+    return doit(&args, argv);
 
-  pid = initSync(p, args.do_disconnect);
-  if (pid==0) {
-    xid_t	xid;
-    if (args.do_create) {
-      xid = Evc_create_context(args.xid);
-      tellContext(xid, args.verbosity>=1);
-    }
-    else
-      xid = args.xid;
-
-    if (args.do_chroot)
-      Echroot(".");
-
-    if (args.uid!=(uid_t)(-1) && getuid()!=args.uid) {
-      Esetuid(args.uid);
-      if (getuid()!=args.uid) {
-	WRITE_MSG(2, "vcontext: Something went wrong while changing the UID\n");
-	exit(255);
-      }
-    }
-
-    if (args.is_fakeinit) {
-      struct vc_ctx_flags	flags;
-      Evc_get_flags(xid, &flags);
-      #warning !!! IMPLEMENT ME !!!
-      //if (flags.mask
-      if (0) {
-	WRITE_MSG(2, "vcontext: context has already a fakeinit-process\n");
-	exit(255);
-      }
-    }
-
-    if (args.do_migrate)
-      Evc_migrate_context(xid);
-
-    doSyncStage1(p, args.do_disconnect);
-    execvp (argv[optind],argv+optind);
-    doSyncStage2(p, args.do_disconnect);
-
-    PERROR_Q("chcontext: execvp", argv[optind]);
-    exit(255);
-  }
-
-  waitOnSync(pid, p);
-  return EXIT_SUCCESS;
+  return 255;
 }
