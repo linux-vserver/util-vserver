@@ -254,31 +254,3 @@ vc_chrootsafe_legacy (const char *dir)
 	errno = EINVAL;
 	return -1;
 }
-
-#if 0
-/*
-	Return != 0 if chrootsafe is available
-*/
-int has_chrootsafe()
-{
-	init();
-	return rev_chrootsafe != -1;
-}
-
-int call_set_ctxlimit (int res, long limit)
-{
-	init();
-	if (rev_set_ctxlimit == -1){
-		fprintf (stderr,"set_ctxlimit: Unsupported system call, update kernel\n");
-	}else if (rev_set_ctxlimit == 0){
-		return set_ctxlimit (res,limit);
-	}else{
-		fprintf (stderr,"set_ctxlimit: kernel support version %d, application expects version 0\n"
-			,rev_set_ctxlimit);
-	}
-	errno = EINVAL;
-	return -1;
-}
-
-
-#endif
