@@ -26,7 +26,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 . "$UTIL_VSERVER_VARS"
 . "$PKGLIBDIR/functions"
 
-tmp=$(getopt -o d:r: --long force,dir:,pkgcfg:,hostname:,iproot:,iprootmask:,iprootbcast:,iprootdev:,help,version \
+tmp=$(getopt -o d:r: --long force,dir:,pkgcfg:,hostname:,lockfile:,help,version \
       -n "$0" -- "$@") || exit 1
 
 eval set -- "$tmp"
@@ -36,14 +36,10 @@ root=
 root_rel=1
 dir=
 name=
-hostname=
-iproot=
-iprootmask=
-iprootbcast=
-iprootdev=
 force=
 pkgcfg=
 pkgcfgbase_rel=
+lockfile=
 
 function makeDevEntry
 {
@@ -138,11 +134,7 @@ while true; do
 	--pkgcfg)	pkgcfg="$2";  shift 2;;
 	--force)	force=1;      shift;;
 	--dir)		dir="$2";     shift 2;;
-	--hostname)	hostname="$2"; shift 2;;
-	--iproot)	iproot="$2";   shift 2;;
-	--iprootmask)	iprootmask="$2";  shift 2;;
-	--iprootbcast)	iprootbcast="$2"; shift 2;;
-	--iprootdev)	iprootdev="$2";   shift 2;;
+	--lockfile)	lockfile="$2";    shift 2;;
 	--help)		showHelp;         exit 0;;
 	--version)	showVersion;	  exit 0;;
 	--)		shift; break;;
@@ -175,6 +167,8 @@ test -d "$root" || {
     echo "Root-directory '$root' does not exists or is invalid"
     exit 1
 }
+
+test "$lockfile" || lockfile=/var/run/vservers/$name
     
 test "$pkgcfg"  || {
     pkgcfgbase=
@@ -231,14 +225,16 @@ findDir  PKGDIR   $CONFDIR/.distributions/$distrib/pkgs     $DISTRIBDIR/$distrib
 
 mkdir -p "$confdir"/apps/pkgmgmt "$vdir"/{dev/pts,etc} \
          "$pkgcfg"/{rpm/{etc,state},apt/{etc,archives/partial,cache,state/lists/partial}}
+ln -s "$lockfile" "$confdir"/run
 
 prepareRPMDb
 	 	 
 ## HACK AND SECURITY ALERT!
 ## /var/lib/rpm is hardcoded into apt-get which does not honor the
 ## %_dbpath variable therefore
-#mkdir -p "$vdir"/var/lib
-#ln -s ../../dev "$vdir"/var/lib/rpm
+## see ???
+mkdir -p "$vdir"/var/lib
+ln -s "$rpmdb_path" "$vdir"/var/lib/rpm
 
 
 while read spec; do
@@ -246,7 +242,7 @@ while read spec; do
 done <$DEVDESCR
 
 ln -s "$vdir" "$confdir"/vdir
-for i in hostname iproot iprootmask iprootbcast iprootdev; do
+for i in hostname; do
     i_=\$$i
     eval "v=$i_"
     test -z "$v" || echo $v >"$confdir/$i"
