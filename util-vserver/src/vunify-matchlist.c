@@ -36,8 +36,8 @@ MatchList_compare(struct MatchList const *list, char const *path)
   //write(1, path, strlen(path));
   //write(1, "\n", 1);
   for (; ptr<end_ptr; ++ptr) {
-    assert(ptr->cmp!=0);
-    if ((ptr->cmp)(ptr->name, path)==0) {
+    if ((ptr->cmp==0 && strcmp(ptr->name, path)==0) ||
+	(ptr->cmp!=0 && (ptr->cmp)(ptr->name, path)==0)) {
       switch (ptr->type) {
 	case stINCLUDE	:  res = true;  break;
 	case stEXCLUDE	:  res = false; break;
