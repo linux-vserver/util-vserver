@@ -64,7 +64,7 @@ xid_t
 vc_getVserverCtx(char const *id, vcCfgStyle style, bool honor_static, bool *is_running)
 {
   size_t		l1 = strlen(id);
-  char			buf[sizeof(CONFDIR "//") + l1 + sizeof("/run")];
+  char			buf[sizeof(CONFDIR "//") + l1 + sizeof("/context")];
 			    
   if (style==vcCFG_NONE || style==vcCFG_AUTO)
     style = vc_getVserverCfgStyle(id);

@@ -37,7 +37,7 @@ vc_getVserverByCtx_compat(xid_t ctx, vcCfgStyle *style, char const *revdir)
   vcCfgStyle	cur_style = vcCFG_NONE;
   size_t	l = strlen(revdir);
   size_t	l1;
-  char		path[l + sizeof(unsigned int)*3 + 2 + sizeof("/name")];
+  char		path[l + sizeof(unsigned int)*3 + 3];
 
   strcpy(path, revdir);
   path[l]      = '/';
