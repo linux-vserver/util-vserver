@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
   p   = wait4(pid, &status, 0,0);
   if (p==-1) {
-    perror("waitpid()");
+    perror("wait4()");
     exit(255);
   }
 
