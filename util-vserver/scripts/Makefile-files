@@ -27,7 +27,6 @@ scripts_OPTIONS_EXEMPT	=  scripts/distrib-info \
 			   scripts/vprofile \
 			   scripts/vservers.grabinfo.sh \
 			   scripts/vsysvwrapper \
-			   scripts/vunify.old.sh \
 			   scripts/vps \
 			   scripts/vpstree \
 			   scripts/vserver-copy \
@@ -55,8 +54,7 @@ scripts_SCRPTS		=  scripts/distrib-info \
 			   scripts/vserver-legacy \
 			   scripts/vserverkillall \
 			   scripts/vservers.grabinfo.sh \
-			   scripts/vsysvwrapper \
-			   scripts/vunify.old.sh
+			   scripts/vsysvwrapper
 
 scripts_PRGS		=  scripts/vapt-get \
 			   scripts/vkill \
