@@ -47,6 +47,7 @@ _LIB_VSERVER_BUILD_FUNCTIONS_PKGMGMT="$PKGLIBDIR/vserver-build.functions.pkgmgmt
 _MASK2PREFIX="$PKGLIBDIR/mask2prefix"
 _PKGMGMT="$PKGLIBDIR/pkgmgmt"
 _READLINK="$PKGLIBDIR/readlink"
+_REBOOTMGR="$LEGACYDIR/rebootmgr"
 _RPM_FAKE_SO="$PKGLIBDIR/rpm-fake.so"
 _SAVE_S_CONTEXT="$LEGACYDIR/save_s_context"
 _SAVE_CTXINFO="$PKGLIBDIR/save_ctxinfo"
