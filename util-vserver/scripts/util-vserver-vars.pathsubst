@@ -52,6 +52,7 @@ _VRPM_WORKER="$PKGLIBDIR/vrpm-worker"
 _VSERVER="$SBINDIR/vserver"
 _VSERVER_LEGACY="$PKGLIBDIR/vserver-legacy"
 _VSERVER_BUILD="$PKGLIBDIR/vserver-build"
+_VSERVER_INFO="$SBINDIR/vserver-info"
 
 _AWK="@AWK@"
 _GREP="@GREP@"
