@@ -38,15 +38,6 @@ scripts_PRGS		=  scripts/vkill \
 
 scriptscfg_DATA		=  scripts/util-vserver-vars
 
-scripts_XTRAS		=  scripts/util-vserver-vars.subst
+scripts_XTRAS		=  scripts/util-vserver-vars.pathsubst
 scripts_GENSCRPTS	=  scripts/util-vserver-vars
 
-scripts/%:		scripts/%.subst
-			@mkdir -p $$(dirname '$@')
-			sed -e 's!@'PKGLIBDIR'@!$(pkglibdir)!g; \
-				s!@'SBINDIR'@!$(sbindir)!g; \
-				s!@'CONFDIR'@!$(confdir)!g; \
-				s!@'SYSCONFDIR'@!$(sysconfdir)!g' '$<' >'$@.tmp'
-			@-rm -f '$@'
-			mv '$@.tmp' '$@'
-			@chmod a-w '$@'
