@@ -226,7 +226,7 @@ visitDirEntry(struct dirent const *ent)
     perror("lstat()");
   else {
     Operation		op       = checkDirEntry(&src_path, &f_stat);
-    PathInfo		dst_path = global_info.src_list.root;
+    PathInfo		dst_path = global_info.dst_list.root;
     char		dst_path_buf[ENSC_PI_APPSZ(dst_path, src_path)];
 
     PathInfo_append(&dst_path, &src_path, dst_path_buf);
