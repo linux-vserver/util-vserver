@@ -34,6 +34,7 @@ lib_internal_libinternal_a_XHDRS =	lib_internal/matchlist.h \
 					lib_internal/util-mem.h \
 					lib_internal/util-perror.h \
 					lib_internal/util-safechdir.h \
+					lib_internal/util-unixsock.h \
 					lib_internal/string.hc
 
 lib_internal_libinternal_a_SOURCES =	lib_internal/matchlist-appendfiles.c \
