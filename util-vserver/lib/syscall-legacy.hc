@@ -37,6 +37,7 @@
 #include <errno.h>
 #include <syscall.h>
 #include <asm/unistd.h>
+#include <stdbool.h>
 
 // Here is the trick. We keep a copy of the define, then undef it
 // and then later, we try to locate the value reading /proc/self/status
@@ -78,10 +79,11 @@ static int __NR_chrootsafe=-1;
 static int rev_chrootsafe=-1;
 
 static _syscall1 (int, chrootsafe, const char *, dir)
+
+static bool	is_init = false;
   
 static void init()
 {
-	static int is_init = 0;
 	if (!is_init){
 		FILE *fin = fopen ("/proc/self/status","r");
 		__NR_set_ipv4root_rev0 = def_NR_set_ipv4root;
@@ -128,13 +130,28 @@ static void init()
 			}
 			fclose (fin);
 		}
-		is_init = 1;
+		is_init = true;
 	}
 }
 
 void vc_init_legacy()
 {
         init();
+}
+
+void vc_init_internal_legacy(int ctx_rev, int ctx_number,
+			     int ipv4_rev, int ipv4_number)
+{	
+  rev_s_context           = ctx_rev;
+  __NR_new_s_context_rev0 = ctx_number;
+
+  rev_ipv4root            = ipv4_rev;
+  __NR_set_ipv4root_rev0  = ipv4_number;
+  __NR_set_ipv4root_rev1  = ipv4_number;
+  __NR_set_ipv4root_rev2  = ipv4_number;
+  __NR_set_ipv4root_rev3  = ipv4_number;
+
+  is_init = true;
 }
 
 static ALWAYSINLINE int
