@@ -19,7 +19,7 @@ dnl Usage: ENSC_KERNEL_HEADERS(<var>)
 dnl        <var> ... basedir of kernel-headers (without the '/linux');
 dnl                  this value will be AC_SUBST'ed
 
-AC_DEFUN(_ENSC_KERNEL_DIR,
+AC_DEFUN([_ENSC_KERNEL_DIR],
 [
 	AC_CACHE_CHECK([for linux kernel dir], [ensc_cv_path_kerneldir],
         [
@@ -41,7 +41,7 @@ AC_ARG_WITH([kerneldir],
 	}
 ])
 
-AC_DEFUN(ENSC_KERNEL_HEADERS,
+AC_DEFUN([ENSC_KERNEL_HEADERS],
 [
 	AC_REQUIRE([_ENSC_KERNEL_DIR])
 

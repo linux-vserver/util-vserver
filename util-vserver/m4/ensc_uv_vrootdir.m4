@@ -19,7 +19,7 @@ dnl Usage: ENSC_UV_VROOTDIR[(<vserverdir-variable>)]
 dnl        <vserverdir-variable> ... name of variable which will get assigned
 dnl                                  the dirname of the vserver-topdir 
 
-AC_DEFUN(ENSC_UV_VROOTDIR,
+AC_DEFUN([ENSC_UV_VROOTDIR],
 [
 	AC_MSG_CHECKING([which vserver-rootdir is to use])
 	AC_ARG_WITH([vrootdir],
