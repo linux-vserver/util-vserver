@@ -49,6 +49,8 @@ lib_SRCS =  			lib/syscall.c \
 				lib/fmtx-32.c \
 				lib/fmtx-64.c \
 				lib/capabilities.c \
+				lib/flags.c \
+				lib/flags_list.c \
 				$(lib_legacy_SRCS) \
 				$(lib_management_SRCS) \
 				$(lib_v11_SRCS) \
@@ -112,4 +114,7 @@ lib_libvserver_la_LDFLAGS =	-version $(lib_VERSION)
 
 lib_DIETPROGS =			lib/lib_libvserver_la-% \
 				lib/lib_libvserver_a-% \
-				lib/lib_libvserver_pic_a-%
+				lib/lib_libvserver_pic_a-% \
+				$(lib_testsuite_DIETPROGS)
+
+include $(srcdir)/lib/testsuite/Makefile-files
