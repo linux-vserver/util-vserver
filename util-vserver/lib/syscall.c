@@ -36,6 +36,7 @@
 #include <syscall.h>
 #include <asm/unistd.h>
 
+#include "compat.h"
 #include "vserver.h"
 
 // Here is the trick. We keep a copy of the define, then undef it

@@ -20,6 +20,7 @@
 #  include <config.h>
 #endif
 
+#include "compat.h"
 #include "vserver.h"
 
 #include <stdio.h>

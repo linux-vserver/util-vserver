@@ -37,6 +37,7 @@
 #include <stdlib.h>
 
 #include "linuxcaps.h"
+#include "compat.h"
 #include "vserver.h"
 
 static int my_chroot(const char *dir)
