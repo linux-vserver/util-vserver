@@ -16,6 +16,7 @@ exec-ulimit
 fakerunlevel
 filetime
 ifspec
+keep-ctx-alive
 listdevip
 lsxid
 mask2prefix
@@ -34,6 +35,7 @@ setctxlimit
 showattr
 showperm
 src_rpm_fake_la-rpm-fake.lo
+vattribute
 vbuild
 vcheck
 vcontext
