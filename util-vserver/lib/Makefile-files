@@ -37,10 +37,10 @@ lib_v11_SRCS =			lib/syscall_rlimit.c \
 				lib/syscall_rlimit-v11.hc \
 				lib/syscall_kill.c  \
 				lib/syscall_kill-v11.hc
-lib_v13_SRCS =			lib/syscall_ctxmigrate.c \
-				lib/syscall_ctxmigrate-v13.hc \
-				lib/syscall_ctxcreate.c \
+lib_v13_SRCS =			lib/syscall_ctxcreate.c \
 				lib/syscall_ctxcreate-v13.hc \
+				lib/syscall_ctxmigrate.c \
+				lib/syscall_ctxmigrate-v13.hc \
 				lib/syscall_enternamespace.c \
 				lib/syscall_enternamespace-v13.hc \
 				lib/syscall_setnamespace.c \
@@ -53,9 +53,13 @@ lib_v13_SRCS =			lib/syscall_ctxmigrate.c \
 				lib/syscall_setiattr.c \
 				lib/syscall_setiattr-fscompat.hc \
 				lib/syscall_setiattr-v13.hc \
+				lib/syscall_gettasknid.c \
+				lib/syscall_gettasknid-net.hc \
 				lib/syscall_gettaskxid.c \
 				lib/syscall_gettaskxid-v13.hc \
 				lib/syscall_gettaskxid-oldproc.hc \
+				lib/syscall_getnxinfo.c \
+				lib/syscall_getnxinfo-nid.hc \
 				lib/syscall_getvxinfo.c \
 				lib/syscall_getvxinfo-v13.hc \
 				lib/syscall_getvxinfo-oldproc.hc \
@@ -69,10 +73,26 @@ lib_v13_SRCS =			lib/syscall_ctxmigrate.c \
 				lib/syscall_getccaps-v13.hc \
 				lib/syscall_getcflags.c \
 				lib/syscall_getcflags-v13.hc \
+				lib/syscall_getncaps.c \
+				lib/syscall_getncaps-net.hc \
+				lib/syscall_getnflags.c \
+				lib/syscall_getnflags-net.hc \
+				lib/syscall_netadd-net.hc \
+				lib/syscall_netadd.c \
+				lib/syscall_netremove-net.hc \
+				lib/syscall_netremove.c \
+				lib/syscall_netcreate.c \
+				lib/syscall_netcreate-net.hc \
+				lib/syscall_netmigrate.c \
+				lib/syscall_netmigrate-net.hc \
 				lib/syscall_setccaps.c \
 				lib/syscall_setccaps-v13.hc \
 				lib/syscall_setcflags.c \
 				lib/syscall_setcflags-v13.hc \
+				lib/syscall_setncaps.c \
+				lib/syscall_setncaps-net.hc \
+				lib/syscall_setnflags.c \
+				lib/syscall_setnflags-net.hc \
 				lib/syscall_setsched.c \
 				lib/syscall_setsched-v13.hc \
 				lib/bcaps-v13.c \
@@ -80,7 +100,11 @@ lib_v13_SRCS =			lib/syscall_ctxmigrate.c \
 				lib/ccaps-v13.c \
 				lib/ccaps_list-v13.c \
 				lib/cflags-v13.c \
-				lib/cflags_list-v13.c
+				lib/cflags_list-v13.c \
+				lib/ncaps-net.c \
+				lib/ncaps_list-net.c \
+				lib/nflags-net.c \
+				lib/nflags_list-net.c
 
 PKGCONFIG_FILES =		lib/util-vserver
 

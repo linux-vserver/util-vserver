@@ -65,6 +65,9 @@
 /** the value which means the current ctx */
 #define VC_SAMECTX		((xid_t)(-2))
 
+#define VC_NONID		((nid_t)(-1))
+#define VC_DYNAMIC_NID		((nid_t)(-1))
+
 #define VC_LIM_INFINITY		(~0ULL)
 #define VC_LIM_KEEP		(~1ULL)
 
@@ -192,6 +195,7 @@
 
 #ifdef IS_DOXYGEN
 typedef an_unsigned_integer_type	xid_t;
+typedef an_unsigned_integer_type	nid_t;
 #endif
 
 #ifdef __cplusplus
@@ -344,6 +348,47 @@ extern "C" {
   int	vc_ctx_kill(xid_t ctx, pid_t pid, int sig);
 
 
+  struct vc_nx_info {
+      nid_t	nid;
+  };
+  
+  nid_t		vc_get_task_nid(pid_t pid);
+  int		vc_get_nx_info(nid_t nid, struct vc_nx_info *) VC_ATTR_NONNULL((2));
+
+  typedef enum { vcNET_IPV4, vcNET_IPV6, vcNET_IPV4R, vcNET_IPV6R }	vc_net_nx_type;
+  
+  struct vc_net_nx {
+      vc_net_nx_type	type;
+      size_t		count;
+      uint32_t		ip;
+      uint32_t		mask;
+  };
+
+  nid_t		vc_net_create(nid_t nid);
+  int		vc_net_migrate(nid_t nid);
+
+  int		vc_net_add(nid_t nid, struct vc_net_nx const *info);
+  int		vc_net_remove(nid_t nid, struct vc_net_nx const *info);
+
+  struct vc_net_flags {
+      uint_least64_t	flagword;
+      uint_least64_t	mask;
+  };
+  
+  int		vc_get_nflags(nid_t, struct vc_net_flags *);
+  int		vc_set_nflags(nid_t, struct vc_net_flags const *);
+
+  
+  struct vc_net_caps {
+      uint_least64_t	ncaps;
+      uint_least64_t	cmask;
+  };
+
+  int		vc_get_ncaps(nid_t, struct vc_net_caps *);
+  int		vc_set_ncaps(nid_t, struct vc_net_caps const *);
+
+
+  
 
   int		vc_set_iattr(char const *filename, xid_t xid,
 			     uint_least32_t flags, uint_least32_t mask) VC_ATTR_NONNULL((1));
@@ -427,7 +472,19 @@ extern "C" {
   int			vc_text2cap(char const *);
   char const *		vc_cap2text(unsigned int);
 
+  
+  int			vc_list2nflag(char const *, size_t len,
+				     struct vc_err_listparser *err,
+				     struct vc_net_flags *flags);
+  uint_least64_t	vc_text2nflag(char const *, size_t len);
+  char const *		vc_lonflag2text(uint_least64_t *);
 
+  uint_least64_t	vc_text2ncap(char const *, size_t len);
+  char const *		vc_loncap2text(uint_least64_t *);
+  int			vc_list2ncap(char const *, size_t len,
+				     struct vc_err_listparser *err,
+				     struct vc_net_caps *);
+  
   inline static int	vc_setfilecontext(char const *filename, xid_t xid) {
     return vc_set_iattr(filename, xid, 0, VC_IATTR_XID);
   }

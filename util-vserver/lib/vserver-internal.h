@@ -90,6 +90,12 @@
 #  define CALL_VC_V13A(F,...)	CALL_VC_NOOP
 #endif
 
+#ifdef VC_ENABLE_API_NET
+#  define CALL_VC_NET(F,...)	CALL_VC_GENERAL(0x00010016, net, F, __VA_ARGS__)
+#else
+#  define CALL_VC_NET(F,...)	CALL_VC_NOOP
+#endif
+
 #ifdef VC_ENABLE_API_FSCOMPAT
 #  define CALL_VC_FSCOMPAT(F,...)	CALL_VC_GENERAL(0x00010000, fscompat, F, __VA_ARGS__)
 #else
@@ -156,6 +162,33 @@
 #else
 #  define VHI_USER2KERNEL(X)		(X)
 #  define VHI_KERNEL2USER(X)		(X)
+#endif
+
+#if 1
+#  define NID_KERNEL2USER(X)	(((X)==(uint32_t)(-1)) ? VC_NONID   : \
+				 (xid_t)(X))
+
+#  define NID_USER2KERNEL(X)	(((X)==VC_DYNAMIC_NID) ? (uint32_t)(-1) : \
+				 (uint32_t)(X))
+#else
+#  define NID_USER2KERNEL(X)	(X)
+#  define NID_KERNEL2USER(X)	(X)
+#endif
+
+#if 1
+#  define NETTYPE_USER2KERNEL(X)	((X)==vcNET_IPV4   ? 0 : \
+					 (X)==vcNET_IPV6   ? 1 : \
+					 (X)==vcNET_IPV4R  ? 2 : \
+					 (X)==vcNET_IPV6R  ? 3 : \
+					 (X))
+#  define NETTYPE_KERNEL2USER(X)	((X)==0 ? vcNET_IPV4   ? : \
+					 (X)==1 ? vcNET_IPV6   ? : \
+					 (X)==2 ? vcNET_IPV4R  ? : \
+					 (X)==3 ? vcNET_IPV6R  ? : \
+					 (vc_net_nx_type)(X))
+#else
+#  define NETTYPE_USER2KERNEL(X)	(X)
+#  define NETTYPE_KERNEL2USER(X)	(X)
 #endif
 
 
