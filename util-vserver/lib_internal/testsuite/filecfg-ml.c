@@ -22,6 +22,9 @@
 
 #include <lib_internal/filecfg.h>
 
+#include <string.h>
+#include <ctype.h>
+
 char const data[] = "\
 line 1\n\
 #line 2\n\
