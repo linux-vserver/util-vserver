@@ -117,6 +117,7 @@ if ! tty -s; then
     findObject -e _VS_LOGFILE "$CONFDIR"/.defaults/apps/vshelper/logfile /dev/null
     findObject -e _VS_ERRFILE "$CONFDIR"/.defaults/apps/vshelper/logfile /dev/null
 
+    exec   </dev/null
     exec  >>$_VS_LOGFILE
     exec 2>>$_VS_ERRFILE
 fi
@@ -132,8 +133,15 @@ vshelper.isEnabled || exit 0
     
 set -eu
 
-declare -r XID=$1
-declare -r ACTION=$2
+if $_VSERVER_INFO - FEATURE vshelper0; then
+    declare -r XID=$1
+    declare -r ACTION=$2
+elif $_VSERVER_INFO - FEATURE vshelper; then
+    declare -r ACTION=$1
+    declare -r XID=$2
+else
+    panic $"vshelper functionality not supported by kernel"
+fi
 
 
 this_xid=$($_VSERVER_INFO - XID)
