@@ -69,7 +69,7 @@ CMDLINE_OPTIONS[] = {
   { "help",      no_argument,       0, CMD_HELP },
   { "version",   no_argument,       0, CMD_VERSION },
   { "all",       no_argument,       0, 'a' },
-  { "xid",       no_argument,       0, CMD_XID },
+  { "xid",       required_argument, 0, CMD_XID },
   { "dir",       required_argument, 0, CMD_DIR },
   { "missingok", no_argument,       0, CMD_MISSINGOK },
   NUMLIM( 0), NUMLIM( 1), NUMLIM( 2), NUMLIM( 3),
