@@ -63,7 +63,9 @@ lib_v13_SRCS =			lib/syscall_enternamespace.c \
 				lib/syscall_getflags.c \
 				lib/syscall_getflags-v13.hc \
 				lib/syscall_setflags.c \
-				lib/syscall_setflags-v13.hc
+				lib/syscall_setflags-v13.hc \
+				lib/syscall_setsched.c \
+				lib/syscall_setsched-v13.hc
 
 PKGCONFIG_FILES =		lib/util-vserver
 
