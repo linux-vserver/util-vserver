@@ -26,10 +26,13 @@
 
 #include "vserver.h"
 #include "vserver-internal.h"
+#include "internal.h"
+
 #include <string.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <unistd.h>
 
 #define CTX_TAG		"\ns_context: "
 
