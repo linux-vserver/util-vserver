@@ -26,52 +26,94 @@
 #  include <config.h>
 #endif
 
+#include "util.h"
+
 #include <utmp.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
-static void usage()
+
+static void
+showHelp(int fd, int exit_code)
 {
-	fprintf (stderr,"fakerunlevel version %s\n",VERSION);
-	fprintf (stderr
-		,"\n"
-		 "fakerunlevel runlevel utmp_file\n"
-		 "\n"
-		 "Put a runlevel record in file utmp_file\n");
+  WRITE_MSG(fd,
+	    "Usage: fakerunlevel <runlevel> <utmp_file>\n\n"
+	    "Put a runlevel record in file <utmp_file>\n\n"
+	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
+
+  exit(exit_code);
+}
+
+static void
+showVersion()
+{
+  WRITE_MSG(1,
+	    "fakerunlevel " VERSION "\n"
+	    "This program is part of " PACKAGE_STRING "\n\n"
+	    "Copyright (C) 2003 Enrico Scholz\n"
+	    VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
 }
 
 int main (int argc, char *argv[])
 {
-	if (argc != 3){
-		usage();
-	}else{
-		int runlevel = atoi(argv[1]);
-		const char *fname = argv[2];
-		if (runlevel < 1 || runlevel > 5){
-			usage();
-		}else{
-			// Make sure the file exist
-			FILE *fout = fopen (fname,"a");
-			if (fout == NULL){
-				fprintf (stderr,"Can't open file %s (%s)\n",fname
-					,strerror(errno));
-			}else{
-				struct utmp ut;
+  if (argc==1) showHelp(2,1);
+  if (strcmp(argv[1], "--help")==0)    showHelp(1,0);
+  if (strcmp(argv[1], "--version")==0) showVersion();
+  if (argc!=3) showHelp(2,1);
 
-				fclose (fout);
-				utmpname (fname);
-				setutent();
-				memset (&ut,0,sizeof(ut));
-				ut.ut_type = RUN_LVL;
-				ut.ut_pid = ('#' << 8) + runlevel+'0';
-				pututline (&ut);
-				endutent();
-			}
-		}
-	}
+  {
+    int  const 		runlevel = atoi(argv[1]);
+    char const * const	fname    = argv[2];
+    int			fd;
+    struct utmp 	ut;
+    
+    gid_t		gid;
+    char		*gid_str = getenv("UTMP_GID");
+    
+    if (runlevel<0 || runlevel>6) showHelp(2,1);
 
-	return 0;
+    if (chroot(".")==-1 ||
+	chdir("/")==-1) {
+      perror("chroot()/chdir()");
+      return EXIT_FAILURE;
+    }
+
+      // Real NSS is too expensive/insecure in this state; therefore, use the
+      // value detected at ./configure stage or overridden by $UTMP_GID
+      // env-variable
+    gid = gid_str ? atoi(gid_str) : UTMP_GID;
+    if (setgid(gid)==-1 ||
+	getgid()!=gid) {
+      perror("setgid()/getgid()");
+      return EXIT_FAILURE;
+    }
+
+    umask(002);
+    fd = open(fname, O_WRONLY|O_CREAT|O_APPEND, 0664);
+    if (fd==-1) {
+      perror("open()");
+      return EXIT_FAILURE;
+    }
+
+    if (close(fd)==-1) {
+      perror("close()");
+      return EXIT_FAILURE;
+    }
+
+    utmpname (fname);
+    setutent();
+    memset (&ut,0,sizeof(ut));
+    ut.ut_type = RUN_LVL;
+    ut.ut_pid  = ('#' << 8) + runlevel+'0';
+    pututline (&ut);
+    endutent();
+  }
+
+  return EXIT_SUCCESS;
 }
-
