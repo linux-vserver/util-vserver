@@ -19,9 +19,16 @@
 #ifndef H_VSERVER_SYSCALL_H
 #define H_VSERVER_SYSCALL_H
 
+#include <sys/types.h>
+#include <unistd.h>
+
+#define CTX_NOCTX	((ctx_t)(-1))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+  typedef short int	ctx_t;
 
 int call_new_s_context(int nbctx, int ctxs[], int remove_cap, int flags);
 int call_set_ipv4root (unsigned long ip[], int nb,
@@ -31,6 +38,10 @@ int has_chrootsafe();
 int call_set_ctxlimit (int res, long limit);
 
 void	vserver_init();
+
+  ctx_t		getctx(pid_t pid);
+
+#define getcctx()	(getctx(getpid()))
 
 #ifdef __cplusplus
 }
