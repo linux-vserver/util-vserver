@@ -90,8 +90,12 @@ linuxcaps.h:		${kernelincludedir}/linux/capability.h Makefile
 
 
 linuxvirtual.h:
+if ENSC_ENABLE_INTERNAL_HEADERS
+			ln -sf '$(top_srcdir)/lib/virtual.h' '$@'
+else
 			ln -sf '$(kernelincludedir)/linux/virtual.h' '$@' && test -e '$@' || \
 			ln -sf '$(top_srcdir)/lib/virtual.h' '$@'
+endif
 
 pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			   s!@'SBINDIR'@!$(sbindir)!g; \

@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.25.190, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.26.192, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -86,10 +86,26 @@ ENSC_KERNEL_HEADERS(kernelincludedir)
 ENSC_UV_VROOTDIR(vserverdir)
 ENSC_CHANGELOG([HEAD])
 
+dnl Check whether to use external kernel headers
+AC_MSG_CHECKING([whether to use internal kernel headers])
+AC_ARG_ENABLE([internal-headers],
+              [AC_HELP_STRING([--disable-internal-headers],
+                              [use vserver specific headers from the kernel instead of the shipped versions (default: no)])],
+              [case "$enableval" in
+	          yes|no) ;;
+	          *)      AC_MSG_ERROR(['$i' is not a supported value for '--disable-internal-headers']);;
+	       esac],
+              [enable_internal_headers=yes])
+
+AM_CONDITIONAL(ENSC_ENABLE_INTERNAL_HEADERS, [test x"$enable_internal_headers" = xyes])
+AC_MSG_RESULT([$enable_internal_headers])
+
+
+dnl Check for the APIs to be used
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([apis],
 	      [AC_HELP_STRING([--enable-apis=APIS],
-			      [enable support for the given apis; possible values are: legacy,compat,ALL (default: ALL)])],
+			      [enable support for the given apis; possible values are: legacy,compat,v11,ALL (default: ALL)])],
               [],
 	      [supported_apis=ALL])
 

@@ -108,7 +108,7 @@ int ifconfig_print (
 		struct {
 			unsigned long addr;
 			unsigned long mask;
-		} solved;
+		} solved = {0,0};
 		if (addrstr != NULL && addrstr[0] != '\0'){
 			printf ("ADDR=%s\n",addrstr);
 			solved.addr = ip_cnv (addrstr);
@@ -123,6 +123,10 @@ int ifconfig_print (
 			solved.addr = addr;
 			ret = 0;
 		}
+		else {
+		  perror("ioctl(SIOCGIFADDR)");
+		}
+		
 		if (maskstr != NULL && maskstr[0] != '\0'){
 			printf ("NETMASK=%s\n",maskstr);
 			solved.mask = ip_cnv (maskstr);
@@ -137,6 +141,10 @@ int ifconfig_print (
 			solved.mask = addr;
 			ret = 0;
 		}
+		else {
+		  perror("ioctl(SIOCGIFNETMASK)");
+		}
+		
 		if (bcaststr != NULL && bcaststr[0] != '\0'){
 			printf ("BCAST=%s\n",bcaststr);
 		}else if (ifconfig_ioctl(skfd,ifname,SIOCGIFBRDADDR, &ifr) >= 0){
@@ -148,7 +156,7 @@ int ifconfig_print (
 				,(addr>>8)&0xff
 				,addr&0xff);
 			ret = 0;
-		}else{
+		}else if (solved.addr!=0 && solved.mask!=0) {
 			// Can't get it from the kernel, compute it from the IP
 			// and the netmask
 			unsigned long addr = (solved.addr & solved.mask)
