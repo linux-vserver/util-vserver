@@ -63,7 +63,30 @@ test "$kerneldir" -a -e $i/include/linux/version.h || {
 kernelincludedir=$kerneldir/include
 AC_SUBST(kernelincludedir)
 AC_MSG_RESULT($kernelincludedir/linux)
-		
+
+AC_MSG_CHECKING([for supported APIs])
+AC_ARG_ENABLE([supported-api],
+	      [AC_HELP_STRING([--with-supported-api=APIS],
+			      [enable support for given apis; supported values: legacy,compat,ALL (default: ALL)])],
+              [],
+	      [supported_apis=ALL])
+
+test x"$supported_apis" != xALL || supported_apis='legacy,compat'
+old_IFS=$IFS
+IFS=,;
+for i in $supported_apis; do
+	case "$i" in
+		compat)	AC_DEFINE(VC_ENABLE_API_COMPAT, 1, [Enable support for compatibily syscall API]);;
+		legacy) AC_DEFINE(VC_ENABLE_API_LEGACY, 1, [Enable support for old, /proc parsing API]);;
+		*)	AC_MSG_ERROR(['$i' is not a supported API]);;
+	esac
+done
+IFS=$old_IFS
+AC_MSG_RESULT([$supported_apis])
+
+
+AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
+AC_CHECK_TYPES(ctx_t,,,[#include <sys/types.h>])
 
 AC_CONFIG_FILES([vserver.spec Makefile])
 AC_OUTPUT
