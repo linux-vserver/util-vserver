@@ -71,6 +71,7 @@ function getPhysicalDir
     ( set -P && cd "$1" && pwd )
 }
 
+## Usage: logging <message>
 function logging
 {
     if test "$_VS_LOGFILE"; then
@@ -80,6 +81,7 @@ function logging
     fi
 }
 
+## Usage: warning <message>
 function warning
 {
     if test "$_VS_ERRFILE"; then
@@ -89,6 +91,7 @@ function warning
     fi
 }
 
+## Usage: panic <message>
 function panic
 {
     if test "$_VS_ERRFILE"; then
@@ -100,6 +103,7 @@ function panic
     exit 1
 }
 
+## Usage: execute <message>
 function execute
 {
     test -z "${DEBUG_EXEC:-}"       || echo "$@"
@@ -115,7 +119,7 @@ function isNumber
     return 0
 }
 
-_UV_LOCKS=''
+_VS_LOCKS=''
 ## Usage: lock <lockfile> [<timeout>]
 function lock
 {
@@ -127,7 +131,7 @@ function lock
     $_LOCKFILE "$1" $tmp $2 &
     cat <$tmp >/dev/null
     
-    _UV_LOCKS="$! $_UV_LOCKS"
+    _VS_LOCKS="$! $_VS_LOCKS"
 }
 
 ## Usage: unlock [<num>]
@@ -136,14 +140,14 @@ function unlock
     local num=$1
     local i
 
-    set -- $_UV_LOCKS
+    set -- $_VS_LOCKS
     while test "$#" -gt 0; do
 	kill -HUP "$1" >/dev/null || :
 	shift
 	test "$num" != 1 || break
 	test -z "$num"   || let --num
     done
-    _UV_LOCKS="$@"
+    _VS_LOCKS="$@"
 }
 
 function _pkgMountBindDir()
