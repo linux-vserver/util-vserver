@@ -38,10 +38,12 @@ CMDLINE_OPTIONS[] = {
   { "help",     no_argument,  0, CMD_HELP },
   { "version",  no_argument,  0, CMD_VERSION },
   { "immu",        no_argument, 0, CMD_IMMU  },
+  { "iunlink",     no_argument, 0, CMD_IMMU  },
   { "admin",       no_argument, 0, CMD_ADMIN },
   { "watch",       no_argument, 0, CMD_WATCH },
   { "hide",        no_argument, 0, CMD_HIDE  },
   { "barrier",     no_argument, 0, CMD_BARRIER },
+  { "~iunlink",    no_argument, 0, CMD_UNSET_IMMU  },
   { "~immu",       no_argument, 0, CMD_UNSET_IMMU  },
   { "~admin",      no_argument, 0, CMD_UNSET_ADMIN },
   { "~watch",      no_argument, 0, CMD_UNSET_WATCH },
@@ -58,7 +60,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-Rx] [--[~]immu] [--[~]admin] [--[~]watch] [--[~]hide] [--] <file>+\n\n"
+	    " [-Rx] [--[~]iunlink] [--[~]admin] [--[~]watch] [--[~]hide] [--] <file>+\n\n"
 	    " Options:\n"
 	    "   -R  ...  recurse through directories\n"
 	    "   -x  ...  do not cross filesystems\n\n"
@@ -88,47 +90,20 @@ fixupParams(struct Arguments * args, int argc)
   args->do_display_dir = false;
 }
 
-static bool
-setFlags(char const *name, char const *display_name,
-	 struct stat const *exp_st)
-{
-  int		fd = open(name, O_RDONLY);
-  int		res = false;
-  int		rc;
-
-  if (fd==-1) {
-    perror("open()");
-    return false;
-  }
-
-  // this is still needed... the file must be open so that vc_set_iattr()
-  // operates on a known file/inode
-  if (!exp_st ||
-      !checkForRace(fd, name, exp_st))
-    goto err;
-
-  rc = vc_set_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
-			   0,
-			   global_args->set_mask & ~global_args->del_mask,
-			   global_args->set_mask|global_args->del_mask);
-
-  if (rc==-1) {
-    perror(display_name);
-    goto err;
-  }
-
-  res = true;
-
-  err:
-  close(fd);
-  return res;
-}
-
 bool
 handleFile(char const *name, char const * display_name,
 	   struct stat const *exp_st)
 {
-  if (!(S_ISREG(exp_st->st_mode) || S_ISDIR(exp_st->st_mode))) return true;
+  int rc = vc_set_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
+			       0,
+			       global_args->set_mask & ~global_args->del_mask,
+			       global_args->set_mask |  global_args->del_mask,
+			       &exp_st->st_mode);
+
+  if (rc==-1) {
+    perror(display_name);
+    return false;
+  }
   
-  return setFlags(name, display_name, exp_st);
+  return true;
 }
