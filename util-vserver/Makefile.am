@@ -52,17 +52,19 @@ BUILT_SOURCES		=  linuxcaps.h pathconfig.h linuxvirtual.h
 
 man_MANS		=  $(man_DATMAN)
 
-m4_FILES		=  m4/ensc_cflags.m4 m4/ensc_kerneldir.m4 \
-			   m4/ensc_changelog.m4 m4/ensc_uv_vrootdir.m4 \
-			   m4/ensc_fpicsyscall.m4 m4/ensc_cxxcompiler.m4
-
 EXTRA_PROGRAMS		=  $(src_EXTRA_PROGS)
 EXTRA_DIST		=  $(sysv_XTRAS) $(sysv_CFG) \
                            $(doc_DAT) $(man_DATMAN) \
-			   $(scripts_XTRAS) $(m4_FILES) \
+			   $(scripts_XTRAS) $(src_XTRAS) \
 			   pathconfig.h.pathsubst \
 			   util-vserver.spec \
 			   THANKS
+
+check_PROGRAMS		=  $(src_check_PRGS)
+check_SCRIPTS		=  $(src_check_SCRPTS)
+TESTS			=  $(src_TSTS)
+
+TESTS_ENVIRONMENT	=  $(src_TESTS_ENV)
 
 AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE $(RELEASE_CPPFLAGS)
 
