@@ -43,8 +43,6 @@ ENSC_VECTOR_HDRS =		ensc_vector/vector.h \
 				ensc_vector/list.h \
 				ensc_vector/list.hc
 
-LIBENSCVECTOR_GLIBC =		libensc_vector-glibc.a
-ENSC_VECTOR_LIBS =		$(LIBENSCVECTOR_GLIBC)
 
 libensc_vector_glibc_a_SOURCES =	$(ENSC_VECTOR_SRCS)
 libensc_vector_glibc_a_CPPFLAGS =	$(AM_CPPFLAGS)
@@ -52,14 +50,32 @@ libensc_vector_glibc_a_CPPFLAGS =	$(AM_CPPFLAGS)
 libensc_vector_diet_a_SOURCES =		$(ENSC_VECTOR_SRCS)
 libensc_vector_diet_a_CPPFLAGS =	$(AM_CPPFLAGS)
 
-if USE_DIETLIBC
+ENSC_VECTOR_LIBS =
+
+if ENSC_USE_GLIBC
+LIBENSCVECTOR_GLIBC =		libensc_vector-glibc.a
+ENSC_VECTOR_LIBS +=		$(LIBENSCVECTOR_GLIBC)
+else
+LIBENSCVECTOR_GLIBC =		lib-glibc-not-enabled-error.a
+endif
+
+if ENSC_USE_DIETLIBC
 LIBENSCVECTOR_DIET =		libensc_vector-diet.a
-LIBENSCVECTOR =			$(LIBENSCVECTOR_DIET)
 ENSC_VECTOR_LIBS +=		$(LIBENSCVECTOR_DIET)
 else
 LIBENSCVECTOR_DIET =		lib-dietlibc-not-enabled-error.a
-LIBENSCVECTOR =			$(LIBENSCVECTOR_GLIBC)
 endif
+
+
+if 	ENSC_USE_DIETLIBC
+LIBENSCVECTOR =			$(LIBENSCVECTOR_DIET)
+else	!ENSC_USE_DIETLIBC
+if	ENSC_USE_GLIBC
+LIBENSCVECTOR =			$(LIBENSCVECTOR_GLIBC)
+else	!ENSC_USE_GLIBC
+LIBENSCVECTOR =			lib-nolib-enabled-error.a
+endif	!ENSC_USE_GLIBC
+endif	!ENSC_USE_DIETLIBC
 
 CLEANFILES +=			libensc_vector-diet.a \
 				libensc_vector-glibc.a
