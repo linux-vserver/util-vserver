@@ -32,7 +32,10 @@
 #include <stdbool.h>
 
 typedef enum { tgNONE,tgCONTEXT, tgRUNNING,
-	       tgVDIR, tgNAME, tgCFGDIR, tgAPPDIR }	VserverTag;
+	       tgVDIR, tgNAME, tgCFGDIR, tgAPPDIR,
+	       tgINITPID, tgINITPID_PID,
+	       tgXID,
+}	VserverTag;
 
 static struct {
     char const * const	tag;
@@ -45,6 +48,9 @@ static struct {
   { "NAME",    tgNAME,    "gives out the name of the vserver" },
   { "CFGDIR",  tgCFGDIR,  "gives out the configuration directory of the vserver" },
   { "APPDIR",  tgAPPDIR,  "gives out the name of the toplevel application cfgdir" },
+  { "INITPID",     tgINITPID,     "gives out the initpid of the given context" },
+  { "INITPID_PID", tgINITPID_PID, "gives out the initpid of the given pid" },
+  { "XID",         tgXID,         "gives out the context-id of the given pid" },
 };
 
 #define TAGS_COUNT	(sizeof(TAGS)/sizeof(TAGS[0]))
@@ -65,7 +71,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-q] <vserver> <tag>\n"
+	    " [-q] <vserver>|<pid>|<context> <tag>\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
@@ -124,6 +130,7 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
     case tgAPPDIR	:
       res = vc_getVserverAppDir(vserver, vcCFG_AUTO, argc==0 ? "" : argv[0]);
       break;
+      
     case tgCONTEXT	:
       ctx = vc_getVserverCtx(vserver, vcCFG_AUTO, true, 0);
       if (ctx!=VC_NOCTX) {
@@ -135,6 +142,45 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
     case tgRUNNING	:
       res = (vc_getVserverCtx(vserver, vcCFG_AUTO, false, 0)==VC_NOCTX) ? 0 : "1";
       break;
+
+    case tgXID		:
+    {
+      pid_t	pid = atoi(vserver);
+      xid_t	xid = vc_get_task_xid(pid);
+      if (xid==VC_NOCTX) perror("vc_get_task_xid()");
+      else {
+	utilvserver_fmt_long(buf, xid);
+	res = buf;
+      }
+      break;
+    }
+
+    case tgINITPID	:
+    {
+      xid_t			xid = *vserver!='\0' ? (xid_t)(atoi(vserver)) : VC_SAMECTX;
+      struct vc_vx_info		info;
+      if (vc_get_vx_info(xid, &info)==-1) perror("vc_get_vx_info()");
+      else {
+	utilvserver_fmt_long(buf, info.xid);
+	res = buf;
+      }
+      break;
+    }
+
+    case tgINITPID_PID	:
+    {
+      pid_t			pid = atoi(vserver);
+      xid_t			xid = vc_get_task_xid(pid);
+      struct vc_vx_info		info;
+
+      if (xid==VC_NOCTX) perror("vc_get_task_xid()");
+      else if (vc_get_vx_info(xid, &info)==-1) perror("vc_get_vx_info()");
+      else {
+	utilvserver_fmt_long(buf, info.xid);
+	res = buf;
+      }
+      break;
+    }
 
     default		:  assert(false); abort();  // TODO
   }
