@@ -45,8 +45,8 @@
 #    define NONNULL(ARGS)
 #    define ALWAYSINLINE
 #  endif
-#  if __GNUC__>3
-#    define PURE		__attribute__((__pure__))
+#  if __GNUC__>=3
+#    define PURE			__attribute__((__pure__))
 #  else
 #    define PURE
 #  endif
@@ -57,6 +57,10 @@
 #  define ALWAYSINLINE
 #  define PURE
 #  define CONST
+#endif
+
+#if !defined(__builtin_expect) && (__GNUC__+0)<3
+#  define __builtin_expect(foo,bar)	(foo)
 #endif
 
 #if !defined(__STDC_VERSION__) || (__STDC_VERSION__<199901L)
