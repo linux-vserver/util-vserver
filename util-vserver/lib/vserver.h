@@ -43,8 +43,8 @@ extern "C" {
     uint32_t	mask;
   };
 
-    /** Returns version of the given API-category */
-  int	vc_get_version(int category);
+    /** Returns version of the current kernel API */
+  int	vc_get_version();
   
     /** Puts current process into context <ctx>, removes the given caps and
      *  sets flags.

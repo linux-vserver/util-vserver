@@ -24,7 +24,7 @@
 #include "getversion-internal.hc"
 
 int
-vc_get_version(int cat)
+vc_get_version()
 {
-  return vc_get_version_internal(cat);
+  return vc_get_version_internal(VC_CAT_COMPAT);
 }
