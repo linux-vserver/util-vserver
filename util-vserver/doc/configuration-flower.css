@@ -35,7 +35,7 @@ span.symbolic {
   font-style: italic;
 }
 
-span.description {
+div.description {
   background-color: yellow;
   color: red;
 }

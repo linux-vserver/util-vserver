@@ -27,30 +27,21 @@
     <body>
       <h1>The content of the <xsl:value-of select="$confdir"/> directory</h1>
 
-      <ul>
-        <xsl:call-template name="collection">
-          <xsl:with-param name="thisdir"><xsl:value-of select="$confdir"/></xsl:with-param>
-        </xsl:call-template>
-      </ul>
+      <xsl:call-template name="collection">
+        <xsl:with-param name="thisdir"><xsl:value-of select="$confdir"/></xsl:with-param>
+      </xsl:call-template>
     </body>
   </xsl:template>
 
   <xsl:template name="collection">
     <xsl:param name="thisdir"/>
-    <xsl:choose>
-      <xsl:when test="count(scalar) + count(link) + count(program) + count(data) + count(hash) + count(list) + count(boolean) > 0">
-        <ul>
-          <xsl:call-template name="dir-iterate">
-            <xsl:with-param name="thisdir"><xsl:value-of select="$thisdir"/></xsl:with-param>
-          </xsl:call-template>
-        </ul>
-      </xsl:when>
-      <xsl:otherwise>
+    <xsl:if test="count(scalar) + count(link) + count(program) + count(data) + count(hash) + count(list) + count(boolean) + count(collection)>0">
+      <ul>
         <xsl:call-template name="dir-iterate">
           <xsl:with-param name="thisdir"><xsl:value-of select="$thisdir"/></xsl:with-param>
         </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
+      </ul>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="dir-iterate">
@@ -59,7 +50,7 @@
       <xsl:with-param name="thisdir"><xsl:value-of select="$thisdir"/></xsl:with-param>
       <xsl:sort select="@name"/>
     </xsl:apply-templates>
-    
+
     <xsl:apply-templates select="collection">
       <xsl:with-param name="thisdir"><xsl:value-of select="$thisdir"/></xsl:with-param>
       <xsl:sort select="@name"/>
@@ -199,10 +190,14 @@
 
   <xsl:template name="printcontent">
     <br/>
-    <span class="description">
-      <xsl:apply-templates select="description"/>
-    </span>
+    <xsl:apply-templates select="description"/>
     <xsl:apply-templates select="elements"/>
+  </xsl:template>
+
+  <xsl:template match="description">
+    <div class="description">
+      <xsl:apply-templates/>
+    </div>
   </xsl:template>
 
   <xsl:template match="ulink">
