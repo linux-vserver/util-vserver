@@ -79,7 +79,7 @@
 #endif
 
 #ifdef VC_ENABLE_API_V13
-#  define CALL_VC_V13(F,...)	CALL_VC_GENERAL(0x00010010, v13, F, __VA_ARGS__)
+#  define CALL_VC_V13(F,...)	CALL_VC_GENERAL(0x00010011, v13, F, __VA_ARGS__)
 #else
 #  define CALL_VC_V13(F,...)	CALL_VC_NOOP
 #endif
