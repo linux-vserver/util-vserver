@@ -37,8 +37,10 @@ $"Usage: $(basename $0) [-s|--sync] [-v|--verbose]
 <vserver> is the name of a vserver.
 
 Possible commands are:
-    start       ... starts the specified vserver
-    stop        ... stops the specified vserver
+    start [--nodeps] <start-vservers-opts>*
+                ... starts the specified vserver
+    stop [--nodeps] <start-vservers-opts>*
+                ... stops the specified vserver
     restart     ... restarts the specified vserver; this is the subsequent
                     execution of a synchronized 'stop' and a 'start'
     condrestart ... restarts the vserver when it is running already
