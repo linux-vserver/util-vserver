@@ -35,8 +35,7 @@ vc_set_iattr_compat_fscompat(char const *filename,
   struct stat		st;
   int			stat_rc;
 
-  if (mode!=0) st.st_mode = *mode;
-  if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode)) return 0;
+  if (mode!=0 && !S_ISREG(*mode) && !S_ISDIR(*mode)) return 0;
   
   fd = open(filename, O_RDONLY);
   if (fd==-1) return -1;
@@ -58,7 +57,8 @@ vc_set_iattr_compat_fscompat(char const *filename,
   }
 
   if ( (mask&VC_IATTR_BARRIER) ) {
-    if (fchmod(fd, (flags&VC_IATTR_BARRIER) ? 0 : (st.st_mode|0500))==-1)
+    if (fchmod(fd, (flags&VC_IATTR_BARRIER) ? 0 :
+	       (st.st_mode| (mode ? *mode : 0500)))==-1)
       goto err;
   }
 
