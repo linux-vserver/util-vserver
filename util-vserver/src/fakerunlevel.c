@@ -38,6 +38,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#define ENSC_WRAPPERS_PREFIX	"fakerunlevel: "
+#define ENSC_WRAPPERS_UNISTD	1
+#define ENSC_WRAPPERS_FCNTL	1
+#include <wrappers.h>
+
+int	wrapper_exit_code = 1;
 
 static void
 showHelp(int fd, int exit_code)
@@ -79,34 +85,24 @@ int main (int argc, char *argv[])
     
     if (runlevel<0 || runlevel>6) showHelp(2,1);
 
-    if (chroot(".")==-1 ||
-	chdir("/")==-1) {
-      perror("chroot()/chdir()");
-      return EXIT_FAILURE;
-    }
+    Echroot(".");
+    Echdir("/");
 
       // Real NSS is too expensive/insecure in this state; therefore, use the
       // value detected at ./configure stage or overridden by $UTMP_GID
       // env-variable
     gid = gid_str ? atoi(gid_str) : UTMP_GID;
-    if (setgroups(1,&gid)==-1 ||
-	setgid(gid)==-1 ||
-	getgid()!=gid) {
-      perror("setgid()/getgid()");
+    Esetgroups(1, &gid);
+    Esetgid(gid);
+
+    if (getgid()!=gid) {
+      WRITE_MSG(2, "fakerunlevel: Failed to set group\n");
       return EXIT_FAILURE;
     }
 
     umask(002);
-    fd = open(fname, O_WRONLY|O_CREAT|O_APPEND, 0664);
-    if (fd==-1) {
-      perror("open()");
-      return EXIT_FAILURE;
-    }
-
-    if (close(fd)==-1) {
-      perror("close()");
-      return EXIT_FAILURE;
-    }
+    fd = Eopen(fname, O_WRONLY|O_CREAT|O_APPEND, 0664);
+    Eclose(fd);
 
     utmpname (fname);
     setutent();
