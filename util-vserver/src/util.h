@@ -68,4 +68,9 @@ void	exitLikeProcess(int pid);
 #define WRITE_MSG(FD,X)		(void)(write(FD,X,sizeof(X)-1))
 #define WRITE_STR(FD,X)		writeStr(FD,X)
 
+#define VSERVER_DECLARE_CMD(CMD)     \
+  char		buf[strlen(CMD)+1];  \
+  memcpy(buf, (CMD), strlen(CMD)+1); \
+  CMD = basename(buf);
+
 #endif	//  H_UTIL_VSERVER_SRC_UTIL_H
