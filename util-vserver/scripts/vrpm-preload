@@ -25,6 +25,28 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 
+function getCapFlags
+{
+    local ctx=$1
+    
+    if test "$ctx" && ! $_VSERVER_INFO - FEATURE migrate; then
+	set -- $($_CHCONTEXT_COMPAT --xid 1 \
+	    sh -c "cat /proc/[0-9]*/status | egrep '^(CapBset|s_context|ctxflags)'" | \
+	    grep -B 1 -A 1 "^s_context: $ctx " | \
+	    sed -e '1,3p;d' | awk '{ print $2 }')
+    else
+	set --
+    fi
+
+    if test "$3"; then
+	RPM_FAKE_CAP=$[ ~0x$1 ]
+	RPM_FAKE_FLAGS=$3
+    else
+	RPM_FAKE_CAP=$[ ~0xd40c04ff ]
+	RPM_FAKE_FLAGS=4
+    fi
+}
+
 lib=$_RPM_FAKE_SO
 
 #scall_nr=$($_VSERVER_INFO  x SYSCALL_NEW_S_CONTEXT_NR  2>/dev/null)
@@ -45,10 +67,14 @@ test "$bin" || {
     exit 1
 }
 
+
+getCapFlags "$ctx"
+
+export RPM_FAKE_CAP RPM_FAKE_FLAGS
+
 #RPM_FAKE_S_CONTEXT_REV=$scall_rev \
 #RPM_FAKE_S_CONTEXT_NR=$scall_nr \
 RPM_FAKE_CHROOT=$vdir \
 RPM_FAKE_CTX=$ctx \
-RPM_FAKE_CAP=$[ ~0xd40c04ff ] \
 LD_PRELOAD=$lib${LD_PRELOAD:+:$LD_PRELOAD} \
 exec $bin "$@"

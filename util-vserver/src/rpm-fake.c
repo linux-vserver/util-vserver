@@ -278,10 +278,12 @@ initPwSocket()
     }
 
     if (pid==0) {
-      char const	*args[15];
+      char const	*args[20];
       char const	**ptr  = args;
       char const 	*env[] = { "HOME=/", "PATH=/bin:/usr/bin", 0 };
       char const	*xid_str;
+      char		flag_str[ sizeof(flags)*3 + 2];
+      char		caps_str[ sizeof(caps)*3  + 2];
       
       setsid();
       dup2(res_sock[1],  0);
@@ -294,7 +296,12 @@ initPwSocket()
       close(res_sock[1]);
 	/* ... *socket[0] are marked as close-on-exec ...*/
 
+      flag_str[utilvserver_fmt_uint(flag_str, flags)] = '\0';
+      caps_str[utilvserver_fmt_uint(caps_str, caps)]  = '\0';
+
       *ptr++ = resolver;
+      *ptr++ = "-F"; *ptr++ = flag_str;
+      *ptr++ = "-C"; *ptr++ = caps_str;
       if (root)  { *ptr++ = "-r"; *ptr++ = root;  }
       if (uid)   { *ptr++ = "-u"; *ptr++ = uid;   }
       if (gid)   { *ptr++ = "-g"; *ptr++ = gid;   }

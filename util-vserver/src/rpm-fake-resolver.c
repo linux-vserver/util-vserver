@@ -59,6 +59,8 @@ struct ArgInfo {
     bool		in_ctx;
     char const *	pid_file;
     char const *	chroot;
+    uint32_t		caps;
+    int			flags;
 };
 
 static struct option const
@@ -95,16 +97,18 @@ inline static void
 parseArgs(struct ArgInfo *args, int argc, char *argv[])
 {
   while (1) {
-    int		c = getopt_long(argc, argv, "c:u:g:r:ns", CMDLINE_OPTIONS, 0);
+    int		c = getopt_long(argc, argv, "F:C:c:u:g:r:ns", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
 
     switch (c) {
       case 'h'		:  showHelp(1, argv[0], 0);
       case 'v'		:  showVersion();
 
-      case 'c'		:  args->ctx = atoi(optarg); break;
-      case 'u'		:  args->uid = atoi(optarg); break;
-      case 'g'		:  args->gid = atoi(optarg); break;
+      case 'c'		:  args->ctx     = atoi(optarg); break;
+      case 'u'		:  args->uid     = atoi(optarg); break;
+      case 'g'		:  args->gid     = atoi(optarg); break;
+      case 'F'		:  args->flags   = atoi(optarg); break;
+      case 'C'		:  args->caps    = atoi(optarg); break;
       case 'r'		:  args->chroot  = optarg;   break;
       case 'n'		:  args->do_fork = false;    break;
       case 's'		:  args->in_ctx  = true;     break;
@@ -239,7 +243,8 @@ daemonize(struct ArgInfo const UNUSED * args, int pid_fd)
 }
 
 static void
-activateContext(xid_t xid, bool in_ctx)
+activateContext(xid_t xid, bool in_ctx,
+		uint32_t xid_caps, int xid_flags)
 {
   if (in_ctx) {
     struct vc_ctx_flags		flags = {
@@ -253,7 +258,7 @@ activateContext(xid_t xid, bool in_ctx)
       Evc_ctx_migrate(xid);
   else {
 #ifdef VC_ENABLE_API_COMPAT
-    Evc_new_s_context(xid, 0, S_CTX_INFO_LOCK);
+    Evc_new_s_context(xid, xid_caps, xid_flags);
 #else
     WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "can not change context: migrate kernel feature missing and 'compat' API disabled\n");
     exit(wrapper_exit_code);
@@ -271,6 +276,7 @@ int main(int argc, char * argv[])
     .pid_file = 0,
     .chroot   = 0,
     .in_ctx   = false,
+    .flags    = S_CTX_INFO_LOCK,
   };
   int			pid_fd = -1;
 
@@ -288,7 +294,7 @@ int main(int argc, char * argv[])
   if (args.chroot) Echroot(args.chroot);
   Echdir("/");
 
-  activateContext(args.ctx, args.in_ctx);
+  activateContext(args.ctx, args.in_ctx, args.caps, args.flags);
   Esetgroups(0, &args.gid);
   Esetgid(args.gid);
   Esetuid(args.uid);
