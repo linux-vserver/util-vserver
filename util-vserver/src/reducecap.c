@@ -28,8 +28,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "linuxcaps.h"
 #include "vserver.h"
+#include "linuxcaps.h"
 
 extern int capget (struct __user_cap_header_struct *, struct __user_cap_data_struct *);
 extern int capset (struct __user_cap_header_struct *, struct __user_cap_data_struct *);
@@ -43,48 +43,18 @@ static void usage()
 
 static void reducecap_print(struct __user_cap_data_struct *user)
 {
-	static const char *tb[]={
-		"CAP_CHOWN",
-		"CAP_DAC_OVERRIDE",
-		"CAP_DAC_READ_SEARCH",
-		"CAP_FOWNER",
-		"CAP_FSETID",
-		"CAP_KILL",
-		"CAP_SETGID",
-		"CAP_SETUID",
-		"CAP_SETPCAP",
-		"CAP_LINUX_IMMUTABLE",
-		"CAP_NET_BIND_SERVICE",
-		"CAP_NET_BROADCAST",
-		"CAP_NET_ADMIN",
-		"CAP_NET_RAW",
-		"CAP_IPC_LOCK",
-		"CAP_IPC_OWNER",
-		"CAP_SYS_MODULE",
-		"CAP_SYS_RAWIO",
-		"CAP_SYS_CHROOT",
-		"CAP_SYS_PTRACE",
-		"CAP_SYS_PACCT",
-		"CAP_SYS_ADMIN",
-		"CAP_SYS_BOOT",
-		"CAP_SYS_NICE",
-		"CAP_SYS_RESOURCE",
-		"CAP_SYS_TIME",
-		"CAP_SYS_TTY_CONFIG",
-		"CAP_MKNOD",
-		"CAP_LEASE",
-		"CAP_OPENDEV",
-		NULL
-	};
 	int i;
 	printf ("%22s %9s %9s %9s\n","Capability","Effective","Permitted"
 		,"Inheritable");
-	for (i=0; tb[i] != NULL; i++){
-		int bit = (1 << i);
-		printf ("%22s %9s %9s %9s\n"
-			,tb[i]
-			,(user->effective & bit) ? "X    " : " "
-			,(user->permitted & bit) ? "X    " : " "
+	for (i=0;; ++i) {
+	        char const *	text = vc_cap2text(i);
+		int		bit  = 1<<i;
+		if (text==0) break;
+		
+		printf ("%-22s %9s %9s %9s\n"
+			,text
+			,(user->effective   & bit) ? "X    " : " "
+			,(user->permitted   & bit) ? "X    " : " "
 			,(user->inheritable & bit) ? "X    " : " ");
 	}
 }
