@@ -43,7 +43,7 @@ vc_set_iattr_fscompat(char const *filename,
   if (stat_rc==-1) goto err;
 
   if ( (mask&VC_IATTR_IUNLINK) ) {
-    int const		tmp = VC_IMMUTABLE_FILE_FL|VC_IMMUTABLE_LINK_FL;
+    unsigned int const	tmp = VC_IMMUTABLE_FILE_FL|VC_IMMUTABLE_LINK_FL;
     if (vc_X_set_ext2flags(fd,
 			   (flags&VC_IATTR_IUNLINK) ? tmp : 0,
 			   (flags&VC_IATTR_IUNLINK) ? 0   : tmp)==-1)
