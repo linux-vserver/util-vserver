@@ -178,7 +178,7 @@ else
     VSERVER_NAME=$(basename "$VSERVER_DIR")
 fi
 
-test "$2" != start -o -e "$VSERVER_DIR"/nonamespace -o "$OPTION_NONAMESPACE" || \
+test "$2" != start -o "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" || \
     exec $_NEW_NAMESPACE "$0" ----nonamespace "${OPTIONS_ORIG[@]}"
 
 . $PKGLIBDIR/vserver.functions
