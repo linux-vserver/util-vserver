@@ -24,7 +24,6 @@ man_DATMAN		=  man/chbind.8 \
 			   man/reducecap.8 \
 			   man/vps.8 \
 			   man/vpstree.8 \
-			   man/vrpm.8 \
 			   man/vserver-copy.8 \
 			   man/vserver-stat.8 \
 			   man/vserver.8 \
