@@ -21,7 +21,8 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT +=	\
 			$(sysv_src_SCRPTS) \
 			$(sysv_gen_SCRPTS)
 
-sysv_src_SCRPTS =	sysv/vprocunhide
+sysv_src_SCRPTS =	sysv/vprocunhide \
+			sysv/vservers-default
 sysv_gen_SCRPTS =	sysv/rebootmgr \
 			sysv/v_gated \
 			sysv/v_httpd \
@@ -30,8 +31,7 @@ sysv_gen_SCRPTS =	sysv/rebootmgr \
 			sysv/v_sendmail \
 			sysv/v_smb \
 			sysv/v_sshd \
-			sysv/v_xinetd \
-			sysv/vservers
+			sysv/v_xinetd
 sysv_conf_DTA =		sysv/vservers.conf
 
 sysconf_DATA +=		$(sysv_conf_DTA)
@@ -44,7 +44,6 @@ EXTRA_DIST +=		sysv/rebootmgr.subst \
 			sysv/v_smb.subst \
 			sysv/v_sshd.subst \
 			sysv/v_xinetd.subst \
-			sysv/vservers.subst \
 			$(sysv_src_SCRPTS) \
 			$(sysv_conf_DTA)
 
