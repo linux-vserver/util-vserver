@@ -461,6 +461,22 @@ function callInNamespace
     fi
 }
 
+## Usage: setDefaultTTY <vdir> [<fallback-tty>]
+function setDefaultTTY
+{
+    local cfgdir ttyname
+
+    cfgdir=$($_VSERVER_INFO "$1" APPDIR init) || cfgdir=
+    findObject -e ttyname \
+	${cfgdir:+"$cfgdir"/tty} \
+	"$CONFDIR/.defaults/apps/init/tty" \
+	$2 /dev/null
+
+    exec   <$ttyname
+    exec  >>$ttyname
+    exec 2>>$ttyname
+}
+
 ## Usage: pkgmgmt.guessStyle <vserver> <resultvar>
 function pkgmgmt.guessStyle()
 {
