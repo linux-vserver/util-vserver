@@ -61,21 +61,12 @@ getRecentName(char *start, char *end)
   }
 
   if (res==0) {
-    int		old_fd = open(".", O_RDONLY);
-
     *end = '\0';
-    
-    if (old_fd!=-1 &&
-	chdir(start)!=-1 &&
-	getcwd(buf, sizeof buf)==buf)
-      start = buf;
+    res  = realpath(start, buf);
+    //printf("start='%s', res='%s'\n", start,res);
+    if (res==0) res = start;
 
-    res = basename(start);
-
-    if (old_fd!=-1) {
-      fchdir(old_fd);
-      close(old_fd);
-    }
+    res = basename(res);
   }
 
   return strdup(res);
