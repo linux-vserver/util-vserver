@@ -36,9 +36,9 @@ ensc_syscall_tmp_src=ENSC_MARK
 		ensc_syscall_tmp_nr=
 		ensc_syscall_tmp_src=
 		test "$ensc_syscall_tmp_nr" || \
-			eval $($CPP $CPPFLAGS -D ENSC_MARK='glibc'                       conftest.c | $EGREP '^ensc_syscall_tmp_(nr=[[1-9]][[0-9]]*;|src=.*)$')
+			eval $($CPP $CPPFLAGS -D ENSC_MARK='glibc'                                 conftest.c | $EGREP '^ensc_syscall_tmp_(nr=[[1-9]][[0-9]]*;|src=.*)$')
 		test "$ensc_syscall_tmp_nr" || \
-			eval $($CPP $CPPFLAGS -D ENSC_MARK='kernel' -I $kernelincludedir conftest.c | $EGREP '^ensc_syscall_tmp_(nr=[[1-9]][[0-9]]*;|src=.*)$')
+			eval $($CPP $CPPFLAGS -D ENSC_MARK='kernel' -I $ensc_cv_path_kernelheaders conftest.c | $EGREP '^ensc_syscall_tmp_(nr=[[1-9]][[0-9]]*;|src=.*)$')
 		test "$ensc_syscall_tmp_nr" || {
 			ensc_syscall_tmp_nr=$2
 			ensc_syscall_tmp_src=default
