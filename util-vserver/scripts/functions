@@ -242,10 +242,13 @@ function pkgInit
 
 function isAvoidNamespace
 {
-    $_VSERVER_INFO - FEATURE namespace || return 0
-    test ! -e "$1"/namespace           || return 1
+    local cfgdir
+
+    $_VSERVER_INFO - FEATURE namespace   || return 0
+    cfgdir=$($_VSERVER_INFO "$1" CFGDIR) || return 0
+    test ! -e "$cfgdir"/namespace        || return 1
     test -e "$CONFDIR"/.defaults/nonamespace -o \
-         -e "$1"/nonamespace
+         -e "$cfgdir"/nonamespace
 }
 
 function getAllVservers
@@ -355,4 +358,19 @@ function isKernelAPI
 {
     local api=$($_VSERVER_INFO - APIVER) || api=0
     test $[ $api ] -${2:-ge} $[ $1 ]
+}
+
+## Usage: callInNamespace <vserver> <command> <args>*
+function callInNamespace
+{
+    local ctx=
+    
+    isAvoidNamespace "$1" || \
+    ctx=$( $_VSERVER_INFO "$1" CONTEXT t ) || ctx=
+
+    if test "$ctx"; then
+	$_VNAMESPACE --enter "$ctx" -- "$@"
+    else
+	"$@"
+    fi
 }
