@@ -580,6 +580,9 @@ extern "C" {
   inline static uint_least64_t	vc_get_insecureccaps() {
     return ~(VC_VXC_SET_UTSNAME|VC_VXC_ICMP_PING);
   }
+  inline static uint_least64_t	vc_get_insecureflags() {
+    return VC_VXF_HIDE_NETIF;
+  }
   
   inline static int	vc_setfilecontext(char const *filename, xid_t xid) {
     return vc_set_iattr(filename, xid, 0, VC_IATTR_XID);
