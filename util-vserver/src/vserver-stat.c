@@ -17,19 +17,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-/*
-	vserver-stat help you to see all the active context currently in the kernel
-	with some useful stat
-
-	Changelog:
-
-	2003-01-08 Jacques Gelinas: Shows vserver description
-	2002-02-28 Jacques Gelinas: Use dynamic system call
-	2002-06-05 Martial Rioux : fix memory output error
-	2002-12-05 Martial Rioux : fix output glitch
-	2001-11-29 added uptime/ctx stat
-	2001-11-20 added vmsize, rss, stime and utime stat
-*/
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -53,6 +40,7 @@
 #include <syscall.h>
 #include <time.h>
 #include <stdbool.h>
+#include <sys/param.h>
 
 #define ENSC_WRAPPERS_DIRENT	1
 #define ENSC_WRAPPERS_VSERVER	1
@@ -66,24 +54,30 @@
 
 int	wrapper_exit_code = 1;
 
+#ifndef AT_CLKTCK
+#define AT_CLKTCK       17    /* frequency of times() */
+#endif
+
+static unsigned long	hertz=0x42;
+
 struct XidData
 {
     xid_t	xid;
     int		process_count;
     int		VmSize_total;
     int		VmRSS_total;
-    long	start_time_oldest;
-    long	stime_total, utime_total;
+    uint64_t	start_time_oldest;
+    uint64_t	stime_total, utime_total;
 };
 
 struct process_info
 {
-	long VmSize;		// number of pages of virtual memory
-	long VmRSS;		// resident set size from /proc/#/stat
-	long start_time;	// start time of process -- seconds since 1-1-70
-	long stime, utime;	// kernel & user-mode CPU time accumulated by process
-	long cstime, cutime;	// cumulative time of process and reaped children
-	xid_t s_context;
+	long 		VmSize;		// number of pages of virtual memory
+	long 		VmRSS;		// resident set size from /proc/#/stat
+	uint64_t	start_time;	// start time of process -- milliseconds since 1-1-70
+        uint64_t	stime, utime;	// kernel & user-mode CPU time accumulated by process
+	uint64_t	cstime, cutime;	// cumulative time of process and reaped children
+	xid_t		s_context;
 };
 
 struct ArgInfo {
@@ -157,14 +151,24 @@ getUptime()
 
   secs = strtol(buffer, &errptr, 10);
   if (*errptr!='.') errptr = buffer;
-  else              msecs = strtol(errptr+1, &errptr, 10);
+  else {
+    unsigned int	mult;
+    switch (strlen(errptr+1)) {
+      case 0	:  mult = 1000; break;
+      case 1	:  mult = 100;  break;
+      case 2	:  mult = 10;   break;
+      case 3	:  mult = 1;    break;
+      default	:  mult = 0;    break;
+    }
+    msecs = strtol(errptr+1, &errptr, 10) * mult;
+  }
 
   if ((*errptr!='\0' && *errptr!=' ') || errptr==buffer) {
     WRITE_MSG(2, "Bad data in /proc/uptime\n");
     exit(1);
   }
 
-  return secs*100 + msecs;
+  return secs*1000 + msecs;
 }
 
 static int
@@ -191,7 +195,7 @@ registerXid(struct Vector *vec, struct process_info *process)
     res->VmRSS_total   = 0;
     res->utime_total   = 0;
     res->stime_total   = 0;
-    res->start_time_oldest = 0;
+    res->start_time_oldest = process->start_time;
   }
 
   ++res->process_count;
@@ -200,11 +204,36 @@ registerXid(struct Vector *vec, struct process_info *process)
   res->utime_total  += process->utime + process->cutime;
   res->stime_total  += process->stime + process->cstime;
 
-  if (res->start_time_oldest == 0) // first entry
-    res->start_time_oldest = process->start_time;
-  else
-    if (res->start_time_oldest > process->start_time)
-      res->start_time_oldest = process->start_time;
+  res->start_time_oldest = MIN(res->start_time_oldest, process->start_time);
+}
+
+static inline uint64_t
+toMsec(uint64_t v)
+{
+  return v*1000llu/hertz;
+}
+
+
+// shamelessly stolen from procps...
+static unsigned long
+find_elf_note(unsigned long findme){
+  unsigned long *ep = (unsigned long *)environ;
+  while(*ep++);
+  while(*ep){
+    if(ep[0]==findme) return ep[1];
+    ep+=2;
+  }
+  return (unsigned long)(-1);
+}
+
+static void initHertz()	__attribute__((__constructor__));
+
+static void
+initHertz()
+{
+  hertz = find_elf_note(AT_CLKTCK);
+  if (hertz==(unsigned long)(-1))
+    hertz = sysconf(_SC_CLK_TCK);
 }
 
 // open the process's status file to get the ctx number, and other stat
@@ -252,18 +281,19 @@ get_process_info(char *pid)
   for (idx = 0; idx<12 && *p!='\0'; ++p)
     if ((*p)==' ') ++idx;
 
-  process.utime  = strtol(p,   &p, 10);
-  process.stime  = strtol(p+1, &p, 10);
-  process.cutime = strtol(p+1, &p, 10);
-  process.cstime = strtol(p+1, &p, 10);
+  process.utime  = toMsec(strtol(p,   &p, 10));
+  process.stime  = toMsec(strtol(p+1, &p, 10));
+  process.cutime = toMsec(strtol(p+1, &p, 10));
+  process.cstime = toMsec(strtol(p+1, &p, 10));
 
   for (idx = 0; idx<5 && *p!='\0'; ++p)
     if ((*p)==' ') ++idx;
 
-  process.start_time = strtol(p,   &p, 10);
+  process.start_time = toMsec(strtol(p,   &p, 10));
   process.VmSize     = strtol(p+1, &p, 10);
   process.VmRSS      = strtol(p+1, &p, 10);
-	
+
+  //printf("pid=%s, start_time=%llu\n", pid, process.start_time);
   return &process;
 }
 
@@ -322,8 +352,8 @@ shortenTime(char *buf, uint64_t t)
 
   unsigned long	hh, mm, ss, ms;
 
-  ms = t % 100;
-  t /= 100;
+  ms = t % 1000;
+  t /= 1000;
 
   ss = t%60;
   t /= 60;
@@ -332,7 +362,18 @@ shortenTime(char *buf, uint64_t t)
   hh = t%60;
   t /= 24;
 
-  if (t>0) {
+  if (t>999*999) {
+    memcpy(ptr, "INVALID", 7);
+    ptr   += 7;
+  }
+  else if (t>999) {
+    ptr   += utilvserver_fmt_ulong(ptr, t/365);
+    *ptr++ = 'y';
+    ptr   += fillUintZero(ptr, t%365, 2);
+    *ptr++ = 'd';
+    ptr   += fillUintZero(ptr, hh, 2);
+  }    
+  else if (t>0) {
     ptr   += utilvserver_fmt_ulong(ptr, t);
     *ptr++ = 'd';
     ptr   += fillUintZero(ptr, hh, 2);
@@ -361,7 +402,7 @@ shortenTime(char *buf, uint64_t t)
 static void
 showContexts(struct Vector *vec)
 {
-  uint64_t	uptime = getUptime();
+  uint64_t			uptime  = getUptime();
   struct XidData const *	ptr     = Vector_begin_const(vec);
   struct XidData const * const	end_ptr = Vector_end_const(vec);
   
@@ -381,6 +422,7 @@ showContexts(struct Vector *vec)
     shortenMem (buf+17, ptr->VmRSS_total);
     shortenTime(buf+24, ptr->utime_total);
     shortenTime(buf+34, ptr->stime_total);
+    //printf("%llu, %llu\n", uptime, ptr->start_time_oldest);
     shortenTime(buf+44, uptime - ptr->start_time_oldest);
 
     switch (ptr->xid) {
@@ -420,6 +462,9 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
+  if (hertz==0x42) initHertz();
+  
+  //printf("hertz=%lu\n", hertz);
     // do not include own stat
   my_pid = getpid();
 
