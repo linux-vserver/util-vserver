@@ -1,0 +1,10 @@
+rebootmgr
+v_gated
+v_httpd
+v_named
+v_portmap
+v_sendmail
+v_smb
+v_sshd
+v_xinetd
+vservers
