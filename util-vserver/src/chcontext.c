@@ -300,7 +300,7 @@ int main (int argc, char *argv[])
 	setCap(optarg, &args.add_caps, &args.remove_caps);
 	break;
       case CMD_SECURE		:
-	args.remove_caps |= vc_get_insecurecaps();
+	args.remove_caps |= vc_get_insecurebcaps();
 	break;
       case CMD_FLAG		:
 	setFlags(optarg, &args.flags);

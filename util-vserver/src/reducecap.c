@@ -249,7 +249,7 @@ int main (int argc, char *argv[])
     switch (c) {
       case CMD_HELP		:  showHelp(1, argv[0], 0);
       case CMD_VERSION		:  showVersion();
-      case CMD_SECURE		:  remove  = vc_get_insecurecaps(); break;
+      case CMD_SECURE		:  remove  = vc_get_insecurebcaps(); break;
       case CMD_SHOW		:  do_show = true;  break; 
       case CMD_PID		:  pid     = atoi(optarg);   break;
       case CMD_CAP		:  remove  = getCap(optarg); break;
