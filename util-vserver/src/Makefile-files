@@ -20,7 +20,7 @@
 src_sbin_CXX_PROGS =	src/vfiles
 src_pkglib_CXX_PROGS =	src/vbuild src/vcheck
 
-src_pkglib_C99_PROGS =	src/vunify src/vcopy
+src_pkglib_C99_PROGS =	src/vunify src/vcopy src/vhashify
 
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
@@ -36,8 +36,6 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 			src/rebootmgr \
 			src/vdu \
 			src/vfiles
-
-
 
 DIETPROGS +=		src/chcontext-compat \
 			src/capchroot \
@@ -79,6 +77,10 @@ DIETPROGS +=		src/chcontext-compat \
 			src/vserver-info \
 			src/vdlimit
 
+if CAN_BEECRYPT_WITH_DIETLIBC
+DIETPROGS +=		src/vhashify
+endif
+
 noinst_HEADERS +=	src/vutil.h src/vutil.p \
 			src/capability-compat.h \
 			src/util.h \
@@ -88,6 +90,8 @@ noinst_HEADERS +=	src/vutil.h src/vutil.p \
 			src/vcopy-init.hc \
 			src/vunify.h \
 			src/vunify-init.hc \
+			src/vhashify.h \
+			src/vhashify-init.hc
 			src/vserver-visitdir.hc \
 			src/context-sync.hc \
 			src/vserver.hh
@@ -153,11 +157,11 @@ src_chbind_LDADD =		$(VSERVER_LDADDS)
 src_chbind_LDFLAGS =		$(VSERVER_LDFLGS)
 
 src_chcontext_compat_SOURCES =	src/chcontext.c
-src_chcontext_compat_LDADD =	$(VSERVER_LDADDS) lib_internal/libinternal.a
+src_chcontext_compat_LDADD =	$(VSERVER_LDADDS) $(LIBINTERNAL)
 src_chcontext_compat_LDFLAGS =	$(VSERVER_LDFLGS)
 
 src_vcontext_SOURCES		=  src/vcontext.c
-src_vcontext_LDADD		=  $(VSERVER_LDADDS) lib_internal/libinternal.a
+src_vcontext_LDADD		=  $(VSERVER_LDADDS) $(LIBINTERNAL)
 src_vcontext_LDFLAGS		=  $(VSERVER_LDFLGS)
 
 src_vsched_SOURCES		=  src/vsched.c
@@ -211,7 +215,7 @@ src_vattribute_LDADD =		$(VSERVER_LDADDS)
 src_vattribute_LDFLAGS =	$(VSERVER_LDFLGS)
 
 src_vnamespace_SOURCES =	src/vnamespace.c
-src_vnamespace_LDADD =		$(VSERVER_LDADDS) lib_internal/libinternal.a
+src_vnamespace_LDADD =		$(VSERVER_LDADDS) $(LIBINTERNAL)
 src_vnamespace_LDFLAGS =	$(VSERVER_LDFLGS)
 
 src_rpm_fake_resolver_SOURCES	=  src/rpm-fake-resolver.c
@@ -221,15 +225,15 @@ src_rpm_fake_resolver_LDFLAGS	=  $(VSERVER_LDFLGS)
 src_mask2prefix_SOURCES		=  src/mask2prefix.c
 
 src_vps_SOURCES			=  src/vps.c
-src_vps_LDADD			=  lib_internal/libinternal.a $(VSERVER_LDADDS)
+src_vps_LDADD			=  $(LIBINTERNAL) $(VSERVER_LDADDS)
 src_vps_LDFLAGS			=  $(VSERVER_LDFLGS)
 
 src_vserver_info_SOURCES	=  src/vserver-info.c
-src_vserver_info_LDADD		=  lib_internal/libinternal.a $(VSERVER_LDADDS)
+src_vserver_info_LDADD		=  $(LIBINTERNAL) $(VSERVER_LDADDS)
 src_vserver_info_LDFLAGS	=  $(VSERVER_LDFLGS)
 
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
-src_vserver_stat_LDADD		=  lib_internal/libinternal.a $(VSERVER_LDADDS) libensc_vector.a
+src_vserver_stat_LDADD		=  $(LIBINTERNAL) $(VSERVER_LDADDS) libensc_vector.a
 src_vserver_stat_LDFLAGS	=  $(VSERVER_LDFLGS)
 
 src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc src/vserver.cc
@@ -237,19 +241,19 @@ src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc src/vserver.cc
 src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc src/vserver.cc
 
 src_lsxid_SOURCES		=  src/fstool.c src/lsxid.c
-src_lsxid_LDADD			=  lib_internal/libinternal.a $(VSERVER_LDADDS) libensc_vector.a
+src_lsxid_LDADD			=  $(LIBINTERNAL) $(VSERVER_LDADDS) libensc_vector.a
 src_lsxid_LDFLAGS		=  $(VSERVER_LDFLGS) 
 
 src_chxid_SOURCES		=  src/fstool.c src/chxid.c
-src_chxid_LDADD			=  lib_internal/libinternal.a $(VSERVER_LDADDS)
+src_chxid_LDADD			=  $(LIBINTERNAL) $(VSERVER_LDADDS)
 src_chxid_LDFLAGS		=  $(VSERVER_LDFLGS)
 
 src_showattr_SOURCES		=  src/fstool.c src/showattr.c
-src_showattr_LDADD		=  lib_internal/libinternal.a $(VSERVER_LDADDS)
+src_showattr_LDADD		=  $(LIBINTERNAL) $(VSERVER_LDADDS)
 src_showattr_LDFLAGS		=  $(VSERVER_LDFLGS)
 
 src_setattr_SOURCES		=  src/fstool.c src/setattr.c
-src_setattr_LDADD		=  lib_internal/libinternal.a $(VSERVER_LDADDS)
+src_setattr_LDADD		=  $(LIBINTERNAL) $(VSERVER_LDADDS)
 src_setattr_LDFLAGS		=  $(VSERVER_LDFLGS)
 
 src_keep_ctx_alive_SOURCES =	src/keep-ctx-alive.c
@@ -258,12 +262,21 @@ src_keep_ctx_alive_LDFLAGS =	$(VSERVER_LDFLGS)
 
 
 src_vcopy_SOURCES =		src/vcopy.c
-src_vcopy_LDADD =		lib_internal/libinternal.a $(VSERVER_LDADDS)
+src_vcopy_LDADD =		$(LIBINTERNAL) $(VSERVER_LDADDS)
 src_vcopy_LDFLAGS =		$(VSERVER_LDFLGS)
 
 src_vunify_SOURCES =		src/vunify.c
-src_vunify_LDADD =		lib_internal/libinternal.a $(VSERVER_LDADDS)
+src_vunify_LDADD =		$(LIBINTERNAL) $(VSERVER_LDADDS)
 src_vunify_LDFLAGS =		$(VSERVER_LDFLGS)
+
+src_vhashify_SOURCES =		src/vhashify.c
+if CAN_BEECRYPT_WITH_DIETLIBC
+src_vhashify_LDADD =		$(LIBINTERNAL) libensc_vector.a -lbeecrypt $(VSERVER_LDADDS)
+src_vhashify_LDFLAGS =		$(VSERVER_LDFLGS)
+else
+src_vhashify_LDADD =		$(LIBINTERNAL_GLIBC) libensc_vector.a lib/libvserver.la -lbeecrypt
+src_vhashify_LDFLAGS =
+endif
 
 src_vuname_SOURCES =		src/vuname.c
 src_vuname_LDADD =		$(VSERVER_LDADDS)
