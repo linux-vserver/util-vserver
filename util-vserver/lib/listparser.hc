@@ -29,14 +29,16 @@
 
 #define ISNUMBER(TYPE,SHORT)						\
   static inline ALWAYSINLINE bool					\
-  isNumber_##SHORT(char const *str,TYPE *res, char end_chr)		\
+  isNumber_##SHORT(char const **str,size_t *len,TYPE *res,char end_chr) \
   {									\
     char	*err_ptr;						\
-    if (*str=='^')							\
-      *res = ((TYPE)(1)) << TONUMBER_##SHORT(str+1, &err_ptr, 0);	\
+    if (**str=='^') {							\
+      *res = ((TYPE)(1)) << TONUMBER_##SHORT(++*str, &err_ptr, 0);	\
+      if (len) --*len;							\
+    }									\
     else								\
-      *res = TONUMBER_##SHORT(str, &err_ptr, 0);			\
-    return err_ptr>str && *err_ptr==end_chr;				\
+      *res = TONUMBER_##SHORT(*str, &err_ptr, 0);			\
+    return err_ptr>*str && *err_ptr==end_chr;				\
   }
 
 
@@ -54,11 +56,12 @@
     for (;len>0;) {							\
       char const	*ptr = strchr(str, ',');			\
       size_t		cnt;						\
-      TYPE		tmp;						\
-      bool		is_neg;						\
-									\
-      is_neg = *str=='!' || *str=='~';					\
-      if (is_neg) {							\
+      TYPE		tmp = 0;					\
+      bool		is_neg     = false;				\
+      bool		allow_zero = true;				\
+      									\
+      while (len>0 && (*str=='!' || *str=='~')) {			\
+	is_neg = !is_neg;						\
 	++str;								\
 	--len;								\
       }									\
@@ -67,15 +70,18 @@
       if (cnt>=len) { cnt=len; len=0; }					\
       else len-=(cnt+1);						\
 									\
-      if (cnt==0)							\
-	tmp = 0;							\
+      if (cnt==0) 							\
+	allow_zero = false;						\
       else if (strncasecmp(str,"all",cnt)==0 ||				\
 	       strncasecmp(str,"any",cnt)==0)				\
 	tmp = ~(TYPE)(0);						\
-      else if (!isNumber_##SHORT(str, &tmp, str[cnt]))			\
-	tmp = (*func)(str,cnt);						\
+      else if (strncasecmp(str,"none",cnt)==0) {}			\
+      else if (!isNumber_##SHORT(&str, &cnt, &tmp, str[cnt])) {		\
+	tmp        = (*func)(str,cnt);					\
+	allow_zero = false;						\
+      }									\
 									\
-      if (tmp!=0) {							\
+      if (tmp!=0 || allow_zero) {					\
 	if (!is_neg) *flag |=  tmp;					\
 	else         *flag &= ~tmp;					\
 	*mask |= tmp;							\
