@@ -22,11 +22,12 @@
 #include "wrappers.h"
 #include <vserver.h>
 
-inline static UNUSED void
+inline static UNUSED xid_t
 Evc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags)
 {
-  FatalErrnoError(vc_new_s_context(ctx,remove_cap,flags)==-1,
-		  "vc_new_s_context()");
+  register xid_t	res = vc_new_s_context(ctx,remove_cap,flags);
+  FatalErrnoError(res==VC_NOCTX, "vc_new_s_context()");
+  return res;
 }
 
 inline static UNUSED xid_t
