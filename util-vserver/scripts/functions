@@ -263,7 +263,7 @@ function getVserverStatus
     eval read "$2" <"$1"/run
 
     test "$3"        || return 0
-    local _tmp=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$ctx" | $_WC -l )
+    local _tmp=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$2" | $_WC -l )
     eval "$3"=\$_tmp
 
     test "$4" -a $_tmp = 0 || return 0
@@ -271,6 +271,13 @@ function getVserverStatus
     test "$_tmp"           || return 1
     rm -f "$_tmp"
     return 0
+}
+
+## Usage: isCtxRunning <ctx>
+function isCtxRunning
+{
+    local _tmp=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$1" | $_WC -l )
+    test $_tmp -gt 0
 }
 
 ## Usage: isVserverRunning <vdir> [<ctx-varname>]
