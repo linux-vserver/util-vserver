@@ -42,6 +42,8 @@ noinst_PROGRAMS		=  $(test_PRGS)
 sysv_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
 
+DIETPROGS		=  $(src_DIETPROGS) $(tests_DIETPROGS)
+
 BUILT_SOURCES		=  linuxcaps.h pathconfig.h linuxvirtual.h
 
 man_MANS		=  $(man_DATMAN)
@@ -109,6 +111,11 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 install-data-local:
 			$(INSTALL) -d -m755 $(DESTDIR)$(localstatedir)/run/vservers
 
+if USE_DIETLIBC
+$(addsuffix $(EXEEXT), $(DIETPROGS)) \
+$(addsuffix $(OBJEXT), $(DIETPROGS)) \
+		:		CC=$(DIET_CC)
+endif
 
 include $(top_srcdir)/lib/Makefile-files
 include $(top_srcdir)/src/Makefile-files

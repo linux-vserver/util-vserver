@@ -17,6 +17,15 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
+src_DIETPROGS		=  src/new-namespace \
+	     		   src/secure-mount \
+	     		   src/secure-umount \
+	     		   src/save_ctxinfo \
+	     		   src/mask2prefix \
+	     		   src/chroot-rm \
+	     		   src/fakerunlevel \
+	     		   src/ctx-kill
+
 src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
 			   src/wrappers.h src/wrappers-vserver.h \
 			   src/compat-pivot_root.h \
@@ -101,20 +110,6 @@ src_vserver_stat_LDADD		=  lib/libvserver.a
 src_vunify_SOURCES		=  src/vunify.cc src/vutil.cc
 src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc
 
-src_DIETPROGS			=  src/new-namespace \
-				   src/secure-mount \
-				   src/secure-umount \
-				   src/save_ctxinfo \
-				   src/mask2prefix \
-				   src/chroot-rm \
-				   src/fakerunlevel \
-				   src/ctx-kill
-
-if USE_DIETLIBC
-$(addsuffix $(EXEEXT), $(src_DIETPROGS)) \
-$(addsuffix $(OBJEXT), $(src_DIETPROGS)) \
-		:		CC=$(DIET_CC)
-endif
 
 ## Local Variables:
 ## compile-command: "make -C .. -k"
