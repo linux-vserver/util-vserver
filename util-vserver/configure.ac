@@ -149,6 +149,7 @@ if test x"$enable_api_olduts" != x; then
 fi
 AC_MSG_RESULT([$enable_apis])
 
+ENSC_SYSCALL
 ENSC_CHECK_EXT2FS_HEADER
 AC_CHECK_FUNCS([vserver])
 AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
@@ -175,20 +176,24 @@ AC_MSG_NOTICE([
 $PACKAGE_STRING
 
 Features:
-              CPPFLAGS: '$CPPFLAGS'
-                CFLAGS: '$CFLAGS'
-              CXXFLAGS: '$CXXFLAGS'
-          Use dietlibc: $ensc_have_dietlibc
-    Build C++ programs: $ensc_cv_cxx_cxxcompiler$ensc_cxx_affected
-    Build C99 programs: $ensc_cv_c99_c99compiler$ensc_c99_affected
-        Available APIs: $enable_apis
-         ext2fs Source: $ensc_cv_test_ext2fs_header
-
+		       CC: $CC, $($CC   --version | sed -e '1p;d')
+                      CXX: $CXX, $($CXX --version | sed -e '1p;d')
+                 CPPFLAGS: '$CPPFLAGS'
+                   CFLAGS: '$CFLAGS'
+                 CXXFLAGS: '$CXXFLAGS'
+               build/host: $build/$host
+             Use dietlibc: $ensc_have_dietlibc
+       Build C++ programs: $ensc_cv_cxx_cxxcompiler$ensc_cxx_affected
+       Build C99 programs: $ensc_cv_c99_c99compiler$ensc_c99_affected
+           Available APIs: $enable_apis
+            ext2fs Source: $ensc_cv_test_ext2fs_header
+    syscall(2) invocation: $with_syscall
+   
 Paths:
-                prefix: $prefix
-     sysconf-Directory: $sysconfdir
-         cfg-Directory: $sysconfdir/vservers
-      initrd-Directory: $initrddir
-         Kernelheaders: $kernelincludedir
-       vserver-Rootdir: $vserverdir
+                   prefix: $prefix
+        sysconf-Directory: $sysconfdir
+            cfg-Directory: $sysconfdir/vservers
+         initrd-Directory: $initrddir
+            Kernelheaders: $kernelincludedir
+          vserver-Rootdir: $vserverdir
 ])
