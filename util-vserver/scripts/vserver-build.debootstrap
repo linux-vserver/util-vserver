@@ -58,7 +58,7 @@ function findDebootstrap
         read tmp <$DEBOOTSTRAP_URI
         case "$tmp" in
     	(/*)			ln -s "$tmp" "$dst";;
-    	(http://*|ftp://*)	$_WGET -q -O "$dst" "$tmp";;
+    	(http://*|ftp://*)	$_WGET -nv -O "$dst" "$tmp";;
     	(*)			echo $"Unsupported URI scheme '$tmp'" >&2
     				exit 1;;
         esac
