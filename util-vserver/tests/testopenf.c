@@ -31,7 +31,8 @@ int main (int argc, char *argv[])
 	}else{
 		int nbproc = atoi(argv[1]);
 		int nbopen = atoi(argv[2]);
-		for (int i=0; i<nbproc; i++){
+		int i;
+		for (i=0; i<nbproc; i++){
 			if (fork()==0){
 				int j;
 				for (j=0; j<nbopen; j++){

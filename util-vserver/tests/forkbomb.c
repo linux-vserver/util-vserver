@@ -64,7 +64,8 @@ int main (int argc, char *argv[])
 			"           exits, then the parent start a new one\n"
 			);
 	}else{
-		MODE mode;
+		MODE 	mode;
+		int	i;
 		if (strcmp(argv[3],"sleep")==0){
 			mode = MODE_SLEEP;
 		}else if (strcmp(argv[3],"loop")==0){
@@ -77,13 +78,14 @@ int main (int argc, char *argv[])
 			fprintf (stderr,"Invalid mode\n");
 			exit (-1);
 		}
-		for (int i=0; i<atoi(argv[2]); i++){
+		for (i=0; i<atoi(argv[2]); i++){
 			if (fork()==0){
 				if (setuid (i+1)==-1){
 					fprintf (stderr,"Can't setuid to uid %d (%s)\n",i+1
 						,strerror(errno));
 				}else{
-					for (int j=0; j<atoi(argv[1]); j++){
+				        int j;
+					for (j=0; j<atoi(argv[1]); j++){
 						forkbomb_userfork (mode);
 					}
 					if (mode == MODE_FORK || mode == MODE_FORKSHELL){

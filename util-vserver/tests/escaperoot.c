@@ -51,8 +51,9 @@ static void test1()
 	if (chroot ("dummy_dir")==-1){
 		fprintf (stderr,"Can't chroot into dummy_dir (%s)\n",strerror(errno));
 	}else{
+	        int i;
 		// Try to chdir into the real root
-		for (int i=0; i<1000; i++) chdir("..");
+		for (i=0; i<1000; i++) chdir("..");
 		print_pwd();
 		if (execl ("/bin/sh","/bin/sh",NULL)==-1){
 			fprintf (stderr,"execl /bin/sh failed (%s)\n",strerror(errno));
@@ -78,8 +79,9 @@ static void test2()
 		fprintf (stderr,"Can't fchdir to the current directory (%s)\n"
 			,strerror(errno));
 	}else{
+	        int i;
 		// Try to chdir into the real root
-		for (int i=0; i<1000; i++) chdir("..");
+		for (i=0; i<1000; i++) chdir("..");
 		print_pwd();
 		if (execl ("/bin/sh","/bin/sh",NULL)==-1){
 			fprintf (stderr,"execl /bin/sh failed (%s)\n",strerror(errno));
