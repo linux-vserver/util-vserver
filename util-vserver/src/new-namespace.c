@@ -25,6 +25,8 @@
 #endif
 
 #include "util.h"
+#include "wrappers.h"
+#include "stack-start.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -39,6 +41,8 @@
 #ifndef CLONE_NEWNS
 #  define CLONE_NEWNS 0x00020000
 #endif
+
+int	wrapper_exit_code = 255;
 
 static int
 childFunc(void *argv_v)
@@ -87,17 +91,8 @@ int main(int argc, char *argv[])
   if (!strcmp(argv[1], "--version")) showVersion();
   if (!strcmp(argv[1], "--"))        ++argv;
 
-  pid = clone(childFunc, buf+sizeof(buf)/2, CLONE_NEWNS|CLONE_VFORK|SIGCHLD, argv+1);
-  if (pid==-1) {
-    perror("clone()");
-    exit(255);
-  }
-
-  p   = wait4(pid, &status, 0,0);
-  if (p==-1) {
-    perror("wait4()");
-    exit(255);
-  }
+  pid = Eclone(childFunc, STACK_START(buf), CLONE_NEWNS|CLONE_VFORK|SIGCHLD, argv+1);
+  p   = Ewait4(pid, &status, 0,0);
 
   if (WIFEXITED(status)) return WEXITSTATUS(status);
   else                   return 255;
