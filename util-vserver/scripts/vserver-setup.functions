@@ -128,7 +128,7 @@ function setup_setDefaults
     : ${SETUP_CONFDIR:=$CONFDIR/$1}
     : ${SETUP_LOCKFILE:=$RUNDIR/$1}
     : ${SETUP_LOCKREVDIR:=$CONFDIR/.defaults/run.rev}
-    findFile SETUP_FSTAB "$CONFDIR"/.defaults/fstab "$PKGLIBDIR"/defaults/fstab
+    findFile SETUP_FSTAB "$CONFDIR"/.defaults/fstab "$PKGLIBDEFAULTDIR"/fstab
 }
 
 function setup_writeOption
