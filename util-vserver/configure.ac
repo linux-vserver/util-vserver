@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.23.192, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.23.193, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -39,7 +39,9 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_RANLIB
+dnl AC_PROG_LIBTOOL
 AM_PROG_CC_C_O
+ENSC_CXXCOMPILER
 
 check_paths=$PATH:/sbin:/usr/sbin:/usr/local/sbin
 AC_PATH_PROGS(AWK,     [awk],     [awk],         [ $check_paths ])
@@ -58,6 +60,10 @@ AC_CHECK_PROGS(RCS2LOG, [rcs2log])
 AM_CONDITIONAL(HAVE_RCS2LOG,  [test x"$RCS2LOG" != x])
 
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
+ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
+
+ENSC_FPIC_SYSCALL
+
 
 AC_MSG_CHECKING([whether to enable debug-code in library])
 AC_ARG_ENABLE([lib-debug],
