@@ -23,6 +23,6 @@
 static inline ALWAYSINLINE xid_t
 vc_get_task_xid_v13(pid_t pid)
 {
-  xid_t		res=vserver(VC_CMD(VINFO, 1,0), pid, 0);
+  xid_t		res=vserver(VCMD_task_xid, pid, 0);
   return CTX_KERNEL2USER(res);
 }

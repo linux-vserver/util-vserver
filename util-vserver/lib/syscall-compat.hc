@@ -33,7 +33,7 @@ vc_new_s_context_compat(xid_t ctx, unsigned int remove_cap, unsigned int flags)
   msg.remove_cap = remove_cap;
   msg.flags      = flags;
 
-  return vserver(VC_CMD(COMPAT, 1, 1), CTX_USER2KERNEL(ctx), &msg);
+  return vserver(VCMD_new_s_context, CTX_USER2KERNEL(ctx), &msg);
 }
 
 static inline ALWAYSINLINE int
@@ -54,7 +54,7 @@ vc_set_ipv4root_compat(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const 
     msg.ip_mask_pair[i].mask = ips[i].mask;
   }
 
-  return vserver(VC_CMD(COMPAT, 2, 3), nb, &msg);
+  return vserver(VCMD_set_ipv4root, nb, &msg);
 }
 
 static inline ALWAYSINLINE int

@@ -23,15 +23,15 @@
 #include "vserver.h"
 
 static inline ALWAYSINLINE int
-vc_get_iattr_v13(dev_t dev, ino_t ino, xid_t *xid,
-		 uint32_t *flags, uint32_t *mask)
+vc_get_iattr_v13(dev_t dev, ino_t ino,
+		 xid_t *xid, uint32_t *flags, uint32_t *mask)
 {
   struct vcmd_ctx_iattr_v0	attr;
   int				rc;
 
   attr.ino = ino;
   
-  rc = vserver(VC_CMD(INODE, 2, 0), dev, &attr);
+  rc = vserver(VCMD_get_iattr, dev, &attr);
   if (xid)   *xid   = attr.xid;
   if (flags) *flags = attr.flags;
   if (mask)  *mask  = attr.mask;
