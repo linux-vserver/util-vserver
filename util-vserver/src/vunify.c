@@ -169,7 +169,7 @@ checkDirEntry(PathInfo const *path,
   // abort when it is not matching an allowed entry
   skip_reason.r      = rsEXCL_DST;
   skip_reason.d.list = &info->dst_list;
-  if (!MatchList_compare(&info->dst_list, path->d)) return 0;
+  if (MatchList_compare(&info->dst_list, path->d)!=stINCLUDE) return 0;
 
   // Now, go through the reference vservers and do the lightweigt list-check
   // first and compare then the fstat's.
@@ -177,7 +177,7 @@ checkDirEntry(PathInfo const *path,
     cache_stat = 0;
     skip_reason.r      = rsEXCL_SRC;
     skip_reason.d.list = mlist;
-    if (MatchList_compare(mlist, path->d) &&
+    if (MatchList_compare(mlist, path->d)==stINCLUDE &&
 	checkFstat(mlist, d_path, path, &cache_stat, dst_stat, src_stat)) {
 
       // Failed the check or is it a symlink which can not be handled
