@@ -240,9 +240,8 @@ case "$2" in
 	    msg $"Vserver '$vserver' is running at context '$ctx'"
 
 	    if test "$2" = status; then
-		msg    $"Number of processes:" $procnum
-		msg -n $"Uptime:              "
-		"$_FILETIME" "$VSERVER_DIR/run"
+		msg $"Number of processes: " $procnum
+		msg $"Uptime:              "	$("$_FILETIME" "$VSERVER_DIR/run")
 	    fi
 	    exit 0
 	else
