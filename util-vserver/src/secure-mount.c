@@ -260,23 +260,23 @@ updateMtab(struct MountInfo const *mnt, struct Options const *opt)
 
   if (opt->rootdir!=0 &&
       chroot(opt->rootdir)==-1) {
-      perror("chroot()");
+      perror("secure-mount: chroot()");
       return -1;
   }
 
   fd=open(opt->mtab, O_CREAT|O_APPEND|O_WRONLY, 0644);
   
-  if (fd==-1) perror("open()");
+  if (fd==-1) perror("secure-mount: open(<mtab>)");
   
   if (fchroot(opt->cur_rootdir_fd)==-1) {
-    perror("fchroot()");
+    perror("secure-mount: fchroot()");
     goto err1;
   }
 
   if (fd==-1) goto err0;
 
   if (flock(fd, LOCK_EX)==-1) {
-    perror("flock()");
+    perror("secure-mount: flock()");
     goto err1;
   }
 
@@ -289,7 +289,7 @@ updateMtab(struct MountInfo const *mnt, struct Options const *opt)
       writeStrX(fd, " ")==-1 ||
       writeStrX(fd, mnt->data ? mnt->data : "defaults")==-1 ||
       writeStrX(fd, " 0 0\n")==-1) {
-    perror("write()");
+    perror("secure-mount: write()");
     goto err1;
   }
 
@@ -332,18 +332,18 @@ callExternalMount(struct MountInfo const *mnt)
 
   pid = fork();
   if (pid==-1) {
-    perror("fork()");
+    perror("secure-mount: fork()");
     return false;
   }
 
   if (pid==0) {
     execv(mount_prog, const_cast(char **)(argv));
-    perror("execv()");
+    perror("secure-mount: execv()");
     exit(1);
   }
 
   if (wait4(pid, &status, 0, 0)==-1) {
-    perror("wait4()");
+    perror("secure-mount: wait4()");
     return false;
   }
 
@@ -359,7 +359,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
   
   if (opt->rootdir!=0) {
     if (chdir(opt->rootdir)==-1) {
-      perror("chdir()");
+      perror("secure-mount: chdir()");
       return false;
     }
 
@@ -368,14 +368,14 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
 
   if (opt->is_secure) {
     if (chdirSecure(dir)==-1) {
-      perror("chdirSecure()");
+      perror("secure-mount: chdirSecure()");
       return false;
     }
   }
   else {
     if (*dir!='\0' &&
 	chdir(dir)==-1) {
-      perror("chdir()");
+      perror("secure-mount: chdir()");
       return false;
     }
   }
@@ -384,7 +384,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
     if (mount(mnt->src, ".",
 	      mnt->type ? mnt->type : "",
 	      mnt->flags, mnt->data)==-1) {
-      perror("mount()");
+      perror("secure-mount: mount()");
       return false;
     }
   }
@@ -396,7 +396,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
   if ((mnt->flags&MS_BIND) && opt->rootdir!=0 &&
       (verifyPosition(mnt->src, opt->rootdir, mnt->dst)==-1 ||
        fchroot(opt->cur_rootdir_fd)==-1)) {
-    perror("verifyPosition/fchroot");
+    perror("secure-mount: verifyPosition/fchroot");
       // TODO: what is with unmounting?
     return false;
   }
@@ -489,14 +489,14 @@ mountFstab(struct Options const *opt)
   assert(opt->fstab!=0);
   fd = open(opt->fstab, O_RDONLY);
   if (fd==-1) {
-    perror("open(<fstab>)");
+    perror("secure-mount: open(<fstab>)");
     goto err0;
   }
 
   len = lseek(fd, 0, SEEK_END);
   if (len==-1 ||
       lseek(fd, 0, SEEK_SET)==-1) {
-    perror("lseek(<fstab>)");
+    perror("secure-mount: lseek(<fstab>)");
     goto err1;
   }
 
@@ -505,7 +505,7 @@ mountFstab(struct Options const *opt)
     char	*ptr, *ptrptr;
 
     if (read(fd, buf, len+1)!=len) {
-      perror("read()");
+      perror("secure-mount: read()");
       goto err1;
     }
     buf[len]   = '#';	// workaround for broken dietlibc strtok_r()
@@ -571,7 +571,7 @@ int main(int argc, char *argv[])
   opt.cur_rootdir_fd = open("/", O_RDONLY|O_DIRECTORY);
 
   if (opt.cur_rootdir_fd==-1) {
-    perror("open(\"/\")");
+    perror("secure-mount: open(\"/\")");
     return EXIT_FAILURE;
   }
 

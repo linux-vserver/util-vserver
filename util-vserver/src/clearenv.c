@@ -67,6 +67,6 @@ int main(int argc, char *argv[])
   }
 
   execve(argv[1], argv+1, env);
-  perror("execve()");
+  perror("clearenv: execve()");
   return 255;
 }

@@ -124,7 +124,7 @@ int ifconfig_print (
 			ret = 0;
 		}
 		else {
-		  perror("ioctl(SIOCGIFADDR)");
+		  perror("ifspec: ioctl(SIOCGIFADDR)");
 		}
 		
 		if (maskstr != NULL && maskstr[0] != '\0'){
@@ -142,7 +142,7 @@ int ifconfig_print (
 			ret = 0;
 		}
 		else {
-		  perror("ioctl(SIOCGIFNETMASK)");
+		  perror("ifspec: ioctl(SIOCGIFNETMASK)");
 		}
 		
 		if (bcaststr != NULL && bcaststr[0] != '\0'){

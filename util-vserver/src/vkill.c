@@ -108,7 +108,7 @@ kill_wrapper_legacy(xid_t UNUSED ctx, char const *proc, int UNUSED sig)
 {
   pid_t		pid = fork();
   if (pid==-1) {
-    perror("fork()");
+    perror("vkill: fork()");
     exit(1);
   }
   else if (pid==0) {
@@ -121,7 +121,7 @@ kill_wrapper_legacy(xid_t UNUSED ctx, char const *proc, int UNUSED sig)
   }
 
   execl(LEGACYDIR "/vkill", "legacy/vkill", proc, (void *)(0));
-  perror("execl()");
+  perror("vkill: execl()");
   exit(1);
 }
 
@@ -135,7 +135,7 @@ kill_wrapper(xid_t ctx, char const *pid, int sig)
       return kill_wrapper_legacy(ctx, pid, sig);
     else {
       errno = err;
-      perror("vc_ctx_kill()");
+      perror("vkill: vc_ctx_kill()");
       return 1;
     }
   }
@@ -147,7 +147,7 @@ inline static int
 kill_wrapper(xid_t ctx, char const *pid, int sig)
 {
   if (vc_ctx_kill(ctx,atoi(pid),sig)==-1) {
-    perror("vc_ctx_kill()");
+    perror("vkill: vc_ctx_kill()");
     return 1;
   }
   return 0;

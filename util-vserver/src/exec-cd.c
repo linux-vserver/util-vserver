@@ -22,7 +22,9 @@
 
 #include "util.h"
 #include <fcntl.h>
+#include <errno.h>
 
+#define ENSC_WRAPPERS_PREFIX	"exec-cd: "
 #define ENSC_WRAPPERS_FCNTL	1
 #define ENSC_WRAPPERS_UNISTD	1
 #include <wrappers.h>
@@ -35,7 +37,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    "[--] <dir> <cmd> <args>*\n\n"
+	    " [--] <dir> <cmd> <args>*\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }

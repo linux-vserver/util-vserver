@@ -31,10 +31,12 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <limits.h>
+#include <errno.h>
 
-#define ENSC_WRAPPERS_VSERVER 1
-#define ENSC_WRAPPERS_UNISTD  1
-#define ENSC_WRAPPERS_FCNTL   1
+#define ENSC_WRAPPERS_PREFIX	"save_ctxinfo: "
+#define ENSC_WRAPPERS_VSERVER	1
+#define ENSC_WRAPPERS_UNISTD	1
+#define ENSC_WRAPPERS_FCNTL	1
 #include <wrappers.h>
 
 int	wrapper_exit_code = 255;
@@ -79,7 +81,7 @@ int main(int argc, char *argv[])
   fd = Eopen(dstfile, O_EXCL|O_CREAT|O_WRONLY, 0644);
   if (write(fd, buf,     len) !=len  ||
       write(fd, "\n",    1)   !=1) {
-    perror("write()");
+    perror("save_ctxinfo: write()");
     return -1;
   }
   Eclose(fd);

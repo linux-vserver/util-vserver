@@ -26,7 +26,9 @@
 #include <sys/resource.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 
+#define ENSC_WRAPPERS_PREFIX	"exec-ulimit: "
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_FCNTL	1
 #define ENSC_WRAPPERS_RESOURCE	1

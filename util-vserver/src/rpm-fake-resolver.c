@@ -30,7 +30,9 @@
 #include <grp.h>
 #include <pwd.h>
 #include <fcntl.h>
+#include <errno.h>
 
+#define ENSC_WRAPPERS_PREFIX	"rpm-fake-resolver: "
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_FCNTL	1

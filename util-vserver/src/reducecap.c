@@ -34,6 +34,7 @@
 
 #include "linuxcaps.h"
 
+#define ENSC_WRAPPERS_PREFIX	"reducecap: "
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_UNISTD	1
 #include <wrappers.h>
@@ -199,7 +200,7 @@ show(pid_t pid)
   header.version = _LINUX_CAPABILITY_VERSION;
   header.pid     = pid;
   if (capget(&header,&user)==-1){
-    perror ("capget");
+    perror ("reducecap: capget()");
     exit(wrapper_exit_code);
   }
   

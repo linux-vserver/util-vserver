@@ -38,6 +38,7 @@
 #include <sys/wait.h>
 #include <libgen.h>
 
+#define ENSC_WRAPPERS_PREFIX	"new-namespace: "
 #define ENSC_WRAPPERS_WAIT	1
 #include <wrappers.h>
 
@@ -92,11 +93,11 @@ int main(int argc, char *argv[])
 #endif
   switch (pid) {
     case -1	:
-      perror("clone()");
+      perror("new-namespace: clone()");
       exit(wrapper_exit_code);
     case 0	:
       execvp(argv[1], argv+1);
-      perror("execvp()");
+      perror("new-namespace: execvp()");
       exit(wrapper_exit_code);
     default	:
       exitLikeProcess(pid);

@@ -181,7 +181,7 @@ initPwSocket()
 	connect(pw_sock, (struct sockaddr *)(&addr), sizeof addr)==-1 ||
 	(flag=fcntl(pw_sock, F_GETFD))==-1 ||
 	fcntl(pw_sock, F_SETFD, flag | FD_CLOEXEC)==-1) {
-      perror("error while initializing pw-socket");
+      perror("rpm-fake.so: error while initializing pw-socket");
       exit(255);
     }
   }

@@ -52,7 +52,7 @@ static int devlist_read2_2()
 	int ret = -1;
 	int skfd = socket (AF_INET,SOCK_DGRAM,0);
 	if (skfd < 0) {
-		perror ("socket");
+		perror ("listdevip: socket()");
 	}else{
 		struct ifconf ifc;
 		int numreqs = 30;
@@ -63,7 +63,7 @@ static int devlist_read2_2()
 			ifc.ifc_buf = (char*)realloc(ifc.ifc_buf, ifc.ifc_len);
 
 			if (ioctl(skfd, SIOCGIFCONF, &ifc) < 0) {
-				perror("SIOCGIFCONF");
+				perror("listdevip: SIOCGIFCONF");
 				ret = -1;
 				break;
 			}

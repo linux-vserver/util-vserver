@@ -39,6 +39,7 @@
 #include <assert.h>
 #include <fcntl.h>
 
+#define ENSC_WRAPPERS_PREFIX	"chcontext: "
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_FCNTL	1
@@ -217,7 +218,7 @@ setHostname(char const *name)
   if (name == NULL) return;
   
   if (sethostname(name, strlen(name))==-1) {
-    perror("sethostname()");
+    perror("chcontext: sethostname()");
     exit(255);
   }
   if (!global_args->do_silent) {
@@ -233,7 +234,7 @@ setDomainname(char const *name)
   if (name == NULL) return;
   
   if (setdomainname(name, strlen(name))==-1) {
-    perror("setdomainname()");
+    perror("chcontext: setdomainname()");
     exit(255);
   }
   if (!global_args->do_silent) {
@@ -396,7 +397,7 @@ int main (int argc, char *argv[])
     execvp (argv[optind],argv+optind);
     doSyncStage2(p);
 
-    perror("execvp()");
+    perror("chcontext: execvp()");
     exit(255);
   }
 
