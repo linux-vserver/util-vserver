@@ -164,9 +164,13 @@ migrate_cmd=( $_VCONTEXT
 
 IFS=$old_IFS
 
-"${create_cmd[@]}" "${chain_cmd[@]}" -- \
-    "${migrate_cmd[@]}" --endsetup --migrate-self -- "$@"
-rc=$?
+if $_VSERVER_INFO -q "$OPT_CTX" XIDTYPE static; then
+    "${create_cmd[@]}" "${chain_cmd[@]}" -- \
+	"${migrate_cmd[@]}" --endsetup --migrate-self -- "$@"
+    rc=$?
+else
+    rc=254
+fi
 
 test "$rc" -ne 254 || exec "${migrate_cmd[@]}" --xid "$OPT_CTX" --migrate -- "$@"
 exit $rc
