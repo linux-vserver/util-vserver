@@ -4,9 +4,11 @@ devel  @LIBDIR@/libvserver.so
 base   @PKGLIBDIR@/functions
 build  @PKGLIBDIR@/vserver-build.apt-rpm
 build  @PKGLIBDIR@/vserver-build.skeleton
+build  @PKGLIBDIR@/vserver-build.debootstrap
 build  @PKGLIBDIR@/vserver-build.functions
 build  @PKGLIBDIR@/vserver-build.functions.apt
 build  @PKGLIBDIR@/vserver-build.functions.rpm
+build  @PKGLIBDIR@/vserver-build.functions.pkgmgmt
 build  @PKGLIBDIR@/vserver-setup.functions
 base   @PKGLIBDIR@/vserver.functions
 base   @PKGLIBDIR@/vserver.start
@@ -21,6 +23,7 @@ legacy @LEGACYDIR@/vserverkillall
 legacy @LEGACYDIR@/distrib-info
 base   @PKGLIBDIR@/defaults/mtab
 build  @PKGLIBDIR@/defaults/fstab
+build  @PKGLIBDIR@/defaults/debootstrap.uri
 build  @PKGLIBDIR@/defaults/vunify-exclude
 base   @PKGLIBDIR@/capchroot
 base   @PKGLIBDIR@/chroot-cat
