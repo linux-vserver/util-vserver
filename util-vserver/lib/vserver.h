@@ -196,6 +196,19 @@ extern "C" {
       be freed by the caller. */
   char *	vc_getVserverName(char const *id, vcCfgStyle style);
 
+  /** Returns the path of the vserver configuration directory. When the given
+   *  vserver does not exist, or when it does not have such a directory, NULL
+   *  will be returned. Else, the result will be allocated and must be freed
+   *  by the caller. */
+  char *	vc_getVserverCfgDir(char const *id, vcCfgStyle style);
+
+  /** Returns the path of the configuration directory for the given
+   *  application. The result will be allocated and must be freed by the
+   *  caller. */
+  char *	vc_getVserverAppDir(char const *id, vcCfgStyle style, char const *app);
+
+  /** Returns the path to the vserver root-directory. The result will be
+   *  allocated and must be freed by the caller. */
   char *	vc_getVserverVdir(char const *id, vcCfgStyle style);
 
   /** Returns the ctx of the given vserver. When vserver is not running and
