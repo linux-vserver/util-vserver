@@ -1,0 +1,83 @@
+# $Id$	--*- sh -*--
+
+# Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+PKGCFGBASE=
+PKGCFGBASE_REL=
+
+function pkgmgmt._setPkgCfgBase
+{
+    test -z "$PKGCFGBASE" || return 0
+
+    for item in "\"$CONFDIR/.defaults/apps/pkgmgmt/base\" 1" "$ROOTDIR/.pkg" "$DEFAULT_VSERVERPKGDIR"; do
+	eval set -- "$item"
+	PKGCFGBASE=$1
+	PKGCFGBASE_REL=$2
+	test ! -d "$PKGCFGBASE" || break
+    done
+
+    test -d "$PKGCFGBASE"  || {
+	echo "pkgcfgbase-dir '$PKGCFGBASE' does not exists or is invalid"
+	exit 1
+    }
+}
+
+function pkgmgmt._setPkgCfg
+{
+    pkgmgmt._setPkgCfgBase
+
+    test -z "$PKGCFGDIR" || return 0
+    PKGCFGDIR="$PKGCFGBASE/$VSERVERDIRNAME"
+}
+
+function pkgmgmt._renameVserverPkgCfg
+{
+    local suffix=.~$(date +'%s')~
+    local i
+    
+    for i in "$PKGCFGDIR"; do
+	test ! -e "$i" || {
+	    mv "$i" "$i$suffix"
+	    say "Renamed '$i' to '$i$suffix'"
+	}
+    done
+}
+
+function pkgmgmt.initFilesystem
+{
+    test -z "$1" || pkgmgmt._renameVserverPkgCfg
+    test ! -d "$PKGCFGDIR" || {
+	echo $
+"vserver pkgmgmt-directory exists already; please try to use
+'--force'; or remove it manually"
+	exit 1
+    }
+
+    mkdir -p "$SETUP_CONFDIR"/apps/pkgmgmt
+
+    test -z "$PKGCFGDIR" || {
+	ln -s "$PKGCFGDIR" "$SETUP_CONFDIR/apps/pkgmgmt/base"
+
+	test "$_EXECDIR" = / || ln -s "$_EXECDIR" "$confdir/apps/pkgmgmt/execdir"
+    }
+
+}
+
+function pkgmgmt.initVariables
+{
+    pkgmgmt._setPkgCfg
+    findDir  PKGDIR         "$CONFDIR/.distributions/$DISTRIBUTION/pkgs"      "$DISTRIBDIR/$DISTRIBUTION/pkgs"     /
+}
