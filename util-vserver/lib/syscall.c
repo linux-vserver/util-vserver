@@ -52,11 +52,4 @@ vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips)
 	  CALL_VC_LEGACY(vc_set_ipv4root, bcast, nb, ips));
 }
 
-int
-vc_chrootsafe(char const *dir)
-{
-  CALL_VC(CALL_VC_COMPAT(vc_chrootsafe, dir),
-	  CALL_VC_LEGACY(vc_chrootsafe, dir));
-}
-
 #endif
