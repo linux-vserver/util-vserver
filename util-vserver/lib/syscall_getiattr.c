@@ -42,7 +42,7 @@ vc_get_iattr(char const *filename, xid_t *xid,  uint32_t *flags, uint32_t *mask)
   if ( (mask==0) ||
        ((*mask&VC_IATTR_XID)  && xid==0) ||
        ((*mask&~VC_IATTR_XID) && flags==0) ) {
-    errno = EINVAL;
+    errno = EFAULT;
     return -1;
   }
   if ( flags ) *flags &= ~*mask;

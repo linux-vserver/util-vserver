@@ -27,7 +27,7 @@ vc_set_flags_v13(xid_t xid, struct vc_ctx_flags const *flags)
   struct vcmd_ctx_flags_v0	k_flags;
 
   if (flags==0) {
-    errno = EINVAL;
+    errno = EFAULT;
     return -1;
   }
 

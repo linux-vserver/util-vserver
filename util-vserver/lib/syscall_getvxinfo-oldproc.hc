@@ -24,6 +24,6 @@ static inline ALWAYSINLINE int
 vc_get_vx_info_oldproc(xid_t UNUSED xid, struct vc_vx_info UNUSED *info)
 {
   // TODO: ???
-  errno = EINVAL;
+  errno = ENOSYS;
   return -1;
 }

@@ -28,7 +28,7 @@ vc_get_flags_v13(xid_t xid, struct vc_ctx_flags *flags)
   int				res;
 
   if (flags==0) {
-    errno = EINVAL;
+    errno = EFAULT;
     return -1;
   }
   

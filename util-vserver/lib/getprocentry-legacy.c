@@ -49,7 +49,7 @@ utilvserver_getProcEntry(pid_t pid,
   char *		res = 0;
 
   if (pid<0 || (uint32_t)(pid)>99999) {
-    errno = EINVAL;
+    errno = EBADR;
     return 0;
   }
 

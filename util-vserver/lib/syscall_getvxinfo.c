@@ -40,7 +40,7 @@ int
 vc_get_vx_info(xid_t xid, struct vc_vx_info *info)
 {
   if (info==0) {
-    errno = EINVAL;
+    errno = EFAULT;
     return -1;
   }
   CALL_VC(CALL_VC_V13    (vc_get_vx_info, xid, info),
