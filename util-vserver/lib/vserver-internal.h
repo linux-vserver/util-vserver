@@ -41,17 +41,21 @@
 #if 1
 #  define VC_SELECT(ID)	case ID: if(1)
 #  define CALL_VC(...)					\
-  switch (utilvserver_checkCompatVersion()&~0xff) {	\
-    case -1 & ~0xff	:  if (1) break;		\
-      VC_SUFFIX, __VA_ARGS__ , VC_PREFIX;		\
-    default	:  errno = EINVAL;			\
-  }							\
-  return -1
+  do {							\
+    switch (utilvserver_checkCompatVersion()&~0xff) {	\
+      case -1 & ~0xff	:  if (1) break;		\
+	VC_SUFFIX, __VA_ARGS__ , VC_PREFIX;		\
+      default	:  errno = EINVAL;			\
+    }							\
+    return -1;						\
+  } while (0)
 #else
 #  define VC_SELECT(ID) if (1)
-#  define CALL_VC(...)				\
-  if (1) {} VC_SUFFIX, __VA_ARGS__, VC_PREFIX;	\
-  errno = ENOSYS; return -1
+#  define CALL_VC(...)					\
+  do {							\
+    if (1) {} VC_SUFFIX, __VA_ARGS__, VC_PREFIX;	\
+    errno = ENOSYS; return -1;				\
+  } while (0)
 #endif
 
 #ifdef VC_ENABLE_API_COMPAT
