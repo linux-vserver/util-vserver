@@ -2,6 +2,7 @@
 
 #include <linux/spinlock.h>
 #include <linux/jiffies.h>
+#include <asm/atomic.h>
 #include <asm/param.h>
 #include <asm/cpumask.h>
 
@@ -12,7 +13,7 @@ struct _vx_sched {
 
 	int fill_rate;		/* Fill rate: add X tokens... */
 	int interval;		/* Divisor:   per Y jiffies   */
-	int tokens;		/* number of CPU tokens in this context */
+	atomic_t tokens;	/* number of CPU tokens in this context */
 	int tokens_min;		/* Limit:     minimum for unhold */
 	int tokens_max;		/* Limit:     no more than N tokens */
 	uint32_t jiffies;	/* add an integral multiple of Y to this */
@@ -25,12 +26,14 @@ static inline void vx_info_init_sched(struct _vx_sched *sched)
 {
         /* scheduling; hard code starting values as constants */
         sched->fill_rate	= 1;
-        sched->interval	= 4;
-        sched->tokens	= HZ >> 2;
+        sched->interval		= 4;
         sched->tokens_min	= HZ >> 4;
         sched->tokens_max	= HZ >> 1;
         sched->jiffies		= jiffies;
         sched->tokens_lock	= SPIN_LOCK_UNLOCKED;
+
+        atomic_set(&sched->tokens, HZ >> 2);
+	sched->cpus_allowed	= CPU_MASK_ALL;
 }
 
 static inline int vx_info_proc_sched(struct _vx_sched *sched, char *buffer)
@@ -43,7 +46,7 @@ static inline int vx_info_proc_sched(struct _vx_sched *sched, char *buffer)
 		"TokensMin:\t%8d\n"
 		"TokensMax:\t%8d\n"
 		,sched->ticks
-		,sched->tokens
+		,atomic_read(&sched->tokens)
 		,sched->fill_rate
 		,sched->interval
 		,sched->tokens_min
@@ -99,32 +102,27 @@ int effective_vavavoom(struct task_struct *, int);
 
 int vx_tokens_recalc(struct vx_info *);
 
-/* update the token allocation for a process */
-static inline int vx_tokens_avail(struct task_struct *tsk)
-{
-	struct vx_info *vxi = tsk->vx_info;
-	int tokens;
+/* new stuff ;) */
 
-	spin_lock(&vxi->sched.tokens_lock);
-	tokens = vx_tokens_recalc(vxi);
-	spin_unlock(&vxi->sched.tokens_lock);
-	return tokens;
+static inline int vx_tokens_avail(struct vx_info *vxi)
+{
+	return atomic_read(&vxi->sched.tokens);
 }
 
-/* new stuff ;) */
+static inline void vx_consume_token(struct vx_info *vxi)
+{
+	atomic_dec(&vxi->sched.tokens);
+}
 
 static inline int vx_need_resched(struct task_struct *p, struct vx_info *vxi)
 {
 	p->time_slice--;
 	if (vxi) {
-		int tokens = 0;
+		int tokens;
+		if ((tokens = vx_tokens_avail(vxi)) > 0)
+			vx_consume_token(vxi);
 
-		if (vxi->sched.tokens > 0) {
-			spin_lock(&vxi->sched.tokens_lock);
-			tokens = --vxi->sched.tokens;
-			spin_unlock(&vxi->sched.tokens_lock);
-		}
-		return ((p->time_slice == 0) || (tokens == 0));
+		return ((p->time_slice == 0) || (tokens < 1));
 	} else
 		return (p->time_slice == 0);
 }

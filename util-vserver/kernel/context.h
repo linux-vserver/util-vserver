@@ -3,7 +3,6 @@
 
 #include <linux/types.h>
 
-
 #define MAX_S_CONTEXT	65535	/* Arbitrary limit */
 #define MIN_D_CONTEXT	49152	/* dynamic contexts start here */
 
@@ -11,27 +10,11 @@
 
 #ifdef	__KERNEL__
 
-#include <linux/utsname.h>
-
-struct _vx_virt {
-	int nr_threads;
-	int nr_running;
-	int max_threads;
-	unsigned long total_forks;
-
-	unsigned int bias_cswtch;
-	long bias_jiffies;
-	long bias_idle;
-
-	struct new_utsname utsname;
-};
-
-
 #include <linux/list.h>
 #include <linux/spinlock.h>
-#include <asm/atomic.h>
 
 #define	_VX_INFO_DEF_
+#include "cvirt.h"
 #include "limit.h"
 #include "sched.h"
 #undef	_VX_INFO_DEF_
@@ -50,7 +33,7 @@ struct vx_info {
 
 	pid_t vx_initpid;			/* PID of fake init process */
 
-	struct _vx_virt virt;			/* virtual/bias stuff */
+	struct _vx_cvirt cvirt;			/* virtual/bias stuff */
 	struct _vx_limit limit;			/* vserver limits */
 	struct _vx_sched sched;			/* vserver scheduler */
 
@@ -83,6 +66,7 @@ void free_vx_info(struct vx_info *);
 
 extern struct vx_info *find_vx_info(int);
 extern struct vx_info *find_or_create_vx_info(int);
+extern int vx_info_id_valid(int);
 
 extern int vx_migrate_task(struct task_struct *, struct vx_info *);
 
@@ -138,13 +122,14 @@ extern int vc_set_flags(uint32_t, void *);
 #endif	/* __KERNEL__ */
 
 #define VXF_INFO_LOCK		0x00000001
-#define VXF_INFO_NPROC		0x00000002
-#define VXF_INFO_PRIVATE	0x00000004
-#define VXF_INFO_INIT		0x00000008
+#define VXF_INFO_SCHED		0x00000002
+#define VXF_INFO_NPROC		0x00000004
+#define VXF_INFO_PRIVATE	0x00000008
 
-#define VXF_INFO_HIDE		0x00000010
-#define VXF_INFO_ULIMIT		0x00000020
-#define VXF_INFO_NSPACE		0x00000040
+#define VXF_INFO_INIT		0x00000010
+#define VXF_INFO_HIDE		0x00000020
+#define VXF_INFO_ULIMIT		0x00000040
+#define VXF_INFO_NSPACE		0x00000080
 
 #define	VXF_SCHED_HARD		0x00000100
 #define	VXF_SCHED_PRIO		0x00000200
@@ -152,9 +137,16 @@ extern int vc_set_flags(uint32_t, void *);
 
 #define VXF_VIRT_MEM		0x00010000
 #define VXF_VIRT_UPTIME		0x00020000
+#define VXF_VIRT_CPU		0x00040000
+
+#define VXF_HIDE_MOUNT		0x01000000
+#define VXF_HIDE_NETIF		0x02000000
 
 #define	VXF_STATE_SETUP		(1ULL<<32)
 #define	VXF_STATE_INIT		(1ULL<<33)
+
+
+#define	VXF_ONE_TIME		(0x0003ULL<<32)
 
 #define VCMD_get_ccaps		VC_CMD(FLAGS, 3, 0)
 #define VCMD_set_ccaps		VC_CMD(FLAGS, 4, 0)
