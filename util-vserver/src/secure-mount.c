@@ -28,7 +28,6 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
 
 #include "util.h"
 #include "pathconfig.h"
@@ -306,7 +305,8 @@ callExternalMount(struct MountInfo const *mnt)
   if      (mnt->flags & MS_BIND) argv[idx++] = "--bind";
   else if (mnt->flags & MS_MOVE) argv[idx++] = "--move";
 
-  if (mnt->data) {
+  if (mnt->data &&
+      strcmp(mnt->data, "defaults")!=0) {
     argv[idx++] = "-o";
     argv[idx++] = mnt->data;
   }
@@ -445,7 +445,7 @@ static enum {prDOIT, prFAIL, prIGNORE}
 parseFstabLine(struct MountInfo	*info, char *buf)
 {
   while (isspace(*buf)) ++buf;
-  if (*buf=='#')  return prIGNORE;
+  if (*buf=='#' || *buf=='\0')  return prIGNORE;
 
   info->src  = buf;
   MOVE_TO_NEXT_FIELD(buf, false);
@@ -491,14 +491,16 @@ mountFstab(struct Options const *opt)
   }
 
   {
-    char	buf[len+1];
+    char	buf[len+2];
     char	*ptr, *ptrptr;
 
     if (read(fd, buf, len+1)!=len) {
       perror("read()");
       goto err1;
     }
-    buf[len] = '\0';
+    buf[len]   = '#';	// workaround for broken dietlibc strtok_r()
+			// implementation
+    buf[len+1] = '\0';
 
     ptr = strtok_r(buf, "\n", &ptrptr);
     while (ptr) {
@@ -507,7 +509,7 @@ mountFstab(struct Options const *opt)
 
       switch (parseFstabLine(&mnt, ptr)) {
 	case prFAIL	:
-	  WRITE_MSG(2, "Failed to parse/mount fstab-line beginning with '");
+	  WRITE_MSG(2, "Failed to parse fstab-line beginning with '");
 	  WRITE_STR(2, ptr);
 	  WRITE_MSG(2, "'\n");
 	  goto err1;
