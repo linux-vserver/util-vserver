@@ -1,3 +1,39 @@
+Version 0.27
+============
+
+	- added new 'vkill' implementation which uses the syscall from
+	  vserver 1.1.6+.
+	
+	- BUGFIX: fixed typo in vc_get_version() wrapper which caused an
+	  infinite recursive call of this function; this should not have
+	  affected any userspace program
+
+	- BUGFIX: 'vps' accepts multiple arguments now (from Debian patch)
+
+	- vc_ctx_kill() was added
+	
+	- chrootsafe() code was removed since such a functionality seems
+	  to be impossible
+
+	- use 'vserver' instead of 'virtual_context' as the syscall name;
+	  this will fix problems with architectures where the syscall is not
+	  at #273.
+
+	- BUGFIX: fixed '--enable-apis' ./configure option; formerly, only
+	  'ALL' or none were possible
+
+	- moved some old, unused programs/scripts into a seperate 'legacy'/
+	  directory
+
+	- BUGFIX: /dev/pts will be mounted with correct options now
+
+	- added support for Slackware's init-method (thanks to Stephen
+	  Pearce for the patch)
+
+	- API-CHANGE: followed kernel patches and renamed 'ctx_t' datatype
+	  to 'xid_t'.
+
+
 Version 0.26
 ============
 
@@ -13,6 +49,7 @@ Version 0.26
 	  kernel version. The old Behavior can be restored with the
 	  '--disable-internal-headers' ./configure option
 	
+
 Version 0.25
 ============
 
