@@ -66,7 +66,8 @@ static void
 showVersion()
 {
   WRITE_MSG(1,
-	    "secure-mount 0.23.5\n"
+	    "secure-mount " VERSION " -- secure mounting of directories in chroots\n"
+	    "This program is part of " PACKAGE_STRING "\n"
 	    "Copyright (C) 2003 Enrico Scholz\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
   exit(0);

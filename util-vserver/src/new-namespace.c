@@ -69,7 +69,8 @@ static void
 showVersion()
 {
   WRITE_MSG(1,
-	    "new-namespace 0.1\n"
+	    "new-namespace " VERSION " -- executes programs in a new namespace\n"
+	    "This program is part of " PACKAGE_STRING "\n"
 	    "Copyright (C) 2003 Enrico Scholz\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
   exit(0);
