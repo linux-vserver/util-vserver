@@ -46,8 +46,9 @@ vc_tell_unsafe_chroot()
 static ALWAYSINLINE UNUSED void	vc_tell_unsafe_chroot() {}
 #endif
 
+#ifndef HAVE_SYS_VIRTUAL_CONTEXT
 static _syscall3(int, sys_virtual_context,
 		 uint32_t, cmd, uint32_t, id, void *, data)
-
+#endif
   
 #endif	//  H_VSERVER_SYSCALL_INTERNAL_H
