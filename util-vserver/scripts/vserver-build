@@ -91,16 +91,16 @@ OPTION_FORCE=
 
 while true; do
     case "$1" in
-	--help)    showHelp $0 ;;
-	--version) showVersion ;;
-	--force)   OPTION_FORCE=1;;
-	--debug)   set -x;;
-	--rootdir) ROOTDIR=$2;      shift;;
-	--pkgbase) PKGCFGBASE=$2;   shift;;
-	-m)	   method=$2;       shift;;
-	-n)	   VSERVER_NAME=$2; shift;;
-	--)	   shift; break;;
-	*)
+	(--help)    showHelp $0 ;;
+	(--version) showVersion ;;
+	(--force)   OPTION_FORCE=1;;
+	(--debug)   set -x;;
+	(--rootdir) ROOTDIR=$2;      shift;;
+	(--pkgbase) PKGCFGBASE=$2;   shift;;
+	(-m)	    method=$2;       shift;;
+	(-n)	    VSERVER_NAME=$2; shift;;
+	(--)	    shift; break;;
+	(*)
 	    { setup_setOption2 "$1" "$2" && shift; } || \
 	    { echo $"vserver-build: internal error."; exit 1; } >&2
 	    ;;
@@ -116,14 +116,14 @@ test "$VSERVER_NAME" || {
 setup_setDefaults "$VSERVER_NAME"
 
 case x"$method" in
-    xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
-    xapt-rpm|xcopy|xskeleton|xdebootstrap)
+    (xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
+    (xapt-rpm|xcopy|xskeleton|xdebootstrap)
 		. $PKGLIBDIR/vserver-build.$method
 		;;
-    x)		echo $"No build-method specified" >&2
+    (x)		echo $"No build-method specified" >&2
 		exit 1
 		;;
-    *)		echo $"Unknown build-method '$method'" >&2
+    (*)		echo $"Unknown build-method '$method'" >&2
 		exit 1
 		;;
 esac
