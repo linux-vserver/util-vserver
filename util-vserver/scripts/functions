@@ -176,8 +176,9 @@ function _pkgMountRPM
 
     "$_SECURE_MOUNT" --chroot "$VDIR" -n --secure --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
     test -z "$WORKAROUND_106057" || mount -n --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
-    
-    "$_SECURE_MOUNT" --chroot "$VDIR" -n --secure -t proc none /proc
+
+    test -e "$VDIR"/proc/self/status || \
+	"$_SECURE_MOUNT" --chroot "$VDIR" -n --secure -t proc none /proc
 }
 
 function _pkgSetEnvBase
