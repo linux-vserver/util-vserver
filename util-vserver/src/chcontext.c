@@ -1,6 +1,6 @@
 // $Id$
 
-// Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2003,2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 // based on chcontext.cc by Jacques Gelinas
 //  
 // This program is free software; you can redistribute it and/or modify
@@ -25,223 +25,417 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
+
+#include "util.h"
+#include "vserver.h"
+#include "wrappers.h"
+#include "wrappers-vserver.h"
+#include "internal.h"
 
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <getopt.h>
+#include <assert.h>
 
-#include "vserver.h"
+#define CMD_HELP	0x1000
+#define CMD_VERSION	0x1001
+#define CMD_CAP		0x4000
+#define CMD_CTX		0x4001
+#define CMD_DISCONNECT	0x4002
+#define CMD_DOMAINNAME	0x4003
+#define CMD_FLAG	0x4004
+#define CMD_HOSTNAME	0x4005
+#define CMD_SECURE	0x4006
+#define CMD_SILENT	0x4007
 
-static void usage()
+int wrapper_exit_code	= 255;
+
+struct option const
+CMDLINE_OPTIONS[] = {
+  { "help",     no_argument,  0, CMD_HELP },
+  { "version",  no_argument,  0, CMD_VERSION },
+  { "cap",        required_argument,  0, CMD_CAP },
+  { "ctx",        required_argument,  0, CMD_CTX },
+  { "disconnect", no_argument,        0, CMD_DISCONNECT },
+  { "domainname", required_argument,  0, CMD_DOMAINNAME },
+  { "flag",       required_argument,  0, CMD_FLAG },
+  { "hostname",   required_argument,  0, CMD_HOSTNAME },
+  { "secure",     no_argument,        0, CMD_SECURE },
+  { "silent",     no_argument,        0, CMD_SILENT },
+  { 0,0,0,0 }
+};
+
+struct Arguments {
+    size_t		nbctx;
+    xid_t		ctxs[16];
+    bool		do_disconnect;
+    bool		do_silent;
+    unsigned int	flags;
+    uint32_t		remove_caps;
+    uint32_t		add_caps;
+    char const *	hostname;
+    char const *	domainname;
+};
+
+static struct Arguments const *		global_args = 0;
+
+static void
+showHelp(int fd, char const *cmd, int res)
 {
-	fprintf (stderr,"chcontext version %s\n",VERSION);
-	fprintf (stderr
-		,"chcontext [ options ] command arguments ...\n"
-		 "\n"
-		 "chcontext allocate a new security context and executes\n"
-		 "a command in that context.\n"
-		 "By default, a new/unused context is allocated\n"
-		 "\n"
+  WRITE_MSG(fd, "Usage: ");
+  WRITE_STR(fd, cmd);
+  WRITE_MSG(fd,
+	    " [--cap [!]<cap_name>] [--secure] [--ctx <num>] [--disconnect]\n"
+	    "       [--domainname <name>] [--hostname <name>] [--flag <flags>+]\n"
+	    "       [--silent] [--] command arguments ...\n"
+	    "\n"
+	    "chcontext allocate a new security context and executes\n"
+	    "a command in that context.\n"
+	    "By default, a new/unused context is allocated\n"
+	    "\n"
+	    "--cap CAP_NAME\n"
+	    "    Add a capability from the command. This option may be\n"
+	    "    repeated several time.\n"
+	    "    See /usr/include/linux/capability.h\n"
+	    "    In general, this option is used with the --secure option\n"
+	    "    --secure removes most critical capabilities and --cap\n"
+	    "    adds specific ones.\n"
+	    "\n"
 
-		 "--cap CAP_NAME\n"
-		 "\tAdd a capability from the command. This option may be\n"
-		 "\trepeated several time.\n"
-		 "\tSee /usr/include/linux/capability.h\n"
-		 "\tIn general, this option is used with the --secure option\n"
-		 "\t--secure removes most critical capabilities and --cap\n"
-		 "\tadds specific ones.\n"
-		 "\n"
+	    "--cap !CAP_NAME\n"
+	    "    Remove a capability from the command. This option may be\n"
+	    "    repeated several time.\n"
+	    "    See /usr/include/linux/capability.h\n"
+	    "\n"
+	    "--ctx num\n"
+	    "    Select the context. On root in context 0 is allowed to\n"
+	    "    select a specific context.\n"
+	    "    Context number 1 is special. It can see all processes\n"
+	    "    in any contexts, but can't kill them though.\n"
+	    "    Option --ctx may be repeated several times to specify up to 16 contexts.\n"
 
-		 "--cap !CAP_NAME\n"
-		 "\tRemove a capability from the command. This option may be\n"
-		 "\trepeated several time.\n"
-		 "\tSee /usr/include/linux/capability.h\n"
-		 "\n"
-		 "--ctx num\n"
-		 "\tSelect the context. On root in context 0 is allowed to\n"
-		 "\tselect a specific context.\n"
-		 "\tContext number 1 is special. It can see all processes\n"
-		 "\tin any contexts, but can't kill them though.\n"
-		 "\tOption --ctx may be repeated several times to specify up to 16 contexts.\n"
+	    "--disconnect\n"
+	    "    Start the command in background and make the process\n"
+	    "    a child of process 1.\n"
 
-		 "--disconnect\n"
-		 "\tStart the command in background and make the process\n"
-		 "\ta child of process 1.\n"
+	    "--domainname new_domainname\n"
+	    "    Set the domainname (NIS) in the new security context.\n"
+	    "    Use \"none\" to unset the domain name.\n"
 
-		 "--domainname new_domainname\n"
-		 "\tSet the domainname (NIS) in the new security context.\n"
-		 "\tUse \"none\" to unset the domain name.\n"
+	    "--flag\n"
+	    "    Set one flag in the new or current security context. The following\n"
+	    "    flags are supported. The option may be used several time.\n"
+	    "\n"
+	    "        fakeinit: The new process will believe it is process number 1.\n"
+	    "                  Useful to run a real /sbin/init in a vserver.\n"
+	    "        lock:     The new process is trapped and can't use chcontext anymore.\n"
+	    "        sched:    The new process and its children will share a common \n"
+	    "                  execution priority.\n"
+	    "        nproc:    Limit the number of process in the vserver according to\n"
+	    "                  ulimit setting. Normally, ulimit is a per user thing.\n"
+	    "                  With this flag, it becomes a per vserver thing.\n"
+	    "        private:  No one can join this security context once created.\n"
+	    "        ulimit:   Apply the current ulimit to the whole context\n"
 
-		 "--flag\n"
-		 "\tSet one flag in the new or current security context. The following\n"
-		 "\tflags are supported. The option may be used several time.\n"
-		 "\n"
-		 "\tfakeinit: The new process will believe it is process number 1.\n"
-		 "            Useful to run a real /sbin/init in a vserver.\n"
-		 "\tlock: The new process is trapped and can't use chcontext anymore.\n"
-		 "\tsched: The new process and its children will share a common \n"
-		 "         execution priority.\n"
-		 "\tnproc: Limit the number of process in the vserver according to\n"
-		 "         ulimit setting. Normally, ulimit is a per user thing.\n"
-		 "         With this flag, it becomes a per vserver thing.\n"
-		 "\tprivate: No one can join this security context once created.\n"
-		 "\tulimit: Apply the current ulimit to the whole context\n"
+	    "--hostname new_hostname\n"
+	    "    Set the hostname in the new security context\n"
+	    "    This is need because if you create a less privileged\n"
+	    "    security context, it may be unable to change its hostname\n"
 
-		 "--hostname new_hostname\n"
-		 "\tSet the hostname in the new security context\n"
-		 "\tThis is need because if you create a less privileged\n"
-		 "\tsecurity context, it may be unable to change its hostname\n"
+	    "--secure\n"
+	    "    Remove all the capabilities to make a virtual server trustable\n"
 
-		 "--secure\n"
-		 "\tRemove all the capabilities to make a virtual server trustable\n"
+	    "--silent\n"
+	    "    Do not print the allocated context number.\n"
+	    "\n"
+	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
-		 "--silent\n"
-		 "\tDo not print the allocated context number.\n"
-		 "\n"
-		 "Information about context is found in /proc/self/status\n");
+  exit(res);
 }
 
+static void
+showVersion()
+{
+  WRITE_MSG(1,
+	    "chcontext " VERSION " -- allocates/enters a security context\n"
+	    "This program is part of " PACKAGE_STRING "\n\n"
+	    "Copyright (C) 2003,2004 Enrico Scholz\n"
+	    VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
+}
+
+static inline void
+setCap(char const *str, uint32_t *add_caps, uint32_t *remove_caps)
+{
+  uint32_t	*cap;
+  int		bit;
+  
+  if (str[0] != '!')
+    cap = add_caps;
+  else {
+    cap = remove_caps;
+    str++;
+  }
+	
+  bit = vc_text2cap(str);
+	
+  if (bit!=-1) *cap |= (1<<bit);
+  else {
+    WRITE_MSG(2, "Unknown capability '");
+    WRITE_STR(2, str);
+    WRITE_MSG(2, "'\n");
+    exit(255);
+  }
+}
+
+static inline void
+setFlags(char const *str, uint32_t *flags)
+{
+  for (;;) {
+    char const	*ptr = strchr(str, ',');
+    size_t	cnt  = ptr ? (size_t)(ptr-str) : strlen(str);
+    
+    if      (strncmp(str, "lock",     cnt)==0) *flags |= S_CTX_INFO_LOCK;
+    else if (strncmp(str, "sched",    cnt)==0) *flags |= S_CTX_INFO_SCHED;
+    else if (strncmp(str, "nproc",    cnt)==0) *flags |= S_CTX_INFO_NPROC;
+    else if (strncmp(str, "private",  cnt)==0) *flags |= S_CTX_INFO_PRIVATE;
+    else if (strncmp(str, "fakeinit", cnt)==0) *flags |= S_CTX_INFO_INIT;
+    else if (strncmp(str, "hideinfo", cnt)==0) *flags |= S_CTX_INFO_HIDEINFO;
+    else if (strncmp(str, "ulimit",   cnt)==0) *flags |= S_CTX_INFO_ULIMIT;
+    else {
+      WRITE_MSG(2, "Unknown flag '");
+      write(2, str, cnt);
+      WRITE_MSG(2, "'\n");
+      exit(255);
+    }
+
+    
+    if (ptr==0) break;
+    str = ptr+1;
+  }
+}
+
+static inline ALWAYSINLINE void
+setHostname(char const *name)
+{
+  if (name == NULL) return;
+  
+  if (vc_set_vhi_name(VC_SAMECTX, vcVHI_NODENAME, name, strlen(name))==-1) {
+    perror("setHostname()");
+    exit(255);
+  }
+  if (!global_args->do_silent) {
+    WRITE_MSG(1, "Host name is now ");
+    WRITE_STR(1, name);
+    WRITE_MSG(1, "\n");
+  }
+}
+
+static inline ALWAYSINLINE void
+setDomainname(char const *name)
+{
+  if (name == NULL) return;
+  
+  if (vc_set_vhi_name(VC_SAMECTX, vcVHI_DOMAINNAME, name, strlen(name))==-1) {
+    perror("setDomainname()");
+    exit(255);
+  }
+  if (!global_args->do_silent) {
+    WRITE_MSG(1, "Domain name is now ");
+    WRITE_STR(1, name);
+    WRITE_MSG(1, "\n");
+  }
+}
+
+static inline ALWAYSINLINE void
+tellContext(xid_t ctx)
+{
+  char		buf[sizeof(xid_t)*3+2];
+  size_t	l;
+
+  if (global_args->do_silent) return;
+
+  l = utilvserver_fmt_long(buf,ctx);
+
+  WRITE_MSG(2, "New security context is ");
+  write(2, buf, l);
+  WRITE_MSG(2, "\n");
+}
+
+static inline ALWAYSINLINE int
+initSync(int p[2])
+{
+  if (!global_args->do_disconnect) return 0;
+
+  Epipe(p);
+  fcntl(p[1], F_SETFD, FD_CLOEXEC);
+  return Efork();
+}
+
+static inline ALWAYSINLINE void
+doSyncStage1(int p[2])
+{
+  int	fd;
+
+  if (!global_args->do_disconnect) return;
+  
+  fd = Eopen("/dev/null", O_RDONLY, 0);
+  Esetsid();
+  Edup2(fd, 0);
+  Eclose(p[0]);
+  if (fd!=0) Eclose(fd);
+  Ewrite(p[1], ".", 1);
+}
+
+static inline ALWAYSINLINE void
+doSyncStage2(int p[2])
+{
+  if (!global_args->do_disconnect) return;
+
+  Ewrite(p[1], "X", 1);
+}
+
+static void
+waitOnSync(pid_t pid, int p[2])
+{
+  int		c;
+  size_t	l;
+
+  assert(global_args->do_disconnect);
+  assert(pid!=0);
+
+  Eclose(p[1]);
+  l = Eread(p[0], &c, 1);
+  if (l!=1) exitLikeProcess(pid);
+  l = Eread(p[0], &c, 1);
+  if (l!=0) exitLikeProcess(pid);
+}
 
 int main (int argc, char *argv[])
 {
-	int ret = -1;
-	int i;
-	int nbctx = 0;
-	int ctxs[16];
-	int disconnect = 0;
-	int silent = 0;
-	int flags = 0;
-	unsigned remove_cap = 0;
-	unsigned add_cap = 0;
-	unsigned long secure = ( ( 1<<VC_CAP_LINUX_IMMUTABLE)
-				 |(1<<VC_CAP_NET_BROADCAST)
-				 |(1<<VC_CAP_NET_ADMIN)
-				 |(1<<VC_CAP_NET_RAW)
-				 |(1<<VC_CAP_IPC_LOCK)
-				 |(1<<VC_CAP_IPC_OWNER)
-				 |(1<<VC_CAP_SYS_MODULE)
-				 |(1<<VC_CAP_SYS_RAWIO)
-				 |(1<<VC_CAP_SYS_PACCT)
-				 |(1<<VC_CAP_SYS_ADMIN)
-				 |(1<<VC_CAP_SYS_BOOT)
-				 |(1<<VC_CAP_SYS_NICE)
-				 |(1<<VC_CAP_SYS_RESOURCE)
-				 |(1<<VC_CAP_SYS_TIME)
-				 |(1<<VC_CAP_MKNOD)
-				 |(1<<VC_CAP_QUOTACTL));
-	const char *hostname=NULL, *domainname=NULL;
+  struct Arguments args = {
+    .nbctx         = 0,
+    .do_disconnect = false,
+    .do_silent     = false,
+    .flags         = 0,
+    .remove_caps   = 0,
+    .add_caps      = 0,
+    .hostname      = 0,
+    .domainname    = 0
+  };
+  xid_t		newctx;
+  int		xflags;
+  int		p[2];
+  pid_t		pid;
+  
+  global_args = &args;
+  
+  while (1) {
+    int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
+    if (c==-1) break;
 
-	for (i=1; i<argc; i++){
-		const char *arg = argv[i];
-		const char *opt = argv[i+1];
-		if (strcmp(arg,"--ctx")==0){
-			if (nbctx >= 16){
-				fprintf (stderr,"Too many context, max 16, ignored.\n");
-			}else{
-				ctxs[nbctx++] = atoi(opt);
-			}
-			i++;
-		}else if (strcmp(arg,"--disconnect")==0){
-			disconnect = 1;
-		}else if (strcmp(arg,"--silent")==0){
-			silent = 1;
-		}else if (strcmp(arg,"--flag")==0){
-			if (strcmp(opt,"lock")==0){
-				flags |= 1;
-			}else if (strcmp(opt,"sched")==0){
-				flags |= 2;
-			}else if (strcmp(opt,"nproc")==0){
-				flags |= 4;
-			}else if (strcmp(opt,"private")==0){
-				flags |= 8;
-			}else if (strcmp(opt,"fakeinit")==0){
-				flags |= 16;
-			}else if (strcmp(opt,"hideinfo")==0){
-				flags |= 32;
-			}else if (strcmp(opt,"ulimit")==0){
-				flags |= 64;
-			}else{
-				fprintf (stderr,"Unknown flag %s\n",opt);
-			}
-			i++;
-		}else if (strcmp(arg,"--cap")==0){
-			unsigned *cap = &add_cap;
-			int	 bit;
-
-			if (opt[0] == '!'){
-				cap = &remove_cap;
-				opt++;
-			}
-
-			bit = vc_text2cap(opt);
-
-			if (bit!=-1) *cap |= (1<<bit);
-			else {
-				fprintf (stderr,"Unknown capability %s\n",opt);
-			}
-			i++;
-		}else if (strcmp(arg,"--secure")==0){
-			remove_cap |= secure;
-		}else if (strcmp(arg,"--hostname")==0){
-			hostname = opt;
-			i++;
-		}else if (strcmp(arg,"--domainname")==0){
-			if (opt != NULL && strcmp(opt,"none")==0) opt = "";
-			domainname = opt;
-			i++;
-		}else{
-			break;
-		}
+    switch (c) {
+      case CMD_HELP		:  showHelp(1, argv[0], 0);
+      case CMD_VERSION		:  showVersion();
+      case CMD_DISCONNECT	:  args.do_disconnect = true;   break;
+      case CMD_SILENT		:  args.do_silent     = true;   break;
+      case CMD_DOMAINNAME	:  args.domainname    = optarg; break;
+      case CMD_HOSTNAME		:  args.hostname      = optarg; break;
+	
+      case CMD_CAP		:
+	setCap(optarg, &args.add_caps, &args.remove_caps);
+	break;
+      case CMD_SECURE		:
+	args.remove_caps |= vc_get_securecaps();
+	break;
+      case CMD_FLAG		:
+	setFlags(optarg, &args.flags);
+	break;
+      case CMD_CTX		:
+	if (args.nbctx>0)
+	  WRITE_MSG(2, "WARNING: More than one ctx not supported by this version\n");
+	if (args.nbctx>=DIM_OF(args.ctxs)) {
+	  WRITE_MSG(2, "Too many contexts given\n");
+	  exit(255);
 	}
-	if (i == argc){
-		usage();
-	}else if (argv[i][0] == '-'){
-		usage();
-	}else{
-		/*
-			We must fork early because fakeinit set the current
-			process as the special init process
-		*/
-		if (disconnect == 0 || fork()==0){
-		        int newctx;
-			int xflags = flags & 16;
+	args.ctxs[args.nbctx++] = atoi(optarg);
+	break;
 
-			if (nbctx == 0) ctxs[nbctx++] = -1;
-			newctx = vc_new_s_context(ctxs[0],0,flags&~16);
-			if (newctx != -1){
-				if (hostname != NULL){
-					if (sethostname (hostname,strlen(hostname))==-1){
-						fprintf (stderr,"Can't set the host name (%s)\n"
-							,strerror(errno));
-					}else if (!silent){
-						printf ("Host name is now %s\n",hostname);
-					}
-				}
-				if (domainname != NULL){
-					setdomainname (domainname,strlen(domainname));
-					if (!silent){
-						printf ("Domain name is now %s\n",domainname);
-					}
-				}
-				remove_cap &= (~add_cap);
-				if (remove_cap!=0 || xflags!=0)
-				        vc_new_s_context (-2,remove_cap,xflags);
-				if (!silent){
-					printf ("New security context is %d\n"
-						,ctxs[0] == -1 ? newctx : ctxs[0]);
-				}
-				execvp (argv[i],argv+i);
-				fprintf (stderr,"Can't exec %s (%s)\n",argv[i]
-					,strerror(errno));
-			}else{
-				perror ("Can't set the new security context\n");
-			}
-			if (disconnect != 0) _exit(0);
-		}
-	}
-	return ret;
+	  
+      default		:
+	WRITE_MSG(2, "Try '");
+	WRITE_STR(2, argv[0]);
+	WRITE_MSG(2, " --help\" for more information.\n");
+	return 255;
+	break;
+    }
+  }
+
+  if (optind>=argc) {
+    WRITE_MSG(2, "No command given; use '--help' for more information.\n");
+    exit(255);
+  }
+  
+  if (args.domainname && strcmp(args.domainname, "none")==0)
+    args.domainname = "";
+    
+  if (args.nbctx == 0)
+    args.ctxs[args.nbctx++] = VC_RANDCTX;
+    
+  xflags = args.flags & 16;
+
+  newctx            = Evc_new_s_context(args.ctxs[0],0,args.flags&~16);
+  args.remove_caps &= (~args.add_caps);
+  setHostname(args.hostname);
+  setDomainname(args.domainname);
+
+  pid = initSync(p);
+  
+  if (pid==0) {
+    if (args.remove_caps!=0 || xflags!=0)
+      Evc_new_s_context (VC_SAMECTX,args.remove_caps,xflags);
+    tellContext(args.ctxs[0]==VC_RANDCTX ? newctx : args.ctxs[0]);
+
+    doSyncStage1(p);
+    execvp (argv[optind],argv+optind);
+    doSyncStage2(p);
+
+    perror("execvp()");
+    exit(255);
+  }
+
+  waitOnSync(pid, p);
+  return EXIT_SUCCESS;
 }
 
+#ifdef ENSC_TESTSUITE
+#define FLAG_TEST(STR,EXP) \
+  {			   \
+    uint32_t	flag=0;	   \
+    setFlags(STR, &flag);  \
+    assert(flag==(EXP));   \
+  }
+
+#define CAP_TEST(STR,EXP_ADD,EXP_DEL)		\
+  {						\
+    uint32_t	add=0,del=0;			\
+    setCap(STR, &add, &del);			\
+    assert(add==(EXP_ADD));			\
+    assert(del==(EXP_DEL));			\
+  }
+
+void
+test()
+{
+  FLAG_TEST("lock",       1);
+  FLAG_TEST("lock,sched", 3);
+
+  CAP_TEST("CHOWN",      1, 0);
+  CAP_TEST("CAP_CHOWN",  1, 0);
+  CAP_TEST("!CHOWN",     0, 1);
+  CAP_TEST("!CAP_CHOWN", 0, 1);
+}
+#endif
