@@ -34,8 +34,7 @@
 #define ENSC_WRAPPERS_IO	1
 #include <wrappers.h>
 
-  //#define MMAP_BLOCKSIZE		0x10000000
-#define MMAP_BLOCKSIZE		0x4000
+#define MMAP_BLOCKSIZE		(16 * 1024*1024)
 
 static inline bool
 verifySource(int fd, struct stat const *exp_stat)
@@ -76,16 +75,45 @@ handlerSIGBUS(int UNUSED num)
   longjmp(bus_error_restore, 1);
 }
 
+static void
+copyMem(void *dst_v, void const *src_v, size_t len_v)
+{
+#if 1
+  int		*dst = dst_v;
+  int const	*src = src_v;
+  size_t	len  = len_v / sizeof(int);
+  size_t	rest = len_v - sizeof(int)*len;
+  size_t	i=0;
+
+  for (; i<len; ++i) {
+    if (*src != 0) *dst = *src;
+    ++dst;
+    ++src;
+  }
+
+  char		*dst_c = (void *)(dst);
+  char const	*src_c = (void const *)(src);
+
+  for (i=0; i<rest; ++i) {
+    if (*src_c != 0) *dst_c = *src_c;
+    ++dst_c;
+    ++src_c;
+  }
+#else
+  memcpy(dst_v, src_v, len_v);
+#endif  
+}
+
 static UNUSED bool
 copyMMap(int in_fd, int out_fd)
 {
   off_t			in_len   = lseek(in_fd, 0, SEEK_END);
-  void volatile const	*in_buf  = 0;
-  void volatile		*out_buf = 0;
+  void const		*in_buf  = 0;
+  void			*out_buf = 0;
   
-  volatile loff_t	in_size  = 0;
-  volatile loff_t	out_size = 0;
-  volatile bool		res      = false;
+  loff_t		in_size  = 0;
+  loff_t		out_size = 0;
+  bool			res      = false;
 
   if (in_len==-1) return false;
   if (in_len>0 &&
@@ -105,14 +133,14 @@ copyMMap(int in_fd, int out_fd)
       if (in_buf==0)  goto out;
 
       out_size = in_size;
-      out_buf  = mmap(0, out_size, PROT_WRITE, MAP_SHARED, out_fd, offset);
+      out_buf  = mmap(0, out_size, PROT_WRITE, MAP_SHARED,  out_fd, offset);
       if (out_buf==0) goto out;
 
       offset  += in_size;
       madvise(const_cast(void *)(in_buf),  in_size,  MADV_SEQUENTIAL);
       madvise(out_buf,                     out_size, MADV_SEQUENTIAL);
 
-      memcpy(out_buf, in_buf, in_size);
+      copyMem(out_buf, in_buf, in_size);
 
       munmap(const_cast(void *)(in_buf),  in_size);  in_buf  = 0;
       munmap(out_buf,                     out_size); out_buf = 0;
