@@ -137,7 +137,8 @@ pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			   s!@'NICE'@!$(NICE)!g; \
 			   s!@'VCONFIG'@!$(VCONFIG)!g; \
 			   s!@'PS'@!$(PS)!g; \
-			   s!@'WC'@!$(WC)!g
+			   s!@'WC'@!$(WC)!g; \
+			   s!@'WGET'@!$(WGET)!g
 
 pathconfig.h:		.pathconfig.h.pathsubst.stamp
 .%.pathsubst.stamp:	%.pathsubst Makefile
