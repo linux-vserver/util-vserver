@@ -130,15 +130,15 @@ OPTION_NONAMESPACE=
 
 while true; do
     case "$1" in
-	--help)    	showHelp $0 ;;
-	--version) 	showVersion ;;
-	--debug)	OPTION_DEBUG=$1; set -x;;
-	-v|--verbose)	OPTION_VERBOSE=$1;;
-	-s|--sync) 	OPTION_FORCE_SYNC=$1;;
-	--silent) 	OPTION_SILENT=$1;;
-	----nonamespace)OPTION_NONAMESPACE=$1;;
-	--)	   	shift; break;;
-	*)	   	echo $"vserver: internal error; arg=='$1'" >&2; exit 1;;
+	(--help)    	showHelp $0 ;;
+	(--version) 	showVersion ;;
+	(--debug)	OPTION_DEBUG=$1; set -x;;
+	(-v|--verbose)	OPTION_VERBOSE=$1;;
+	(-s|--sync) 	OPTION_FORCE_SYNC=$1;;
+	(--silent) 	OPTION_SILENT=$1;;
+	(----nonamespace)OPTION_NONAMESPACE=$1;;
+	(--)	   	shift; break;;
+	(*)	   	echo $"vserver: internal error; arg=='$1'" >&2; exit 1;;
     esac
     shift
 done
@@ -155,11 +155,11 @@ test "$cmd" != build || { shift 2; exec "$_VSERVER_BUILD" -n "$vserver" "$@"; }
 allow_legacy=
 
 case "$vserver" in
-    ./*) VSERVER_DIR=`pwd`/$vserver;;
-    /*)  VSERVER_DIR=$vserver;;
-    *)	 VSERVER_DIR=$CONFDIR/$vserver
-	 allow_legacy=1
-	 ;;
+    (./*) VSERVER_DIR=`pwd`/$vserver;;
+    (/*)  VSERVER_DIR=$vserver;;
+    (*)	  VSERVER_DIR=$CONFDIR/$vserver
+	  allow_legacy=1
+	  ;;
 esac
 
 if test "$allow_legacy"; then
@@ -174,7 +174,9 @@ if test "$allow_legacy"; then
 fi
 
 test -d "$VSERVER_DIR" || {
-    echo "Can not find vserver-setup"
+    echo $"\
+Can not find vserver-setup; please make sure that the vserver configuration
+is located at $VSERVER_DIR/."
     exit 1
 } >&2
 
@@ -189,53 +191,53 @@ test "$2" != start -o "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" |
 
 . $PKGLIBDIR/vserver.functions
 case "$2" in
-    start|stop)
+    (start|stop)
 	shift 2
 	. $PKGLIBDIR/vserver.$cmd
 	;;
-    suexec|restart)
+    (suexec|restart)
 	shift 2
 	$cmd "$@"
 	;;
-    condrestart)
+    (condrestart)
 	test ! isVserverRunning "$VSERVER_DIR" || restart
 	;;
-    exec)
+    (exec)
 	shift 2
 	suexec root "$@"
 	;;
-    chkconfig)
+    (chkconfig)
 	shift 2
 	suexec root chkconfig "$@"
 	;;
-    enter)
+    (enter)
 	getEnterShell "$VSERVER_DIR"
 	suexec root "${ENTER_SHELL[@]}"
 	;;
-    running)
+    (running)
 	isVserverRunning "$VSERVER_DIR"
 	;;
 
-    unify)
+    (unify)
 	shift 2
 	exec $_VUNIFY "$@" "$vserver"
 	;;
 	
-    pkg)
+    (pkg)
 	shift 2
 	exec $_VPKG "$vserver" "$@"
 	;;
 
-    apt-get|apt-config|apt-cache)
+    (apt-get|apt-config|apt-cache)
 	export _APT_GET=$2
 	shift 2
 	exec $_VAPT_GET -- "$@"
 	;;
-    rpm)
+    (rpm)
 	exec $_VRPM -- "$@"
 	;;
 	
-    status)
+    (status)
 	if getVserverStatus "$VSERVER_DIR" ctx procnum; then
 	    msg $"Vserver '$vserver' is running at context '$ctx'"
 
@@ -249,7 +251,7 @@ case "$2" in
 	    exit 1
 	fi
 	;;
-    *)
+    (*)
 	echo $"Usage: $0 {start|stop|suexec|restart|condrestart|exec|enter|chkconfig|running|status}" >&2
 	exit 2
 	;;
