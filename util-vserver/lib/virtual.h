@@ -44,7 +44,9 @@
 */
 
 #define	VC_CAT_VERSION		0
-	
+
+#define VC_CAT_PROCTRL		12
+
 #define VC_CAT_RLIMIT		60
 
 #define VC_CAT_SYSTEST		61
@@ -84,6 +86,14 @@ struct  vcmd_set_ipv4root_v3 {
 	} ip_mask_pair[NB_IPV4ROOT];
 };
 
+/*  context signalling */
+
+#define VCMD_ctx_kill		VC_CMD(PROCTRL, 1, 0)
+
+struct  vcmd_ctx_kill_v0 {
+	int32_t pid;
+	int32_t sig;
+};
 
 /*  rlimit vserver commands */
 
