@@ -41,8 +41,6 @@ lib_v13_SRCS =			lib/syscall_ctxcreate.c \
 				lib/syscall_ctxcreate-v13.hc \
 				lib/syscall_ctxmigrate.c \
 				lib/syscall_ctxmigrate-v13.hc \
-				lib/syscall_adddlimit-v13.hc \
-				lib/syscall_adddlimit.c \
 				lib/syscall_cleanupnamespace-v13.hc \
 				lib/syscall_cleanupnamespace.c \
 				lib/syscall_enternamespace-v13.hc \
@@ -51,8 +49,6 @@ lib_v13_SRCS =			lib/syscall_ctxcreate.c \
 				lib/syscall_getccaps.c \
 				lib/syscall_getcflags-v13.hc \
 				lib/syscall_getcflags.c \
-				lib/syscall_getdlimit-v13.hc \
-				lib/syscall_getdlimit.c \
 				lib/syscall_getiattr-fscompat.hc \
 				lib/syscall_getiattr-v13.hc \
 				lib/syscall_getiattr.c \
@@ -81,14 +77,10 @@ lib_v13_SRCS =			lib/syscall_ctxcreate.c \
 				lib/syscall_netmigrate.c \
 				lib/syscall_netremove-net.hc \
 				lib/syscall_netremove.c \
-				lib/syscall_remdlimit-v13.hc \
-				lib/syscall_remdlimit.c \
 				lib/syscall_setccaps-v13.hc \
 				lib/syscall_setccaps.c \
 				lib/syscall_setcflags-v13.hc \
 				lib/syscall_setcflags.c \
-				lib/syscall_setdlimit-v13.hc \
-				lib/syscall_setdlimit.c \
 				lib/syscall_setiattr-fscompat.hc \
 				lib/syscall_setiattr-v13.hc \
 				lib/syscall_setiattr.c \
@@ -113,6 +105,17 @@ lib_v13_SRCS =			lib/syscall_ctxcreate.c \
 				lib/ncaps_list-net.c \
 				lib/nflags-net.c \
 				lib/nflags_list-net.c
+
+if ENSC_HAVE_C99_COMPILER
+lib_v13_SRCS +=			lib/syscall_adddlimit-v13.hc \
+				lib/syscall_adddlimit.c \
+				lib/syscall_getdlimit-v13.hc \
+				lib/syscall_getdlimit.c \
+				lib/syscall_remdlimit-v13.hc \
+				lib/syscall_remdlimit.c \
+				lib/syscall_setdlimit-v13.hc \
+				lib/syscall_setdlimit.c
+endif
 
 PKGCONFIG_FILES =		lib/util-vserver
 
@@ -188,6 +191,9 @@ lib_libvserver_a_SOURCES =  	$(lib_SRCS)
 lib_libvserver_a_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS)
 
 DIETPROGS +=			lib/lib_libvserver_a-%
+
+CLEANFILES +=			lib/libvserver.la \
+				lib/libvserver.a
 
 include $(srcdir)/lib/apidoc/Makefile-files
 include $(srcdir)/lib/testsuite/Makefile-files

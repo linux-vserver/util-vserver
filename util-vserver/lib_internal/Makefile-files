@@ -44,7 +44,10 @@ if ENSC_HAVE_C99_COMPILER
 filecfg_SRCS =			lib_internal/filecfg.h \
 				lib_internal/filecfg-iteratemultiline.c \
 				lib_internal/filecfg-readentryflag.c \
-				lib_internal/filecfg-readentrystr.c
+				lib_internal/filecfg-readentrystr.c \
+				lib_internal/matchlist-initbyvserver.c \
+				lib_internal/matchvserverinfo-init.c \
+				lib_internal/unify-copy.c
 endif
 
 noinst_HEADERS += \
@@ -79,16 +82,13 @@ lib_internal_libinternal_common_SRCS = \
 				lib_internal/matchlist-compare.c \
 				lib_internal/matchlist-destroy.c \
 				lib_internal/matchlist-init.c \
-				lib_internal/matchlist-initbyvserver.c \
 				lib_internal/matchlist-initmanually.c \
 				lib_internal/matchlist-initrefserverlist.c \
 				lib_internal/matchlist-printid.c \
-				lib_internal/matchvserverinfo-init.c \
 				lib_internal/matchvserverinfo-free.c \
 				lib_internal/pathinfo-append.c \
 				lib_internal/pathinfo-test.c \
 				lib_internal/switchtowatchxid.c \
-				lib_internal/unify-copy.c \
 				lib_internal/unify-deunify.c \
 				lib_internal/unify-settime.c \
 				lib_internal/unify-unify.c \
@@ -110,5 +110,8 @@ lib_internal_libinternal_diet_a_CPPFLAGS =	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS)
 lib_internal_libinternal_glibc_a_CPPFLAGS =	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS)
 
 DIETPROGS +=			lib_internal/libinternal-diet.a
+
+CLEANFILES +=			lib_internal/libinternal-diet.a \
+				lib_internal/libinternal-glibc.a
 
 include $(top_srcdir)/lib_internal/testsuite/Makefile-files
