@@ -27,6 +27,8 @@ extern "C" {
 
 size_t		utilvserver_uint2str(char *buf, size_t len,
 				     unsigned int val, unsigned char base);
+size_t		utilvserver_int2str(char *buf, size_t len,
+				    signed int val, unsigned char base);
 int		utilvserver_checkCompatVersion();
 
 #ifdef __cplusplus
