@@ -34,7 +34,7 @@ execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" pre-start
 "${NICE_CMD[@]}" \
     "$_CHBIND"       "${CHBIND_OPTS[@]}" \
     "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
-    "$_CHCONTEXT"    "${CHCONTEXT_DISCONNECT[@]}" "${CHCONTEXT_OPTS[@]}" \
+    "$_CHCONTEXT"    "${CHCONTEXT_OPTS[@]}" "${CHCONTEXT_INIT_OPTS[@]}" \
     "$_SAVE_CTXINFO" "$VSERVER_DIR" \
     "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . "${INITCMD_START[@]}"
 

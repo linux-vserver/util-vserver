@@ -24,7 +24,6 @@ declare -a CHBIND_OPTS=()
 declare -a CAP_OPTS=()
 declare -a CHCONTEXT_INIT_OPTS=()
 declare -a CHCONTEXT_FLAG_OPTS=()
-declare -a CHCONTEXT_DISCONNECT=()
 declare -a CHCONTEXT_OPTS=()
 declare -a CAPCHROOT_OPTS=()
 declare -a INTERFACES=()
@@ -162,8 +161,7 @@ function _generateInitOptions
 	xplain)
 	    INITCMD_START=( /sbin/init )
 	    INITCMD_STOP=(  /sbin/init )
-	    CHCONTEXT_INIT_OPTS=(  --flag fakeinit )
-	    CHCONTEXT_DISCONNECT=( --disconnect )
+	    CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
 	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
 	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
 	    ;;
@@ -171,8 +169,7 @@ function _generateInitOptions
 	xminit)
 	    INITCMD_START=( /sbin/minit-start )
 	    INITCMD_STOP=(  /sbin/minit-stop  )
-	    CHCONTEXT_INIT_OPTS=(  --flag fakeinit )
-	    CHCONTEXT_DISCONNECT=( --disconnect )
+	    CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
 	    INITCMD_START_SYNC=( "$_INITSYNC_MINIT_START" "$vdir" )
 	    INITCMD_STOP_SYNC=(  "$_INITSYNC_MINIT_STOP"  "$vdir" )
 	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
@@ -210,8 +207,7 @@ function _generateFlagOptions
 	    x|x#)		;;
 	    dummy)		;;
 	    fakeinit)
-		CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}" --flag fakeinit )
-		CHCONTEXT_DISCONNECT=( --disconnect )
+		CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
 		;;
 	    *)
 	    	CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}"
@@ -241,7 +237,6 @@ function _generateChcontextOptions
 
     CHCONTEXT_OPTS=( $SILENT_OPT \
                      "${CHCONTEXT_FLAG_OPTS[@]}" \
-		     "${CHCONTEXT_INIT_OPTS[@]}" \
 		     "${CAP_OPTS[@]}" \
 		     --secure
 		     ${ctx:+--ctx "$ctx"} \
@@ -424,7 +419,7 @@ function mountVserver
 
     test -e "$cfgdir"/fstab || return 0
 
-    findObject -r mtab_src "$CONFDIR"/.defaults/init/mtab "$vdir"/apps/init/mtab /dev/null
+    findObject -r mtab_src "$vdir"/apps/init/mtab "$CONFDIR"/.defaults/init/mtab /dev/null
     
     pushd "$vdir" >/dev/null
     $_CHROOT_CAT /etc/mtab <"$mtab_src"
