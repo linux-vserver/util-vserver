@@ -139,10 +139,19 @@ extern "C" {
      *  \precondition: nb<16 */
   int	vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips);
 
+    /** Creates a context without starting it.
+     *  When already in a created context, the old context will be discarded.
+     *  Special values of 'xid' are:
+     *	- VC_DYNAMIC_XID which means to create a dynamic context
+     *	\returns the xid of the created context, or VC_NOCTX on errors. errno
+     *	         will be set appropriately.*/
   xid_t	vc_create_context(xid_t xid);
+
+    /** Moves the current process into the specified context.
+     *  \returns 0 on success, -1 on errors */
   int	vc_migrate_context(xid_t xid);
   
-  /* rlimit related functions */
+    /* rlimit related functions */
   typedef uint_least64_t	vc_limit_t;
  
   struct vc_rlimit {
@@ -203,19 +212,44 @@ extern "C" {
       uint_least64_t	flagword;
       uint_least64_t	mask;
   };
+  
+  struct  vc_ctx_caps {
+      uint_least64_t	bcaps;
+      uint_least64_t	ccaps;
+      uint_least64_t	cmask;
+  };
 
+  struct vc_err_listparser {
+      char const	*ptr;
+      size_t		len;
+  };
+ 
   int			vc_get_flags(xid_t xid, struct vc_ctx_flags *);
   int			vc_set_flags(xid_t xid, struct vc_ctx_flags const *);
 
+  int			vc_get_ccaps(xid_t xid, struct vc_ctx_caps *);
+  int			vc_set_ccaps(xid_t xid, struct vc_ctx_caps const *);
+
+  uint_least64_t	vc_text2bcap(char const *, size_t len);
+  char const *		vc_lobcap2text(uint_least64_t *);
+  int			vc_list2bcap(char const *, size_t len,
+				     struct vc_err_listparser *err,
+				     struct vc_ctx_caps *);
+
+  uint_least64_t	vc_text2ccap(char const *, size_t len);
+  char const *		vc_loccap2text(uint_least64_t *);
+  int			vc_list2ccap(char const *, size_t len,
+				     struct vc_err_listparser *err,
+				     struct vc_ctx_caps *);
+
   int			vc_list2flag(char const *, size_t len,
-				     char const **err_ptr, size_t *err_len,
-				     uint_least64_t *flag,
-				     uint_least64_t *mask);
+				     struct vc_err_listparser *err,
+				     struct vc_ctx_flags *flags);
   uint_least64_t	vc_text2flag(char const *, size_t len);
-  char const *		vc_hiflag2text(uint_least64_t);
+  char const *		vc_loflag2text(uint_least64_t *);
   
   uint_least32_t	vc_list2flag_compat(char const *, size_t len,
-					    char const **err_ptr, size_t *err_len);
+					    struct vc_err_listparser *err);
   uint_least32_t	vc_text2flag_compat(char const *, size_t len);
   char const *		vc_hiflag2text_compat(uint_least32_t);
   
