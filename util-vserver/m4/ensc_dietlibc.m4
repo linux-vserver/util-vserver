@@ -25,10 +25,10 @@ AC_DEFUN(ENSC_ENABLE_DIETLIBC,
 	AC_ARG_ENABLE([dietlibc],
 		      [AC_HELP_STRING([--disable-dietlibc],
 				      [do not use dietlibc (default: use dietlibc)])],
-		      [case "$withval" in
+		      [case "$enableval" in
 			  yes)	use_dietlibc=forced;;
 			  no)	use_dietlibc=forced_no;;
-			  *)	AC_MSG_ERROR(['$withval' is not a valid value for --enable-dietlibc]);;
+			  *)	AC_MSG_ERROR(['$enableval' is not a valid value for --enable-dietlibc]);;
 		       esac],
 		      [: ${DIET:=diet}
 		       which "$DIET" >/dev/null 2>/dev/null && use_dietlibc=detected || use_dietlibc=detected_no])
