@@ -44,29 +44,23 @@ AM_PROG_CC_C_O
 ENSC_CXXCOMPILER
 ENSC_C99COMPILER
 
-check_paths=$PATH:/sbin:/usr/sbin:/usr/local/sbin
-AC_PATH_PROGS(AWK,     [awk],     [awk],         [ $check_paths ])
-AC_PATH_PROGS(GREP,    [grep],    [grep],        [ $check_paths ])
-AC_PATH_PROGS(IP,      [ip],      [ip],          [ $check_paths ])
-AC_PATH_PROGS(MOUNT,   [mount],   [/bin/mount],  [ $check_paths ])
-AC_PATH_PROGS(UMOUNT,  [umount],  [/bin/umount], [ $check_paths ])
-AC_PATH_PROGS(NICE,    [nice],    [nice],        [ $check_paths ])
-AC_PATH_PROGS(VCONFIG, [vconfig], [vconfig],     [ $check_paths ])
-AC_PATH_PROGS(WC,      [wc],      [wc],          [ $check_paths ])
-AC_PATH_PROGS(PS,      [ps],      [/bin/ps],     [ $check_paths ])
-AC_PATH_PROGS(MODPROBE, [modprobe], [/sbin/modprobe], [ $check_paths ])
-AC_PATH_PROGS(RMMOD,    [rmmod],    [/sbin/rmmod],    [ $check_paths ])
-AC_PATH_PROGS(NAMEIF,   [nameif],   [/sbin/nameif],   [ $check_paths ])
-AC_PATH_PROGS(IPTABLES, [iptables], [/sbin/iptables], [ $check_paths ])
-AC_PATH_PROGS(ENV,      [env],      [/usr/bin/env])
-AC_PATH_PROGS(SED,      [sed],      [sed])
-AC_PATH_PROGS(CMP,      [cmp],      [cmp])
-AC_PATH_PROGS(WGET,     [wget],     [wget])
-AC_PATH_PROGS(DOXYGEN,  [doxygen],  [:])
-AC_PATH_PROGS(TAR,      [tar])
-AC_PATH_PROGS(XSLTP,    [xsltp])
+ENSC_SET_SEARCHPATH([$PATH:/sbin:/usr/sbin:/usr/local/sbin])
+ENSC_PATHPROG_STANDARD_TOOLS
 
-AM_CONDITIONAL(HAVE_XSLTP, test "$XSLTP")
+ENSC_PATHPROG(IP,        ip)
+ENSC_PATHPROG(IPTABLES,  iptables)
+ENSC_PATHPROG(MODPROBE,  modprobe)
+ENSC_PATHPROG(NAMEIF,    nameif)
+ENSC_PATHPROG(RMMOD,     rmmod)
+ENSC_PATHPROG(VCONFIG,   vconfig)
+ENSC_PATHPROG(WGET,      wget)
+
+ENSC_PATHPROG(DOXYGEN,   doxygen,  [:])
+ENSC_PATHPROG(XSLTP,     xsltp,    [:])
+ENSC_PATHPROG(XSLTPROC,  xsltproc, [:])
+
+
+AM_CONDITIONAL(HAVE_XSLTP, test "$XSLTP" != ':')
 	
 
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
