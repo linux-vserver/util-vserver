@@ -146,17 +146,18 @@ fi
 
 this_xid=$($_VSERVER_INFO - XID)
 pxid=
+responsible_xid=$XID
 while true; do
-    pxid=$($_VSERVER_INFO "$XID" PXID) || break
-    test "$pxid" -ne "$this_xid"       || break
-    xid=$pxid
+    pxid=$($_VSERVER_INFO "$responsible_xid" PXID) || break
+    test "$pxid" -ne "$this_xid"                   || break
+    xid=$responsible_xid
 done
 
-vserver_id=$($_VSERVER_INFO "$XID" ID) ||
-    panic $"No responsible vserver found for xid '$1' ($XID); aborting..."
+vserver_id=$($_VSERVER_INFO "$responsible_xid" ID) ||
+    panic $"No responsible vserver found for resonsible xid '$responsible_xid' ($XID); aborting..."
     
-test "$1" = "$XID" || {
-    logging "Giving 'vshelper' task for '$1' to parent vserver '$vserver_id' ($XID)"
+test "$XID" = "$responsible_xid" || {
+    logging "Giving 'vshelper' task for '$XID' to parent vserver '$vserver_id' ($responsible_xid)"
     execute $_VSERVER "$vserver_id" exec $_VSHELPER "$@"
 }
 
