@@ -197,6 +197,7 @@ vc_chrootsafe_legacy (const char *dir)
 	init();
 	if (rev_chrootsafe == -1){
 	        vc_tell_unsafe_chroot();
+		return chroot(dir);
 	}else if (rev_chrootsafe == 0){
 		return chrootsafe (dir);
 	}else{
