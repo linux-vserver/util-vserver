@@ -376,31 +376,64 @@ calculateHash(PathInfo const *filename, HashPath d_path, struct stat const * con
   return res;
 }
 
+static enum { mkdirFAIL, mkdirSUCCESS, mkdirSKIP }
+mkdirSingle(char const *path, char *end_ptr, int good_err)
+{
+  *end_ptr = '\0';
+  if (mkdir(path, 0700)!=-1 || errno==EEXIST) {
+    *end_ptr = '/';
+    return mkdirSUCCESS;
+  }
+  else if (errno==good_err) {
+    *end_ptr = '/';
+    return mkdirSKIP;
+  }
+  else {
+    int		old_errno = errno;
+    WRITE_MSG(2, "mkdir('");
+    WRITE_STR(2, path);
+    errno = old_errno;
+    perror("')");
+    return mkdirFAIL;
+  }
+}
+
+static char *
+rstrchr(char *str, char c)
+{
+  while (*str!=c) --str;
+  return str;
+}
+
 static bool
 mkdirRecursive(char const *path)
 {
-  struct stat		st;
-
-  if (path[0]!='/')        return false; // only absolute paths
-  if (lstat(path,&st)!=-1) return true;
+  if (path[0]!='/')      return false; // only absolute paths
 
   char			buf[strlen(path)+1];
-  char *		ptr = buf+1;
-  
+  char *		ptr = buf + sizeof(buf) - 2;
+
   strcpy(buf, path);
 
-  while ((ptr = strchr(ptr, '/'))!=0) {
-    *ptr = '\0';
-    if (mkdir(buf, 0700)==-1 && errno!=EEXIST) {
-      int		old_errno = errno;
-      WRITE_MSG(2, "mkdir('");
-      WRITE_STR(2, buf);
-      errno = old_errno;
-      perror("')");
-      return false;
+  while (ptr>buf && (ptr = rstrchr(ptr, '/'))!=0) {
+    switch (mkdirSingle(buf, ptr, ENOENT)) {
+      case mkdirSUCCESS		:  break;
+      case mkdirSKIP		:  --ptr; continue;
+      case mkdirFAIL		:  return false;
     }
-    *ptr = '/';
-    ++ptr;
+
+    break;	// implied by mkdirSUCCESS
+  }
+
+  assert(ptr!=0);
+  ++ptr;
+
+  while ((ptr=strchr(ptr, '/'))!=0) {
+    switch (mkdirSingle(buf, ptr, 0)) {
+      case mkdirSKIP		:
+      case mkdirFAIL		:  return false;
+      case mkdirSUCCESS		:  ++ptr; continue;
+    }
   }
 
   return true;
@@ -418,18 +451,13 @@ resolveCollisions(char *result, PathInfo const *root, HashPath d_path,
   char			buf[sizeof(int)*2 + 1];
   size_t		len;
 
-  *ptr++             = '-';
-  *ptr               = '\0';
-  ptr[sizeof(int)*2] = '\0';
-
-  if (!global_args->dry_run &&
-      !mkdirRecursive(result))
-    return false;
+  *ptr                 = '-';
+  ptr[sizeof(int)*2+1] = '\0';
 
   for (;; ++idx) {
     len = utilvserver_fmt_xuint(buf, idx);
-    memset(ptr, '0', sizeof(int)*2 - len);
-    memcpy(ptr + sizeof(int)*2 - len, buf, len);
+    memset(ptr+1, '0', sizeof(int)*2 - len);
+    memcpy(ptr+1 + sizeof(int)*2 - len, buf, len);
 
     if (lstat(result, hash_st)==-1) {
       if (global_args->dry_run && errno!=ENOENT) {
@@ -451,9 +479,14 @@ resolveCollisions(char *result, PathInfo const *root, HashPath d_path,
       break;		// ok, we finish here
 
     if (!global_args->dry_run) {
+      *ptr = '\0';
+      if (!mkdirRecursive(result))
+	return false;
+      *ptr = '-';
+
       int		fd = open(result, O_NOFOLLOW|O_EXCL|O_CREAT|O_WRONLY, 0200);
 
-      if (global_args->dry_run && fd==-1) {
+      if (fd==-1) {
 	int		old_errno = errno;
 	WRITE_MSG(2, "open('");
 	WRITE_STR(2, buf);
