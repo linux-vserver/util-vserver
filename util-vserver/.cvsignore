@@ -2,6 +2,7 @@
 .deps
 .gdb_history
 .pathconfig.h.pathsubst.stamp
+Build-*
 COPYING
 ChangeLog
 INSTALL
