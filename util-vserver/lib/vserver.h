@@ -28,7 +28,7 @@
 /** the value which is returned in error-case (no ctx found) */
 #define VC_NOCTX		((xid_t)(-1))
 /** the value which means a random (the next free) ctx */
-#define VC_RANDCTX		((xid_t)(-1))
+#define VC_DYNAMIC_XID		((xid_t)(-1))
 /** the value which means the current ctx */
 #define VC_SAMECTX		((xid_t)(-2))
 
@@ -140,7 +140,9 @@ extern "C" {
   
   /* rlimit related functions */
   typedef uint64_t	vc_limit_t;
-  
+
+  xid_t	vc_create_context(xid_t xid);
+  int	vc_migrate_context(xid_t xid);
   
   struct vc_rlimit {
       vc_limit_t min;
@@ -190,7 +192,15 @@ extern "C" {
 
 
   int		vc_enter_namespace(xid_t xid);
-  
+
+
+  struct  vc_ctx_flags {
+      uint64_t flagword;
+      uint64_t mask;
+  };
+
+  int		vc_get_flags(xid_t xid, struct vc_ctx_flags *);
+  int		vc_set_flags(xid_t xid, struct vc_ctx_flags const *);
 
   uint32_t	vc_textlist2flag(char const *, size_t len,
 				 char const **err_ptr, size_t *err_len);
