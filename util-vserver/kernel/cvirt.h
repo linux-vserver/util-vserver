@@ -21,7 +21,7 @@ struct _vx_cvirt {
 	uint32_t onhold_last;		/* jiffies when put on hold */
 
 	struct timespec bias_idle;
-	uint64_t bias_jiffies;		/* context creation point */
+	struct timespec bias_uptime;	/* context creation point */
 
 	struct new_utsname utsname;
 
@@ -62,7 +62,7 @@ static inline void vx_info_init_cvirt(struct _vx_cvirt *cvirt)
 {
 	uint64_t idle_jiffies = vx_idle_jiffies();
 
-	cvirt->bias_jiffies = get_jiffies_64();
+	do_posix_clock_monotonic_gettime(&cvirt->bias_uptime);
 	jiffies_to_timespec(idle_jiffies, &cvirt->bias_idle);
 	atomic_set(&cvirt->nr_threads, 0);
 	atomic_set(&cvirt->nr_running, 0);
@@ -121,7 +121,9 @@ static inline int vx_info_proc_cvirt(struct _vx_cvirt *cvirt, char *buffer)
 	int a, b, c;
 
 	length += sprintf(buffer + length,
-		"BiasJiffies:\t%lld\n", (long long int)cvirt->bias_jiffies);
+		"BiasUptime:\t%lu.%02lu\n", 
+			(unsigned long)cvirt->bias_uptime.tv_sec,
+			(cvirt->bias_uptime.tv_nsec / (NSEC_PER_SEC / 100)));
 	length += sprintf(buffer + length,
 		"SysName:\t%.*s\n"
 		"NodeName:\t%.*s\n"

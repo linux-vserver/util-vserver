@@ -168,6 +168,8 @@ extern int vc_set_cflags(uint32_t, void __user *);
 #define VXF_FORK_RSS		(1ULL<<48)
 #define VXF_PROLIFIC		(1ULL<<49)
 
+#define VXF_IGNEG_NICE		(1ULL<<52)
+
 #define VXF_ONE_TIME		(0x0003ULL<<32)
 
 #define VCMD_get_ccaps		VC_CMD(FLAGS, 3, 0)
@@ -191,6 +193,7 @@ extern int vc_set_ccaps(uint32_t, void __user *);
 #define VXC_RAW_ICMP		0x00000100
 
 #define VXC_SECURE_MOUNT	0x00010000
+#define VXC_SECURE_REMOUNT	0x00020000
 
 
 #endif	/* _VX_CONTEXT_H */
