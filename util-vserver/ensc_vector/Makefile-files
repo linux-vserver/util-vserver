@@ -34,3 +34,5 @@ ENSC_VECTOR_XHDRS =		ensc_vector/vector-resizeinternal.hc \
 
 ENSC_VECTOR_LIBS =		libensc_vector.a
 libensc_vector_a_SOURCES =	$(ENSC_VECTOR_SRCS)
+
+include $(srcdir)/ensc_vector/testsuite/Makefile-files
