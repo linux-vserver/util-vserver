@@ -7,7 +7,6 @@ chbind
 chcontext
 chroot-cat
 chroot-rm
-ctx-kill
 exec-cd
 exec-ulimit
 fakerunlevel
@@ -36,5 +35,6 @@ vfiles
 vkill
 vlimit
 vreboot
+vserver-info
 vserver-stat
 vunify
