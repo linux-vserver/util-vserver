@@ -31,7 +31,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 function showHelp()
 {
     echo \
-$"Usage: $(basename $0) [-s|--sync] [-v|--verbose]
+$"Usage: $(basename $0) [-s|--sync] [-v|--verbose] [--silent]
              [--] <vserver> <command> <args>*
 
 <vserver> is the name of a vserver.
@@ -97,29 +97,44 @@ the GNU General Public License.  This program has absolutely no warranty."
     exit 0
 }
 
+function suexec()
+{
+    . $PKGLIBDIR/vserver.suexec
+}
+
+function restart()
+{
+    "${SELF[@]}" --sync "$vserver" stop
+    exec "${SELF[@]}" "$vserver" start
+}
 
 ### main starts here
 
 set +e
 
-tmp=$(getopt -o +sv --long help,debug,version,sync,verbose -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o +sv --long help,debug,version,sync,verbose,silent -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 OPTION_FORCE_SYNC=
 OPTION_VERBOSE=
+OPTION_SILENT=
+OPTION_DEBUG=
 
 while true; do
     case "$1" in
 	--help)    	showHelp $0 ;;
 	--version) 	showVersion ;;
-	--debug)	set -x;              shift;;
-	-v|--verbose)	OPTION_VERBOSE=1;    shift;;
-	-s|--sync) 	OPTION_FORCE_SYNC=1; shift;;
+	--debug)	OPTION_DEBUG=$1; set -x; shift;;
+	-v|--verbose)	OPTION_VERBOSE=$1;    shift;;
+	-s|--sync) 	OPTION_FORCE_SYNC=$1; shift;;
+	--silent)       OPTION_SILENT=$1;     shift;;
 	--)	   	shift; break;;
 	*)	   	echo $"vserver: internal error; arg=='$1'"; exit 1;;
     esac
 done
 
+OPTION_ALL=( $OPTION_SILENT $OPTION_VERBOSE $OPTION_DEBUG )
+SELF=( "$0" "${OPTION_ALL[@]}" )
 
 vserver=$1
 cmd=$2
@@ -161,28 +176,28 @@ fi
 
 . $PKGLIBDIR/vserver.functions
 case "$2" in
-    start|stop|suexec)
+    start|stop)
 	shift 2
 	. $PKGLIBDIR/vserver.$cmd
 	;;
-    restart)
-	"$0" --sync "$1" stop
-	exec "$0" "$1" start
+    suexec|restart)
+	shift 2
+	$cmd "$@"
 	;;
     condrestart)
-	test ! isVserverRunning "$VSERVER_DIR" || exec "$0" "$1" restart
+	test ! isVserverRunning "$VSERVER_DIR" || restart
 	;;
     exec)
 	shift 2
-	exec "$0" "$vserver" suexec root "$@"
+	suexec root "$@"
 	;;
     chkconfig)
 	shift 2
-	exec "$0" "$vserver" suexec root chkconfig "$@"
+	suexec root chkconfig "$@"
 	;;
     enter)
 	getEnterShell "$VSERVER_DIR"
-	exec "$0" "$1" suexec root "${ENTER_SHELL[@]}"
+	suexec root "${ENTER_SHELL[@]}"
 	;;
     running)
 	isVserverRunning "$VSERVER_DIR"
@@ -209,7 +224,7 @@ case "$2" in
 	
     status)
 	if getVserverStatus "$VSERVER_DIR" ctx procnum; then
-	    echo $"Vserver '$1' is running at context '$ctx'"
+	    echo $"Vserver '$vserver' is running at context '$ctx'"
 
 	    if test "$2" = status; then
 		echo    $"Number of processes:" $procnum
@@ -218,7 +233,7 @@ case "$2" in
 	    fi
 	    exit 0
 	else
-	    echo $"Vserver '$1' is not running"
+	    echo $"Vserver '$vserver' is not running"
 	    exit 1
 	fi
 	;;
