@@ -24,7 +24,8 @@
 #include "sys_clone.h"
 #include "util.h"
 
-#include <vserver.h>
+#include "lib/vserver.h"
+#include "lib/internal.h"
 
 #include <sys/socket.h>
 #include <dlfcn.h>
@@ -49,6 +50,11 @@
 #include <pwd.h>
 #include <grp.h>
 
+#define ENSC_WRAPPERS_PREFIX	"rpm-fake.so: "
+#define ENSC_WRAPPERS_VSERVER	1
+#define ENSC_WRAPPERS_UNISTD	1
+#include <wrappers.h>
+
 #ifndef CLONE_NEWNS
 #  define CLONE_NEWNS	0x00020000
 #endif
@@ -57,7 +63,7 @@
 #define PLATFORM_FILE	"/etc/rpm/platform"
 
 #define INIT(FILE,FUNC)	FUNC##_func = ((__typeof__(FUNC) *) (xdlsym(FILE, #FUNC)))
-#define DECLARE(FUNC)	static __typeof__(FUNC) *       FUNC##_func = 0
+#define DECLARE(FUNC)	static __typeof__(FUNC) *	FUNC##_func = 0
 
 
 #define DBG_INIT	0x0001
@@ -163,6 +169,33 @@ getAndClearEnv(char const *key, int dflt)
   return res;
 }
 
+static void
+setupContext(xid_t xid)
+{
+  
+  if (vc_isSupported(vcFEATURE_MIGRATE)) {
+    xid_t	rc = vc_create_context(xid);
+    if (rc==VC_NOCTX && errno!=EEXIST) {
+      perror("rpm-fake.so: vc_create_context()");
+      exit(255);
+    }
+
+    if (rc!=VC_NOCTX) {
+      char		buf[128];
+      size_t		l;
+      strcpy(buf, "rpm-fake.so #");
+      l = utilvserver_fmt_uint(buf+sizeof("rpm-fake.so #")-1, getppid());
+      Evc_set_vhi_name(rc, vcVHI_CONTEXT, buf, sizeof("rpm-fake.so #")+l-1);
+#warning set some sane capabilities
+	// context will be activated later...
+
+      xid = rc;
+    }
+  }
+
+  Ewrite(3, &xid, sizeof xid);
+}
+
 #if 0
 static void
 initPwSocket()
@@ -240,7 +273,8 @@ initPwSocket()
       if (gid)   { *ptr++ = "-g"; *ptr++ = gid;   }
       if (ctx_s) { *ptr++ = "-c"; *ptr++ = ctx_s; }
       *ptr++ = 0;
-      
+
+      setupContext(ctx);
       execve(resolver, (char **)args, (char **)env);
       perror("rpm-fake.so: failed to exec resolver");
       exit(255);
@@ -253,7 +287,8 @@ initPwSocket()
       pw_sock   = res_sock[0];
       sync_sock = sync_pipe[0];
 
-      if (read(sync_sock, &c, 1)!=1 ||
+      if (read(sync_sock, &ctx, sizeof ctx)!=sizeof(ctx) ||
+	  read(sync_sock, &c, 1)!=1 ||
 	  write(pw_sock, ".", 1)!=1 ||
 	  read(pw_sock, &c,   1)!=1 ||
 	  c!='.') {
@@ -471,8 +506,13 @@ execvWorker(char const *path, char * const argv[])
 {
   int		res;
 
-  if ((res=vc_new_s_context(ctx,caps,flags))!=-1 &&
-      (res=execv_func(path, argv)!=-1) ) {}
+  if (vc_isSupported(vcFEATURE_MIGRATE))
+    res = vc_migrate_context(ctx);
+  else
+    res = vc_new_s_context(ctx,caps,flags);
+  
+  if (res!=-1)
+    res=execv_func(path, argv);
 
   return res;
 }

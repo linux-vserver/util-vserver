@@ -16,6 +16,15 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
+// Protocol:
+// 1. startup
+// 2. initialize (setuid, ctx-migrate, chroot, ...)
+// 3. send "." token to fd 3
+// 4. wait one character on fd 1
+// 5. process this character and consume further characters from fd 1 as far
+//    as needed
+// 6. go to 3) (or exit)
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -227,6 +236,18 @@ daemonize(struct ArgInfo const UNUSED * args, int pid_fd)
   Eclose(p[0]);
 }
 
+static void
+activateContext(xid_t xid)
+{
+  if (vc_isSupported(vcFEATURE_MIGRATE)) {
+#warning TODO: activate the context here or migrate to it
+    abort();
+  }
+  else 
+    Evc_new_s_context(xid, 0, S_CTX_INFO_LOCK);
+    //Evc_new_s_context(args.ctx, ~(VC_CAP_SETGID|VC_CAP_SETUID), S_CTX_INFO_LOCK);
+}
+
 int main(int argc, char * argv[])
 {
   struct ArgInfo	args = {
@@ -253,8 +274,7 @@ int main(int argc, char * argv[])
   if (args.chroot) Echroot(args.chroot);
   Echdir("/");
 
-  //Evc_new_s_context(args.ctx, ~(VC_CAP_SETGID|VC_CAP_SETUID), S_CTX_INFO_LOCK);
-  Evc_new_s_context(args.ctx, 0, S_CTX_INFO_LOCK);
+  activateContext(args.ctx);
   Esetgroups(0, &args.gid);
   Esetgid(args.gid);
   Esetuid(args.uid);
