@@ -114,8 +114,8 @@ function doDefaultMethod
 #===========
 
 if ! tty -s; then
-    findFile _VS_LOGFILE "$CONFDIR"/.defaults/apps/vshelper/logfile /dev/null
-    findFile _VS_ERRFILE "$CONFDIR"/.defaults/apps/vshelper/logfile /dev/null
+    findObject -e _VS_LOGFILE "$CONFDIR"/.defaults/apps/vshelper/logfile /dev/null
+    findObject -e _VS_ERRFILE "$CONFDIR"/.defaults/apps/vshelper/logfile /dev/null
 
     exec  >>$_VS_LOGFILE
     exec 2>>$_VS_ERRFILE
