@@ -30,13 +30,18 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/resource.h>
+#include <stdio.h>
 
 void
-exitLikeProcess(int pid, char const *cmd)
+exitLikeProcess(int pid, char const *cmd, int ret)
 {
-  int		status;
+  int			status;
   
-  if (wait4(pid, &status, 0,0)==-1) return;
+  if (wait4(pid, &status, 0,0)==-1) {
+    
+    perror("wait()");
+    exit(ret);
+  }
 
   if (WIFEXITED(status))
     exit(WEXITSTATUS(status));
@@ -63,5 +68,23 @@ exitLikeProcess(int pid, char const *cmd)
       
     kill(getpid(), WTERMSIG(status));
     exit(1);
+  }
+  else {
+    char		buf[sizeof(int)*3 + 2];
+    size_t		l = utilvserver_fmt_uint(buf, WTERMSIG(status));
+
+    WRITE_MSG(2, "Unexpected status ");
+    write    (2, buf, l);
+    WRITE_MSG(2, " from '");
+    if (cmd) {
+      WRITE_STR(2, cmd);
+      WRITE_MSG(2, " (pid ");
+    }
+    l = utilvserver_fmt_uint(buf, pid);
+    write    (2, buf, l);
+    if (cmd) WRITE_MSG(2, ")\n");
+    else     WRITE_MSG(2, "\n");
+
+    exit(ret);
   }
 }
