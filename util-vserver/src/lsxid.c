@@ -23,6 +23,7 @@
 #include "fstool.h"
 #include "util.h"
 
+#include <ensc_vector/vector.h>
 #include <lib/vserver.h>
 #include <lib/vserver-internal.h>
 
@@ -33,6 +34,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <assert.h>
+
+#define ENSC_WRAPPERS_STDLIB	1
+#include <wrappers.h>
 
 struct option const
 CMDLINE_OPTIONS[] = {
@@ -42,6 +47,13 @@ CMDLINE_OPTIONS[] = {
 };
 
 char const		CMDLINE_OPTIONS_SHORT[] = "Radnx";
+
+struct XidNameMapping {
+    xid_t		xid;
+    char const *	name;
+};
+
+static struct Vector	xid_name_mapping;
 
 void
 showHelp(int fd, char const *cmd, int res)
@@ -75,6 +87,40 @@ showVersion()
 void
 fixupParams(struct Arguments UNUSED * args, int UNUSED argc)
 {
+  Vector_init(&xid_name_mapping, sizeof (struct XidNameMapping));
+}
+
+static int
+cmpMap(void const *xid_v, void const *map_v)
+{
+  xid_t const * const			xid = xid_v;
+  struct XidNameMapping const * const	map = map_v;
+
+  return *xid - map->xid;
+}
+
+static char const *
+lookupContext(xid_t xid)
+{
+  struct XidNameMapping	*res;
+
+  res = Vector_search(&xid_name_mapping, &xid, cmpMap);
+
+  if (res==0) {
+    vcCfgStyle		style = vcCFG_AUTO;
+    char const *	vcfg  = vc_getVserverByCtx(xid, &style, 0);
+
+    res = Vector_insert(&xid_name_mapping, &xid, cmpMap);
+    if (vcfg) res->name = vc_getVserverName(vcfg, style);
+    else      res->name = 0;
+    res->xid = xid;
+
+    free(const_cast(char *)(vcfg));
+  }
+
+  assert(res!=0);
+  
+  return res->name;
 }
 
 static xid_t
@@ -100,7 +146,12 @@ handleFile(char const *name, char const *display_name,
 
   memset(buf, ' ', sizeof buf);
 
+#if 1
   ctx = getFileContext(name, exp_st);
+#else
+#  warning Compiling in debug-code
+  ctx = random() % 10 + 49213;
+#endif
   
   if (ctx==VC_NOCTX) {
     memcpy(buf, "!!ERR!!", 7);
@@ -108,14 +159,13 @@ handleFile(char const *name, char const *display_name,
     need_write = false;
   }
   else if (global_args->do_mapping) {
-    char const *	vname = vc_getVserverByCtx(ctx, 0,0);
+    char const *	vname = lookupContext(ctx);
     if (!vname) buf[0] = '\0';
     else {
       size_t		l = strlen(vname);
       if (l<sizeof(buf)) write(1, buf, sizeof(buf)-l);
       write(1, vname, l);
 
-      free((char *)vname);
       need_write = false;
     }
   }
