@@ -239,10 +239,11 @@ readBcast(char const *str, uint32_t *bcast)
 
 int main (int argc, char *argv[])
 {
-  bool				is_silent = false;
-  struct vc_ip_mask_pair	ips[16];
+  size_t const			nb_ipv4root = vc_get_nb_ipv4root();
+  bool				is_silent   = false;
+  struct vc_ip_mask_pair	ips[nb_ipv4root];
   size_t			nbaddrs = 0;
-  uint32_t			bcast = 0xffffffff;
+  uint32_t			bcast   = 0xffffffff;
   
   while (1) {
     int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
@@ -254,7 +255,7 @@ int main (int argc, char *argv[])
       case CMD_SILENT		:  is_silent = true; break;
       case CMD_BCAST		:  readBcast(optarg, &bcast); break;
       case CMD_IP		:
-	if (nbaddrs>=16) {
+	if (nbaddrs>=nb_ipv4root) {
 	  WRITE_MSG(2, "Too many IP numbers, max 16\n");
 	  exit(wrapper_exit_code);
 	}
