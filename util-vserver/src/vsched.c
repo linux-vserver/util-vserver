@@ -37,9 +37,11 @@
 #define CMD_VERSION		0x1001
 #define CMD_XID			0x4000
 #define CMD_FRATE		0x4001
-#define CMD_PERIOD		0x4002
-#define CMD_FLEVEL		0x4003
-#define CMD_BSIZE		0x4004
+#define CMD_INTERVAL		0x4002
+#define CMD_TOKENS		0x4003
+#define CMD_TOK_MIN		0x4004
+#define CMD_TOK_MAX		0x4005
+#define CMD_CPU_MASK		0x4006
 
 int			wrapper_exit_code = 255;
 
@@ -49,9 +51,11 @@ CMDLINE_OPTIONS[] = {
   { "version",  no_argument,  0, CMD_VERSION },
   { "ctx",         required_argument, 0, CMD_XID },
   { "fill-rate",   required_argument, 0, CMD_FRATE },
-  { "period",      required_argument, 0, CMD_PERIOD },
-  { "fill-level",  required_argument, 0, CMD_FLEVEL },
-  { "bucket-size", required_argument, 0, CMD_BSIZE },
+  { "interval",    required_argument, 0, CMD_INTERVAL },
+  { "tokens",      required_argument, 0, CMD_TOKENS },
+  { "tokens_min",  required_argument, 0, CMD_TOK_MIN },
+  { "tokens_max",  required_argument, 0, CMD_TOK_MAX },
+  { "cpu_mask",    required_argument, 0, CMD_CPU_MASK },
   {0,0,0,0}
 };
 
@@ -63,7 +67,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:\n  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [--ctx <xid>] [--fill-rate <rate>] [--period <period>] [--fill-level <level>] [--bucket-size <size>] [--] [<command> <args>*]\n"
+	    " [--ctx <xid>] [--fill-rate <rate>] [--interval <interval>] [--tokens <tokens>] [--tokens_min <tokens>] [--tokens_max <tokens>] [--cpu_mask <mask>] [--] [<command> <args>*]\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
@@ -84,7 +88,7 @@ showVersion()
 int main(int argc, char *argv[])
 {
   xid_t			xid   = VC_NOCTX;
-  struct vc_set_sched	sched = { 0,0,0,0 };
+  struct vc_set_sched	sched = { 0,0,0,0,0,0 };
   
   while (1) {
     int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
@@ -95,9 +99,11 @@ int main(int argc, char *argv[])
       case CMD_VERSION	:  showVersion();
       case CMD_XID	:  xid = atoi(optarg); break;
       case CMD_FRATE	:  sched.fill_rate   = atoi(optarg); break;
-      case CMD_PERIOD	:  sched.period      = atoi(optarg); break;
-      case CMD_FLEVEL	:  sched.fill_level  = atoi(optarg); break;
-      case CMD_BSIZE	:  sched.bucket_size = atoi(optarg); break;
+      case CMD_INTERVAL	:  sched.interval    = atoi(optarg); break;
+      case CMD_TOKENS	:  sched.tokens      = atoi(optarg); break;
+      case CMD_TOK_MIN	:  sched.tokens_min  = atoi(optarg); break;
+      case CMD_TOK_MAX	:  sched.tokens_max  = atoi(optarg); break;
+      case CMD_CPU_MASK	:  sched.cpu_mask    = atoi(optarg); break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
