@@ -59,7 +59,7 @@ src_parserpmdump_SOURCES	=  src/parserpmdump.c
 src_readlink_SOURCES		=  src/readlink.c
 
 src_rebootmgr_SOURCES		=  src/rebootmgr.c
-src_rebootmgr_CPPFLAGS		=  $(AM_CPPFLAGS) -DSBINDIR=\"$(sbindir)\"
+src_rebootmgr_CPPFLAGS		=  $(AM_CPPFLAGS) -DSBINDIR=\"$(sbindir)\" -DVROOTDIR=\"$(vserverdir)\"
 
 src_reducecap_SOURCES		=  src/reducecap.c
 src_reducecap_LDADD		=  lib/libvserver.a
@@ -75,6 +75,7 @@ src_vserver_stat_SOURCES	=  src/vserver-stat.c
 src_vserver_stat_LDADD		=  lib/libvserver.a
 
 src_vunify_SOURCES		=  src/vunify.cc src/vutil.cc
+src_vunify_CPPFLAGS		=  $(AM_CPPFLAGS) -DVROOTDIR=\"$(vserverdir)\"
 src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc
 
 #install-data-hook:		$(DESTDIR)$(pkglibdir)/setattr

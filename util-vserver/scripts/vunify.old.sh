@@ -33,6 +33,13 @@
 # administrators can't upgrade package as they see fit, since the
 # files are immutable. On the other end, just unifying glibc is probably
 # a win.
+: ${UTIL_VSERVER_VARS:=$(dirname $0)/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo "Can not find util-vserver installation; aborting..."
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+
 if [ $# = 0 ] ; then
 	echo vunify [ --undo ] ref-vserver vservers -- packages
 else
@@ -61,7 +68,7 @@ else
 			echo No package specified >&2
 			exit 1
 		else
-			if [ ! -d /vservers/$ref/. ] ; then
+			if [ ! -d $VROOTDIR/$ref/. ] ; then
 				echo No vserver $ref >&2
 				exit 1
 			else
@@ -73,7 +80,7 @@ else
 				echo Extracting list of file to unify in $tmpfile
 				for pkg in $*
 				do
-					/vservers/$ref/bin/rpm --root /vservers/$ref -ql --dump $pkg | \
+					$VROOTDIR/$ref/bin/rpm --root $VROOTDIR/$ref -ql --dump $pkg | \
 					while read path size mtime md5 \
 						mode owner group isconfig isdoc rdev symlink
 					do
@@ -88,22 +95,22 @@ else
 						echo Unifying server $serv
 						cat $tmpfile | while read file
 						do
-							if [ ! -d /vservers/$ref/$file -a ! -L /vservers/$ref/$file ] ; then
-								ln -f /vservers/$ref/$file /vservers/$serv/$file
+							if [ ! -d $VROOTDIR/$ref/$file -a ! -L $VROOTDIR/$ref/$file ] ; then
+								ln -f $VROOTDIR/$ref/$file $VROOTDIR/$serv/$file
 							fi
 						done
 						cat $tmpfile | while read file
 						do
-							chattr +i /vservers/$ref/$file
+							chattr +i $VROOTDIR/$ref/$file
 						done
 					else
 						echo Differencing server $serv
 						cat $tmpfile | while read file
 						do
-							chattr -i /vservers/$ref/$file
-							if [ ! -d /vservers/$ref/$file ] ; then
-								rm -f /vservers/$serv/$file
-								cp -a /vservers/$ref/$file /vservers/$serv/$file
+							chattr -i $VROOTDIR/$ref/$file
+							if [ ! -d $VROOTDIR/$ref/$file ] ; then
+								rm -f $VROOTDIR/$serv/$file
+								cp -a $VROOTDIR/$ref/$file $VROOTDIR/$serv/$file
 							fi
 						done
 					fi

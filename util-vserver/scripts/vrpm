@@ -47,7 +47,7 @@ else
 	while [ $# -gt 0 -a "$1" != "--" ]
 	do
 		if [ "$1" = "ALL" ] ; then
-			SERVERS=`cd /vservers && ls`
+			SERVERS=`cd $VROOTDIR && ls`
 		else
 			SERVERS="$SERVERS $1"
 		fi
@@ -75,9 +75,9 @@ else
 				source $CTXFILE
 				CTXOPT="--ctx $S_CONTEXT"
 			fi
-			#echo rpm --root /vservers/$serv $*
+			#echo rpm --root $VROOTDIR/$serv $*
 			echo Updating server $serv
-			$SBINDIR/chcontext --silent $CTXOPT rpm --root /vservers/$serv $*
+			$SBINDIR/chcontext --silent $CTXOPT rpm --root $VROOTDIR/$serv $*
 		done
 		if [ "$UNIFY" = "yes" ] ; then
 			PACKAGES=

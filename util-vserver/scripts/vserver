@@ -60,14 +60,14 @@ umountproc()
 testperm()
 {
 	return
-	PERM=`$USR_LIB_VSERVER/showperm /vservers/$1/..`
+	PERM=`$USR_LIB_VSERVER/showperm $VROOTDIR/$1/..`
 	if [ "$PERM" != 000 ] ; then
 		echo
 		echo "**********************************************************"
-		echo /vservers/$1/.. has insecure permissions.
+		echo $VROOTDIR/$1/.. has insecure permissions.
 		echo A vserver administrator may be able to visit the root server.
 		echo To fix this, do
-		echo "	" chmod 000 /vservers/$1/..
+		echo "	" chmod 000 $VROOTDIR/$1/..
 		echo do it anytime you want, even if vservers are running.
 		echo "**********************************************************"
 		echo
@@ -185,7 +185,7 @@ setipopt(){
 # Extract the initial runlevel from the vserver inittab
 get_initdefault()
 {
-	INITDEFAULT=`grep :initdefault /vservers/$1/etc/inittab | sed 's/:/ /g' | ( read a level b; echo $level)`
+	INITDEFAULT=`grep :initdefault $VROOTDIR/$1/etc/inittab | sed 's/:/ /g' | ( read a level b; echo $level)`
 }
 
 # Read the vserver configuration file, reusing the PROFILE value
@@ -205,7 +205,7 @@ usage()
 {
 	echo vserver [ options ] server-name command ...
 	echo
-	echo server-name is a directory in /vservers
+	echo server-name is a directory in $VROOTDIR
 	echo
 	echo The commands are:
 	echo " build   : Create a virtual server by copying the packages"
@@ -275,24 +275,24 @@ if [ $# -lt 2 ] ; then
 	usage
 elif [ "$2" = "build" ] ; then
 	# Either the directory does not exist or is empty
-	NBSUB=`ls /vservers/$1 2>/dev/null | grep -v lost+found | wc -l` 
+	NBSUB=`ls $VROOTDIR/$1 2>/dev/null | grep -v lost+found | wc -l` 
 	NBSUB=`expr $NBSUB`
 	if [ "$NBSUB" != 0 ] ; then
-		echo Virtual server /vservers/$1 already exist
+		echo Virtual server $VROOTDIR/$1 already exist
 	else
-		if [ ! -d /vservers ] ; then
-			mkdir /vservers || exit 1
-			chmod 000 /vservers
-			echo Directory /vservers was created with permissions 000
+		if [ ! -d $VROOTDIR ] ; then
+			mkdir $VROOTDIR || exit 1
+			chmod 000 $VROOTDIR
+			echo Directory $VROOTDIR was created with permissions 000
 		fi
-		mkdir -p /vservers/$1 || exit 1
-		chmod 755 /vservers/$1
+		mkdir -p $VROOTDIR/$1 || exit 1
+		chmod 755 $VROOTDIR/$1
 		if test "$UTIL_VSERVER_AVOID_COPY"; then
-		    mkdir -p /vservers/$1/{etc/rc.d/init.d,sbin,var/run,var/log}
+		    mkdir -p $VROOTDIR/$1/{etc/rc.d/init.d,sbin,var/run,var/log}
 		else
-		    cp -ax /sbin /bin /etc /usr /var /lib /vservers/$1/. || exit 1
+		    cp -ax /sbin /bin /etc /usr /var /lib $VROOTDIR/$1/. || exit 1
 		fi
-		cd /vservers/$1 || exit 1
+		cd $VROOTDIR/$1 || exit 1
 		rm -fr lib/modules/*
 		rm -f var/spool/mail/*
 		rm -f `find var/run -type f`
@@ -330,7 +330,7 @@ elif [ "$2" = "build" ] ; then
 				*.bak|*~|functions|killall|halt|single)
 					;;
 				*)
-					#$USR_LIB_VSERVER/capchroot /vservers/$1 /sbin/chkconfig --level 2345 $serv off
+					#$USR_LIB_VSERVER/capchroot $VROOTDIR/$1 /sbin/chkconfig --level 2345 $serv off
 					$0 --silent $1 chkconfig --level 2345 $serv off
 					;;
 				esac
@@ -346,7 +346,7 @@ elif [ "$2" = "build" ] ; then
 		cp -a $USR_LIB_VSERVER/vreboot sbin/.
 		ln -sf vreboot sbin/vhalt
 
-		echo Directory /vservers/$1 has been populated
+		echo Directory $VROOTDIR/$1 has been populated
 		if [ ! -d /etc/vservers ] ; then
 			mkdir /etc/vservers
 			chmod 600 /etc/vservers
@@ -431,8 +431,8 @@ S_CAPS=""
 elif [ ! -f /etc/vservers/$1.conf ] ; then
 	echo No configuration for this vserver: /etc/vservers/$1.conf
 	exit 1
-elif [ ! -d /vservers/$1/. ] ; then
-	echo No directory for this vserver: /vservers/$1
+elif [ ! -d $VROOTDIR/$1/. ] ; then
+	echo No directory for this vserver: $VROOTDIR/$1
 	exit 1
 elif [ "$2" = "start" ] ; then
 	echo Starting the virtual server $1
@@ -449,7 +449,7 @@ elif [ "$2" = "start" ] ; then
 		. /etc/vservers/$1.conf
 		export PROFILE
 		ifconfig_iproot $1
-		cd /vservers/$1 || exit 1
+		cd $VROOTDIR/$1 || exit 1
 
 		if [ "$PROFILE" != "" ] ; then
 			echo export PROFILE=$PROFILE >etc/PROFILE
@@ -458,7 +458,7 @@ elif [ "$2" = "start" ] ; then
 		rm -f `find var/run -type f`
 		touch var/run/utmp
 		rm -f  var/lock/subsys/*
-		mountproc /vservers/$1
+		mountproc $VROOTDIR/$1
 		CTXOPT=
 		HOSTOPT=
 		DOMAINOPT=
@@ -467,7 +467,7 @@ elif [ "$2" = "start" ] ; then
 		CAPS=
 		get_initdefault $1
 		STARTCMD="/etc/rc.d/rc $INITDEFAULT"
-		if [ -x /vservers/$1/etc/init.d/rc ] ; then
+		if [ -x $VROOTDIR/$1/etc/init.d/rc ] ; then
 			STARTCMD="/etc/init.d/rc $INITDEFAULT"
 		fi
 
@@ -524,9 +524,9 @@ elif [ "$2" = "start" ] ; then
 		fi
 		#echo FLAGS=$FLAGS
 		#echo CAPS=$CAPS
-		# We switch to /vservers/$1 now, because after the
-		# security context switch /vservers directory becomes a dead zone.
-		cd /vservers/$1
+		# We switch to $VROOTDIR/$1 now, because after the
+		# security context switch $VROOTDIR directory becomes a dead zone.
+		cd $VROOTDIR/$1
 		IPOPT=`setipopt $IPROOT`
 		export PATH=$DEFAULTPATH
 		$NICECMD $CHBIND_CMD $SILENT $IPOPT --bcast $IPROOTBCAST \
@@ -574,13 +574,13 @@ elif [ "$2" = "stop" ] ; then
 	then
 		test -x /etc/vservers/$1.sh && /etc/vservers/$1.sh pre-stop $1
 		ifconfig_iproot $1
-		cd /vservers/$1
-		mountproc /vservers/$1
+		cd $VROOTDIR/$1
+		mountproc $VROOTDIR/$1
 		# The fakeinit flag tell us how to turn off the server
 		get_initdefault $1
 		export PREVLEVEL=$INITDEFAULT
 		STOPCMD="/etc/rc.d/rc 6"
-		if [ -x /vservers/$1/etc/init.d/rc ] ; then
+		if [ -x $VROOTDIR/$1/etc/init.d/rc ] ; then
 			STOPCMD="/etc/init.d/rc 6"
 		fi
 		for f in $S_FLAGS dummy
@@ -603,7 +603,7 @@ elif [ "$2" = "stop" ] ; then
 
 		calculateCaps $S_CAPS
 
-		cd /vservers/$1
+		cd $VROOTDIR/$1
 		IPOPT=`setipopt $IPROOT`
 		export PATH=$DEFAULTPATH
 		$CHBIND_CMD $SILENT $IPOPT --bcast $IPROOTBCAST \
@@ -626,7 +626,7 @@ elif [ "$2" = "stop" ] ; then
 	fi
 	# We umount anyway, because "enter" establish the mount
 	# but when you exit, the server is considered not running
-	umountproc /vservers/$1
+	umountproc $VROOTDIR/$1
 	cd /
 	test -x /etc/vservers/$1.sh && /etc/vservers/$1.sh post-stop $1
 	ifconfig_iproot_off $1
@@ -652,9 +652,9 @@ elif [ "$2" = "suexec" ] ; then
 		IPROOTDEV=
 		readlastconf $1
 		. /etc/vservers/$1.conf
-		cd /vservers/$1
+		cd $VROOTDIR/$1
 		ifconfig_iproot $1
-		mountproc /vservers/$1
+		mountproc $VROOTDIR/$1
 		PS1="[\u@vserver:$1 \W]"
 		export PS1
 		VSERVER=$1
@@ -696,7 +696,7 @@ elif [ "$2" = "suexec" ] ; then
 		if $0 $VSERVER running >/dev/null
 		then
 			. /var/run/vservers/$VSERVER.ctx
-			cd /vservers/$VSERVER
+			cd $VROOTDIR/$VSERVER
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
 			$CHBIND_CMD $SILENT $IPOPT --bcast $IPROOTBCAST \
@@ -718,7 +718,7 @@ elif [ "$2" = "suexec" ] ; then
 				DOMAINOPT="--domainname $S_DOMAINNAME"
 			fi
 			mkdir -p /var/run/vservers
-			cd /vservers/$VSERVER
+			cd $VROOTDIR/$VSERVER
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
 			$CHBIND_CMD $SILENT $IPOPT --bcast $IPROOTBCAST \
@@ -748,11 +748,11 @@ elif [ "$2" = "chkconfig" ] ; then
 		LEVELS=( --level "$2" )
 		shift 2
 	fi
-	if [ $# != 2 -a ! -x /vservers/$VSERVER/sbin/chkconfig ] ; then
+	if [ $# != 2 -a ! -x $VROOTDIR/$VSERVER/sbin/chkconfig ] ; then
 		echo Invalid argument, expected vserver name chkconfig [ --level nnn ] service on\|off
-	elif [ -x /vservers/$VSERVER/sbin/chkconfig ] ; then
+	elif [ -x $VROOTDIR/$VSERVER/sbin/chkconfig ] ; then
 		exec $0 --silent $VSERVER exec /sbin/chkconfig "${LEVELS[@]}" "$@"
-	elif [ -x /vservers/$VSERVER/usr/sbin/update-rc.d ] ; then
+	elif [ -x $VROOTDIR/$VSERVER/usr/sbin/update-rc.d ] ; then
 		if [ "$2" = "on" -o "$2" = "start" ] ; then
 			$0 --silent $VSERVER exec /usr/sbin/update-rc.d -f $1 remove >/dev/null
 			exec $0 --silent $VSERVER exec /usr/sbin/update-rc.d $1 start 80 2 3 4 5 . stop 20 0 1 6 . >/dev/null

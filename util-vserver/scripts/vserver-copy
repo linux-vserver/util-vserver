@@ -99,7 +99,7 @@ flag a vserver can even be operationally moved to different hardware within
 seconds.
 
 The -i and -d flags can be used to minimally reconfigure the destination
-vserver (rewrites /etc/vservers/newname.conf and /vservers/newname/etc/hosts)
+vserver (rewrites /etc/vservers/newname.conf and $VROOTDIR/newname/etc/hosts)
 
 Options:
 	-h, --help		this help
@@ -143,7 +143,7 @@ rsh=(false)
 colon=":"
 domain=""
 ip=""
-vsroot="/vservers"
+vsroot=$VROOTDIR
 
 if [ $# -eq 0 ]; then  # Script invoked with no command-line args?
 	usage

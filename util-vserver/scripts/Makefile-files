@@ -53,7 +53,8 @@ scripts_GENSCRPTS	=  scripts/util-vserver-vars \
 scripts/%:		scripts/%.subst
 			@mkdir -p $$(dirname '$@')
 			sed -e 's!@'PKGLIBDIR'@!$(pkglibdir)!g; \
-				s!@'SBINDIR'@!$(sbindir)!g' '$<' >'$@.tmp'
+				s!@'SBINDIR'@!$(sbindir)!g; \
+				s!@'VSERVERDIR'@!$(vserverdir)!g' '$<' >'$@.tmp'
 			@-chmod --reference='$<' '$@.tmp'
 			@-rm -f '$@'
 			mv '$@.tmp' '$@'

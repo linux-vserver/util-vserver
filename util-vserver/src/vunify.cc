@@ -204,8 +204,8 @@ class file_unifier{
 	{}
 	void operator()(const string &file)
 	{
-		string refpath = "/vservers/" + ref_server + file;
-		string dstpath = "/vservers/" + target_server + file;
+		string refpath = VROOTDIR "/" + ref_server + file;
+		string dstpath = VROOTDIR "/" + target_server + file;
 		if (debug) cout << "Unify " << refpath << " -> " << dstpath << endl;
 		struct stat st;
 		if (stat(refpath.c_str(),&st)==-1){
