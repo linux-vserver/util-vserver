@@ -27,14 +27,14 @@ test_PRGS			=  tests/chrootsafe \
 				   tests/testopenf \
 				   $(tests_DIETPROGS)
 
-tests_chrootsafe_SOURCES	=  tests/chrootsafe.cc
+tests_chrootsafe_SOURCES	=  tests/chrootsafe.c
 tests_chrootsafe_LDADD		=  lib/libvserver.a
 
-tests_escaperoot_SOURCES	=  tests/escaperoot.cc
-tests_forkbomb_SOURCES		=  tests/forkbomb.cc
-tests_testipc_SOURCES		=  tests/testipc.cc
-tests_testlimit_SOURCES		=  tests/testlimit.cc
-tests_testopenf_SOURCES		=  tests/testopenf.cc
+tests_escaperoot_SOURCES	=  tests/escaperoot.c
+tests_forkbomb_SOURCES		=  tests/forkbomb.c
+tests_testipc_SOURCES		=  tests/testipc.c
+tests_testlimit_SOURCES		=  tests/testlimit.c
+tests_testopenf_SOURCES		=  tests/testopenf.c
 
 tests_getctx_SOURCES		=  tests/getctx.c
 tests_getctx_LDADD		=  lib/libvserver.a
