@@ -122,10 +122,10 @@ xdlsym(void *handle, const char *symbol)
   void	*res = dlsym(handle, symbol);
   if (res==0) {
     char const	*error = dlerror();
-    write(2, symbol, strlen(symbol));
-    write(2, ": ", 2);
-    write(2, error, strlen(error));
-    write(2, "\n", 2);
+    Vwrite(2, symbol, strlen(symbol));
+    Vwrite(2, ": ", 2);
+    Vwrite(2, error, strlen(error));
+    Vwrite(2, "\n", 2);
 
     _exit(255);
   }
@@ -512,8 +512,8 @@ exitRPMFake()
   if (isDbgLevel(DBG_INIT)) WRITE_MSG(2, ">>>>> exitRPMFake <<<<<\n");
   if (pw_sock!=-1) {
     uint8_t	c;
-    read(sync_sock, &c, 1);
-    write(pw_sock, "Q", 1);
+    if (read(sync_sock, &c, 1)!=1) { /*...*/ }
+    if (write(pw_sock, "Q", 1)!=1) { /*...*/ }
   }
 }
 
@@ -524,20 +524,18 @@ exitRPMFake()
 static bool
 doPwStringRequest(uint32_t *result, char style, char const *name)
 {
-  uint32_t	len = strlen(name);
+  size_t	len = strlen(name);
   uint8_t	code;
   uint8_t	c;
 
-    // read the token...
-  read(sync_sock, &c, 1);
-
-  write(pw_sock, &style, 1);
-  write(pw_sock, &len,   sizeof len);
-  write(pw_sock, name,   len);
-  read (pw_sock, &code,  sizeof code);
-  read (pw_sock, result, sizeof *result);
-
-  return code!=0;
+  return (TEMP_FAILURE_RETRY(read (sync_sock, &c, 1))==1 &&
+	  
+	  TEMP_FAILURE_RETRY(write(pw_sock, &style, 1))==1 &&
+	  TEMP_FAILURE_RETRY(write(pw_sock, &len,   sizeof len))==sizeof(len) &&
+	  TEMP_FAILURE_RETRY(write(pw_sock, name,   len))==(ssize_t)(len) &&
+	  TEMP_FAILURE_RETRY(read (pw_sock, &code,  sizeof code))==sizeof(code) &&
+	  TEMP_FAILURE_RETRY(read (pw_sock, result, sizeof *result))==sizeof(*result) &&
+	  code!=0);
 }
 
 struct passwd *
