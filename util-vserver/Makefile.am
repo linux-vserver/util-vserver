@@ -57,10 +57,21 @@ BUILT_SOURCES =		linuxcaps.h pathconfig.h linuxvirtual.h
 
 man_MANS =
 
+kernel_HDRS =		kernel/context.h \
+			kernel/inode.h \
+			kernel/legacy.h \
+			kernel/limit.h \
+			kernel/namespace.h \
+			kernel/network.h \
+			kernel/sched.h \
+			kernel/signal.h \
+			kernel/switch.h
+
 EXTRA_PROGRAMS =
 EXTRA_DIST =		pathconfig.h.pathsubst \
 			util-vserver.spec \
-			THANKS
+			THANKS \
+			$(kernel_HDRS)
 
 check_PROGRAMS =
 check_SCRIPTS =
