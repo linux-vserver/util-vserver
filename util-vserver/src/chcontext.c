@@ -211,7 +211,7 @@ setFlags(char const *str, uint32_t *flags)
 
   if (err.ptr!=0) {
     WRITE_MSG(2, "Unknown flag '");
-    write(2, err.ptr, err.len);
+    Vwrite(2, err.ptr, err.len);
     WRITE_MSG(2, "'\n");
     exit(wrapper_exit_code);
   }
@@ -260,7 +260,7 @@ tellContext(xid_t ctx)
   l = utilvserver_fmt_long(buf,ctx);
 
   WRITE_MSG(1, "New security context is ");
-  write(1, buf, l);
+  Vwrite(1, buf, l);
   WRITE_MSG(1, "\n");
 }
 

@@ -516,7 +516,7 @@ doit(char const *src, char const *dst,
 {
   if (global_args->dry_run || Global_getVerbosity()>=2) {
     WRITE_MSG(1, "unifying   '");
-    (void)write(1, path->d, path->l);
+    Vwrite(1, path->d, path->l);
     WRITE_MSG(1, "'");
     
     if (Global_getVerbosity()>=4) {
@@ -591,7 +591,7 @@ visitDirEntry(struct dirent const *ent)
 	 (Global_getVerbosity()>=6 && is_dotfile) ||
 	 (Global_getVerbosity()>=6 && is_link)) ) {
       WRITE_MSG(1, "  skipping '");
-      write(1, path.d, path.l);
+      Vwrite(1, path.d, path.l);
       WRITE_MSG(1, "'");
       if (Global_getVerbosity()>=2) printSkipReason();
       WRITE_MSG(1, "\n");
