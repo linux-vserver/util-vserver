@@ -17,6 +17,9 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
+src_sbin_CXX_X_PROGS	=  src/vfiles
+src_pkglib_CXX_X_PROGS	=  src/vunify src/vbuild src/vcheck
+
 src_OPTIONS_EXEMPT	=  src/parserpmdump \
 			   src/readlink \
 			   src/showattr \
@@ -59,7 +62,8 @@ src_DIETPROGS		=  src/new-namespace \
 src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
 			   src/wrappers.h src/wrappers-vserver.h \
 			   src/compat-pivot_root.h \
-			   src/stack-start.h
+			   src/stack-start.h \
+			   src/vserver.hh
 
 src_pkglib_PRGS		=  src/capchroot \
 	     		   src/chroot-cat \
@@ -72,17 +76,15 @@ src_pkglib_PRGS		=  src/capchroot \
 			   src/readlink \
 			   src/showattr \
 			   src/showperm \
-			   src/vbuild \
-			   src/vcheck \
 			   src/vreboot \
 			   src/save_ctxinfo \
 			   src/secure-mount \
 			   src/secure-umount \
-			   src/vunify \
 			   src/mask2prefix \
 			   src/pipe-sync \
 			   src/exec-ulimit \
-			   src/rpm-fake.so
+			   src/rpm-fake.so \
+			   $(src_pkglib_CXX_PROGS)
 
 src_sbin_PRGS		=  src/chbind \
 			   src/chcontext \
@@ -90,9 +92,9 @@ src_sbin_PRGS		=  src/chbind \
 			   src/rebootmgr \
 			   src/reducecap \
 			   src/vdu \
-			   src/vfiles \
 			   src/new-namespace \
-			   src/vserver-stat
+			   src/vserver-stat \
+			   $(src_sbin_CXX_PROGS)
 
 src_capchroot_SOURCES		=  src/capchroot.c
 src_capchroot_LDADD		=  lib/libvserver.a
@@ -123,9 +125,7 @@ src_save_ctxinfo_LDADD		=  lib/libvserver.a
 
 src_showattr_SOURCES		=  src/showattr.c
 src_showperm_SOURCES		=  src/showperm.c
-src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc
 src_vdu_SOURCES			=  src/vdu.c
-src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc
 src_vreboot_SOURCES		=  src/vreboot.c
 src_new_namespace_SOURCES	=  src/new-namespace.c
 src_secure_mount_SOURCES	=  src/secure-mount.c
@@ -133,18 +133,45 @@ src_secure_umount_SOURCES	=  src/secure-umount.c
 
 src_mask2prefix_SOURCES		=  src/mask2prefix.c
 
-src_rpm_fake_so_SOURCES		=  src/rpm-fake.c
-src_rpm_fake_so_LDFLAGS		=  -fpic -ldl -shared
-src_rpm_fake_so_LDADD		=  lib/libvserver.a
-
 src_ctx_kill_SOURCES		=  src/ctx-kill.c
 src_ctx_kill_LDADD		=  lib/libvserver.a
 
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
 src_vserver_stat_LDADD		=  lib/libvserver.a
 
-src_vunify_SOURCES		=  src/vunify.cc src/vutil.cc
-src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc
+src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc src/vserver.cc
+src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc src/vserver.cc
+src_vunify_SOURCES		=  src/vunify.cc src/vutil.cc src/vserver.cc
+src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc src/vserver.cc
+
+
+src_rpm_fake_so_SOURCES		=  src/rpm-fake.c $(src_rpm_fake_so_XSRCS)
+src_rpm_fake_so_CFLAGS		=  $(AM_CFLAGS) -fPIC
+src_rpm_fake_so_CPPFLAGS	=  $(AM_CPPFLAGS) -DPIC
+src_rpm_fake_so_LDFLAGS		=  -fPIC -shared
+src_rpm_fake_so_LDADD		=  $(src_rpm_fake_so_XLIBS) -ldl
+
+
+EXTRA_src_rpm_fake_so_SOURCES	=  $(lib_SRCS)
+if ENSC_ALLOW_FPIC_WITH_SYSCALL
+src_rpm_fake_so_XSRCS		=  $(lib_SRCS)
+src_rpm_fake_so_XLIBS		=
+else
+src_rpm_fake_so_XSRCS		=  
+src_rpm_fake_so_XLIBS		=  lib/libvserver.a
+endif
+
+
+
+src_EXTRA_PROGS			=  $(src_sbin_CXX_X_PROGS) $(src_pkglib_CXX_X_PROGS)
+
+if ENSC_HAVE_CXX_COMPILER
+src_sbin_CXX_PROGS		=  $(src_sbin_CXX_X_PROGS)
+src_pkglib_CXX_PROGS		=  $(src_pkglib_CXX_X_PROGS)
+else
+src_sbin__PROGS		=
+src_pkglib_CXX_PROGS		=  
+endif
 
 
 ## Local Variables:
