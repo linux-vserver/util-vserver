@@ -179,8 +179,13 @@ fi
 
 test -d "$VSERVER_DIR" || {
     echo $"\
-Can not find vserver-setup; please make sure that the vserver configuration
-is located at $VSERVER_DIR/."
+Can not find a vserver-setup at '$VSERVER_DIR/'.
+
+Possible solutions:
+* fix the spelling of the '$vserver' vserver name
+* read 'vserver $vserver build --help' about ways to create a new vserver
+* see 'vserver --help' for the syntax of this command
+"
     exit 5
 } >&2
 
