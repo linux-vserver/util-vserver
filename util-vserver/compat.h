@@ -19,6 +19,11 @@
 #ifndef H_UTIL_VSERVER_COMPAT_H
 #define H_UTIL_VSERVER_COMPAT_H
 
+#if defined(__dietlibc__) && defined(__STRICT_ANSI__) && defined(__STDC_VERSION__)
+#  include <sys/cdefs.h>
+#  undef inline
+#endif
+
 #if defined(__GNUC__)
 #  define UNUSED                __attribute__((__unused__))
 #  define NORETURN              __attribute__((__noreturn__))
