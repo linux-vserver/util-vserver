@@ -51,6 +51,9 @@
 	
 #define VC_CAT_PROCTRL		12
 
+#define VC_CAT_SCHED		14
+#define VC_CAT_INODE		38
+
 #define VC_CAT_RLIMIT		60
 
 #define VC_CAT_SYSTEST		61
@@ -140,6 +143,31 @@ struct  vcmd_tbf_sched_v1 {
 
 #define TBFS_PERIOD_AUTO	(0ULL)
 #define TBFS_KEEP_VALUE		(~0ULL)
+
+
+/*  inode vserver commands */
+
+#define VCMD_get_iattr		VC_CMD(INODE, 1, 0)
+#define VCMD_set_iattr		VC_CMD(INODE, 2, 0)
+
+struct  vcmd_ctx_iattr_v0 {
+	uint64_t dev;
+	uint64_t ino;
+	uint32_t xid;
+	uint32_t flags;
+	uint32_t mask;
+};
+
+#define IATTR_XID	0x01000000
+
+#define IATTR_ADMIN	0x00000001
+#define IATTR_WATCH	0x00000002
+#define IATTR_HIDE	0x00000004
+
+#define IATTR_BARRIER	0x00010000
+#define	IATTR_IUNLINK	0x00020000
+
+
 
 
 #endif /* _LINUX_VIRTUAL_H */
