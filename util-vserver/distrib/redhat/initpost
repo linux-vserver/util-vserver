@@ -45,6 +45,10 @@ pushd "$vdir"/sbin &>/dev/null
     relink /bin/true new-kernel-pkg
 popd >/dev/null
 
+pushd "$vdir"/usr/bin &>/dev/null
+    relink /bin/true rhgb-client
+popd >/dev/null
+
 pushd "$vdir"/etc &>/dev/null
     echo 'NETWORKING=yes' >>sysconfig/network
 popd >/dev/null
