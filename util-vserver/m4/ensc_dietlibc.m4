@@ -19,7 +19,7 @@ dnl Usage: ENSC_ENABLE_DIETLIBC(<conditional>)
 dnl        <conditional> ... automake-conditional which will be set when
 dnl                          dietlibc shall be enabled
 
-AC_DEFUN(ENSC_ENABLE_DIETLIBC,
+AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 [
 	AC_MSG_CHECKING([whether to enable dietlibc])
 	AC_ARG_ENABLE([dietlibc],

@@ -55,7 +55,7 @@ AC_DEFUN([__ENSC_CHECK_WARNFLAGS_CXX],
 #   ENSC_CHECK_CXX_FLAG(-flag1 -flag2 -flag3 ...)
 # -------------------------------------------------------------------------
 
-AC_DEFUN(ENSC_CHECK_CXX_FLAG,
+AC_DEFUN([ENSC_CHECK_CXX_FLAG],
 [
 	AC_REQUIRE([__ENSC_CHECK_WARNFLAGS_CXX])
 
@@ -82,7 +82,8 @@ AC_DEFUN(ENSC_CHECK_CXX_FLAG,
 #  ENSC_CHECK_CC_FLAG(-flag1 -flag2 -flag3 ...)
 # -------------------------------------------------------------------------
 
-AC_DEFUN(ENSC_CHECK_CC_FLAG,[
+AC_DEFUN([ENSC_CHECK_CC_FLAG],
+[
 	AC_REQUIRE([__ENSC_CHECK_WARNFLAGS_C])
 
 echo 'void f(){}' > conftest.c
@@ -100,7 +101,7 @@ echo 'void f(){}' > conftest.c
   rm -f conftest.c conftest.o
 ])
 
-AC_DEFUN(ENSC_CHECK_DEFAULT_FLAG,
+AC_DEFUN([ENSC_CHECK_DEFAULT_FLAG],
 [
 	if test x"${ensc_sys_default_flag}" = x; then
 		ENSC_CHECK_CC_FLAG([-fmessage-length=0])

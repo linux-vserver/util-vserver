@@ -19,7 +19,7 @@ dnl Usage: ENSC_RELEASE(<cppflag-variable>)
 dnl        <cppflag-variable> ... name of variable which will get the preprocessor
 dnl                               flags and which will be AC_SUBST'ed
 
-AC_DEFUN(ENSC_RELEASE,
+AC_DEFUN([ENSC_RELEASE],
 [
 	AC_MSG_CHECKING([whether to enable release-mode])
 	AC_ARG_ENABLE([release],
