@@ -193,7 +193,7 @@ int main (int argc, char *argv[])
 
       if (set_mask & 1) limits[id].min  = val;
       if (set_mask & 2) limits[id].soft = val;
-      if (set_mask & 4) limits[id].soft = val;
+      if (set_mask & 4) limits[id].hard = val;
 
       lim_mask |= (1<<id);
       set_mask  = 0;
