@@ -21,17 +21,20 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
 
 #include "vserver.h"
 #include "internal.h"
 #include "util.h"
+#include "wrappers.h"
+#include "wrappers-vserver.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <limits.h>
+
+int	wrapper_exit_code = 255;
 
 inline static void
 checkParams(int argc, char UNUSED * argv[])
@@ -44,10 +47,10 @@ checkParams(int argc, char UNUSED * argv[])
 
 int main(int argc, char *argv[])
 {
-  char		runfile[(checkParams(argc,argv),strlen(argv[1])) + sizeof("/run")];
+  char		runfile[(checkParams(argc,argv),strlen(argv[1])) + sizeof("/run.rev/99999")];
   char		dstfile[PATH_MAX];
   int		fd;
-  char		buf[32];
+  char		buf[6];
   ctx_t		ctx;
   ssize_t	len;
   ssize_t	len1 = strlen(argv[1]);
@@ -55,39 +58,33 @@ int main(int argc, char *argv[])
   strcpy(runfile,      argv[1]);
   strcpy(runfile+len1, "/run");
 
-  ctx=vc_X_getctx(0);
-  if (ctx==-1) {
-    perror("vc_X_getcctx()");
-    return -1;
+  ctx=Evc_X_getctx(0);
+
+  if (ctx==0) {
+    WRITE_MSG(2, "save_ctxinfo: Can not operate in context 0\n");
+    return 255;
   }
 
-  if (readlink(runfile, dstfile, sizeof(dstfile))==-1) {
-    perror("readlink()");
-    return -1;
+  if (reinterpret_cast(unsigned int)(ctx)>99999) {
+    WRITE_MSG(2, "save_ctxinfo: unexpected context\n");
+    return 255;
   }
 
-  fd = open(dstfile, O_EXCL|O_CREAT|O_WRONLY, 0644);
-  if (fd==-1) {
-    perror("open()");
-    return -1;
-  }
-
+  Ereadlink(runfile, dstfile, sizeof(dstfile));
   len  = utilvserver_uint2str(buf, sizeof(buf), ctx, 10);
 
+  fd = Eopen(dstfile, O_EXCL|O_CREAT|O_WRONLY, 0644);
   if (write(fd, buf,     len) !=len  ||
-      write(fd, "\n",    1)   !=1    ||
-      write(fd, argv[1], len1)!=len1 ||
       write(fd, "\n",    1)   !=1) {
     perror("write()");
     return -1;
   }
+  Eclose(fd);
 
-  if (close(fd)==-1) {
-    perror("close()");
-    return -1;
-  }
+  strcat(runfile, ".rev/");
+  strcat(runfile, buf);
+  unlink(runfile);
+  Esymlink(argv[1], runfile);
 
-  execv(argv[2], argv+2);
-  perror("execv()");
-  return -1;
+  Eexecv(argv[2], argv+2);
 }
