@@ -23,6 +23,7 @@
 
 #include "ensc_vector/vector.h"
 #include <assert.h>
+#include <stdbool.h>
 
 int	wrapper_exit_code = 2;
 
@@ -55,6 +56,21 @@ static int	E(size_t idx)
 static int const *	S(int val)
 {
   return Vector_search_const(&v, &val, cmp);
+}
+
+static int const *	S_F(int val)
+{
+  return Vector_searchSelfOrg(&v, &val, cmp, vecMOVE_FRONT);
+}
+
+static int const *	S_S(int val)
+{
+  return Vector_searchSelfOrg(&v, &val, cmp, vecSHIFT_ONCE);
+}
+
+static bool		CMP(int const *lhs, int val)
+{
+  return (lhs!=0 && val==*lhs) || (lhs==0 && val==-1);
 }
 
 int main()
@@ -120,8 +136,46 @@ int main()
   Vector_unique(&v, cmp);
   assert(Vector_count(&v)==8);
   assert((E(0)==0 && E(1)==1 && E(2)==2 && E(3)==3 &&
-	  E(4)==4 && E(5)==5 && E(6)==6 && E(7)==7)); 
+	  E(4)==4 && E(5)==5 && E(6)==6 && E(7)==7));
 
+  assert(CMP(S_F(0),0));
+  assert((E(0)==0 && E(1)==1 && E(2)==2 && E(3)==3 && E(4)==4 && E(5)==5 && E(6)==6 && E(7)==7));
+
+  assert(CMP(S_F(1),1));
+  assert((E(0)==1 && E(1)==0 && E(2)==2 && E(3)==3 && E(4)==4 && E(5)==5 && E(6)==6 && E(7)==7));
+
+  assert(CMP(S_F(7),7));
+  assert((E(0)==7 && E(1)==1 && E(2)==0 && E(3)==2 && E(4)==3 && E(5)==4 && E(6)==5 && E(7)==6));
+
+  assert(CMP(S_F(3),3));
+  assert((E(0)==3 && E(1)==7 && E(2)==1 && E(3)==0 && E(4)==2 && E(5)==4 && E(6)==5 && E(7)==6));
+
+  assert(CMP(S_F(3),3));
+  assert((E(0)==3 && E(1)==7 && E(2)==1 && E(3)==0 && E(4)==2 && E(5)==4 && E(6)==5 && E(7)==6));
+
+  assert(CMP(S_F(42), -1));
+  assert((E(0)==3 && E(1)==7 && E(2)==1 && E(3)==0 && E(4)==2 && E(5)==4 && E(6)==5 && E(7)==6));
+
+
+  assert(CMP(S_S(6), 6));
+  assert((E(0)==3 && E(1)==7 && E(2)==1 && E(3)==0 && E(4)==2 && E(5)==4 && E(6)==6 && E(7)==5));
+
+  assert(CMP(S_S(6), 6));
+  assert((E(0)==3 && E(1)==7 && E(2)==1 && E(3)==0 && E(4)==2 && E(5)==6 && E(6)==4 && E(7)==5));
+
+  assert(CMP(S_S(6), 6));
+  assert((E(0)==3 && E(1)==7 && E(2)==1 && E(3)==0 && E(4)==6 && E(5)==2 && E(6)==4 && E(7)==5));
+
+  assert(CMP(S_S(7), 7));
+  assert((E(0)==7 && E(1)==3 && E(2)==1 && E(3)==0 && E(4)==6 && E(5)==2 && E(6)==4 && E(7)==5));
+
+  assert(CMP(S_S(7), 7));
+  assert((E(0)==7 && E(1)==3 && E(2)==1 && E(3)==0 && E(4)==6 && E(5)==2 && E(6)==4 && E(7)==5));
+
+  assert(CMP(S_S(42), -1));
+  assert((E(0)==7 && E(1)==3 && E(2)==1 && E(3)==0 && E(4)==6 && E(5)==2 && E(6)==4 && E(7)==5));
+
+  
   Vector_free(&v);
 
   return 0;
