@@ -380,7 +380,11 @@
 	    <description>The scope of the network interfaces.</description>
 	  </file>
 	  <file name="name">
-	    <description>When this file exists, the interface will be named.</description>
+	    <description>When this file exists, the interface will be named with the text in this file.</description>
+	  </file>
+	  <file name="nodev">
+	    <description>When this file exists, the interface will be assumed to exist already. A
+	    former name for this flag was 'only_ip' which is deprecated now.</description>
 	  </file>
 	</dir>
       </dir>
