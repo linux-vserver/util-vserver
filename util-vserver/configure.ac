@@ -25,7 +25,7 @@ dnl
 
 AC_PREREQ(2.57)
 
-AC_INIT(util-vserver, 0.24.90, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.24.92, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -83,6 +83,10 @@ for i in $supported_apis; do
 done
 IFS=$old_IFS
 AC_MSG_RESULT([$supported_apis])
+
+AC_CHECK_HEADERS([ext2fs/ext2fs.h], [],
+  [AC_CHECK_HEADERS([linux/ext2_fs.h], [],
+                    [AC_MSG_ERROR([Sorry, do not know, how to include 'ext2fs.h'])])])
 
 AC_CHECK_FUNCS([sys_virtual_context])
 AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
