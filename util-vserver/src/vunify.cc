@@ -25,6 +25,10 @@
 	common package (RPM, same version), it does a hard link on non
 	configuration file. It turns the file immutable after that.
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -102,20 +106,20 @@ static bool vunify_inside (vector<EXCLDIR> &dirs, const char *path)
 	return found;
 }
 
-class PACKAGE_UNI: public PACKAGE{
+class PACKAGE_UNI: public Package{
 public:
 	list<string> files;		// Files to unify
 							// This is loaded on demand
 	PACKAGE_UNI(string &_name, string &_version)
-		: PACKAGE(_name,_version)
+		: Package(_name,_version)
 	{
 	}
 	PACKAGE_UNI(const char *_name, const char *_version)
-		: PACKAGE (_name,_version)
+		: Package (_name,_version)
 	{
 	}
 	PACKAGE_UNI(const string &line)
-		: PACKAGE (line)
+		: Package (line)
 	{
 	}
 	// Load the file member of the package, but exclude configuration file

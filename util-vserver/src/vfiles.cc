@@ -21,6 +21,10 @@
 	This utility is used to extract the list of non unified files in
 	a vserver.
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -124,12 +128,12 @@ int main (int argc, char *argv[])
 	}else{
 		string refserv = argv[i++];
 		string newserv = argv[i];
-		list<PACKAGE> packages;
+		list<Package> packages;
 		// Load the files which are not configuration files from
 		// the packages
 		vutil_loadallpkg (refserv,packages);
 		set<string> files;
-		for (list<PACKAGE>::iterator it=packages.begin(); it!=packages.end(); it++){
+		for (list<Package>::iterator it=packages.begin(); it!=packages.end(); it++){
 			(*it).loadfiles(refserv,files);
 		}
 		struct stat st;

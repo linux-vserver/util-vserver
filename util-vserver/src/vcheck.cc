@@ -23,6 +23,10 @@
 	goal of this program is to run the rpm verify command, but using
 	the RPM database of the first vserver.
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -55,7 +59,7 @@ static void usage()
 		;
 }
 
-typedef list<PACKAGE> PACKAGES;
+typedef list<Package> PACKAGES;
 
 /*
 	Delete a directory silently
@@ -134,7 +138,7 @@ static int vcheck_copydb (const string &refserv, const string &path)
 
 class cmp_name{
 public:
-	int operator()(const PACKAGE &p1, const PACKAGE &p2){
+	int operator()(const Package &p1, const Package &p2){
 		return strcmp(p1.name.c_str(),p2.name.c_str());
 	}
 };
@@ -181,8 +185,8 @@ int main (int argc, char *argv[])
 				common.push_back (*it);
 			}
 		}
-		for (list<PACKAGE>::iterator it=chkpkgs.begin(); it!=chkpkgs.end(); it++){
-			list<PACKAGE>::iterator f = find_if(refpkgs.begin(),refpkgs.end(),same_name(*it));
+		for (list<Package>::iterator it=chkpkgs.begin(); it!=chkpkgs.end(); it++){
+			list<Package>::iterator f = find_if(refpkgs.begin(),refpkgs.end(),same_name(*it));
 			if (f == refpkgs.end()){
 				added.push_back (*it);
 			}

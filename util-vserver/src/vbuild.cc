@@ -22,6 +22,10 @@
 	It uses hard link whenever possible instead of duplicating files.
 	Once done, it sets the immutable bits.
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -243,12 +247,12 @@ int main (int argc, char *argv[])
 	}else{
 		string refserv = argv[i++];
 		string newserv = argv[i];
-		list<PACKAGE> packages;
+		list<Package> packages;
 		// Load the files which are not configuration files from
 		// the packages
 		vutil_loadallpkg (refserv,packages);
 		set<string> files;
-		for (list<PACKAGE>::iterator it=packages.begin(); it!=packages.end(); it++){
+		for (list<Package>::iterator it=packages.begin(); it!=packages.end(); it++){
 			(*it).loadfiles(refserv,files);
 		}
 		// Now, we do a recursive copy of refserv into newserv

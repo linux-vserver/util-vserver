@@ -18,6 +18,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 #pragma implementation
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -29,6 +33,8 @@
 #include "vutil.h"
 #include <sys/ioctl.h>
 #include <linux/ext2_fs.h>
+
+#include <pathconfig.h>
 
 bool testmode;
 int debug;
@@ -206,7 +212,7 @@ int vbuild_file_copy(
 /*
 	Load the list of all packages in a vserver
 */
-void vutil_loadallpkg (string &refserver, list<PACKAGE> &packages)
+void vutil_loadallpkg (string &refserver, list<Package> &packages)
 {
 	FILE *fin = vutil_execdistcmd (K_PKGVERSION,refserver,NULL);
 	if (fin != NULL){
@@ -214,7 +220,7 @@ void vutil_loadallpkg (string &refserver, list<PACKAGE> &packages)
 		while (fgets(line,sizeof(line)-1,fin)!=NULL){
 			int last = strlen(line)-1;
 			if (last >= 0 && line[last] == '\n') line[last] = '\0';
-			packages.push_back (PACKAGE(line));
+			packages.push_back (Package(line));
 		}
 		pclose (fin);
 	}
