@@ -28,6 +28,7 @@ command_SRCS =			lib_internal/command-appendparameter.c \
 
 if ENSC_HAVE_C99_COMPILER
 filecfg_SRCS =			lib_internal/filecfg.h \
+				lib_internal/filecfg-iteratemultiline.c \
 				lib_internal/filecfg-readentryflag.c \
 				lib_internal/filecfg-readentrystr.c
 endif
