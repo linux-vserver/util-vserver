@@ -451,7 +451,7 @@ function callInNamespace
     local ctx=
     
     isAvoidNamespace "$1" || \
-    ctx=$( $_VSERVER_INFO "$1" CONTEXT t ) || ctx=
+    ctx=$( $_VSERVER_INFO "$1" CONTEXT f ) || ctx=
 
     shift
     if test "$ctx"; then
