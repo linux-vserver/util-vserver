@@ -22,15 +22,16 @@
 
 #include <stdbool.h>
 
-inline static UNUSED bool
-WsendAll(int fd, void const *ptr_v, size_t len)
+inline static WRAPPER_DECL bool
+WsendAll(int fd, void const *ptr_v, size_t len, int *err)
 {
   register char const	*ptr = ptr_v;
+  if (err) *err = 0;
 
   while (len>0) {
     size_t	res = TEMP_FAILURE_RETRY(send(fd, ptr, len, MSG_NOSIGNAL));
     if (res==(size_t)-1) {
-      perror("send()");
+      if (err) *err = errno;
       return false;
     }
 
@@ -42,7 +43,7 @@ WsendAll(int fd, void const *ptr_v, size_t len)
   return true;
 }
 
-inline static UNUSED void
+inline static WRAPPER_DECL void
 EsendAll(int fd, void const *ptr_v, size_t len)
 {
   register char const	*ptr = ptr_v;
@@ -57,15 +58,16 @@ EsendAll(int fd, void const *ptr_v, size_t len)
 }
 
 
-inline static UNUSED bool
-WrecvAll(int fd, void *ptr_v, size_t len)
+inline static WRAPPER_DECL bool
+WrecvAll(int fd, void *ptr_v, size_t len, int *err)
 {
   register char	*ptr = ptr_v;
+  if (err) *err = 0;
   
   while (len>0) {
     size_t	res = TEMP_FAILURE_RETRY(recv(fd, ptr, len, MSG_NOSIGNAL));
     if (res==(size_t)-1) {
-      perror("recv()");
+      if (err) *err = errno;
       return false;
     }
 
@@ -77,7 +79,7 @@ WrecvAll(int fd, void *ptr_v, size_t len)
   return true;
 }
 
-inline static UNUSED bool
+inline static WRAPPER_DECL bool
 ErecvAll(int fd, void *ptr_v, size_t len)
 {
   register char	*ptr = ptr_v;
