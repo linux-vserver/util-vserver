@@ -38,9 +38,9 @@ Options:
     --force     ...  remove/rename already existing vservers with the same name
     -m <method> ...  use method <method>; see below for possible values
     --rootdir <dir>
-                ...  [default: /vservers]
+                ...  [default: $DEFAULT_VSERVERDIR]
     --pkgcfgbase <dir>
-                ...  [default: <rootdir>/.pkg]
+                ...  [default: $DEFAULT_VSERVERPKGDIR]
       
 cfg-options are: $SETUP_HELPMSG
 
