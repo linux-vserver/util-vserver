@@ -46,18 +46,18 @@ the GNU General Public License.  This program has absolutely no warranty."
     exit $1
 }
 
+is_quiet=
 declare -a vservers=()
 
 while test "$#" -ge 1; do
     case "$1" in
+	--)		shift; break;;
+	--help)		showHelp 0;;
+	--quiet|-q)	is_quiet=1 ;;
 	--all)
 	    getAllVservers tmp
 	    vservers=( "${vservers[@]}" "${tmp[@]}" )
 	    ;;
-	--)
-	    shift; break;;
-	--help)
-	    showHelp 0;;
 	--version)
 	    showVersion 0;;
 	*)  vservers=( "${vservers[@]}" "$1" )
@@ -66,12 +66,19 @@ while test "$#" -ge 1; do
 done
 
 test "$#" -ge 1 || showHelp 1 >&2
+test "${#vservers[@]}" -ne 1 || is_quiet=1
 
 cnt=0
 res=255
 for i in "${vservers[@]}"; do
     cnt=$[ cnt + 1 ]
 
+    test "$is_quiet" || {
+	colorize bold echo -n "vaptget: operating on vserver "
+	colorize bold colorize emph echo "$i"
+	xtermTitle "vaptget: operating on vserver '$i'  [$cnt/${#vservers[@]}]"
+    }
+    
     if pkgmgmt.isInternal "$i"; then
 	$_VSERVER "$i" exec apt-get "$@"
     else
@@ -79,6 +86,13 @@ for i in "${vservers[@]}"; do
 	    "$_VNAMESPACE" --new -- "$_VAPT_GET_WORKER" "$i" "$@"
     fi
     res=$?
+
+    test $res -eq 0 -o "$is_quiet" || {
+	colorize error echo -n $"vapt-get failed on vserver '$i' with errorcode $res"
+	echo
+    }
+	
+    test "$is_quiet" || echo
 done
 
 test "$cnt" -ge 0 || echo "No vservers specified" >&2

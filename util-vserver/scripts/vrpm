@@ -27,7 +27,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 function showHelp()
 {
     echo \
-$"Usage: $0 <vserver-name>* [--all] [--help] [--version] [--unify] -- <rpm-params>+
+$"Usage: $0 <vserver-name>* [--all] [--quiet|-q] [--help] [--version] [--unify] -- <rpm-params>+
 
 Report bugs to <$PACKAGE_BUGREPORT>."
 
@@ -48,10 +48,14 @@ the GNU General Public License.  This program has absolutely no warranty."
 }
 
 do_unify=
+is_quiet=
 declare -a vservers=()
 
 while test "$#" -ge 1; do
     case "$1" in
+	--quiet|-q)
+	    is_quiet=1
+	    ;;
 	--all)
 	    getAllVservers tmp
 	    vservers=( "${vservers[@]}" "${tmp[@]}" )
@@ -71,11 +75,19 @@ while test "$#" -ge 1; do
 done
 
 test "$#" -ge 1 || showHelp 1 >&2
+test "${#vservers[@]}" -ne 1 || is_quiet=1
 
 cnt=0
 res=255
+
 for i in "${vservers[@]}"; do
     cnt=$[ cnt + 1 ]
+
+    test "$is_quiet" || {
+	colorize bold echo -n "vrpm: operating on vserver "
+	colorize bold colorize emph echo "$i"
+	xtermTitle "vrpm: operating on vserver '$i'  [$cnt/${#vservers[@]}]"
+    }
 
     if pkgmgmt.isInternal "$i"; then
 	$_VSERVER "$i" exec rpm "$@"
@@ -83,8 +95,14 @@ for i in "${vservers[@]}"; do
 	callInNamespace "$i" \
 	    "$_VNAMESPACE" --new -- "$_VRPM_WORKER" "$i" "$@"
     fi
-
     res=$?
+
+    test $res -eq 0 -o "$is_quiet" || {
+	colorize error echo -n $"vrpm failed on vserver '$i' with errorcode $res"
+	echo
+    }
+
+    test "$is_quiet" || echo
 done
 
 test -z "$do_unify" || echo "unify currently unsupported" >&2
