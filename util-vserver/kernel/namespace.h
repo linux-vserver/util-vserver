@@ -3,13 +3,13 @@
 
 #include <linux/types.h>
 
-	
+
 /* virtual host info names */
 
 #define VCMD_vx_set_vhi_name	VC_CMD(VHOST, 1, 0)
 #define VCMD_vx_get_vhi_name	VC_CMD(VHOST, 2, 0)
 
-struct  vcmd_vx_vhi_name_v0 {
+struct	vcmd_vx_vhi_name_v0 {
 	uint32_t field;
 	char name[65];
 };
@@ -44,6 +44,9 @@ extern int vc_get_vhi_name(uint32_t, void __user *);
 struct vx_info;
 struct namespace;
 struct fs_struct;
+struct vfsmount;
+
+extern int vx_check_vfsmount(struct vx_info *, struct vfsmount *);
 
 extern int vx_set_namespace(struct vx_info *, struct namespace *, struct fs_struct *);
 

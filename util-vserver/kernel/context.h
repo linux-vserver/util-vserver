@@ -12,6 +12,7 @@
 
 #include <linux/list.h>
 #include <linux/spinlock.h>
+#include <linux/rcupdate.h>
 
 #define _VX_INFO_DEF_
 #include "cvirt.h"
@@ -20,30 +21,43 @@
 #undef	_VX_INFO_DEF_
 
 struct vx_info {
-	struct list_head vx_list;		/* linked list of contexts */
+	struct hlist_node vx_hlist;		/* linked list of contexts */
+	struct rcu_head vx_rcu;			/* the rcu head */
 	xid_t vx_id;				/* context id */
-	atomic_t vx_refcount;			/* refcount */
+	atomic_t vx_usecnt;			/* usage count */
+	atomic_t vx_refcnt;			/* reference count */
 	struct vx_info *vx_parent;		/* parent context */
+	int vx_state;				/* context state */
 
 	struct namespace *vx_namespace;		/* private namespace */
 	struct fs_struct *vx_fs;		/* private namespace fs */
-	uint64_t vx_flags;			/* VX_INFO_xxx */
+	uint64_t vx_flags;			/* context flags */
 	uint64_t vx_bcaps;			/* bounding caps (system) */
 	uint64_t vx_ccaps;			/* context caps (vserver) */
 
 	pid_t vx_initpid;			/* PID of fake init process */
 
-	struct _vx_cvirt cvirt;			/* virtual/bias stuff */
+	spinlock_t vx_lock;
+	wait_queue_head_t vx_exit;		/* context exit waitqueue */
+
 	struct _vx_limit limit;			/* vserver limits */
 	struct _vx_sched sched;			/* vserver scheduler */
+	struct _vx_cvirt cvirt;			/* virtual/bias stuff */
+	struct _vx_cacct cacct;			/* context accounting */
 
 	char vx_name[65];			/* vserver name */
 };
 
+/* status flags */
 
-extern spinlock_t vxlist_lock;
-extern struct list_head vx_infos;
+#define VXS_HASHED	0x0001
+#define VXS_PAUSED	0x0010
+#define VXS_ONHOLD	0x0020
+#define VXS_SHUTDOWN	0x0100
+#define VXS_DEFUNCT	0x1000
+#define VXS_RELEASED	0x8000
 
+/* check conditions */
 
 #define VX_ADMIN	0x0001
 #define VX_WATCH	0x0002
@@ -62,11 +76,16 @@ extern struct list_head vx_infos;
 #define VX_ATR_MASK	0x0F00
 
 
-void free_vx_info(struct vx_info *);
+struct rcu_head;
 
-extern struct vx_info *find_vx_info(int);
-extern struct vx_info *find_or_create_vx_info(int);
-extern int vx_info_id_valid(int);
+// extern void rcu_free_vx_info(struct rcu_head *);
+extern void unhash_vx_info(struct vx_info *);
+
+extern struct vx_info *locate_vx_info(int);
+extern struct vx_info *locate_or_create_vx_info(int);
+
+extern int get_xid_list(int, unsigned int *, int);
+extern int vx_info_is_hashed(xid_t);
 
 extern int vx_migrate_task(struct task_struct *, struct vx_info *);
 
@@ -87,10 +106,10 @@ extern int vc_task_xid(uint32_t, void __user *);
 #define VCMD_vx_info		VC_CMD(VINFO, 5, 0)
 #define VCMD_nx_info		VC_CMD(VINFO, 6, 0)
 
-struct  vcmd_vx_info_v0 {
+struct	vcmd_vx_info_v0 {
 	uint32_t xid;
 	uint32_t initpid;
-	/* more to come */	
+	/* more to come */
 };
 
 #ifdef	__KERNEL__
@@ -110,7 +129,7 @@ extern int vc_ctx_migrate(uint32_t, void __user *);
 #define VCMD_get_cflags		VC_CMD(FLAGS, 1, 0)
 #define VCMD_set_cflags		VC_CMD(FLAGS, 2, 0)
 
-struct  vcmd_ctx_flags_v0 {
+struct	vcmd_ctx_flags_v0 {
 	uint64_t flagword;
 	uint64_t mask;
 };
@@ -138,6 +157,7 @@ extern int vc_set_cflags(uint32_t, void __user *);
 #define VXF_VIRT_MEM		0x00010000
 #define VXF_VIRT_UPTIME		0x00020000
 #define VXF_VIRT_CPU		0x00040000
+#define VXF_VIRT_LOAD		0x00080000
 
 #define VXF_HIDE_MOUNT		0x01000000
 #define VXF_HIDE_NETIF		0x02000000
@@ -145,13 +165,15 @@ extern int vc_set_cflags(uint32_t, void __user *);
 #define VXF_STATE_SETUP		(1ULL<<32)
 #define VXF_STATE_INIT		(1ULL<<33)
 
+#define VXF_FORK_RSS		(1ULL<<48)
+#define VXF_PROLIFIC		(1ULL<<49)
 
 #define VXF_ONE_TIME		(0x0003ULL<<32)
 
 #define VCMD_get_ccaps		VC_CMD(FLAGS, 3, 0)
 #define VCMD_set_ccaps		VC_CMD(FLAGS, 4, 0)
 
-struct  vcmd_ctx_caps_v0 {
+struct	vcmd_ctx_caps_v0 {
 	uint64_t bcaps;
 	uint64_t ccaps;
 	uint64_t cmask;
@@ -166,7 +188,7 @@ extern int vc_set_ccaps(uint32_t, void __user *);
 #define VXC_SET_UTSNAME		0x00000001
 #define VXC_SET_RLIMIT		0x00000002
 
-#define VXC_ICMP_PING		0x00000100
+#define VXC_RAW_ICMP		0x00000100
 
 #define VXC_SECURE_MOUNT	0x00010000
 

@@ -12,11 +12,11 @@
 
 /*
 
-  Syscall Matrix V2.6
+  Syscall Matrix V2.8
 
-         |VERSION|CREATE |MODIFY |MIGRATE|CONTROL|EXPERIM| |SPECIAL|SPECIAL|
-         |STATS  |DESTROY|ALTER  |CHANGE |LIMIT  |TEST   | |       |       |
-         |INFO   |SETUP  |       |MOVE   |       |       | |       |       |
+	 |VERSION|CREATE |MODIFY |MIGRATE|CONTROL|EXPERIM| |SPECIAL|SPECIAL|
+	 |STATS  |DESTROY|ALTER  |CHANGE |LIMIT  |TEST   | |       |       |
+	 |INFO   |SETUP  |       |MOVE   |       |       | |       |       |
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
   SYSTEM |VERSION|VSETUP |VHOST  |       |       |       | |DEVICES|       |
   HOST   |     00|     01|     02|     03|     04|     05| |     06|     07|
@@ -25,22 +25,22 @@
   PROCESS|     08|     09|     10|     11|     12|     13| |     14|     15|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
   MEMORY |       |       |       |       |       |       | |SWAP   |       |
-         |     16|     17|     18|     19|     20|     21| |     22|     23|
+	 |     16|     17|     18|     19|     20|     21| |     22|     23|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
   NETWORK|       |VNET   |NETALT |NETMIG |NETCTL |       | |SERIAL |       |
-         |     24|     25|     26|     27|     28|     29| |     30|     31|
+	 |     24|     25|     26|     27|     28|     29| |     30|     31|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
-  DISK   |       |       |       |       |       |       | |INODE  |       |
+  DISK   |       |       |       |       |DLIMIT |       | |INODE  |       |
   VFS    |     32|     33|     34|     35|     36|     37| |     38|     39|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
   OTHER  |       |       |       |       |       |       | |VINFO  |       |
-         |     40|     41|     42|     43|     44|     45| |     46|     47|
+	 |     40|     41|     42|     43|     44|     45| |     46|     47|
   =======+=======+=======+=======+=======+=======+=======+ +=======+=======+
-  SPECIAL|       |       |       |       |FLAGS  |       | |       |       |
-         |     48|     49|     50|     51|     52|     53| |     54|     55|
+  SPECIAL|EVENT  |       |       |       |FLAGS  |       | |       |       |
+	 |     48|     49|     50|     51|     52|     53| |     54|     55|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
   SPECIAL|       |       |       |       |RLIMIT |SYSCALL| |       |COMPAT |
-         |     56|     57|     58|     59|     60|TEST 61| |     62|     63|
+	 |     56|     57|     58|     59|     60|TEST 61| |     62|     63|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
 
 */
@@ -49,7 +49,7 @@
 
 #define VC_CAT_VSETUP		1
 #define VC_CAT_VHOST		2
-	
+
 #define VC_CAT_VPROC		9
 #define VC_CAT_PROCALT		10
 #define VC_CAT_PROCMIG		11
@@ -62,19 +62,21 @@
 #define VC_CAT_NETMIG		27
 #define VC_CAT_NETCTRL		28
 
+#define VC_CAT_DLIMIT		36
 #define VC_CAT_INODE		38
 
 #define VC_CAT_VINFO		46
+#define VC_CAT_EVENT		48
 
 #define VC_CAT_FLAGS		52
 #define VC_CAT_RLIMIT		60
 
 #define VC_CAT_SYSTEST		61
 #define VC_CAT_COMPAT		63
-	
+
 /*  interface version */
 
-#define VCI_VERSION		0x00010016
+#define VCI_VERSION		0x00010022
 
 
 /*  query version */
@@ -86,7 +88,6 @@
 
 #include <linux/errno.h>
 
-#define ENOTSUP		-EOPNOTSUPP
 
 #else	/* __KERNEL__ */
 #define __user
