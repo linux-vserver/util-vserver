@@ -44,33 +44,14 @@ INITSTYLE=sysv
 S_CONTEXT=
 
 SILENT_OPT=
-_NEWLINE='
-'
-_NEWLINE=${_NEWLINE:0-1}
 
 : ${VSERVER_NAME:=$(basename "$VSERVER_DIR")}
 
-if test -e "$VSERVER_DIR"/noisy; then
+if test -e "$VSERVER_DIR"/noisy -o "$OPTION_VERBOSE"; then
     SILENT_OPT=
 else
     SILENT_OPT='--silent'
 fi
-
-## Called as '_getFileValue <varname> <filename>'
-function _getFileValue
-{
-    test -r "$2" || return 0
-    eval read "$1" <"$2"
-}
-
-## Called as '_getFileArray <varname> <filename>'
-function _getFileArray
-{
-    test -r "$2" || return 0
-    
-    local IFS=$_NEWLINE
-    eval "$1"='( $(< "$2") )'
-}
 
 function _generateChbindOptions
 {
@@ -79,7 +60,7 @@ function _generateChbindOptions
     local bcast=
 
     local f=$vdir/interfaces/bcast
-    _getFileValue bcast "$f"
+    getFileValue bcast "$f"
     
     CHBIND_OPTS=( $SILENT_OPT ${bcast:+--bcast "$bcast"} )
 
@@ -128,7 +109,7 @@ function getEnterShell
 
     ENTER_SHELL=()
     
-    _getFileValue ENTER_SHELL	 "$vdir"/shell
+    getFileValue ENTER_SHELL	 "$vdir"/shell
     
     test "$ENTER_SHELL" || {
 	local i
@@ -159,11 +140,11 @@ function _generateInitOptions
     CHCONTEXT_INIT_OPTS=()
 
 
-    _getFileValue INITSTYLE      "$cfgdir"/style
-    _getFileValue runlevel_start "$cfgdir"/runlevel
-    _getFileValue runlevel_start "$cfgdir"/runlevel.start
-    _getFileValue runlevel_stop  "$cfgdir"/runlevel.stop
-    _getFileArray INITKILL_SEQ	 "$cfgdir"/killseq
+    getFileValue INITSTYLE      "$cfgdir"/style
+    getFileValue runlevel_start "$cfgdir"/runlevel
+    getFileValue runlevel_start "$cfgdir"/runlevel.start
+    getFileValue runlevel_stop  "$cfgdir"/runlevel.stop
+    getFileArray INITKILL_SEQ	 "$cfgdir"/killseq
 
     case x"$INITSTYLE" in
 	xsysv)
@@ -203,11 +184,11 @@ function _generateInitOptions
 	    exit 1;;
     esac
 
-    _getFileArray INITCMD_START      "$cfgdir"/cmd.start
-    _getFileArray INITCMD_STOP       "$cfgdir"/cmd.stop
-    _getFileArray INITCMD_START_SYNC "$cfgdir"/cmd.start-sync
-    _getFileArray INITCMD_STOP_SYNC  "$cfgdir"/cmd.stop-sync
-    _getFileArray INITCMD_PREPARE    "$cfgdir"/cmd.prepare
+    getFileArray INITCMD_START      "$cfgdir"/cmd.start
+    getFileArray INITCMD_STOP       "$cfgdir"/cmd.stop
+    getFileArray INITCMD_START_SYNC "$cfgdir"/cmd.start-sync
+    getFileArray INITCMD_STOP_SYNC  "$cfgdir"/cmd.stop-sync
+    getFileArray INITCMD_PREPARE    "$cfgdir"/cmd.prepare
 
     
     test -e "$cfgdir"/sync -o "$OPTION_FORCE_SYNC" || {
