@@ -20,7 +20,13 @@
 lib_SRCS			=  lib/syscall.c
 lib_HDRS			=  lib/vserver.h
 
+lib_XHDRS                       =  lib/syscall-compat.hc \
+	 			   lib/syscall-legacy.hc \
+				   lib/virtual.h \
+				   lib/virtual-inc.h \
+				   lib/vserver-internal.h
+
 lib_lib_LIBS			=  lib/libvserver.a
 
 lib_libvserver_a_SOURCES	=  lib/syscall.c
-lib_libvserver_a_CPPFLAGS	=  -I$(kernelincludedir)
+lib_libvserver_a_CPPFLAGS	=  -I$(kernelincludedir) -D_GNU_SOURCE
