@@ -22,9 +22,11 @@ lib_internal_LIBS =			lib_internal/libinternal.a
 lib_internal_libinternal_a_XHDRS =	lib_internal/matchlist.h \
 					lib_internal/pathinfo.h \
 					lib_internal/string.h \
+					lib_internal/unify.h \
+					lib_internal/util-dotfile.h \
 					lib_internal/util-io.h \
 					lib_internal/util-mem.h \
-					lib_internal/unify.h \
+					lib_internal/util-safechdir.h \
 					lib_internal/string.hc
 
 lib_internal_libinternal_a_SOURCES =	lib_internal/matchlist-appendfiles.c \
@@ -34,10 +36,14 @@ lib_internal_libinternal_a_SOURCES =	lib_internal/matchlist-appendfiles.c \
 					lib_internal/matchlist-initbyvserver.c \
 					lib_internal/matchlist-initmanually.c \
 					lib_internal/matchlist-initrefserverlist.c \
+					lib_internal/matchlist-printid.c \
 					lib_internal/pathinfo-append.c \
 					lib_internal/pathinfo-test.c \
 					lib_internal/string-destroy.c \
+					lib_internal/unify-copy.c \
+					lib_internal/unify-deunify.c \
+					lib_internal/unify-settime.c \
 					lib_internal/unify-unify.c \
-					lib_internal/unify-deunify.c
+					lib_internal/util-safechdir.c
 
 lib_internal_DIETPROGS =		$(lib_internal_LIBS)
