@@ -51,8 +51,11 @@
 #define ENSC_WRAPPERS_VSERVER	1
 #include <wrappers.h>
 
-#define CMD_DIR		0x8000
-#define CMD_MISSINGOK	0x8001
+#define CMD_HELP		0x1000
+#define CMD_VERSION		0x1001
+#define CMD_XID			0x4000
+#define CMD_DIR			0x8000
+#define CMD_MISSINGOK		0x8001
 
 int		wrapper_exit_code = 255;
 
@@ -63,9 +66,10 @@ int		wrapper_exit_code = 255;
 
 static struct option const
 CMDLINE_OPTIONS[] = {
-  { "help",      no_argument,       0, 'h' },
-  { "version",   no_argument,       0, 'v' },
+  { "help",      no_argument,       0, CMD_HELP },
+  { "version",   no_argument,       0, CMD_VERSION },
   { "all",       no_argument,       0, 'a' },
+  { "xid",       no_argument,       0, CMD_XID },
   { "dir",       required_argument, 0, CMD_DIR },
   { "missingok", no_argument,       0, CMD_MISSINGOK },
   NUMLIM( 0), NUMLIM( 1), NUMLIM( 2), NUMLIM( 3),
@@ -105,10 +109,11 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-c <xid>] [-nd] [-a|--all] [[-MSH] --(<resource>|<nr>) <value>]*\n"
+	    " [--xid|-c <xid>] [-nd] [-a|--all] [[-MSH] --(<resource>|<nr>) <value>]*\n"
 	    "               [--dir <pathname> [--missingok]] [--] [<program> <args>*]\n\n"
 	    "Options:\n"
-	    "    -c <xid>    ...  operate on context <xid>\n"
+	    "    -c|--xid <xid>\n"
+	    "                ...  operate on context <xid>\n"
 	    "    -a|--all    ...  show all available limits\n"
 	    "    -n          ...  do not resolve limit-names\n"
 	    "    -d          ...  show limits in decimal\n"
@@ -158,7 +163,7 @@ appendLimit(char *ptr, bool do_it, vc_limit_t lim)
   ptr += 2;
   if (do_it) {
     if (lim==VC_LIM_INFINITY) {
-      strcpy(ptr, "INF");
+      strcpy(ptr, "inf");
       ptr += 3;
     }
     else {
@@ -336,7 +341,7 @@ int main (int argc, char *argv[])
   }
   
   while (1) {
-    int		c = getopt_long(argc, argv, "+MSHndhvac:", CMDLINE_OPTIONS, 0);
+    int		c = getopt_long(argc, argv, "+MSHndac:", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
 
     if (2048<=c && c<2048+32) {
@@ -360,8 +365,9 @@ int main (int argc, char *argv[])
       set_mask  = 0;
     }
     else switch (c) {
-      case 'h'		:  showHelp(1, argv[0], 0);
-      case 'v'		:  showVersion();
+      case CMD_HELP	:  showHelp(1, argv[0], 0);
+      case CMD_VERSION	:  showVersion();
+      case CMD_XID	:
       case 'c'		:  ctx        = atoi(optarg); break;
       case 'a'		:  show_all   = true;         break;
       case 'n'		:  do_resolve = false;        break;
