@@ -68,7 +68,7 @@ int main (int argc, char *argv[])
   if (argc<idx+1)
     WRITE_MSG(2, "No filename specified; use '--help' for more information\n");
   else if ((len=readlink(argv[idx], buf, sizeof(buf)-2))==-1)
-    PERROR_Q("readlink", argv[idx]);
+    PERROR_Q("readlink: readlink", argv[idx]);
   else {
     buf[len++] = '\n';
     write(1, buf, len);
