@@ -21,13 +21,14 @@
 
 #include "fmt.h"
 #include <stdlib.h>
-
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 int		utilvserver_checkCompatVersion();
+bool		utilvserver_isDirectory(char const *path, bool follow_link);
 
 #ifdef __cplusplus
 }
