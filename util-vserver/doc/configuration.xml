@@ -306,6 +306,53 @@
 	  </file>
 	</dir> <!-- ...apps/init -->
 
+	<dir name="vshelper" type="fixed">
+	  <file name="sync-timeout">
+	    <description>The timeout in seconds which is used when synchronising vserver startup/shutdown
+	    with the vshelper. When set nowhere else, 30 seconds will be assumed.</description>
+	  </file>
+
+	  <file name="action">
+	    <description>The action which is going to be executed when a vshelper event occurs. The
+	    default value is 'restart', but there can be defined own methods by placing scripts into
+	    the 'vshelper-methods' directories. These scripts are fed with the same arguments as the
+	    'vshelper' script.</description>
+	  </file>
+
+	  <script type="symbolic" name="event">
+	    <description>When existing. these scripts will be executed *instead* of the default
+	    handler defined in 'action'. Their name must matching the event which caused the
+	    execution of 'vshelper'; e.g. 'restart' or 'poweroff'. See the vs_reboot() function in
+	    the kernel for more details.</description>
+	    <params>
+	      <param id="xid">
+		<description>The xid of the context calling the vshelper</description>
+	      </param>
+	      <param id="event">
+		<description>The reboot-event</description>
+	      </param>
+	    </params>
+	  </script>
+
+	  <file name="disabled">
+	    <description>When existing, the vshelper functionality will be disabled for this
+	    vserver.</description>
+	  </file>
+
+	  <file name="warning-disabled">
+	    <description>When existing, sanity checks for the vshelper functionality will be
+	    skipped.</description>
+	  </file>
+	</dir>
+
+	<dir name="vshelper-methods" type="fixed">
+	  <script type="symbolic" name="handler">
+	    <description>See vshelper/action.</description>
+	    <params>
+	    </params>
+	  </script>
+	</dir>
+
 	<dir name="vunify" type="fixed">
 	  <description>This directory contains configuration data required for vserver
 	  unification.</description>
