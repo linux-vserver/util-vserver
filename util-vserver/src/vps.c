@@ -217,14 +217,17 @@ int main(int argc, char *argv[])
   pid_t		pid;
   char *	data;
   size_t	len;
+  char const *	errptr;
 
   if (argc>1) {
     if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
     if (strcmp(argv[1], "--version")==0) showVersion();
   }
-    
-  if (vc_get_task_xid(0)!=1)
-    Evc_new_s_context(1, vc_get_insecurecaps(), 0);
+
+  if (!switchToWatchXid(&errptr)) {
+    perror(errptr);
+    exit(wrapper_exit_code);
+  }
 
   Epipe(p);
   pid = Efork();

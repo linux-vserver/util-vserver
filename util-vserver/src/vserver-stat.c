@@ -452,6 +452,7 @@ int main(int argc, char **argv)
   struct dirent*	dir_entry;
   pid_t			my_pid;
   struct Vector		xid_data;
+  char const *		errptr;
 
   if (argc==2) {
     if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
@@ -468,13 +469,10 @@ int main(int argc, char **argv)
     // do not include own stat
   my_pid = getpid();
 
-#if 1
-    // try to switch in context 1
-  if (vc_get_task_xid(0)!=1)
-    Evc_new_s_context(1, 0,0);
-#else
-#  warning Compiling in debug-code
-#endif
+  if (!switchToWatchXid(&errptr)) {
+    perror(errptr);
+    exit(1);
+  }
 
   Vector_init(&xid_data, sizeof(struct XidData));
 

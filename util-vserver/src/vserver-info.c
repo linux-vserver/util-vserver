@@ -229,7 +229,7 @@ getInitPid_internal(pid_t pid, xid_t xid, pid_t *res)
     pos          = strstr(buf, "\ninitpid: ");
     
     if (pos!=0) {
-      pos         += sizeof("\ninitpid: ")-1;
+      pos       += sizeof("\ninitpid: ")-1;
       if (strncmp(pos, "none", 4)==0) *res = -1;
       else                            *res = atoi(pos);
     }
@@ -243,8 +243,8 @@ getInitPid_emulated(char *buf, xid_t xid)
 {
   struct dirent **namelist;
   int		n;
-  
-  vc_new_s_context(1,0,0);	// ignore errors silently...
+
+  switchToWatchXid(0);	// ignore errors silently...
   n = scandir("/proc", &namelist, selectPid, alphasort);
   if (n<0) perror("scandir()");
   else while (n--) {
