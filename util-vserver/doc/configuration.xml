@@ -343,6 +343,11 @@
 	    <description>When existing, sanity checks for the vshelper functionality will be
 	    skipped.</description>
 	  </file>
+
+	  <symlink name="logfile">
+	    <description>The file where output will be logged to when 'vshelper' is invoked from the
+	    kernel. This should point somewhere e.g. into /var/log.</description>
+	  </symlink>
 	</dir>
 
 	<dir name="vshelper-methods" type="fixed">
