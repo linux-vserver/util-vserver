@@ -593,8 +593,8 @@ function prepareInit
 	      find var/lock ! -type d -print0; } | xargs -0r $_CHROOT_RM
 	    ;;
 	plain)
-	    $_CHROOT_RM .autofsck forcefsck
-	    : | $_CHROOT_CAT fastboot
+	    $_CHROOT_RM .autofsck forcefsck 2>/dev/null || :
+	    : | $_CHROOT_CAT fastboot       2>/dev/null || :
 	    ;;
 	minit)
 	    ;;
