@@ -48,20 +48,21 @@ EOF
     exit $1
 }
 
-vservers=
+declare -a vservers=()
 
 while test "$#" -ge 1; do
     case "$1" in
 	--all)
 	    getAllVservers tmp
-	    vservers="$vservers $tmp";;
+	    vservers=( "${vservers[@]}" "${tmp[@]}" )
+	    ;;
 	--)
 	    shift; break;;
 	--help)
 	    showHelp 0;;
 	--version)
 	    showVersion 0;;
-	*)  vservers="$vservers $1";;
+	*)  vservers=( "${vservers[@]}" "$1" )
      esac
      shift
 done
@@ -70,7 +71,7 @@ test "$#" -ge 1 || showHelp 1 >&2
 
 cnt=0
 res=255
-for i in $vservers; do
+for i in "${vservers[@]}"; do
     cnt=$[ cnt + 1 ]
     _APT_GET=apt-get \
     "$_NEW_NAMESPACE" "$_VAPT_GET_WORKER" "$i" "$@"
