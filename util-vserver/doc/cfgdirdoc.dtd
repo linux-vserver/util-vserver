@@ -1,0 +1,35 @@
+<!ELEMENT cfgdirdoc (topleveldir+)>
+
+<!ELEMENT topleveldir (description?,(dir|file|script)+)>
+<!ATTLIST topleveldir
+	path CDATA   #REQUIRED>
+<!ELEMENT dir  (description?,(dir|file|symlink|script)*)>
+<!ATTLIST dir
+        name  CDATA            #REQUIRED
+        type (fixed,symbolic)  #REQUIRED
+        optional (yes,no)      #IMPLIED>
+<!ELEMENT file (description)>
+<!ATTLIST file
+        name  CDATA #REQUIRED
+        type (fixed,symbolic)  #IMPLIED
+        optional (yes,no)      #IMPLIED
+>
+
+<!ELEMENT script (description,params)>
+<!ATTLIST script
+        name  CDATA #REQUIRED
+>
+
+<!ELEMENT description ANY>
+
+
+<!ELEMENT symlink (description,default?)>
+<!ATTLIST symlink
+        name  CDATA #REQUIRED>
+
+<!ELEMENT params (param*)>
+<!ELEMENT param  (description)>
+<!ATTLIST param
+        id    CDATA #REQUIRED>
+
+<!ELEMENT default ANY>

@@ -1,0 +1,367 @@
+<?xml version="1.0"?>
+<!DOCTYPE cfgdirdoc SYSTEM "cfgdirdoc.dtd" [
+<!ENTITY init-scriptlet-params
+	  "<params>
+	    <param id='vserver-dir'>
+	      <description>The configuration directory of the current vserver</description>
+	    </param>
+	    <param id='vserver-name'>
+	      <description>The name of the current vserver</description>
+	    </param>
+	    <param id='action'>
+	      <description>The fixed value of the current action (e.g. 'prepre-start', 'post-stop', ...).</description>
+	    </param>
+	  </params>">
+<!ENTITY init-script-text     "The scriptlet">
+<!ENTITY init-dir-text        "A directory with scriptlets">
+<!ENTITY init-dir-script-text "A scriptlet">
+
+<!ENTITY init-prepre-start "which will be executed before the network-interfaces are enabled
+	                    and the directories are mounted.">
+<!ENTITY init-pre-start  "which will be executed after network-interfaces were enabled and
+                          the directories mounted, but before the vserver itself has been
+                          started.">
+<!ENTITY init-post-start "which will be executed after the vserver has been started.">
+<!ENTITY init-pre-stop   "which will be executed before the vserver will be stopped.">
+<!ENTITY init-post-stop  "which will be executed after the vserver has been stopped, but
+	                  before the directories will be umounted and the the interfaces
+                          disabled.">
+<!ENTITY init-postpost-stop "which will be executed after the vserver has been stopped
+	                     completely.">
+]>
+
+
+<cfgdirdoc>
+  <topleveldir path="@CONFDIR@">
+    <description>The base configuration directory.</description>
+
+    <dir name=".defaults" type="fixed" optional="yes">
+      <dir name="init" type="fixed">
+	<file name="mtab">
+	  <description>Default mtab-file</description>
+	</file>
+      </dir>
+
+      <symlink name="vdirbase">
+	<description></description>
+	<default>/vservers</default>
+      </symlink>
+
+      <dir name="apps" type="fixed">
+	<dir name="pkgmgmt" type="fixed">
+	  <symlink name="base">
+	    <description></description>
+	    <default>/vservers/.pkg</default>
+	  </symlink>
+	</dir>
+      </dir>
+    </dir>
+
+    <dir name=".distributions" type="fixed" optional="yes">
+      <dir name="dist" type="symbolic">
+	<file name="dev">
+	  <description></description>
+	</file>
+
+	<script name="initpre">
+	  <description>Script which will be executed before packages will be installed.</description>
+	  <params>
+	    <param id="confdir">
+	      <description>The configuration directory of the vserver which is going to be set
+	      up.</description>
+	    </param>
+
+	    <param id="vserver">
+	      <description>The pathname of the vserver binary.</description>
+	    </param>
+	  </params>
+	</script>
+
+	<script name="initpost">
+	  <description>Script which will be executed after packages are installed.</description>
+	  <params>
+	    <param id="confdir">
+	      <description>The configuration directory of the vserver which is going to be set
+	      up.</description>
+	    </param>
+
+	    <param id="vserver">
+	      <description>The pathname of the vserver binary.</description>
+	    </param>
+	  </params>
+	</script>
+
+	<dir name="pkgs" type="fixed">
+	  <description>Contains files with packages.</description>
+	  <file name="list" type="symbolic">
+	    <description>File which contains the name of packages. On top of file the special
+	    keywords '--reinstall' and '--can-fail' are possible.</description>
+	  </file>
+	</dir>
+
+	<dir name="pubkeys" type="fixed">
+	  <description>Directory with GPG pubkeys which are used to sign the packages of this
+	  distribution.</description>
+	</dir>
+
+	<dir name="apt" type="fixed">
+	  <description>Default content of the /etc/apt/ directory.</description>
+	</dir>
+
+	<dir name="rpm" type="fixed">
+	  <description>Default content of the /etc/rpm directory.</description>
+	</dir>
+
+	<symlink name="rpmlib">
+	  <description>Directory which overrides /usr/lib/rpm.</description>
+	</symlink>
+	
+	<symlink name="execdir">
+	  <description>Directory with all executables and libraries which are required for this
+	  distribution.</description>
+	</symlink>
+      </dir>
+    </dir> <!-- .distributions -->
+
+    <dir name="vserver-name" type="symbolic">
+      <description>The configuration directory for the vserver vserver-name.</description>
+
+      <file name="hostname">
+	<description>Contains the hostname of the vserver.</description>
+      </file>
+
+      <file name="name">
+	<description>Contains the name of the vserver. When not given, the basename of the directory
+	will be assumed as this name.</description>
+      </file>
+
+      <file name="domainname">
+	<description>The domainname of the vserver.</description>
+      </file>
+
+      <file name="nice">
+	<description>The nice-level on which the vserver will be started.</description>
+      </file>
+
+      <file name="capabilities">
+	<description>Contains per line a capability.</description>
+      </file>
+
+      <file name="shell">
+	<description>Contains the pathname of the shell which will be used by the "vserver ... enter"
+	command.</description>
+      </file>
+
+      <file name="flags">
+	<description>Contains per line a flag.</description>
+      </file>
+
+      <file name="context">
+	<description>Contains the context which shall be used for the vserver.</description>
+      </file>
+
+      <file name="fstab">
+	<description>The fstab file for the vserver.</description>
+      </file>
+      
+      <dir name="apps" type="fixed">
+	<dir name="init" type="fixed">
+	  <file name="mtab">
+	    <description>The initial-mtab which will be used for the vserver.</description>
+	  </file>
+
+	  <file name="style">
+	    <description>Contains the init-style; possible values are 'sysv', 'plain' and
+	    'minit'.</description>
+	  </file>
+
+	  <file name="runlevel">
+	    <description>The start runlevel.</description>
+	  </file>
+
+	  <file name="runlevel.start">
+	    <description>The start runlevel.</description>
+	  </file>
+
+	  <file name="runlevel.stop">
+	    <description>The stop runlevel.</description>
+	  </file>
+
+	  <file name="killseq">
+	    <description>Contains the 'signal [wait signal]*' sequence which is used to stop the
+	    vserver.</description>
+	  </file>
+
+	  <file name="cmd.start">
+	    <description>The command which is used to start the vserver. Each option must be on a
+	    separate line.</description>
+	  </file>
+
+	  <file name="cmd.start-sync">
+	    <description>The command which is used to wait on the vserver after it has been
+	    started. Each option must be on a separate line. This file will be ignored when the
+	    'sync' does not exist and the '--sync' option was not used.</description>
+	  </file>
+	  
+	  <file name="cmd.stop">
+	    <description>The command which is used to stop the vserver. Each option must be on a
+	    separate line.</description>
+	  </file>
+
+	  <file name="cmd.stop-sync">
+	    <description>The command which is used to wait on the vserver after it has been
+	    stopped. Each option must be on a separate line. This file will be ignored when the
+	    'sync' does not exist and the '--sync' option was not used.</description>
+	  </file>
+
+	  <file name="cmd.prepare">
+	    <description>The command which is used to setup the init-system (e.g. to set the runlevel
+	    in the utmp-file). Each option must be on a separate line.</description>
+	  </file>
+
+	  <file name="sync">
+	    <description>Without this file, the 'cmd.*-sync' files will be ignored.</description>
+	  </file>
+	</dir>
+      </dir>
+
+      <dir name="scripts" type="fixed">
+	<script name="prepre-start">
+	  <description>&init-script-text; &init-prepre-start;</description>
+	  &init-scriptlet-params;
+	</script>
+	<dir name="prepre-start.d" type="fixed">
+	  <description>&init-dir-text; &init-prepre-start;</description>
+
+	  <script name="script">
+	    <description>&init-dir-script-text; &init-prepre-start;</description>
+	    &init-scriptlet-params;
+	  </script>
+	</dir>
+
+	<script name="pre-start">
+	  <description>&init-script-text; &init-pre-start;</description>
+	  &init-scriptlet-params;
+	</script>
+
+	<dir name="pre-start.d">
+	  <description>&init-dir-text; &init-pre-start;</description>
+	  
+	  <script name="script">
+	    <description>&init-dir-script-text; &init-pre-start;</description>
+	    &init-scriptlet-params;
+	  </script>
+	  
+	</dir>
+
+	<script name="post-start">
+	  <description>&init-script-text; &init-post-start;</description>
+	  &init-scriptlet-params;
+	</script>
+
+	<dir name="post-start.d">
+	  <description>&init-dir-text; &init-post-start;</description>
+	  
+	  <script name="script">
+	    <description>&init-dir-script-text; &init-post-start;</description>
+	    &init-scriptlet-params;
+	  </script>
+	</dir>
+
+	<script name="pre-stop">
+	  <description>&init-script-text; &init-pre-stop;</description>
+	  &init-scriptlet-params;
+	</script>
+
+	<dir name="pre-stop.d" type="fixed">
+	  <description>&init-dir-text; &init-pre-stop;</description>
+	  <script name="script">
+	    <description>&init-dir-script-text; &init-pre-stop;</description>
+	    &init-scriptlet-params;
+	  </script>
+	</dir>
+
+	<script name="post-stop">
+	  <description>&init-script-text; &init-post-stop;</description>
+	  &init-scriptlet-params;
+	</script>
+
+	<dir name="post-stop.d" type="fixed">
+	  <description>&init-dir-text; &init-post-stop;</description>
+	  <script name="script">
+	    <description>&init-dir-script-text; &init-post-stop;</description>
+	    &init-scriptlet-params;
+	  </script>
+	</dir>
+
+	<script name="postpost-stop">
+	  <description>&init-script-text; &init-postpost-stop;</description>
+	  &init-scriptlet-params;
+	</script>
+
+	<dir name="postpost-stop.d" type="fixed">
+	  <description>&init-dir-text; &init-postpost-stop;</description>
+	  <script name="script">
+	    <description>&init-dir-script-text; &init-postpost-stop;</description>
+	    &init-scriptlet-params;
+	  </script>
+	</dir>
+      </dir>
+
+
+      
+      <dir name="interfaces" type="fixed">
+	<file name="bcast">
+	  <description>The deafult broadcast address.</description>
+	</file>
+	<file name="dev">
+	  <description>The default network-device.</description>
+	</file>
+	<file name="prefix">
+	  <description>The default network-prefix.</description>
+	</file>
+	<file name="mask">
+	  <description>The default network-mask.</description>
+	</file>
+	<file name="scope">
+	  <description>The default scope of the network interfaces.</description>
+	</file>
+
+	<dir name="iface" type="symbolic">
+	  <file name="disabled">
+	    <description>When this file exists, this interface will be ignored.</description>
+	  </file>
+	  
+	  <file name="ip">
+	    <description>The ip which will be assigned to this interface.</description>
+	  </file>
+	  <file name="bcast">
+	    <description>The broadcast address.</description>
+	  </file>
+	  <file name="dev">
+	    <description>The network-device.</description>
+	  </file>
+	  <file name="prefix">
+	    <description>The network-prefix.</description>
+	  </file>
+	  <file name="mask">
+	    <description>The network-mask.</description>
+	  </file>
+	  <file name="scope">
+	    <description>The scope of the network interfaces.</description>
+	  </file>
+	  <file name="name">
+	    <description>When this file exists, the interface will be named.</description>
+	  </file>
+	</dir>
+      </dir>
+    </dir>
+  </topleveldir>
+</cfgdirdoc>
+
+
+<!--
+!! Local Variables:
+!! fill-column: 100
+!! End:
+-->

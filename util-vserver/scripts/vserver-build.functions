@@ -1,0 +1,202 @@
+# $Id$	--*- sh -*--
+
+# Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+# Expected environment:
+#     $VSERVER_NAME ... name of vserver
+
+ROOTDIR=
+ROOTDIR_REL=
+PKGCFGBASE=
+PKGCFGBASE_REL=
+VSERVERDIRNAME=
+
+VDIR=
+
+_DEV_FILE=
+_EXEC_DIR=
+
+BUILD_INITPRE=
+BUILD_INITPOST=
+
+function makeDevEntry
+{
+    local dst=$1/$2
+    case "$3" in
+	c|b)	mknod -m$6 "$dst"  $3 $4 $5;;
+	d)	mkdir -p -m$4 "$dst";;
+	f)	touch "$dst"
+		chmod $4 "$dst"
+		;;
+	*)	echo "Unknown dev-entry mode '$3'" >&2
+		false
+		;;
+    esac
+}
+
+function populateDirectory
+{
+    local dst=$1
+    local i
+    
+    shift
+    for i; do
+	local file=
+	
+	for file in "$i"/*; do
+	    test -e "$file" || continue
+	    case "$file" in
+		*/CVS)	test ! -d "$file" || continue;;
+		*.rpmsave|*.rpmnew|*.rpmorig)
+			continue;;
+	    esac
+	    
+	    cp -a "$file" "$dst/"
+	done
+    done
+}
+
+function _setRootDir
+{
+    test -z "$ROOTDIR" || return 0
+    
+    for item in "\"$CONFDIR/.defaults/vdirbase\" 1" "/vservers"; do
+	eval set -- "$item"
+	ROOTDIR=$1
+	ROOTDIR_REL=$2
+	test ! -d "$ROOTDIR" || break
+    done
+
+    test -d "$ROOTDIR" || {
+	echo "Root-directory '$ROOTDIR' does not exist or is invalid"
+	exit 1
+    }
+}
+
+function _setPkgCfgBase
+{
+    test -z "$PKGCFGBASE" || return 0
+
+    for item in "\"$CONFDIR/.defaults/apps/pkgmgmt/base\" 1" "$ROOTDIR/.pkg"; do
+	eval set -- "$item"
+	PKGCFGBASE=$1
+	PKGCFGBASE_REL=$2
+	test ! -d "$PKGCFGBASE" || break
+    done
+
+    test -d "$PKGCFGBASE"  || {
+	echo "pkgcfgbase-dir '$PKGCFGBASE' does not exists or is invalid"
+	exit 1
+    }
+}
+
+function _setPkgCfg
+{
+    _setPkgCfgBase
+
+    test -z "$PKGCFGDIR" || return 0
+    PKGCFGDIR="$PKGCFGBASE/$VSERVERDIRNAME"
+}
+
+function _setVserverDir
+{
+    test -z "$VSERVERDIRNAME" || return 0
+    VSERVERDIRNAME="$VSERVER_NAME"
+}
+
+function _setVdir
+{
+    VDIR="$ROOTDIR/$VSERVERDIRNAME"
+}
+
+function say
+{
+    test -z "$OPTION_SILENT" || return 0
+    echo "$@"
+}
+
+function _renameVserverCfg
+{
+    local suffix=.~$(date +'%s')~
+    local i
+    
+    for i in "$VDIR" "$SETUP_CONFDIR"; do
+	test ! -e "$i" || {
+	    mv "$i" "$i$suffix"
+	    say "Renamed '$i' to '$i$suffix'"
+	}
+    done
+}
+
+function getDistribution
+{
+    test -z "$DISTRIBUTION" || return 0
+
+    if test -e /etc/fedora-release; then
+	set -- $(cat /etc/fedora-release)
+	DISTRIBUTION=fdr$4
+    elif test -e /etc/redhat-release; then
+	set -- $(cat /etc/redhat-release)
+	DISTRIBUTION=rh$5
+    elif test -e /etc/debian_version; then
+	set -- $(cat /etc/debian_version)
+	DISTRIBUTION=deb$1
+    else
+	echo "Can not determine distribution; please specify it manually"
+	echo "with the '-d' option"
+	exit 1
+    fi >&2
+}
+
+## Usage: initFilesystem [force]
+function initFilesystem
+{
+    test -z "$1" || _renameVserverCfg
+    test ! -d "$VDIR" -a ! -d "$SETUP_CONFDIR" || {
+	echo "vserver-topdirectory and/or configuration exist already; "
+	echo "please try to use '--force', or remove them manually"
+	exit 1
+    } >&2
+
+    mkdir -p "$SETUP_CONFDIR"/apps/pkgmgmt "$VDIR"/{dev/pts,etc} "$SETUP_LOCKREVDIR"
+    
+    ln -s "$VDIR"       "$SETUP_CONFDIR/vdir"
+
+    test -z "$PKGCFGDIR" || {
+	ln -s "$PKGCFGDIR" "$SETUP_CONFDIR/apps/pkgmgmt/base"
+
+	test "$_EXECDIR" = / || ln -s "$_EXECDIR" "$confdir/apps/pkgmgmt/execdir"
+    }
+
+    local spec
+    while read spec; do
+	makeDevEntry "$VDIR"/dev $spec
+    done <$_DEV_FILE
+}
+
+function initVariables
+{
+    _setRootDir
+    _setVserverDir
+    _setPkgCfg
+    _setVdir
+
+    findFile _DEV_FILE      "$CONFDIR/.distributions/$DISTRIBUTION/devs"      "$DISTRIBDIR/$DISTRIBUTION/devs"     "$DISTRIBDIR/defaults/devs"
+    findDir  _EXECDIR       "$CONFDIR/.distributions/$DISTRIBUTION/execdir"   "$DISTRIBDIR/$DISTRIBUTION/execdir"  /
+    findFile BUILD_INITPRE  "$CONFDIR/.distributions/$DISTRIBUTION/initpre"   "$DISTRIBDIR/$DISTRIBUTION/initpre"  ""
+    findFile BUILD_INITPOST "$CONFDIR/.distributions/$DISTRIBUTION/initpost"  "$DISTRIBDIR/$DISTRIBUTION/initpost" ""
+    findDir  PKGDIR         "$CONFDIR/.distributions/$DISTRIBUTION/pkgs"      "$DISTRIBDIR/$DISTRIBUTION/pkgs"     /
+}
