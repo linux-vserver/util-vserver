@@ -30,6 +30,7 @@
 
 #include "vserver.h"
 #include "internal.h"
+#include "util.h"
 
 #include <getopt.h>
 #include <string.h>
@@ -38,20 +39,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#define VERSION_COPYRIGHT_DISCLAIMER
-
-inline static void UNUSED
-writeStr(int fd, char const *cmd)
-{
-  (void)write(fd, cmd, strlen(cmd));
-}
-
-#define WRITE_MSG(FD,X)         (void)(write(FD,X,sizeof(X)-1))
-#define WRITE_STR(FD,X)         writeStr(FD,X)
+#include <libgen.h>
+#include <sys/resource.h>
 
 #define NUMLIM(X) \
 { #X, required_argument, 0, 2048|X }
+#define RESLIM(RES,V) \
+  { #RES, required_argument, 0, 2048|RLIMIT_##V }
 
 static struct option const
 CMDLINE_OPTIONS[] = {
@@ -66,16 +60,49 @@ CMDLINE_OPTIONS[] = {
   NUMLIM(20), NUMLIM(21), NUMLIM(22), NUMLIM(23),
   NUMLIM(24), NUMLIM(25), NUMLIM(26), NUMLIM(27),
   NUMLIM(28), NUMLIM(29), NUMLIM(30), NUMLIM(31),
+  RESLIM(cpu,     CPU),
+  RESLIM(fsize,   FSIZE),
+  RESLIM(data,    DATA),
+  RESLIM(stack,   STACK),
+  RESLIM(core,    CORE),
+  RESLIM(rss,     RSS),
+  RESLIM(nproc,   NPROC),
+  RESLIM(nofile,  NOFILE),
+  RESLIM(memlock, MEMLOCK),
+  RESLIM(as,      AS),
+  RESLIM(locks,   LOCKS),
   { 0,0,0,0 }
+};
+
+#define REV_RESLIM(X)	[RLIMIT_##X] = #X
+static char const * const LIMIT_STR[] = {
+  REV_RESLIM(CPU),     REV_RESLIM(FSIZE), REV_RESLIM(DATA),  REV_RESLIM(STACK),
+  REV_RESLIM(CORE),    REV_RESLIM(RSS),   REV_RESLIM(NPROC), REV_RESLIM(NOFILE),
+  REV_RESLIM(MEMLOCK), REV_RESLIM(AS),    REV_RESLIM(LOCKS)
 };
 
 static void
 showHelp(int fd, char const *cmd, int res)
 {
+  VSERVER_DECLARE_CMD(cmd);
+  
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " -c <xid> [-a|--all] [-MSH  --<nr> <value>]*\n"
+	    " -c <xid> [-nd] [-a|--all] [[-MSH] --(<resource>|<nr>) <value>]*\n\n"
+	    "Options:\n"
+	    "    -c <xid>    ...  operate on context <xid>\n"
+	    "    -a|--all    ...  show all available limits\n"
+	    "    -n          ...  do not resolve limit-names\n"
+	    "    -d          ...  show limits in decimal\n"
+	    "    -M          ...  set Minimum limit\n"
+	    "    -S          ...  set Soft limit\n"
+	    "    -H          ...  set Hard limit (assumed by default, when neither\n"
+	    "                     M nor S was requested)\n"
+	    "    --<resource>|<nr> <value>\n"
+	    "                ...  set specified (MSH) limit for <resource> to <value>\n\n"
+	    "Valid values for resource are cpu, fsize, data, stack, core, rss, nproc,\n"
+	    "nofile, memlock, as and locks.\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
@@ -91,6 +118,16 @@ showVersion()
   exit(0);
 }
 
+static size_t
+fmtHex(char *ptr, vc_limit_t lim)
+{
+  memcpy(ptr, "0x", 2);
+  return utilvserver_fmt_xuint64(ptr+2, lim) + 2;
+}
+
+static bool		do_resolve = true;
+static size_t		(*fmt_func)(char *, vc_limit_t) = fmtHex;
+
 static void *
 appendLimit(char *ptr, bool do_it, vc_limit_t lim)
 {
@@ -102,9 +139,7 @@ appendLimit(char *ptr, bool do_it, vc_limit_t lim)
       ptr += 3;
     }
     else {
-      memcpy(ptr, "0x", 2); ptr += 2;
-      
-      ptr += utilvserver_fmt_xuint64(ptr, lim);
+      ptr += (*fmt_func)(ptr, lim);
       *ptr = ' ';
     }
   }
@@ -130,7 +165,7 @@ showAll(int ctx)
   for (i=0; i<32; ++i) {
     uint32_t		bitmask = (1<<i);
     struct vc_rlimit	limit;
-    char		buf[100], *ptr=buf;
+    char		buf[128], *ptr=buf;
 
     if (((mask.min|mask.soft|mask.hard) & bitmask)==0) continue;
     if (vc_get_rlimit(ctx, i, &limit)==-1) {
@@ -139,8 +174,15 @@ showAll(int ctx)
     }
 
     memset(buf, ' ', sizeof buf);
-    ptr += utilvserver_fmt_uint(ptr, i);
-    *ptr = ' ';
+    if (do_resolve && i<DIM_OF(LIMIT_STR)) {
+      size_t		l = strlen(LIMIT_STR[i]);
+      memcpy(ptr, LIMIT_STR[i], l);
+      ptr += l;
+    }
+    else {
+      ptr += utilvserver_fmt_uint(ptr, i);
+      *ptr = ' ';
+    }
 
     ptr  = appendLimit(buf+10, mask.min &bitmask, limit.min);
     ptr  = appendLimit(buf+30, mask.soft&bitmask, limit.soft);
@@ -182,7 +224,7 @@ int main (int argc, char *argv[])
   }
   
   while (1) {
-    int		c = getopt_long(argc, argv, "MSHhvac:", CMDLINE_OPTIONS, 0);
+    int		c = getopt_long(argc, argv, "MSHndhvac:", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
 
     if (2048<=c && c<2048+32) {
@@ -192,6 +234,8 @@ int main (int argc, char *argv[])
       if (strcmp(optarg, "inf")==0) val = VC_LIM_INFINITY;
       else			    val = atoll(optarg);
 
+      if (set_mask==0)  set_mask=4;
+      
       if (set_mask & 1) limits[id].min  = val;
       if (set_mask & 2) limits[id].soft = val;
       if (set_mask & 4) limits[id].hard = val;
@@ -202,8 +246,10 @@ int main (int argc, char *argv[])
     else switch (c) {
       case 'h'		:  showHelp(1, argv[0], 0);
       case 'v'		:  showVersion();
-      case 'c'		:  ctx      = atoi(optarg); break;
-      case 'a'		:  show_all = true;         break;
+      case 'c'		:  ctx        = atoi(optarg); break;
+      case 'a'		:  show_all   = true;         break;
+      case 'n'		:  do_resolve = false;        break;
+      case 'd'		:  fmt_func   = utilvserver_fmt_uint64; break;
       case 'M'		:
       case 'S'		:
       case 'H'		:
