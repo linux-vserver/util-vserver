@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.28.200, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.29.191, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -149,6 +149,7 @@ if test x"$enable_api_olduts" != x; then
 fi
 AC_MSG_RESULT([$enable_apis])
 
+ENSC_SYSCALLNR(vserver,273)
 ENSC_SYSCALL
 ENSC_CHECK_EXT2FS_HEADER
 AC_CHECK_FUNCS([vserver])
@@ -188,6 +189,7 @@ Features:
            Available APIs: $enable_apis
             ext2fs Source: $ensc_cv_test_ext2fs_header
     syscall(2) invocation: $with_syscall
+      vserver(2) syscall#: $ensc_cv_value_syscall_vserver
    
 Paths:
                    prefix: $prefix
