@@ -132,6 +132,10 @@ case "$style" in
 	    cmd=( "$_VSERVER" --silent "$vserver" exec "${cmd[@]}" )
 	fi
 	;;
+    (*)
+	echo $"Packagemanagement is not supported for '$style' style" >&2
+	exit 1
+	;;
 esac
 
 export LANG=C
