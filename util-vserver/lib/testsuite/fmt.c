@@ -22,6 +22,7 @@
 
 #include "lib/fmt.h"
 #include <assert.h>
+#include <string.h>
 
 #define TEST(VAL, EXP) {			\
     char	buf[512];			\
