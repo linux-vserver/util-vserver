@@ -90,6 +90,19 @@
 #  define CALL_VC_V13A(F,...)	CALL_VC_NOOP
 #endif
 
+#ifdef VC_ENABLE_API_V13
+#  define CALL_VC_V13B(F,...)	CALL_VC_GENERAL(0x00010021, v13b, F, __VA_ARGS__)
+#else
+#  define CALL_VC_V13B(F,...)	CALL_VC_NOOP
+#endif
+
+#ifdef VC_ENABLE_API_V13
+#  define CALL_VC_V13OBS(F,...)	CALL_VC_GENERAL(0x00010011, v13obs, F, __VA_ARGS__)
+#else
+#  define CALL_VC_V13OBS(F,...)	CALL_VC_NOOP
+#endif
+
+
 #ifdef VC_ENABLE_API_NET
 #  define CALL_VC_NET(F,...)	CALL_VC_GENERAL(0x00010016, net, F, __VA_ARGS__)
 #else
