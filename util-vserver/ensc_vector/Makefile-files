@@ -43,7 +43,23 @@ ENSC_VECTOR_HDRS =		ensc_vector/vector.h \
 				ensc_vector/list.h \
 				ensc_vector/list.hc
 
-ENSC_VECTOR_LIBS =		libensc_vector.a
-libensc_vector_a_SOURCES =	$(ENSC_VECTOR_SRCS)
+LIBENSCVECTOR_GLIBC =		libensc_vector-glibc.a
+ENSC_VECTOR_LIBS =		$(LIBENSCVECTOR_GLIBC)
+
+libensc_vector_glibc_a_SOURCES =	$(ENSC_VECTOR_SRCS)
+libensc_vector_glibc_a_CPPFLAGS =	$(AM_CPPFLAGS)
+
+libensc_vector_diet_a_SOURCES =		$(ENSC_VECTOR_SRCS)
+libensc_vector_diet_a_CPPFLAGS =	$(AM_CPPFLAGS)
+
+if USE_DIETLIBC
+LIBENSCVECTOR_DIET =		libensc_vector-diet.a
+LIBENSCVECTOR =			$(LIBENSCVECTOR_DIET)
+ENSC_VECTOR_LIBS +=		$(LIBENSCVECTOR_DIET)
+else
+LIBENSCVECTOR_DIET =		lib-ensc_vector-diet-not-available.a
+LIBENSCVECTOR =			$(LIBENSCVECTOR_GLIBC)
+endif
+
 
 include $(srcdir)/ensc_vector/testsuite/Makefile-files

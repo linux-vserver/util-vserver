@@ -168,15 +168,26 @@ noinst_HEADERS +=		lib/syscall-compat.hc \
 				lib/utils-legacy.h \
 				lib/vserver-internal.h
 
-lib_LTLIBRARIES +=		lib/libvserver.la
+LIBVSERVER_GLIBC =		lib/libvserver.la
+lib_LTLIBRARIES +=		$(LIBVSERVER_GLIBC)
+
+if USE_DIETLIBC
+LIBVSERVER_DIET =		lib/libvserver.a
+LIBVSERVER =			$(LIBVSERVER_DIET)
+lib_LIBRARIES +=		$(LIBVSERVER_DIET)
+else
+LIBVSERVER_DIET =		lib-dietlibc-not-enabled-error.a
+LIBVSERVER =			lib/libvserver.la
+endif
 
 lib_libvserver_la_SOURCES =  	$(lib_SRCS)
 lib_libvserver_la_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS)
 lib_libvserver_la_LDFLAGS =	-version $(lib_VERSION)
 
-DIETPROGS +=			lib/lib_libvserver_la-% \
-				lib/lib_libvserver_a-% \
-				lib/lib_libvserver_pic_a-%
+lib_libvserver_a_SOURCES =  	$(lib_SRCS)
+lib_libvserver_a_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS)
+
+DIETPROGS +=			lib/lib_libvserver_a-%
 
 include $(srcdir)/lib/apidoc/Makefile-files
 include $(srcdir)/lib/testsuite/Makefile-files
