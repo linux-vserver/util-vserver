@@ -130,6 +130,7 @@ test "$#" -ge 2 ||
     panic $"vshelper called with missing arguments; try '--help' for more information"
 
 vshelper.isEnabled || exit 0
+! vshelper.isDebug || set -x
     
 set -eu
 

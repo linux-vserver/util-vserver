@@ -78,6 +78,12 @@ When existing, the vshelper functionality will be disabled for all
 vservers.
           </description>
 	</boolean>
+
+	<boolean name="debug">
+	  <description>
+When existing, the vshelper execution will be traced.
+          </description>
+	</boolean>
 	
 	<boolean name="warning-disabled">
 	  <description>
@@ -547,6 +553,12 @@ The reboot-event.
 	  <description>
 When existing, the vshelper functionality will be disabled for this
 vserver.
+          </description>
+	</boolean>
+
+	<boolean name="debug">
+	  <description>
+When existing, the vshelper execution will be traced for this vserver.
           </description>
 	</boolean>
 	
