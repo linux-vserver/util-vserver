@@ -30,7 +30,7 @@ int vbuild_chown (const char *path, uid_t uid, gid_t gid);
 int vbuild_file_copy (const char *src,
 	 const char *dst,
 	 struct stat&st);
-void vutil_loadallpkg (string&refserver, list<Package>&packages);
+void vutil_loadallpkg (Vserver const &refserver, list<Package>&packages);
 int vutil_lstat (string path, struct stat&st);
 FILE *vutil_execdistcmd (const char *key,
 	 const string&vserver,

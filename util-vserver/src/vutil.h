@@ -21,6 +21,8 @@
 #ifndef VUTIL_H
 #define VUTIL_H
 
+#include "vserver.hh"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -42,7 +44,7 @@ extern bool testmode;
 #endif
 
 
-FILE *vutil_execdistcmd (const char *, const string &, const char *);
+FILE *vutil_execdistcmd (const char *, Vserver const &, const char *);
 extern const char K_DUMPFILES[];
 extern const char K_UNIFILES[];
 extern const char K_PKGVERSION[];
@@ -93,7 +95,7 @@ public:
 		return ret;
 	}
 	// Load the file member of the package, but exclude configuration file
-	void loadfiles(const string &ref, set<string> &files)
+	void loadfiles(Vserver const &ref, set<string> &files)
 	{
 		if (debug > 2) cout << "Loading files for package " << name << endl;
 		string namever = name + '-' + version;
