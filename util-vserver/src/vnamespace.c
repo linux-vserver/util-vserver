@@ -21,7 +21,7 @@
 #endif
 
 #include "util.h"
-#include "sys_clone.h"
+#include <lib_internal/sys_clone.h>
 
 #include <vserver.h>
 
@@ -35,10 +35,6 @@
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_VSERVER	1
 #include <wrappers.h>
-
-#ifndef CLONE_NEWNS
-#  define CLONE_NEWNS 0x00020000
-#endif
 
 #define CMD_HELP		0x1000
 #define CMD_VERSION		0x1001
