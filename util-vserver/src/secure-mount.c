@@ -268,6 +268,14 @@ writeStrX(int fd, char const *str)
   return writeX(fd, str, strlen(str));
 }
 
+static inline char const *
+getType(struct MountInfo const *mnt)
+{
+  if (mnt->type==0)                         return "none";
+  else if (strncmp(mnt->type, "ext", 3)==0) return "ufs";
+  else                                      return mnt->type;
+}
+
 static int
 updateMtab(struct MountInfo const *mnt, struct Options const *opt)
 {
@@ -302,7 +310,7 @@ updateMtab(struct MountInfo const *mnt, struct Options const *opt)
       writeStrX(fd, " ")==-1 ||
       writeStrX(fd, mnt->dst)==-1 ||
       writeStrX(fd, " ")==-1 ||
-      writeStrX(fd, mnt->type ? mnt->type : "none")==-1 ||
+      writeStrX(fd, getType(mnt))==-1 ||
       writeStrX(fd, " ")==-1 ||
       writeStrX(fd, mnt->data ? mnt->data : "defaults")==-1 ||
       writeStrX(fd, " 0 0\n")==-1) {
