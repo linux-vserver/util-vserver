@@ -1,6 +1,6 @@
 ## $Id$  -*- makefile -*-
 
-## Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+## Copyright (C) 2003,2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 ##  
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ src_OPTIONS_EXEMPT	=  src/parserpmdump \
 			   src/vcheck \
 			   src/vreboot \
 			   src/save_ctxinfo \
-			   src/vunify \
 			   src/mask2prefix \
 			   src/pipe-sync \
 			   src/capchroot \
@@ -75,6 +74,9 @@ src_HDRS =  		src/vutil.h src/vutil.p src/util.h \
 			src/vunify-matchlist.h \
 			src/vunify-operations.h \
 			src/wrappers-dirent.h \
+			src/vunify.h \
+			src/vunify-init.ic \
+			src/wrappers-io.h \
 			src/vserver.hh
 
 src_pkglib_SCRPTS =
@@ -206,10 +208,13 @@ src_setattr_LDADD		=  lib/libvserver.la
 src_setattr_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 
-src_vunify_SOURCES		=  src/vunify.c \
-				   src/util-safechdir.c \
-				   src/vunify-matchlist.c \
-				   src/vunify-operations.c
+src_vunify_SOURCES =		src/vunify.c \
+				src/util-safechdir.c \
+				src/vunify-matchlist.c \
+				src/vunify-debug.c \
+				src/vunify-operations.c
+src_vunify_LDADD =		lib/libvserver.la
+src_vunify_LDFLAGS =		$(VSERVER_LDFLAGS)
 
 src_rpm_fake_la_SOURCES		=  src/rpm-fake.c
 src_rpm_fake_la_CFLAGS		=  $(AM_CFLAGS)
