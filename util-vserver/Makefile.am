@@ -45,9 +45,8 @@ man_MANS		=  $(man_DATMAN) $(linuxconf_DATMAN)
 
 EXTRA_DIST		=  $(distrib_SCRPTS) $(distrib_DAT) \
 			   $(sysv_XTRAS) $(sysv_CFG) \
-                           $(doc_DAT) $(man_DATMAN) $(linuxconf_DATMAN) \
+                           $(doc_DAT) $(man_DATMAN) $(linuxconf_XTRAS) \
 			   $(scripts_SCRPTS) $(scripts_XTRAS) \
-			   $(linuxconf_XTRAS) \
 			   util-vserver.spec \
                            m4/ensc_cflags.m4 m4/ensc_kerneldir.m4 \
 			   THANKS

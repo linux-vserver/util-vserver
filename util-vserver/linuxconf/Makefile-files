@@ -17,14 +17,20 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 linuxconf_gen_SCRPTS	=  linuxconf/newvserver
-linuxconf_DATMAN	=  linuxconf/newvserver.8
-linuxconf_cfg_DTA	=  linuxconf/newvserver.defaults
+linuxconf_src_DATMAN	=  linuxconf/newvserver.8
+linuxconf_cfg_src_DTA	=  linuxconf/newvserver.defaults
 
 linuxconf_XTRAS		=  linuxconf/newvserver.subst \
-			   $(linuxconf_cfg_DTA)
+			   $(linuxconf_cfg_src_DTA) \
+			   $(linuxconf_src_DATMAN)
 
-linuxconf_SCRPTS	=  $(linuxconf_gen_SCRPTS)
 linuxconf_GENFILES	=  $(linuxconf_gen_SCRPTS)
+
+
+if ENSC_ENABLE_LINUXCONF
+linuxconf_DATMAN	=  $(linuxconf_src_DATMAN)
+linuxconf_SCRPTS	=  $(linuxconf_gen_SCRPTS)
+linuxconf_cfg_DTA	=  $(linuxconf_cfg_src_DTA)
 
 linuxconf/%:		linuxconf/%.subst
 			@mkdir -p $$(dirname '$@')
@@ -34,3 +40,8 @@ linuxconf/%:		linuxconf/%.subst
 			@-rm -f '$@'
 			mv '$@.tmp' '$@'
 			@chmod a-w '$@'
+else
+linuxconf_DATMAN	=
+linuxconf_SCRPTS        =
+linuxconf_cfg_DTA	=
+endif
