@@ -12,6 +12,8 @@ sortserver(){
 	cd /etc/vservers
 	for serv in *.conf
 	do
+	        test -f "$serv" || continue
+
 		PRIORITY=100
 		. $serv
 		test "$ONBOOT" || continue
