@@ -92,7 +92,7 @@ int setext2flag (const char *fname, bool set, int ext2flags)
 			ret = ioctl (fd,EXT2_IOC_SETFLAGS,&flags);
 			close (fd);
 			if (ret == -1){
-				fprintf (stderr,"Can't %s immutable flag on file %s (^s)\n"
+				fprintf (stderr,"Can't %s immutable flag on file %s (%s)\n"
 					,(set ? "set" : "unset")
 					,fname
 					,strerror(errno));
