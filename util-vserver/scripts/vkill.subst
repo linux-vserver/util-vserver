@@ -25,7 +25,7 @@
 $PROC = $ARGV[0];
 
 # Grab the output from a context query against this process id
-open(PH, "/usr/sbin/chcontext --silent --ctx 1 cat /proc/$PROC/status 2>&1 |");
+open(PH, "@SBINDIR@/chcontext --silent --ctx 1 cat /proc/$PROC/status 2>&1 |");
 
 # Loop through the output
 while (<PH>) {
@@ -41,7 +41,7 @@ while (<PH>) {
 
       # Since we have the context and the process id, we can kill it
       print " + Killing... ";
-      `/usr/sbin/chcontext --ctx $1 kill $PROC`;
+      `@SBINDIR@/chcontext --ctx $1 kill $PROC`;
       print "[done]\n";
 
     } else {
