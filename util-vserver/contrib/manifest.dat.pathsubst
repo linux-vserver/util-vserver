@@ -69,6 +69,8 @@ core   @SBINDIR@/reducecap
 core   @SBINDIR@/setattr
 core   @SBINDIR@/showattr
 build  @SBINDIR@/vapt-get
+core   @SBINDIR@/vcontext
+core   @SBINDIR@/vnamespace
 base   @SBINDIR@/vdu
 @ENSC_HAVE_CXX_COMPILER_TRUE@build  @SBINDIR@/vfiles
 core   @SBINDIR@/vkill
