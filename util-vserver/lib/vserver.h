@@ -56,7 +56,7 @@ extern "C" {
   ctx_t	vc_X_getctx(pid_t pid);
 
     /** Returns the context of the current process. */
-#define vc_X_getcctx		(getctx(getpid()))
+#define vc_X_getcctx()		(vc_X_getctx(getpid()))
     
 #ifdef __cplusplus
 }
