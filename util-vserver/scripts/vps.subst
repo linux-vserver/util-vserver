@@ -48,7 +48,7 @@ if ($context != 1) {
 } 
 
 
-if (! open PS, "ps $ARGV[0]|") {
+if (! open PS, "ps @ARGV|") {
    print "Can not execute ps\n";
    exit;
 }
