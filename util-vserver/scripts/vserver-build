@@ -1,0 +1,80 @@
+#! /bin/bash
+# $Id$
+
+# Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+: ${UTIL_VSERVER_VARS:=$(dirname $0)/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo "Can not find util-vserver installation; aborting..."
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+. "$_LIB_FUNCTIONS"
+
+### Some local functions
+
+function showHelp()
+{
+    echo \
+$"Usage: $(basename $0) -m <method> -n <name> [--] <method-args>*
+
+Possible methods are:
+    legacy      ...  the \"old\" copy-all-from-host method, which requires the
+                     old legacy vserver-legacy script
+    copy        ...  the copy-all-from-host method which uses the recent
+                     configuration scheme
+    apt -d <distribution>
+                ...  installs the base-packages of the given distribution with
+		     help of 'vapt-get'
+
+Please report bugs to $PACKAGE_BUGREPORT"
+    exit 0
+}
+
+function showVersion()
+{
+    echo \
+$"vserver-build $PACKAGE_VERSION -- initializes a vserver
+This program is part of $PACKAGE_STRING
+
+Copyright (C) 2003 Enrico Scholz
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License.  This program has absolutely no warranty."
+    exit 0
+}
+
+### main starts here
+
+set +e
+
+tmp=$(getopt -o +m:n: --long help,version -n "$0" -- "$@") || exit 1
+eval set -- "$tmp"
+
+while true; do
+    case "$1" in
+	--help)    showHelp $0 ;;
+	--version) showVersion ;;
+	-m)	   method=$2; shift 2;;
+	-n)	   name=$2;   shift 2;;
+	--)	   shift; break;;
+	*)	   echo $"vserver-build: internal error."; exit 1;;
+    esac
+done
+
+
+
+echo "Sorry, just a prototype currently..."
+exit 1
