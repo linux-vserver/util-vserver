@@ -23,7 +23,9 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#define VC_NOCTX	((ctx_t)(-1))
+#define VC_NOCTX		((ctx_t)(-1))
+#define VC_LIM_INFINITY		(~0ULL)
+#define VC_LIM_KEEP		(~1ULL)
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,6 +54,27 @@ extern "C" {
   int	vc_chrootsafe(char const *dir);
 
 
+  /* rlimit related functions */
+  typedef uint64_t	vc_limit_t;
+  
+  
+  struct vc_rlimit
+  {
+      vc_limit_t min;
+      vc_limit_t soft;
+      vc_limit_t hard;      
+  };
+
+  struct  vc_rlimit_mask {
+      uint32_t min;
+      uint32_t soft;
+      uint32_t hard;
+  };
+
+  int	vc_get_rlimit(ctx_t ctx, int resource, struct vc_rlimit *lim);
+  int	vc_set_rlimit(ctx_t ctx, int resource, struct vc_rlimit const *lim);
+  int	vc_get_rlimit_mask(ctx_t ctx, struct vc_rlimit_mask *lim);
+  
     /** Returns the context of the given process. pid==0 means the current process. */
   ctx_t	vc_X_getctx(pid_t pid);
     
