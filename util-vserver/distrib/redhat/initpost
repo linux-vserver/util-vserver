@@ -33,7 +33,7 @@ pushd "$vdir"/etc/init.d &>/dev/null ||
 	    functions|halt|killall|single) ;;
 	    syslog) ;;
 	    *)
-		$_VSERVER "$1" chkconfig "$i" off
+		$_VSERVER ----insecure "$1" chkconfig "$i" off
 		;;
 	esac
     done
