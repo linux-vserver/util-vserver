@@ -20,7 +20,7 @@
 ACLOCAL_AMFLAGS		=  -I m4
 
 sysvdir			=  $(sysconfdir)/init.d
-vservercfgdir		=  $(sysconfdir)/vservers
+confdir			=  $(sysconfdir)/vservers
 
 include_HEADERS		=  $(lib_HDRS)
 noinst_HEADERS		=  $(src_HDRS)
@@ -37,7 +37,7 @@ noinst_PROGRAMS		=  $(test_PRGS)
 
 sysv_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
-vservercfg_DATA		=  newvserver.defaults
+conf_DATA		=  newvserver.defaults
 
 BUILT_SOURCES		=  linuxcaps.h
 
@@ -56,6 +56,11 @@ AM_CFLAGS		=  -Wall -pedantic
 
 CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) linuxcaps.h
 
+if USE_DIETLIBC
+DIET			=  diet
+DIET_FLAGS		=
+DIET_CC		       :=  $(DIET) $(DIET_FLAGS) $(CC)
+endif
 
 linuxcaps.h:
 		ln -sf ${kernelincludedir}/linux/capability.h linuxcaps.h
