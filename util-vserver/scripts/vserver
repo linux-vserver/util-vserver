@@ -231,7 +231,12 @@ case "$2" in
 	shift 2
 	exec $_VUNIFY "$@" "$vserver"
 	;;
-	
+
+    (hashify)
+	shift 2
+	exec $_VHASHIFY "$@" "$vserver"
+	;;
+		
     (pkg)
 	shift 2
 	exec $_VPKG "$vserver" "$@"
