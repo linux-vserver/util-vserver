@@ -17,6 +17,11 @@ Version 0.28
 	- call programs with 'exec' on vserver's 'suexec' command (patch
 	  by Alec Thomas)
 
+	- improved e2fsprogs header detection
+
+	- API-CHANGE: removed argument from vc_get_version() since the
+	  only supported category is VC_CAT_COMPAT
+
 	
 Version 0.27
 ============
