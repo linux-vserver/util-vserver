@@ -60,6 +60,7 @@
 
 /** the value which is returned in error-case (no ctx found) */
 #define VC_NOCTX		((xid_t)(-1))
+#define VC_NOXID		((xid_t)(-1))
 /** the value which means a random (the next free) ctx */
 #define VC_DYNAMIC_XID		((xid_t)(-1))
 /** the value which means the current ctx */
@@ -207,6 +208,20 @@ extern "C" {
       uint32_t	mask;
   };
 
+    /** \brief   The generic vserver syscall
+     *  \ingroup syscalls
+     *
+     *  This function executes the generic vserver syscall. It uses the
+     *  correct syscallnumber (which may differ between the different
+     *  architectures).
+     *
+     *  \params  cmd  the command to be executed
+     *  \params  xid  the xid on which the cmd shall be applied
+     *  \params  data additional arguments; depends on \c cmd
+     *  \returns depends on \c cmd; usually, -1 stands for an error
+     */
+  int	vc_syscall(uint32_t cmd, xid_t xid, void *data);
+
     /** \brief   Returns the version of the current kernel API.
      *  \ingroup syscalls
      *	\returns The versionnumber of the kernel API
@@ -351,7 +366,7 @@ extern "C" {
   struct vc_nx_info {
       nid_t	nid;
   };
-  
+
   nid_t		vc_get_task_nid(pid_t pid);
   int		vc_get_nx_info(nid_t nid, struct vc_nx_info *) VC_ATTR_NONNULL((2));
 
@@ -401,7 +416,12 @@ extern "C" {
       pid_t	initpid;
   };
   
-    /** Returns the context of the given process. pid==0 means the current process. */
+    /** \brief  Returns the context of the given process.
+     *
+     *  \params pid  the process-id whose xid shall be determined;
+     *               pid==0 means the current process.
+     *  \returns     the xid of process \c pid or -1 on errors
+     */
   xid_t		vc_get_task_xid(pid_t pid);
   int		vc_get_vx_info(xid_t xid, struct vc_vx_info *info) VC_ATTR_NONNULL((2));
 
@@ -451,6 +471,7 @@ extern "C" {
   };
 
   /** \brief    Information about parsing errors
+   *  \ingroup  helper
    */
   struct vc_err_listparser {
       char const	*ptr;		///< Pointer to the first character of an erroneous string
