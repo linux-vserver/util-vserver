@@ -21,10 +21,24 @@
 #endif
 
 #include "command.h"
+#include "util.h"
 
 void
 Command_appendParameter(struct Command *cmd, char const *param)
 {
-  char const **	p = Vector_pushback(&cmd->params);
-  *p = param;
+  switch (cmd->params_style_) {
+    case parNONE	:
+      Vector_init(&cmd->params.v, 10);
+      cmd->params_style_ = parVEC;
+	/*@fallthrough@*/
+    case parVEC		: {
+      char const **p = Vector_pushback(&cmd->params.v);
+      *p = param;
+      break;
+    }
+
+    default		:
+      WRITE_MSG(2, "internal error: conflicting functions Command_appendParameter() and Command_setParams() used together; aborting...\n");
+      abort();
+  }
 }

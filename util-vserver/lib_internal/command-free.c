@@ -25,5 +25,6 @@
 void
 Command_free(struct Command *cmd)
 {
-  Vector_free(&cmd->params);
+  if (cmd->params_style_==parVEC)
+    Vector_free(&cmd->params.v);
 }

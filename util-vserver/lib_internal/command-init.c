@@ -23,11 +23,11 @@
 #include "command.h"
 
 void
-Command_init(struct Command *cmd, size_t UNUSED param_count)
+Command_init(struct Command *cmd)
 {
-  Vector_init(&cmd->params, sizeof(char *));
-  cmd->filename =  0;
-  cmd->pid      = -1;
-  cmd->rc       = -1;
-  cmd->err      =  0;
+  cmd->filename      =  0;
+  cmd->pid           = -1;
+  cmd->rc            = -1;
+  cmd->err           =  0;
+  cmd->params_style_ =  parNONE;
 }

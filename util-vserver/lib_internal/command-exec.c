@@ -21,6 +21,7 @@
 #endif
 
 #include "command.h"
+#include "util.h"
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -39,7 +40,8 @@ Command_exec(struct Command *cmd, bool do_fork)
 {
   int		p[2];
 
-  Vector_zeroEnd(&cmd->params);
+  if (cmd->params_style_==parVEC)
+    Vector_zeroEnd(&cmd->params.v);
 
   if (!do_fork)
     cmd->pid = 0;
@@ -50,10 +52,18 @@ Command_exec(struct Command *cmd, bool do_fork)
   }
   
   if (cmd->pid==0) {
+    char const **	argv = { 0 };
+    
     if (do_fork) close(p[0]);
 
-    execv(cmd->filename ? cmd->filename : ((char **)(Vector_begin(&cmd->params)))[0],
-	  cmd->params.data);
+    switch (cmd->params_style_) {
+      case parVEC	:  argv = cmd->params.v.data; break;
+      case parDATA	:  argv = cmd->params.d;      break;
+      default		:  break;
+    }
+
+    execv(cmd->filename ? cmd->filename : argv[0],
+	  reinterpret_cast(char **const)(argv));
     cmd->err = errno;
     assert(cmd->err != 0);
 
