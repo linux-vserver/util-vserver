@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.27.199, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.28.190, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -51,8 +51,9 @@ AC_PATH_PROGS(NICE,    [nice],    [nice],        [ $check_paths ])
 AC_PATH_PROGS(VCONFIG, [vconfig], [vconfig],     [ $check_paths ])
 AC_PATH_PROGS(WC,      [wc],      [wc],          [ $check_paths ])
 AC_PATH_PROGS(PS,      [ps],      [/bin/ps],     [ $check_paths ])
-AC_PATH_PROGS(XSLTPROC, [xsltproc], [xsltproc],  [ $check_paths ])
-
+AC_PATH_PROGS(XSLTPROC, [xsltproc], [xsltproc])
+AC_PATH_PROGS(SED,      [sed],      [sed])
+AC_PATH_PROGS(CMP,      [cmp],      [cmp])
 
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
 ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
@@ -135,12 +136,7 @@ if test x"$enable_api_oldproc" != x; then
 fi
 AC_MSG_RESULT([$enable_apis])
 
-AC_LANG_PUSH(C++)
-AC_CHECK_HEADERS([ext2fs/ext2fs.h], [],
-  [AC_CHECK_HEADERS([linux/ext2_fs.h], [],
-                    [AC_MSG_ERROR([Sorry, do not know, how to include 'ext2fs.h'])])])
-AC_LANG_POP
-
+ENSC_CHECK_EXT2FS_HEADER
 AC_CHECK_FUNCS([vserver])
 AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
 AC_CHECK_TYPES(xid_t,,,[#include <sys/types.h>])
