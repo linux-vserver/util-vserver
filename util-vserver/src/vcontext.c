@@ -75,7 +75,7 @@ CMDLINE_OPTIONS[] = {
   { "endsetup",     no_argument,        0, CMD_ENDSETUP },
   { "disconnect",   no_argument,	0, CMD_DISCONNECT },
   { "silent",       no_argument,       	0, CMD_SILENT },
-  { "uid",          no_argument,       	0, CMD_UID },
+  { "uid",          required_argument,  0, CMD_UID },
   { "chroot",       no_argument,       	0, CMD_CHROOT },
   { "syncsock",     required_argument, 	0, CMD_SYNCSOCK },
   { "syncmsg",      required_argument, 	0, CMD_SYNCMSG },
@@ -355,14 +355,6 @@ doit(struct Arguments const *args, char *argv[])
     if (args->do_chroot)
       Echroot(".");
 
-    if (args->uid!=(uid_t)(-1) && getuid()!=args->uid) {
-      Esetuid(args->uid);
-      if (getuid()!=args->uid) {
-	WRITE_MSG(2, "vcontext: Something went wrong while changing the UID\n");
-	exit(255);
-      }
-    }
-
     setFlags(args, xid);
 
 #if 0
@@ -373,6 +365,14 @@ doit(struct Arguments const *args, char *argv[])
     if (args->do_migrate && !args->do_migrateself)
       Evc_migrate_context(xid);
 
+    if (args->uid!=(uid_t)(-1) && getuid()!=args->uid) {
+      Esetuid(args->uid);
+      if (getuid()!=args->uid) {
+	WRITE_MSG(2, "vcontext: Something went wrong while changing the UID\n");
+	exit(255);
+      }
+    }
+    
     doExternalSync(ext_sync_fd, args->sync_msg);
     doSyncStage1(p, args->do_disconnect);
     execvp (argv[optind],argv+optind);
