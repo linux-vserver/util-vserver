@@ -162,12 +162,6 @@ extern "C" {
   int	vc_ctx_kill(xid_t ctx, pid_t pid, int sig);
 
 
-    /** Returns the context of the given process. pid==0 means the current process. */
-  xid_t	vc_X_getctx(pid_t pid);
-
-    /** Returns the pid of the 'init' process */
-  pid_t	vc_X_getinitpid(pid_t pid);
-
 
   int		vc_set_iattr(dev_t dev, ino_t ino, xid_t xid,  uint32_t flags, uint32_t mask); 
   int		vc_get_iattr(dev_t dev, ino_t ino, xid_t * /*@null@*/ xid,
@@ -182,8 +176,16 @@ extern "C" {
 				    xid_t    * /*@null@*/ xid,
 				    uint32_t * /*@null@*/ flags,
 				    uint32_t * /*@inout@*/ mask);
+
+  struct vc_vx_info {
+      xid_t	xid;
+      pid_t	initpid;
+  };
   
-  
+    /** Returns the context of the given process. pid==0 means the current process. */
+  xid_t		vc_get_task_xid(pid_t pid);
+  int		vc_get_vx_info(xid_t xid, struct vc_vx_info *info);
+
   int		vc_text2cap(char const *);
   char const *	vc_cap2text(int);
 
