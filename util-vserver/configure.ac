@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.23.191, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.23.192, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -58,6 +58,25 @@ AC_CHECK_PROGS(RCS2LOG, [rcs2log])
 AM_CONDITIONAL(HAVE_RCS2LOG,  [test x"$RCS2LOG" != x])
 
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
+
+AC_MSG_CHECKING([whether to enable debug-code in library])
+AC_ARG_ENABLE([lib-debug],
+	      [AC_HELP_STRING([--enable-lib-debug],
+                              [enable additional debug code in library (default: no)])],
+              [case "$enableval" in
+		  yes)  use_lib_debug=1;;
+                  no)   use_lib_debug=;;
+                  *)    AC_MSG_ERROR(['$enableval' is not a valid value for '--enable-lib-debug']);;
+               esac],
+              [ use_lib_debug= ])
+
+if test x"$use_lib_debug" = x; then
+	AC_SUBST(LIB_DEBUG_CPPFLAGS, [-DNDEBUG])
+	AC_MSG_RESULT(no)
+else
+	AC_SUBST(LIB_DEBUG_CPPFLAGS, [])
+	AC_MSG_RESULT(yes)
+fi
 
 AC_MSG_CHECKING([whether to enable dietlibc])
 AC_ARG_ENABLE([dietlibc],
