@@ -21,7 +21,6 @@ SETUP_NETMASK=
 SETUP_NETPREFIX=
 SETUP_NETBCAST=
 SETUP_LOCKFILE=
-SETUP_LOCKREVDIR=
 SETUP_CONFDIR=
 SETUP_CONTEXT=
 SETUP_INITSTYLE=
@@ -29,15 +28,13 @@ SETUP_INITSTYLE=
 declare -a SETUP_INTERFACES=()
 declare -a SETUP_FLAGS=()
 
-declare -r SETUP_OPTIONS="confdir:,lockfile:,lockrevdir:,hostname:,netdev:,netmask:,netprefix:,netbcast:,interface:,flags:,context:,initstyle:"
+declare -r SETUP_OPTIONS="confdir:,lockfile:,hostname:,netdev:,netmask:,netprefix:,netbcast:,interface:,flags:,context:,initstyle:"
 declare -r SETUP_HELPMSG=$"
     --context   ...  the static context of the vserver [default: none; a dynamic
                      context will be assumed]
     --confdir   ...  [default: $CONFDIR/<name>]
     --lockfile <filename>
 		...  [default: $RUNDIR/<name>]
-    --lockrevdir <dirname>
-		...  [default: $CONFDIR/.defaults/run.rev]
     --hostname <hostname>
     --netdev   <device>
     --netbcast <broadcast>
@@ -51,7 +48,8 @@ declare -r SETUP_HELPMSG=$"
                 ...  sets comma-separated list of flags; possible flags are
 		     lock:  Prevent the vserver from setting new security context
 		     sched: Merge  scheduler priority  of all processes in the
-		            vserver so that it acts a like a single one.
+		            vserver so that it acts a like a single
+		            one (kernel 2.4 only).
                      nproc: Limit the number of processes in the vserver
 		            according to ulimit  (instead of a per user limit,
 			    this becomes a per vserver limit)
@@ -67,7 +65,6 @@ function setup_setOption2
 	(--context)	SETUP_CONTEXT=$2;;
 	(--confdir)	SETUP_CONFDIR=$2;;
 	(--lockfile)	SETUP_LOCKFILE=$2;;
-	(--lockrevdir)	SEUTP_LOCKREVDIR=$2;;
 	(--hostname)	SETUP_HOSTNAME=$2;;
 	(--netdev)	SETUP_NETDEV=$2;;
 	(--netmask)	SETUP_NETMASK=$2;;
@@ -134,7 +131,6 @@ function setup_setDefaults
 {
     : ${SETUP_CONFDIR:=$CONFDIR/$1}
     : ${SETUP_LOCKFILE:=$RUNDIR/$1}
-    : ${SETUP_LOCKREVDIR:=$CONFDIR/.defaults/run.rev}
     findFile SETUP_FSTAB "$CONFDIR"/.defaults/fstab "$PKGLIBDEFAULTDIR"/fstab
 }
 
@@ -166,7 +162,6 @@ function setup_writeOption
     done >"$cfgdir"/flags
 
     ln -s "$SETUP_LOCKFILE"   "$cfgdir"/run
-    ln -s "$SETUP_LOCKREVDIR" "$cfgdir"/run.rev
 }
 
 function setup_writeInitialFstab

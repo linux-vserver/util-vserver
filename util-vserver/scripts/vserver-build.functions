@@ -158,7 +158,7 @@ exist already; please try to use '--force', or remove them manually"
 
     mkdir -p -m755 "$VDIR"
     chattr -t "$VDIR"
-    mkdir -p -m755 "$SETUP_CONFDIR"/apps "$VDIR"/{dev/pts,etc} "$SETUP_LOCKREVDIR"
+    mkdir -p -m755 "$SETUP_CONFDIR"/apps "$VDIR"/{dev/pts,etc}
     
     ln -s "$VDIR"       "$SETUP_CONFDIR/vdir"
 

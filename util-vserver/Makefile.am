@@ -175,7 +175,7 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@touch '$@'
 
 pkgstatedir =		$(localstatedir)/run/vservers
-pkgstaterevdir =	$(pkgstatedir).rev
+pkgstaterevdir =	$(confdefaultsdir)/run.rev
 vserverpkgdir =		$(vserverdir)/.pkg
 vshelperstatedir =	$(localstatedir)/run/vshelper
 
@@ -190,10 +190,10 @@ update-doc:		doc
 install-data-hook:	install-fix-script-paths install-create-dirs
 
 install-create-dirs:
-			$(mkinstalldirs) -m 755 $(DESTDIR)$(pkgstatedir) $(DESTDIR)$(pkgstaterevdir) $(DESTDIR)$(vshelperstatedir)
+			$(mkinstalldirs) -m 755 $(DESTDIR)$(pkgstatedir) $(DESTDIR)$(pkgstatedir).rev $(DESTDIR)$(vshelperstatedir)
 			$(mkinstalldirs) -m 755 $(DESTDIR)$(confdefaultsdir)
-			f=$(DESTDIR)$(confdefaultsdir)/vdirbase; test -e "$$f" || ln -sf '$(vserverdir)'     "$$f"
-			f=$(DESTDIR)$(confdefaultsdir)/run.rev;  test -e "$$f" || ln -sf '$(pkgstaterevdir)' "$$f"
+			f=$(DESTDIR)$(confdefaultsdir)/vdirbase; test -e "$$f" || ln -sf '$(vserverdir)'      "$$f"
+			f=$(DESTDIR)$(pkgstaterevdir);           test -e "$$f" || ln -sf '$(pkgstatedir).rev' "$$f"
 
 install-fix-script-paths:
 			test "/usr/lib/util-vserver" = "$(pkglibdir)" || \

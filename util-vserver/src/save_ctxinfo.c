@@ -22,6 +22,7 @@
 #  include <config.h>
 #endif
 
+#include "pathconfig.h"
 #include "vserver.h"
 #include "internal.h"
 #include "util.h"
@@ -52,7 +53,7 @@ checkParams(int argc, char UNUSED * argv[])
 
 int main(int argc, char *argv[])
 {
-  char		runfile[(checkParams(argc,argv),strlen(argv[1])) + sizeof("/run.rev/99999")];
+  char		runfile[(checkParams(argc,argv),strlen(argv[1])) + sizeof(DEFAULT_PKGSTATEREVDIR "/99999")];
   char		dstfile[PATH_MAX];
   int		fd;
   char		buf[sizeof(int)*3+2];
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
   }
   Eclose(fd);
 
-  strcat(runfile, ".rev/");
+  strcpy(runfile, DEFAULT_PKGSTATEREVDIR);
   strncat(runfile, buf, len);
   unlink(runfile);
   EsymlinkD(argv[1], runfile);

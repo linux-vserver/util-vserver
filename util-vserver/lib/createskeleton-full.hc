@@ -73,18 +73,6 @@ vc_createSkeleton_full(char const *id, char const *name, int flags)
     return -1;
 
   for (;;) {
-    char const	*basedir = CONFDIR "/.defaults/run.rev";
-
-    if (!utilvserver_isDirectory(basedir, true)) basedir = DEFAULT_PKGSTATEREVDIR;
-    if (!utilvserver_isDirectory(basedir, true)) break;
-
-    if (symlink2(basedir, "", id, "run.rev")==-1)
-      return -1;
-
-    break;
-  }
-
-  for (;;) {
     char const	*basedir = CONFDIR "/.defaults/run";
 
     if (!utilvserver_isDirectory(basedir, true)) basedir = DEFAULT_PKGSTATEDIR;

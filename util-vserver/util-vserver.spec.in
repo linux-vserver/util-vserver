@@ -10,6 +10,8 @@
 %define __chattr	/usr/bin/chattr
 %define chkconfig	/sbin/chkconfig
 
+%define _localstatedir	%_var
+
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
@@ -133,8 +135,8 @@ rm -rf $RPM_BUILD_ROOT
 test -d /vservers      || mkdir -m0000 /vservers
 test -d /vservers/.pkg || mkdir -m0755 /vservers/.pkg
 
-f="%confdefaultdir/vdirbase"; test -L "$f" -o -e "$f" || ln -s /vservers             "$f"
-f="%confdefaultdir/run.rev";  test -L "$f" -o -e "$f" || ln -s /var/run/vservers.rev "$f"
+f="%confdefaultdir/vdirbase"; test -L "$f" -o -e "$f" || ln -s /vservers                        "$f"
+f="%confdefaultdir/run.rev";  test -L "$f" -o -e "$f" || ln -s %_localstatedir/run/vservers.rev "$f"
 
 %_sbindir/setattr --barrier /vservers || :
 
@@ -207,9 +209,9 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 %ghost %confdefaultdir/vdirbase
 %ghost %confdefaultdir/run.rev
 
-%dir /var/run/vservers
-%dir /var/run/vservers.rev
-%dir /var/run/vshelper
+%dir %_localstatedir/run/vservers
+%dir %_localstatedir/run/vservers.rev
+%dir %_localstatedir/run/vshelper
 
 
 %files lib -f %name-lib.list
