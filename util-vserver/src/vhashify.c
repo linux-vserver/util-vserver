@@ -233,14 +233,14 @@ checkFstat(PathInfo const * const basename,
   return true;
 }
 
-static jmp_buf			bus_error_restore;
+static sigjmp_buf		bus_error_restore;
 static volatile sig_atomic_t 	bus_error;
 
 static void
 handlerSIGBUS(int UNUSED num)
 {
   bus_error = 1;
-  longjmp(bus_error_restore, 1);
+  siglongjmp(bus_error_restore, 1);
 }
 
 static bool
@@ -298,11 +298,9 @@ static bool
 calculateHashFromFD(int fd, HashPath d_path, struct stat const * const st)
 {
   hashFunctionContext * const	h_ctx    = &global_info.hash_context;
-  bool				res      = false;
-  loff_t			offset   = 0;
-  void				*buf     = 0;
-  off_t				size     = st->st_size;
-  loff_t			cur_size = 0;
+  void const * volatile		buf      = 0;
+  loff_t volatile		buf_size = 0;
+  bool   volatile		res      = false;
 
 
   if (hashFunctionContextReset(h_ctx)==-1 ||
@@ -310,30 +308,33 @@ calculateHashFromFD(int fd, HashPath d_path, struct stat const * const st)
     return false;
 
   bus_error = 0;
-  if (setjmp(bus_error_restore)!=0) goto out;
+  if (sigsetjmp(bus_error_restore,1)==0) {
+    loff_t			offset   = 0;
+    off_t			size     = st->st_size;
 
-  while (offset < size) {
-    cur_size = size-offset;
-    if (cur_size>HASH_BLOCKSIZE) cur_size = HASH_BLOCKSIZE;
+    while (offset < size) {
+      buf_size = size-offset;
+      if (buf_size>HASH_BLOCKSIZE) buf_size = HASH_BLOCKSIZE;
 
-    buf     = mmap(0, cur_size, PROT_READ, MAP_SHARED, fd, offset);
-    if (buf==0) goto out;
-    
-    offset += cur_size;
-    madvise(buf, cur_size, MADV_SEQUENTIAL);	// ignore error...
+      if ((buf=mmap(0, buf_size, PROT_READ, MAP_SHARED, fd, offset))==0) {
+	perror("mmap(<hash>)");
+	goto out;
+      }
 
-    if (hashFunctionContextUpdate(h_ctx, buf, cur_size)==-1) goto out;
+      offset += buf_size;
+      madvise(const_cast(void *)(buf), buf_size, MADV_SEQUENTIAL);	// ignore error...
 
-    munmap(buf, cur_size);
-    buf = 0;
+      if (hashFunctionContextUpdate(h_ctx, buf, buf_size)==-1) goto out;
+
+      munmap(const_cast(void *)(buf), buf_size);
+      buf = 0;
+    }
+
+    res = convertDigest(d_path);
   }
 
-  if (!convertDigest(d_path)) goto out;
-    
-  res = true;
-
   out:
-  if (buf!=0) munmap(buf, cur_size);
+  if (buf!=0) munmap(const_cast(void *)(buf), buf_size);
   return res;
 }
 
