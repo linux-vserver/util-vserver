@@ -23,7 +23,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 . "$UTIL_VSERVER_VARS"
 
 test "$MARK" || MARK=default
-: ${LOCKFILE:=vserver-$MARK}
+: ${LOCKFILE:=vservers-$MARK}
 : ${NUMPARALLEL:=6}
 
 
