@@ -3,8 +3,6 @@ Version 0.24
 
 	- updated to new syscall API (patch c17h and later)
 	
-	- revived linuxconf module
-
 	- revived copy-all-mode for 'vserver ... build' (can be disabled
 	  with $UTIL_VSERVER_AVOID_COPY)
 
@@ -16,7 +14,7 @@ Version 0.24
 	  '--with-vrootdir' configure switch; it defaults still to
 	  '/vservers'
 
-	- built of 'newvserver' linuxconf-module is conditionalized, since
+	- build of 'newvserver' linuxconf-module is conditionalized since
 	  it is unsupported and will be dropped in future versions. To
 	  enable it. call './configure' with '--enable-linuxconf'.
 	
