@@ -102,7 +102,7 @@ function _pkgSetVarsBase
     	    }
     	    
     	    VDIR=$BASEDIR/vdir
-    	    test -d "$VDIR"   || VDIR=/vservers/$vserver
+    	    test -d "$VDIR"   || VDIR=$DEFAULT_VSERVERDIR/$vserver
 	    VDIR=$(getPhysicalDir "$VDIR")
     	    
     	    PKGDIR=$BASEDIR/apps/pkgmgmt
