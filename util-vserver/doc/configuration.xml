@@ -404,6 +404,34 @@
 	  special keyword 'inf' is recognized.</description>
 	</file>
       </dir>
+
+      <dir name="rlimits" type="fixed">
+	<description>see ulimits</description>
+      </dir>
+
+      <dir name="uts" type="fixed">
+	<file name="context">
+	  <description>The context-name of the vserver</description>
+	</file>
+	<file name="sysname">
+	  <description>The sysname of the vserver</description>
+	</file>
+	<file name="nodename">
+	  <description>The node-/hostname of the vserver</description>
+	</file>
+	<file name="release">
+	  <description>The OS-release of the vserver</description>
+	</file>
+	<file name="version">
+	  <description>The OS-version of the vserver</description>
+	</file>
+	<file name="machine">
+	  <description>The machine-type of the vserver</description>
+	</file>
+	<file name="domainname">
+	  <description>The NIS domainname of the vserver</description>
+	</file>
+      </dir>
     </dir>
   </topleveldir>
 </cfgdirdoc>
