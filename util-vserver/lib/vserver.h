@@ -52,11 +52,8 @@ extern "C" {
   int	vc_chrootsafe(char const *dir);
 
 
-    /** Returns the context of the given process. */
+    /** Returns the context of the given process. pid==0 means the current process. */
   ctx_t	vc_X_getctx(pid_t pid);
-
-    /** Returns the context of the current process. */
-#define vc_X_getcctx()		(vc_X_getctx(getpid()))
     
 #ifdef __cplusplus
 }

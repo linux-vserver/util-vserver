@@ -45,11 +45,19 @@ vc_X_getctx_legacy(pid_t pid)
   size_t			len;
   char				*pos = 0;
 
-  strcpy(status_name, "/proc/");
-  len = utilvserver_uint2str(status_name+sizeof("/proc/")-1,
-			     sizeof(status_name)-sizeof("/proc//status")+1,
-			     pid, 10);
-  strcpy(status_name+sizeof("/proc/")+len-1, "/status");
+  if (pid<0 || (uint32_t)(pid)>99999) {
+    errno = EINVAL;
+    return 0;
+  }
+
+  if (pid==0) strcpy(status_name, "/proc/self/status");
+  else {
+    strcpy(status_name, "/proc/");
+    len = utilvserver_uint2str(status_name+sizeof("/proc/")-1,
+			       sizeof(status_name)-sizeof("/proc//status")+1,
+			       pid, 10);
+    strcpy(status_name+sizeof("/proc/")+len-1, "/status");
+  }
 
   fd = open(status_name, O_RDONLY);
   if (fd==-1) return VC_NOCTX;
