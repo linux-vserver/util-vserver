@@ -199,7 +199,7 @@ doit(Operation op,
 
   return (global_args->do_dry_run ||
 	  ( op==opSKIP) ||
-	  ( op==opUNIFY && Unify_unify(src_path->d, exp_stat, dst_path->d)) ||
+	  ( op==opUNIFY && Unify_unify(src_path->d, exp_stat, dst_path->d, false)) ||
 	  ((op==opCOPY  ||
 	    op==opDIR)  && Unify_copy (src_path->d, exp_stat, dst_path->d)));
 }
