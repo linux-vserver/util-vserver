@@ -27,7 +27,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 function showHelp()
 {
     echo \
-$"Usage: /usr/sbin/chcontext [--cap [!]<cap_name>] [--secure] [--ctx <num>] [--disconnect]
+$"Usage: /usr/sbin/chcontext [--cap [!]<cap_name>] [--secure] [--xid <num>] [--disconnect]
        [--domainname <name>] [--hostname <name>] [--flag <flags>+]
        [--silent] [--] command arguments ...
 
@@ -48,12 +48,12 @@ By default, a new/unused context is allocated
     repeated several time.
     See /usr/include/linux/capability.h
 
---ctx num
+--xid num
     Select the context. On root in context 0 is allowed to
     select a specific context.
     Context number 1 is special. It can see all processes
     in any contexts, but can't kill them though.
-    Option --ctx may be repeated several times to specify up to 16 contexts.
+    Option --xid may be repeated several times to specify up to 16 contexts.
 --disconnect
     Start the command in background and make the process
     a child of process 1.
@@ -101,7 +101,7 @@ the GNU General Public License.  This program has absolutely no warranty."
 
 $_VSERVER_INFO - FEATURE migrate || exec $_CHCONTEXT_COMPAT "$@"
 
-tmp=$(getopt -o + --long cap:,ctx:,disconnect,domainname:,flag:,hostname:,secure,silent,help,version -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o + --long cap:,ctx:,xid:,disconnect,domainname:,flag:,hostname:,secure,silent,help,version -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 OPT_CAPS=()
@@ -117,7 +117,7 @@ while true; do
 	--help)    	showHelp $0 ;;
 	--version) 	showVersion ;;
 	--cap)		OPT_CAPS=( "${OPT_CAPS[@]}" "$2" ); shift;;
-	--ctx)		OPT_CTX=$2; shift;;
+	--ctx|--xid)	OPT_CTX=$2; shift;;
 	--disconnect)	OPT_DISCONNECT=1;;
 	--domainname)	OPT_DOMAINNAME=$2; shift;;
 	--hostname)	OPT_HOSTNAME=$2;   shift;;
@@ -134,7 +134,7 @@ while true; do
     shift
 done
 
-create_cmd=( $_VCONTEXT --create
+create_cmd=( $_VCONTEXT --create --silentexist
 	     ${OPT_SILENT:+--silent}
 	     ${OPT_CTX:+--xid "$OPT_CTX"} )
 
