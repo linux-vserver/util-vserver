@@ -24,6 +24,6 @@ static inline ALWAYSINLINE xid_t
 vc_get_task_xid_v13(pid_t pid)
 {
   xid_t		res;
-  if (vserver(VC_CMD(VINFO, 1,0), pid, &res)==-1) return -1;
+  if (vserver(VC_CMD(VINFO, 1,0), pid, &res)==-1) return VC_NOCTX;
   return CTX_KERNEL2USER(res);
 }
