@@ -12,3 +12,7 @@ _VAPT_GET_WORKER="$PKGLIBDIR/vapt-get-worker"
 _VRPM_WORKER="$PKGLIBDIR/vrpm-worker"
 _VAPT_GET="$SBINDIR/vapt-get"
 _RPM_FAKE_SO="$PKGLIBDIR/rpm-fake.so"
+
+
+# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=106057
+WORKAROUND_106057=1

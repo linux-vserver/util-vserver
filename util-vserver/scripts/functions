@@ -86,6 +86,12 @@ function _pkgSetVarsBase
 
 	    ;;
     esac
+
+    if test -z "$WORKAROUND_106057"; then
+	_rpmdb_mntpoint=/dev
+    else
+	_rpmdb_mntpoint=/.rpmdb
+    fi
 }
 
 function _pkgSetVarsRPM
@@ -139,7 +145,9 @@ function _pkgMountRPM
 {
     _pkgMountBindDir "$RPMETCDIR" /etc/rpm
     test "$RPMLIBDIR" = "/" || _pkgMountBindDir "$RPMLIBDIR" /usr/lib/rpm
-    "$_SECURE_MOUNT" "$VDIR" "$RPMSTATEDIR" /var/lib/rpm
+
+    "$_SECURE_MOUNT" "$VDIR" "$RPMSTATEDIR" "$_rpmdb_mntpoint"
+    test -z "$WORKAROUND_106057" || mount -n --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
 }
 
 function _pkgSetEnvBase
@@ -160,7 +168,7 @@ function _pkgSetEnvApt
 function _pkgSetEnvRPM
 {
     CUR_VSERVER=$vserver
-    RPM_FAKE_NAMESPACE_MOUNTS=/var/lib/rpm
+    RPM_FAKE_NAMESPACE_MOUNTS=$_rpmdb_mntpoint
     RPM_BINARY=$_VRPM_PRELOAD
 
     export CUR_VSERVER RPM_FAKE_NAMESPACE_MOUNTS RPM_BINARY
