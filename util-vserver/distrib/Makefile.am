@@ -30,6 +30,7 @@ defaults_DATA =		misc/debootstrap.uri \
 nobase_distrib_SCRIPTS	=  redhat/initpost
 
 nobase_distrib_DATA	=  defaults/devs \
+			   defaults/apt.conf \
 			   defaults/rpm/macros \
 			   defaults/apt/apt.conf \
 			   rh9/apt/rpmpriorities rh9/pkgs/01 rh9/pkgs/02 \
