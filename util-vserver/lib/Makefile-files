@@ -35,6 +35,8 @@ lib_v13_SRCS =			lib/syscall_getiattr.c \
 				lib/syscall_getvxinfo.c
 lib_fscompat_SRCS =  		lib/fscompat_setiattr.c \
 				lib/fscompat_getiattr.c
+lib_uts_SRCS =			lib/syscall_getvhiname.c \
+				lib/syscall_setvhiname.c
 
 PKGCONFIG_FILES =		lib/util-vserver
 
@@ -51,7 +53,8 @@ lib_SRCS =  			lib/syscall.c \
 				$(lib_management_SRCS) \
 				$(lib_v11_SRCS) \
 				$(lib_v13_SRCS) \
-				$(lib_fscompat_SRCS)
+				$(lib_fscompat_SRCS) \
+				$(lib_uts_SRCS)
 
 lib_HDRS =			lib/vserver.h
 
@@ -65,6 +68,10 @@ lib_XHDRS =			lib/syscall-compat.hc \
 				lib/syscall_gettaskxid-oldproc.hc \
 				lib/syscall_getvxinfo-v13.hc \
 				lib/syscall_getvxinfo-oldproc.hc \
+				lib/syscall_getvhiname-v13.hc \
+				lib/syscall_getvhiname-olduts.hc \
+				lib/syscall_setvhiname-v13.hc \
+				lib/syscall_setvhiname-olduts.hc \
 				lib/fscompat_setiattr-v13.hc \
 				lib/fscompat_setiattr-fscompat.hc \
 				lib/fscompat_getiattr-v13.hc \
