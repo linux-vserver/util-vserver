@@ -212,15 +212,15 @@ src_rpm_fake_resolver_LDFLAGS	=  $(VSERVER_LDFLAGS)
 src_mask2prefix_SOURCES		=  src/mask2prefix.c
 
 src_vps_SOURCES			=  src/vps.c
-src_vps_LDADD			=  $(VSERVER_LDADDS) lib_internal/libinternal.a
+src_vps_LDADD			=  lib_internal/libinternal.a $(VSERVER_LDADDS)
 src_vps_LDFLAGS			=  $(VSERVER_LDFLAGS)
 
 src_vserver_info_SOURCES	=  src/vserver-info.c
-src_vserver_info_LDADD		=  $(VSERVER_LDADDS)
+src_vserver_info_LDADD		=  lib_internal/libinternal.a $(VSERVER_LDADDS)
 src_vserver_info_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
-src_vserver_stat_LDADD		=  $(VSERVER_LDADDS) libensc_vector.a
+src_vserver_stat_LDADD		=  lib_internal/libinternal.a $(VSERVER_LDADDS) libensc_vector.a
 src_vserver_stat_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc src/vserver.cc
@@ -292,8 +292,3 @@ src_install_exec_hook:
 				-rm -f $(DESTDIR)$(pkglibdir)/rpm-fake.a $(DESTDIR)$(pkglibdir)/rpm-fake.la
 
 include $(top_srcdir)/src/testsuite/Makefile-files
-
-## Local Variables:
-## compile-command: "make -C .. -k"
-## End:
-
