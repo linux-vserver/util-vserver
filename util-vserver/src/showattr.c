@@ -20,117 +20,151 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
+
+#include "fstool.h"
+#include "util.h"
+
+#include <lib/fmt.h>
+#include <lib/vserver.h>
+#include <lib/vserver-internal.h>
 
 #include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
 
-#include "ext2fs.h"
+struct option const
+CMDLINE_OPTIONS[] = {
+  { "help",     no_argument,  0, CMD_HELP },
+  { "version",  no_argument,  0, CMD_VERSION },
+#ifdef VC_ENABLE_API_LEGACY
+  { "legacy",    no_argument, 0, CMD_LEGACY },
+#endif
+  { 0,0,0,0 }
+};
 
+char const		CMDLINE_OPTIONS_SHORT[] = "Rad";
 
-// Patch to help compile this utility on unpatched kernel source
-#ifndef EXT2_IMMUTABLE_FILE_FL
-	#define EXT2_IMMUTABLE_FILE_FL	0x00000010
-	#define EXT2_IMMUTABLE_LINK_FL	0x00008000
+void
+showHelp(int fd, char const *cmd, int res)
+{
+  WRITE_MSG(fd, "Usage:  ");
+  WRITE_STR(fd, cmd);
+  WRITE_MSG(fd,
+	    " [-Rad] [--] <file>*\n\n"
+	    " Options:\n"
+	    "   -R  ...  recurse through directories\n"
+	    "   -a  ...  display files starting with '.' also\n"
+	    "   -d  ...  list directories like other files instead of listing\n"
+	    "            their content\n"
+	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
+  exit(res);
+}
+
+void
+showVersion()
+{
+  WRITE_MSG(1,
+	    "showattr " VERSION " -- shows vserver specific file attributes\n"
+	    "This program is part of " PACKAGE_STRING "\n\n"
+	    "Copyright (C) 2004 Enrico Scholz\n"
+	    VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
+}
+
+void
+checkParams(struct Arguments const UNUSED * args, int UNUSED argc)
+{
+}
+
+static bool
+getFlags(char const *name, struct stat const *exp_st, long *flags)
+{
+  int		fd = open(name, O_RDONLY);
+  int		rc;
+  
+  if (fd==-1) {
+    perror("open()");
+    return false;
+  }
+
+  if (exp_st)
+    checkForRace(fd, name, exp_st);
+
+  rc = vc_X_get_ext2flags(fd, flags);
+  *flags &= VC_IMMUTABLE_ALL;
+
+  if (rc==-1)
+    perror("vc_X_get_ext2flags()");
+
+  close(fd);
+  return rc!=-1;
+}
+
+static void
+writePadded(long num)
+{
+  char		buf[sizeof(num)*2+1];
+  size_t	l = utilvserver_fmt_xulong(buf, num);
+
+  if (l<8) write(1, "00000000", 8-l);
+  write(1, buf, l);
+}
+
+#ifdef VC_ENABLE_API_LEGACY
+static bool
+handleFileLegacy(char const *name, char const *display_name,
+		 struct stat const *exp_st)
+{
+  long		flags;
+
+  if (S_ISLNK(exp_st->st_mode)) {
+    write(1, display_name, strlen(display_name));
+    write(1, "  -\n", 2);
+    return true;
+  }
+
+  if (!getFlags(name, exp_st, &flags)) {
+    perror(display_name);
+    return false;
+  }
+
+  write(1, display_name, strlen(display_name));
+  write(1, "\t", 1);
+  writePadded(flags);
+  write(1, "\n", 1);
+
+  return true;
+}
 #endif
 
-/*
-	Get the extended attributes of a file
-*/
-static int getext2flags (const char *fname, long *flags)
+bool
+handleFile(char const *name, char const *display_name,
+	   struct stat const *exp_st)
 {
-	int ret = -1;
-	int fd = open (fname,O_RDONLY);
-	if (fd == -1){
-		fprintf (stderr,"Can't open file %s (%s)\n",fname,strerror(errno));
-	}else{
-		*flags = 0;
-		ret = ioctl (fd,EXT2_IOC_GETFLAGS,flags);
-		close (fd);
-		if (ret == -1){
-			fprintf (stderr,"Can't get ext2 flags on file %s (%s)\n"
-				,fname,strerror(errno));
-		}
-	}
-	return ret;
+  bool		res = true;
+#ifdef VC_ENABLE_API_LEGACY
+  if (global_args->is_legacy)
+    return handleFileLegacy(name, display_name, exp_st);
+#endif
+  
+  if (S_ISLNK(exp_st->st_mode)) {
+    write(1, "--------", 8);
+  }
+  else {
+    long		flags;
+
+    if (getFlags(name, exp_st, &flags))
+      writePadded(flags);
+    else {
+      write(1, "ERR     ", 8);
+      res = false;
+    }
+  }
+
+  write(1, "  ", 2);
+  write(1, display_name, strlen(display_name));
+  write(1, "\n", 1);
+
+  return res;
 }
-
-/*
-	Set the extended attributes of a file
-*/
-static int setext2flags (const char *fname, long flags)
-{
-	int ret = -1;
-	int fd = open (fname,O_RDONLY);
-	if (fd == -1){
-		fprintf (stderr,"Can't open file %s (%s)\n",fname,strerror(errno));
-	}else{
-		ret = ioctl (fd,EXT2_IOC_SETFLAGS,&flags);
-		close (fd);
-		if (ret == -1){
-			fprintf (stderr,"Can't set ext2 flags on file %s (%s)\n"
-				,fname,strerror(errno));
-		}
-	}
-	return ret;
-}
-
-
-int main (int argc, char *argv[])
-{
-	int ret = -1;
-	if (argc <= 1){
-		fprintf (stderr
-			,"showattr file ...\n"
-			 "\n"
-			 "Presents extended file attribute.\n"
-			 "\n"
-			 "setattr --immutable --immulink file ...\n"
-			 "\n"
-			 "Sets the extended file attributes.\n"
-			 "\n"
-			 "These utilities exist as an interim until lsattr and\n"
-			 "chattr are updated.\n"
-			);
-	}else if (strstr(argv[0],"showattr")!=NULL){
-	        int i;
-		for (i=1; i<argc; i++){
-			long flags;
-			ret = getext2flags (argv[i],&flags);
-			if (ret == -1){
-				break;
-			}else{
-				printf ("%s\t%08lx\n",argv[i],flags);
-			}
-		}
-	}else if (strstr(argv[0],"setattr")!=NULL){
-		long flags = 0;
-		int  i;
-		ret = 0;
-		for (i=1; i<argc; i++){
-			const char *arg = argv[i];
-			if (strncmp(arg,"--",2)==0){
-				if (strcmp(arg,"--immutable")==0){
-					flags |= EXT2_IMMUTABLE_FILE_FL;
-				}else if (strcmp(arg,"--immulink")==0){
-					flags |= EXT2_IMMUTABLE_LINK_FL;
-				}else{
-					fprintf (stderr,"Invalid option %s\n",arg);
-					ret = -1;
-					break;
-				}
-			}else{
-				ret = setext2flags (arg,flags);
-				if (ret == -1){
-					break;
-				}
-			}
-		}
-	}
-	return ret;
-}
-
