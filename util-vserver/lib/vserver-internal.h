@@ -20,6 +20,7 @@
 #define H_VSERVER_SYSCALL_INTERNAL_H
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <syscall.h>
 #include <unistd.h>
 #include <asm/unistd.h>
@@ -29,26 +30,60 @@
 #  define __NR_sys_virtual_context	273
 #endif
 
-#ifndef NDEBUG
-static ALWAYSINLINE UNUSED void
-vc_tell_unsafe_chroot()
-{
-  static int			flag = -1;
-  if (flag==-1) {
-    char const * const	e = getenv("VC_TELL_UNSAFE_CHROOT");
-    flag = e ? atoi(e) : 0;
-    flag = flag ? 1 : 0;
-  }
+#define VC_PREFIX	0)
+#define VC_SUFFIX	else (void)((void)0
+#define CALL_VC_NOOP	(void)0
+#define CALL_VC_GENERAL(ID, SUFFIX, FUNC, ...)				\
+  VC_PREFIX; VC_SELECT(ID) return FUNC ## _ ## SUFFIX(__VA_ARGS__); VC_SUFFIX
 
-  if (flag) write(2, "Unsafe chroot() used\n", 23);
-}
+#if 1
+#  define VC_SELECT(ID)	case ID: if(1)
+#  define CALL_VC(...)					\
+  switch (utilvserver_checkCompatVersion()) {		\
+    case -1	:  if (1) break;			\
+      VC_SUFFIX, __VA_ARGS__ , VC_PREFIX;		\
+    default	:  errno = EINVAL;			\
+  }							\
+  return -1
 #else
-static ALWAYSINLINE UNUSED void	vc_tell_unsafe_chroot() {}
+#  define VC_SELECT(ID) if (1)
+#  define CALL_VC(...)				\
+  if (1) {} VC_SUFFIX, __VA_ARGS__, VC_PREFIX;	\
+  errno = ENOSYS; return -1
+#endif
+
+#ifdef VC_ENABLE_API_COMPAT
+#  define CALL_VC_COMPAT(F,...) CALL_VC_GENERAL(0x00010000, compat, F, __VA_ARGS__)
+#else
+#  define CALL_VC_COMPAT(F,...)	CALL_VC_NOOP
+#endif
+
+#ifdef VC_ENABLE_API_LEGACY
+#  define CALL_VC_LEGACY(F,...) CALL_VC_GENERAL(0x00000000, legacy, F, __VA_ARGS__)
+#else
+#  define CALL_VC_LEGACY(F,...) CALL_VC_NOOP
+#endif
+
+
+
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #ifndef HAVE_SYS_VIRTUAL_CONTEXT
-static _syscall3(int, sys_virtual_context,
-		 uint32_t, cmd, uint32_t, id, void *, data)
+static UNUSED
+_syscall3(int, sys_virtual_context,
+	  uint32_t, cmd, uint32_t, id, void *, data)
 #endif
-  
+
+size_t		utilvserver_uint2str(char *buf, size_t len,
+				     unsigned int val, unsigned char base);
+int		utilvserver_checkCompatVersion();
+
+#ifdef __cplusplus
+}
+#endif
+
+
 #endif	//  H_VSERVER_SYSCALL_INTERNAL_H
