@@ -53,6 +53,9 @@ AC_PATH_PROGS(WC,      [wc],      [wc],         [ $check_paths ])
 AC_CHECK_PROGS(CVS2CL, [cvs2cl])
 AM_CONDITIONAL(HAVE_CVS2CL,  [test x"$CVS2CL" != x])
 
+AC_CHECK_PROGS(RCS2LOG, [rcs2log])
+AM_CONDITIONAL(HAVE_RCS2LOG,  [test x"$RCS2LOG" != x])
+
 ENSC_CHECK_CC_FLAG([-std=c99])
 
 AC_MSG_CHECKING([whether to enable dietlibc])
@@ -110,7 +113,12 @@ test "$kerneldir" -a -e $i/include/linux/version.h || {
 kernelincludedir=$kerneldir/include
 AC_SUBST(kernelincludedir)
 AC_MSG_RESULT($kernelincludedir/linux)
-		
+
+AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
+AC_CHECK_TYPES(ctx_t,,,[#include <sys/types.h>])
+
+dnl BIG HACK! Do some autodetection here!
+AC_DEFINE(UTMP_GID, [22], [The utmp gid-number])
 
 AC_CONFIG_FILES([util-vserver.spec Makefile distrib/Makefile])
 AC_OUTPUT
