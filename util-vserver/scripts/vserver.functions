@@ -730,11 +730,20 @@ function execScriptlets
     local name=$2
     local flavor=$3
     local start=
-    local i
+    local base i
+    
 
-    for i in "$vdir/scripts/$flavor" "$vdir/scripts/$flavor.d"/*; do
-	test -f "$i" -a -r "$i" || continue
-	test -x "$i" || start=_sourceWrap
-	$start "$i" "$flavor" "$name"
+    for base in "$vdir"/scripts "$CONFDIR"/.defaults/scripts; do
+	local	DONT_SKIP_DEFAULTS=
+	local	already_handled=
+	
+	for i in "$base/$flavor" "$base/$flavor.d"/*; do
+	    test -f "$i" -a -r "$i" || continue
+	    already_handled=1
+	    test -x "$i" || start=_sourceWrap
+	    $start "$i" "$flavor" "$name"
+	done
+
+	test -z "$already_handled" -o "$DONT_SKIP_DEFAULTS" || break
     done
 }
