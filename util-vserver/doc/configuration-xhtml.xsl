@@ -187,4 +187,8 @@
     </span>
   </xsl:template>
 
+  <xsl:template match="ulink">
+    <a href="{@url}"><xsl:apply-templates/></a>
+  </xsl:template>
+
 </xsl:stylesheet>
