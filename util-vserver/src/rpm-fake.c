@@ -527,13 +527,17 @@ endpwent()
 static int
 execvWorker(char const *path, char * const argv[])
 {
-  int		res;
+  int		res = -1;
 
   if (vc_isSupported(vcFEATURE_MIGRATE))
     res = vc_migrate_context(ctx);
   else
+#ifdef VC_ENABLE_API_COMPAT  
     res = vc_new_s_context(ctx,caps,flags);
-  
+#else
+    WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "can not change context: migrate kernel feature missing and 'compat' API disabled\n");
+#endif
+    
   if (res!=-1)
     res=execv_func(path, argv);
 

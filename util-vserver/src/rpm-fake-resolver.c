@@ -251,9 +251,14 @@ activateContext(xid_t xid, bool in_ctx)
   }
   else if (vc_isSupported(vcFEATURE_MIGRATE))
       Evc_migrate_context(xid);
-  else 
+  else {
+#ifdef VC_ENABLE_API_COMPAT
     Evc_new_s_context(xid, 0, S_CTX_INFO_LOCK);
-    //Evc_new_s_context(args.ctx, ~(VC_CAP_SETGID|VC_CAP_SETUID), S_CTX_INFO_LOCK);
+#else
+    WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "can not change context: migrate kernel feature missing and 'compat' API disabled\n");
+    exit(wrapper_exit_code);
+#endif
+  }
 }
 
 int main(int argc, char * argv[])
