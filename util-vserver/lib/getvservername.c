@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <libgen.h>
+#include <unistd.h>
 
 static char *
 getRecentName(char *start, char *end)

@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <libgen.h>
+#include <unistd.h>
 
 char *
 vc_getVserverVdir(char const *id, vcCfgStyle style)
