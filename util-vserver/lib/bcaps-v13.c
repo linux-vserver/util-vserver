@@ -26,6 +26,7 @@
 #include <linux/capability.h>
 
 #include <string.h>
+#include <strings.h>
 #include <assert.h>
 
 #ifndef CAP_QUOTACTL
@@ -70,9 +71,9 @@ static struct Mapping_uint64 const VALUES[] = {
 inline static char const *
 removePrefix(char const *str, size_t *len)
 {
-  if ((len==0 || *len==0 || *len>=4) &&
+  if ((len==0 || *len==0 || *len>4) &&
       strncasecmp("cap_", str, 4)==0) {
-    if (len && *len>=4) *len -= 4;
+    if (len && *len>4) *len -= 4;
     return str+4;
   }
   else
