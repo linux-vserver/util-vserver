@@ -227,7 +227,9 @@ int main (int argc, char *argv[])
   bool			do_show = false;
   uint32_t		flags   = 0;
   pid_t			pid     = 0;
+#ifdef VC_ENABLE_API_LEGACY
   bool			show_obsolete_warning = true;
+#endif    
 
   while (1) {
     int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
