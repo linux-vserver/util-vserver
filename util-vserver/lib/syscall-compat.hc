@@ -26,7 +26,7 @@
 
 #include <unistd.h>
 
-static inline ALWAYSINLINE int
+static inline ALWAYSINLINE xid_t
 vc_new_s_context_compat(xid_t ctx, unsigned int remove_cap, unsigned int flags)
 {
   struct vcmd_new_s_context_v1	msg;

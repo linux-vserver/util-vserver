@@ -93,7 +93,7 @@ static int __NR_new_s_context_rev0;
 static int rev_s_context=0;
 
 #if defined(__pic__) && defined(__i386)
-inline static int
+inline static xid_t
 new_s_context_rev0(int newctx, int remove_cap, int flags)
 {
   return syscall(__NR_new_s_context_rev0, newctx, remove_cap, flags);
@@ -205,16 +205,16 @@ void vc_init_internal_legacy(int ctx_rev, int ctx_number,
   is_init = true;
 }
 
-static ALWAYSINLINE int
+static ALWAYSINLINE xid_t
 vc_new_s_context_legacy(int ctx, int remove_cap, int flags)
 {
-	int ret = -1;
+        xid_t ret = -1;
 	init();
 	if (rev_s_context == 0){
 	        return new_s_context_rev0(ctx, remove_cap, flags);
 	}else{
 		errno = -ENOSYS;
-		ret   = -1;
+		ret   = VC_NOCTX;
 	}
 	return ret;
 }

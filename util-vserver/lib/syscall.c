@@ -47,7 +47,7 @@
 
 #if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
 
-int
+xid_t
 vc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags)
 {
   CALL_VC(CALL_VC_COMPAT(vc_new_s_context, ctx, remove_cap, flags),
