@@ -51,7 +51,15 @@ lib_v13_SRCS =			lib/syscall_enternamespace.c \
 				lib/syscall_getvhiname-olduts.hc \
 				lib/syscall_setvhiname.c \
 				lib/syscall_setvhiname-v13.hc \
-				lib/syscall_setvhiname-olduts.hc
+				lib/syscall_setvhiname-olduts.hc \
+				lib/syscall_createcontext.c \
+				lib/syscall_createcontext-v13.hc \
+				lib/syscall_migratecontext.c \
+				lib/syscall_migratecontext-v13.hc \
+				lib/syscall_getflags.c \
+				lib/syscall_getflags-v13.hc \
+				lib/syscall_setflags.c \
+				lib/syscall_setflags-v13.hc
 
 PKGCONFIG_FILES =		lib/util-vserver
 
