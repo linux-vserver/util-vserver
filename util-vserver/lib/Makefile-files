@@ -31,7 +31,8 @@ lib_management_SRCS =		lib/createskeleton.c \
 				lib/getvservercfgdir.c \
 				lib/getvserverctx.c \
 				lib/getvservername.c \
-				lib/getvservervdir.c
+				lib/getvservervdir.c \
+				lib/xidopt2xid.c
 lib_v11_SRCS =			lib/syscall_rlimit.c \
 				lib/syscall_rlimit-v11.hc \
 				lib/syscall_kill.c  \
