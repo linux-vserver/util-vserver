@@ -41,10 +41,10 @@ declare -r SETUP_HELPMSG=$"
     --hostname <hostname>
     --netdev   <device>
     --netbcast <broadcast>
-    --netmask <netmask>|--netprefix <prefix>
-                ...  sets the  default netmask  (a.b.c.d quadruple)  or prefix
+    --netmask <netmask>|--netprefix <prefixlen>
+                ...  sets the  default netmask  (a.b.c.d quadruple)  or prefixlen
 		     (length of the interface)
-    --interface [<name-suffix>=][<device>:]<ip>[/<mask|prefix>]
+    --interface [<name-suffix>=][<device>:]<ip>[/<mask|prefixlen>]
                 ...  declares an network-interface;  this option can be specified
 		     multiple times
     --flags <flags>+
