@@ -150,7 +150,7 @@ responsible_xid=$XID
 while true; do
     pxid=$($_VSERVER_INFO "$responsible_xid" PXID) || break
     test "$pxid" -ne "$this_xid"                   || break
-    xid=$responsible_xid
+    responsible_xid=$pxid
 done
 
 vserver_id=$($_VSERVER_INFO "$responsible_xid" ID) ||
