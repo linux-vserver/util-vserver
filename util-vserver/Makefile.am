@@ -53,7 +53,8 @@ sysconf_DATA =
 
 DIETPROGS =		$(ENSC_VECTOR_LIBS)
 
-BUILT_SOURCES =		linuxcaps.h pathconfig.h linuxvirtual.h
+BUILT_SOURCES =		linuxcaps.h pathconfig.h linuxvirtual.h \
+			.fixups
 
 man_MANS =
 
@@ -83,7 +84,7 @@ AM_CPPFLAGS		=  -I $(top_srcdir)/lib -I $(top_srcdir)/ensc_wrappers -D _GNU_SOUR
 
 CLEANFILES =		$(BUILT_SOURCES) \
 			.*.pathsubst.stamp */.*.pathsubst.stamp */*/.*.pathsubst.stamp \
-			linuxcaps.h pathconfig.h
+			linuxcaps.h pathconfig.h .fixups
 
 DISTCLEANFILES =	FEATURES.txt
 
@@ -222,6 +223,10 @@ _install-vshelperlink:
 
 _install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
+
+.fixups:		config.status util-vserver.spec
+			chmod a-w util-vserver.spec
+			touch $@
 
 if USE_DIETLIBC
 $(addsuffix $(EXEEXT), $(DIETPROGS)) \
