@@ -660,7 +660,7 @@ function mountVserver
          -e "$cfgdir"/fstab.local -o \
 	 -e "$cfgdir"/fstab.remote || return 0
 
-    findObject -r mtab_src "$vdir"/apps/init/mtab "$CONFDIR"/.defaults/init/mtab "$PKGLIBDEFAULTDIR"/mtab /dev/null
+    findObject -r mtab_src "$cfgdir"/apps/init/mtab "$CONFDIR"/.defaults/init/mtab "$PKGLIBDEFAULTDIR"/mtab /dev/null
     
     pushd "$vdir" >/dev/null
     $_CHROOT_CAT /etc/mtab <"$mtab_src"
