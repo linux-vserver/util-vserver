@@ -19,12 +19,12 @@
 #ifndef H_UTIL_VSERVER_LIB_VIRTUAL_H
 #define H_UTIL_VSERVER_LIB_VIRTUAL_H
 
-#include <vserver/context.h>
-#include <vserver/legacy.h>
-#include <vserver/limit.h>
-#include <vserver/signal.h>
-#include <vserver/namespace.h>
-#include <vserver/inode.h>
-#include <vserver/sched.h>
+#include <kernel/context.h>
+#include <kernel/legacy.h>
+#include <kernel/limit.h>
+#include <kernel/signal.h>
+#include <kernel/namespace.h>
+#include <kernel/inode.h>
+#include <kernel/sched.h>
 
 #endif	//  H_UTIL_VSERVER_LIB_VIRTUAL_H
