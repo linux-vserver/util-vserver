@@ -1,19 +1,24 @@
 #!/bin/sh
-# chkconfig: - 98 10
+# chkconfig: - 98 02
 # description: The rebootmgr service is monitoring all virtual servers \
 #              and restart them as need. Virtual servers are using \
 #              the /sbin/vreboot command to talk with the reboot manager
 # processname: rebootmgr
 # config: /etc/vservers
 
-DEFAULT_VSERVERDIR=/vservers
-USR_SBIN=/usr/sbin
+: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo $"Can not find util-vserver installation; aborting...">&2
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+
 PIDFILE=/var/run/rebootmgr.pid
 # See how we were called.
 case "$1" in
   start)
 	echo "Starting the reboot manager"
-	cd /etc/vservers
+	cd $CONFDIR
 	VSERVERS=
 	for serv in *.conf
 	do
@@ -24,7 +29,7 @@ case "$1" in
 			VSERVERS="$VSERVERS $serv"
 		fi
 	done
-	$USR_SBIN/rebootmgr --pidfile $PIDFILE $VSERVERS &
+	$_REBOOTMGR --pidfile $PIDFILE $VSERVERS &
 	touch /var/lock/subsys/rebootmgr
 	;;
   stop)
