@@ -204,11 +204,24 @@
 #  define NETTYPE_KERNEL2USER(X)	(X)
 #endif
 
+#define CDLIM_USER2KERNEL(X)		((X)==VC_CDLIM_UNSET    ? CDLIM_UNSET    : \
+					 (X)==VC_CDLIM_INFINITY ? CDLIM_INFINITY : \
+					 (X)==VC_CDLIM_KEEP     ? CDLIM_KEEP     : \
+					 (X))
+#define CDLIM_KERNEL2USER(X)		((X)==CDLIM_UNSET       ? VC_CDLIM_UNSET    : \
+					 (X)==CDLIM_INFINITY    ? VC_CDLIM_INFINITY : \
+					 (X)==CDLIM_KEEP        ? VC_CDLIM_KEEP     : \
+					 (X))
 
-#define ENSC_STRUCT_IDX(STRUCT,ATTR) \
+
+#define ENSC_STRUCT_IDX(STRUCT,ATTR)			\
   ((char*)(&(STRUCT).ATTR) - (char*)(&(STRUCT)))
-#define ENSC_SAME_STRUCT_IDX(LHS,RHS,ATTR) \
+#define ENSC_SAME_STRUCT_IDX(LHS,RHS,ATTR)			\
   (ENSC_STRUCT_IDX(LHS,ATTR) == ENSC_STRUCT_IDX(RHS,ATTR))
+#define ENSC_SAME_STRUCT_ITEM(LHS,RHS,ATTR)	\
+  (ENSC_SAME_STRUCT_IDX(LHS,RHS,ATTR) &&	\
+   sizeof((LHS).ATTR)==sizeof((RHS).ATTR) &&	\
+   sizeof(LHS)==sizeof(RHS))
 
 #define EXT2_IOC_GETCONTEXT		_IOR('x', 1, long)
 #define EXT2_IOC_SETCONTEXT		_IOW('x', 2, long)
