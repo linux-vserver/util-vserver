@@ -22,7 +22,7 @@ AC_DEFUN([ENSC_INITRDDIR],
 	AC_MSG_CHECKING([for initrddir])
 	AC_ARG_WITH([initrddir],
 		    [AC_HELP_STRING([--with-initrddir <DIR>],
-				    [use <DIR> as directory for SysV init-files (default: $sysconfdir/rc.d)])],
+				    [use <DIR> as directory for SysV init-files (default: $sysconfdir/init.d)])],
 	            [case "$withval" in
 			yes|no)	AC_MSG_ERROR(['$withval' is not a valid value for '--with-initrddir']);;
 			*)      ensc_initrddir=$withval;;
