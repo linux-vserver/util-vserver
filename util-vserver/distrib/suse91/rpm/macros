@@ -1,0 +1,4 @@
+# Because of https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=52725
+# you have to use at least one language beside 'C'
+%_install_langs		C:de:en:es:fr
+%_netsharedpath		/dev
