@@ -317,27 +317,6 @@ elif [ "$2" = "build" ] ; then
 		vserver_mknod dev/tty c 5 0 666
 		vserver_mknod dev/ptmx c 5 2 666
 		touch dev/hdv1
-		# Turn off some service useless on a vserver
-		#		vserver_turnoff apmd network autofs dhcpd gpm ipchains iptables \
-		#			irda isdn keytable kudzu linuxconf-setup netfs nfs nfslock \
-		#			pcmcia portmap pppoe random rawdevices rhnsd rstatd ruserd \
-		#			rwalld rwhod sendmail smb snmpd v_httpd h_xinetd v_sshd vservers \
-		#			xfs ypbind xinetd
-		(
-			cd etc/init.d 2>/dev/null || cd etc/rc.d/init.d
-			for serv in *
-			do
-				case $serv in
-				*.bak|*~|functions|killall|halt|single)
-					;;
-				*)
-					#$USR_LIB_VSERVER/capchroot $VROOTDIR/$1 /sbin/chkconfig --level 2345 $serv off
-					$0 --silent $1 chkconfig --level 2345 $serv off
-					;;
-				esac
-			done
-		)
-		rm -f etc/rc.d/rc6.d/S*reboot
 		# Create a dummy /etc/fstab and /etc/mtab to please
 		# df and linuxconf. We use hdv1, which does not exist
 		# to remind the admin that it is not the real drive
@@ -428,6 +407,27 @@ S_CAPS=""
 			EOF
 			echo $CONF has been created. Look at it\!
 		fi
+		# Turn off some service useless on a vserver
+		#		vserver_turnoff apmd network autofs dhcpd gpm ipchains iptables \
+		#			irda isdn keytable kudzu linuxconf-setup netfs nfs nfslock \
+		#			pcmcia portmap pppoe random rawdevices rhnsd rstatd ruserd \
+		#			rwalld rwhod sendmail smb snmpd v_httpd h_xinetd v_sshd vservers \
+		#			xfs ypbind xinetd
+		(
+			cd etc/init.d 2>/dev/null || cd etc/rc.d/init.d
+			for serv in *
+			do
+				case $serv in
+				*.bak|*~|functions|killall|halt|single)
+					;;
+				*)
+					#$USR_LIB_VSERVER/capchroot $VROOTDIR/$1 /sbin/chkconfig --level 2345 $serv off
+					$0 --silent $1 chkconfig --level 2345 $serv off
+					;;
+				esac
+			done
+		)
+		rm -f etc/rc.d/rc6.d/S*reboot
 	fi
 elif [ ! -f /etc/vservers/$1.conf ] ; then
 	echo No configuration for this vserver: /etc/vservers/$1.conf
