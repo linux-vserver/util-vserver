@@ -34,6 +34,7 @@ scripts_OPTIONS_EXEMPT =	scripts/vapt-get-worker \
 
 scripts_pkglib_src_DTA =	scripts/functions \
 				scripts/vserver-build.apt-rpm \
+				scripts/vserver-build.skeleton \
 				scripts/vserver-build.functions \
 				scripts/vserver-build.functions.apt \
 				scripts/vserver-build.functions.rpm \
