@@ -23,7 +23,7 @@ sysvdir			=  $(sysconfdir)/init.d
 vservercfgdir		=  $(sysconfdir)/vservers
 
 include_HEADERS		=  $(lib_HDRS)
-noinst_HEADERS		=  $(src_HDRS)
+noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h
 
 lib_LIBRARIES		=  $(lib_lib_LIBS)
 
