@@ -19,19 +19,29 @@ ENSC_VECTOR_SRCS =		ensc_vector/vector-clear.c \
 				ensc_vector/vector-free.c \
 				ensc_vector/vector-init.c \
 				ensc_vector/vector-insert.c \
+				ensc_vector/vector-internal.h \
 				ensc_vector/vector-popback.c \
 				ensc_vector/vector-pushback.c \
 				ensc_vector/vector-resize.c \
+				ensc_vector/vector-resizeinternal.hc \
 				ensc_vector/vector-search.c \
+				ensc_vector/vector-searchselforg.c \
 				ensc_vector/vector-sort.c \
 				ensc_vector/vector-unique.c \
-				ensc_vector/vector-zeroend.c
+				ensc_vector/vector-zeroend.c \
+				ensc_vector/list-at.c \
+				ensc_vector/list-add.c \
+				ensc_vector/list-free.c \
+				ensc_vector/list-init.c \
+				ensc_vector/list-insertinternal.c \
+				ensc_vector/list-internal.h \
+				ensc_vector/list-search.c \
+				ensc_vector/list-searchselforg.c
 
 ENSC_VECTOR_HDRS =		ensc_vector/vector.h \
-				ensc_vector/vector.hc
-
-noinst_HEADERS +=		ensc_vector/vector-resizeinternal.hc \
-				ensc_vector/vector-internal.h
+				ensc_vector/vector.hc \
+				ensc_vector/list.h \
+				ensc_vector/list.hc
 
 ENSC_VECTOR_LIBS =		libensc_vector.a
 libensc_vector_a_SOURCES =	$(ENSC_VECTOR_SRCS)
