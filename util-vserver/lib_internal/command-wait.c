@@ -30,9 +30,7 @@ Command_wait(struct Command *cmd, bool do_block)
   
   if (cmd->rc!=-1) return true;
 
-  switch (wait4(cmd->pid, &rc,
-		!do_block ? WNOHANG : 0,
-		&cmd->rusage)==-1) {
+  switch (wait4(cmd->pid, &rc, (!do_block ? WNOHANG : 0), &cmd->rusage)) {
     case  0	:  break;
     case -1	:  cmd->err = errno; break;
     default	:  cmd->rc  = rc;    return true;
