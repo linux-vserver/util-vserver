@@ -327,7 +327,7 @@ function _processSingleInterface
     _getInterfaceValue name   '' "$iface"
     _getInterfaceValue scope  '' "$iface" "$iface/.."
 
-    test "$ip" || { echo $"Can not read ip for '$iface'"; return 1; }
+    test "$ip" || { echo $"Can not read ip for '$iface'"  >&2; return 1; }
     
     test ! -e "$iface"/only_ip   || unset dev
     
@@ -337,7 +337,7 @@ function _processSingleInterface
 	case "$dev" in
 	    *.*)
 		test -d /proc/net/vlan || {
-		    echo -e $"VLAN device-name used, but vlan subsystem not enabled.\nTry to execute 'modprobe 8021q' before starting the vservers"
+		    echo -e $"VLAN device-name used, but vlan subsystem not enabled.\nTry to execute 'modprobe 8021q' before starting the vservers"  >&2
 		    return 1
 		}
 		test -f /proc/net/vlan || {

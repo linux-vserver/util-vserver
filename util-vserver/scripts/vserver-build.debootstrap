@@ -88,7 +88,7 @@ while true; do
 	-m)		mirror=$2;       shift;;
 	--debug)	set -x;;
 	--)		shift; break ;;
-	*)		echo "vserver-build.skeleton: internal error: unrecognized option '$1'"
+	*)		echo "vserver-build.skeleton: internal error: unrecognized option '$1'" >&2
 			exit 1
 			;;
     esac

@@ -20,7 +20,7 @@
 
 : ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
 test -e "$UTIL_VSERVER_VARS" || {
-    echo "Can not find util-vserver installation; aborting..."
+    echo "Can not find util-vserver installation; aborting..." >&2
     exit 1
 }
 . "$UTIL_VSERVER_VARS"
@@ -132,7 +132,7 @@ while true; do
 	--silent) 	OPTION_SILENT=$1;;
 	----nonamespace)OPTION_NONAMESPACE=$1;;
 	--)	   	shift; break;;
-	*)	   	echo $"vserver: internal error; arg=='$1'"; exit 1;;
+	*)	   	echo $"vserver: internal error; arg=='$1'" >&2; exit 1;;
     esac
     shift
 done
@@ -162,7 +162,7 @@ if test "$allow_legacy"; then
     test -d "$VSERVER_DIR" -o ! -e "$CONFDIR/$vserver.conf" || do_legacy=1
 
     test -z "$do_legacy" || {
-	echo $"WARNING: can not find configuration, assuming legacy method"
+	echo $"WARNING: can not find configuration, assuming legacy method" >&2
 	exec "$_VSERVER_LEGACY" "$@"
     }
 fi
@@ -170,7 +170,7 @@ fi
 test -d "$VSERVER_DIR" || {
     echo "Can not find vserver-setup"
     exit 1
-}
+} >&2
 
 if test -e "$VSERVER_DIR"/name; then
     read VSERVER_NAME <"$VSERVER_DIR"/name
@@ -245,7 +245,7 @@ case "$2" in
 	fi
 	;;
     *)
-	echo $"Usage: $0 {start|stop|suexec|restart|condrestart|exec|enter|chkconfig|running|status}"
+	echo $"Usage: $0 {start|stop|suexec|restart|condrestart|exec|enter|chkconfig|running|status}" >&2
 	exit 2
 	;;
 esac

@@ -87,7 +87,7 @@ function _pkgSetVarsBase
 		test -d "$PKGDIR" || {
 		    echo "Can not find configuration-directory for package-managment tools"
 		    exit 1
-		}
+		} >&2
 		findDir EXECDIR      $PKGDIR/execdir     /
 	    else
 		VDIR=$(getPhysicalDir "$vserver")
@@ -99,7 +99,7 @@ function _pkgSetVarsBase
     	    test -d "$BASEDIR" || {
     	        echo "Can not find configuration-directory"
     	        exit 1
-    	    }
+    	    } >&2
     	    
     	    VDIR=$BASEDIR/vdir
     	    test -d "$VDIR"   || VDIR=$DEFAULT_VSERVERDIR/$vserver
@@ -109,7 +109,7 @@ function _pkgSetVarsBase
     	    test -d "$PKGDIR" || {
     	        echo "Can not find configuration-directory for package-managment tools"
     	        exit 1
-    	    }
+    	    } >&2
 
 	    findDir EXECDIR      $PKGDIR/execdir     /
 
@@ -216,7 +216,7 @@ function pkgInit
 	case "$i" in
 	    rpm)	_pkgSetVarsRPM;;
 	    apt)	_pkgSetVarsApt;;
-	    *)		echo "Unknown packaging flavor"; exit 1;;
+	    *)		echo "Unknown packaging flavor" >&2; exit 1;;
 	esac
     done
 
@@ -335,7 +335,7 @@ function checkComponents
 	    build)	test -x "$_VSERVER_BUILD"    || failed=1;;
 	    sysv)	test -x "$INITRDDIR/vserver" || failed=1;;
 	    devel)	test -d "$INCLUDEDIR/vserver.h" || failed=1;;
-	    *)		echo "Unknown component '$i'"
+	    *)		echo "Unknown component '$i'" >&2
 			return false
 			;;
 	esac
@@ -343,7 +343,7 @@ function checkComponents
 	test -z "$failed" || {
 	    echo "$msg: $i"
 	    x_failed=1
-	}
+	} >&2
     done
 
     test -z "$x_failed"

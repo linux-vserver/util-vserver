@@ -30,7 +30,7 @@ function pkgmgmt._setPkgCfgBase
     done
 
     test -d "$PKGCFGBASE"  || {
-	echo "pkgcfgbase-dir '$PKGCFGBASE' does not exists or is invalid"
+	echo "pkgcfgbase-dir '$PKGCFGBASE' does not exists or is invalid" >&2
 	exit 1
     }
 }
@@ -62,7 +62,7 @@ function pkgmgmt.initFilesystem
     test ! -d "$PKGCFGDIR" || {
 	echo $
 "vserver pkgmgmt-directory exists already; please try to use
-'--force'; or remove it manually"
+'--force'; or remove it manually" >&2
 	exit 1
     }
 

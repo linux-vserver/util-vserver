@@ -18,7 +18,7 @@
 
 : ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
 test -e "$UTIL_VSERVER_VARS" || {
-    echo "Can not find util-vserver installation; aborting..."
+    echo "Can not find util-vserver installation; aborting..." >&2
     exit 1
 }
 . "$UTIL_VSERVER_VARS"
@@ -134,7 +134,7 @@ while true; do
 	--secure)	OPT_SECURE=1;;
 	--silent)	OPT_SILENT=1;;
 	--)		shift; break;;
-	*)		echo $"chcontext: internal error; arg=='$1'"; exit 1;;
+	*)		echo $"chcontext: internal error; arg=='$1'" >&2; exit 1;;
     esac
     shift
 done
@@ -146,13 +146,13 @@ trap "cleanup" EXIT
 xid=$($_VCONTEXT --create ${OPT_SILENT:+--silent} ${OPT_CTX:+--xid "$OPT_CTX"} -- $_CTX_KEEP_ALIVE --socket "$tmpdir"/socket --timeout 60)
 rc=$?
 test "$rc" -ne 255 ||
-    echo $"chcontext: Failed to create the context; aborting..."
+    echo $"chcontext: Failed to create the context; aborting..." >&2
     exit 1
 }
 
 test "$rc" -ne 254 || xid=$OPT_CTX
 test "$xid" || {
-    echo $"chcontext: Failed to determine context xid; aborting..."
+    echo $"chcontext: Failed to determine context xid; aborting..." >&2
     exit 1
 }
 

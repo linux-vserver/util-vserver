@@ -18,7 +18,7 @@
 
 : ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
 test -e "$UTIL_VSERVER_VARS" || {
-    echo "Can not find util-vserver installation; aborting..."
+    echo "Can not find util-vserver installation; aborting..." >&2
     exit 1
 }
 . "$UTIL_VSERVER_VARS"
@@ -102,7 +102,7 @@ while true; do
 	--)	   shift; break;;
 	*)
 	    { setup_setOption2 "$1" "$2" && shift; } || \
-	    { echo $"vserver-build: internal error."; exit 1; }
+	    { echo $"vserver-build: internal error."; exit 1; } >&2
 	    ;;
     esac
     shift
@@ -111,7 +111,7 @@ done
 test "$VSERVER_NAME" || {
     echo $"Name of vserver not specified"
     exit 1
-}
+} >&2
 
 setup_setDefaults "$VSERVER_NAME"
 

@@ -79,7 +79,7 @@ function _setRootDir
     done
 
     test -d "$ROOTDIR" || {
-	echo "Root-directory '$ROOTDIR' does not exist or is invalid"
+	echo "Root-directory '$ROOTDIR' does not exist or is invalid" >&2
 	exit 1
     }
 }
@@ -128,8 +128,9 @@ function getDistribution
 	set -- $(cat /etc/debian_version)
 	DISTRIBUTION=deb$1
     else
-	echo "Can not determine distribution; please specify it manually"
-	echo "with the '-d' option"
+	echo \
+"Can not determine distribution; please specify it manually
+with the '-d' option"  >&2
 	exit 1
     fi >&2
 }
@@ -139,8 +140,9 @@ function base.initFilesystem
 {
     test -z "$1" || _renameVserverCfg
     test ! -d "$VDIR" -a ! -d "$SETUP_CONFDIR" || {
-	echo "vserver-topdirectory and/or configuration exist already; "
-	echo "please try to use '--force', or remove them manually"
+	echo \
+"vserver-topdirectory and/or configuration exist already;
+please try to use '--force', or remove them manually" >&2
 	exit 1
     } >&2
 
