@@ -28,4 +28,9 @@
 char *	FileCfg_readEntryStr (PathInfo const *base, char const *file, bool allow_multiline, char const *dflt);
 bool	FileCfg_readEntryFlag(PathInfo const *base, char const *file, bool dflt);
 
+typedef bool	(*FileCfg_MultiLineHandler)(void *res, char const *data, size_t len);
+
+bool	FileCfg_iterateOverMultiLine(char const *str, FileCfg_MultiLineHandler handler,
+				     void *data);
+
 #endif	//  H_UTIL_VSERVER_LIB_INTERNAL_FILECFG_H
