@@ -47,10 +47,10 @@ getSingleInterface(struct Interface *res,
 }
 
 static inline bool
-getInterfaces(struct Configuration *c, PathInfo const *cfgdir)
+getInterfaces(struct Configuration *cfg)
 {
   ENSC_PI_DECLARE(iface_subdir, "interfaces");
-  PathInfo		ifacepath = *cfgdir;
+  PathInfo		ifacepath = cfg->cfgdir;
   char			path_buf[ENSC_PI_APPSZ(ifacepath, iface_subdir)];
   struct Interface	iface_default;
   DIR			*dir;
@@ -78,7 +78,7 @@ getInterfaces(struct Configuration *c, PathInfo const *cfgdir)
     if (!getSingleInterface(&iface, &iface_default, &ifacepath, ent->d_name))
       rc = false;
     else if (iface.addr.ipv4.ip!=0) {	// HACK: non-directory entries would return true also
-      struct Interface	*new_iface = Vector_pushback(&c->interfaces);
+      struct Interface	*new_iface = Vector_pushback(&cfg->interfaces);
       *new_iface = iface;
     }
   }
@@ -89,8 +89,23 @@ getInterfaces(struct Configuration *c, PathInfo const *cfgdir)
   return rc;
 }
 
-bool
-getConfiguration(struct Configuration *c, PathInfo const *cfgdir)
+static bool
+initVdir(char const **vdir, PathInfo const *cfgdir)
 {
-  return getInterfaces(c, cfgdir);
+  *vdir = vc_getVserverVdir(cfgdir->d, vcCFG_RECENT_FULL, true);
+  if (*vdir==0) {
+    WRITE_MSG(2, "Can not find root-directory of the vserver");
+    return false;
+  }
+
+  return true;
+}
+
+bool
+getConfiguration(struct Configuration *cfg, PathInfo const *cfgdir)
+{
+  cfg->cfgdir = *cfgdir;
+  
+  return (initVdir(&cfg->vdir, cfgdir) &&
+	  getInterfaces(cfg));
 }

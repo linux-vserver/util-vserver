@@ -26,5 +26,7 @@ void
 Cfg_init(struct Configuration *cfg)
 {
   Vector_init(&cfg->interfaces, sizeof(struct Interface));
+  cfg->vdir      = 0;
+  cfg->xid       = VC_DYNAMIC_XID;
   cfg->broadcast = 0;
 }

@@ -64,6 +64,9 @@ Iface_read(struct Interface *res, PathInfo *cfgdir,
   char const *	bcast;
   bool		rc = false;
 
+    // skip 'disabled' interfaces
+  if (readEntryFlag(cfgdir, "disabled", false)) return true;
+    
   ip          =  readEntryStr (cfgdir, "ip",       0);
   mask        =  readEntryStr (cfgdir, "mask",     0);
   prefix      =  readEntryStr (cfgdir, "prefix",   0);

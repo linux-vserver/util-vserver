@@ -48,33 +48,37 @@ invokeIpAddr(struct Interface const *iface)
 {
   struct Command		cmd;
   unsigned int			prefix = Iface_getIPv4Prefix(iface);
-  char				buf[sizeof("255.255.255.255/") + sizeof(unsigned int)*3 + 1];
   char *			tmp = inet_ntoa(*reinterpret_cast(struct in_addr *)(&iface->addr.ipv4.ip));
   size_t			l   = strlen(tmp);
+  char				addr[l + sizeof("/") + sizeof(unsigned int)*3 + 1];
   char *			ptr;
+  size_t			l1 = strlen(iface->dev);
+  size_t			l2 = iface->name ? strlen(iface->name) : 0;
+  char				devlabel[l1 + l2 + sizeof(":")];
+  bool				result = true;
 
-  if (l>=sizeof("255.255.255.255")) {
-    abort();
-    return false;
-  }
-  ptr    = Xmemcpy(buf, tmp, l);
+  ptr    = Xmemcpy(addr, tmp, l);
   *ptr++ = '/';
   l      = utilvserver_fmt_uint(ptr, prefix);
   ptr[l] = '\0';
 
-  Command_init(&cmd, 5);
-  Command_appendParameter(&cmd, "/bin/echo");
-  Command_appendParameter(&cmd, PROG_IP);
-  Command_appendParameter(&cmd, buf);
-  Command_appendParameter(&cmd, "broadcast");
-  if (iface->addr.ipv4.bcast!=0)
-    Command_appendParameter(&cmd, inet_ntoa(*reinterpret_cast(struct in_addr *)(&iface->addr.ipv4.bcast)));
-  else
-    Command_appendParameter(&cmd, "+");
+  Command_init(&cmd);
 
-  size_t			l1 = strlen(iface->dev);
-  size_t			l2 = iface->name ? strlen(iface->name) : 0;
-  char				devlabel[l1 + l2 + sizeof(":")];
+  size_t		idx    = 6;
+  char const *		argv[] = {
+    "/bin/echo",
+    PROG_IP, "addr", "add",
+    addr,
+    "broadcast", 0,
+    0, 0,	// label <name>
+    0, 0,	// dev   <dev>
+    0
+  };
+
+  if (iface->addr.ipv4.bcast!=0)
+    argv[idx++] = inet_ntoa(*reinterpret_cast(struct in_addr *)(&iface->addr.ipv4.bcast));
+  else
+    argv[idx++] = "+";
   
   if (iface->name) {
     ptr    = Xmemcpy(devlabel, iface->dev,  l1);
@@ -82,20 +86,22 @@ invokeIpAddr(struct Interface const *iface)
     ptr    = Xmemcpy(ptr,      iface->name, l2);
     *ptr   = '\0';
     
-    Command_appendParameter(&cmd, "label");
-    Command_appendParameter(&cmd, devlabel);
+    argv[idx++] = "label";
+    argv[idx++] = devlabel;
   }
 
-  Command_appendParameter(&cmd, "dev");
-  Command_appendParameter(&cmd, iface->dev);
+  argv[idx++] = "dev";
+  argv[idx++] = iface->dev;  
 
+  Command_setParams(&cmd, argv);
   if (!Command_exec(&cmd, true) ||
-      !Command_wait(&cmd, true))
-    return false;
+      !Command_wait(&cmd, true) ||
+      cmd.rc!=0)
+    result = false;
 
   Command_free(&cmd);
   
-  return true;
+  return result;
 }
 
 static bool

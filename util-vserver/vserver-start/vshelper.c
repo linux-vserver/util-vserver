@@ -29,14 +29,15 @@
 void
 Vshelper_doSanityCheck()
 {
-  struct Command	cmd = {
-    .filename = "/bin/bash"
+  struct Command	cmd;
+  char const *		argv[] = {
+    "/bin/bash", "-c",
+    ". " PATH_UTILVSERVER_VARS ";. " PATH_FUNCTIONS "; vshelper.doSanityCheck",
+    0
   };
 
-  Command_init(&cmd, 10);
-  Command_appendParameter(&cmd, "/bin/bash");
-  Command_appendParameter(&cmd, "-c");
-  Command_appendParameter(&cmd, ". " PATH_UTILVSERVER_VARS ";. " PATH_FUNCTIONS "; vshelper.doSanityCheck");
+  Command_init(&cmd);
+  Command_setParams(&cmd, argv);
   if (!Command_exec(&cmd, true) ||
       !Command_wait(&cmd, true))
     WRITE_MSG(2, "vserver-start: failed to do the vshelper-sanitycheck\n");

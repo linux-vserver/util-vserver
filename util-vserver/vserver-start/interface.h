@@ -53,6 +53,8 @@ bool		Iface_read(struct Interface *, PathInfo *cfgdir,
 			   struct Interface const *dflt);
 bool		Iface_add(struct Interface const *);
 bool		Iface_del(struct Interface const *);
+bool		Iface_remove(struct Interface const *);
+void		Iface_print(struct Interface const *, int fd);
 
 #include "interface-init.hc"
 #include "interface-free.hc"

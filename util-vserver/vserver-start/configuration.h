@@ -19,12 +19,16 @@
 #ifndef H_UTIL_VSERVER_VSERVER_START_CONFIGURATION_H
 #define H_UTIL_VSERVER_VSERVER_START_CONFIGURATION_H
 
+#include <lib/vserver.h>
 #include <ensc_vector/vector.h>
 #include <lib_internal/pathinfo.h>
 
 #include <stdbool.h>
 
 struct Configuration {
+    PathInfo		cfgdir;
+    char const *	vdir;
+    xid_t		xid;
     uint32_t		broadcast;
     struct Vector	interfaces;
 };

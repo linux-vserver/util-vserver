@@ -25,12 +25,25 @@
 #include "pathconfig.h"
 #include "interface.h"
 #include "configuration.h"
+#include "mount.h"
+#include "undo.h"
 
 #include "lib_internal/util.h"
 #include "lib_internal/errinfo.h"
+#include "lib_internal/sys_clone.h"
 #include "lib/vserver.h"
+#include "lib/internal.h"
 
 #include <sys/file.h>
+#include <sched.h>
+#include <signal.h>
+#include <sys/socket.h>
+
+#define ENSC_WRAPPERS_VSERVER	1
+#define ENSC_WRAPPERS_SOCKET	1
+#define ENSC_WRAPPERS_FCNTL	1
+#define ENSC_WRAPPERS_STDLIB	1
+#include <ensc_wrappers/wrappers.h>
 
 struct Options			opts;
 struct Configuration		cfg;
@@ -120,9 +133,45 @@ int main(int argc, char *argv[])
   initLock();
   checkConstraints();
 
+  int		sync_fd[2];
+  char		c;
+  xid_t		xid;
+  char		buf[sizeof(xid)*3 + 2];
   PathInfo	cfgdir = { .d = opts.VSERVER_DIR, .l = strlen(opts.VSERVER_DIR) };
 
+  Esocketpair(AF_UNIX, SOCK_STREAM, 0, sync_fd);
+  Efcntl(sync_fd[0], F_SETFD, FD_CLOEXEC);
+  Efcntl(sync_fd[1], F_SETFD, FD_CLOEXEC);
+  
   getConfiguration(&cfg, &cfgdir);
-  execScriptlets(&cfgdir, opts.VSERVER_NAME, "prepre-start");
-  activateInterfaces();
+  pid_t		pid    = sys_clone(CLONE_NEWNS|SIGCHLD, 0);
+  FatalErrnoError(pid==-1, "sys_clone()");
+  
+  switch (pid) {
+    case 0	:
+      Undo_init();
+      execScriptlets(&cfgdir, opts.VSERVER_NAME, "prepre-start");
+      activateInterfaces();
+      
+      xid = Evc_ctx_create(cfg.xid);
+      mountVserver(&cfg);
+	//      prepareInit(&cfg, &cfgdir);
+
+      Esend(sync_fd[0], &xid, sizeof xid, MSG_NOSIGNAL);
+      Erecv(sync_fd[0], &c, 1, 0);
+      execScriptlets(&cfgdir, opts.VSERVER_NAME, "pre-start");
+
+      Undo_detach();
+      break;
+
+    default	:
+      Erecv(sync_fd[1], &xid, sizeof xid, 0);
+      utilvserver_fmt_uint(buf, xid);
+      Esetenv("CHILD_XID", buf, 1);
+      
+      execScriptlets(&cfgdir, opts.VSERVER_NAME, "pre-start.parent");
+      Esend(sync_fd[1], ".", 1, MSG_NOSIGNAL);
+      
+      break;
+  }
 }

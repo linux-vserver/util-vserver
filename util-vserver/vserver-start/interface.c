@@ -24,8 +24,15 @@
 
 #include "vserver-start.h"
 #include "configuration.h"
+#include "undo.h"
 
 #include <lib_internal/util.h>
+
+static void
+Iface_removeWrapper(void const *iface)
+{
+  (void)Iface_remove(iface);
+}
 
 void
 activateInterfaces()
@@ -34,6 +41,14 @@ activateInterfaces()
 
   for (iface=Vector_begin(&cfg.interfaces);
        iface!=Vector_end(&cfg.interfaces);
-       ++iface)
-    Iface_add(iface);
+       ++iface) {
+    if (!Iface_add(iface)) {
+      WRITE_MSG(2, "Failed to add interface ");
+      Iface_print(iface, 2);
+      WRITE_MSG(2, "\n");
+      
+      exit(1);
+    }
+    Undo_addTask(Iface_removeWrapper, iface);
+  }
 }

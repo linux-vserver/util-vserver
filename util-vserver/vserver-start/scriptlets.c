@@ -50,9 +50,9 @@ visitFile(char const *fname, char const *vname, char const *style)
 	      "!!!LEGACY ALERT!!!\n"
 	      "The special handling of non-executable scriptlets which allows to\n"
 	      "override environment variables is not supported anymore. This change\n"
-	      "was needed as 'vserver ... start' is a done by a native C program\n"
-	      "now. If you need the old functionality please fill a bugreport so\n"
-	      "that workarounds can be found/implemented.\n"
+	      "was needed as 'vserver ... start' is done by a native C program now.\n"
+	      "If you need the old functionality please fill a bugreport so that\n"
+	      "workarounds can be found/implemented.\n"
 	      "The file triggering this message was\n"
 	      "    '");
     WRITE_STR(2, fname);
@@ -61,10 +61,8 @@ visitFile(char const *fname, char const *vname, char const *style)
     return false;
   }
 
-  Command_init(&cmd, 4);
-  Command_appendParameter(&cmd, fname);
-  Command_appendParameter(&cmd, style);
-  Command_appendParameter(&cmd, vname);
+  char const *par[] = { fname, style, vname, 0 };
+  Command_setParams(&cmd, par);
 
   if (!Command_exec(&cmd, true) ||
       !Command_wait(&cmd, true)) {
