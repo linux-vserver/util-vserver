@@ -32,7 +32,7 @@ Provides:	vserver = %version-%release
 Obsoletes:	vserver < %version
 BuildRequires:	mount vconfig gawk iproute iptables
 BuildRequires:	gcc-c++ wget
-BuildRequires:	e2fsprogs-devel
+BuildRequires:	e2fsprogs-devel beecrypt-devel
 BuildRequires:	doxygen tetex-latex
 Requires(post):		%__chattr
 Requires(pre):		%pkglibdir
