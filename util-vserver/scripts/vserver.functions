@@ -474,7 +474,7 @@ function _processSingleInterface
 		    return 1
 		}
 		test -f /proc/net/vlan || {
-		    _addInterfaceCmd VCONFIG "${dev/./ }"
+		    _addInterfaceCmd VCONFIG ${dev/./ }
 		    _addInterfaceCmd IP_ADDR 127.0.0.1/8 broadcast 127.255.255.255 dev "$dev"
 		    _addInterfaceCmd IP_LINK "$dev" $up
 		}
@@ -612,7 +612,7 @@ function prepareStop
 {
     pushd "$1/vdir" >/dev/null
     case "$INITSTYLE" in
-	sysv)
+	(sysv)
 	    export PREVLEVEL=$RUNLEVEL_START # required by Debian's initscripts
 	    ;;
     esac
@@ -681,7 +681,7 @@ function _umountVserverInternal
     test -e "$fstab" || return 0
     shift
 
-    tac "$fstab" | {
+    $_TAC "$fstab" | {
 	is_ok=1
 	while read src dst tmp; do
 	    test "$tmp" || continue
