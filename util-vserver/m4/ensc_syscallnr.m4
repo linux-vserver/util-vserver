@@ -46,7 +46,7 @@ ensc_syscall_tmp_src=ENSC_MARK
 
 		if test x"$ensc_syscall_tmp_nr" = x; then
 			AC_MSG_ERROR(
-[Can not determine value of __NR_$1; please verify your glibc/kernelheaders, and/or set CPPFLAGS='-D=__NR_$1=<value>' environment when calling configure.])
+[Can not determine value of __NR_$1; please verify your glibc/kernelheaders, and/or set CPPFLAGS='-D__NR_$1=<value>' environment when calling configure.])
 		fi
 		AC_LANG_POP
 
