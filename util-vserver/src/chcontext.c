@@ -377,7 +377,7 @@ int main (int argc, char *argv[])
     args.domainname = "";
     
   if (args.nbctx == 0)
-    args.ctxs[args.nbctx++] = VC_RANDCTX;
+    args.ctxs[args.nbctx++] = VC_DYNAMIC_XID;
     
   xflags      = args.flags & S_CTX_INFO_INIT;
   args.flags &= ~S_CTX_INFO_INIT;
@@ -391,7 +391,7 @@ int main (int argc, char *argv[])
 
     if (args.remove_caps!=0 || xflags!=0)
       Evc_new_s_context (VC_SAMECTX,args.remove_caps,xflags);
-    tellContext(args.ctxs[0]==VC_RANDCTX ? newctx : args.ctxs[0]);
+    tellContext(args.ctxs[0]==VC_DYNAMIC_XID ? newctx : args.ctxs[0]);
 
     doSyncStage1(p);
     execvp (argv[optind],argv+optind);

@@ -21,8 +21,8 @@
 #endif
 
 #include "pathconfig.h"
-#include "util.h"
 #include "sys_clone.h"
+#include "util.h"
 
 #include <vserver.h>
 
@@ -299,7 +299,7 @@ initEnvironment()
   if (ctx_s && *ctx_s) ctx_s = strdup(ctx_s);
   else                 ctx_s = 0;
 
-  ctx       = getAndClearEnv("RPM_FAKE_CTX",  VC_RANDCTX);
+  ctx       = getAndClearEnv("RPM_FAKE_CTX",  VC_DYNAMIC_XID);
   caps      = getAndClearEnv("RPM_FAKE_CAP",  ~0x3404040f);
   flags     = getAndClearEnv("RPM_FAKE_FLAGS", 0);
   root      = getenv("RPM_FAKE_CHROOT");

@@ -230,7 +230,7 @@ daemonize(struct ArgInfo const UNUSED * args, int pid_fd)
 int main(int argc, char * argv[])
 {
   struct ArgInfo	args = {
-    .ctx      = VC_RANDCTX,
+    .ctx      = VC_DYNAMIC_XID,
     .uid      = 99,
     .gid      = 99,
     .do_fork  = true,
