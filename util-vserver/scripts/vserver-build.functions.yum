@@ -48,6 +48,21 @@ function yum.initVariables
 	''
 }
 
+function yum.__substituteConf
+{
+    local f=$1
+    local prefix=$2
+
+    if test -e "$f"; then
+	$_SED -e "s!@YUMETCDIR@!$prefix$PKGCFGDIR/yum/etc!g;
+		  s!@YUMCACHEDIR@!$prefix$PKGCFGDIR/yum/cache!g;
+		  s!@YUMLOGDIR@!$prefix$PKGCFGDIR/yum!g;
+                 " "$f" >"$f.tmp"
+	$_CMP -s "$f" "$f.tmp" || $_CAT "$f.tmp" >"$f"
+	$_RM -f "$f.tmp"
+    fi
+}
+
 function yum.initFilesystem
 {
     mkdir -p "$PKGCFGDIR"/yum/{etc,cache}
@@ -58,16 +73,13 @@ function yum.initFilesystem
 	"$CONFDIR/.distributions/$DISTRIBUTION/yum"
 
     ## workaround for yum's automatism to search the configuration in the chroot
-    local prefix='/../../../../../../../../../../../../'
-    local f="$PKGCFGDIR"/yum/etc/yum.conf
-    if test -e "$f"; then
-	$_SED -e "s!@YUMETCDIR@!$prefix$PKGCFGDIR/yum/etc!g;
-		  s!@YUMCACHEDIR@!$prefix$PKGCFGDIR/yum/cache!g;
-		  s!@YUMLOGDIR@!$prefix$PKGCFGDIR/yum!g;
-                 " "$f" >"$f.tmp"
-	$_CMP -s "$f" "$f.tmp" || $_CAT "$f.tmp" >"$f"
-	$_RM -f "$f.tmp"
-    fi
+    
+    local f0="$PKGCFGDIR"/yum/etc/yum.conf
+    local f1="$PKGCFGDIR"/yum/etc/yum-hack.conf
+    cp -a "$f0" "$f1"
+
+    yum.__substituteConf "$f0" 'hostfs://'
+    yum.__substituteConf "$f1" '/../../../../../../../../../../../../'
 
     test -z "$YUMREPOSDEFAULT" -o -e "$PKGCFGDIR/yum/etc/yum.repos.d" || \
 	$_LN_S "$YUMREPOSDEFAULT"   "$PKGCFGDIR/yum/etc/yum.repos.d"

@@ -32,7 +32,13 @@ shift
 pkgInit "$vserver" rpm yum
 rpmFake.init "$vserver"
 
-rpmFake.exec ${_YUM:-yum} \
-    -c "$YUMETCDIR/yum.conf" \
+yum=${YUM:-yum}
+case $(yum --version) in
+    (2.[0123]*)		conf=yum-hack.conf;;
+    (*)			conf=yum.conf;;
+esac
+
+rpmFake.exec $yum \
+    -c "$YUMETCDIR/${YUM_CONF:-$conf}" \
     --installroot="$VDIR" \
     "$@"
