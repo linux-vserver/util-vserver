@@ -43,6 +43,7 @@ isAbsPath(char const *p)
 
 #define ISDIR	utilvserver_isDirectory(buf, true)
 #define ISFILE	utilvserver_isFile(buf, true)
+#define ISLINK	utilvserver_isLink(buf)
 
 vcCfgStyle
 vc_getVserverCfgStyle(char const *id)
@@ -60,7 +61,7 @@ vc_getVserverCfgStyle(char const *id)
   strcpy(marker, "/vdir");
 
   is_path = isAbsPath(buf) || isRelPath(buf);
-  if (is_path && ISDIR)
+  if (is_path && (ISDIR || ISLINK))
     res = vcCFG_RECENT_FULL;
   else if (!is_path) {
     strcpy(buf,                         CONFDIR "/");
