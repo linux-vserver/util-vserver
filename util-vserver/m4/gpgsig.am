@@ -16,4 +16,5 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 gpgsig:
-			gpg --armor --detach-sign $(distdir).tar.bz2
+			gpgkey=$(GPG_KEY); \
+			gpg $${gpgkey:+--default-key "$$gpgkey"} --armor --detach-sign $(distdir).tar.bz2

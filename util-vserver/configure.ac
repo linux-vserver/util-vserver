@@ -24,12 +24,14 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.29.214, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.29.215, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([gnits dist-bzip2 subdir-objects])
 AM_MAINTAINER_MODE
+
+AC_SUBST(GPG_KEY, "0x7AE5D4B5922F7AF9!")
 
 # Checks for programs.
 AC_PROG_CXX
