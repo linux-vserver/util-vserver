@@ -19,23 +19,22 @@
 
 lib_VERSION =			0.0.0
 
-lib_legacy_SRCS			=  lib/getprocentry-legacy.c
-lib_management_SRCS		=  lib/getvserverbyctx.c \
-				   lib/getvservercfgstyle.c \
-				   lib/getvserverappdir.c \
-				   lib/getvservercfgdir.c \
-				   lib/getvserverctx.c \
-				   lib/getvservername.c \
-				   lib/getvservervdir.c
-lib_v11_SRCS			=  lib/syscall_rlimit.c \
-				   lib/syscall_kill.c
+lib_legacy_SRCS =		lib/getprocentry-legacy.c
+lib_management_SRCS =		lib/getvserverbyctx.c \
+				lib/getvservercfgstyle.c \
+				lib/getvserverappdir.c \
+				lib/getvservercfgdir.c \
+				lib/getvserverctx.c \
+				lib/getvservername.c \
+				lib/getvservervdir.c
+lib_v11_SRCS =			lib/syscall_rlimit.c \
+				lib/syscall_kill.c
+lib_v13_SRCS =			lib/syscall_getiattr.c \
+				lib/syscall_setiattr.c
+lib_fscompat_SRCS =  		lib/fscompat_setiattr.c \
+				lib/fscompat_getiattr.c
 
-lib_ioctl_SRCS =		lib/ioctl-getfilecontext.c \
-				lib/ioctl-setfilecontext.c \
-				lib/ioctl-getext2flags.c \
-				lib/ioctl-setext2flags.c
-
-PKGCONFIG_FILES			=  lib/util-vserver
+PKGCONFIG_FILES =		lib/util-vserver
 
 lib_SRCS =  			lib/syscall.c \
 				lib/checkversion.c \
@@ -48,32 +47,41 @@ lib_SRCS =  			lib/syscall.c \
 				lib/fmtx-32.c \
 				lib/fmtx-64.c \
 				lib/capabilities.c \
-				$(lib_ioctl_SRCS) \
 				$(lib_legacy_SRCS) \
 				$(lib_management_SRCS) \
-				$(lib_v11_SRCS)
+				$(lib_v11_SRCS) \
+				$(lib_v13_SRCS) \
+				$(lib_fscompat_SRCS)
 
-lib_HDRS			=  lib/vserver.h
+lib_HDRS =			lib/vserver.h
 
-lib_XHDRS                       =  lib/syscall-compat.hc \
-	 			   lib/syscall-legacy.hc \
-				   lib/syscall_rlimit-v11.hc \
-				   lib/syscall_kill-v11.hc \
-				   lib/getctx-compat.hc \
-				   lib/getctx-legacy.hc \
-				   lib/getinitpid-compat.hc \
-				   lib/getinitpid-legacy.hc \
-				   lib/getversion-internal.hc \
-				   lib/safechroot-internal.hc \
-				   lib/ext2fs.h \
-				   lib/fmt.h \
-				   lib/fmt.hc \
-				   lib/fmtx.hc \
-				   lib/fmt-internal.h \
-				   lib/virtual.h \
-				   lib/internal.h \
-				   lib/utils-legacy.h \
-				   lib/vserver-internal.h
+lib_XHDRS =			lib/syscall-compat.hc \
+	 			lib/syscall-legacy.hc \
+				lib/syscall_rlimit-v11.hc \
+				lib/syscall_kill-v11.hc \
+				lib/syscall_getiattr-v13.hc \
+				lib/syscall_setiattr-v13.hc \
+				lib/fscompat_setiattr-v11.hc \
+				lib/fscompat_getiattr-v11.hc \
+				lib/getctx-compat.hc \
+				lib/getctx-legacy.hc \
+				lib/getinitpid-compat.hc \
+				lib/getinitpid-legacy.hc \
+				lib/getversion-internal.hc \
+				lib/safechroot-internal.hc \
+				lib/ioctl-getext2flags.hc \
+				lib/ioctl-getfilecontext.hc \
+				lib/ioctl-setext2flags.hc \
+				lib/ioctl-setfilecontext.hc \
+				lib/ext2fs.h \
+				lib/fmt.h \
+				lib/fmt.hc \
+				lib/fmtx.hc \
+				lib/fmt-internal.h \
+				lib/virtual.h \
+				lib/internal.h \
+				lib/utils-legacy.h \
+				lib/vserver-internal.h
 
 #lib_lib_LIBS			=  lib/libvserver.a lib/libvserver-pic.a
 lib_lib_LIBS			=
