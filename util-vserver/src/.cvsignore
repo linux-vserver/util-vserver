@@ -6,6 +6,7 @@ chcontext
 chroot-cat
 chroot-rm
 ctx-kill
+exec-ulimit
 fakerunlevel
 filetime
 ifspec
