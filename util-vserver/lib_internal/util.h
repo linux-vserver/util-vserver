@@ -31,4 +31,6 @@
 #include "util-safechdir.h"
 #include "util-unixsock.h"
 
+bool		switchToWatchXid(char const **);
+
 #endif	//  H_UTILVSERVER_LIB_INTERNAL_UTIL_H
