@@ -29,7 +29,15 @@ FatalErrnoErrorFail(char const msg[])
 {
   extern int	wrapper_exit_code;
 
+#ifdef ENSC_WRAPPERS_PREFIX
+  {
+    int		old_errno = errno;
+    WRITE_MSG(2, ENSC_WRAPPERS_PREFIX);
+    errno = old_errno;
+  }
+#endif
   perror(msg);
+  
   exit(wrapper_exit_code);
 }
 
