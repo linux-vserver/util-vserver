@@ -426,22 +426,41 @@ showContexts(struct Vector *vec)
     shortenTime(buf+44, uptime - ptr->start_time_oldest);
 
     switch (ptr->xid) {
-      case 0		:  strncpy(buf+55, "root server",       20); break;
-      case 1		:  strncpy(buf+55, "monitoring server", 20); break;
+      case 0		:  strcpy(buf+55, "root server"      ); break;
+      case 1		:  strcpy(buf+55, "monitoring server"); break;
       default		: {
 	char *		name     = 0;
 	char *		cfgpath  = 0;
 	vcCfgStyle	cfgstyle = vcCFG_AUTO;
 
-	if ((cfgpath = vc_getVserverByCtx(ptr->xid, &cfgstyle, 0))!=0 &&
-	    (name    = vc_getVserverName(cfgpath, cfgstyle))!=0)
-	  strncpy(buf+55, name, 20);
+	if ((cfgpath = vc_getVserverByCtx(ptr->xid, &cfgstyle, 0))==0 ||
+	    (name    = vc_getVserverName(cfgpath, cfgstyle))==0) {
+	  name     = strdup("");
+	  cfgstyle = vcCFG_NONE;
+	}
+	
+	switch (cfgstyle) {
+	  case vcCFG_LEGACY	: {
+	    size_t	len = MIN(strlen(name), 18);
+	    buf[55]     = '[';
+	    memcpy(buf+56,     name, len);
+	    memcpy(buf+56+len, "]",  2);
+	    break;
+	  }
+	  default		: {
+	    size_t	len = MIN(strlen(name), 20);
+	    memcpy(buf+55, name, len);
+	    buf[55+len] = '\0';
+	    break;
+	  }
+	}
+	
 	free(name);
 	free(cfgpath);
       }
     }
 
-    write(1, buf, 80);
+    write(1, buf, strlen(buf));
     write(1, "\n", 1);
   }
 }
