@@ -76,7 +76,7 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 	    _dietlibc_ver_min=${_dietlibc_ver##*.}
 	    _dietlibc_cmp=$2
 	    _dietlibc_cmp_maj=${_dietlibc_cmp%%.*}
-	    _dietlibc_cmp_min=${_dietlibc_cmp%%.*}
+	    _dietlibc_cmp_min=${_dietlibc_cmp##*.}
 
 	    let _dietlibc_ver=_dietlibc_ver_maj*1000+_dietlibc_ver_min 2>/dev/null || _dietlibc_ver=0
 	    let _dietlibc_cmp=_dietlibc_cmp_maj*1000+_dietlibc_cmp_min
@@ -102,7 +102,7 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 		;;
 	    xdetected_old)
 		AM_CONDITIONAL($1, false)
-		AC_MSG_RESULT([no (too old; $2 required)])
+		AC_MSG_RESULT([no (too old; $2+ required)])
 		;;
 	    xforced_no)
 		AM_CONDITIONAL($1, false)
