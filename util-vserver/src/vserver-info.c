@@ -457,8 +457,9 @@ int main(int argc, char *argv[])
   }
 
   if (optind+2>argc) {
-    WRITE_MSG(2, "No vserver or tag give; please try '--help' for more information.\n");
-    exit(1);
+    execQuery("-", tgSYSINFO, 0, 0);
+    WRITE_MSG(2, "\nAssumed 'SYSINFO' as no other option given; try '--help' for more information.\n");
+    exit(0);
   }
 
   vserver = argv[optind];
