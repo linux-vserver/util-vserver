@@ -190,7 +190,7 @@ function initFilesystem
 	                                  "$DISTRIBDIR/$DISTRIBUTION"/files/hosts "$DISTRIBDIR"/defaults/files/hosts ""
 
     for i in nsswitch.conf krb5.conf krb.conf krb.realms ldap.conf localtime resolv.conf; do
-	findAndCopy "$VDIR"/etc/$i  "$CONFDIR/.defaults/files/$i" "$CONFDIR/.distributions/$DISTRIBUTION"/files/$i" ""
+	findAndCopy "$VDIR"/etc/$i  "$CONFDIR/.defaults/files/$i" "$CONFDIR/.distributions/$DISTRIBUTION/files/$i" ""
     done
 }
 
