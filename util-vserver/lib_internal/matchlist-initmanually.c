@@ -37,8 +37,8 @@
 #include <wrappers.h>
 
 
-extern int	Global_getVerbosity();
-extern bool	Global_doRenew();
+extern int	Global_getVerbosity() PURE CONST;
+extern bool	Global_doRenew() PURE CONST;
 
 static void
 readExcludeListFD(int fd,
@@ -157,7 +157,7 @@ MatchList_initManually(struct MatchList *list, char const *vserver,
   char			**expr_files  = 0;
   size_t		expr_count    = 0;
 
-  if (Global_getVerbosity()>3) {
+  if (Global_getVerbosity()>=1) {
     WRITE_MSG(1, "Initializing exclude-list for ");
     WRITE_STR(1, vdir);
     if (vserver!=0) {
@@ -168,14 +168,14 @@ MatchList_initManually(struct MatchList *list, char const *vserver,
     WRITE_MSG(1, "\n");
   }
   if (vserver && Global_doRenew()) {
-    if (Global_getVerbosity()>4)
+    if (Global_getVerbosity()>=2)
       WRITE_MSG(1, "  Fetching configuration-file list from packagemanagement\n");
     getConfigfileList(vserver, &fixed_files, &fixed_count, buf+0);
   }
 
   // abuse special values (NULL, empty string) to skip the next step
   if (exclude_file && *exclude_file) {
-    if (Global_getVerbosity()>4) WRITE_MSG(1, "  Reading exclude file\n");
+    if (Global_getVerbosity()>=6) WRITE_MSG(1, "  Reading exclude file\n");
     readExcludeList(exclude_file,
 		    &expr_files,  &expr_count,
 		    buf+1);
