@@ -59,6 +59,12 @@ Possible commands are:
     build <buildopts>*
                 ... builds a new vserver from scratch
 
+    unify [-R]
+		... (de)unify vserver
+		
+    pkg install <pkg>
+		... installs package(s) in the vserver
+		
     apt-get,apt-config,apt-cache <apt-opts>*
 		... execute the apt-* command for the given vserver
     rpm <rpm-opts>*
@@ -179,6 +185,16 @@ case "$2" in
 	;;
     running)
 	isVserverRunning "$VSERVER_DIR"
+	;;
+
+    unify)
+	shift 2
+	exec $_VUNIFY "$@" "$vserver"
+	;;
+	
+    pkg)
+	shift 2
+	exec $_VPKG "$vserver" "$@"
 	;;
 
     apt-get|apt-config|apt-cache)
