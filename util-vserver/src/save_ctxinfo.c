@@ -75,8 +75,9 @@ int main(int argc, char *argv[])
     return 255;
   }
 
-  EreadlinkD(runfile, dstfile, sizeof(dstfile));
-  len  = utilvserver_fmt_uint(buf, ctx);
+  len          = EreadlinkD(runfile, dstfile, sizeof(dstfile)-1);
+  dstfile[len] = '\0';
+  len          = utilvserver_fmt_uint(buf, ctx);
 
   fd = EopenD(dstfile, O_EXCL|O_CREAT|O_WRONLY, 0644);
   if (write(fd, buf,     len) !=len  ||
