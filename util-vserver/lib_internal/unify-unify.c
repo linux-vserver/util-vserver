@@ -30,7 +30,7 @@
 #include <sys/stat.h>
 
 bool
-Unify_unify(char const *src, struct stat const *src_stat,
+Unify_unify(char const *src, struct stat const UNUSED *src_stat,
 	    char const *dst)
 {
   size_t	l = strlen(dst);
@@ -39,9 +39,8 @@ Unify_unify(char const *src, struct stat const *src_stat,
   bool		res = false;
 
   // at first, set the ILI flags on 'src'
-  if (vc_set_iattr_compat(src, src_stat->st_dev, src_stat->st_ino,
-			  0, VC_IATTR_IUNLINK, VC_IATTR_IUNLINK,
-			  &src_stat->st_mode)==-1)
+  if (vc_set_iattr(src,
+		   0, VC_IATTR_IUNLINK, VC_IATTR_IUNLINK)==-1)
     return false;
 
   // now, create a temporary filename
