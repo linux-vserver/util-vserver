@@ -48,7 +48,8 @@
 */
 
 #define VC_CAT_VERSION		0
-	
+#define VC_CAT_VHOST		2
+
 #define VC_CAT_PROCTRL		12
 
 #define VC_CAT_SCHED		14
@@ -182,6 +183,25 @@ struct  vcmd_vx_info_v0 {
     uint32_t xid;
     uint32_t initpid;
     /* more to come */
+};
+
+
+#define VCMD_vx_set_vhi_name		VC_CMD(VHOST, 1, 0)
+#define VCMD_vx_get_vhi_name		VC_CMD(VHOST, 2, 0)
+
+struct  vcmd_vx_vhi_name_v0 {
+       uint32_t field;
+       char name[65];
+};
+
+enum vx_vhi_name_field {
+       VHIN_CONTEXT=0,
+       VHIN_SYSNAME,
+       VHIN_NODENAME,
+       VHIN_RELEASE,
+       VHIN_VERSION,
+       VHIN_MACHINE,
+       VHIN_DOMAINNAME,
 };
 
 
