@@ -115,7 +115,7 @@ while true; do
 	-m)		mirror=$2;       shift;;
 	--debug)	set -x;;
 	--)		shift; break ;;
-	*)		echo "vserver-build.skeleton: internal error: unrecognized option '$1'" >&2
+	*)		echo "vserver-build.debootstrap: internal error: unrecognized option '$1'" >&2
 			exit 1
 			;;
     esac
@@ -134,6 +134,6 @@ findDebootstrap
 
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
 mv "$VDIR"/dev "$VDIR"/dev.X
-"$DEBOOTSTRAP" "$DISTRIBUTION" "$VDIR" "$mirror" || :	## HACK: ignore all errors...
+"$DEBOOTSTRAP" "$@" "$DISTRIBUTION" "$VDIR" "$mirror" || :	## HACK: ignore all errors...
 fixupDebian "$VDIR"
 test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
