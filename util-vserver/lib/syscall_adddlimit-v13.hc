@@ -25,10 +25,10 @@
 static inline ALWAYSINLINE int
 vc_add_dlimit_v13(char const *filename, xid_t xid, uint32_t flags)
 {
-  struct vcmd_ctx_dlimit_base_v0	init;
+  struct vcmd_ctx_dlimit_base_v0	init = {
+    .name   =  filename,
+    .flags  =  flags
+  };
 
-  memset(&init, 0, sizeof(init));
-  init.name = filename;
-  init.flags = flags;
   return vserver(VCMD_add_dlimit, CTX_USER2KERNEL(xid), &init);
 }

@@ -208,9 +208,12 @@
 					 (X)==VC_CDLIM_INFINITY ? CDLIM_INFINITY : \
 					 (X)==VC_CDLIM_KEEP     ? CDLIM_KEEP     : \
 					 (X))
-#define CDLIM_KERNEL2USER(X)		((X)==CDLIM_UNSET       ? VC_CDLIM_UNSET    : \
-					 (X)==CDLIM_INFINITY    ? VC_CDLIM_INFINITY : \
-					 (X)==CDLIM_KEEP        ? VC_CDLIM_KEEP     : \
+
+  /// the __typeof__ thing is a hack to deal with the kernel interface
+  /// using an unsigned long long value for a uint32_t type
+#define CDLIM_KERNEL2USER(X)		((X)==(__typeof__(X))CDLIM_UNSET       ? VC_CDLIM_UNSET    : \
+					 (X)==(__typeof__(X))CDLIM_INFINITY    ? VC_CDLIM_INFINITY : \
+					 (X)==(__typeof__(X))CDLIM_KEEP        ? VC_CDLIM_KEEP     : \
 					 (X))
 
 
