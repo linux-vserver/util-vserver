@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.29.209, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.29.210, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -56,12 +56,15 @@ AC_PATH_PROGS(MODPROBE, [modprobe], [/sbin/modprobe], [ $check_paths ])
 AC_PATH_PROGS(RMMOD,    [rmmod],    [/sbin/rmmod],    [ $check_paths ])
 AC_PATH_PROGS(NAMEIF,   [nameif],   [/sbin/nameif],   [ $check_paths ])
 AC_PATH_PROGS(IPTABLES, [iptables], [/sbin/iptables], [ $check_paths ])
-AC_PATH_PROGS(XSLTPROC, [xsltproc], [xsltproc])
 AC_PATH_PROGS(SED,      [sed],      [sed])
 AC_PATH_PROGS(CMP,      [cmp],      [cmp])
 AC_PATH_PROGS(WGET,     [wget],     [wget])
 AC_PATH_PROGS(DOXYGEN,  [doxygen],  [:])
 AC_PATH_PROGS(TAR,      [tar])
+AC_PATH_PROGS(XSLTP,    [xsltp])
+
+AM_CONDITIONAL(HAVE_XSLTP, test "$XSLTP")
+	
 
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
 ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
@@ -175,6 +178,7 @@ ENSC_CHECK_EXT2FS_HEADER
 AC_CHECK_FUNCS([vserver])
 AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
 AC_CHECK_TYPES(xid_t,,,[#include <sys/types.h>])
+AC_CHECK_TYPES(nid_t,,,[#include <sys/types.h>])
 
 dnl BIG HACK! Do some autodetection here!
 AC_DEFINE(UTMP_GID, [22], [The utmp gid-number])
