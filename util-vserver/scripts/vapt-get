@@ -26,14 +26,21 @@ test -e "$UTIL_VSERVER_VARS" || {
 
 function showHelp()
 {
-    echo "Usage: $0 <vserver-name>* [--all] -- <params>+"
+    cat <<EOF
+Usage: $0 <vserver-name>* [--all] -- <params>+
+
+Report bugs to <$PACKAGE_BUGREPORT>.
+EOF
+
     exit $1
 }
 
 function showVersion()
 {
     cat <<EOF 
-vapt-get 0.23.5 -- apt-get for vservers
+vapt-get $PACKAGE_VERSION -- apt-get for vservers
+This program is part of $PACKAGE_STRING
+
 Copyright (C) 2003 Enrico Scholz
 This program is free software; you may redistribute it under the terms of
 the GNU General Public License.  This program has absolutely no warranty.
