@@ -25,7 +25,7 @@ dnl
 
 AC_PREREQ(2.57)
 
-AC_INIT(util-vserver, 0.29, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.29.1, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -101,6 +101,7 @@ done
 IFS=$old_IFS
 AC_MSG_RESULT([$enable_apis])
 
+ENSC_SYSCALLNR(vserver,273)
 ENSC_SYSCALL
 ENSC_CHECK_EXT2FS_HEADER
 AC_CHECK_FUNCS([vserver])
