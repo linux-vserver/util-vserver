@@ -30,6 +30,9 @@
 	2001-11-29 added uptime/ctx stat
 	2001-11-20 added vmsize, rss, stime and utime stat
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

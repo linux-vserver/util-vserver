@@ -22,6 +22,11 @@
 	system call is executed, it (option) remove the CAP_SYS_CHROOT
 	capability. Then it executes its argument
 */
+
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <pwd.h>

@@ -22,6 +22,10 @@
 	This is used when a vserver lack a private init process
 	so runlevel properly report the fake runlevel.
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <utmp.h>
 #include <stdio.h>
 #include <string.h>

@@ -21,6 +21,10 @@
 	Used to send a reboot message to the reboot manager. It opens /dev/reboot
 	and write "reboot\n".
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>

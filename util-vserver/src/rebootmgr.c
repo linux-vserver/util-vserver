@@ -37,6 +37,10 @@
 	The vreboot utility is used to send the signal from the vserver
 	environment.
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
