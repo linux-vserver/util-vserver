@@ -48,7 +48,7 @@ EXTRA_DIST		=  $(distrib_SCRPTS) $(distrib_DAT) \
                            $(doc_DAT) $(man_DATMAN) $(linuxconf_DATMAN) \
 			   $(scripts_SCRPTS) $(scripts_XTRAS) \
 			   $(linuxconf_XTRAS) \
-			   vserver.spec \
+			   util-vserver.spec \
                            m4/ensc_cflags.m4 \
 			   THANKS
 

@@ -1,46 +1,21 @@
-# $Id$
-
-%define confdir		%_sysconfdir/vservers
-%define pkglibdir	%_libdir/%name
-
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
 Release:	0
 Epoch:		0
-License:	GPL
+Copyright:	GPL
 Group:		System Environment/Base
 URL:		http://savannah.nongnu.org/projects/util-vserver/
 Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version/%name-%version.tar.bz2
+Provides:	%name-devel = %epoch:%version-%release
 BuildRoot:	%_tmppath/%name-%version-%release-root
-Requires:	init(@PACKAGE@)
-Requires:	%name-core = %epoch:%version-%release
 Provides:	vserver = %epoch:%version-%release
-Obsoletes:	vserver < %epoch:%version
-BuildRequires:	mount vconfig gawk iproute
-BuildRequires:	dietlibc gcc-c++
+Conflicts:	vserver < %epoch:%version
 
-%package core
-Summary:	The core-utilities for util-vserver
-Group:		Applications/System
-
-%package build
-Summary:	Tools which can be used to build vservers
+%package linuxconf
+Summary:	Linuxconf administration modules for vservers
 Group:		Applications/System
 Requires:	%name = %epoch:%version-%release
-Requires:	rpm apt
-
-%package sysv
-Summary:	SysV-initscripts for vserver
-Group:		System Environment/Base
-Provides:	init(@PACKAGE@)
-Requires:	%name = %epoch:%version-%release
-Requires:	initscripts
-
-%package devel
-Summary:	Header-files and libraries which are needed to develop vserver based applications
-Group:		Development/Libraries
-Requires:	pkgconfig
 
 
 %description
@@ -53,10 +28,10 @@ can't interact with services in the main server.
 This requires a special kernel supporting the new new_s_context and
 set_ipv4root system call.
 
-%description core
-%description build
-%description sysv
-%description devel
+
+%description linuxconf
+This package provides the components to setup virtual servers with
+linuxconf.
 
 
 %prep
@@ -64,13 +39,18 @@ set_ipv4root system call.
 
 
 %build
-%configure --with-initrddir=%_initrddir --enable-release
+%configure
 %__make %{?_smp_mflags}
 
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%__make DESTDIR="$RPM_BUILD_ROOT" install
+%__make DESTDIR=$RPM_BUILD_ROOT install
+
+test "%_initrddir" = %_sysconfdir/init.d || {
+	mkdir -p ${RPM_BUILD_ROOT}%_initrddir
+	mv ${RPM_BUILD_ROOT}%_sysconfdir/init.d/* ${RPM_BUILD_ROOT}%_initrddir/
+}
 
 
 %clean
@@ -78,7 +58,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %define v_services	httpd named portmap sendmail smb sshd xinetd
-%post sysv
+%post
 /sbin/chkconfig --add vservers
 /sbin/chkconfig --add rebootmgr
 
@@ -87,7 +67,7 @@ for i in %v_services; do
 done
 
 
-%preun sysv
+%preun
 test "$1" != 0 || for i in %v_services; do
 	/sbin/chkconfig --del v_$i
 done
@@ -97,106 +77,34 @@ test "$1" != 0 || /sbin/chkconfig --del rebootmgr
 test "$1" != 0 || /sbin/chkconfig --del vservers
 
 
-%postun sysv
+%postun
 test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 
 
 %files
-%defattr(-,root,root,-)
+%defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog NEWS README THANKS
 %doc doc/FAQ.txt
-%pkglibdir
-%exclude %pkglibdir/distributions
-%exclude %pkglibdir/distrib-info
-%exclude %pkglibdir/rpm-fake.so
-%exclude %pkglibdir/util-vserver-vars
-%exclude %pkglibdir/vapt-get*
-%exclude %pkglibdir/vrpm*
-%exclude %pkglibdir/vserver-build*
-%exclude %pkglibdir/vserver-setup*
-%exclude %pkglibdir/vunify
-%_sbindir/rebootmgr
-%_sbindir/vdu
-%_sbindir/vfiles
-%_sbindir/vkill
-%_sbindir/vps
-%_sbindir/vpstree
-%_sbindir/vserver
-%_sbindir/vserver-stat
-%_sbindir/vtop
-%_mandir/*/*
-%exclude %_mandir/*/chbind*
-%exclude %_mandir/*/chcontext*
-%exclude %_mandir/*/reducecap*
-%exclude %_mandir/*/distrib-info*
-%exclude %_mandir/*/vserver-copy*
-%exclude %_mandir/*/vrpm*
+%_sbindir/*
+%_libdir/%name
+%_includedir/vserver.h
+%_libdir/libvserver.a
+%_mandir/man8/*
+%config %_initrddir/*
+%config(noreplace) /etc/vservers.conf
 
-%dir %confdir/.defaults
-%dir %confdir/.defaults/*
-%pkglibdir/defaults
-
-%attr(000,root,root) %dir /vservers/.pkg
-%attr(000,root,root) %dir /vservers
-
-%dir /var/run/vservers
-%dir /var/run/vservers/rev
+%exclude %_sbindir/newvserver
+%exclude %_mandir/man8/newvserver*
 
 
-
-%files core
-%defattr(-,root,root,-)
-%_sbindir/chbind
-%_sbindir/chcontext
-%_sbindir/ctx-kill
-%_sbindir/new-namespace
-%_sbindir/reducecap
-%_sbindir/util-vserver-vars
-%pkglibdir/util-vserver-vars
-%_mandir/*/chbind*
-%_mandir/*/chcontext*
-%_mandir/*/reducecap*
-%dir %pkglibdir
-
-
-%files build
-%defattr(-,root,root,-)
-%_sbindir/vapt-get
-%_sbindir/vrpm
-%_sbindir/vserver-copy
-%dir %pkglibdir
-%pkglibdir/distributions
-%pkglibdir/rpm-fake.so
-%pkglibdir/vapt-get*
-%pkglibdir/vrpm*
-%pkglibdir/vserver-build*
-%pkglibdir/vserver-setup*
-%pkglibdir/vunify
-%_mandir/*/distrib-info*
-%_mandir/*/vserver-copy*
-%exclude %_mandir/*/vrpm*
-
-%dir %confdir/.distributions
-%dir %confdir/.distributions/*
-%dir %confdir/.distributions/*/apt
-%config(noreplace) %confdir/.distributions/*/apt/sources.list
-
-
-
-%files sysv
-%defattr(-,root,root,-)
-%_initrddir/*
-%config(noreplace) %_sysconfdir/vservers.conf
-
-
-%files devel
-%defattr(-,root,root,-)
-%_includedir/*.h
-%_libdir/*.a
-%_libdir/pkgconfig/*
+%files linuxconf
+%defattr(-,root,root)
+%config(noreplace) /etc/vservers/newvserver.defaults
+%_sbindir/newvserver
+%_mandir/man8/newvserver*
 
 
 %changelog
-* Wed Oct  1 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.23.5-0
-- Initial build.
 
+* Fri Sep 26 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.23.4-1
+- initial build.
