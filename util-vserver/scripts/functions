@@ -758,7 +758,7 @@ function vshelper.initSync
 
     local fifo="$tmpdir"/pipe
     mkfifo -m700 "$fifo"
-    vshelper.doInit "$VSERVER_DIR" sync "$fifo"
+    vshelper.doInit "$1" sync "$fifo"
     eval $2=\$fifo
 }
 
