@@ -25,30 +25,34 @@ scripts_src_SCRPTS	=  scripts/distrib-info \
 			   scripts/vprofile \
 			   scripts/vserverkillall \
 			   scripts/vservers.grabinfo.sh \
-			   scripts/vsysvwrapper \
-			   scripts/vunify.old.sh
+			   scripts/vsysvwrapper
 scripts_gen_SCRPTS	=
+
+scripts_src_LEGSCRPTS	=  scripts/vunify.sh
+scripts_gen_LEGSCRPTS	=  scripts/vkill
+
 
 scripts_src_PRGS	=  scripts/vpstree \
 			   scripts/vrpm \
 			   scripts/vserver \
 			   scripts/vserver-copy \
 			   scripts/vtop
-scripts_gen_PRGS	=  scripts/vkill \
-			   scripts/vps
+scripts_gen_PRGS	=  scripts/vps
 
 scripts_PRGS		=  $(scripts_src_PRGS) $(scripts_gen_PRGS)
-
-scriptscfg_DATA		=  scripts/util-vserver-vars
 scripts_SCRPTS		=  $(scripts_src_SCRPTS) $(scripts_gen_SCRPTS)
+scripts_LEGSCRPTS	=  $(scripts_src_LEGSCRPTS) $(scripts_gen_LEGSCRPTS)
+scriptscfg_DATA		=  scripts/util-vserver-vars
 
 scripts_XTRAS		=  scripts/util-vserver-vars.subst \
 			   scripts/vkill.subst \
 			   scripts/vps.subst \
-			   $(scripts_src_SCRPTS) $(scripts_src_PRGS)
+			   $(scripts_src_SCRPTS) $(scripts_src_PRGS) \
+			   $(scripts_src_LEGSCRPTS)
 
 scripts_GENSCRPTS	=  scripts/util-vserver-vars \
-			   $(scripts_gen_SCRPTS) $(scripts_gen_PRGS)
+			   $(scripts_gen_SCRPTS) $(scripts_gen_PRGS) \
+			   $(scripts_gen_LEGSCRPTS)
 
 scripts/%:		scripts/%.subst
 			@mkdir -p $$(dirname '$@')
