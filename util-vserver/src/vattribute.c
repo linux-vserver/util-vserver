@@ -175,10 +175,10 @@ int main(int argc, char *argv[])
 
   if (args.xid==VC_NOCTX) args.xid = Evc_get_task_xid(0);
 
-  if (vc_set_flags(args.xid, &args.flags)==-1)
-    perror("vc_set_flags()");
-  else if (vc_set_ccaps(args.xid, &args.caps)==-1)
-    perror("vc_set_ccaps()");
+  if (vc_set_ccaps(args.xid, &args.caps)==-1)
+    perror(ENSC_WRAPPERS_PREFIX "vc_set_ccaps()");
+  else if (vc_set_flags(args.xid, &args.flags)==-1)
+    perror(ENSC_WRAPPERS_PREFIX "vc_set_flags()");
   else if (optind<argc)
     EexecvpD(argv[optind], argv+optind);
   else
