@@ -33,7 +33,7 @@
 
 int wrapper_exit_code = 1;
 
-int main(int argc, char *argv[])
+int main(/*int argc, char *argv[]*/)
 {
   char		buf[1000];
 
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
   }
 
   {
-    char const *	cmd[] = { "/bin/grep", "^s_context", "/proc/self/status", 0 };
+    char *	cmd[] = { "/bin/grep", "^s_context", "/proc/self/status", 0 };
     Eexecv(cmd[0], cmd);
   }
 }
