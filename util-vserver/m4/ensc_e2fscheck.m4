@@ -46,9 +46,11 @@ the following reasons:
 * you have neither the e2fsprogs nor the kernel headers installed
 
 * kernel headers are broken (e.g. these of linux 2.6 are known to be)
-  and you do not have e2fsprogs headers installed; please try to
-  install e2fsprogs-devel (for Red Hat) or e2fsprogs-dev (for Debian)
-  in this case
+  and you do not have e2fsprogs headers installed; please try to install
+  - e2fsprogs-devel (for Red Hat), or
+  - libext2fs2-devel (for Mandrake), or
+  - e2fslibs-dev (for Debian)
+  in this case.
 
 * kernel headers are broken and your e2fsprogs headers are too old;
   until version 1.27 (inclusive), they are using reserved C++ keywords
