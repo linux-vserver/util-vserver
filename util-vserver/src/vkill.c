@@ -19,10 +19,10 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
 
 #include "vserver.h"
 #include "linuxvirtual.h"
+#include "util.h"
 
 #include <getopt.h>
 #include <signal.h>
@@ -35,13 +35,8 @@
 #include <sys/resource.h>
 #include <sys/wait.h>
 
-#define VERSION_COPYRIGHT_DISCLAIMER
-
 #define CMD_HELP	0x8000
 #define CMD_VERSION	0x8001
-
-#define WRITE_MSG(FD,X)         (void)(write(FD,X,sizeof(X)-1))
-#define WRITE_STR(FD,X)         writeStr(FD,X)
 
 static struct option const
 CMDLINE_OPTIONS[] = {
@@ -64,12 +59,6 @@ static char const * const SIGNALS[] = {
   "XCPU",   "XFSZ", "VTALRM", "PROF", "WINCH",
   0,
 };
-
-inline static void UNUSED
-writeStr(int fd, char const *cmd)
-{
-  (void)write(fd, cmd, strlen(cmd));
-}
 
 static void
 showHelp(int fd, char const *cmd, int res)
