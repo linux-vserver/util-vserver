@@ -58,12 +58,14 @@ compareDeUnify(struct stat const *lhs, struct stat const *rhs)
 static bool
 unifyTest(char const *src, char const *dst)
 {
+#if 0
   WRITE_MSG(1, "unifying '");
   WRITE_STR(1, src);
   WRITE_MSG(1, "' -> '");
   WRITE_STR(1, dst);
   WRITE_STR(1, "'\n");
-
+#endif
+  
   return true;
 }
 

@@ -21,6 +21,9 @@
 #endif
 
 #include "vunify-matchlist.h"
+#include "wrappers.h"
+
+#include <fnmatch.h>
 #include <assert.h>
 
 bool
@@ -53,8 +56,58 @@ MatchList_init(struct MatchList *list, char const *root, size_t count)
   list->skip_depth = 0;
   list->root.d     = root;
   list->root.l     = strlen(root);
-  list->data       = malloc(sizeof(struct MatchItem) * count);
+  list->data       = Emalloc(sizeof(struct MatchItem) * count);
   list->count      = count;
+  list->buf        = 0;
+  list->buf_count  = 0;
+
+  String_init(&list->id);
+}
+
+static int
+fnmatchWrap(char const *a, char const *b)
+{
+  return fnmatch(a, b, 0);
+}
+
+
+static MatchItemCompareFunc
+determineCompareFunc(char const UNUSED *fname)
+{
+  return fnmatchWrap;
+}
+
+void
+MatchList_appendFiles(struct MatchList *list, size_t idx,
+		      char **files, size_t count,
+		      bool auto_type)
+{
+  struct MatchItem	*ptr = list->data + idx;
+  size_t		i;
+  
+  assert(idx+count <= list->count);
+
+  if (auto_type) {
+    for (i=0; i<count; ++i) {
+      char	*file = files[i];
+      switch (file[0]) {
+	case '+'	:  ptr->type = stINCLUDE; ++file; break;
+	case '-'	:  ++file; /*@fallthrough@*/
+	default		:  ptr->type = stEXCLUDE; break;
+      }
+      ptr->cmp  = determineCompareFunc(file);
+      ptr->name = file;
+      ++ptr;
+    }
+  }
+  else {
+    for (i=0; i<count; ++i) {
+      ptr->type = stEXCLUDE;
+      ptr->name = files[i];
+      ptr->cmp  = 0;
+      ++ptr;
+    }
+  }
 }
 
 
@@ -88,6 +141,12 @@ PathInfo_append(PathInfo       * restrict lhs,
   lhs->l = ptr-buf-1;
 }
 
+void
+String_init(String *str)
+{
+  str->d = 0;
+  str->l = 0;
+}
 
 #ifdef ENSC_TESTSUITE
 #define CHECK(LHS,RHS, EXP)				\

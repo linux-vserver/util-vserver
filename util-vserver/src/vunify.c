@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2003,2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,11 +20,14 @@
 #  include <config.h>
 #endif
 
-#include "vunify-matchlist.h"
+#include "vunify.h"
 #include "wrappers-dirent.h"
 #include "vunify-operations.h"
 #include "util.h"
 
+#include <lib/vserver.h>
+
+#include <getopt.h>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -33,38 +36,71 @@
 
 int	wrapper_exit_code = 1;
 
-struct WalkdownInfo
-{
-    PathInfo			state;
-    struct MatchList		dst_list;
-    struct {
-	struct MatchList *	v;
-	size_t			l;
-    }				src_lists;
-};
-
 
 static struct WalkdownInfo	global_info;
 static struct Operations	operations;
 
-static void	visitDirEntry(struct dirent const *) NONNULL((1));
-static void	visitDir(char const *, struct stat const *) NONNULL((1));
-static bool	checkFstat(struct MatchList const * const,
-			   PathInfo const * const,
-			   PathInfo const * const,
-			   struct stat const ** const,
-			   struct stat * const) NONNULL((1,2,3,4,5));
 
-static struct MatchList const *
-checkDirEntry(PathInfo const *,
-	      PathInfo const *,
-	      bool *, struct stat *) NONNULL((1,2,3,4));
+#define CMD_HELP		0x8000
+#define CMD_VERSION		0x8001
+#define CMD_MANUALLY		0x8002
 
-static bool	updateSkipDepth(PathInfo const *, bool) NONNULL((1));
-static void	EsafeChdir(char const *, struct stat const *)  NONNULL((1,2));
-static bool	doit(struct MatchList const *, PathInfo const *,
-		     char const *dst_path) NONNULL((1,2,3));
+struct option const
+CMDLINE_OPTIONS[] = {
+  { "help",     no_argument,  0, CMD_HELP },
+  { "version",  no_argument,  0, CMD_VERSION },
+  { "manually", no_argument,  0, CMD_MANUALLY },
+  { 0,0,0,0 }
+};
 
+struct Arguments {
+    enum {mdMANUALLY, mdVSERVER}	mode;
+    bool				do_revert;
+    bool				do_dry_run;
+    unsigned int			verbosity;
+    bool				local_fs;
+    bool				do_renew;
+};
+
+struct Arguments const *		global_args;
+
+static void
+showHelp(int fd, char const *cmd, int res)
+{
+  WRITE_MSG(fd, "Usage:\n  ");
+  WRITE_STR(fd, cmd);
+  WRITE_MSG(fd,
+	    " [-Rnv] <vserver>\n    or\n  ");
+  WRITE_STR(fd, cmd);
+  WRITE_MSG(fd,
+	    " --manually [-Rnvx] [--] <path> <excludelist> [<path> <excludelist>]+\n\n"
+ 	    "  --manually      ...  unify generic paths; excludelists must be generated\n"
+	    "                       manually\n"
+	    "  -R              ...  revert operation; deunify files\n"
+	    "  -n              ...  do not modify anything; just show what there will be\n"
+	    "                       done (in combination with '-v')\n"
+	    "  -v              ...  verbose mode\n"
+	    "  -x              ...  do not cross filesystems; this is valid in manual\n"
+	    "                       mode only and will be ignored for vserver unification\n"
+	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
+#if 0	    
+	    "  -C              ...  use cached excludelists; usually they will be\n"
+	    "                       regenerated after package installation to reflect e.g.\n"
+	    "                       added/removed configuration files\n\n"
+#endif	    
+  exit(res);
+}
+
+static void
+showVersion()
+{
+  WRITE_MSG(1,
+	    "vunify " VERSION " -- unifies vservers and/or directories\n"
+	    "This program is part of " PACKAGE_STRING "\n\n"
+	    "Copyright (C) 2003,2004 Enrico Scholz\n"
+	    VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
+}
 
 
 // Returns 'false' iff one of the files is not existing, or of the files are different/not unifyable
@@ -94,6 +130,9 @@ checkFstat(struct MatchList const * const mlist,
 
     // source file does not exist
     if (lstat(src_path.d, &src_fstat)==-1) return false;
+
+    // these are directories
+    if (S_ISDIR((*result)->st_mode) && S_ISDIR(src_fstat.st_mode)) return true;
 
     // both files are different, so return false
     if (!(operations.compare)(*result, &src_fstat)) return false;
@@ -180,6 +219,24 @@ doit(struct MatchList const *mlist, PathInfo const *src_path,
   PathInfo	path = mlist->root;
   char		path_buf[ENSC_PI_APPSZ(path, *src_path)];
 
+  if (global_args->do_dry_run || global_args->verbosity>0) {
+    if (global_args->do_revert) WRITE_MSG(1, "deunifying '");
+    else                        WRITE_MSG(1, "unifying   '");
+
+    write(1, src_path->d, src_path->l);
+    WRITE_MSG(1, "'");
+
+    if (global_args->verbosity>2) {
+      WRITE_MSG(1, " (from ");
+      if (global_args->verbosity==2 && mlist->id.d)
+	write(1, mlist->id.d, mlist->id.l);
+      else
+	write(1, mlist->root.d, mlist->root.l);
+      WRITE_MSG(1, ")");
+    }
+    WRITE_MSG(1, "\n");
+  }
+  
   PathInfo_append(&path, src_path, path_buf);
   return (operations.doit)(path.d, dst_path);
 }
@@ -192,22 +249,31 @@ visitDirEntry(struct dirent const *ent)
   struct MatchList const *	match;
   struct stat			f_stat;
   char const *			dirname  = ent->d_name;
-  size_t			path_len = strlen(ent->d_name);
   PathInfo			path     = global_info.state;
   PathInfo			d_path = {
     .d = dirname,
-    .l = path_len
+    .l = strlen(ent->d_name)
   };
   char				path_buf[ENSC_PI_APPSZ(path, d_path)];
+  bool				is_dotfile;
 
   PathInfo_append(&path, &d_path, path_buf);
 
-  if ((dirname[0]=='.' &&
-       (dirname[1]=='\0' || (dirname[1]=='.' && dirname[2]=='\0'))) ||
+  is_dotfile = (dirname[0]=='.' &&
+		(dirname[1]=='\0' || (dirname[1]=='.' && dirname[2]=='\0')));
+  memset(&f_stat, 0, sizeof f_stat);
+  if (is_dotfile ||
       (match=checkDirEntry(&path, &d_path, &is_dir, &f_stat))==0) {
-    WRITE_MSG(1, "skipping '");
-    WRITE_STR(1, dirname);
-    WRITE_MSG(1, "'\n");
+    bool	is_link = is_dotfile ? false : S_ISLNK(f_stat.st_mode);
+    
+    if (global_args->verbosity>1 &&
+	((!is_dotfile && !is_link) ||
+	 (global_args->verbosity>4 && is_dotfile) ||
+	 (global_args->verbosity>4 && is_link)) ) {
+      WRITE_MSG(1, "  skipping '");
+      write(1, path.d, path.l);
+      WRITE_MSG(1, "'\n");
+    }
     return;
   }
 
@@ -256,19 +322,158 @@ visitDir(char const *name, struct stat const *expected_stat)
   global_info.state = old_state;
 }
 
+#include "vunify-init.ic"
+
+static void
+initModeManually(struct Arguments const UNUSED *args, int argc, char *argv[])
+{
+  int		i, count=argc/2;
+  
+  if (argc%2) {
+    WRITE_MSG(2, "Odd number of (path,excludelist) arguments\n");
+    exit(1);
+  }
+
+  if (count<2) {
+    WRITE_MSG(2, "No reference path(s) given\n");
+    exit(1);
+  }
+
+  initMatchList(&global_info.dst_list, 0, argv[0], argv[1]);
+
+  --count;
+  global_info.src_lists.v = Emalloc(sizeof(struct MatchList) * count);
+  global_info.src_lists.l = count;
+
+  for (i=0; i<count; ++i)
+    initMatchList(global_info.src_lists.v+i, 0, argv[2 + i*2], argv[3 + i*2]);
+}
+
+static int
+selectRefserver(struct dirent const *ent)
+{
+  return strncmp(ent->d_name, "refserver.", 10)==0;
+}
+
+static void
+initModeVserver(struct Arguments const UNUSED *args, int argc, char *argv[])
+{
+  char const	*appdir;
+  int		cur_dir = Eopen(".", O_RDONLY, 0);
+  struct dirent	**entries;
+  int		count, i;
+  
+  if (argc!=1) {
+    WRITE_MSG(2, "More than one vserver is not supported\n");
+    exit(1);
+  }
+
+  if (!initMatchListByVserver(&global_info.dst_list, argv[0], &appdir)) {
+    WRITE_MSG(2, "unification not configured for this vserver\n");
+    exit(1);
+  }
+
+  Echdir(appdir);
+  count = scandir(".", &entries, selectRefserver, alphasort);
+  if (count==-1) {
+    perror("scandir()");
+    exit(1);
+  }
+
+  if (count==0) {
+    WRITE_MSG(2, "no reference vserver configured\n");
+    exit(1);
+  }
+
+  global_info.src_lists.v = Emalloc(sizeof(struct MatchList) * count);
+  global_info.src_lists.l = count;
+  for (i=0; i<count; ++i) {
+    char const 		*tmp   = entries[i]->d_name;
+    size_t		l      = strlen(tmp);
+    char		vname[sizeof("./") + l];
+
+    memcpy(vname,   "./", 2);
+    memcpy(vname+2, tmp,  l+1);
+    
+    if (!initMatchListByVserver(global_info.src_lists.v+i, vname, 0)) {
+      WRITE_MSG(2, "unification for reference vserver not configured\n");
+      exit(1);
+    }
+
+    free(entries[i]);
+  }
+  free(entries);
+  free(const_cast(char *)(appdir));
+
+  Efchdir(cur_dir);
+  Eclose(cur_dir);
+}
 
 int main(int argc, char *argv[])
 {
+  struct Arguments	args = {
+    .mode		=  mdVSERVER,
+    .do_revert		=  false,
+    .do_dry_run		=  false,
+    .verbosity		=  0,
+    .local_fs		=  false,
+    .do_renew		=  true,
+  };
+
+  global_args = &args;
+  while (1) {
+    int		c = getopt_long(argc, argv, "Rnvcx",
+				CMDLINE_OPTIONS, 0);
+    if (c==-1) break;
+
+    switch (c) {
+      case CMD_HELP		:  showHelp(1, argv[0], 0);
+      case CMD_VERSION		:  showVersion();
+      case CMD_MANUALLY		:  args.mode = mdMANUALLY; break;
+      case 'R'			:  args.do_revert  = true; break;
+      case 'n'			:  args.do_dry_run = true; break;
+      case 'x'			:  args.local_fs   = true; break;
+      //case 'C'			:  args.do_renew   = false; break;
+      case 'v'			:  ++args.verbosity; break;
+      default		:
+	WRITE_MSG(2, "Try '");
+	WRITE_STR(2, argv[0]);
+	WRITE_MSG(2, " --help\" for more information.\n");
+	return EXIT_FAILURE;
+	break;
+    }
+  }
+
+  if (argc==optind) {
+    WRITE_MSG(2, "No directory/vserver given\n");
+    return EXIT_FAILURE;
+  }
+
+  Operations_init(&operations,
+		  args.do_revert ? opDEUNIFY : opUNIFY,
+		  args.do_dry_run);
+
+  switch (args.mode) {
+    case mdMANUALLY	:  initModeManually(&args, argc-optind, argv+optind); break;
+    case mdVSERVER	:  initModeVserver(&args,  argc-optind, argv+optind); break;
+    default		:  assert(false); return EXIT_FAILURE;
+  }
+    
   global_info.state.d = "";
   global_info.state.l = 0;
 
-  Operations_init(&operations, opUNIFY, false);
-  MatchList_init(&global_info.dst_list, argv[1], 0);
-
-  global_info.src_lists.v = malloc(sizeof(struct MatchList));
-  global_info.src_lists.l = 1;
-  MatchList_init(global_info.src_lists.v+0, argv[2], 0);
 
   Echdir(global_info.dst_list.root.d);
   visitDir("/", 0);
+
+#ifndef NDEBUG
+  {
+    size_t		i;
+    MatchList_destroy(&global_info.dst_list);
+    for (i=0; i<global_info.src_lists.l; ++i)
+      MatchList_destroy(global_info.src_lists.v+i);
+
+    free(global_info.src_lists.v);
+  }
+#endif
 }

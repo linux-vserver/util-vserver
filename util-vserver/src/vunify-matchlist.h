@@ -25,11 +25,13 @@
 #include <assert.h>
 #include <stdbool.h>
 
+typedef int	(*MatchItemCompareFunc)(char const *, char const *);
+
 struct MatchItem
 {
     enum { stINCLUDE, stEXCLUDE }	type;
     char const *			name;
-    int					(*cmp)(char const *, char const *);
+    MatchItemCompareFunc		cmp;
 };
 
 typedef struct
@@ -44,17 +46,27 @@ struct MatchList
 {
     size_t		skip_depth;
     PathInfo		root;
+    String		id;
     struct MatchItem	*data;
     size_t		count;
+
+    void		**buf;
+    size_t		buf_count;
 };
 
 
 void		MatchList_init(struct MatchList *, char const *root, size_t count) NONNULL((1,2));
 void		MatchList_destroy(struct MatchList *) NONNULL((1));
+void		MatchList_appendFiles(struct MatchList *, size_t idx,
+				      char **files, size_t count,
+				      bool auto_type);
 
 bool		MatchList_compare(struct MatchList const *, char const *path) NONNULL((1,2));
 struct MatchItem
 const *		MatchList_find(struct MatchList const *,    char const *path) NONNULL((1,2));
+
+void		String_init(String *);
+void		String_destroy(String *);
 
 void		PathInfo_append(PathInfo * restrict,
 				PathInfo const * restrict,
