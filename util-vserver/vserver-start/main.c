@@ -37,6 +37,7 @@
 #include <sys/file.h>
 #include <sched.h>
 #include <signal.h>
+#include <unistd.h>
 #include <sys/socket.h>
 
 #define ENSC_WRAPPERS_VSERVER	1
