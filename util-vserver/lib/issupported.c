@@ -31,6 +31,7 @@ vc_isSupported(vcFeatureSet feature)
 
   switch (feature) {
     case vcFEATURE_COMPAT	:  return true;
+    case vcFEATURE_VSHELPER	:  return ver >= 0x00010000;
     case vcFEATURE_VKILL	:  return ver >= 0x00010004;
     case vcFEATURE_RLIMIT	:  return ver >= 0x00010004;
     case vcFEATURE_VINFO	:  return ver >= 0x00010010;
