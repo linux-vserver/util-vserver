@@ -59,7 +59,8 @@ src_DIETPROGS		=  src/new-namespace \
 			   src/pipe-sync \
 			   src/exec-ulimit \
 			   src/vlimit \
-	     		   src/ctx-kill
+	     		   src/ctx-kill \
+			   src/vserver-stat
 
 src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
 			   src/wrappers.h src/wrappers-vserver.h \
