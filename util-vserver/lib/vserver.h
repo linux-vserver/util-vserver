@@ -55,6 +55,37 @@
 #  define S_CTX_INFO_ULIMIT	64
 #endif
 
+#define VC_CAP_CHOWN            	 0
+#define VC_CAP_DAC_OVERRIDE     	 1
+#define VC_CAP_DAC_READ_SEARCH  	 2
+#define VC_CAP_FOWNER           	 3
+#define VC_CAP_FSETID           	 4
+#define VC_CAP_KILL             	 5
+#define VC_CAP_SETGID           	 6
+#define VC_CAP_SETUID           	 7
+#define VC_CAP_SETPCAP          	 8
+#define VC_CAP_LINUX_IMMUTABLE  	 9
+#define VC_CAP_NET_BIND_SERVICE 	10
+#define VC_CAP_NET_BROADCAST    	11
+#define VC_CAP_NET_ADMIN        	12
+#define VC_CAP_NET_RAW          	13
+#define VC_CAP_IPC_LOCK         	14
+#define VC_CAP_IPC_OWNER        	15
+#define VC_CAP_SYS_MODULE       	16
+#define VC_CAP_SYS_RAWIO        	17
+#define VC_CAP_SYS_CHROOT       	18
+#define VC_CAP_SYS_PTRACE       	19
+#define VC_CAP_SYS_PACCT        	20
+#define VC_CAP_SYS_ADMIN        	21
+#define VC_CAP_SYS_BOOT         	22
+#define VC_CAP_SYS_NICE         	23
+#define VC_CAP_SYS_RESOURCE     	24
+#define VC_CAP_SYS_TIME 		25
+#define VC_CAP_SYS_TTY_CONFIG   	26
+#define VC_CAP_MKNOD            	27
+#define VC_CAP_LEASE            	28
+#define VC_CAP_OPENDEV          	29
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,6 +119,10 @@ extern "C" {
 
     /** Returns the pid of the 'init' process */
   pid_t	vc_X_getinitpid(pid_t pid);
+
+
+  int		vc_text2cap(char const *);
+  char const *	vc_cap2text(int);
   
 #ifdef __cplusplus
 }
