@@ -27,15 +27,15 @@ TESTS +=			lib/testsuite/cflags \
 
 lib_testsuite_cflags_SOURCES =	lib/testsuite/cflags.c
 lib_testsuite_cflags_LDADD =	lib/libvserver.la
-lib_testsuite_cflags_LDFLAGS =	$(VSERVER_LDFLAGS)
+lib_testsuite_cflags_LDFLAGS =	$(VSERVER_LDFLGS)
 lib_testsuite_cflags_CPPFLAGS =	$(AM_CPPFLAGS) -DENSC_TESTSUITE
 
 lib_testsuite_fmt_SOURCES =	lib/testsuite/fmt.c
 lib_testsuite_fmt_LDADD =	lib/libvserver.la
-lib_testsuite_fmt_LDFLAGS =	$(VSERVER_LDFLAGS)
+lib_testsuite_fmt_LDFLAGS =	$(VSERVER_LDFLGS)
 lib_testsuite_fmt_CPPFLAGS =	$(AM_CPPFLAGS) -DENSC_TESTSUITE
 
 lib_testsuite_parselimit_SOURCES =	lib/testsuite/parselimit.c
 lib_testsuite_parselimit_LDADD =	lib/libvserver.la
-lib_testsuite_parselimit_LDFLAGS =	$(VSERVER_LDFLAGS)
+lib_testsuite_parselimit_LDFLAGS =	$(VSERVER_LDFLGS)
 lib_testsuite_parselimit_CPPFLAGS =	$(AM_CPPFLAGS) -DENSC_TESTSUITE

@@ -39,12 +39,12 @@ tests_testopenf_SOURCES		=  tests/testopenf.c
 
 tests_getctx_SOURCES		=  tests/getctx.c
 tests_getctx_LDADD		=  $(VSERVER_LDADDS)
-tests_getctx_LDFLAGS		=  $(VSERVER_LDFLAGS)
+tests_getctx_LDFLAGS		=  $(VSERVER_LDFLGS)
 
 tests_getinitpid_SOURCES	=  tests/getinitpid.c
 tests_getinitpid_LDADD		=  $(VSERVER_LDADDS)
-tests_getinitpid_LDFLAGS	=  $(VSERVER_LDFLAGS)
+tests_getinitpid_LDFLAGS	=  $(VSERVER_LDFLGS)
 
 tests_vserver_info_SOURCES	=  tests/vserver-info.c
 tests_vserver_info_LDADD	=  $(VSERVER_LDADDS)
-tests_vserver_info_LDFLAGS	=  $(VSERVER_LDFLAGS)
+tests_vserver_info_LDFLAGS	=  $(VSERVER_LDFLGS)
