@@ -143,6 +143,8 @@ else
     panic $"vshelper functionality not supported by kernel"
 fi
 
+findObject -x delegate "$CONFDIR"/.defaults/apps/vshelper-delegate/"$ACTION" "$PKGLIBDIR"/vshelper-delegate/"$ACTION" ''
+test -e "$delegate" && exec -a "$ACTION" "$delegate" "$@"
 
 this_xid=$($_VSERVER_INFO - XID)
 pxid=
