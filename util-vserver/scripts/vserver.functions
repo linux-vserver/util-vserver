@@ -38,6 +38,7 @@ declare -a ENTER_SHELL=()
 
 INTERFACE_CMDS_IDX=0
 _HAVE_INTERFACE_OPTIONS=
+_HAVE_CHBIND_OPTIONS=
 
 INITSTYLE=sysv
 
@@ -59,6 +60,8 @@ function _generateChbindOptions
     local i
     local bcast=
 
+    test "$_HAVE_INTERFACE_OPTIONS" || _generateInterfaceOptions "$vdir"
+
     local f=$vdir/interfaces/bcast
     getFileValue bcast "$f"
     
@@ -67,6 +70,8 @@ function _generateChbindOptions
     for i in "${INTERFACES[@]}"; do
 	CHBIND_OPTS=( "${CHBIND_OPTS[@]}" --ip "$i" )
     done
+
+    _HAVE_CHBIND_OPTIONS=1
 }
 
 function _generateNiceCommand
@@ -409,7 +414,7 @@ function prepareInit
 function generateOptions
 {
     _generateInterfaceOptions  "$1"
-    _generateChbindOptions     "$1"
+    test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1" 
     _generateNiceCommand       "$1"
     _generateInitOptions       "$1"
     _generateChcontextOptions  "$1"
@@ -429,6 +434,7 @@ function mountVserver
     $_CHROOT_CAT /etc/mtab <"$mtab_src"
     popd >/dev/null
 
+    test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$cfgdir"
     $_CHBIND "${CHBIND_OPTS[@]}" \
 	$_SECURE_MOUNT -a --chroot "$vdir" --fstab "$cfgdir"/fstab
 }
@@ -441,6 +447,7 @@ function umountVserver
     is_ok=1
 
     test -e "$cfgdir"/fstab || return 0
+    test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$cfgdir"
     
     pushd "$vdir/" >/dev/null
     tac "$cfgdir"/fstab | while read src dst tmp; do
