@@ -21,11 +21,19 @@
 #endif
 
 #include "vserver.h"
-#include "vserver-internal.h"
 #include <fcntl.h>
 
+#if defined(VC_ENABLE_API_FSCOMPAT) && defined(VC_ENABLE_API_V13)
+#  define VC_MULTIVERSION_SYSCALL	1
+#endif
+#include "vserver-internal.h"
+
 #ifdef VC_ENABLE_API_FSCOMPAT
-#  include "fscompat_setiattr-v11.hc"
+#  include "fscompat_setiattr-fscompat.hc"
+#endif
+
+#ifdef VC_ENABLE_API_V13
+#  include "fscompat_setiattr-v13.hc"
 #endif
 
 int
@@ -33,17 +41,6 @@ vc_set_iattr_compat(char const *filename,
 		    dev_t dev, ino_t ino, xid_t xid,
 		    uint32_t flags, uint32_t mask)
 {
-#ifdef VC_ENABLE_API_FSCOMPAT
-  int		ver = utilvserver_checkCompatVersion();
-  if (ver==-1) return -1;
-  if ((ver&0xffff)<=4)
-    return vc_set_iattr_compat_v11(filename, dev, ino, xid, flags, mask);
-#endif
-
-#ifdef VC_ENABLE_API_V13
-  return vc_set_iattr(dev, ino, xid, flags, mask);
-#endif
-
-  errno = ENOSYS;
-  return -1;
+  CALL_VC(CALL_VC_V13     (vc_set_iattr_compat, filename, dev, ino, xid, flags, mask),
+	  CALL_VC_FSCOMPAT(vc_set_iattr_compat, filename, dev, ino, xid, flags, mask));
 }
