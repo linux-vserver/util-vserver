@@ -21,6 +21,7 @@
 
 #include "util-cast.h"
 #include "util-commonstrings.h"
+#include "util-debug.h"
 #include "util-declarecmd.h"
 #include "util-dimof.h"
 #include "util-dotfile.h"
