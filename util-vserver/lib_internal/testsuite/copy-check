@@ -25,10 +25,25 @@ COPY=${libinternaltestsuitedir:-$(dirname "$0")}/copy
 
 test -x "$COPY"
 
+function execWrap()
+{
+    nr=$1
+    msg=$2
+    shift 2
+
+    "$@" || {
+	rc=$?
+	echo $"Test $nr '$msg' failed with code $rc"
+	return $rc
+    }
+
+    return 0
+}
+
 function doit()
 {
-    $COPY  $dir/$nr-in $dir/$nr-out
-    LANG=C cmp -s $dir/$nr-in $dir/$nr-out
+    execWrap "$nr" "copying"   $COPY  $dir/$nr-in $dir/$nr-out
+    execWrap "$nr" "comparing" cmp -s $dir/$nr-in $dir/$nr-out
 }
 
 ## Usage: execCheck <nr> [<dd-args>*]
@@ -42,15 +57,20 @@ function execCheck()
     doit $nr
 }
 
+LANG=C
+
 ### Check 1: small file copy
 execCheck 01 bs=10 count=1
 
 ### Check 2: PAGESIZEd file copy
 execCheck 02 bs=4096 count=1
 
-
 ### Check 3: PAGESIZE+1 file copy
 execCheck 03 bs=4097 count=1
+
+### Check 3a: really large file copy
+test x"$ensc_use_expensive_tests" != xyes ||
+    execCheck 03a bs=$[ 64 * 1024*1024 + 23 ] count=1
 
 ### Check 4: small sparse file copy
 execCheck 04 bs=10   count=1 seek=1
@@ -66,6 +86,10 @@ execCheck 07 bs=4099 count=1 seek=1
 
 ### Check 8: large sparse file copy
 execCheck 08 bs=4100 count=1 seek=1
+
+### Check 8a: really large sparse file copy
+test x"$ensc_use_expensive_tests" != xyes ||
+    execCheck 08a bs=$[ 64 * 1024*1024 + 23 ] count=1 seek=1
 
 ### Check 9: huge sparse file copy
 test x"$ensc_use_expensive_tests" != xyes ||
