@@ -1,7 +1,6 @@
 // $Id$
 
 // Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-// based on setctxlimit.cc by Jacques Gelinas
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -84,7 +83,7 @@ static void
 showVersion()
 {
   WRITE_MSG(1,
-	    "ctxlimit " VERSION " -- limits context-resources\n"
+	    "vlimit " VERSION " -- limits context-resources\n"
 	    "This program is part of " PACKAGE_STRING "\n\n"
 	    "Copyright (C) 2003 Enrico Scholz\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
