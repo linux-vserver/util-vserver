@@ -22,7 +22,7 @@ AC_DEFUN([ENSC_SYSCALLNR],
 	AC_REQUIRE([ENSC_KERNEL_HEADERS])
 	AC_REQUIRE([AC_PROG_EGREP])
 
-	AC_CACHE_CHECK([for syscall '$1'], [ensc_cv_value_syscall_$1],
+	AC_CACHE_CHECK([for number of syscall '$1'], [ensc_cv_value_syscall_$1],
 	[
 		AC_LANG_PUSH(C)
 		AC_EGREP_CPP(ensc_cv_value_syscall_$1=auto, [
@@ -49,7 +49,7 @@ ensc_cv_value_syscall_$1=$2
 		AC_LANG_POP
 	])
 
-	if test "$ensc_cv_value_syscall_$1" != xauto; then
+	if test x"$ensc_cv_value_syscall_$1" != xauto; then
 		AC_DEFINE_UNQUOTED(ENSC_SYSCALL__NR_$1, $ensc_cv_value_syscall_$1, [The number of the $1 syscall])
 	fi
 ])
