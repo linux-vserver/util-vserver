@@ -81,11 +81,7 @@ case "$tag" in
     *)		echo $"Unsupport tag '$tag'" >&2; exit 1;;
 esac
 
-cfgdir=$($_VSERVER_INFO "$vserver" APPDIR pkgmgmt) || {
-    echo $"Package management not configured for vserver '$vserver'" >&2
-    exit 1
-}
-
+cfgdir=$($_VSERVER_INFO "$vserver" APPDIR pkgmgmt) || :
 vdir=$($_VSERVER_INFO "$1" VDIR) || :
 
 style=
@@ -93,7 +89,7 @@ is_external=
 {   read style <"$cfgdir"/style; } 2>/dev/null
 test "$style" || guessStyle "$vserver"
 
-test -e "$cfgdir"/internal || is_external=1
+test ! -d "$cfgdir" -o -e "$cfgdir"/internal || is_external=1
 
 
 cmd=()
@@ -138,7 +134,21 @@ case "$style" in
 	fi
 	;;
     (debian)
-	exit 1
+	case "$tag" in
+	    (get-conffiles)
+		cmd=( sh -c "cat /var/lib/dpkg/info/*.conffiles 2>/dev/null" )
+		;;
+	    (install)
+		cmd=( apt-get install "$@" )
+		;;
+	esac
+
+	if test "$is_external"; then
+	    echo $"'external' packagemanagement is not supported for Debian" >&2
+	    exit 1
+	else
+	    cmd=( "$_VSERVER" --silent "$vserver" exec "${cmd[@]}" )
+	fi
 	;;
 esac
 
