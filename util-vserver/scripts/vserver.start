@@ -1,0 +1,325 @@
+#! /bin/bash
+
+# Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+## Expected env:
+#  $VSERVER_DIR   ... path to vserver-cfg dir
+#  $VSERVER_NAME  ... name of vserver
+
+declare -a NICE_CMD=()
+declare -a CHBIND_OPTS=()
+declare -a CAP_OPTS=()
+declare -a CHCONTEXT_FLAG_OPTS=()
+declare -a CHCONTEXT_OPTS=()
+declare -a CAPCHROOT_OPTS=()
+declare -a INTERFACES=()
+declare -a START_CMD=()
+
+SILENT_OPT=
+
+function _generateInterfaceList
+{
+    local vdir="$1"
+    local iface
+    local ip
+
+    for iface in "$VSERVER_DIR/interfaces/"*; do
+        test   -d "$iface"          || continue
+        test ! -e "$iface"/disabled || continue
+
+	read ip  <"$iface"/ip       || continue
+	INTERFACES=( "${INTERFACES[@]}" "$ip" )
+    done 2>/dev/null
+}
+
+function _generateChbindOptions
+{
+    local vdir="$1"
+    local i
+    local bcast=
+
+    local f=$vdir/interfaces/bcast
+    test ! -e "$f" || read bcast <"$f"
+    
+    CHBIND_OPTS=( $SILENT_OPT ${bcast:+--bcast "$bcast"} )
+
+    for i in "${INTERFACES[@]}"; do
+	CHBIND_OPTS=( "${CHBIND_OPTS[@]}" --ip "$i" )
+    done
+}
+
+function _generateNiceCommand
+{
+    local vdir=$1
+    local nice
+
+    test -e "$vdir/nice" || return 0;
+    read nice <"$vdir"/nice
+
+    NICE_CMD=( $_NICE -$nice )
+}
+
+function _generateCapabilityOptions
+{
+    local vdir=$1
+    local cap
+
+    test -e "$vdir"/capabilities || return 0
+
+    CAP_OPTS=()
+    CAPCHROOT_OPTS=()
+
+    while read cap; do
+	case x"$cap" in
+	    x|x#)	;;
+	    !CAP_SYSCHROOT)
+		CAP_OPTS=( "${CAP_OPTS[@]}" --cap "$cap" )
+		CAPCHROOT_OPTS=( "${CAPCHROOT_OPTS[@]}" --nochroot )
+		;;
+	    *)
+		CAP_OPTS=( "${CAP_OPTS[@]}" --cap "$cap" );;
+	esac
+    done <"$vdir"/capabilities
+}
+
+function _generateFlagOptions
+{
+    local vdir=$1
+    local init_default=3
+
+    CHCONTEXT_FLAG_OPTS=()
+
+    ## TODO: get_initdefault
+    START_CMD=( /etc/rc.d/rc $init_default )
+    test ! -x "$vdir/etc/init.d/rc" || {
+	START_CMD=( /etc/init.d/rc $init_default )
+    }
+    
+    test -e "$vdir"/flags || return 0
+
+    while read flag; do
+	case x"$flag" in
+	    x|x#)		;;
+	    dummy)		;;
+	    minit|fakeinit)
+		CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}" \
+				      --disconnect --flag --fakeinit )
+                case "$flag" in
+		    minit)	START_CMD=( /sbin/minit-start );;
+		    *)		START_CMD=( /sbin/init );;
+		esac
+		;;
+	    *)
+	    	CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}"
+				      --flag "$flag" )
+		;;
+	esac
+    done <"$vdir"/flags
+}
+
+function _generateChcontextOptions
+{
+    local vdir=$1
+    local ctx hostname domainname
+    local cap_opts
+    local flag
+
+    {
+	read ctx        <"$vdir"/context
+	read hostname   <"$vdir"/hostname
+	read domainname <"$vdir"/domainname
+    } 2>/dev/null
+
+    _generateCapabilityOptions "$vdir"
+    _generateFlagOptions       "$vdir"
+
+    CHCONTEXT_OPTS=( $SILENT_OPT \
+                     "${CHCONTEXT_FLAG_OPTS[@]}" \
+		     "${CAP_OPTS[@]}" \
+		     --secure
+		     ${ctx:+--ctx "$ctx"} \
+                     ${hostname:+--hostname "$hostname"} \
+		     ${domainname:+--domainname "$domainname"} )
+}
+
+
+function enableSingleInterface
+{
+    local iface=$1
+
+    local dev
+    local ip
+    local mask
+    local bcast
+    local name
+    local scope
+
+    read dev    <"$iface"/dev    || dev=$dev_default
+    read ip     <"$iface"/ip     || { echo $"Can not read ip for '$iface'" >&3; return 1; }
+    read prefix <"$iface"/prefix || prefix=$prefix_default
+    read mask   <"$iface"/mask   || mask=$mask_default
+    read bcast  <"$iface"/bcast  || bcast=$bcast_default
+    read name   <"$iface"/name
+    read scope  <"$iface"/scope
+
+    test ! -e "$iface"/only_ip   || unset dev
+    
+    if test "$dev"; then
+	test "$prefix" || {
+	    $_MASK2PREFIX "$mask" || prefix=$?
+	    test "$prefix" != 255
+	}
+
+	case "$dev" in
+	    *.*)
+		test -d /proc/net/vlan || {
+		    echo -e $"VLAN device-name used, but vlan subsystem not enabled.\nTry to execute 'modprobe 8021q' before starting the vservers"
+		    return 1
+		}
+		test -f /proc/net/vlan || {
+		    $_VCONFIG add  ${dev/./ }
+		    $_IP      addr add 127.0.0.1/8 broadcast 127.255.255.255 dev "$dev"
+		    $_IP      link set "$dev" up
+		}
+		;;
+	esac
+
+	$_IP addr  add "$ip${prefix:+/$prefix}" ${bcast:-broadcast +}${bcast:+broadcast "$bcast"} \
+	           ${name:+label "$dev:$name"} dev "$dev"
+	$_IP route add "$ip""${prefix:+/$prefix}" dev "$dev"
+        $_IP link  set "$dev" up
+    fi 2>&3
+}
+
+function setInterfaceDefaults
+{
+    read dev_default    <"$1"/dev
+    read mask_default   <"$1"/mask
+    read prefix_default <"$1"/prefix
+    read bcast_default  <"$1"/bcast
+
+    test -z "mask_default" -o "$prefix_default" || {
+	$_MASK2PREFIX "$mask_default" || prefix_default=$?
+	test "$prefix_default" != 255
+    }
+}
+
+function enableInterfaces
+{
+    local VSERVER_DIR=$1
+    local VSERVER_NAME=$2
+    
+    local iface
+
+    local dev_default
+    local mask_default
+    local bcast_default   
+    local prefix_default   
+
+    declare -a all_ips
+
+    setInterfaceDefaults 3>&2 2>/dev/null
+
+    for iface in "$VSERVER_DIR/interfaces/"*; do
+        test   -d "$iface"          || continue
+        test ! -e "$iface"/disabled || continue
+    
+        enableSingleInterface "$iface" 3>&2 2>/dev/null
+    done
+}
+
+
+
+
+
+function generateOptions
+{
+    _generateInterfaceList "$1"
+    _generateChbindOptions "$1"
+    _generateNiceCommand   "$1"
+    _generateChcontextOptions  "$1"
+}
+
+function mountVserver
+{
+    local cfgdir=$1
+    local vdir=$1/vdir
+    local src dst type opts aux
+    local mountopts
+
+    declare -a mountopts
+
+    test -e "$cfgdir"/fstab || return 0
+
+    cat "$cfgdir"/fstab | while read src dst type opts aux; do
+	test "$src" -a "$dst" -a "$type" -a "$opts" || continue
+
+	if test "$type" = "bind"; then
+	    mountopts=( --bind )
+	else
+	    mountopts=( -type $type -o "$opts" )
+	fi
+	    
+	$_CHBIND "${CHBIND_OPTS[@]}" \
+	    $_MOUNT "${mountopts}" "$src" "$vdir$dst"
+    done
+}
+
+function execScriptlets
+{
+    local vdir=$1
+    local name=$2
+    local flavor=$3
+    local i
+
+    for i in "$vdir/scripts/$flavor" "$vdir/scripts/$flavor.d"/*; do
+	test -f "$i" -a -x "$i" || continue
+	"$i" "$flavor" "$name"
+    done
+}
+
+############################################
+
+: ${VSERVER_NAME:=$(basename "$VSERVER_DIR")}
+
+if test -e "$VSERVER_DIR"/noisy; then
+    SILENT_OPT=
+else
+    SILENT_OPT='--silent'
+fi
+
+if isVserverRunning "$VSERVER_DIR"; then
+    echo $"vserver '$VSERVER_NAME' already running; aborting..."
+    exit 1
+fi
+
+execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" pre-start
+generateOptions  "$VSERVER_DIR"
+enableInterfaces "$VSERVER_DIR" "$VSERVER_NAME"
+
+# TODO: utmp
+
+mountVserver "$VSERVER_DIR"
+
+cd "$VSERVER_DIR"/vdir/
+
+"${NICE_CMD[@]}" \
+    "$_CHBIND" "${CHBIND_OPTS[@]}" \
+    "$_CHCONTEXT" "${CHCONTEXT_OPTS[@]}" \
+    "$_SAVE_CTXINFO" "$VSERVER_DIR" \
+    "$_CAPCHROOT" "${CAPCHROOT_OPTS[@]}" . "${START_CMD[@]}"
+
+execScriptlets "$VSERVER_DIR" "$VSERVER_NAME" post-start
