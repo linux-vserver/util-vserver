@@ -17,6 +17,33 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
+src_OPTIONS_EXEMPT	=  src/parserpmdump \
+			   src/readlink \
+			   src/showattr \
+			   src/showperm \
+			   src/vbuild \
+			   src/vcheck \
+			   src/vreboot \
+			   src/save_ctxinfo \
+			   src/vunify \
+			   src/mask2prefix \
+			   src/pipe-sync \
+			   src/rpm-fake.so \
+			   src/capchroot \
+			   src/chroot-cat \
+			   src/chroot-rm \
+			   src/filetime \
+			   src/ifspec \
+			   src/chbind \
+			   src/chcontext \
+			   src/rebootmgr \
+			   src/reducecap \
+			   src/vdu \
+			   src/vfiles \
+			   src/vserver-stat
+
+
+
 src_DIETPROGS		=  src/new-namespace \
 	     		   src/secure-mount \
 	     		   src/secure-umount \
@@ -25,6 +52,7 @@ src_DIETPROGS		=  src/new-namespace \
 	     		   src/chroot-rm \
 	     		   src/chroot-cat \
 	     		   src/fakerunlevel \
+			   src/pipe-sync \
 	     		   src/ctx-kill
 
 src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
@@ -51,6 +79,7 @@ src_pkglib_PRGS		=  src/capchroot \
 			   src/secure-umount \
 			   src/vunify \
 			   src/mask2prefix \
+			   src/pipe-sync \
 			   src/rpm-fake.so
 
 src_sbin_PRGS		=  src/chbind \
@@ -81,6 +110,7 @@ src_listdevip_SOURCES		=  src/listdevip.c
 src_parserpmdump_SOURCES	=  src/parserpmdump.c
 src_readlink_SOURCES		=  src/readlink.c
 src_rebootmgr_SOURCES		=  src/rebootmgr.c
+src_pipe_sync_SOURCES		=  src/pipe-sync.c
 
 src_reducecap_SOURCES		=  src/reducecap.c
 src_reducecap_LDADD		=  lib/libvserver.a
