@@ -31,16 +31,17 @@
 struct stat;
 
 struct Arguments {
-    bool	do_recurse;
-    bool	do_display_dot;
-    bool	do_display_dir;
-    bool	do_mapping;
-    bool	immutable;
-    bool	immulink;
-    xid_t	ctx;
-    bool	is_legacy;
-    bool	do_set;
-    bool	do_unset;
+    bool		do_recurse;
+    bool		do_display_dot;
+    bool		do_display_dir;
+    bool		do_mapping;
+    bool		immutable;
+    bool		immulink;
+    char const *	ctx_str;
+    xid_t		ctx;
+    bool		is_legacy;
+    bool		do_set;
+    bool		do_unset;
 };
 
 extern struct option const		CMDLINE_OPTIONS[];
@@ -48,9 +49,10 @@ extern char const			CMDLINE_OPTIONS_SHORT[];
 extern struct Arguments const *		global_args;
 
 bool	checkForRace(int fd, char const * name, struct stat const *exp_st);
-void	checkParams(struct Arguments const *, int argc);
+void	fixupParams(struct Arguments *, int argc);
 bool	handleFile(char const *d_name, char const *full_name, struct stat const *);
 void	showHelp(int fd, char const *cmd, int res);
 void	showVersion();
+xid_t	resolveCtx(char const *str);
 
 #endif	//  H_UTIL_VSERVER_SRC_FSTOOL_H

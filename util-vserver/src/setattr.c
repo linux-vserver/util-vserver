@@ -75,7 +75,7 @@ showVersion()
 }
 
 void
-checkParams(struct Arguments const * args, int argc)
+fixupParams(struct Arguments * args, int argc)
 {
   if (optind==argc) {
     WRITE_MSG(2, "No filename given; use '--help' for more information\n");

@@ -73,7 +73,7 @@ showVersion()
 }
 
 void
-checkParams(struct Arguments const UNUSED * args, int UNUSED argc)
+fixupParams(struct Arguments UNUSED * args, int UNUSED argc)
 {
 }
 

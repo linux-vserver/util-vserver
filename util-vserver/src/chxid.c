@@ -103,15 +103,17 @@ handleFile(char const *name, char const * display_name,
 }
 
 void
-checkParams(struct Arguments const UNUSED *args, int argc)
+fixupParams(struct Arguments UNUSED *args, int argc)
 {
   if (optind==argc) {
     WRITE_MSG(2, "No filename given; use '--help' for more information\n");
     exit(1);
   }
 
-  if (args->ctx==VC_NOCTX) {
-    WRITE_MSG(2, "No valid context given; use '--help' for more information\n");
+  if (args->ctx_str==0) {
+    WRITE_MSG(2, "No context given; use '--help' for more information\n");
     exit(1);
   }
+
+  args->ctx = resolveCtx(args->ctx_str);
 }

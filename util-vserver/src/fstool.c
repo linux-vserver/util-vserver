@@ -161,30 +161,6 @@ processFile(char const *path)
     return handleFile(path, path, &st);
 }
 
-static xid_t
-resolveCtx(char const *str)
-{
-  xid_t		res;
-  
-  if (*str==':') ++str;
-  else {
-    char	*end_ptr;
-    long	result = strtol(str, &end_ptr, 0);
-
-    if (end_ptr>str && *end_ptr==0) return result;
-  }
-
-  res = vc_getVserverCtx(str, vcCFG_AUTO, true, 0);
-  if (res==VC_NOCTX) {
-    WRITE_MSG(2, "Can not find a vserver with name '");
-    WRITE_STR(2, str);
-    WRITE_MSG(2, "', or vserver does not have a static context\n");
-    exit(1);
-  }
-
-  return res;
-}
-
 int main(int argc, char *argv[])
 {
   uint64_t		err_cnt = 0;
@@ -220,7 +196,7 @@ int main(int argc, char *argv[])
       case 'n'			:  args.do_mapping     = false; break;
       case 's'			:  args.do_set         = true;  break;
       case 'u'			:  args.do_unset       = true;  break;
-      case 'c'			:  args.ctx            = resolveCtx(optarg); break;
+      case 'c'			:  args.ctx_str        = optarg; break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -230,7 +206,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  checkParams(&args, argc);
+  fixupParams(&args, argc);
 
   if (optind==argc)
     err_cnt  = processFile(".");
