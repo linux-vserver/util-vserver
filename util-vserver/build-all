@@ -26,6 +26,7 @@ make=eval\ "${CLEAN:+make -j2 silent.clean;} \
 	    make -j2 ${SILENT:+-s silent.}check"
 
 LANG=C
+CPPFLAGS='-D_FORTIFY_SOURCE=99'
 
 ## Usage: xtermTitle <title>
 function xtermTitle
@@ -53,7 +54,7 @@ function operate()
 
 case "$1" in
     dist)
-	test -e Makefile || ./configure $confflags
+	test -e Makefile || CPPFLAGS=$CPPFLAGS ./configure $confflags
 	$make
 	exit
 	;;
@@ -80,9 +81,9 @@ test -d "Build" || {
     ln -sf $d Build
 }
 
-operate Build/diet-noopt   CFLAGS='-O0 -g3' CXXFLAGS='-O0 -g3'
-operate Build/diet-opt     --enable-release
-operate Build/nodiet-noopt --disable-dietlibc CFLAGS='-O0 -g3' CXXFLAGS='-O0 -g3' 
-operate Build/nodiet-opt   --enable-release --disable-dietlibc
-operate Build/gcc32-opt    --enable-release --disable-dietlibc CC='ccache gcc32'  CXX='ccache g++'
-operate Build/gcc33-opt    --enable-release --disable-dietlibc CC='ccache gcc33'  CXX='ccache g++33'
+operate Build/diet-noopt                                       CPPFLAGS=$CPPFLAGS CFLAGS='-O0 -g3' CXXFLAGS='-O0 -g3'
+operate Build/diet-opt     --enable-release                    CPPFLAGS=$CPPFLAGS
+operate Build/nodiet-noopt --disable-dietlibc                  CPPFLAGS=$CPPFLAGS CFLAGS='-O0 -g3' CXXFLAGS='-O0 -g3' 
+operate Build/nodiet-opt   --enable-release --disable-dietlibc CPPFLAGS=$CPPFLAGS
+operate Build/gcc32-opt    --enable-release --disable-dietlibc CPPFLAGS=$CPPFLAGS CC='ccache gcc32'  CXX='ccache g++'
+operate Build/gcc33-opt    --enable-release --disable-dietlibc CPPFLAGS=$CPPFLAGS CC='ccache gcc33'  CXX='ccache g++33'
