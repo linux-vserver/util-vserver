@@ -31,8 +31,8 @@ Vector_insert(struct Vector *vec, void const *key,
   char *	end_ptr = Vector_pushback(vec);
 
   for (data=vec->data; data<end_ptr; data += vec->elem_size) {
-    if (compare(key, data)>0) {
-      memmove(data, data+vec->elem_size,
+    if (compare(key, data)<0) {
+      memmove(data+vec->elem_size, data,
 	      (char *)(end_ptr) - (char *)(data));
       return data;
     }
