@@ -44,6 +44,7 @@ USE_VNAMESPACE=
 INTERFACE_CMDS_IDX=0
 _HAVE_INTERFACE_OPTIONS=
 _HAVE_CHBIND_OPTIONS=
+_IS_FAKEINIT=
 
 INITSTYLE=sysv
 
@@ -223,8 +224,7 @@ function _generateInitOptions
 	(xplain)
 	    INITCMD_START=( /sbin/init )
 	    INITCMD_STOP=(  /sbin/init )
-	    CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
-	    OPTS_VCONTEXT_MIGRATE=( "${OPTS_VCONTEXT_MIGRATE[@]}" --fakeinit --disconnect )
+	    _IS_FAKEINIT=1
 	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
 	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
 	    ;;
@@ -232,10 +232,9 @@ function _generateInitOptions
 	(xminit)
 	    INITCMD_START=( /sbin/minit-start )
 	    INITCMD_STOP=(  /sbin/minit-stop  )
-	    CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
+	    _IS_FAKEINIT=1
 	    INITCMD_START_SYNC=( "$_INITSYNC_MINIT_START" "$vdir" )
 	    INITCMD_STOP_SYNC=(  "$_INITSYNC_MINIT_STOP"  "$vdir" )
-	    OPTS_VCONTEXT_MIGRATE=( "${OPTS_VCONTEXT_MIGRATE[@]}" --fakeinit --disconnect )
 	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
 	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
 	    ;;
@@ -269,15 +268,13 @@ function _generateFlagOptions
 
     CHCONTEXT_FLAG_OPTS=()
 
-    test -e "$vdir"/flags || return 0
-
+    test ! -e "$vdir"/flags || \
     while read flag; do
 	case x"$flag" in
 	    (x|x\#)		;;
 	    (xnamespace)	;;
 	    (xfakeinit)
-		CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
-		OPTS_VCONTEXT_MIGRATE=( "${OPTS_VCONTEXT_MIGRATE[@]}" --fakeinit --disconnect )
+		_IS_FAKEINIT=1
 		;;
 	    (*)
 		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --flag "$flag" )
@@ -287,7 +284,7 @@ function _generateFlagOptions
 	esac
     done <"$vdir"/flags
 
-    isAvoidNamespace "$cfgdir" || {
+    isAvoidNamespace "$vdir" || {
 	USE_VNAMESPACE=1
 	CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}" --flag namespace )
     }
@@ -497,6 +494,11 @@ function generateOptions
     _generateNiceCommand       "$1"
     _generateInitOptions       "$1"
     _generateChcontextOptions  "$1"
+
+    if test "$_IS_FAKEINIT"; then
+	CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
+	OPTS_VCONTEXT_MIGRATE=( "${OPTS_VCONTEXT_MIGRATE[@]}" --fakeinit --disconnect )
+    fi
 }
 
 function _mountVserverInternal
