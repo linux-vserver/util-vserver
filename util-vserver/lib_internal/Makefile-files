@@ -17,6 +17,20 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
+
+LIBINTERNAL_GLIBC =		lib_internal/libinternal-glibc.a
+noinst_LIBRARIES +=		$(LIBINTERNAL_GLIBC)
+
+if USE_DIETLIBC
+LIBINTERNAL_DIET =		lib_internal/libinternal-diet.a
+LIBINTERNAL =			$(LIBINTERNAL_DIET)
+noinst_LIBRARIES +=		$(LIBINTERNAL_DIET)
+else
+LIBINTERNAL_DIET =		lib-dietlibc-not-enabled-error.a
+LIBINTERNAL =			$(LIBINTERNAL_GLIBC)
+endif
+
+
 command_SRCS =			lib_internal/command-appendparameter.c \
 				lib_internal/command-setparams.c \
 				lib_internal/command-exec.c\
@@ -33,7 +47,6 @@ filecfg_SRCS =			lib_internal/filecfg.h \
 				lib_internal/filecfg-readentrystr.c
 endif
 
-noinst_LIBRARIES +=		lib_internal/libinternal.a
 noinst_HEADERS += \
 				lib_internal/coreassert.h \
 				lib_internal/errinfo.h \
@@ -59,7 +72,7 @@ noinst_HEADERS += \
 				lib_internal/util-unixsock.h \
 				lib_internal/string.hc
 
-lib_internal_libinternal_a_SOURCES = \
+lib_internal_libinternal_common_SRCS = \
 				lib_internal/errinfo-writeerrno.c \
 				lib_internal/jailintotempdir.c \
 				lib_internal/matchlist-appendfiles.c \
@@ -78,6 +91,7 @@ lib_internal_libinternal_a_SOURCES = \
 				lib_internal/unify-deunify.c \
 				lib_internal/unify-settime.c \
 				lib_internal/unify-unify.c \
+				lib_internal/unify-isiunlinkable.c \
 				lib_internal/util-canonify.c \
 				lib_internal/util-exitlikeprocess.c \
 				lib_internal/util-lockfile.c \
@@ -85,7 +99,15 @@ lib_internal_libinternal_a_SOURCES = \
 				$(command_SRCS) \
 				$(filecfg_SRCS)
 
-DIETPROGS +=			lib_internal/libinternal.a
+lib_internal_libinternal_diet_a_SOURCES =	\
+				$(lib_internal_libinternal_common_SRCS)
 
+lib_internal_libinternal_glibc_a_SOURCES =	\
+				$(lib_internal_libinternal_common_SRCS)
+
+lib_internal_libinternal_diet_a_CPPFLAGS =	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS)
+lib_internal_libinternal_glibc_a_CPPFLAGS =	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS)
+
+DIETPROGS +=			lib_internal/libinternal-diet.a
 
 include $(top_srcdir)/lib_internal/testsuite/Makefile-files
