@@ -160,6 +160,7 @@ extern "C" {
   int	vc_get_rlimit(xid_t ctx, int resource, struct vc_rlimit *lim);
   int	vc_set_rlimit(xid_t ctx, int resource, struct vc_rlimit const *lim);
   int	vc_get_rlimit_mask(xid_t ctx, struct vc_rlimit_mask *lim);
+  bool	vc_parseLimit(char const *, vc_limit_t *);
 
 
   /** sends a signal to a context/pid
