@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- <!DOCTYPE database SYSTEM "configuration.dtd" []> -->
+<!DOCTYPE database SYSTEM "configuration.dtd" []>
 <!-- $Id$ -->
 
 <database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -129,6 +129,42 @@ at startup via initscript.
 	<list name="exclude">
 	  <description>Static list of excluded files.</description>
 	</list>
+
+	<collection name="hash" since="0.30.205">
+	  <description>
+A directory which will be used as the storage place for the 'vhashify'
+command.
+          </description>
+	  <link name="id" type="symbolic">
+	    <description>
+Points to a directory within the filesystems which are used for the
+vservers. There must be not more than one of such a directory per
+filesystem.
+            </description>
+	  </link>
+
+	  <scalar name="method" since="0.30.299">
+	    <default>SHA1</default>
+	    <description>The used hash method.</description>
+	  </scalar>
+	</collection>
+
+	<boolean name="pkgmgmt-ignore" default="off" since="0.30.205">
+	  <description>
+When existing, information from packagemanagement will not be used to
+create dynamic exclude-lists.
+          </description>
+	</boolean>
+
+	<boolean name="pgkmgmt-force" default="off" since="0.30.205">
+	  <description>
+When existing, information from packagemanagement will be used to
+create dynamic exclude-lists. This option requires that (a known)
+packagemanagement is configured for the vserver; else the requested
+operation will fail. Most tools assume 'on' as the default value.
+          </description>
+	</boolean>
+
       </collection>
     </collection>
   </collection>
@@ -538,22 +574,22 @@ vserver ids (one name per line).
       
       <collection name="vshelper">
 	<scalar name="sync-timeout">
+	  <default>30</default>
 	  <description>
 The timeout in seconds which is used when synchronising vserver
 startup/shutdown with the vshelper. When no set, 30 seconds will be
 assumed.
 	  </description>
-	  <default>30</default>
 	</scalar>
 	
 	<scalar name="action">
+	  <default>restart</default>
 	  <description>
 The action which is going to be executed when a vshelper event occurs. The
 default value is 'restart', but there can be defined own methods by placing
 scripts into the 'vshelper-methods' directories. These scripts are fed with
 the same arguments as the 'vshelper' script.
           </description>
-	  <default>restart</default>
 	</scalar>
 	
 	<program name="event" type="symbolic">
@@ -630,6 +666,42 @@ multiple such symlinks but they must be prefixed by 'refserver.' and
 will be processed in alphanumerical order.
           </description>
 	</link>
+
+	<collection name="hash" since="0.30.205">
+	  <description>
+A directory which will be used as the storage place for the 'vhashify'
+command.
+          </description>
+	  <link name="id" type="symbolic">
+	    <description>
+Points to a directory within the filesystems which are used for the
+vservers. There must be not more than one of such a directory per
+filesystem.
+            </description>
+	  </link>
+
+	  <scalar name="method"  since="0.30.299">
+	    <default>SHA1</default>
+	    <description>The used hash method.</description>
+	  </scalar>
+	</collection>
+
+	<boolean name="pkgmgmt-ignore" default="off" since="0.30.205">
+	  <description>
+When existing, information from packagemanagement will not be used to
+create dynamic exclude-lists.
+          </description>
+	</boolean>
+
+	<boolean name="pgkmgmt-force" default="off" since="0.30.205">
+	  <description>
+When existing, information from packagemanagement will be used to
+create dynamic exclude-lists. This option requires that (a known)
+packagemanagement is configured for the vserver; else the requested
+operation will fail. Most tools assume 'on' as the default value.
+          </description>
+	</boolean>
+	
       </collection>
     </collection>
     
