@@ -37,7 +37,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "linuxcaps.h"
 #include "vserver.h"
 
 int main (int argc, char *argv[])
@@ -82,7 +81,7 @@ int main (int argc, char *argv[])
 			int cmd          = dir + 1;
 
 			if (nochroot){
-				vc_new_s_context (-2,1<<CAP_SYS_CHROOT,0);
+				vc_new_s_context (-2,1<<VC_CAP_SYS_CHROOT,0);
 			}
 
 			if (uid != NULL && strcmp(uid,"root")!=0){

@@ -33,7 +33,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "linuxcaps.h"
 #include "vserver.h"
 
 static void usage()
@@ -118,21 +117,21 @@ int main (int argc, char *argv[])
 	int flags = 0;
 	unsigned remove_cap = 0;
 	unsigned add_cap = 0;
-	unsigned long secure = (1<<CAP_LINUX_IMMUTABLE)
-		|(1<<CAP_NET_BROADCAST)
-		|(1<<CAP_NET_ADMIN)
-		|(1<<CAP_NET_RAW)
-		|(1<<CAP_IPC_LOCK)
-		|(1<<CAP_IPC_OWNER)
-		|(1<<CAP_SYS_MODULE)
-		|(1<<CAP_SYS_RAWIO)
-		|(1<<CAP_SYS_PACCT)
-		|(1<<CAP_SYS_ADMIN)
-		|(1<<CAP_SYS_BOOT)
-		|(1<<CAP_SYS_NICE)
-		|(1<<CAP_SYS_RESOURCE)
-		|(1<<CAP_SYS_TIME)
-		|(1<<CAP_MKNOD);
+	unsigned long secure = ( (1<<VC_CAP_LINUX_IMMUTABLE)
+				|(1<<VC_CAP_NET_BROADCAST)
+				|(1<<VC_CAP_NET_ADMIN)
+				|(1<<VC_CAP_NET_RAW)
+				|(1<<VC_CAP_IPC_LOCK)
+				|(1<<VC_CAP_IPC_OWNER)
+				|(1<<VC_CAP_SYS_MODULE)
+				|(1<<VC_CAP_SYS_RAWIO)
+				|(1<<VC_CAP_SYS_PACCT)
+				|(1<<VC_CAP_SYS_ADMIN)
+				|(1<<VC_CAP_SYS_BOOT)
+				|(1<<VC_CAP_SYS_NICE)
+				|(1<<VC_CAP_SYS_RESOURCE)
+				|(1<<VC_CAP_SYS_TIME)
+				|(1<<VC_CAP_MKNOD));
 	const char *hostname=NULL, *domainname=NULL;
 
 	for (i=1; i<argc; i++){
@@ -170,60 +169,18 @@ int main (int argc, char *argv[])
 			}
 			i++;
 		}else if (strcmp(arg,"--cap")==0){
-			static struct {
-				const char *option;
-				int bit;
-			}tbcap[]={
-				// The following capabilities are normally available
-				// to vservers administrator, but are place for
-				// completeness
-				{"CAP_CHOWN",CAP_CHOWN},
-				{"CAP_DAC_OVERRIDE",CAP_DAC_OVERRIDE},
-				{"CAP_DAC_READ_SEARCH",CAP_DAC_READ_SEARCH},
-				{"CAP_FOWNER",CAP_FOWNER},
-				{"CAP_FSETID",CAP_FSETID},
-				{"CAP_KILL",CAP_KILL},
-				{"CAP_SETGID",CAP_SETGID},
-				{"CAP_SETUID",CAP_SETUID},
-				{"CAP_SETPCAP",CAP_SETPCAP},
-				{"CAP_SYS_TTY_CONFIG",CAP_SYS_TTY_CONFIG},
-				{"CAP_LEASE",CAP_LEASE},
-				{"CAP_SYS_CHROOT",CAP_SYS_CHROOT},
-
-				// Those capabilities are not normally available
-				// to vservers because they are not needed and
-				// may represent a security risk
-				{"CAP_LINUX_IMMUTABLE",CAP_LINUX_IMMUTABLE},
-				{"CAP_NET_BIND_SERVICE",CAP_NET_BIND_SERVICE},
-				{"CAP_NET_BROADCAST",CAP_NET_BROADCAST},
-				{"CAP_NET_ADMIN",	CAP_NET_ADMIN},
-				{"CAP_NET_RAW",	CAP_NET_RAW},
-				{"CAP_IPC_LOCK",	CAP_IPC_LOCK},
-				{"CAP_IPC_OWNER",	CAP_IPC_OWNER},
-				{"CAP_SYS_MODULE",CAP_SYS_MODULE},
-				{"CAP_SYS_RAWIO",	CAP_SYS_RAWIO},
-				{"CAP_SYS_PACCT",	CAP_SYS_PACCT},
-				{"CAP_SYS_ADMIN",	CAP_SYS_ADMIN},
-				{"CAP_SYS_BOOT",	CAP_SYS_BOOT},
-				{"CAP_SYS_NICE",	CAP_SYS_NICE},
-				{"CAP_SYS_RESOURCE",CAP_SYS_RESOURCE},
-				{"CAP_SYS_TIME",	CAP_SYS_TIME},
-				{"CAP_MKNOD",		CAP_MKNOD},
-				{NULL,0}
-			};
-			int j;
 			unsigned *cap = &add_cap;
+			int	 bit;
+
 			if (opt[0] == '!'){
 				cap = &remove_cap;
 				opt++;
 			}
-			for (j=0; tbcap[j].option != NULL; j++){
-				if (strcasecmp(tbcap[j].option,opt)==0){
-					*cap |= (1<<tbcap[j].bit);
-					break;
-				}
-			}
-			if (tbcap[j].option == NULL){
+
+			bit = vc_text2cap(opt);
+
+			if (bit!=-1) *cap |= (1<<bit);
+			else {
 				fprintf (stderr,"Unknown capability %s\n",opt);
 			}
 			i++;
