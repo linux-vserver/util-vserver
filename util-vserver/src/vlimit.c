@@ -253,7 +253,7 @@ readFile(char const *file, char *base, char const *suffix,
 {
   int		fd;
   
-  memcpy(base, suffix, strlen(suffix)+1);
+  strcpy(base, suffix);
   fd = open(file, O_RDONLY);
   if (fd!=-1) {
     *limit = readValue(fd, file);
