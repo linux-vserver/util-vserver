@@ -151,6 +151,7 @@ pathsubst_RULES =	s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			s!@'PACKAGE_TARNAME'@!$(PACKAGE_TARNAME)!g; \
 			s!@'PACKAGE_VERSION'@!$(PACKAGE_VERSION)!g; \
 			s!@'AWK'@!$(AWK)!g; \
+			s!@'ENV'@!$(ENV)!g; \
 			s!@'GREP'@!$(GREP)!g; \
 			s!@'IP'@!$(IP)!g; \
 			s!@'IPTABLES'@!$(IPTABLES)!g; \
