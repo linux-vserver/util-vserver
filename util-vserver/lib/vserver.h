@@ -143,21 +143,36 @@
 #define	VC_IATTR_IUNLINK		0x00020000
 #define VC_IATTR_IMMUTABLE		0x00040000
 
+/** \defgroup  syscalls Syscall wrappers
+ *  Functions which are calling the vserver syscall directly. */
+
+/** \defgroup  helper   Helper functions
+ *  Functions which are doing general helper tasks like parameter parsing. */
+
+/** \typedef  an_unsigned_integer_type  xid_t
+ *  The identifier of a context. */
+
+#ifdef IS_DOXYGEN
+typedef an_unsigned_integer_type	xid_t;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
   struct vc_ip_mask_pair {
     uint32_t	ip;
-    uint32_t	mask;
+      uint32_t	mask;
   };
 
     /** \brief   Returns the version of the current kernel API.
-	\returns The versionnumber of the kernel API
+     *  \ingroup syscalls
+     *	\returns The versionnumber of the kernel API
      */
   int	vc_get_version();
   
     /** \brief   Moves current process into a context
+     *  \ingroup syscalls
      *
      *  Puts current process into context \a ctx, removes the capabilities
      *  given in \a remove_cap and sets \a flags.
@@ -176,11 +191,13 @@ extern "C" {
   xid_t	vc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags);
 
     /** \brief  Sets the ipv4root information.
+     *  \ingroup syscalls
      *  \pre    \a nb < NB_IPV4ROOT && \a ips != 0 */
   int	vc_set_ipv4root(uint32_t  bcast, size_t nb,
 			struct vc_ip_mask_pair const *ips) VC_ATTR_NONNULL((3));
 
     /** \brief   Creates a context without starting it.
+     *  \ingroup syscalls
      *
      *  This functions initializes a new context. When already in a freshly
      *  created context, this old context will be discarded.
@@ -193,27 +210,44 @@ extern "C" {
   xid_t	vc_create_context(xid_t xid);
 
     /** \brief   Moves the current process into the specified context.
+     *  \ingroup syscalls
      *
      *  \param   xid  The new context
      *  \returns 0 on success, -1 on errors */
   int	vc_migrate_context(xid_t xid);
   
     /* rlimit related functions */
+  
+    /** \brief  The type which is used for a single limit value.
+     *
+     *  Special values are
+     *  - VC_LIM_INFINITY ... which is the infinite value
+     *  - VC_LIM_KEEP     ... which is used to mark values which shall not be
+     *                        modified by the vc_set_rlimit() operation.
+     *
+     *  Else, the interpretation of the value depends on the corresponding
+     *  resource; it might be bytes, pages, seconds or litres of beer.
+     */
   typedef uint_least64_t	vc_limit_t;
- 
+
+    /** \brief  The limits of a resources.
+     *
+     *  This is a triple consisting of a minimum, soft and hardlimit. */
   struct vc_rlimit {
-      vc_limit_t	min;	//< the guaranted minimum of a resources
-      vc_limit_t	soft;	//< the softlimit of a resource
-      vc_limit_t	hard;	//< the absolute hardlimit of a resource
+      vc_limit_t	min;	///< the guaranted minimum of a resources
+      vc_limit_t	soft;	///< the softlimit of a resource
+      vc_limit_t	hard;	///< the absolute hardlimit of a resource
   };
 
+    /** \brief  Masks describing the supported limits. */
   struct  vc_rlimit_mask {
-      uint_least32_t	min;	//< mask of resources supporting a minimum limit
-      uint_least32_t	soft;	//< mask of resources supporting a soft limit
-      uint_least32_t	hard;	//< mask of resources supporting a hard limit
+      uint_least32_t	min;	///< masks the resources supporting a minimum limit
+      uint_least32_t	soft;	///< masks the resources supporting a soft limit
+      uint_least32_t	hard;	///< masks the resources supporting a hard limit
   };
 
-    /** \brief   Returns the current limits of \a resource.
+    /** \brief   Returns the limits of \a resource.
+     *  \ingroup syscalls
      *
      *  \param  xid       The id of the context
      *  \param  resource  The resource which will be queried
@@ -222,17 +256,46 @@ extern "C" {
      *  \returns 0 on success, and -1 on errors. */
   int	vc_get_rlimit(xid_t xid, int resource,
 		      struct vc_rlimit       /*@out@*/ *lim) VC_ATTR_NONNULL((3));
+    /** \brief   Sets the limits of \a resource.
+     *  \ingroup syscalls
+     *
+     *  \param  xid       The id of the context
+     *  \param  resource  The resource which will be queried
+     *  \param  lim       The new limits
+     *
+     *  \returns 0 on success, and -1 on errors. */
   int	vc_set_rlimit(xid_t xid, int resource,
 		      struct vc_rlimit const /*@in@*/  *lim) VC_ATTR_NONNULL((3));
   int	vc_get_rlimit_mask(xid_t xid,
 			   struct vc_rlimit_mask *lim)       VC_ATTR_NONNULL((2));
-  bool	vc_parseLimit(char const *str, vc_limit_t *res)      VC_ATTR_NONNULL((1,2));
+    /** \brief   Parses a string describing a limit
+     *  \ingroup helper
+     *
+     *  This function parses \a str and interprets special words like \p "inf"
+     *  or suffixes. Valid suffixes are
+     *  - \p k ... 1000
+     *  - \p m ... 1000000
+     *  - \p K ... 1024
+     *  - \p M ... 1048576
+     *
+     *  \param str  The string which shall be parsed
+     *  \param res  Will be filled with the interpreted value; in errorcase,
+     *              this value is undefined.
+     *
+     *  \returns \a true, iff the string \a str could be parsed. \a res will
+     *  be filled with the interpreted value in this case. 
+     *
+     *  \pre \a str!=0 && \a res!=0
+     */
+  bool	vc_parseLimit(char const /*@in@*/ *str, vc_limit_t /*@out@*/ *res)	VC_ATTR_NONNULL((1,2));
 
 
-  /** sends a signal to a context/pid
-      Special values for pid are:
-      * -1   which means every process in ctx except the init-process
-      *  0   which means every process in ctx inclusive the init-process */
+  /** \brief    Sends a signal to a context/pid
+   *  \ingroup  syscalls
+   *
+   *  Special values for \a pid are:
+   *  - -1   which means every process in ctx except the init-process
+   *  -  0   which means every process in ctx inclusive the init-process */
   int	vc_ctx_kill(xid_t ctx, pid_t pid, int sig);
 
 
