@@ -34,8 +34,7 @@
 #include <wrappers.h>
 
 bool
-Unify_deUnify(char const UNUSED *src, struct stat const UNUSED *src_stat,
-	      char const *dst,        struct stat const UNUSED *dst_stat)
+Unify_deUnify(char const *dst)
 {
   size_t		l = strlen(dst);
   char			tmpfile[l + sizeof(";XXXXXX")];
@@ -82,7 +81,7 @@ Unify_deUnify(char const UNUSED *src, struct stat const UNUSED *src_stat,
     }
     if (len==0) break;
 
-    if (!WwriteAll(fd_tmp, buf, len)) goto err;
+    if (!WwriteAll(fd_tmp, buf, len, 0)) goto err;
   }
 
   if (close(fd_src)==-1) {
