@@ -86,6 +86,21 @@
 #  define CTX_KERNEL2USER(X)	(X)
 #endif
 
+#if 1
+#  define EXT2FLAGS_USER2KERNEL(X)	(((X) & ~(VC_IMMUTABLE_FILE_FL|VC_IMMUTABLE_LINK_FL)) | \
+					 ((X) & VC_IMMUTABLE_FILE_FL ? EXT2_IMMUTABLE_FILE_FL : 0) | \
+					 ((X) & VC_IMMUTABLE_LINK_FL ? EXT2_IMMUTABLE_LINK_FL : 0))
+#  define EXT2FLAGS_KERNEL2USER(X)	(((X) & ~(EXT2_IMMUTABLE_FILE_FL|EXT2_IMMUTABLE_LINK_FL)) | \
+					 ((X) & EXT2_IMMUTABLE_FILE_FL ? VC_IMMUTABLE_FILE_FL : 0) | \
+					 ((X) & EXT2_IMMUTABLE_LINK_FL ? VC_IMMUTABLE_LINK_FL : 0))
+#else
+#  define EXT2FLAGS_KERNEL2USER(X)	(X)
+#  define EXT2FLAGS_USER2KERNEL(X)	(X)
+#endif
+
+
+#define EXT2_IOC_GETCONTEXT		_IOR('x', 1, long)
+#define EXT2_IOC_SETCONTEXT		_IOW('x', 2, long)
 
 #ifndef HAVE_VSERVER
 #if defined(__pic__) && defined(__i386)
