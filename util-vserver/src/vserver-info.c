@@ -37,14 +37,14 @@
 #include <dirent.h>
 #include <strings.h>
 
-#include <sys/capability.h>
-
-
 #define ENSC_WRAPPERS_FCNTL	1
 #define ENSC_WRAPPERS_IO	1
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_VSERVER	1
 #include <wrappers.h>
+
+#undef _POSIX_SOURCE
+#include "capability-compat.h"
 
 typedef enum { tgNONE,tgCONTEXT, tgID, tgRUNNING,
 	       tgVDIR, tgNAME, tgCFGDIR, tgAPPDIR,

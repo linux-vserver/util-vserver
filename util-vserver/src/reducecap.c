@@ -38,12 +38,9 @@
 #include <wrappers.h>
 
 
-  // dirty hack...
-#define  __u32 uint32_t
-#define  __user
-#include "linuxcaps.h"
-#undef   __user
-#undef   __u32
+#undef _POSIX_SOURCE
+#include "capability-compat.h"
+
 
 #define CMD_HELP	0x1000
 #define CMD_VERSION	0x1001
@@ -142,9 +139,6 @@ CMDLINE_OPTIONS[] = {
 };
 
 int wrapper_exit_code	= 255;
-
-extern int capget (struct __user_cap_header_struct *, struct __user_cap_data_struct *);
-extern int capset (struct __user_cap_header_struct *, struct __user_cap_data_struct *);
 
 static void
 showHelp(int fd, char const *cmd, int res)
