@@ -105,6 +105,7 @@ src_sbin_PRGS =		src/chbind \
 			src/exec-cd \
 			src/lsxid \
 			src/chxid \
+			src/vps \
 			src/showattr \
 			src/setattr \
 			src/rebootmgr \
@@ -169,6 +170,10 @@ src_rpm_fake_resolver_LDADD	=  lib/libvserver.la
 src_rpm_fake_resolver_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_mask2prefix_SOURCES		=  src/mask2prefix.c
+
+src_vps_SOURCES			=  src/vps.c src/util-exitlikeprocess.c
+src_vps_LDADD			=  lib/libvserver.la
+src_vps_LDFLAGS			=  $(VSERVER_LDFLAGS)
 
 src_vserver_info_SOURCES	=  src/vserver-info.c
 src_vserver_info_LDADD		=  lib/libvserver.la
