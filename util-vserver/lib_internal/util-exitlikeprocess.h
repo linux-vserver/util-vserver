@@ -20,6 +20,6 @@
 #define H_UTILVSERVER_LIB_INTERNAL_UTIL_EXITLIKEPROCESS_H
 
 #include <sys/types.h>
-void	exitLikeProcess(pid_t pid, char const /*@null@*/ *cmd);
+void	exitLikeProcess(pid_t pid, char const /*@null@*/ *cmd, int ret) NORETURN;
 
 #endif	//  H_UTILVSERVER_LIB_INTERNAL_UTIL_EXITLIKEPROCESS_H
