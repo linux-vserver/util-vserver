@@ -29,5 +29,6 @@
 #include "util-mem.h"
 #include "util-perror.h"
 #include "util-safechdir.h"
+#include "util-unixsock.h"
 
 #endif	//  H_UTILVSERVER_LIB_INTERNAL_UTIL_H
