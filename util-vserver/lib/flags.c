@@ -31,13 +31,13 @@ static struct {
     size_t			len;
     unsigned char		val;
 } const FLAGVALUES[] = {
-  DECL("lock",     S_CTX_INFO_LOCK),
-  DECL("sched",    S_CTX_INFO_SCHED),
-  DECL("nproc",    S_CTX_INFO_NPROC),
-  DECL("private",  S_CTX_INFO_PRIVATE),
-  DECL("fakeinit", S_CTX_INFO_INIT),
-  DECL("hideinfo", S_CTX_INFO_HIDEINFO),
-  DECL("ulimit",   S_CTX_INFO_ULIMIT),
+  DECL("lock",      S_CTX_INFO_LOCK),
+  DECL("sched",     S_CTX_INFO_SCHED),
+  DECL("nproc",     S_CTX_INFO_NPROC),
+  DECL("private",   S_CTX_INFO_PRIVATE),
+  DECL("fakeinit",  S_CTX_INFO_INIT),
+  DECL("hideinfo",  S_CTX_INFO_HIDEINFO),
+  DECL("ulimit",    S_CTX_INFO_ULIMIT),
   DECL("namespace", S_CTX_INFO_NAMESPACE),
 };
 
