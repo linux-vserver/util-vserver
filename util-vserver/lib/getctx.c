@@ -20,8 +20,6 @@
 #  include <config.h>
 #endif
 #include "compat.h"
-#include "vserver.h"
-#include "vserver-internal.h"
 
 #ifdef VC_ENABLE_API_COMPAT
 #  include "getctx-compat.hc"
@@ -31,11 +29,18 @@
 #  include "getctx-legacy.hc"
 #endif
 
+#include "vserver.h"
+#include "vserver-internal.h"
+#include "internal.h"
+
+#include <unistd.h>
 #include <sys/types.h>
 
 ctx_t
 vc_X_getctx(pid_t pid)
 {
+  if (pid==0) pid=getpid();
+  
   CALL_VC(CALL_VC_COMPAT(vc_X_getctx, pid),
 	  CALL_VC_LEGACY(vc_X_getctx, pid));
 }
