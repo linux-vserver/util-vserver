@@ -17,7 +17,7 @@
 
 
 isVserverRunning "$VSERVER_DIR" S_CONTEXT || :
-generateOptions   "$VSERVER_DIR"
+generateOptions  "$VSERVER_DIR"
 
 user=$1
 shift

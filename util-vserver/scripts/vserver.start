@@ -20,6 +20,7 @@ if isVserverRunning "$VSERVER_DIR"; then
     exit 1
 fi
 
+set +e
 generateOptions  "$VSERVER_DIR"
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" prepre-start
 enableInterfaces "$VSERVER_DIR"
@@ -27,10 +28,11 @@ enableInterfaces "$VSERVER_DIR"
 mountVserver "$VSERVER_DIR"
 prepareInit  "$VSERVER_DIR"
 
-cd "$VSERVER_DIR"/vdir/
 
+cd "$VSERVER_DIR"/vdir/
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" pre-start
 
+cd "$VSERVER_DIR"/vdir/
 "${NICE_CMD[@]}" \
     "$_CHBIND"       "${CHBIND_OPTS[@]}" \
     "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
