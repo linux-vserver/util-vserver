@@ -19,7 +19,7 @@ Requires:	%name-core = %epoch:%version-%release
 Provides:	vserver = %epoch:%version-%release
 Obsoletes:	vserver < %epoch:%version
 BuildRequires:	mount vconfig gawk iproute
-BuildRequires:	gcc-c++
+BuildRequires:	gcc-c++ wget
 BuildRequires:	e2fsprogs-devel
 %{!?_without_dietlibc:BuildRequires:	dietlibc >= 0:0.22}
 
@@ -31,7 +31,7 @@ Group:		Applications/System
 Summary:	Tools which can be used to build vservers
 Group:		Applications/System
 Requires:	%name = %epoch:%version-%release
-Requires:	rpm apt
+Requires:	rpm apt wget binutils tar
 
 %package sysv
 Summary:	SysV-initscripts for vserver
