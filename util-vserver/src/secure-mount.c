@@ -338,7 +338,7 @@ callExternalMount(struct MountInfo const *mnt)
 
   if (pid==0) {
     execv(mount_prog, const_cast(char **)(argv));
-    perror("secure-mount: execv()");
+    PERROR_Q("secure-mount: execv", mount_prog);
     exit(1);
   }
 
@@ -359,7 +359,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
   
   if (opt->rootdir!=0) {
     if (chdir(opt->rootdir)==-1) {
-      perror("secure-mount: chdir()");
+      PERROR_Q("secure-mount: chdir", opt->rootdir);
       return false;
     }
 
@@ -368,14 +368,14 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
 
   if (opt->is_secure) {
     if (chdirSecure(dir)==-1) {
-      perror("secure-mount: chdirSecure()");
+      PERROR_Q("secure-mount: chdirSecure", dir);
       return false;
     }
   }
   else {
     if (*dir!='\0' &&
 	chdir(dir)==-1) {
-      perror("secure-mount: chdir()");
+      PERROR_Q("secure-mount: chdir", dir);
       return false;
     }
   }

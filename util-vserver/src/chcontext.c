@@ -397,7 +397,7 @@ int main (int argc, char *argv[])
     execvp (argv[optind],argv+optind);
     doSyncStage2(p);
 
-    perror("chcontext: execvp()");
+    PERROR_Q("chcontext: execvp", argv[optind]);
     exit(255);
   }
 
