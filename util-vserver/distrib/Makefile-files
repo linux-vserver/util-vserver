@@ -23,11 +23,13 @@ distrib_SCRPTS		= distrib/install-mdk8.2 \
 			  distrib/install-rh7.3 \
 			  distrib/install-rh8.0 \
 			  distrib/install-rh9.0 \
+			  distrib/install-fc1 \
 			  distrib/sample.sh
 
 distrib_DAT		= distrib/mdk8.2-minimum \
 			  distrib/rh7.3-minimum \
 			  distrib/rh8.0-minimum \
 			  distrib/rh9.0-minimum \
+			  distrib/fc1-minimum \
 			  distrib/sample.conf
 
