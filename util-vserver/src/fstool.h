@@ -63,11 +63,9 @@ extern struct option const		CMDLINE_OPTIONS[];
 extern char const			CMDLINE_OPTIONS_SHORT[];
 extern struct Arguments const *		global_args;
 
-bool	checkForRace(int fd, char const * name, struct stat const *exp_st);
 void	fixupParams(struct Arguments *, int argc);
 bool	handleFile(char const *d_name, char const *full_name);
 void	showHelp(int fd, char const *cmd, int res);
 void	showVersion();
-xid_t	resolveCtx(char const *str);
 
 #endif	//  H_UTIL_VSERVER_SRC_FSTOOL_H
