@@ -16,7 +16,8 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 src_testsuite_check_active_PRGS =	src/testsuite/vunify-functest \
-					src/testsuite/chcontext-test
+					src/testsuite/chcontext-test \
+					src/testsuite/chbind-test
 src_testsuite_check_passive_PRGS =	src/testsuite/rpm-fake-test
 
 
@@ -51,6 +52,11 @@ src_testsuite_vunify_functest_CPPFLAGS=	$(AM_CPPFLAGS) $(src_testsuite_CPPFLAGS)
 src_testsuite_chcontext_test_SOURCES =	src/testsuite/chcontext-test.c \
 					src/util-exitlikeprocess.c
 src_testsuite_chcontext_test_LDADD =	lib/libvserver.la
+
+
+src_testsuite_chbind_test_SOURCES =	src/testsuite/chbind-test.c
+src_testsuite_chbind_test_LDADD =	lib/libvserver.la
+
 
 src_testsuite_CPPFLAGS =		-I $(top_srcdir)/src -D ENSC_TESTSUITE
 
