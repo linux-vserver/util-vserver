@@ -42,6 +42,7 @@ struct Arguments {
     bool		is_legacy;
     bool		do_set;
     bool		do_unset;
+    bool		local_fs;
 };
 
 extern struct option const		CMDLINE_OPTIONS[];
