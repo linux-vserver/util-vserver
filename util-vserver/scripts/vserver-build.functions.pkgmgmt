@@ -71,7 +71,7 @@ function pkgmgmt.initFilesystem
     test -z "$PKGCFGDIR" || {
 	ln -s "$PKGCFGDIR" "$SETUP_CONFDIR/apps/pkgmgmt/base"
 
-	test "$_EXECDIR" = / || ln -s "$_EXECDIR" "$confdir/apps/pkgmgmt/execdir"
+	test "$_EXECDIR" = / || ln -s "$_EXECDIR" "$SETUP_CONFDIR/apps/pkgmgmt/execdir"
     }
 
 }
@@ -79,5 +79,5 @@ function pkgmgmt.initFilesystem
 function pkgmgmt.initVariables
 {
     pkgmgmt._setPkgCfg
-    findDir  PKGDIR         "$CONFDIR/.distributions/$DISTRIBUTION/pkgs"      "$DISTRIBDIR/$DISTRIBUTION/pkgs"     /
+    findDir  PKGINSTALLDIR         "$CONFDIR/.distributions/$DISTRIBUTION/pkgs"      "$DISTRIBDIR/$DISTRIBUTION/pkgs"     /
 }
