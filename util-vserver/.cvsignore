@@ -13,6 +13,7 @@ config.log
 config.status
 depcomp
 install-sh
+linuxcaps.h
 missing
 mkinstalldirs
 stamp-h1
