@@ -141,9 +141,9 @@ static void
 parseSecure(struct vc_ctx_flags UNUSED * flags,
 	    struct vc_ctx_caps  UNUSED * caps)
 {
-  caps->ccaps = ~0ull;
+  caps->ccaps = ~vc_get_insecureccaps();
   caps->cmask = ~0ull;
-  caps->bcaps = ~vc_get_insecurecaps();
+  caps->bcaps = ~vc_get_insecurebcaps();
   caps->bmask = ~0ull;
 }
 
