@@ -54,11 +54,11 @@ function doInternalMethod
 	    case "$ACTION" in
 		(restart)
 		    logging $"Restarting vserver '$VSERVER'"
-		    execute $_VSERVER "$VSERVER" restart
+		    execute $_VSERVER --defaulttty "$VSERVER" restart
 		    ;;
 		(halt|poweroff)
 		    logging $"Stopping vserver '$VSERVER'"
-		    execute $_VSERVER "$VSERVER" stop
+		    execute $_VSERVER --defaulttty "$VSERVER" stop
 		    ;;
 		(swsusp)
 		    ## TODO: any senseful action here? Perhaps shutdown scheduler for it?
