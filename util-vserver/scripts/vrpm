@@ -26,18 +26,24 @@ test -e "$UTIL_VSERVER_VARS" || {
 
 function showHelp()
 {
-    echo "Usage: $0 <vserver-name>* [--all] [--help] [--version] [--unify] -- <rpm-params>+"
+    echo \
+$"Usage: $0 <vserver-name>* [--all] [--help] [--version] [--unify] -- <rpm-params>+
+
+Report bugs to <$PACKAGE_BUGREPORT>."
+
     exit $1
 }
 
 function showVersion()
 {
-    cat <<EOF 
-vrpm 0.23.5 -- rpm for vservers
+    echo \
+$"vrpm $PACKAGE_VERSION -- rpm for vservers
+This program is part of $PACKAGE_STRING
+
 Copyright (C) 2003 Enrico Scholz
 This program is free software; you may redistribute it under the terms of
-the GNU General Public License.  This program has absolutely no warranty.
-EOF
+the GNU General Public License.  This program has absolutely no warranty."
+    
     exit $1
 }
 

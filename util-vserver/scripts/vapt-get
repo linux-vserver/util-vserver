@@ -24,27 +24,25 @@ test -e "$UTIL_VSERVER_VARS" || {
 . "$UTIL_VSERVER_VARS"
 . "$_LIB_FUNCTIONS"
 
+
 function showHelp()
 {
-    cat <<EOF
-Usage: $0 <vserver-name>* [--all] -- <params>+
+    echo \
+$"Usage: $0 <vserver-name>* [--all] -- <params>+
 
-Report bugs to <$PACKAGE_BUGREPORT>.
-EOF
-
+Report bugs to <$PACKAGE_BUGREPORT>."
     exit $1
 }
 
 function showVersion()
 {
-    cat <<EOF 
-vapt-get $PACKAGE_VERSION -- apt-get for vservers
+    echo \
+$"vapt-get $PACKAGE_VERSION -- apt-get for vservers
 This program is part of $PACKAGE_STRING
 
 Copyright (C) 2003 Enrico Scholz
 This program is free software; you may redistribute it under the terms of
-the GNU General Public License.  This program has absolutely no warranty.
-EOF
+the GNU General Public License.  This program has absolutely no warranty."
     exit $1
 }
 
