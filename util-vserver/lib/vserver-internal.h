@@ -84,6 +84,12 @@
 #  define CALL_VC_V13(F,...)	CALL_VC_NOOP
 #endif
 
+#ifdef VC_ENABLE_API_V13
+#  define CALL_VC_V13A(F,...)	CALL_VC_GENERAL(0x00010012, v13, F, __VA_ARGS__)
+#else
+#  define CALL_VC_V13A(F,...)	CALL_VC_NOOP
+#endif
+
 #ifdef VC_ENABLE_API_FSCOMPAT
 #  define CALL_VC_FSCOMPAT(F,...)	CALL_VC_GENERAL(0x00010000, fscompat, F, __VA_ARGS__)
 #else
@@ -110,8 +116,8 @@
 				 ((X)==(uint32_t)(-2)) ? VC_SAMECTX : \
 				 (xid_t)(X))
 
-#  define CTX_USER2KERNEL(X)	(((X)==VC_RANDCTX) ? (uint32_t)(-1) : \
-				 ((X)==VC_SAMECTX) ? (uint32_t)(-2) : \
+#  define CTX_USER2KERNEL(X)	(((X)==VC_DYNAMIC_XID) ? (uint32_t)(-1) : \
+				 ((X)==VC_SAMECTX)     ? (uint32_t)(-2) : \
 				 (uint32_t)(X))
 #else
 #  define CTX_USER2KERNEL(X)	(X)
