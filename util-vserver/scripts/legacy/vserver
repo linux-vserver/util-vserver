@@ -534,7 +534,7 @@ elif [ "$2" = "start" ] ; then
 			$_SAVE_S_CONTEXT $PKGSTATEDIR/$1.ctx \
 			$_CAPCHROOT $CHROOTOPT . $STARTCMD
 		sleep 2
-		test -x $CONFDIR/$1.sh && $CONFDIR/$1.sh post-start $1
+		test ! -x $CONFDIR/$1.sh || $CONFDIR/$1.sh post-start $1
 	fi
 elif [ "$2" = "running" ] ; then
 	if [ ! -f $PKGSTATEDIR/$1.ctx ] ; then
