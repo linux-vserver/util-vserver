@@ -31,6 +31,8 @@
 #include "util.h"
 #include "pathconfig.h"
 
+#include <lib/internal.h>
+
 #include <getopt.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -413,7 +415,7 @@ searchOption(char const *opt, size_t len)
 }
 
 static bool
-transformOptionList(struct MountInfo *info)
+transformOptionList(struct MountInfo *info, size_t UNUSED *col)
 {
   char const *			ptr = info->data;
 
@@ -442,13 +444,17 @@ transformOptionList(struct MountInfo *info)
 
 #define MOVE_TO_NEXT_FIELD(PTR,ALLOW_EOL)		\
   while (!isspace(*PTR) && *PTR!='\0') ++PTR;		\
+  if (col) *col = buf-start_buf+1;			\
   if (!(ALLOW_EOL) && *PTR=='\0') return prFAIL;	\
   *PTR++ = '\0';					\
   while (isspace(*PTR)) ++PTR
 
 static enum {prDOIT, prFAIL, prIGNORE}
-parseFstabLine(struct MountInfo	*info, char *buf)
+  parseFstabLine(struct MountInfo *info, char *buf, size_t *col)
 {
+  char const * const	start_buf = buf;
+  size_t		err_col;
+
   while (isspace(*buf)) ++buf;
   if (*buf=='#' || *buf=='\0')  return prIGNORE;
 
@@ -458,21 +464,37 @@ parseFstabLine(struct MountInfo	*info, char *buf)
   MOVE_TO_NEXT_FIELD(buf, false);
   info->type = buf;
   MOVE_TO_NEXT_FIELD(buf, false);
+  err_col    = buf-start_buf+1;
   info->data = buf;
   MOVE_TO_NEXT_FIELD(buf, true);
 
   if (strcmp(info->type, "swap")==0) return prIGNORE;
   if (strcmp(info->type, "none")==0) info->type = 0;
 
-  info->flag   = 0;
-  info->xflag  = 0;
-  if (!transformOptionList(info)) return prFAIL;
-  if (info->xflag & XFLAG_NOAUTO) return prIGNORE;
+  info->flag    = 0;
+  info->xflag   = 0;
+  if (col) *col = err_col;
+  if (!transformOptionList(info,col)) return prFAIL;
+  if (info->xflag & XFLAG_NOAUTO)     return prIGNORE;
 
   return prDOIT;
 }
 
 #undef MOVE_TO_NEXT_FIELD
+
+static void
+showFstabPosition(int fd, char const *fname, size_t line_nr, size_t col_nr)
+{
+  char		buf[3*sizeof(line_nr)*2 + 4];
+  size_t	len = utilvserver_fmt_uint(buf+1, line_nr)+1;
+  
+  buf[0]     = ':';
+  buf[len++] = ':';
+  len += utilvserver_fmt_uint(buf+len, col_nr);
+  WRITE_STR(fd, fname);
+  write(fd, buf, len);
+}
+
 
 static bool
 mountFstab(struct Options const *opt)
@@ -488,7 +510,7 @@ mountFstab(struct Options const *opt)
     goto err0;
   }
 
-  len = lseek(fd, 0, SEEK_END);
+  len = lseek(fd, 0, SEEK_END); 
   if (len==-1 ||
       lseek(fd, 0, SEEK_SET)==-1) {
     perror("secure-mount: lseek(<fstab>)");
@@ -498,6 +520,7 @@ mountFstab(struct Options const *opt)
   {
     char	buf[len+2];
     char	*ptr, *ptrptr;
+    size_t	line_nr=0, col_nr;
 
     if (read(fd, buf, len+1)!=len) {
       perror("secure-mount: read()");
@@ -506,33 +529,29 @@ mountFstab(struct Options const *opt)
     buf[len]   = '#';	// workaround for broken dietlibc strtok_r()
 			// implementation
     buf[len+1] = '\0';
+    ptrptr     = buf;
 
-    ptr = strtok_r(buf, "\n", &ptrptr);
-    while (ptr) {
+    while ((ptr=strsep(&ptrptr, "\n")) != 0) {
       struct MountInfo	mnt;
-      char *		new_ptr = strtok_r(0, "\n", &ptrptr);
+      ++line_nr;
 
-      switch (parseFstabLine(&mnt, ptr)) {
+      switch (parseFstabLine(&mnt, ptr, &col_nr)) {
 	case prFAIL	:
-	  WRITE_MSG(2, "Failed to parse fstab-line beginning with '");
-	  WRITE_STR(2, ptr);
-	  WRITE_MSG(2, "'\n");
+	  showFstabPosition(2, opt->fstab, line_nr, col_nr);
+	  WRITE_MSG(2, ": syntax error\n");
 	  goto err1;
 
 	case prIGNORE	:  break;
 	case prDOIT	:
 	  chdir("/");
 	  if (!mountSingle(&mnt, opt)) {
-	    WRITE_MSG(2, "Failed to mount fstab-line beginning with '");
-	    WRITE_STR(2, ptr);
-	    WRITE_MSG(2, "'\n");
+	    showFstabPosition(2, opt->fstab, line_nr, 1);
+	    WRITE_MSG(2, ": failed to mount fstab-entry\n");
 	  }
 	  break;
 	default		:
 	  assert(false);
       }
-
-      ptr = new_ptr;
     }
   }
 
@@ -623,7 +642,7 @@ int main(int argc, char *argv[])
 
   if (mnt.data) {
     mnt.data = strdup(mnt.data);
-    if (!transformOptionList(&mnt)) {
+    if (!transformOptionList(&mnt, 0)) {
       WRITE_MSG(2, "Invalid options specified\n");
       return EXIT_FAILURE;
     }
