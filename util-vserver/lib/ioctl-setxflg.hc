@@ -33,10 +33,7 @@ vc_X_set_xflg(int fd, long flags)
   int		rc;
   rc = ioctl(fd, FIOC_SETXFLG, &flags);
 
-  if (rc<-1) {
-    errno = -rc;
-    rc    = -1;
-  }
+  ENSC_FIX_IOCTL(rc);
 
   return rc;
 }

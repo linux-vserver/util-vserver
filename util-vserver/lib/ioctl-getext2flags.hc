@@ -37,14 +37,12 @@ static inline ALWAYSINLINE int
 vc_X_get_ext2flags(int fd, long *flags)
 {
   int		rc;
+
   *flags = 0;
-  rc = ioctl(fd, EXT2_IOC_GETFLAGS, flags);
+  rc     = ioctl(fd, EXT2_IOC_GETFLAGS, flags);
   *flags = EXT2FLAGS_KERNEL2USER(*flags);
 
-  if (rc<-1) {
-    errno = -rc;
-    rc    = -1;
-  }
+  ENSC_FIX_IOCTL(rc);
 
   return rc;
 }

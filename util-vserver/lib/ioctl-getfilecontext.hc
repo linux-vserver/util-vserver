@@ -31,10 +31,7 @@ vc_X_get_filecontext(int fd)
   int		c;
   int		rc = ioctl(fd, EXT2_IOC_GETCONTEXT, &c);
 
-  if (rc<-1) {
-    errno = -rc;
-    rc    = -1;
-  }
+  ENSC_FIX_IOCTL(rc);
   
   if (rc==-1) return VC_NOCTX;
   else        return c;

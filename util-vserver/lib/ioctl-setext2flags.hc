@@ -50,10 +50,7 @@ vc_X_set_ext2flags(int fd, long set_flags, long del_flags)
   old_flags |= set_flags;
   rc = ioctl(fd, EXT2_IOC_SETFLAGS, &old_flags);
 
-  if (rc<-1) {
-    errno = -rc;
-    rc    = -1;
-  }
+  ENSC_FIX_IOCTL(rc);
 
   return rc;
 }
