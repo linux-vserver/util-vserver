@@ -126,6 +126,7 @@ lib_SRCS =  			lib/syscall.c \
 				lib/capabilities.c \
 				lib/getfilecontext.c \
 				lib/getinsecurebcaps.c \
+				lib/getxidtype.c \
 				lib/isdynamicxid.c \
 				lib/issupported.c \
 				lib/issupportedstring.c \
