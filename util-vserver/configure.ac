@@ -25,7 +25,7 @@ dnl
 
 AC_PREREQ(2.57)
 
-AC_INIT(util-vserver, 0.23.96, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.23.97, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -47,6 +47,21 @@ ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
 AC_ARG_VAR(CC, [The C compiler])
 ENSC_KERNEL_HEADERS(kernelincludedir)
 ENSC_UV_VROOTDIR(vserverdir)
+
+
+AC_MSG_CHECKING([whether to enable linuxconf modules])
+AC_ARG_ENABLE([linuxconf],
+              [AC_HELP_STRING([--enable-linuxconf],
+                              [enable 'newvserver' linuxconf module (default: no)])],
+              [case "$enableval" in
+	          yes|no) ;;
+	          *)      AC_MSG_ERROR(['$i' is not a supported value for '--enable-linuxconf']);;
+	       esac],
+              [enable_linuxconf=no])
+
+AC_MSG_RESULT($enable_linuxconf)
+AM_CONDITIONAL(ENSC_ENABLE_LINUXCONF, [test x"$enable_linuxconf" = xyes])
+
 
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([apis],

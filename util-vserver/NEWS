@@ -12,7 +12,13 @@ Version 0.24
 
 	- added QUOTACTL capability, removed OPENDEV capability
 
-	- made location of vservers-rootdir configurable (
+	- location of vservers-rootdir can now be configured through a
+	  '--with-vrootdir' configure switch; it defaults still to
+	  '/vservers'
+
+	- built of 'newvserver' linuxconf-module is conditionalized, since
+	  it is unsupported and will be dropped in future versions. To
+	  enable it. call './configure' with '--enable-linuxconf'.
 	
 	
 version 0.23.6
