@@ -74,7 +74,8 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  timeout.tv_sec = atoi(argv[idx+1]);
+  timeout.tv_sec  = atoi(argv[idx+1]);
+  timeout.tv_usec = 0;
 
   for (;;) {
     char	buf[512];
