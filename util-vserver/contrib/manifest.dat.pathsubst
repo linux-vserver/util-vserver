@@ -80,6 +80,7 @@ base   @SBINDIR@/vps
 base   @SBINDIR@/vpstree
 build  @SBINDIR@/vrpm
 core   @SBINDIR@/vrsetup
+core   @SBINDIR@/vsched
 base   @SBINDIR@/vserver
 build  @SBINDIR@/vserver-copy
 core   @SBINDIR@/vserver-info
