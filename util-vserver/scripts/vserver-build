@@ -56,6 +56,8 @@ Possible methods are:
     skeleton ... -- [<cmd> <args>*]
                 ...  installs a minimal skeleton filesystem, creates the
 		     configuration file and calls an optional command then
+    debootstrap ... -- -d <distribution> [-m <mirror>]
+                     bootstraps the vserver with Debian's 'debootstrap' package
 
 Please report bugs to $PACKAGE_BUGREPORT"
     exit 0
@@ -115,7 +117,7 @@ setup_setDefaults "$VSERVER_NAME"
 
 case x"$method" in
     xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
-    xapt-rpm|xcopy|xskeleton)
+    xapt-rpm|xcopy|xskeleton|xdebootstrap)
 		. $PKGLIBDIR/vserver-build.$method
 		;;
     x)		echo $"No build-method specified" >&2
