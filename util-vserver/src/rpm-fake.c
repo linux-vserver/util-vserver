@@ -311,9 +311,11 @@ initPwSocket()
       *ptr++ = resolver;
       *ptr++ = "-F"; *ptr++ = flag_str;
       *ptr++ = "-C"; *ptr++ = caps_str;
-      if (root)  { *ptr++ = "-r"; *ptr++ = root;  }
+      if (root)  { *ptr++ = "-r"; *ptr++ = ".";   }
       if (uid)   { *ptr++ = "-u"; *ptr++ = uid;   }
       if (gid)   { *ptr++ = "-g"; *ptr++ = gid;   }
+
+      if (root) Echdir(root);
 
       if (setupContext(ctx, &xid_str)) { *ptr++ = "-s"; }
       else if (xid_str)                { *ptr++ = "-c"; *ptr++ = xid_str; }
