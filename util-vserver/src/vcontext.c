@@ -56,6 +56,7 @@
 #define CMD_MIGRATESELF		0x400a
 #define CMD_ENDSETUP		0x400b
 #define CMD_SILENTEXIST		0x400c
+#define CMD_NAMESPACE		0x400d
 
 
 struct option const
@@ -74,6 +75,7 @@ CMDLINE_OPTIONS[] = {
   { "silentexist",  no_argument,       	0, CMD_SILENTEXIST },
   { "uid",          required_argument,  0, CMD_UID },
   { "chroot",       no_argument,       	0, CMD_CHROOT },
+  { "namespace",    no_argument,       	0, CMD_NAMESPACE },
   { "syncsock",     required_argument, 	0, CMD_SYNCSOCK },
   { "syncmsg",      required_argument, 	0, CMD_SYNCMSG },
 #if 1  
@@ -90,6 +92,7 @@ struct Arguments {
     bool		do_endsetup;
     bool		is_initpid;
     bool		is_silentexist;
+    bool		set_namespace;
     int			verbosity;
     bool		do_chroot;
     uid_t		uid;
@@ -113,6 +116,7 @@ showHelp(int fd, char const *cmd, int res)
 	    "\n"
 	    "<opts> can be:\n"
 	    "    --chroot	 ...  chroot into current directory\n"
+	    "    --namespace     ...  execute namespace management operations\n"
 	    "    --uid <uid>     ...  change uid\n"
 	    "    --initpid       ...  set current process as general process reaper\n"
 	    "                         for ctx (possible for --migrate only)\n"
@@ -245,8 +249,13 @@ doit(struct Arguments const *args, char *argv[])
     else
       xid = args->xid;
 
-    if (args->do_chroot)
+    if (args->do_chroot) {
       Echroot(".");
+      if (args->set_namespace) {
+	if (args->do_migrateself)  Evc_set_namespace();
+	else if (args->do_migrate) Evc_enter_namespace(xid);
+      }
+    }
 
     setFlags(args, xid);
 
@@ -287,6 +296,7 @@ int main (int argc, char *argv[])
     .do_endsetup    = false,
     .is_initpid     = false,
     .is_silentexist = false,
+    .set_namespace  = false,
     .verbosity      = 1,
     .uid            = -1,
     .xid            = VC_DYNAMIC_XID,
@@ -306,6 +316,7 @@ int main (int argc, char *argv[])
       case CMD_ENDSETUP		:  args.do_endsetup    = true;   break;
       case CMD_INITPID		:  args.is_initpid     = true;   break;
       case CMD_CHROOT		:  args.do_chroot      = true;   break;
+      case CMD_NAMESPACE	:  args.set_namespace  = true;   break;
       case CMD_SILENTEXIST	:  args.is_silentexist = true;   break;
       case CMD_SYNCSOCK		:  args.sync_sock      = optarg; break;
       case CMD_SYNCMSG		:  args.sync_msg       = optarg; break;
