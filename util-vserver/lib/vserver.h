@@ -17,6 +17,10 @@
 *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+/** \file vserver.h
+ *  \brief The public interface of the the libvserver library.
+ */
+
 #ifndef H_VSERVER_SYSCALL_H
 #define H_VSERVER_SYSCALL_H
 
@@ -24,6 +28,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/types.h>
+
+#ifndef IS_DOXYGEN
+#if defined(__GNUC__)
+#  define VC_ATTR_UNUSED                __attribute__((__unused__))
+#  define VC_ATTR_NORETURN              __attribute__((__noreturn__))
+#  if __GNUC__>3 || (__GNUC__==3 && __GNUC_MINOR__>=3)
+#    define VC_ATTR_NONNULL(ARGS)	__attribute__((__nonnull__ ARGS))
+#    define VC_ATTR_ALWAYSINLINE        __attribute__((__always_inline__))
+#  else
+#    define VC_ATTR_NONNULL(ARGS)
+#    define VC_ATTR_ALWAYSINLINE
+#  endif
+#  if __GNUC__>3
+#    define VC_ATTR_PURE		__attribute__((__pure__))
+#  else
+#    define VC_ATTR_PURE
+#  endif
+#else
+#  define VC_ATTR_NONNULL(ARGS)
+#  define VC_ATTR_UNUSED
+#  define VC_ATTR_NORETURN
+#  define VC_ATTR_ALWAYSINLINE
+#  define VC_ATTR_PURE
+#endif
+#endif	// IS_DOXYGEN
 
 /** the value which is returned in error-case (no ctx found) */
 #define VC_NOCTX		((xid_t)(-1))
@@ -123,31 +152,49 @@ extern "C" {
     uint32_t	mask;
   };
 
-    /** Returns the version of the current kernel API. */
+    /** \brief   Returns the version of the current kernel API.
+	\returns The versionnumber of the kernel API
+     */
   int	vc_get_version();
   
-    /** Puts current process into context <ctx>, removes the given caps and
-     *  sets flags.
-     *  Special values for ctx are
-     *  - VC_SAMECTX  which means the current context (just for changing caps and flags)
-     *  - VC_RANDCTX  which means the next free context; this value can be used by
-     *                ordinary users also
+    /** \brief   Moves current process into a context
+     *
+     *  Puts current process into context \a ctx, removes the capabilities
+     *  given in \a remove_cap and sets \a flags.
+     *
+     *  \param ctx         The new context; special values for are
+     *  - VC_SAMECTX      which means the current context (just for changing caps and flags)
+     *  - VC_DYNAMIC_XID  which means the next free context; this value can be used by
+     *                    ordinary users also
+     *  \param remove_cap  The linux capabilities which will be \b removed.
+     *  \param flags       Special flags which will be set.
+     *
+     *  \returns  The new context-id, or VC_NOCTX on errors; errno
+     *	          will be set appropriately
+     *
      *  See http://vserver.13thfloor.at/Stuff/Logic.txt for details */
   xid_t	vc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags);
 
-    /** Sets the ipv4root information.
-     *  \precondition: nb<16 */
-  int	vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips);
+    /** \brief  Sets the ipv4root information.
+     *  \pre    \a nb < NB_IPV4ROOT && \a ips != 0 */
+  int	vc_set_ipv4root(uint32_t  bcast, size_t nb,
+			struct vc_ip_mask_pair const *ips) VC_ATTR_NONNULL((3));
 
-    /** Creates a context without starting it.
-     *  When already in a created context, the old context will be discarded.
-     *  Special values of 'xid' are:
+    /** \brief   Creates a context without starting it.
+     *
+     *  This functions initializes a new context. When already in a freshly
+     *  created context, this old context will be discarded.
+     *
+     *  \param xid  The new context; special values are:
      *	- VC_DYNAMIC_XID which means to create a dynamic context
+     *
      *	\returns the xid of the created context, or VC_NOCTX on errors. errno
-     *	         will be set appropriately.*/
+     *	         will be set appropriately. */
   xid_t	vc_create_context(xid_t xid);
 
-    /** Moves the current process into the specified context.
+    /** \brief   Moves the current process into the specified context.
+     *
+     *  \param   xid  The new context
      *  \returns 0 on success, -1 on errors */
   int	vc_migrate_context(xid_t xid);
   
@@ -155,21 +202,31 @@ extern "C" {
   typedef uint_least64_t	vc_limit_t;
  
   struct vc_rlimit {
-      vc_limit_t	min;
-      vc_limit_t	soft;
-      vc_limit_t	hard;
+      vc_limit_t	min;	//< the guaranted minimum of a resources
+      vc_limit_t	soft;	//< the softlimit of a resource
+      vc_limit_t	hard;	//< the absolute hardlimit of a resource
   };
 
   struct  vc_rlimit_mask {
-      uint_least32_t	min;
-      uint_least32_t	soft;
-      uint_least32_t	hard;
+      uint_least32_t	min;	//< mask of resources supporting a minimum limit
+      uint_least32_t	soft;	//< mask of resources supporting a soft limit
+      uint_least32_t	hard;	//< mask of resources supporting a hard limit
   };
 
-  int	vc_get_rlimit(xid_t ctx, int resource, struct vc_rlimit *lim);
-  int	vc_set_rlimit(xid_t ctx, int resource, struct vc_rlimit const *lim);
-  int	vc_get_rlimit_mask(xid_t ctx, struct vc_rlimit_mask *lim);
-  bool	vc_parseLimit(char const *, vc_limit_t *);
+    /** \brief   Returns the current limits of \a resource.
+     *
+     *  \param  xid       The id of the context
+     *  \param  resource  The resource which will be queried
+     *  \param  lim       The result which will be filled with the limits
+     *
+     *  \returns 0 on success, and -1 on errors. */
+  int	vc_get_rlimit(xid_t xid, int resource,
+		      struct vc_rlimit       /*@out@*/ *lim) VC_ATTR_NONNULL((3));
+  int	vc_set_rlimit(xid_t xid, int resource,
+		      struct vc_rlimit const /*@in@*/  *lim) VC_ATTR_NONNULL((3));
+  int	vc_get_rlimit_mask(xid_t xid,
+			   struct vc_rlimit_mask *lim)       VC_ATTR_NONNULL((2));
+  bool	vc_parseLimit(char const *str, vc_limit_t *res)      VC_ATTR_NONNULL((1,2));
 
 
   /** sends a signal to a context/pid
@@ -181,10 +238,10 @@ extern "C" {
 
 
   int		vc_set_iattr(char const *filename, xid_t xid,
-			     uint_least32_t flags, uint_least32_t mask); 
+			     uint_least32_t flags, uint_least32_t mask) VC_ATTR_NONNULL((1));
   int		vc_get_iattr(char const *filename, xid_t * /*@null@*/ xid,
 			     uint_least32_t * /*@null@*/ flags,
-			     uint_least32_t * /*@null@*/ mask);
+			     uint_least32_t * /*@null@*/ mask) VC_ATTR_NONNULL((1));
 
   struct vc_vx_info {
       xid_t	xid;
@@ -193,15 +250,17 @@ extern "C" {
   
     /** Returns the context of the given process. pid==0 means the current process. */
   xid_t		vc_get_task_xid(pid_t pid);
-  int		vc_get_vx_info(xid_t xid, struct vc_vx_info *info);
+  int		vc_get_vx_info(xid_t xid, struct vc_vx_info *info) VC_ATTR_NONNULL((2));
 
 
   typedef enum { vcVHI_CONTEXT, vcVHI_SYSNAME, vcVHI_NODENAME,
 		 vcVHI_RELEASE, vcVHI_VERSION, vcVHI_MACHINE,
 		 vcVHI_DOMAINNAME }		vc_uts_type;
   
-  int		vc_set_vhi_name(xid_t xid, vc_uts_type type, char const *val, size_t len);
-  int		vc_get_vhi_name(xid_t xid, vc_uts_type type, char *val, size_t len);
+  int		vc_set_vhi_name(xid_t xid, vc_uts_type type,
+				char const *val, size_t len) VC_ATTR_NONNULL((3));
+  int		vc_get_vhi_name(xid_t xid, vc_uts_type type,
+				char *val, size_t len)       VC_ATTR_NONNULL((3));
 
 
   int		vc_enter_namespace(xid_t xid);
@@ -224,8 +283,8 @@ extern "C" {
       size_t		len;
   };
  
-  int			vc_get_flags(xid_t xid, struct vc_ctx_flags *);
-  int			vc_set_flags(xid_t xid, struct vc_ctx_flags const *);
+  int			vc_get_flags(xid_t xid, struct vc_ctx_flags *)       VC_ATTR_NONNULL((2));
+  int			vc_set_flags(xid_t xid, struct vc_ctx_flags const *) VC_ATTR_NONNULL((2));
 
   int			vc_get_ccaps(xid_t xid, struct vc_ctx_caps *);
   int			vc_set_ccaps(xid_t xid, struct vc_ctx_caps const *);
@@ -354,5 +413,11 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+#undef VC_ATTR_PURE
+#undef VC_ATTR_ALWAYSINLINE
+#undef VC_ATTR_NORETURN
+#undef VC_ATTR_UNUSED
+#undef VC_ATTR_NONNULL
 
 #endif
