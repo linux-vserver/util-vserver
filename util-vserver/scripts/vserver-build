@@ -23,20 +23,34 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 . "$_LIB_FUNCTIONS"
+. "$_LIB_VSERVER_SETUP_FUNCTIONS"
+. "$_LIB_VSERVER_BUILD_FUNCTIONS"
 
 ### Some local functions
 
 function showHelp()
 {
     echo \
-$"Usage: $(basename $0) -m <method> -n <name> [--] <method-args>*
+$"Usage: $(basename $0) -m <method> -n <name> --force <cfg-options>*
+    --rootdir <dir> --pkgcfgbase <dir> [--] <method-args>*
+
+Options:
+    --force     ...  remove/rename already existing vservers with the same name
+    -m <method> ...  use method <method>; see below for possible values
+    --rootdir <dir>
+                ...  [default: /vservers]
+    --pkgcfgbase <dir>
+                ...  [default: <rootdir>/.pkg]
+      
+cfg-options are: $SETUP_HELPMSG
 
 Possible methods are:
     legacy      ...  the \"old\" copy-all-from-host method, which requires the
-                     old legacy vserver-legacy script
+                     old legacy  vserver-legacy script;  with  this method the
+		     cfg-options will be ignored
     copy        ...  the copy-all-from-host method which uses the recent
                      configuration scheme
-    apt -d <distribution>
+    apt-rpm -d <distribution>
                 ...  installs the base-packages of the given distribution with
 		     help of 'vapt-get'
 
@@ -58,23 +72,53 @@ the GNU General Public License.  This program has absolutely no warranty."
 
 ### main starts here
 
-set +e
+set -e
 
-tmp=$(getopt -o +m:n: --long help,version -n "$0" -- "$@") || exit 1
+declare -a default_opts=()
+test "$NO_DEFAULT_OPTS" || getFileArray default_opts "$CONFDIR/.defaults/apps/build/options"
+
+tmp=$(getopt -o +m:n: --long force,debug,help,version,rootdir:,pkgbase:,$SETUP_OPTIONS -n "$0" -- \
+	"${default_opts[@]}" "$@") || exit 1
 eval set -- "$tmp"
+
+VSERVER_NAME=
+OPTION_FORCE=
 
 while true; do
     case "$1" in
 	--help)    showHelp $0 ;;
 	--version) showVersion ;;
-	-m)	   method=$2; shift 2;;
-	-n)	   name=$2;   shift 2;;
+	--force)   OPTION_FORCE=1;;
+	--debug)   set -x;;
+	--rootdir) ROOTDIR=$2;      shift;;
+	--pkgbase) PKGCFGBASE=$2;   shift;;
+	-m)	   method=$2;       shift;;
+	-n)	   VSERVER_NAME=$2; shift;;
 	--)	   shift; break;;
-	*)	   echo $"vserver-build: internal error."; exit 1;;
+	*)
+	    { setup_setOption2 "$1" "$2" && shift; } || \
+	    { echo $"vserver-build: internal error."; exit 1; }
+	    ;;
     esac
+    shift
 done
 
+test "$VSERVER_NAME" || {
+    echo $"Name of vserver not specified"
+    exit 1
+}
 
+setup_setDefaults "$VSERVER_NAME"
 
-echo "Sorry, just a prototype currently..."
-exit 1
+case x"$method" in
+    xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
+    xapt-rpm|xcopy)
+		. $PKGLIBDIR/vserver-build.$method
+		;;
+    x)		echo $"No build-method specified" >&2
+		exit 1
+		;;
+    *)		echo $"Unknown build-method '$method'" >&2
+		exit 1
+		;;
+esac
