@@ -21,21 +21,21 @@
 #endif
 
 #include "util.h"
+#include "wrappers.h"
 
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 
+int	wrapper_exit_code = 1;
+
 int main(int argc, char *argv[])
 {
   int		i;
   int		res;
-  
-  if (chroot(".")==-1 ||
-      chdir("/")==-1) {
-    perror("chroot()/chdir()");
-    return EXIT_FAILURE;
-  }
+
+  Echroot(".");
+  Echdir("/");
 
   res = EXIT_SUCCESS;
   for (i=1; i<argc; ++i) {
