@@ -1,6 +1,0 @@
-#!/bin/sh
-# chkconfig: - 27 73
-# description: Stops unhandled vservers
-
-
-
