@@ -116,6 +116,7 @@ lib_SRCS =  			lib/syscall.c \
 				lib/getnbipv4root.c \
 				lib/getversion.c \
 				lib/capabilities.c \
+				lib/getfilecontext.c \
 				lib/getinsecurebcaps.c \
 				lib/isdynamicxid.c \
 				lib/issupported.c \
