@@ -22,6 +22,8 @@ lib_VERSION =			0.0.0
 lib_legacy_SRCS			=  lib/getprocentry-legacy.c
 lib_management_SRCS		=  lib/getvserverbyctx.c \
 				   lib/getvservercfgstyle.c \
+				   lib/getvserverappdir.c \
+				   lib/getvservercfgdir.c \
 				   lib/getvserverctx.c \
 				   lib/getvservername.c \
 				   lib/getvservervdir.c
@@ -35,20 +37,21 @@ lib_ioctl_SRCS =		lib/ioctl-getfilecontext.c \
 
 PKGCONFIG_FILES			=  lib/util-vserver
 
-lib_SRCS			=  lib/syscall.c \
-				   lib/checkversion.c \
-				   lib/getctx.c \
-				   lib/getinitpid.c \
-				   lib/getversion.c \
-				   lib/fmt-32.c \
-				   lib/fmt-64.c \
-				   lib/fmtx-32.c \
-				   lib/fmtx-64.c \
-				   lib/capabilities.c \
-				   $(lib_ioctl_SRCS) \
-				   $(lib_legacy_SRCS) \
-				   $(lib_management_SRCS) \
-				   $(lib_v11_SRCS)
+lib_SRCS =  			lib/syscall.c \
+				lib/checkversion.c \
+				lib/isdirectory.c \
+				lib/getctx.c \
+				lib/getinitpid.c \
+				lib/getversion.c \
+				lib/fmt-32.c \
+				lib/fmt-64.c \
+				lib/fmtx-32.c \
+				lib/fmtx-64.c \
+				lib/capabilities.c \
+				$(lib_ioctl_SRCS) \
+				$(lib_legacy_SRCS) \
+				$(lib_management_SRCS) \
+				$(lib_v11_SRCS)
 
 lib_HDRS			=  lib/vserver.h
 
