@@ -28,12 +28,14 @@
 #include <errno.h>
 #include <libgen.h>
 #include <unistd.h>
+#include <limits.h>
 
 static char *
 getRecentName(char *start, char *end)
 {
   char		*res = 0;
   int		fd;
+  char		buf[PATH_MAX];
   
   strcpy(end, "/name");
   fd = open(start, O_RDONLY);
@@ -59,8 +61,21 @@ getRecentName(char *start, char *end)
   }
 
   if (res==0) {
+    int		old_fd = open(".", O_RDONLY);
+
     *end = '\0';
-    res  = basename(start);
+    
+    if (old_fd!=-1 &&
+	chdir(start)!=-1 &&
+	getcwd(buf, sizeof buf)==buf)
+      start = buf;
+
+    res = basename(start);
+
+    if (old_fd!=-1) {
+      fchdir(old_fd);
+      close(old_fd);
+    }
   }
 
   return strdup(res);
