@@ -135,53 +135,53 @@
 #define VC_CAP_LEASE            	28
 #define VC_CAP_QUOTACTL          	29
 
-#define VC_IMMUTABLE_FILE_FL		0x00000010l
-#define VC_IMMUTABLE_LINK_FL		0x00008000l
+#define VC_IMMUTABLE_FILE_FL		0x0000010lu
+#define VC_IMMUTABLE_LINK_FL		0x0008000lu
 #define VC_IMMUTABLE_ALL		(VC_IMMUTABLE_LINK_FL|VC_IMMUTABLE_FILE_FL)
 
-#define VC_IATTR_XID			0x01000000
+#define VC_IATTR_XID			0x01000000u
 
-#define VC_IATTR_ADMIN			0x00000001
-#define VC_IATTR_WATCH			0x00000002
-#define VC_IATTR_HIDE			0x00000004
-#define VC_IATTR_FLAGS			0x00000007
+#define VC_IATTR_ADMIN			0x00000001u
+#define VC_IATTR_WATCH			0x00000002u
+#define VC_IATTR_HIDE			0x00000004u
+#define VC_IATTR_FLAGS			0x00000007u
 
-#define VC_IATTR_BARRIER		0x00010000
-#define	VC_IATTR_IUNLINK		0x00020000
-#define VC_IATTR_IMMUTABLE		0x00040000
+#define VC_IATTR_BARRIER		0x00010000u
+#define	VC_IATTR_IUNLINK		0x00020000u
+#define VC_IATTR_IMMUTABLE		0x00040000u
 
 
 // the flags
-#define VC_VXF_INFO_LOCK		0x00000001
-#define VC_VXF_INFO_NPROC		0x00000004
-#define VC_VXF_INFO_PRIVATE		0x00000008
-#define VC_VXF_INFO_INIT		0x00000010
+#define VC_VXF_INFO_LOCK		0x00000001ull
+#define VC_VXF_INFO_NPROC		0x00000004ull
+#define VC_VXF_INFO_PRIVATE		0x00000008ull
+#define VC_VXF_INFO_INIT		0x00000010ull
 
-#define VC_VXF_INFO_HIDEINFO		0x00000020
-#define VC_VXF_INFO_ULIMIT		0x00000040
-#define VC_VXF_INFO_NAMESPACE		0x00000080
+#define VC_VXF_INFO_HIDEINFO		0x00000020ull
+#define VC_VXF_INFO_ULIMIT		0x00000040ull
+#define VC_VXF_INFO_NAMESPACE		0x00000080ull
 
-#define	VC_VXF_SCHED_HARD		0x00000100
-#define	VC_VXF_SCHED_PRIO		0x00000200
-#define	VC_VXF_SCHED_PAUSE		0x00000400
+#define	VC_VXF_SCHED_HARD		0x00000100ull
+#define	VC_VXF_SCHED_PRIO		0x00000200ull
+#define	VC_VXF_SCHED_PAUSE		0x00000400ull
 
-#define VC_VXF_VIRT_MEM			0x00010000
-#define VC_VXF_VIRT_UPTIME		0x00020000
-#define VC_VXF_VIRT_CPU			0x00040000
+#define VC_VXF_VIRT_MEM			0x00010000ull
+#define VC_VXF_VIRT_UPTIME		0x00020000ull
+#define VC_VXF_VIRT_CPU			0x00040000ull
 
-#define VC_VXF_HIDE_MOUNT		0x01000000
-#define VC_VXF_HIDE_NETIF		0x02000000
+#define VC_VXF_HIDE_MOUNT		0x01000000ull
+#define VC_VXF_HIDE_NETIF		0x02000000ull
 
 #define	VC_VXF_STATE_SETUP		(1ULL<<32)
 #define	VC_VXF_STATE_INIT		(1ULL<<33)
 
 // the ccapabilities
-#define VC_VXC_SET_UTSNAME		0x00000001
-#define VC_VXC_SET_RLIMIT		0x00000002
+#define VC_VXC_SET_UTSNAME		0x00000001ull
+#define VC_VXC_SET_RLIMIT		0x00000002ull
 
-#define VC_VXC_ICMP_PING		0x00000100
+#define VC_VXC_ICMP_PING		0x00000100ull
 
-#define VC_VXC_SECURE_MOUNT		0x00010000
+#define VC_VXC_SECURE_MOUNT		0x00010000ull
 
 
 /** \defgroup  syscalls Syscall wrappers
@@ -422,21 +422,39 @@ extern "C" {
   int		vc_set_namespace();
   int		vc_cleanup_namespace();
 
+  
+  /** \brief    Flags of process-contexts
+   */
   struct  vc_ctx_flags {
+      /** \brief Mask of set context flags */
       uint_least64_t	flagword;
+      /** \brief Mask of set and unset context flags when used by set
+       *         operations, or modifiable flags when used by get
+       *         operations */
       uint_least64_t	mask;
   };
-  
+
+  /** \brief    Capabilities of process-contexts */
   struct  vc_ctx_caps {
+      /** \brief  Mask of set common system capabilities */
       uint_least64_t	bcaps;
+      /** \brief Mask of set and unset common system capabilities when used by
+       *         set operations, or the modifiable capabilities when used by
+       *         get operations */
       uint_least64_t	bmask;
+      /** \brief Mask of set process context capabilities */
       uint_least64_t	ccaps;
+      /** \brief Mask of set and unset process context capabilities when used
+       *         by set operations, or the modifiable capabilities when used
+       *         by get operations */
       uint_least64_t	cmask;
   };
 
+  /** \brief    Information about parsing errors
+   */
   struct vc_err_listparser {
-      char const	*ptr;
-      size_t		len;
+      char const	*ptr;		///< Pointer to the first character of an erroneous string
+      size_t		len;		///< Length of the erroneous string
   };
  
   int			vc_get_cflags(xid_t xid, struct vc_ctx_flags *)       VC_ATTR_NONNULL((2));
@@ -445,11 +463,64 @@ extern "C" {
   int			vc_get_ccaps(xid_t xid, struct vc_ctx_caps *);
   int			vc_set_ccaps(xid_t xid, struct vc_ctx_caps const *);
 
-  uint_least64_t	vc_text2bcap(char const *, size_t len);
-  char const *		vc_lobcap2text(uint_least64_t *);
-  int			vc_list2bcap(char const *, size_t len,
+  /** \brief   Converts a single string into bcapability
+   *  \ingroup helper
+   *
+   *  \param   str   The string to be parsed;
+   *                 both "CAP_xxx" and "xxx" will be accepted
+   *  \param   len   The length of the string, or \c 0 for automatic detection
+   *
+   *  \returns 0 on error; a bitmask on success
+   *  \pre     \a str != 0
+   */
+  uint_least64_t	vc_text2bcap(char const *str, size_t len);
+
+  /** \brief   Converts the lowest bit of a bcapability or the entire value
+   *           (when possible) to a textual representation
+   *  \ingroup helper
+   *
+   *  \param   val  The string to be converted; on success, the detected bit(s)
+   *                will be unset, in errorcase only the lowest set bit
+   *
+   *  \returns A textual representation of \a val resp. of its lowest set bit;
+   *           or \c NULL in errorcase.
+   *  \pre     \a val!=0
+   *  \post    \a *val<sub>old</sub> \c != 0  \c <-->
+   *               \a *val<sub>old</sub> > \a *val<sub>new</sub>
+   *  \post    \a *val<sub>old</sub> \c == 0  \c --->  \a result == 0
+   */
+  char const *	vc_lobcap2text(uint_least64_t *val) VC_ATTR_NONNULL((1));
+
+  /** \brief   Converts a string into a bcapability-bitmask
+   *  \ingroup helper
+   *
+   *  Syntax of \a str: \verbinclude list2xxx.syntax
+   *
+   *  When the \c `~' prefix is used, the bits will be unset and a `~' after
+   *  another `~' will cancel both ones. The \c `^' prefix specifies a
+   *  bitnumber instead of a bitmask.
+   *
+   *  "literal name" is everything which will be accepted by the
+   *  vc_text2bcap() function. The special values for \c NAME will be
+   *  recognized case insensitively
+   *
+   *  \param  str   The string to be parsed
+   *  \param  len   The length of the string, or \c 0 for automatic detection
+   *  \param  err   Pointer to a structure for error-information, or \c NULL.
+   *  \param  cap   Pointer to a vc_ctx_caps structure holding the results;
+   *                only the \a bcaps and \a bmask fields will be changed and
+   *                already set values will not be honored. When an error
+   *                occured, \a cap will have the value of all processed valid
+   *                \c BCAP parts.
+   *
+   *  \returns 0 on success, -1 on error. In error case, \a err will hold
+   *           position and length of the first not understood BCAP part
+   *  \pre     \a str != 0 && \a cap != 0;
+   *           \a cap->bcaps and \a cap->bmask must be initialized
+   */
+  int			vc_list2bcap(char const *str, size_t len,
 				     struct vc_err_listparser *err,
-				     struct vc_ctx_caps *);
+				     struct vc_ctx_caps *cap) VC_ATTR_NONNULL((1,4));
 
   uint_least64_t	vc_text2ccap(char const *, size_t len);
   char const *		vc_loccap2text(uint_least64_t *);
@@ -468,7 +539,6 @@ extern "C" {
   uint_least32_t	vc_text2cflag_compat(char const *, size_t len);
   char const *		vc_hicflag2text_compat(uint_least32_t);
 
-  uint_least32_t	vc_get_insecurecaps() VC_ATTR_CONST;
   int			vc_text2cap(char const *);
   char const *		vc_cap2text(unsigned int);
 
@@ -484,6 +554,11 @@ extern "C" {
   int			vc_list2ncap(char const *, size_t len,
 				     struct vc_err_listparser *err,
 				     struct vc_net_caps *);
+
+  uint_least64_t		vc_get_insecurebcaps() VC_ATTR_CONST;
+  inline static uint_least64_t	vc_get_insecureccaps() {
+    return ~(VC_VXC_SET_UTSNAME|VC_VXC_ICMP_PING);
+  }
   
   inline static int	vc_setfilecontext(char const *filename, xid_t xid) {
     return vc_set_iattr(filename, xid, 0, VC_IATTR_XID);
