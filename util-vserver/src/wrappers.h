@@ -273,6 +273,15 @@ Eioctl(int fd, int request, void *p)
   FatalErrnoError(res<0, "ioctl()");
 }
 
+inline static WRAPPER_DECL pid_t
+Esetsid()
+{
+  register pid_t const  res = setsid();
+  FatalErrnoError(res==-1, "setsid()");
+
+  return res;
+}
+
 #undef WRAPPER_DECL
 
 #endif	//  H_UTIL_VSERVER_SRC_WRAPPERS_H
