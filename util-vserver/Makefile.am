@@ -26,16 +26,19 @@ CVS2CL_ALLFLAGS        :=  $(CVS2CL_AMFLAGS) $(CVS2CL_FLAGS)
 confdir			=  $(sysconfdir)/vservers
 confdefaultsdir		=  $(confdir)/.defaults
 sbincfgdir		=  $(sbindir)
+legacydir		=  $(pkglibdir)/legacy
 
 include_HEADERS		=  $(lib_HDRS)
 noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h
 
 lib_LIBRARIES		=  $(lib_lib_LIBS)
-#lib_LTLIBRARIES		=  $(lib_lib_LTLIBS)
+lib_LTLIBRARIES		=  $(lib_lib_LTLIBS) $(src_lib_LTLIBS)
+pkglib_LTLIBRARIES	=  $(src_pkglib_LTLIBS)
 
 pkglib_SCRIPTS		=  $(scripts_pkglib_SCRPTS)
 pkglib_DATA		=  $(scripts_pkglib_DTA)
 pkglib_PROGRAMS		=  $(src_pkglib_PRGS)
+legacy_SCRIPTS		=  $(scripts_legacy_SCRPTS)
 
 sbincfg_DATA		=  $(scripts_sbincfg_DTA)
 
@@ -46,7 +49,7 @@ noinst_PROGRAMS		=  $(test_PRGS)
 initrd_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
 
-DIETPROGS		=  $(src_DIETPROGS) $(tests_DIETPROGS)
+DIETPROGS		=  $(src_DIETPROGS) $(tests_DIETPROGS) $(lib_DIETPROGS)
 
 BUILT_SOURCES		=  linuxcaps.h pathconfig.h linuxvirtual.h
 
@@ -80,6 +83,10 @@ if USE_DIETLIBC
 DIET			=  diet
 DIET_FLAGS		=
 DIET_CC		       :=  $(DIET) $(DIET_FLAGS) $(CC)
+DIET_LIBTOOL	       :=  $(LIBTOOL) --tag CC
+VSERVER_LDFLAGS	       :=  -static
+else
+VSERVER_LDFLAGS	       :=
 endif
 
 linuxcaps.h:		${kernelincludedir}/linux/capability.h Makefile
@@ -154,7 +161,9 @@ install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
 
 if USE_DIETLIBC
-$(DIETPROGS):		LIBTOOL=$(LIBTOOL) --tag CC
+$(addsuffix $(EXEEXT), $(DIETPROGS)) \
+$(addsuffix $(OBJEXT), $(DIETPROGS)) \
+		:		LIBTOOL=$(DIET_LIBTOOL)
 
 $(addsuffix $(EXEEXT), $(DIETPROGS)) \
 $(addsuffix $(OBJEXT), $(DIETPROGS)) \
