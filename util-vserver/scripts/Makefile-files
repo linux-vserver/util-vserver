@@ -57,7 +57,9 @@ scripts_pkglib_src_SCRPTS =	scripts/vapt-get-worker \
 				scripts/start-vservers \
 				scripts/vprocunhide \
 				scripts/vserver-build \
-				scripts/vservers.grabinfo.sh
+				scripts/vserver-wrapper \
+				scripts/vservers.grabinfo.sh \
+				scripts/vsysvwrapper
 
 scripts_legacy_src_SCRPTS =	scripts/legacy/save_s_context \
 				scripts/legacy/vserver \
