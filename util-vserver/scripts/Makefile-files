@@ -19,7 +19,13 @@
 
 scriptscfgdir		=  $(sbindir)
 
+scripts_DTA		=  scripts/functions
+
 scripts_SCRPTS		=  scripts/distrib-info \
+			   scripts/vapt-get-worker \
+			   scripts/vrpm-worker \
+			   scripts/vrpm-preload \
+			   scripts/vserver-init \
 			   scripts/rootshell \
 			   scripts/save_s_context \
 			   scripts/vprofile \
@@ -28,7 +34,8 @@ scripts_SCRPTS		=  scripts/distrib-info \
 			   scripts/vsysvwrapper \
 			   scripts/vunify.old.sh
 
-scripts_PRGS		=  scripts/vkill \
+scripts_PRGS		=  scripts/vapt-get \
+			   scripts/vkill \
 			   scripts/vps \
 			   scripts/vpstree \
 			   scripts/vrpm \
@@ -38,7 +45,9 @@ scripts_PRGS		=  scripts/vkill \
 
 scriptscfg_DATA		=  scripts/util-vserver-vars
 
-scripts_XTRAS		=  scripts/util-vserver-vars.pathsubst
+scripts_XTRAS		=  scripts/util-vserver-vars.pathsubst \
+			   scripts/functions
+
 scripts_GENSCRPTS	=  scripts/util-vserver-vars
 
 scripts/util-vserver-vars:	scripts/.util-vserver-vars.pathsubst.stamp
