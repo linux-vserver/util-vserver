@@ -86,6 +86,7 @@ lib_SRCS =  			lib/syscall.c \
 				lib/issupportedstring.c \
 				lib/listparser_uint32.c \
 				lib/listparser_uint64.c \
+				lib/parselimit.c \
 				$(lib_legacy_SRCS) \
 				$(lib_compat_SRCS) \
 				$(lib_management_SRCS) \
