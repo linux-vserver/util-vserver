@@ -19,6 +19,7 @@ confdir			=  $(sysconfdir)/vservers
 distribdir		=  $(pkglibdir)/distributions
 confdistribdir		=  $(confdir)/.distributions
 
+
 nobase_distrib_SCRIPTS	=  redhat/initpost
 
 nobase_distrib_DATA	=  defaults/devs \
@@ -31,11 +32,15 @@ nobase_distrib_DATA	=  defaults/devs \
 nobase_confdistrib_DATA	=  rh9/apt/sources.list \
 			   fdr0.95/apt/sources.list
 
+AM_INSTALLCHECK_STD_OPTIONS_EXEMPT \
+			=  $(nobase_distrib_SCRIPTS)
+
 EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(nobase_distrib_SCRIPTS) \
 			   $(nobase_confdistrib_DATA)
 
 redhat_style		=  rh9 fdr0.95
+
 
 install-data-hook:
 			l="$(redhat_style)"; for i in $$l; do \
