@@ -53,6 +53,7 @@ scripts_pkglib_src_SCRPTS =	scripts/vapt-get-worker \
 				scripts/vrpm-worker \
 				scripts/vrpm-preload \
 				scripts/rootshell \
+				scripts/vprocunhide \
 				scripts/vserver-build \
 				scripts/vservers.grabinfo.sh
 
