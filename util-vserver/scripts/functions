@@ -397,6 +397,8 @@ function pkgmgmt.guessStyle()
 	style=mandrake
     elif test -e "$vdir"/etc/debian_version; then
 	style=debian
+    elif test -e "$vdir"/etc/SuSE-release; then
+	style=suse
     else
 	echo $"Can not determine packagemanagement style" >&2
 	return 1
