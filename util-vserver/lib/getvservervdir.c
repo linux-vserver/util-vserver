@@ -47,7 +47,7 @@ getDir(char *dir, bool physical)
     dir = 0;
 
   if (fchdir(fd)==-1) {
-    write(2, "FATAL error: failed to restore directory\n", 41);
+    if (write(2, "FATAL error: failed to restore directory\n", 41)!=41) { /*...*/ }
     abort();
   }
   close(fd);

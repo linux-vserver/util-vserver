@@ -23,12 +23,18 @@
 #include <string.h>
 
 inline static void UNUSED
-writeStr(int fd, char const *cmd)
+Vwrite(int fd, char const *buf, size_t len)
 {
-  (void)write(fd, cmd, strlen(cmd));
+  if (write(fd,buf,len)==-1) { /**/ }
 }
 
-#define WRITE_MSG(FD,X)		(void)(write(FD,X,sizeof(X)-1))
+inline static void UNUSED
+writeStr(int fd, char const *cmd)
+{
+  Vwrite(fd, cmd, strlen(cmd));
+}
+
+#define WRITE_MSG(FD,X)		Vwrite(FD,X,sizeof(X)-1)
 #define WRITE_STR(FD,X)		writeStr(FD,X)
 
 

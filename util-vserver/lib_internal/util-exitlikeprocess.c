@@ -56,10 +56,10 @@ exitLikeProcess(int pid, char const *cmd, int ret)
       WRITE_MSG(2, "command '");
       WRITE_STR(2, cmd);
       WRITE_MSG(2, "' (pid ");
-      write    (2, buf, l);
+      Vwrite   (2, buf, l);
       WRITE_MSG(2, ") exited with signal ");
       l = utilvserver_fmt_uint(buf, WTERMSIG(status));      
-      write    (2, buf, l);
+      Vwrite   (2, buf, l);
       WRITE_MSG(2, "; following it...\n");
     }
 
@@ -74,14 +74,14 @@ exitLikeProcess(int pid, char const *cmd, int ret)
     size_t		l = utilvserver_fmt_uint(buf, WTERMSIG(status));
 
     WRITE_MSG(2, "Unexpected status ");
-    write    (2, buf, l);
+    Vwrite   (2, buf, l);
     WRITE_MSG(2, " from '");
     if (cmd) {
       WRITE_STR(2, cmd);
       WRITE_MSG(2, " (pid ");
     }
     l = utilvserver_fmt_uint(buf, pid);
-    write    (2, buf, l);
+    Vwrite   (2, buf, l);
     if (cmd) WRITE_MSG(2, ")\n");
     else     WRITE_MSG(2, "\n");
 

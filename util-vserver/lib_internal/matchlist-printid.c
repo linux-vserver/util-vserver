@@ -28,11 +28,11 @@ MatchList_printId(struct MatchList const *l, int fd)
 {
   if (l->id.l>0) {
     WRITE_MSG(fd, "'");
-    (void)write(fd, l->id.d, l->id.l);
+    Vwrite(fd, l->id.d, l->id.l);
     WRITE_MSG(1, "'");
   }
   else if (l->root.l>0) {
-    write(fd, l->root.d, l->root.l);
+    Vwrite(fd, l->root.d, l->root.l);
   }
   else
     WRITE_MSG(fd, "???");

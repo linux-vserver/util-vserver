@@ -23,13 +23,15 @@
 #  error Do not use <coreassert.h> outside of testenvironemnts!
 #endif
 
+#include "lib_internal/util-io.h"
+
 #include <assert.h>
 #include <unistd.h>
 
 #undef assert
 #define ASSERT_STRX(X)	#X
 #define ASSERT_STR(X)	ASSERT_STRX(X)
-#define ASSERT_WRITE(X)	write(2, (X), sizeof(X)-1)
+#define ASSERT_WRITE(X)	Vwrite(2, (X), sizeof(X)-1)
 #define assert(X)					\
   (!(X)) ?						\
   ASSERT_WRITE(__FILE__ ":" ASSERT_STR(__LINE__)	\

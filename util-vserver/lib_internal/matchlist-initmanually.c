@@ -170,7 +170,7 @@ MatchList_initManually(struct MatchList *list,
   
   if (Global_getVerbosity()>=1) {
     WRITE_MSG(1, "Initializing exclude-list for ");
-    (void)write(1, vdir, len);
+    Vwrite(1, vdir, len);
     if (vserver!=0) {
       WRITE_MSG(1, " (");
       WRITE_STR(1, vserver->name);
