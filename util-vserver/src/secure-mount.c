@@ -48,6 +48,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <sys/wait.h>
+#include <libgen.h>
 
 #define MNTPOINT	"/etc"
 
@@ -77,6 +78,7 @@ struct Options {
 #define OPTION_FSTAB	1027
 #define OPTION_CHROOT	1028
 #define OPTION_SECURE	1029
+#define OPTION_RBIND	1030
 
 static struct option const
 CMDLINE_OPTIONS[] = {
@@ -88,6 +90,7 @@ CMDLINE_OPTIONS[] = {
   { "fstab",   required_argument, 0, OPTION_FSTAB },
   { "chroot",  required_argument, 0, OPTION_CHROOT },
   { "secure",  no_argument,       0, OPTION_SECURE },
+  { "rbind",   no_argument,       0, OPTION_RBIND },
   { 0, 0, 0, 0 }
 };
 
@@ -119,10 +122,12 @@ static struct FstabOptions {
 static void
 showHelp(int fd, char const *cmd, int res)
 {
+  VSERVER_DECLARE_CMD(cmd);
+  
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [--help] [--version] [--bind] [--move] [-t <type>] [-n]\n"
+	    " [--help] [--version] [--bind] [--move] [--rbind] [-t <type>] [-n]\n"
 	    "            [--mtab <filename>] [--fstab <filename>] [--chroot <dirname>] \n"
 	    "            [--secure] -a|([-o <options>] [--] <src> <dst>)\n\n"
 	    "Executes mount-operations in the given chroot-dir: it assumes sources in the\n"
@@ -576,6 +581,7 @@ int main(int argc, char *argv[])
       case 'n'		:  opt.ignore_mtab = true;    break;
       case 'a'		:  opt.mount_all   = true;    break;
       case 'o'		:  mnt.data        = optarg;  break;
+      case OPTION_RBIND	:  mnt.flags      |= MS_REC;  /*@fallthrough@*/
       case OPTION_BIND	:  mnt.flags      |= MS_BIND; break;
       case OPTION_MOVE	:  mnt.flags      |= MS_MOVE; break;
       case OPTION_MTAB	:  opt.mtab        = optarg;  break;
