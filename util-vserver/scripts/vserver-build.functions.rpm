@@ -68,3 +68,8 @@ function rpm.initFilesystem
 
     test "$RPMLIBDIR"  = / || ln -s "$RPMLIB"  "$confdir/apps/pkgmgmt/rpmlib"
 }
+
+function rpm.initDB
+{
+    RPM_FLAVOR=d "$_VRPM" "$1" -- --initdb
+}
