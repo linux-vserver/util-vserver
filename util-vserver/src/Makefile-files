@@ -189,7 +189,7 @@ src_vserver_info_LDADD		=  lib/libvserver.la
 src_vserver_info_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
-src_vserver_stat_LDADD		=  lib/libvserver.la
+src_vserver_stat_LDADD		=  lib/libvserver.la libensc_vector.a
 src_vserver_stat_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc src/vserver.cc
