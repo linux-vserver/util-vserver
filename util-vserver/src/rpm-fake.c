@@ -50,6 +50,14 @@
 #include <pwd.h>
 #include <grp.h>
 
+
+  // from selinux.h
+  // FIXME: add configure autodetection and include <selinux.h> directly
+int rpm_execcon(unsigned int verified,
+		const char *filename,
+		char *const argv[], char *const envp[]);
+
+
 #define ENSC_WRAPPERS_PREFIX	"rpm-fake.so: "
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_UNISTD	1
@@ -87,7 +95,8 @@ static unsigned int	debug_level = 0;
 
 static bool		is_initialized = false;
 
-DECLARE(execv);
+  //DECLARE(rpm_execcon);
+  //DECLARE(execv);
 DECLARE(getpwnam);
 DECLARE(getgrnam);
 DECLARE(endpwent);
@@ -382,7 +391,8 @@ initEnvironment()
 static void
 initSymbols()
 {
-  INIT(RTLD_NEXT, execv);
+    //INIT(RTLD_NEXT, rpm_execcon);
+    //INIT(RTLD_NEXT, execv);
   INIT(RTLD_NEXT, getgrnam);
   INIT(RTLD_NEXT, getpwnam);
   INIT(RTLD_NEXT, endpwent);
@@ -532,7 +542,7 @@ endpwent()
 
 
 static int
-execvWorker(char const *path, char * const argv[])
+execvWorker(char const *path, char * const argv[], char * const envp[])
 {
   int		res = -1;
 
@@ -546,7 +556,7 @@ execvWorker(char const *path, char * const argv[])
 #endif
     
   if (res!=-1)
-    res=execv_func(path, argv);
+    res=execve(path, argv, envp);
 
   return res;
 }
@@ -555,6 +565,7 @@ struct ExecvParams
 {
     char const *	path;
     char * const *	argv;
+    char * const *	envp;
     char const *	mnts;
 };
 
@@ -577,13 +588,14 @@ removeNamespaceMountsChild(struct ExecvParams const *params)
     ptr = strtok(0, ":");
   }
 
-  return execvWorker(params->path, params->argv);
+  return execvWorker(params->path, params->argv, params->envp);
 }
 
 static int
-removeNamespaceMounts(char const *path, char * const argv[])
+removeNamespaceMounts(char const *path,
+		      char * const argv[], char * const envp[])
 {
-  if (mnts==0) return execvWorker(path, argv);
+  if (mnts==0) return execvWorker(path, argv, envp);
 
   {
     int				status;
@@ -592,6 +604,7 @@ removeNamespaceMounts(char const *path, char * const argv[])
 
     params.path = path;
     params.argv = argv;
+    params.envp = envp;
     params.mnts = mnts;
 
       // the rpmlib signal-handler is still active; use the default one to
@@ -626,5 +639,15 @@ removeNamespaceMounts(char const *path, char * const argv[])
 int
 execv(char const *path, char * const argv[])
 {
-  return removeNamespaceMounts(path, argv);
+  extern char **environ;
+
+  return removeNamespaceMounts(path, argv, environ);
+}
+
+int
+rpm_execcon(unsigned int UNUSED verified,
+	    const char *filename,
+	    char *const argv[], char *const envp[])
+{
+  return removeNamespaceMounts(filename, argv, envp);
 }
