@@ -73,7 +73,7 @@ int main (int argc, char *argv[])
 		// and also a security flaw. The shared objects in the vserver
 		// may be tweaked to get control of the root server ...
 		getpwnam ("root");
-		if (vc_chrootsafe (argv[dir]) == -1){
+		if (chroot(argv[dir]) == -1){
 			fprintf (stderr,"Can't chroot to directory %s (%s)\n",argv[dir]
 				,strerror(errno));
 		}else{
