@@ -42,29 +42,6 @@ struct Arguments const *		global_args = 0;
 
 int wrapper_exit_code = 1;
 
-bool
-checkForRace(int fd, char const * name, struct stat const *exp_st)
-{
-  struct stat		st;
-  
-  if (fstat(fd, &st)==-1) {
-    perror("fstat()");
-    return false;
- }
-
-  if (st.st_dev  != exp_st->st_dev ||
-      st.st_ino  != exp_st->st_ino ||
-      st.st_mode != exp_st->st_mode) {
-    close(fd);
-    WRITE_MSG(2, "race while visiting '");
-    WRITE_STR(2, name);
-    WRITE_MSG(2, "'\n");
-    exit(2);
-  }
-
-  return true;
-}
-
 inline static bool
 isSpecialDir(char const *d)
 {
