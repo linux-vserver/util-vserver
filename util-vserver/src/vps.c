@@ -202,6 +202,7 @@ processOutput(char *data, size_t len)
     write(1, data, pid_end);
     l = writeContextInfo(ctx, vserver_name);
     if (l<CONTEXT_WIDTH) write(1, CONTEXT_PLACE, CONTEXT_WIDTH-l);
+    else                 write(1, " ", 1);
     write(1, data+pid_end, eol_pos-(data+pid_end));
     write(1, "\n", 1);
     
