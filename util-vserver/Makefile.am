@@ -70,9 +70,11 @@ EXTRA_DIST =		$(sysv_XTRAS) $(sysv_CFG) \
 			util-vserver.spec \
 			THANKS
 
-check_PROGRAMS		=  $(src_check_PRGS) $(ENSC_VECTOR_TESTSUITE_PRGS)
-check_SCRIPTS		=  $(src_check_SCRPTS)
-TESTS			=  $(src_TSTS) $(ENSC_VECTOR_TESTSUITE_TSTS)
+check_PROGRAMS =	$(src_check_PRGS) $(lib_testsuite_PRGS) \
+			$(ENSC_VECTOR_TESTSUITE_PRGS)
+check_SCRIPTS =		$(src_check_SCRPTS)
+TESTS =			$(src_TSTS) $(lib_testsuite_TSTS) \
+			$(ENSC_VECTOR_TESTSUITE_TSTS)
 
 TESTS_ENVIRONMENT	=  $(src_TESTS_ENV)
 
