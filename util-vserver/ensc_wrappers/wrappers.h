@@ -24,6 +24,33 @@
 
 #include "wrappers_handler.hc"
 
+#define ENSC_DOQUOTE_COND(PTR, VAL, LEN, DO_QUOTE) \
+  if (DO_QUOTE) *PTR++ = '"';					\
+  memcpy(PTR, VAL, LEN); PTR += LEN;				\
+  if (DO_QUOTE) *PTR++ = '"'					\
+  
+#define ENSC_DETAIL1(RES,FUNC,VAL,DO_QUOTE)			\
+  size_t	l_ = strlen(VAL);				\
+  char		RES[l_ + sizeof(FUNC "(\"\")")];		\
+  char *	ptr_ = RES;					\
+  memcpy(ptr_, FUNC "(", sizeof(FUNC)); ptr_ += sizeof(FUNC);	\
+  ENSC_DOQUOTE_COND(ptr_, VAL, l_, DO_QUOTE);			\
+  *ptr_++ = ')';						\
+  *ptr_   = '\0';
+
+#define ENSC_DETAIL2(RES,FUNC, VAL0,VAL1, DO_QUOTE0,DO_QUOTE1)	\
+  size_t	l0_ = strlen(VAL0);				\
+  size_t	l1_ = strlen(VAL1);				\
+  char		RES[l0_ + l1_ + sizeof(FUNC "(\",\")")];	\
+  char *	ptr_ = RES;					\
+  memcpy(ptr_, FUNC "(", sizeof(FUNC)); ptr_ += sizeof(FUNC);	\
+  ENSC_DOQUOTE_COND(ptr_, VAL0, l0_, DO_QUOTE0);		\
+  *ptr_++ = ',';						\
+  ENSC_DOQUOTE_COND(ptr_, VAL0, l1_, DO_QUOTE1);		\
+  *ptr_++ = ')';						\
+  *ptr_   = '\0';
+  
+
 #ifdef ENSC_WRAPPERS_UNISTD
 #  include "wrappers-unistd.hc"
 #endif
@@ -72,6 +99,9 @@
 #  include "wrappers-stdlib.hc"
 #endif
 
+#undef ENSC_DETAIL2
+#undef ENSC_DETAIL1
+#undef ENSC_DOQUOTE_COND
 #undef H_ENSC_IN_WRAPPERS_H
 #undef WRAPPER_DECL
 
