@@ -117,21 +117,22 @@ int main (int argc, char *argv[])
 	int flags = 0;
 	unsigned remove_cap = 0;
 	unsigned add_cap = 0;
-	unsigned long secure = ( (1<<VC_CAP_LINUX_IMMUTABLE)
-				|(1<<VC_CAP_NET_BROADCAST)
-				|(1<<VC_CAP_NET_ADMIN)
-				|(1<<VC_CAP_NET_RAW)
-				|(1<<VC_CAP_IPC_LOCK)
-				|(1<<VC_CAP_IPC_OWNER)
-				|(1<<VC_CAP_SYS_MODULE)
-				|(1<<VC_CAP_SYS_RAWIO)
-				|(1<<VC_CAP_SYS_PACCT)
-				|(1<<VC_CAP_SYS_ADMIN)
-				|(1<<VC_CAP_SYS_BOOT)
-				|(1<<VC_CAP_SYS_NICE)
-				|(1<<VC_CAP_SYS_RESOURCE)
-				|(1<<VC_CAP_SYS_TIME)
-				|(1<<VC_CAP_MKNOD));
+	unsigned long secure = ( ( 1<<VC_CAP_LINUX_IMMUTABLE)
+				 |(1<<VC_CAP_NET_BROADCAST)
+				 |(1<<VC_CAP_NET_ADMIN)
+				 |(1<<VC_CAP_NET_RAW)
+				 |(1<<VC_CAP_IPC_LOCK)
+				 |(1<<VC_CAP_IPC_OWNER)
+				 |(1<<VC_CAP_SYS_MODULE)
+				 |(1<<VC_CAP_SYS_RAWIO)
+				 |(1<<VC_CAP_SYS_PACCT)
+				 |(1<<VC_CAP_SYS_ADMIN)
+				 |(1<<VC_CAP_SYS_BOOT)
+				 |(1<<VC_CAP_SYS_NICE)
+				 |(1<<VC_CAP_SYS_RESOURCE)
+				 |(1<<VC_CAP_SYS_TIME)
+				 |(1<<VC_CAP_MKNOD)
+				 |(1<<VC_CAP_QUOTACTL));
 	const char *hostname=NULL, *domainname=NULL;
 
 	for (i=1; i<argc; i++){
