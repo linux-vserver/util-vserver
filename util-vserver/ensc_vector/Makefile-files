@@ -57,9 +57,11 @@ LIBENSCVECTOR_DIET =		libensc_vector-diet.a
 LIBENSCVECTOR =			$(LIBENSCVECTOR_DIET)
 ENSC_VECTOR_LIBS +=		$(LIBENSCVECTOR_DIET)
 else
-LIBENSCVECTOR_DIET =		lib-ensc_vector-diet-not-available.a
+LIBENSCVECTOR_DIET =		lib-dietlibc-not-enabled-error.a
 LIBENSCVECTOR =			$(LIBENSCVECTOR_GLIBC)
 endif
 
+CLEANFILES +=			libensc_vector-diet.a \
+				libensc_vector-glibc.a
 
 include $(srcdir)/ensc_vector/testsuite/Makefile-files
