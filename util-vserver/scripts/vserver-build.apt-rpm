@@ -51,6 +51,7 @@ setup_writeInitialFstab
 
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
 rpm.importGPGPubKeys "$VSERVER_NAME" "$CONFDIR/.distributions/$DISTRIBUTION/pubkeys" "$DISTRIBDIR/$DISTRIBUTION/pubkeys"
+rpm.initDB           "$VSERVER_NAME"
 "$_VAPT_GET" "$SETUP_CONFDIR" -- update
 apt.installBasePackages "$SETUP_CONFDIR" "$PKGDIR"
 "$_VAPT_GET" "$SETUP_CONFDIR" -- dist-upgrade -y
