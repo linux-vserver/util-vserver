@@ -49,6 +49,6 @@ test "$bin" || {
 #RPM_FAKE_S_CONTEXT_NR=$scall_nr \
 RPM_FAKE_CHROOT=$vdir \
 RPM_FAKE_CTX=$ctx \
-RPM_FAKE_CAP=$[ ~0x3404040f ] \
+RPM_FAKE_CAP=$[ ~0xd40c04ff ] \
 LD_PRELOAD=$lib${LD_PRELOAD:+:$LD_PRELOAD} \
 exec $bin "$@"
