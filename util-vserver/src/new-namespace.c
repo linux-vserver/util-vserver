@@ -91,7 +91,11 @@ int main(int argc, char *argv[])
   if (!strcmp(argv[1], "--version")) showVersion();
   if (!strcmp(argv[1], "--"))        ++argv;
 
+#ifdef NDEBUG    
   pid = Eclone(childFunc, STACK_START(buf), CLONE_NEWNS|CLONE_VFORK|SIGCHLD, argv+1);
+#else
+  pid = Eclone(childFunc, STACK_START(buf), CLONE_NEWNS|SIGCHLD, argv+1);
+#endif
   p   = Ewait4(pid, &status, 0,0);
 
   if (WIFEXITED(status)) return WEXITSTATUS(status);
