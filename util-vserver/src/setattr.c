@@ -37,15 +37,20 @@ struct option const
 CMDLINE_OPTIONS[] = {
   { "help",     no_argument,  0, CMD_HELP },
   { "version",  no_argument,  0, CMD_VERSION },
-  { "immutable", no_argument, 0, CMD_IMMUTABLE },
-  { "immulink",  no_argument, 0, CMD_IMMULINK },
+  { "immu",        no_argument, 0, CMD_IMMU  },
+  { "admin",       no_argument, 0, CMD_ADMIN },
+  { "watch",       no_argument, 0, CMD_WATCH },
+  { "hide",        no_argument, 0, CMD_HIDE  },
+  { "barrier",     no_argument, 0, CMD_BARRIER },
+  { "~immu",       no_argument, 0, CMD_UNSET_IMMU  },
+  { "~admin",      no_argument, 0, CMD_UNSET_ADMIN },
+  { "~watch",      no_argument, 0, CMD_UNSET_WATCH },
+  { "~hide",       no_argument, 0, CMD_UNSET_HIDE  },
+  { "~barrier",    no_argument, 0, CMD_UNSET_BARRIER },
   { 0,0,0,0 }
 };
 
-char const		CMDLINE_OPTIONS_SHORT[] = "Rsux";
-
-static long	set_mask = 0;
-static long	del_mask = VC_IMMUTABLE_ALL;
+char const		CMDLINE_OPTIONS_SHORT[] = "Rx";
 
 void
 showHelp(int fd, char const *cmd, int res)
@@ -53,12 +58,9 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-Rsux] [--immutable] [--immulink] [--] <file>+\n\n"
+	    " [-Rx] [--[~]immu] [--[~]admin] [--[~]watch] [--[~]hide] [--] <file>+\n\n"
 	    " Options:\n"
 	    "   -R  ...  recurse through directories\n"
-	    "   -s  ...  set flag only; when only one of the '--immu*' options\n"
-	    "            is given, do not delete the other ones\n"
-	    "   -u  ...  revert operation and unset the given flags\n"
 	    "   -x  ...  do not cross filesystems\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
@@ -83,17 +85,7 @@ fixupParams(struct Arguments * args, int argc)
     exit(1);
   }
 
-  set_mask = 0;
-  if (args->immutable) set_mask |= VC_IMMUTABLE_FILE_FL;
-  if (args->immulink)  set_mask |= VC_IMMUTABLE_LINK_FL;
-  
-  if (args->do_set) del_mask = 0;
-  else              del_mask = VC_IMMUTABLE_ALL;
-
-  if (args->do_unset) {
-    del_mask = set_mask;
-    set_mask = 0;
-  }
+  args->do_display_dir = false;
 }
 
 static bool
@@ -102,17 +94,25 @@ setFlags(char const *name, char const *display_name,
 {
   int		fd = open(name, O_RDONLY);
   int		res = false;
-  
+  int		rc;
+
   if (fd==-1) {
     perror("open()");
     return false;
   }
 
+  // this is still needed... the file must be open so that vc_set_iattr()
+  // operates on a known file/inode
   if (!exp_st ||
       !checkForRace(fd, name, exp_st))
     goto err;
 
-  if (vc_X_set_ext2flags(fd, set_mask, del_mask)==-1) {
+  rc = vc_set_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
+			   0,
+			   global_args->set_mask & ~global_args->del_mask,
+			   global_args->set_mask|global_args->del_mask);
+
+  if (rc==-1) {
     perror(display_name);
     goto err;
   }
@@ -128,7 +128,7 @@ bool
 handleFile(char const *name, char const * display_name,
 	   struct stat const *exp_st)
 {
-  if (!S_ISREG(exp_st->st_mode)) return true;
+  if (!(S_ISREG(exp_st->st_mode) || S_ISDIR(exp_st->st_mode))) return true;
   
   return setFlags(name, display_name, exp_st);
 }

@@ -22,11 +22,22 @@
 #include <getopt.h>
 #include <stdbool.h>
 
-#define CMD_HELP	0x8000
-#define CMD_VERSION	0x8001
-#define CMD_IMMUTABLE	0x8002
-#define CMD_IMMULINK	0x8003
-#define CMD_LEGACY	0x8004
+#define CMD_HELP		0x8000
+#define CMD_VERSION		0x8001
+#define CMD_IMMUTABLE		0x8002
+#define CMD_IMMULINK		0x8003
+#define CMD_LEGACY		0x8004
+#define CMD_IMMU		0x8010
+#define CMD_ADMIN		0x8011
+#define CMD_WATCH		0x8012
+#define CMD_HIDE		0x8013
+#define CMD_BARRIER		0x8014
+#define CMD_UNSET_IMMU		0x8020
+#define CMD_UNSET_ADMIN		0x8021
+#define CMD_UNSET_WATCH		0x8022
+#define CMD_UNSET_HIDE		0x8023
+#define CMD_UNSET_BARRIER	0x8024
+
 
 struct stat;
 
@@ -43,6 +54,9 @@ struct Arguments {
     bool		do_set;
     bool		do_unset;
     bool		local_fs;
+
+    uint32_t		set_mask;
+    uint32_t		del_mask;
 };
 
 extern struct option const		CMDLINE_OPTIONS[];

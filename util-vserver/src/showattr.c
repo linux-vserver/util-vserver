@@ -32,6 +32,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <ctype.h>
 
 struct option const
 CMDLINE_OPTIONS[] = {
@@ -79,91 +80,64 @@ fixupParams(struct Arguments UNUSED * args, int UNUSED argc)
 }
 
 static bool
-getFlags(char const *name, struct stat const *exp_st, long *flags)
+getFlags(char const *name, struct stat const *exp_st, uint32_t *flags, uint32_t *mask)
 {
-  int		fd = open(name, O_RDONLY);
-  int		rc;
+  xid_t		xid;
+  *mask = ~0;
   
-  if (fd==-1) {
-    perror("open()");
+  if (vc_get_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
+			  &xid, flags, mask)==-1) {
+    perror("vc_get_iattr_compat()");
     return false;
   }
-
-  if (exp_st)
-    checkForRace(fd, name, exp_st);
-
-  rc = vc_X_get_ext2flags(fd, flags);
-  *flags &= VC_IMMUTABLE_ALL;
-
-  if (rc==-1)
-    perror("vc_X_get_ext2flags()");
-
-  close(fd);
-  return rc!=-1;
-}
-
-static void
-writePadded(long num)
-{
-  char		buf[sizeof(num)*2+1];
-  size_t	l = utilvserver_fmt_xulong(buf, num);
-
-  if (l<8) write(1, "00000000", 8-l);
-  write(1, buf, l);
-}
-
-#ifdef VC_ENABLE_API_LEGACY
-static bool
-handleFileLegacy(char const *name, char const *display_name,
-		 struct stat const *exp_st)
-{
-  long		flags;
-
-  if (!S_ISREG(exp_st->st_mode)) {
-    write(1, display_name, strlen(display_name));
-    write(1, "  -\n", 2);
-    return true;
-  }
-
-  if (!getFlags(name, exp_st, &flags)) {
-    perror(display_name);
-    return false;
-  }
-
-  write(1, display_name, strlen(display_name));
-  write(1, "\t", 1);
-  writePadded(flags);
-  write(1, "\n", 1);
 
   return true;
 }
-#endif
 
 bool
 handleFile(char const *name, char const *display_name,
 	   struct stat const *exp_st)
 {
   bool		res = true;
-#ifdef VC_ENABLE_API_LEGACY
-  if (global_args->is_legacy)
-    return handleFileLegacy(name, display_name, exp_st);
-#endif
-  
-  if (!S_ISREG(exp_st->st_mode)) {
-    write(1, "--------", 8);
+  char		buf[40];
+  char		*ptr = buf;
+
+  memset(buf, ' ', sizeof buf);
+  if (!(S_ISREG(exp_st->st_mode) || S_ISDIR(exp_st->st_mode))) {
+    memcpy(ptr, "------", 6);
   }
   else {
-    long		flags;
+    uint32_t		flags;
+    uint32_t		mask;
 
-    if (getFlags(name, exp_st, &flags))
-      writePadded(flags);
+    if (getFlags(name, exp_st, &flags, &mask)) {
+	//                                   1       1       0       0
+	//                            fedcba9876543210fedcba9876543210
+      static char const	MARKER[33] = ".......x......ib.............hwa";
+      int		i;
+      uint32_t 		used_flags = (VC_IATTR_XID|VC_IATTR_ADMIN|
+				      VC_IATTR_WATCH|VC_IATTR_HIDE|
+				      VC_IATTR_BARRIER|VC_IATTR_IUNLINK);
+
+      for (i=0; i<32; ++i) {
+	if (used_flags & 1) {
+	  if (!   (mask  & 1) ) *ptr++ = '-';
+	  else if (flags & 1)   *ptr++ = toupper(MARKER[31-i]);
+	  else                  *ptr++ = MARKER[31-i];
+	}
+
+	used_flags >>= 1;
+	flags      >>= 1;
+	mask       >>= 1;
+      }
+    }      
     else {
-      write(1, "ERR     ", 8);
+      memcpy(buf, "ERR   ", 6);
       res = false;
     }
   }
 
-  write(1, "  ", 2);
+  write(1, buf, 8);
   write(1, display_name, strlen(display_name));
   write(1, "\n", 1);
 

@@ -71,18 +71,23 @@ setFile(char const *name, char const * display_name, struct stat const *exp_st)
 {
   bool		res = false;
   int		fd = open(name, O_RDONLY);
+  int		rc;
 
   if (fd==-1) {
     perror("open()");
     return false;
   }
 
+  // this is still needed... the file must be open so that vc_set_iattr()
+  // operates on a known file/inode
   if (!exp_st ||
       !checkForRace(fd, name, exp_st))
     goto err;
 
-  if (vc_X_set_filecontext(fd, global_args->ctx)==-1) {
-    //perror("vc_X_set_filecontext()");
+  rc = vc_set_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
+			   global_args->ctx, 0, VC_IATTR_XID);
+  
+  if (rc==-1) {
     perror(display_name);
     goto err;
   }
@@ -116,5 +121,6 @@ fixupParams(struct Arguments UNUSED *args, int argc)
     exit(1);
   }
 
-  args->ctx = resolveCtx(args->ctx_str);
+  args->ctx            = resolveCtx(args->ctx_str);
+  args->do_display_dir = false;  
 }

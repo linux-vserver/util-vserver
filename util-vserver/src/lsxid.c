@@ -80,24 +80,14 @@ fixupParams(struct Arguments UNUSED * args, int UNUSED argc)
 static xid_t
 getFileContext(char const *name, struct stat const *exp_st)
 {
-  int		fd = open(name, O_RDONLY);
   xid_t		res;
+  uint32_t	mask = VC_IATTR_XID;
   
-  if (fd==-1) {
-    perror("open()");
-    return VC_NOCTX;
-  }
+  if (vc_get_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
+			  &res, 0, &mask)==-1)
+    perror("vc_get_iattr_compat()");
 
-  if (exp_st)
-    checkForRace(fd, name, exp_st);
-
-  res = vc_X_get_filecontext(fd);
-  if (res==VC_NOCTX)
-    perror("vc_X_get_filecontext()");
-  
-  close(fd);
-
-  return res;
+  return (mask&VC_IATTR_XID) ? res : VC_NOCTX;
 }
 
 bool

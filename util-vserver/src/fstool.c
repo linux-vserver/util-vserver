@@ -196,6 +196,8 @@ int main(int argc, char *argv[])
     .do_set             =  false,
     .do_unset           =  false,
     .local_fs		=  false,
+    .set_mask           = 0,
+    .del_mask           = 0
   };
 
   global_args = &args;
@@ -207,9 +209,16 @@ int main(int argc, char *argv[])
     switch (c) {
       case CMD_HELP		:  showHelp(1, argv[0], 0);
       case CMD_VERSION		:  showVersion();
-      case CMD_IMMUTABLE	:  args.immutable = true; break;
-      case CMD_IMMULINK		:  args.immulink  = true; break;
-      case CMD_LEGACY		:  args.is_legacy      = true;  break;
+      case CMD_IMMU		:  args.set_mask |= VC_IATTR_IUNLINK; break;
+      case CMD_ADMIN		:  args.set_mask |= VC_IATTR_ADMIN;   break;
+      case CMD_WATCH		:  args.set_mask |= VC_IATTR_WATCH;   break;
+      case CMD_HIDE		:  args.set_mask |= VC_IATTR_HIDE;    break;
+      case CMD_BARRIER		:  args.set_mask |= VC_IATTR_BARRIER; break;
+      case CMD_UNSET_IMMU	:  args.del_mask |= VC_IATTR_IUNLINK; break;
+      case CMD_UNSET_ADMIN	:  args.del_mask |= VC_IATTR_ADMIN;   break;
+      case CMD_UNSET_WATCH	:  args.del_mask |= VC_IATTR_WATCH;   break;
+      case CMD_UNSET_HIDE	:  args.del_mask |= VC_IATTR_HIDE;    break;
+      case CMD_UNSET_BARRIER	:  args.del_mask |= VC_IATTR_BARRIER; break;
       case 'R'			:  args.do_recurse     = true;  break;
       case 'a'			:  args.do_display_dot = true;  break;
       case 'd'			:  args.do_display_dir = true;  break;
