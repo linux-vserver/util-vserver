@@ -196,7 +196,10 @@ src_save_ctxinfo_LDFLAGS	=  $(VSERVER_LDFLGS)
 
 src_vdu_SOURCES =		src/vdu.c
 src_vreboot_SOURCES =		src/vreboot.c
+
 src_secure_mount_SOURCES =	src/secure-mount.c
+src_secure_mount_LDADD =	$(VSERVER_LDADDS)
+src_secure_mount_LDFLAGS =	$(VSERVER_LDFLGS)
 
 src_vattribute_SOURCES =	src/vattribute.c
 src_vattribute_LDADD =		$(VSERVER_LDADDS)
