@@ -34,12 +34,12 @@ function makeDevEntry
 {
     local dst=$1/$2
     case "$3" in
-	c|b)	mknod -m$6 "$dst"  $3 $4 $5;;
-	d)	mkdir -p -m$4 "$dst";;
-	f)	touch "$dst"
+	(c|b)	mknod -m$6 "$dst"  $3 $4 $5;;
+	(d)	mkdir -p -m$4 "$dst";;
+	(f)	touch "$dst"
 		chmod $4 "$dst"
 		;;
-	*)	echo "Unknown dev-entry mode '$3'" >&2
+	(*)	echo "Unknown dev-entry mode '$3'" >&2
 		false
 		;;
     esac
@@ -57,8 +57,8 @@ function populateDirectory
 	for file in "$i"/*; do
 	    test -e "$file" || continue
 	    case "$file" in
-		*/CVS)	test ! -d "$file" || continue;;
-		*.rpmsave|*.rpmnew|*.rpmorig)
+		(*/CVS)	test ! -d "$file" || continue;;
+		(*.rpmsave|*.rpmnew|*.rpmorig)
 			continue;;
 	    esac
 	    
@@ -144,7 +144,9 @@ function base.initFilesystem
 	exit 1
     } >&2
 
-    mkdir -p "$SETUP_CONFDIR"/apps "$VDIR"/{dev/pts,etc} "$SETUP_LOCKREVDIR"
+    mkdir -p -m755 "$VDIR"
+    chattr -t "$VDIR"
+    mkdir -p -m755 "$SETUP_CONFDIR"/apps "$VDIR"/{dev/pts,etc} "$SETUP_LOCKREVDIR"
     
     ln -s "$VDIR"       "$SETUP_CONFDIR/vdir"
 
