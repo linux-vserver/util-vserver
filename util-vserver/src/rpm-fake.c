@@ -165,7 +165,6 @@ execvWorker(char const *path, char * const argv[])
   int		res;
   int		ctx;
 
-  printf("+execvWorker\n");
   ctx = getAndClearEnv("RPM_FAKE_CTX",  -1);
   if ( (res=new_s_context(getAndClearEnv("RPM_FAKE_S_CONTEXT_REV", 0),
 			  ctx==-1 ? 0 : 1,
@@ -173,7 +172,6 @@ execvWorker(char const *path, char * const argv[])
 			  getAndClearEnv("RPM_FAKE_CAP",  ~0x3404040f),
 			  getAndClearEnv("RPM_FAKE_FLAGS", 0)))!=-1 &&
        (res=execv_func(path, argv)!=-1) ) {}
-  printf("-execvWorker -> res=%u, err=%s\n",res,strerror(errno));
 
   return res;
 }
@@ -194,10 +192,14 @@ removeNamespaceMountsChild(void *params_v)
   strcpy(buf, params->mnts);
   ptr = strtok(buf, ":");
   while (ptr) {
-    system("cat /proc/mounts");
-    system("pstree -h");
-    system("ls -l /proc/self/ /proc/self/fd/ /var/lib /var/lib/rpm/");
-    if (umount2(ptr, 0)==-1) { dprintf(2, "ptr='%s' -> ", ptr); perror("umount2()"); return -1; }
+    if (umount2(ptr, 0)==-1) {
+	// FIXME: What is the semantic for CLONE_NEWNS? Is it ok that mounts in
+	// chroots are visible only, when chroot is on /dev/root?
+	//
+	// For now, ignore any errors, but future versions should handle them.
+
+	//return -1;
+    }
     ptr = strtok(0, ":");
   }
 
@@ -210,11 +212,9 @@ removeNamespaceMounts(char const *path, char * const argv[])
 {
   char const *	mnts = getenv("RPM_FAKE_NAMESPACE_MOUNTS");
 
-  printf("mnts='%s'\n", mnts);
   if (mnts==0) return execvWorker(path, argv);
 
   {
-    printf("l=%u\n", __LINE__);
     char	buf[512 + 2*strlen(mnts)];
     int		status;
     pid_t	p;
@@ -224,23 +224,13 @@ removeNamespaceMounts(char const *path, char * const argv[])
       .mnts = mnts,
     };
     
-    printf("l=%u\n", __LINE__);
-
-    
-    system("mount -t proc none /proc");
-    system("cat /proc/mounts");
-      //system("pstree -h");
-    system("ls -l /proc/self/ /proc/self/fd/ /var/lib /var/lib/rpm/");
     pid_t	pid = clone(removeNamespaceMountsChild, buf+sizeof(buf)/2,
 			    CLONE_NEWNS|SIGCHLD|CLONE_VFORK, &params);
 
-    printf("l=%u\n", __LINE__);
     if (pid==-1) return -1;
     while ((p=waitpid(pid, &status, 0))==-1 &&
 	   (errno==EINTR || errno==EAGAIN)) ;
     if (p==-1)   return -1;
-
-    printf("removeNamespaceMountsChild() -> status=%u\n", status);
 
     if (WIFEXITED(status))   exit(WEXITSTATUS(status));
     if (WIFSIGNALED(status)) kill(getpid(), WTERMSIG(status));
