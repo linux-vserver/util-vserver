@@ -50,7 +50,7 @@ static int __NR_set_ipv4root_rev2;
 static int __NR_set_ipv4root_rev3;
 static int rev_ipv4root=0;
 
-#if defined(__pic__) && defined(__i386)
+#if (defined(__pic__) && defined(__i386)) || defined(__hppa__)
 inline static int
 set_ipv4root_rev0(unsigned long ip)
 {
