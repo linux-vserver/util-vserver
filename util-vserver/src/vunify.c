@@ -248,16 +248,16 @@ doit(struct MatchList const *mlist,
   PathInfo	path = mlist->root;
   char		path_buf[ENSC_PI_APPSZ(path, *src_path)];
 
-  if (global_args->do_dry_run || global_args->verbosity>0) {
+  if (global_args->do_dry_run || Global_getVerbosity()>=2) {
     if (global_args->do_revert) WRITE_MSG(1, "deunifying '");
     else                        WRITE_MSG(1, "unifying   '");
 
     write(1, src_path->d, src_path->l);
     WRITE_MSG(1, "'");
 
-    if (global_args->verbosity>2) {
+    if (Global_getVerbosity()>=4) {
       WRITE_MSG(1, " (from ");
-      if (global_args->verbosity==2 && mlist->id.d)
+      if (Global_getVerbosity()==4 && mlist->id.d)
 	write(1, mlist->id.d, mlist->id.l);
       else
 	write(1, mlist->root.d, mlist->root.l);
@@ -323,14 +323,15 @@ visitDirEntry(struct dirent const *ent)
       (match=checkDirEntry(&path, &d_path, &is_dir, &src_stat, &f_stat))==0) {
     bool	is_link = is_dotfile ? false : S_ISLNK(f_stat.st_mode);
     
-    if (global_args->verbosity>1 &&
+    if (Global_getVerbosity()>=1 &&
+	(Global_getVerbosity()>=3 || skip_reason.r!=rsUNIFIED) &&
 	((!is_dotfile && !is_link) ||
-	 (global_args->verbosity>4 && is_dotfile) ||
-	 (global_args->verbosity>4 && is_link)) ) {
+	 (Global_getVerbosity()>=6 && is_dotfile) ||
+	 (Global_getVerbosity()>=6 && is_link)) ) {
       WRITE_MSG(1, "  skipping '");
       write(1, path.d, path.l);
       WRITE_MSG(1, "'");
-      if (global_args->verbosity>2) printSkipReason();
+      if (Global_getVerbosity()>=2) printSkipReason();
       WRITE_MSG(1, "\n");
     }
     return 0;
@@ -405,7 +406,7 @@ int main(int argc, char *argv[])
   global_info.state.l = 0;
 
 
-  if (global_args->verbosity>3) WRITE_MSG(1, "Starting to traverse directories...\n");
+  if (Global_getVerbosity()>=1) WRITE_MSG(1, "Starting to traverse directories...\n");
   Echdir(global_info.dst_list.root.d);
   visitDir("/", 0);
 
