@@ -48,7 +48,7 @@
     int	ver = utilvserver_checkCompatVersion();		\
     if (ver==-1) return -1;				\
     VC_SUFFIX, __VA_ARGS__, VC_PREFIX;			\
-    errno = EINVAL;					\
+    errno = ENOSYS;					\
     return -1;						\
   } while (0)
 #else
