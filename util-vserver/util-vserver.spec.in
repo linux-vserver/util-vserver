@@ -9,7 +9,7 @@
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
-Release:	0
+Release:	0.2
 Epoch:		0
 License:	GPL
 Group:		System Environment/Base
@@ -25,11 +25,12 @@ Obsoletes:	vserver < %epoch:%version
 BuildRequires:	mount vconfig gawk iproute
 BuildRequires:	gcc-c++ wget
 BuildRequires:	e2fsprogs-devel
-BuildRequires:	doxygen tetex-latex libxslt
+BuildRequires:	doxygen tetex-latex
 Requires(post):		%__chattr
 Requires(pre):		%pkglibdir
 Requires(postun):	%pkglibdir
 %{!?_without_dietlibc:BuildRequires:	dietlibc >= 0:0.24}
+%{!?_without_xalan:BuildRequires:	xalan-j}
 
 %package lib
 Summary:		Dynamic libraries for util-vserver
@@ -175,7 +176,6 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 %files -f %name-base.list
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING ChangeLog NEWS README THANKS
-%doc doc/FAQ.txt
 %doc doc/*.html doc/*.css
 /sbin/vshelper
 %dir %confdir
@@ -208,13 +208,11 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 %dir %confdir/.distributions
 %dir %confdir/.distributions/*
 %dir %confdir/.distributions/*/apt
-%config(noreplace) %confdir/.distributions/*/apt/sources.list
 
 
 %files legacy -f %name-legacy.list
 %defattr(-,root,root,-)
 %dir %pkglibdir/legacy
-%config(noreplace) %_sysconfdir/vservers.conf
 
 
 %files devel -f %name-devel.list
