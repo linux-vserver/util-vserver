@@ -25,7 +25,10 @@ for i in $name-{core,devel,base,build,legacy,lib,sysv}.list; do
     echo '%defattr(-,root,root,-)' >$i
 done
 
-cat $data | while read style file; do
+sed -e "s!@CONFIG@!$MANIFEST_CONFIG!g;
+        s!@CONFIG_NOREPLACE@!$MANIFEST_CONFIG_NOREPLACE!g" \
+	$data | \
+while read style file; do
     test "$file" || continue
     case "$style" in
 	(\#*)	continue;;

@@ -107,15 +107,17 @@ base   @MANDIR@/*/vpstree.*
 base   @MANDIR@/*/vserver-stat*
 base   @MANDIR@/*/vserver.*
 base   @MANDIR@/*/vtop*
-sysv   @INITRDDIR@/v_gated
-sysv   @INITRDDIR@/v_httpd
-sysv   @INITRDDIR@/v_named
-sysv   @INITRDDIR@/v_portmap
-sysv   @INITRDDIR@/v_sendmail
-sysv   @INITRDDIR@/v_smb
-sysv   @INITRDDIR@/v_sshd
-sysv   @INITRDDIR@/v_xinetd
-sysv   @INITRDDIR@/vprocunhide
-sysv   @INITRDDIR@/vservers-default
-legacy @INITRDDIR@/rebootmgr
-legacy @INITRDDIR@/vservers-legacy
+sysv   @CONFIG@ @INITRDDIR@/v_gated
+sysv   @CONFIG@ @INITRDDIR@/v_httpd
+sysv   @CONFIG@ @INITRDDIR@/v_named
+sysv   @CONFIG@ @INITRDDIR@/v_portmap
+sysv   @CONFIG@ @INITRDDIR@/v_sendmail
+sysv   @CONFIG@ @INITRDDIR@/v_smb
+sysv   @CONFIG@ @INITRDDIR@/v_sshd
+sysv   @CONFIG@ @INITRDDIR@/v_xinetd
+sysv   @CONFIG@ @INITRDDIR@/vprocunhide
+sysv   @CONFIG@ @INITRDDIR@/vservers-default
+legacy @CONFIG@ @INITRDDIR@/rebootmgr
+legacy @CONFIG@ @INITRDDIR@/vservers-legacy
+legacy @CONFIG_NOREPLACE@ @SYSCONFDIR@/vservers.conf
+build  @CONFIG_NOREPLACE@ @CONFDIR@/.distributions/*/apt/sources.list
