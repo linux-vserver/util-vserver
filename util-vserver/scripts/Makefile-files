@@ -41,3 +41,4 @@ scriptscfg_DATA		=  scripts/util-vserver-vars
 scripts_XTRAS		=  scripts/util-vserver-vars.pathsubst
 scripts_GENSCRPTS	=  scripts/util-vserver-vars
 
+scripts/util-vserver-vars:	scripts/.util-vserver-vars.pathsubst.stamp
