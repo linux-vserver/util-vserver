@@ -18,6 +18,7 @@
 ##  
 
 command_SRCS =			lib_internal/command-appendparameter.c \
+				lib_internal/command-setparams.c \
 				lib_internal/command-exec.c\
 				lib_internal/command-free.c \
 				lib_internal/command-init.c \
@@ -39,6 +40,7 @@ noinst_HEADERS += \
 				lib_internal/matchlist.h \
 				lib_internal/pathinfo.h \
 				lib_internal/string.h \
+				lib_internal/sys_clone.h \
 				lib_internal/unify.h \
 				lib_internal/util.h \
 				lib_internal/util-cast.h \
