@@ -94,6 +94,10 @@ CMDLINE_OPTIONS[] = {
   { 0, 0, 0, 0 }
 };
 
+#ifndef MS_REC
+#  define MS_REC	0x4000
+#endif
+
 static struct FstabOptions {
     char const * const	opt;
     unsigned long const	or_flag;
