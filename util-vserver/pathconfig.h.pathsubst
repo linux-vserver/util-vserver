@@ -25,5 +25,6 @@
 #define SYSCONFDIR	"@SYSCONFDIR@"
 
 #define MOUNT_PROG	"@MOUNT@"
+#define UMOUNT_PROG	"@UMOUNT@"
 
 #endif	//  H_UTIL_VSERVER_PATHCONFIG_H
