@@ -45,6 +45,8 @@ cd "$VSERVER_DIR"/vdir/
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
 cd "$VSERVER_DIR"/vdir/
 
+test -z "$OPTION_DEFAULTTTY" || setDefaultTTY
+
 fail=
 if test "$_IS_FAKEINIT" && \
    $_VSERVER_INFO - FEATURE vkill && \
