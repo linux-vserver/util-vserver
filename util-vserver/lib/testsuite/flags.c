@@ -133,29 +133,32 @@ int main()
 
   TEST_LIST("^4,~^2",       0,  0, 0x10,            0x14,           -1,0);
 
-  TEST_LIST("lock,nproc,private,fakeinit,hide,ulimit,nspace,hard,prio,pause,mem,uptime,setup,init",
+  TEST_LIST("lock,nproc,private,fakeinit,hideinfo,ulimit,namespace,hard,prio,pause,mem,uptime,cpu,hidemount,hidenetif,setup,init",
 	    0, 0,
 	    VC_VXF_INFO_LOCK|VC_VXF_INFO_NPROC|VC_VXF_INFO_PRIVATE|VC_VXF_INFO_INIT|
-	    VC_VXF_INFO_HIDE|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NSPACE|
+	    VC_VXF_INFO_HIDEINFO|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NAMESPACE|
 	    VC_VXF_SCHED_HARD|VC_VXF_SCHED_PRIO|VC_VXF_SCHED_PAUSE|
-	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|
+	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|VC_VXF_VIRT_CPU|
+	    VC_VXF_HIDE_MOUNT|VC_VXF_HIDE_NETIF|
 	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT,
 
 	    VC_VXF_INFO_LOCK|VC_VXF_INFO_NPROC|VC_VXF_INFO_PRIVATE|VC_VXF_INFO_INIT|
-	    VC_VXF_INFO_HIDE|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NSPACE|
+	    VC_VXF_INFO_HIDEINFO|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NAMESPACE|
 	    VC_VXF_SCHED_HARD|VC_VXF_SCHED_PRIO|VC_VXF_SCHED_PAUSE|
-	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|
+	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|VC_VXF_VIRT_CPU|
+	    VC_VXF_HIDE_MOUNT|VC_VXF_HIDE_NETIF|
 	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT,
 
 	    -1,0);
 
-  TEST_LIST("~lock,~nproc,~private,~fakeinit,~hide,~ulimit,~nspace,~hard,~prio,~pause,~mem,~uptime,~setup,~init",
+  TEST_LIST("~lock,~nproc,~private,~fakeinit,~hideinfo,~ulimit,~namespace,~hard,~prio,~pause,~mem,~uptime,~cpu,~hidemount,~hidenetif,~setup,~init",
 	    0, 0,
 	    0,
 	    VC_VXF_INFO_LOCK|VC_VXF_INFO_NPROC|VC_VXF_INFO_PRIVATE|VC_VXF_INFO_INIT|
-	    VC_VXF_INFO_HIDE|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NSPACE|
+	    VC_VXF_INFO_HIDEINFO|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NAMESPACE|
 	    VC_VXF_SCHED_HARD|VC_VXF_SCHED_PRIO|VC_VXF_SCHED_PAUSE|
-	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|
+	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|VC_VXF_VIRT_CPU|
+	    VC_VXF_HIDE_MOUNT|VC_VXF_HIDE_NETIF|
 	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT,
 
 	    -1,0);
