@@ -1,0 +1,13 @@
+P(root) = 0
+G(root) = 0
+P(bar) = 501
+G(bar) = 501
+P(foo) = 500
+G(foo) = 500
+P(nobody) = (null)
+G(nobody) = (null)
+P(foo) = 500
+G(foo) = 500
+P(nobody) = (null)
+G(nobody) = (null)
+s_context: 49171 [ -16365]
