@@ -50,7 +50,7 @@ static int __NR_set_ipv4root_rev2;
 static int __NR_set_ipv4root_rev3;
 static int rev_ipv4root=0;
 
-#if (defined(__pic__) && defined(__i386)) || defined(__hppa__)
+#ifdef ENSC_SYSCALL_TRADITIONAL
 inline static int
 set_ipv4root_rev0(unsigned long ip)
 {
@@ -88,7 +88,7 @@ static int __NR_new_s_context_rev0;
   //static int __NR_new_s_context_rev1;
 static int rev_s_context=0;
 
-#if defined(__pic__) && defined(__i386)
+#ifdef ENSC_SYSCALL_TRADITIONAL
 inline static int
 new_s_context_rev0(int newctx, int remove_cap, int flags)
 {
