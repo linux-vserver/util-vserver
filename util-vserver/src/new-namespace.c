@@ -25,7 +25,6 @@
 #endif
 
 #include "util.h"
-#include "stack-start.h"
 #include "sys_clone.h"
 
 #include <sched.h>
