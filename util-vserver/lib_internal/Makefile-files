@@ -51,6 +51,7 @@ lib_internal_libinternal_a_SOURCES = \
 				lib_internal/pathinfo-append.c \
 				lib_internal/pathinfo-test.c \
 				lib_internal/string-destroy.c \
+				lib_internal/switchtowatchxid.c \
 				lib_internal/unify-copy.c \
 				lib_internal/unify-deunify.c \
 				lib_internal/unify-settime.c \
