@@ -59,8 +59,8 @@ vc_set_rlimit_v11(xid_t ctx, int resource, struct vc_rlimit const *lim)
 static inline ALWAYSINLINE int
 vc_get_rlimit_mask_v11(xid_t ctx, int UNUSED tmp, struct vc_rlimit_mask *lim)
 {
-  struct vcmd_ctx_rlimit_v0	vc_lim;
-  int				rc;
+  struct vcmd_ctx_rlimit_mask_v0	vc_lim;
+  int					rc;
 
   rc = vserver(VCMD_get_rlimit_mask, CTX_USER2KERNEL(ctx), &vc_lim);
 
