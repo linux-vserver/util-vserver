@@ -73,20 +73,20 @@ struct Arguments {
 
 static struct option const
 CMDLINE_OPTIONS[] = {
-  { "help",     no_argument,  0, CMD_HELP },
-  { "version",  no_argument,  0, CMD_VERSION },
-  { "xid",      required_argument, 0, 'x' },
-  { "set",      no_argument,       0, 's' },
-  { "get",      no_argument,       0, 'g' },
-  { "context",     no_argument, 0, CMD_UTSCONTEXT },
-  { "sysname",     no_argument, 0, CMD_UTSSYSNAME },
-  { "nodename",    no_argument, 0, CMD_UTSNODENAME },
-  { "release",     no_argument, 0, CMD_UTSRELEASE },
-  { "version",     no_argument, 0, CMD_UTSVERSION },
-  { "machine",     no_argument, 0, CMD_UTSMACHINE },
-  { "domainname" , no_argument, 0, CMD_UTSDOMAINNAME },
+  { "xid",         required_argument, 0, 'x' },
+  { "set",         no_argument,       0, 's' },
+  { "get",         no_argument,       0, 'g' },
+  { "context",     no_argument,       0, CMD_UTSCONTEXT },
+  { "sysname",     no_argument,       0, CMD_UTSSYSNAME },
+  { "nodename",    no_argument,       0, CMD_UTSNODENAME },
+  { "release",     no_argument,       0, CMD_UTSRELEASE },
+  { "ver",         no_argument,       0, CMD_UTSVERSION },
+  { "machine",     no_argument,       0, CMD_UTSMACHINE },
+  { "domainname" , no_argument,       0, CMD_UTSDOMAINNAME },
   { "dir",         required_argument, 0, CMD_DIR },
   { "missingok",   no_argument,       0, CMD_MISSINGOK },
+  { "help",        no_argument,       0, CMD_HELP },
+  { "version",     no_argument,       0, CMD_VERSION },
   { 0,0,0,0 }
 };
 
@@ -102,13 +102,19 @@ showHelp(int fd, char const *cmd, int res)
 	    "    or  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,	    
-	    "  -s  [--xid|x <xid>]  --<TAG> [--] <value>\n\n"
+	    "  -s  [--xid|x <xid>] (--dir <dir> [--missingok] [--])|(--<TAG> [--] <value>) [<command> <args>*]\n\n"
 	    " Options:\n"
-	    "   -x <xid>  ...  operate on this context (default: current one)\n"
-	    "   -g        ...  get and print the value\n"
-	    "   -s        ...  set the value\n\n"
+	    "   -x <xid>     ...  operate on this context (default: current one)\n"
+	    "   -g           ...  get and print the value\n"
+	    "   -s           ...  set the value\n\n"
+	    "   --dir <dir>  ...  read values from files in <dir>. These files must\n"
+	    "                     have a valid TAG as their name. An exception is that\n"
+	    "                     the 'ver' file must be named 'version'\n"
+	    "   --missingok  ...  do not fail when the <DIR> from '--dir' does not exist.\n"
+	    "\n"
 	    " Valid TAGs are:\n"
-	    "   context, sysname, nodename, release, version, machine, domainname\n\n"
+	    "   context, sysname, nodename, release, ver, machine, domainname\n"
+	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
