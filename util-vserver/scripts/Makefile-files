@@ -51,7 +51,8 @@ scripts_pkglib_src_DTA =	scripts/functions \
 
 scripts_pkglib_gen_DTA =	scripts/util-vserver-vars
 
-scripts_pkglib_src_SCRPTS =	scripts/vapt-get-worker \
+scripts_pkglib_src_SCRPTS =	scripts/pkgmgmt \
+				scripts/vapt-get-worker \
 				scripts/vpkg \
 				scripts/vrpm-worker \
 				scripts/vrpm-preload \
