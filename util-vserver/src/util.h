@@ -19,6 +19,8 @@
 #ifndef H_UTIL_VSERVER_SRC_UTIL_H
 #define H_UTIL_VSERVER_SRC_UTIL_H
 
+#include "compat.h"
+
 #include <unistd.h>
 #include <string.h>
 
@@ -32,13 +34,25 @@
   "the GNU General Public License.  This program has absolutely no warranty.\n"
 #endif
 
-inline static void
+#ifndef __cplusplus
+#  define cAsT_(X)              (X))
+#  define reinterpret_cast(X)   ((X) cAsT_
+#  define static_cast(X)        ((X) cAsT_
+#  define const_cast(X)         ((X) cAsT_
+#else   /* __cplusplus */
+#  define reinterpret_cast(X)   reinterpret_cast<X>
+#  define static_cast(X)        static_cast<X>
+#  define const_cast(X)         const_cast<X>
+#endif
+
+
+inline static void UNUSED
 writeStr(int fd, char const *cmd)
 {
   (void)write(fd, cmd, strlen(cmd));
 }
 
-#define WRITE_MSG(FD,X)		(void)(write(FD,X,sizeof(X)))
+#define WRITE_MSG(FD,X)		(void)(write(FD,X,sizeof(X)-1))
 #define WRITE_STR(FD,X)		writeStr(FD,X)
 
 #endif	//  H_UTIL_VSERVER_SRC_UTIL_H
