@@ -16,8 +16,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifndef H_UTIL_VSERVER_SRC_COMPAT_H
-#define H_UTIL_VSERVER_SRC_COMPAT_H
+#ifndef H_UTIL_VSERVER_COMPAT_H
+#define H_UTIL_VSERVER_COMPAT_H
 
 #if defined(__GNUC__)
 #  define UNUSED                __attribute__((__unused__))
@@ -33,4 +33,13 @@
 #  define ALWAYSINLINE
 #endif
 
-#endif	//  H_UTIL_VSERVER_SRC_COMPAT_H
+#if !defined(HAVE_DECL_MS_MOVE) || !(HAVE_DECL_MS_MOVE)
+  // from <linux/fs.h>
+#  define MS_MOVE		8192
+#endif
+
+#ifndef HAVE_CTX_T
+typedef short int		ctx_t;
+#endif
+
+#endif	//  H_UTIL_VSERVER_COMPAT_H
