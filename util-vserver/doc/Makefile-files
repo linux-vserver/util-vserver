@@ -27,6 +27,7 @@ doc_gen_DOCS =			doc/configuration.html \
 
 doc_configuration_SRCS =	doc/configuration.xml \
 				doc/configuration.xsd \
+				doc/configuration.dtd \
 				doc/configuration.css \
 				doc/configuration-xhtml.xsl
 
@@ -53,6 +54,15 @@ doc_doc:			$(doc_gen_DOCS)
 if HAVE_XSLTP
 CLEANFILES +=			$(doc_gen_DOCS)
 %.html:				%.xml $(STYLESHEET)
+				@-rm -f '$@.tmp' '$@'
 				LANG=C $(XSLTP) $(XSLTP_AMFLAGS) -in '$<' -xsl $(STYLESHEET) -out '$@.tmp'
 				@mv -f '$@.tmp' '$@'
-endif
+else !HAVE_XSLTP
+if HAVE_XSLTPROC
+CLEANFILES +=			$(doc_gen_DOCS)
+%.html:				%.xml $(STYLESHEET)
+				@-rm -f '$@.tmp' '$@'
+				$(XSLTPROC) $(XSLT_FLAGS) $(XSLT_AMFLAGS) -o '$@.tmp' "$(STYLESHEET)" "$<"
+				@mv -f '$@.tmp' '$@'
+endif  HAVE_XSLTPROC
+endif !HAVE_XSLTP
