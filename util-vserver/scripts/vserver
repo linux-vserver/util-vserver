@@ -112,25 +112,29 @@ function restart()
 
 set +e
 
-tmp=$(getopt -o +sv --long help,debug,version,sync,verbose,silent -n "$0" -- "$@") || exit 1
+OPTIONS_ORIG=( "$@" )
+tmp=$(getopt -o +sv --long nonamespace,--nonamespace,help,debug,version,sync,verbose,silent -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 OPTION_FORCE_SYNC=
 OPTION_VERBOSE=
 OPTION_SILENT=
 OPTION_DEBUG=
+OPTION_NONAMESPACE=
 
 while true; do
     case "$1" in
 	--help)    	showHelp $0 ;;
 	--version) 	showVersion ;;
-	--debug)	OPTION_DEBUG=$1; set -x; shift;;
-	-v|--verbose)	OPTION_VERBOSE=$1;    shift;;
-	-s|--sync) 	OPTION_FORCE_SYNC=$1; shift;;
-	--silent)       OPTION_SILENT=$1;     shift;;
+	--debug)	OPTION_DEBUG=$1; set -x;;
+	-v|--verbose)	OPTION_VERBOSE=$1;;
+	-s|--sync) 	OPTION_FORCE_SYNC=$1;;
+	--silent) 	OPTION_SILENT=$1;;
+	----nonamespace)OPTION_NONAMESPACE=$1;;
 	--)	   	shift; break;;
 	*)	   	echo $"vserver: internal error; arg=='$1'"; exit 1;;
     esac
+    shift
 done
 
 OPTION_ALL=( $OPTION_SILENT $OPTION_VERBOSE $OPTION_DEBUG )
@@ -173,6 +177,9 @@ if test -e "$VSERVER_DIR"/name; then
 else
     VSERVER_NAME=$(basename "$VSERVER_DIR")
 fi
+
+test "$2" != start -o -e "$VSERVER_DIR"/nonamespace -o "$OPTION_NONAMESPACE" || \
+    exec $_NEW_NAMESPACE "$0" ----nonamespace "${OPTIONS_ORIG[@]}"
 
 . $PKGLIBDIR/vserver.functions
 case "$2" in

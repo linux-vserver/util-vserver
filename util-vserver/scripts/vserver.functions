@@ -439,6 +439,7 @@ function generateOptions
 function mountVserver
 {
     local cfgdir=$1
+    local ns_opt=$2
     local vdir=$1/vdir
     local mtab_src
 
@@ -453,6 +454,9 @@ function mountVserver
     test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$cfgdir"
     $_CHBIND "${CHBIND_OPTS[@]}" \
 	$_SECURE_MOUNT -a --chroot "$vdir" --fstab "$cfgdir"/fstab
+
+    test -e "$cfgdir"/nonamespace || \
+	$_SECURE_MOUNT --rbind -n "$vdir" "/"
 }
 
 function umountVserver
@@ -462,8 +466,9 @@ function umountVserver
 
     is_ok=1
 
-    test -e "$cfgdir"/fstab || return 0
-    test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$cfgdir"
+    test -e "$cfgdir"/nonamespace || return 0
+    test -e "$cfgdir"/fstab       || return 0
+    test "$_HAVE_CHBIND_OPTIONS"  || _generateChbindOptions "$cfgdir"
     
     pushd "$vdir/" >/dev/null
     tac "$cfgdir"/fstab | while read src dst tmp; do

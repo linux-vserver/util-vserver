@@ -28,7 +28,6 @@ enableInterfaces "$VSERVER_DIR"
 mountVserver "$VSERVER_DIR"
 prepareInit  "$VSERVER_DIR"
 
-
 cd "$VSERVER_DIR"/vdir/
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" pre-start
 
