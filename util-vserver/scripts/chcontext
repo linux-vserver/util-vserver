@@ -131,16 +131,18 @@ done
 
 create_cmd=( $_VCONTEXT --create
 	     ${OPT_SILENT:+--silent}
-	     ${OPT_CTX:+--xid "$OPT_CTX"} )
+	     ${OPT_CTX:+--xid "$OPT_CTX"}
+	     -- )
 
 chain_cmd=(  $_VATTRIBUTE -s
 	     ${OPT_CAPS:+--cap "${OPT_CAPS[@]}"}
    	     ${OPT_FLAGS:+--flag "${OPT_FLAGS[@]}"}
 	     ${OPT_SECURE:+--secure}
-	    
+	     --
              $_VUNAME -s
 	     ${OPT_DOMAINNAME:+--domainname "$OPT_DOMAINNAME"}
-	     ${OPT_HOSTNAME:+--nodename "$OPT_HOSTNAME"} )
+	     ${OPT_HOSTNAME:+--nodename "$OPT_HOSTNAME"}
+	     -- )
 
 migrate_cmd=( $_VCONTEXT --migrate-self
 	      ${OPT_SILENT:+--silent}
