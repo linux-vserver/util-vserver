@@ -673,19 +673,19 @@ extern "C" {
 
   /** Add a disk limit to a file system. */
   int		vc_add_dlimit(char const *filename, xid_t xid,
-			      uint_least32_t flags);
+			      uint_least32_t flags) VC_ATTR_NONNULL((1));
   /** Remove a disk limit from a file system. */
   int		vc_rem_dlimit(char const *filename, xid_t xid,
-			      uint_least32_t flags);
+			      uint_least32_t flags) VC_ATTR_NONNULL((1));
 
   /** Set a disk limit. */
   int		vc_set_dlimit(char const *filename, xid_t xid,
 			      uint_least32_t flags,
-			      struct vc_ctx_dlimit const *limits);
+			      struct vc_ctx_dlimit const *limits) VC_ATTR_NONNULL((1,4));
   /** Get a disk limit. */
   int		vc_get_dlimit(char const *filename, xid_t xid,
 			      uint_least32_t flags,
-			      struct vc_ctx_dlimit *limits);
+			      struct vc_ctx_dlimit *limits) VC_ATTR_NONNULL((1));
   
     
   typedef enum { vcFEATURE_VKILL,  vcFEATURE_IATTR,   vcFEATURE_RLIMIT,
