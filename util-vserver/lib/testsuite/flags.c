@@ -101,17 +101,17 @@ int main()
 
   //-------
 
-  TEST_T2F("fakeinit", 0, S_CTX_INFO_INIT);
+  TEST_T2F("fakeinit", 0, VC_VXF_INFO_INIT);
   TEST_T2F("XXX",      0, 0);
   TEST_T2F("",         0, 0);
   
-  TEST_F2T("fakeinit", S_CTX_INFO_INIT);
+  TEST_F2T("fakeinit", VC_VXF_INFO_INIT);
   TEST_F2T(0,          0);
 
-  TEST_LIST("fakeinit",     0,  0, S_CTX_INFO_INIT, S_CTX_INFO_INIT,-1,0);
-  TEST_LIST("~fakeinit",    0,  0, 0,               S_CTX_INFO_INIT,-1,0);
-  TEST_LIST("!fakeinit",    0,  0, 0,               S_CTX_INFO_INIT,-1,0);
-  TEST_LIST("fakeinit,XXX", 0, -1, S_CTX_INFO_INIT, S_CTX_INFO_INIT, 9,3);
+  TEST_LIST("fakeinit",     0,  0, VC_VXF_INFO_INIT, VC_VXF_INFO_INIT,-1,0);
+  TEST_LIST("~fakeinit",    0,  0, 0,               VC_VXF_INFO_INIT,-1,0);
+  TEST_LIST("!fakeinit",    0,  0, 0,               VC_VXF_INFO_INIT,-1,0);
+  TEST_LIST("fakeinit,XXX", 0, -1, VC_VXF_INFO_INIT, VC_VXF_INFO_INIT, 9,3);
   TEST_LIST("",             0,  0, 0,               0,              -1,0);
   TEST_LIST("X",            0, -1, 0,               0,               0,1);
   TEST_LIST("all",          0,  0, ALL64,           ALL64,          -1,0);
@@ -120,17 +120,47 @@ int main()
   TEST_LIST("ANY",          0,  0, ALL64,           ALL64,          -1,0);
   TEST_LIST("~all",         0,  0, 0,               ALL64,          -1,0);
   TEST_LIST("~ALL",         0,  0, 0,               ALL64,          -1,0);
-  TEST_LIST("all,~fakeinit",0,  0, ~S_CTX_INFO_INIT,ALL64,          -1,0);
-  TEST_LIST("~all,fakeinit",0,  0, S_CTX_INFO_INIT, ALL64,          -1,0);
+  TEST_LIST("all,~fakeinit",0,  0, ~VC_VXF_INFO_INIT,ALL64,          -1,0);
+  TEST_LIST("~all,fakeinit",0,  0, VC_VXF_INFO_INIT, ALL64,          -1,0);
   TEST_LIST("fakeinit,~all",0,  0, 0,               ALL64,          -1,0);
   TEST_LIST("~",            0, -1, 0,               0,               1,0);
-  TEST_LIST("fakeinit,~",   0, -1, S_CTX_INFO_INIT, S_CTX_INFO_INIT,10,0);
+  TEST_LIST("fakeinit,~",   0, -1, VC_VXF_INFO_INIT, VC_VXF_INFO_INIT,10,0);
   TEST_LIST("1",            0,  0, 1,               1,              -1,0);
   TEST_LIST("1,23,42",      0,  0, 1|23|42,         1|23|42,        -1,0);
   TEST_LIST("~1",           0,  0, 0,               1,              -1,0);
-  TEST_LIST("42,fakeinit",  0,  0, S_CTX_INFO_INIT|42, S_CTX_INFO_INIT|42, -1,0);
+  TEST_LIST("42,fakeinit",  0,  0, VC_VXF_INFO_INIT|42, VC_VXF_INFO_INIT|42, -1,0);
   TEST_LIST("42x,1",        0, -1, 0,               0,               0,3);
+
+  TEST_LIST("^4,~^2",       0,  0, 0x10,            0x14,           -1,0);
+
+  TEST_LIST("lock,nproc,private,fakeinit,hide,ulimit,nspace,hard,prio,pause,mem,uptime,setup,init",
+	    0, 0,
+	    VC_VXF_INFO_LOCK|VC_VXF_INFO_NPROC|VC_VXF_INFO_PRIVATE|VC_VXF_INFO_INIT|
+	    VC_VXF_INFO_HIDE|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NSPACE|
+	    VC_VXF_SCHED_HARD|VC_VXF_SCHED_PRIO|VC_VXF_SCHED_PAUSE|
+	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|
+	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT,
+
+	    VC_VXF_INFO_LOCK|VC_VXF_INFO_NPROC|VC_VXF_INFO_PRIVATE|VC_VXF_INFO_INIT|
+	    VC_VXF_INFO_HIDE|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NSPACE|
+	    VC_VXF_SCHED_HARD|VC_VXF_SCHED_PRIO|VC_VXF_SCHED_PAUSE|
+	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|
+	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT,
+
+	    -1,0);
+
+  TEST_LIST("~lock,~nproc,~private,~fakeinit,~hide,~ulimit,~nspace,~hard,~prio,~pause,~mem,~uptime,~setup,~init",
+	    0, 0,
+	    0,
+	    VC_VXF_INFO_LOCK|VC_VXF_INFO_NPROC|VC_VXF_INFO_PRIVATE|VC_VXF_INFO_INIT|
+	    VC_VXF_INFO_HIDE|VC_VXF_INFO_ULIMIT|VC_VXF_INFO_NSPACE|
+	    VC_VXF_SCHED_HARD|VC_VXF_SCHED_PRIO|VC_VXF_SCHED_PAUSE|
+	    VC_VXF_VIRT_MEM|VC_VXF_VIRT_UPTIME|
+	    VC_VXF_STATE_SETUP|VC_VXF_STATE_INIT,
+
+	    -1,0);
   
+	    
   return 0;
 }
 
