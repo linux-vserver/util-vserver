@@ -63,6 +63,9 @@ int rpm_execcon(unsigned int verified,
 #define ENSC_WRAPPERS_UNISTD	1
 #include <wrappers.h>
 
+#undef _POSIX_SOURCE
+#include "capability-compat.h"
+
 #ifndef CLONE_NEWNS
 #  define CLONE_NEWNS	0x00020000
 #endif
@@ -73,11 +76,13 @@ int rpm_execcon(unsigned int verified,
 #define INIT(FILE,FUNC)	FUNC##_func = ((__typeof__(FUNC) *) (xdlsym(FILE, #FUNC)))
 #define DECLARE(FUNC)	static __typeof__(FUNC) *	FUNC##_func = 0
 
+#define DEBUG 1
 
 #define DBG_INIT	0x0001
 #define DBG_VARIABLES	0x0002
 #define DBG_RESOLVER	0x0004
 #define DBG_EXECV	0x0008
+#define DBG_ENV		0x0010
 #define DBG_VERBOSE0	0x8000
 #define DBG_VERBOSE1	(0x4000 | DBG_VERBOSE0)
 #define DBG_VERBOSE2	(0x2000 | DBG_VERBOSE1)
@@ -164,17 +169,72 @@ showVersion()
   exit(0);
 }
 
+static void
+unsetPreloadEnv()
+{
+  char			*env = getenv("LD_PRELOAD");
+  char			*pos;
+
+    // the const <-> non-const assignment is not an issue since the following
+    // modifying operations will not be executed in the const-case
+  env = env ? env : "";
+  pos = strstr(env, LIBNAME);
+
+  if (pos!=0) {
+    char	*end_pos = pos + sizeof(LIBNAME);
+    bool	is_end = (end_pos[-1]=='\0');
+    char	*start_pos;
+
+    end_pos[-1] = '\0';
+    start_pos   = strrchr(env, ':');
+    if (start_pos==0) start_pos = env;
+    else if (!is_end) ++start_pos;
+
+    if (is_end) *start_pos = '\0';
+    else        memmove(start_pos, end_pos, strlen(end_pos)+1);
+  }
+
+#ifdef DEBUG
+  if (isDbgLevel(DBG_VERBOSE1|DBG_VARIABLES)) {
+    WRITE_MSG(2, "env='");
+    WRITE_STR(2, env);
+    WRITE_MSG(2, "'\n");
+  }
+#endif
+
+  if (*env=='\0') unsetenv("LD_PRELOAD");
+}
+
+static void
+clearEnv()
+{
+  if (isDbgLevel(DBG_ENV)) WRITE_MSG(2, "clearEnv()\n");
+  
+  unsetenv("RPM_FAKE_S_CONTEXT_REV");
+  unsetenv("RPM_FAKE_S_CONTEXT_NR");
+  unsetenv("RPM_FAKE_CTX");
+  unsetenv("RPM_FAKE_FLAGS");
+  unsetenv("RPM_FAKE_CHROOT");
+  unsetenv("RPM_FAKE_NAMESPACE_MOUNTS");
+
+  unsetenv("RPM_FAKE_RESOLVER_GID");
+  unsetenv("RPM_FAKE_RESOLVER_UID");
+  unsetenv("RPM_FAKE_RESOLVER");    
+  unsetenv("RPM_FAKE_PWSOCKET");
+
+  unsetenv("RPM_FAKE_DEBUG");
+
+  unsetPreloadEnv();
+}
+
 static int
-getAndClearEnv(char const *key, int dflt)
+getDefaultEnv(char const *key, int dflt)
 {
   char		*env = getenv(key);
   int		res;
 
   if (env==0 || env[0]=='\0') res = dflt;
-  else {
-    res = atoi(env);
-    unsetenv(key);
-  }
+  else                        res = atoi(env);
 
   return res;
 }
@@ -253,7 +313,6 @@ initPwSocket()
       exit(255);
     }
   }
-  unsetenv("RPM_FAKE_PWSOCKET");
 }
 #else
 static void
@@ -293,6 +352,8 @@ initPwSocket()
       char const	*xid_str;
       char		flag_str[ sizeof(flags)*3 + 2];
       char		caps_str[ sizeof(caps)*3  + 2];
+
+      clearEnv();
       
       setsid();
       dup2(res_sock[1],  0);
@@ -347,13 +408,33 @@ initPwSocket()
 	exit(255);
       }
     }
-
-    unsetenv("RPM_FAKE_RESOLVER_GID");
-    unsetenv("RPM_FAKE_RESOLVER_UID");
-    unsetenv("RPM_FAKE_RESOLVER");    
   }
 }
 #endif
+
+static void
+reduceCapabilities()
+{
+  struct __user_cap_header_struct header;
+  struct __user_cap_data_struct user;
+  
+  header.version = _LINUX_CAPABILITY_VERSION;
+  header.pid     = 0;
+
+  if (capget(&header, &user)==-1) {
+    perror("capget()");
+    exit(wrapper_exit_code);
+  }
+
+  user.effective   &= ~(1<<CAP_MKNOD);
+  user.permitted   &= ~(1<<CAP_MKNOD);
+  user.inheritable &= ~(1<<CAP_MKNOD);
+
+  if (capset(&header, &user)==-1) {
+    perror("capset()");
+    exit(wrapper_exit_code);
+  }
+}
 
 static void
 initEnvironment()
@@ -363,8 +444,8 @@ initEnvironment()
   
   if (is_initialized) return;
 
-  syscall_rev = getAndClearEnv("RPM_FAKE_S_CONTEXT_REV", 0);
-  syscall_nr  = getAndClearEnv("RPM_FAKE_S_CONTEXT_NR",  273);
+  syscall_rev = getDefaultEnv("RPM_FAKE_S_CONTEXT_REV", 0);
+  syscall_nr  = getDefaultEnv("RPM_FAKE_S_CONTEXT_NR",  273);
   
 #ifdef VC_ENABLE_API_LEGACY
   {
@@ -375,17 +456,19 @@ initEnvironment()
   }
 #endif
 
-  ctx       = getAndClearEnv("RPM_FAKE_CTX",  VC_DYNAMIC_XID);
-  caps      = getAndClearEnv("RPM_FAKE_CAP",  ~0x3404040f);
-  flags     = getAndClearEnv("RPM_FAKE_FLAGS", 0);
+  ctx       = getDefaultEnv("RPM_FAKE_CTX",  VC_DYNAMIC_XID);
+  caps      = getDefaultEnv("RPM_FAKE_CAP",  ~0x3404040f);
+  flags     = getDefaultEnv("RPM_FAKE_FLAGS", 0);
   root      = getenv("RPM_FAKE_CHROOT");
   mnts      = getenv("RPM_FAKE_NAMESPACE_MOUNTS");
   if (mnts && *mnts) mnts = strdup(mnts);
   else               mnts = 0;
 
-  unsetenv("RPM_FAKE_CHROOT");
-  unsetenv("RPM_FAKE_NAMESPACE_MOUNTS");
-
+#if DEBUG
+  if (isDbgLevel(DBG_VERBOSE1))
+    dprintf(2, "ctx=%u, caps=%016x, flags=%016x,\nroot='%s',\nmnts='%s'\n",
+	    ctx, caps, flags, root, mnts);
+#endif
   
   is_initialized = true;
 }
@@ -401,53 +484,17 @@ initSymbols()
   INIT(RTLD_NEXT, endgrent);
 }
 
-static void
-fixPreloadEnv()
-{
-  char			*env = getenv("LD_PRELOAD");
-  char			*pos;
-
-    // the const <-> non-const assignment is not an issue since the following
-    // modifying operations will not be executed in the const-case
-  env = env ? env : "";
-  pos = strstr(env, LIBNAME);
-
-  if (pos!=0) {
-    char	*end_pos = pos + sizeof(LIBNAME);
-    bool	is_end = (end_pos[-1]=='\0');
-    char	*start_pos;
-
-    end_pos[-1] = '\0';
-    start_pos   = strrchr(env, ':');
-    if (start_pos==0) start_pos = env;
-    else if (!is_end) ++start_pos;
-
-    if (is_end) *start_pos = '\0';
-    else        memmove(start_pos, end_pos, strlen(end_pos)+1);
-  }
-
-#ifdef DEBUG
-  if (isDbgLevel(DBG_VERBOSE1|DBG_VARIABLES)) {
-    WRITE_MSG(2, "env='");
-    WRITE_STR(2, env);
-    WRITE_MSG(2, "'\n");
-  }
-#endif
-
-  if (*env=='\0') unsetenv("LD_PRELOAD");
-}
-
 void
 initRPMFake()
 {
   if (getenv("RPM_FAKE_VERSION")) showVersion();
   if (getenv("RPM_FAKE_HELP"))    showHelp();
   
-  debug_level = getAndClearEnv("RPM_FAKE_DEBUG", 0);
+  debug_level = getDefaultEnv("RPM_FAKE_DEBUG", 0);
 
   if (isDbgLevel(DBG_INIT)) WRITE_MSG(2, ">>>>> initRPMFake <<<<<\n");
   
-  fixPreloadEnv();
+  reduceCapabilities();
   initSymbols();
   initEnvironment();
   initPwSocket();
@@ -550,12 +597,15 @@ execvWorker(char const *path, char * const argv[], char * const envp[])
 
   if (vc_isSupported(vcFEATURE_MIGRATE))
     res = vc_ctx_migrate(ctx);
-  else
+  else {
 #ifdef VC_ENABLE_API_COMPAT  
     res = vc_new_s_context(ctx,caps,flags);
 #else
     WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "can not change context: migrate kernel feature missing and 'compat' API disabled\n");
 #endif
+  }
+
+  clearEnv();    
     
   if (res!=-1)
     res=execve(path, argv, envp);
@@ -643,6 +693,12 @@ execv(char const *path, char * const argv[])
 {
   extern char **environ;
 
+  if (isDbgLevel(DBG_EXECV)) {
+    WRITE_MSG(2, "execv('");
+    WRITE_STR(2, path);
+    WRITE_MSG(2, "', ...)\n");
+  }
+
   return removeNamespaceMounts(path, argv, environ);
 }
 
@@ -651,5 +707,11 @@ rpm_execcon(unsigned int UNUSED verified,
 	    const char *filename,
 	    char *const argv[], char *const envp[])
 {
+  if (isDbgLevel(DBG_EXECV)) {
+    WRITE_MSG(2, "rpm_execcon(..., '");
+    WRITE_STR(2, filename);
+    WRITE_MSG(2, "', ...)\n");
+  }
+
   return removeNamespaceMounts(filename, argv, envp);
 }
