@@ -97,22 +97,22 @@ static bool
 checkFstat(struct MatchList const * const mlist,
 	   PathInfo const * const  basename,
 	   PathInfo const * const  path,
-	   struct stat const ** const result, struct stat * const result_buf)
+	   struct stat const ** const dst_fstat, struct stat * const dst_fstat_buf,
+	   struct stat * const src_fstat)
 {
   assert(basename->d[0] != '/');
 
-  if (*result==0) {
+  if (*dst_fstat==0) {
     // local file does not exist... strange
     // TODO: message
     skip_reason.r = rsFSTAT;
-    if (lstat(basename->d, result_buf)==-1) return false;
-    *result = result_buf;
+    if (lstat(basename->d, dst_fstat_buf)==-1) return false;
+    *dst_fstat = dst_fstat_buf;
   }
 
-  assert(*result!=0);
+  assert(*dst_fstat!=0);
   
   {
-    struct stat		src_fstat;
     PathInfo		src_path = mlist->root;
     char		src_path_buf[ENSC_PI_APPSZ(src_path, *path)];
 
@@ -120,15 +120,15 @@ checkFstat(struct MatchList const * const mlist,
 
     // source file does not exist
     skip_reason.r = rsNOEXISTS;
-    if (lstat(src_path.d, &src_fstat)==-1) return false;
+    if (lstat(src_path.d, src_fstat)==-1) return false;
 
     // these are directories; this succeeds everytime
-    if (S_ISDIR((*result)->st_mode) && S_ISDIR(src_fstat.st_mode)) return true;
+    if (S_ISDIR((*dst_fstat)->st_mode) && S_ISDIR(src_fstat->st_mode)) return true;
 
     // both files are different, so return false
     skip_reason.r = rsDIFFERENT;
-    if ((!global_args->do_revert && !compareUnify(*result, &src_fstat)) ||
-	( global_args->do_revert && !compareDeUnify(*result, &src_fstat)))
+    if ((!global_args->do_revert && !compareUnify  (*dst_fstat, src_fstat)) ||
+	( global_args->do_revert && !compareDeUnify(*dst_fstat, src_fstat)))
       return false;
   }
 
@@ -138,7 +138,8 @@ checkFstat(struct MatchList const * const mlist,
 
 static struct MatchList const *
 checkDirEntry(PathInfo const *path,
-	      PathInfo const *d_path, bool *is_dir, struct stat *f_stat)
+	      PathInfo const *d_path, bool *is_dir,
+	      struct stat *src_stat, struct stat *dst_stat)
 {
   struct WalkdownInfo const * const	info     = &global_info;
   struct MatchList const *		mlist;
@@ -157,20 +158,24 @@ checkDirEntry(PathInfo const *path,
     skip_reason.r      = rsEXCL_SRC;
     skip_reason.d.list = mlist;
     if (MatchList_compare(mlist, path->d) &&
-	checkFstat(mlist, d_path, path, &cache_stat, f_stat)) {
+	checkFstat(mlist, d_path, path, &cache_stat, dst_stat, src_stat)) {
 
       // Failed the check or is it a symlink which can not be handled
       if (cache_stat==0) return 0;
 
       skip_reason.r = rsSYMLINK;
-      if (S_ISLNK(f_stat->st_mode)) return 0;
+      if (S_ISLNK(dst_stat->st_mode)) return 0;
+
+      skip_reason.r = rsSPECIAL;
+      if (!S_ISREG(dst_stat->st_mode) &&
+	  !S_ISDIR(dst_stat->st_mode)) return 0;
       
-      *is_dir = S_ISDIR(f_stat->st_mode);
+      *is_dir = S_ISDIR(dst_stat->st_mode);
       return mlist;
     }
     else if (cache_stat!=0 && !global_args->do_revert &&
 	     skip_reason.r == rsDIFFERENT &&
-	     compareDeUnify(cache_stat, f_stat)) {
+	     compareDeUnify(cache_stat, src_stat)) {
       skip_reason.r      = rsUNIFIED;
       skip_reason.d.list = mlist;
       return 0;
@@ -224,8 +229,9 @@ EsafeChdir(char const *path, struct stat const *exp_stat)
 #include "vunify-doit.ic"
 
 static bool
-doit(struct MatchList const *mlist, PathInfo const *src_path,
-     char const *dst_path)
+doit(struct MatchList const *mlist,
+     PathInfo const *src_path, struct stat const *src_stat,
+     char const *dst_path,     struct stat const *dst_stat)
 {
   PathInfo	path = mlist->root;
   char		path_buf[ENSC_PI_APPSZ(path, *src_path)];
@@ -250,8 +256,8 @@ doit(struct MatchList const *mlist, PathInfo const *src_path,
   
   PathInfo_append(&path, src_path, path_buf);
   return (global_args->do_dry_run ||
-	  (!global_args->do_revert && doitUnify(path.d, dst_path)) ||
-	  ( global_args->do_revert && doitDeUnify(path.d, dst_path)));
+	  (!global_args->do_revert && doitUnify(  path.d, src_stat, dst_path, dst_stat)) ||
+	  ( global_args->do_revert && doitDeUnify(path.d, src_stat, dst_path, dst_stat)));
 }
 
 static void
@@ -283,6 +289,7 @@ printSkipReason()
     case rsFSTAT	:  WRITE_MSG(1, "fstat error"); break;
     case rsNOEXISTS	:  WRITE_MSG(1, "does not exists in refserver(s)"); break;
     case rsSYMLINK	:  WRITE_MSG(1, "symlink"); break;
+    case rsSPECIAL	:  WRITE_MSG(1, "non regular file"); break;
     case rsUNIFIED	:  WRITE_MSG(1, "already unified"); break;
     case rsDIFFERENT	:  WRITE_MSG(1, "different"); break;
     default		:  assert(false); abort();
@@ -304,6 +311,7 @@ visitDirEntry(struct dirent const *ent)
   };
   char				path_buf[ENSC_PI_APPSZ(path, d_path)];
   bool				is_dotfile;
+  struct stat			src_stat;
 
   PathInfo_append(&path, &d_path, path_buf);
 
@@ -313,7 +321,7 @@ visitDirEntry(struct dirent const *ent)
   skip_reason.r = rsDOTFILE;
 
   if (is_dotfile ||
-      (match=checkDirEntry(&path, &d_path, &is_dir, &f_stat))==0) {
+      (match=checkDirEntry(&path, &d_path, &is_dir, &src_stat, &f_stat))==0) {
     bool	is_link = is_dotfile ? false : S_ISLNK(f_stat.st_mode);
     
     if (global_args->verbosity>1 &&
@@ -335,7 +343,7 @@ visitDirEntry(struct dirent const *ent)
       updateSkipDepth(&path, false);
     }
   }
-  else if (!doit(match, &path, dirname)) {
+  else if (!doit(match, &path, &src_stat, dirname, &f_stat)) {
       // TODO: message
   }
 }
