@@ -201,7 +201,7 @@ int main (int argc, char *argv[])
 						int fd = sockets[i];
 						if (FD_ISSET(fd,&fdin)){
 							struct sockaddr_un unc;
-							size_t len = sizeof(unc);
+							socklen_t len = sizeof(unc);
 							unc.sun_family = AF_UNIX;
 							fd = accept (fd,(struct sockaddr*)&unc,&len);
 							if (fd != -1){
