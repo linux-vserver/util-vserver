@@ -113,10 +113,6 @@ lib_SRCS =  			lib/syscall.c \
 				lib/isdirectory.c \
 				lib/getnbipv4root.c \
 				lib/getversion.c \
-				lib/fmt-32.c \
-				lib/fmt-64.c \
-				lib/fmtx-32.c \
-				lib/fmtx-64.c \
 				lib/capabilities.c \
 				lib/getinsecurebcaps.c \
 				lib/isdynamicxid.c \
@@ -133,7 +129,8 @@ lib_SRCS =  			lib/syscall.c \
 				$(lib_compat_SRCS) \
 				$(lib_management_SRCS) \
 				$(lib_v11_SRCS) \
-				$(lib_v13_SRCS)
+				$(lib_v13_SRCS) \
+				$(ensc_fmt_SRCS)
 
 include_HEADERS +=		lib/vserver.h
 
@@ -141,6 +138,7 @@ noinst_HEADERS +=		lib/syscall-compat.hc \
 	 			lib/syscall-legacy.hc \
 				lib/createskeleton-full.hc \
 				lib/createskeleton-short.hc \
+				lib/fmt.h \
 				lib/getversion-internal.hc \
 				lib/safechroot-internal.hc \
 				lib/ioctl-getext2flags.hc \
@@ -150,10 +148,6 @@ noinst_HEADERS +=		lib/syscall-compat.hc \
 				lib/ioctl-getxflg.hc \
 				lib/ioctl-setxflg.hc \
 				lib/ext2fs.h \
-				lib/fmt.h \
-				lib/fmt.hc \
-				lib/fmtx.hc \
-				lib/fmt-internal.h \
 				lib/listparser.hc \
 				lib/val2text.hc \
 				lib/virtual.h \
@@ -164,7 +158,7 @@ noinst_HEADERS +=		lib/syscall-compat.hc \
 lib_LTLIBRARIES +=		lib/libvserver.la
 
 lib_libvserver_la_SOURCES =  	$(lib_SRCS)
-lib_libvserver_la_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -D_REENTRANT -D_GNU_SOURCE
+lib_libvserver_la_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS)
 lib_libvserver_la_LDFLAGS =	-version $(lib_VERSION)
 
 DIETPROGS +=			lib/lib_libvserver_la-% \
