@@ -7,12 +7,14 @@ chbind
 chcontext
 chroot-cat
 chroot-rm
+chxid
 exec-cd
 exec-ulimit
 fakerunlevel
 filetime
 ifspec
 listdevip
+lsxid
 mask2prefix
 new-namespace
 parserpmdump
@@ -24,6 +26,7 @@ rpm-fake-resolver
 rpm-fake.la
 save_ctxinfo
 secure-mount
+setattr
 setctxlimit
 showattr
 showperm
