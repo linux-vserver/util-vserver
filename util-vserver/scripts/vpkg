@@ -55,6 +55,8 @@ function guessStyle()
 	style=redhat
     elif test -e "$vdir"/etc/mandrake-release; then
 	style=mandrake
+    elif test -e "$vdir"/etc/debian_version; then
+	style=debian
     else
 	echo $"Can not determine packagemanagement style" >&2
     fi
@@ -134,6 +136,9 @@ case "$style" in
 		cmd=( "$_VSERVER" --silent "$vserver" exec rpm "${rpm_param[@]}" )
 	    fi
 	fi
+	;;
+    (debian)
+	exit 1
 	;;
 esac
 
