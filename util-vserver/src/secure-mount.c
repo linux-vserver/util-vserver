@@ -549,15 +549,16 @@ int main(int argc, char *argv[])
   };
 
   struct Options	opt = {
-    .mtab        = "/etc/mtab",
-    .fstab       = "/etc/fstab",
-    .rootdir     = 0,
-    .ignore_mtab = false,
-    .mount_all   = false,
-    .is_secure   = false,
-
-    .cur_rootdir_fd = open("/", O_RDONLY|O_DIRECTORY)
+    .mtab           = "/etc/mtab",
+    .fstab          = "/etc/fstab",
+    .rootdir        = 0,
+    .ignore_mtab    = false,
+    .mount_all      = false,
+    .is_secure      = false,
+    .cur_rootdir_fd = -1
   };
+
+  opt.cur_rootdir_fd = open("/", O_RDONLY|O_DIRECTORY);
 
   if (opt.cur_rootdir_fd==-1) {
     perror("open(\"/\")");
