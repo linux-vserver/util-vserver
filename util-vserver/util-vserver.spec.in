@@ -105,7 +105,7 @@ set_ipv4root system call.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%__make DESTDIR="$RPM_BUILD_ROOT" install install-vserverdir
+%__make DESTDIR="$RPM_BUILD_ROOT" install install-distribution
 
 rm -f $RPM_BUILD_ROOT/%_libdir/*.la
 
@@ -175,11 +175,11 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 %doc AUTHORS COPYING ChangeLog NEWS README THANKS
 %doc doc/FAQ.txt
 %doc doc/*.html doc/*.css
+/sbin/vshelper
 %dir %confdir
 %dir %confdefaultdir
 %dir %confdefaultdir/init
 %dir %confdefaultdir/apps
-%dir %confdefaultdir/apps/pkgmgmt
 %dir %confdefaultdir/files
 %dir %pkglibdir/defaults
 %ghost %confdefaultdir/vdirbase
