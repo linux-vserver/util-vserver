@@ -65,12 +65,12 @@ MatchVserverInfo_init(struct MatchVserverInfo *info)
   size_t const	l = info->appdir.l;
   char		tmp[l + MAX(sizeof("/pkgmgmt-ignore"),sizeof("/pkgmgmt-force"))];
 
-  memcpy(tmp,    info->appdir.d, l);
+  memcpy(tmp, info->appdir.d, l);
 
   if      (exists(tmp, l, "/pkgmgmt-ignore")) info->use_pkgmgmt = false;
   else if (exists(tmp, l, "/pkgmgmt-force"))  info->use_pkgmgmt = true;
-  else if (DEFAULT_EXISTS("pkgmgmt-ignore"))  info->use_pkgmgmt = false;
-  else if (DEFAULT_EXISTS("pkgmgmt-force"))   info->use_pkgmgmt = true;
+  else if (DEFAULT_EXISTS ("pkgmgmt-ignore")) info->use_pkgmgmt = false;
+  else if (DEFAULT_EXISTS ("pkgmgmt-force"))  info->use_pkgmgmt = true;
 
   return true;
 }
