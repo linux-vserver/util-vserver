@@ -33,11 +33,11 @@
 #include <sys/param.h>
 
 static void
-showHelp(int fd, char const *cmd, int res)
+showHelp(char const *cmd)
 {
-  WRITE_MSG(fd, "Usage:  ");
-  WRITE_STR(fd, cmd);
-  WRITE_MSG(fd,
+  WRITE_MSG(1, "Usage:  ");
+  WRITE_STR(1, cmd);
+  WRITE_MSG(1,
 	    " [--] <lockfile> <syncpipe> [<timeout>]\n\n"
 	    "Protocol:\n"
 	    "  1.  parent (shell) creates a named <syncpipe>\n"
@@ -53,14 +53,14 @@ showHelp(int fd, char const *cmd, int res)
 	    "Sample code:\n"
 	    "  tmp=$(mktemp /tmp/lock.XXXXXX)\n"
 	    "  rm -f $tmp    # safe since mknod(2) does not follow symlinks\n"
-	    "  mkfifo -m600 $tmp\n"
+	    "  mkfifo -m700 $tmp || exit 1\n"
 	    "  lockfile $lock $tmp &\n"
-	    "  cat <$tmp >/dev/null\n"
+	    "  $tmp\n"
 	    "  ... <actions> ...\n"
 	    "  kill -HUP $!  # (implicated by shell-exit)\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
-  exit(res);
+  exit(0);
 }
 
 static void
@@ -88,13 +88,13 @@ quitFunc(int UNUSED sig)
 
 int main(int argc, char *argv[])
 {
-  int			fd, sync_fd;
+  int			fd, sync_fd = -1;
   int			idx = 1;
   time_t		end_time;
   pid_t const		ppid = getppid();
 
   if (argc>=2) {
-    if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
+    if (strcmp(argv[1], "--help")   ==0) showHelp(argv[0]);
     if (strcmp(argv[1], "--version")==0) showVersion();
     if (strcmp(argv[1], "--")       ==0) ++idx;
   }
@@ -108,10 +108,10 @@ int main(int argc, char *argv[])
   if (argc==idx+3) end_time += atoi(argv[idx+2]);
   else             end_time += 300;
 		   
-  if ((fd=open(argv[idx], O_CREAT|O_RDONLY|O_NOFOLLOW|O_NONBLOCK, 0644))==-1)
-    perror("lockfile: open(<lockfile>)");
-  else if ((sync_fd=open(argv[idx+1], O_WRONLY))==-1)
+  if ((sync_fd=open(argv[idx+1], O_WRONLY))==-1)
     perror("lockfile: open(<syncpipe>)");
+  else if ((fd=open(argv[idx], O_CREAT|O_RDONLY|O_NOFOLLOW|O_NONBLOCK, 0644))==-1)
+    perror("lockfile: open(<lockfile>)");
   else if (unlink(argv[idx+1])==-1)
     perror("lockfile: unlink(<syncpipe>)");
   else if (siginterrupt(SIGALRM, 1)==-1)
@@ -126,15 +126,18 @@ int main(int argc, char *argv[])
     if (flock(fd,LOCK_EX)==-1) {
       if (errno==EINTR) continue;
       perror("lockfile: flock()");
-      return EXIT_FAILURE;
+      break;
     }
     signal(SIGALRM, SIG_IGN);
 
+    WRITE_MSG(sync_fd, "#!/bin/true\n");
     close(sync_fd);
     while (getppid()==ppid) sleep(10);
 	   
     return EXIT_SUCCESS;
   }
 
+  if (sync_fd!=-1)
+    WRITE_MSG(sync_fd, "#!/bin/false\n");
   return EXIT_FAILURE;
 }
