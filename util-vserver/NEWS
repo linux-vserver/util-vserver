@@ -1,3 +1,23 @@
+Version 0.25
+============
+
+	- BUGFIX: this version fixes handling of ctx >= 32768
+
+	- experimental support for new resource-limit syscall was add
+	  (vserver >= 1.1.3); the new 'vlimit' tool replaces 'setctxlimit'
+
+	- some man-pages were added and init-scripts improved (taken from
+	  Debian patches provided by Sam Vilain)
+
+	- basic Gentoo support was added to the 'vserver' script (thanks to
+	  "Allen D. Parker II")
+
+	- compilation fixes for kernel 2.6 headers
+
+	- set mode/owner of /var/run/utmp (owner is customizable through
+	  $UTMP_GROUP)
+
+	
 Version 0.24
 ============
 

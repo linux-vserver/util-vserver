@@ -25,7 +25,7 @@ dnl
 
 AC_PREREQ(2.57)
 
-AC_INIT(util-vserver, 0.24.92, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.25, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
