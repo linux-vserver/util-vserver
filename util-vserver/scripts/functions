@@ -452,11 +452,16 @@ function isVserverRunning
     return 0
 }
 
-## Called as 'getFileValue <varname> <filename>'
+## Called as 'getFileValue <varname> <filename>+'
 function getFileValue
 {
-    test -r "$2" || return 0
-    eval read "$1" <"$2"
+    local var=$1
+    local file
+    shift
+
+    findFile file "$@" ''
+    test "$file" -a -r "$file" || return 0
+    eval read "$var" <"$file"
 }
 
 ## Called as 'getFileArray <varname> <filename>'
