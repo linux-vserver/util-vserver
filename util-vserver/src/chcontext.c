@@ -29,6 +29,7 @@
 #include "util.h"
 #include "vserver.h"
 #include "internal.h"
+#include "lib_internal/jail.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -256,59 +257,12 @@ tellContext(xid_t ctx)
 
   l = utilvserver_fmt_long(buf,ctx);
 
-  WRITE_MSG(2, "New security context is ");
-  write(2, buf, l);
-  WRITE_MSG(2, "\n");
+  WRITE_MSG(1, "New security context is ");
+  write(1, buf, l);
+  WRITE_MSG(1, "\n");
 }
 
-static inline ALWAYSINLINE int
-initSync(int p[2])
-{
-  if (!global_args->do_disconnect) return 0;
-
-  Epipe(p);
-  fcntl(p[1], F_SETFD, FD_CLOEXEC);
-  return Efork();
-}
-
-static inline ALWAYSINLINE void
-doSyncStage1(int p[2])
-{
-  int	fd;
-
-  if (!global_args->do_disconnect) return;
-  
-  fd = Eopen("/dev/null", O_RDONLY, 0);
-  Esetsid();
-  Edup2(fd, 0);
-  Eclose(p[0]);
-  if (fd!=0) Eclose(fd);
-  Ewrite(p[1], ".", 1);
-}
-
-static inline ALWAYSINLINE void
-doSyncStage2(int p[2])
-{
-  if (!global_args->do_disconnect) return;
-
-  Ewrite(p[1], "X", 1);
-}
-
-static void
-waitOnSync(pid_t pid, int p[2])
-{
-  int		c;
-  size_t	l;
-
-  assert(global_args->do_disconnect);
-  assert(pid!=0);
-
-  Eclose(p[1]);
-  l = Eread(p[0], &c, 1);
-  if (l!=1) exitLikeProcess(pid);
-  l = Eread(p[0], &c, 1);
-  if (l!=0) exitLikeProcess(pid);
-}
+#include "context-sync.hc"
 
 int main (int argc, char *argv[])
 {
@@ -324,7 +278,7 @@ int main (int argc, char *argv[])
   };
   xid_t		newctx;
   int		xflags;
-  int		p[2];
+  int		p[2][2];
   pid_t		pid;
   
   global_args = &args;
@@ -384,8 +338,10 @@ int main (int argc, char *argv[])
   xflags      = args.flags & S_CTX_INFO_INIT;
   args.flags &= ~S_CTX_INFO_INIT;
 
-  pid = initSync(p);
+  pid = initSync(p, args.do_disconnect);
   if (pid==0) {
+    doSyncStage0(p, args.do_disconnect);
+    
     newctx            = Evc_new_s_context(args.ctxs[0],0,args.flags);
     args.remove_caps &= (~args.add_caps);
     setHostname(args.hostname);
@@ -395,15 +351,15 @@ int main (int argc, char *argv[])
       Evc_new_s_context (VC_SAMECTX,args.remove_caps,xflags);
     tellContext(args.ctxs[0]==VC_DYNAMIC_XID ? newctx : args.ctxs[0]);
 
-    doSyncStage1(p);
+    doSyncStage1(p, args.do_disconnect);
     execvp (argv[optind],argv+optind);
-    doSyncStage2(p);
+    doSyncStage2(p, args.do_disconnect);
 
     PERROR_Q("chcontext: execvp", argv[optind]);
     exit(255);
   }
 
-  waitOnSync(pid, p);
+  waitOnSync(pid, p, args.ctxs[0]!=VC_DYNAMIC_XID);
   return EXIT_SUCCESS;
 }
 
