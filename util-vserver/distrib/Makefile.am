@@ -25,6 +25,7 @@ confdefaultsinitdir	=  $(confdefaultsdir)/init
 defaults_DATA =		misc/debootstrap.uri \
 			misc/fstab \
 			misc/mtab \
+			misc/vprocunhide-files \
 			misc/vunify-exclude
 
 nobase_distrib_SCRIPTS	=  redhat/initpost
