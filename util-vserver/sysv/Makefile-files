@@ -44,14 +44,17 @@ sysv_SCRPTS		=  $(sysv_GENSCRPTS)
 sysv_CFG		=  sysv/vservers.conf
 
 
+sysv_SUBSTRULE		=  s!/usr/lib/util-vserver!$(pkglibdir)!g; \
+			   s!^USR_SBIN=/usr/sbin$$!USR_SBIN=$(sbindir)!g
+
 sysv/%:			sysv/%.subst
 			@mkdir -p $$(dirname '$@')
-			sed -e 's!/usr/lib/util-vserver!$(pkglibdir)!g; \
-				s!^USR_SBIN=/usr/sbin$$!USR_SBIN=$(sbindir)!g' '$<' >'$@.tmp'
-			if cmp -s '$<' '$@.tmp'; then \
+			sed -e '$(sysv_SUBSTRULE)' '$<' >'$@.tmp'
+			@rm -f '$@'
+			@if cmp -s '$<' '$@.tmp'; then \
 				cp -p '$<' '$@'; \
 			else \
 				mv -f '$@.tmp' '$@'; \
 			fi
-			-rm -f '$@.tmp'
+			@rm -f '$@.tmp'
 			@chmod a-w '$@'
