@@ -36,6 +36,7 @@ _VRPM="$SBINDIR/vrpm"
 _VRPM_PRELOAD="$PKGLIBDIR/vrpm-preload"
 _VRPM_WORKER="$PKGLIBDIR/vrpm-worker"
 _VSERVER_LEGACY="$PKGLIBDIR/vserver-legacy"
+_VSERVER_BUILD="$PKGLIBDIR/vserver-build"
 
 _AWK="@AWK@"
 _GREP="@GREP@"
