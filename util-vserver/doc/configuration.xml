@@ -243,7 +243,8 @@
   </scalar>
   <list name="capabilities">
    <description>
-    Contains per line a capability
+    Contains per line a capability. This file is used for the 2.4
+    kernel only; for 2.6 use 'bcapabilities'.
    </description>
   </list>
   <scalar name="shell">
