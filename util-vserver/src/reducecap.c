@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 #include "linuxcaps.h"
 #include "vserver.h"
@@ -202,7 +203,7 @@ int main (int argc, char *argv[])
 			  ++i;
 			  break;
 			}
-			if (strncmp(arg, "CAP_", 4)==0) arg += 4;
+			if (strncasecmp(arg, "CAP_", 4)==0) arg += 4;
 			for (j=0; tbcap[j].option != NULL; j++){
 				if (strcasecmp(tbcap[j].option,arg)==0){
 					remove |= (1<<tbcap[j].bit);
