@@ -25,4 +25,4 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 
-exec $SBINDIR/chcontext --silent --ctx 1 top $*
+exec $SBINDIR/chcontext --silent --ctx 1 top "$@"

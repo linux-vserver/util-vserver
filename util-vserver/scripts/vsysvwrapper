@@ -27,6 +27,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 
 if [ $# = 0 ] ; then
 	echo vsysvwrapper service_name >&2
+	exit 6
 else
 	SERVICE=$1
 	shift
@@ -39,8 +40,6 @@ else
 	do
 		IPOPT="$IPOPT --ip $oneip"
 	done
-	echo exec $SBINDIR/chbind $IPOPT /etc/init.d/$SERVICE $*
-	exec $SBINDIR/chbind $IPOPT /etc/init.d/$SERVICE $*
+	echo exec $SBINDIR/chbind $IPOPT /etc/init.d/$SERVICE "$@"
+	exec $SBINDIR/chbind $IPOPT /etc/init.d/$SERVICE "$@"
 fi
-
-

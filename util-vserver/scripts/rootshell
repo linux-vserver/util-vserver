@@ -23,9 +23,6 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 
-OPTIONS=$@
-if [ "$OPTIONS" = "" ] ; then
-	OPTIONS=--login
-fi
-exec $SBINDIR/chbind --silent --ip 0.0.0.0 /bin/bash $OPTIONS
+test "$*" || set -- --login
+exec $SBINDIR/chbind --silent --ip 0.0.0.0 /bin/bash "$@"
 
