@@ -31,21 +31,16 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <ctype.h>
+#include <strings.h>
 
 #define ENSC_WRAPPERS_PREFIX	"vuname: "
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_IO	1
+#define ENSC_WRAPPERS_VSERVER	1
 #include <wrappers.h>
 
 #define CMD_HELP		0x1000
 #define CMD_VERSION		0x1001
-#define CMD_UTSCONTEXT		0x4000
-#define CMD_UTSSYSNAME		0x4001
-#define CMD_UTSNODENAME		0x4002
-#define CMD_UTSRELEASE		0x4003
-#define CMD_UTSVERSION		0x4004
-#define CMD_UTSMACHINE		0x4005
-#define CMD_UTSDOMAINNAME	0x4006
 #define CMD_DIR			0x4007
 #define CMD_MISSINGOK		0x4008
 
@@ -58,35 +53,33 @@ static vc_uts_type const	UTS_MAPPING[7] = {
 
 #define DECL(UTS) [vcVHI_ ## UTS] = #UTS
 static char const * const	UTS_STRINGS[] = {
-  DECL(CONTEXT), DECL(SYSNAME), DECL(NODENAME), DECL(RELEASE),
-  DECL(VERSION), DECL(MACHINE), DECL(DOMAINNAME)
+  DECL(CONTEXT), DECL(SYSNAME), DECL(NODENAME),
+  DECL(RELEASE), DECL(VERSION), DECL(MACHINE),
+  DECL(DOMAINNAME)
+};
+
+struct Tag {
+    bool		is_set;
+    char const *	value;
 };
 
 struct Arguments {
-    bool		handle_opts[DIM_OF(UTS_MAPPING)];
+    struct Tag		tags[DIM_OF(UTS_MAPPING)];
     xid_t		xid;
     bool		do_set;
-    char const *	value;
     char const *	dir;
     bool		is_missingok;
 };
 
 static struct option const
 CMDLINE_OPTIONS[] = {
+  { "help",        no_argument,       0, CMD_HELP },
+  { "version",     no_argument,       0, CMD_VERSION },
   { "xid",         required_argument, 0, 'x' },
   { "set",         no_argument,       0, 's' },
   { "get",         no_argument,       0, 'g' },
-  { "context",     no_argument,       0, CMD_UTSCONTEXT },
-  { "sysname",     no_argument,       0, CMD_UTSSYSNAME },
-  { "nodename",    no_argument,       0, CMD_UTSNODENAME },
-  { "release",     no_argument,       0, CMD_UTSRELEASE },
-  { "ver",         no_argument,       0, CMD_UTSVERSION },
-  { "machine",     no_argument,       0, CMD_UTSMACHINE },
-  { "domainname" , no_argument,       0, CMD_UTSDOMAINNAME },
   { "dir",         required_argument, 0, CMD_DIR },
   { "missingok",   no_argument,       0, CMD_MISSINGOK },
-  { "help",        no_argument,       0, CMD_HELP },
-  { "version",     no_argument,       0, CMD_VERSION },
   { 0,0,0,0 }
 };
 
@@ -98,22 +91,27 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-g] [--xid|x <xid>] [--<TAG>]*\n"
+	    "  [-g] --xid <xid> <TAG>*\n"
+	    "    or  ");
+  WRITE_STR(fd, cmd);
+  WRITE_MSG(fd,
+	    "  -s --xid <xid> -t <TAG>=<VALUE> [--] [<command> <args>*]\n"
 	    "    or  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,	    
-	    "  -s  [--xid|x <xid>] (--dir <dir> [--missingok] [--])|(--<TAG> [--] <value>) [<command> <args>*]\n\n"
+	    "  --dir <dir> --xid <xid> [--missingok] [--] [<command> <args>*]\n\n"
 	    " Options:\n"
-	    "   -x <xid>     ...  operate on this context (default: current one)\n"
 	    "   -g           ...  get and print the value\n"
 	    "   -s           ...  set the value\n\n"
+	    "   --xid <xid>  ...  operate on this context; 'self' means the current one\n"
+	    "   -t <TAG>=<VALUE>\n"
+	    "                ...  set <TAG> to <VALUE>; this option can be repeated multiple time\n"
 	    "   --dir <dir>  ...  read values from files in <dir>. These files must\n"
-	    "                     have a valid TAG as their name. An exception is that\n"
-	    "                     the 'ver' file must be named 'version'\n"
+	    "                     have a valid TAG as their name\n"
 	    "   --missingok  ...  do not fail when the <DIR> from '--dir' does not exist.\n"
 	    "\n"
-	    " Valid TAGs are:\n"
-	    "   context, sysname, nodename, release, ver, machine, domainname\n"
+	    " Possible values for TAG are:\n"
+	    "   context, sysname, nodename, release, version, machine, domainname\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
@@ -130,19 +128,7 @@ showVersion()
   exit(0);
 }
 
-static unsigned int
-getTrueCount(bool const *field, size_t cnt)
-{
-  unsigned int	res = 0;
-  while (cnt>0) {
-    --cnt;
-    if (field[cnt]) ++res;
-  }
-
-  return res;
-}
-
-static int
+static void
 setFromDir(char const *pathname, bool is_missingok, xid_t xid)
 {
   struct stat		st;
@@ -151,7 +137,7 @@ setFromDir(char const *pathname, bool is_missingok, xid_t xid)
   char			buf[l_pathname + sizeof("/domainname") + 32];
   
   if (stat(pathname, &st)==-1) {
-    if (errno==ENOENT && is_missingok) return EXIT_SUCCESS;
+    if (errno==ENOENT && is_missingok) return;
     PERROR_Q(ENSC_WRAPPERS_PREFIX "fstat", pathname);
     exit(wrapper_exit_code);
   }
@@ -173,7 +159,9 @@ setFromDir(char const *pathname, bool is_missingok, xid_t xid)
       size_t	l = Elseek(fd, 0, SEEK_END);
       char	name[l+1];
       Elseek(fd,0,SEEK_SET);
-      EreadAll(fd, name, l); name[l] = '\0';
+      EreadAll(fd, name, l);
+      while (l>0 && name[l-1]=='\n') --l;
+      name[l] = '\0';
       Eclose(fd);
 
       if (vc_set_vhi_name(xid, (vc_uts_type)(i), name, l)==-1) {
@@ -182,40 +170,82 @@ setFromDir(char const *pathname, bool is_missingok, xid_t xid)
       }
     }
   }
+}
 
-  return EXIT_SUCCESS;
+static xid_t
+str2xid(char const *str)
+{
+  if (strcmp(str,"self")==0) return Evc_get_task_xid(0);
+  else                       return atoi(str);
+}
+
+static size_t
+findUtsIdx(char const *str, size_t len)
+{
+  size_t		i;
+  for (i=0; i<DIM_OF(UTS_STRINGS); ++i)
+    if (UTS_STRINGS[i]!=0 && strncasecmp(UTS_STRINGS[i], str, len)==0)
+      return i;
+
+  WRITE_MSG(2, "Tag '");
+  write(2, str, len);
+  WRITE_STR(2, "' not recognized\n");
+  exit(wrapper_exit_code);
+}
+
+static void
+registerValue(char const *str, struct Tag tags[DIM_OF(UTS_MAPPING)])
+{
+  char const *	ptr = strchr(str, '=');
+  size_t	idx;
+  
+  if (ptr==0) ptr = str + strlen(str);
+  assert(*ptr=='=' || *ptr=='\0');
+
+  idx = findUtsIdx(str, ptr-str);
+
+  if (*ptr=='=') ++ptr;
+  tags[idx].is_set = true;
+  tags[idx].value  = ptr;
+}
+
+static void
+printUtsValue(xid_t xid, int val)
+{
+  char	buf[128];
+  if (vc_get_vhi_name(xid, val, buf, sizeof(buf)-1)==-1)
+    WRITE_MSG(1, "???");
+  else
+    WRITE_STR(1, buf);
+  
 }
 
 int main(int argc, char *argv[])
 {
   struct Arguments	args = {
-    .handle_opts = { 0,0,0,0,0,0,0 },
+    .tags        = { [0] = {false,0} },
     .do_set      = false,
-    .xid         = VC_SAMECTX,
+    .dir         = 0,
+    .is_missingok= false,
+    .xid         = VC_NOCTX,
   };
-  unsigned int		opt_cnt;
   size_t		i;
-  bool			failed = false;
-  bool			passed = false;
-  char const *		delim  = "";
-  char			result_buf[1024] = { [0] = '\0' };
 
-  assert(DIM_OF(UTS_MAPPING) == DIM_OF(args.handle_opts));
+  assert(DIM_OF(UTS_MAPPING) == DIM_OF(args.tags));
   
   while (1) {
-    int		c = getopt_long(argc, argv, "+gsx:", CMDLINE_OPTIONS, 0);
+    int		c = getopt_long(argc, argv, "+gst:", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
 
-    if (c>=CMD_UTSCONTEXT && c<=CMD_UTSDOMAINNAME)
-      args.handle_opts[c-CMD_UTSCONTEXT] = true;
-    else switch (c) {
+    switch (c) {
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
       case CMD_DIR	:  args.dir          = optarg; break;
-      case CMD_MISSINGOK:  args.is_missingok = true; break;
-      case 'g'		:  args.do_set       = true; break;
-      case 's'		:  args.do_set       = true; break;
-      case 'x'		:  args.xid          = atoi(optarg); break;
+      case CMD_MISSINGOK:  args.is_missingok = true;   break;
+      case 'g'		:  args.do_set       = false;  break;
+      case 's'		:  args.do_set       = true;   break;
+      case 'x'		:  args.xid          = str2xid(optarg); break;
+      case 't'		:  registerValue(optarg, args.tags);    break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -225,64 +255,47 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (args.dir) {
-    int		rc = setFromDir(args.dir, args.is_missingok, args.xid);
-    if (rc==0 && optind<argc)
-      EexecvpD(argv[optind], argv+optind);
-
-    return rc;
+  if (args.xid==VC_NOCTX) {
+    WRITE_MSG(2, "No context specified; try '--help' for more information\n");
+    exit(wrapper_exit_code);
   }
 
-  opt_cnt = getTrueCount(args.handle_opts, DIM_OF(args.handle_opts));
-  
-  if (args.do_set && optind==argc)
-    WRITE_MSG(2, "No value given; use '--help' for more information\n");
-  else if (args.do_set && opt_cnt<=0)
-    WRITE_MSG(2, "No field given which shall be set; use '--help' for more information\n");
-  else if (args.do_set && opt_cnt>1)
-    WRITE_MSG(2, "Can not set multiple fields; use '--help' for more information\n");
-  else if (!args.do_set && optind!=argc)
-    WRITE_MSG(2, "Can not specifiy a value with '-g'; use '--help' for more information\n");
+  if (args.dir)
+    setFromDir(args.dir, args.is_missingok, args.xid);
+  else if (args.do_set) {
+    for (i=0; i<DIM_OF(args.tags); ++i) {
+      if (!args.tags[i].is_set) continue;
+      Evc_set_vhi_name(args.xid, i, args.tags[i].value, strlen(args.tags[i].value));
+    }
+  }
+  else if (optind==argc) {
+    char const *	delim = "";
+    for (i=0; i<DIM_OF(UTS_MAPPING); ++i) {
+      WRITE_STR(1, delim);
+      printUtsValue(args.xid, i);
+      delim = " ";
+    }
+    WRITE_MSG(1, "\n");
+
+    return EXIT_SUCCESS;
+  }
   else {
-    if (args.do_set) args.value = argv[optind];
+    char const *	delim = "";
+    while (optind <argc) {
+      int		idx = findUtsIdx(argv[optind], strlen(argv[optind]));
+      WRITE_STR(1, delim);
+      printUtsValue(args.xid, idx);
+      delim = " ";
 
-    if (!args.do_set && opt_cnt==0)
-      for (i=0; i<DIM_OF(args.handle_opts); ++i) args.handle_opts[i]=true;
+      ++optind;
+    }
+    WRITE_MSG(1, "\n");
     
-    for (i=0; i<DIM_OF(args.handle_opts); ++i) {
-      if (!args.handle_opts[i]) continue;
-
-      if (args.do_set) {
-	if (vc_set_vhi_name(args.xid, UTS_MAPPING[i], args.value, strlen(args.value))==-1) {
-	  perror("vc_set_vhi_name()");
-	  return EXIT_FAILURE;
-	}
-      }
-      else {
-	char		buf[128];
-	if (vc_get_vhi_name(args.xid, UTS_MAPPING[i], buf, sizeof(buf)-1)==-1) {
-	  perror("vc_get_vhi_name()");
-	  failed = true;
-	  strcpy(buf, "???");
-	}
-	else
-	  passed = true;
-	strcat(result_buf, delim);
-	strcat(result_buf, buf);
-	delim = " ";
-      }
-    }
-
-    if (!args.do_set && passed) {
-      strcat(result_buf, "\n");
-      WRITE_STR(1, result_buf);
-    }
-
-    if ((!failed || passed) && optind+1<argc)
-      EexecvpD(argv[optind+1], argv+optind+1);
-
-    return failed ? passed ? wrapper_exit_code-1 : wrapper_exit_code : EXIT_SUCCESS;
+    return EXIT_SUCCESS;
   }
+
+  if (optind<argc)
+    EexecvpD(argv[optind], argv+optind);
 
   return wrapper_exit_code;
 }
