@@ -29,7 +29,7 @@ sbincfgdir		=  $(sbindir)
 legacydir		=  $(pkglibdir)/legacy
 
 include_HEADERS		=  $(lib_HDRS)
-noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h
+noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h compat-c99.h
 
 lib_LIBRARIES		=  $(lib_lib_LIBS)
 lib_LTLIBRARIES		=  $(lib_lib_LTLIBS) $(src_lib_LTLIBS)
