@@ -347,6 +347,8 @@ extern "C" {
   int		vc_get_vhi_name(xid_t xid, vc_uts_type type,
 				char *val, size_t len)       VC_ATTR_NONNULL((3));
 
+    /** Returns true iff \a xid is a dynamic xid */
+  bool		vc_is_dynamic_xid(xid_t xid);
 
   int		vc_enter_namespace(xid_t xid);
   int		vc_set_namespace();
