@@ -23,14 +23,22 @@
 static inline ALWAYSINLINE int
 vc_get_vx_info_v13(xid_t xid, struct vc_vx_info *info)
 {
-  struct vcmd_vx_info_v0	res;
-  int				rc;
+  if (xid==0 || xid==1) {
+    info->xid     = xid;
+    info->initpid = -1;
 
-  rc = vserver(VCMD_vx_info, CTX_USER2KERNEL(xid), &res);
-  if (rc==-1) return -1;
+    return 0;
+  }
+  else {
+    struct vcmd_vx_info_v0	res;
+    int				rc;
 
-  info->xid     = CTX_KERNEL2USER(res.xid);
-  info->initpid = res.initpid;
+    rc = vserver(VCMD_vx_info, CTX_USER2KERNEL(xid), &res);
+    if (rc==-1) return -1;
 
-  return rc;
+    info->xid     = CTX_KERNEL2USER(res.xid);
+    info->initpid = res.initpid;
+
+    return rc;
+  }
 }
