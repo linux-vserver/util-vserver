@@ -2,17 +2,17 @@
 
 <!ELEMENT topleveldir (description?,(dir|file|script)+)>
 <!ATTLIST topleveldir
-	path CDATA   #REQUIRED>
+        type  CDATA            #REQUIRED>
 <!ELEMENT dir  (description?,(dir|file|symlink|script)*)>
 <!ATTLIST dir
         name  CDATA            #REQUIRED
-        type (fixed,symbolic)  #REQUIRED
-        optional (yes,no)      #IMPLIED>
+        type (fixed|symbolic)  #REQUIRED
+        optional (yes|no)      #IMPLIED>
 <!ELEMENT file (description)>
 <!ATTLIST file
         name  CDATA #REQUIRED
-        type (fixed,symbolic)  #IMPLIED
-        optional (yes,no)      #IMPLIED
+        type (fixed|symbolic)  #IMPLIED
+        optional (yes|no)      #IMPLIED
 >
 
 <!ELEMENT script (description,params)>
