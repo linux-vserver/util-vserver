@@ -25,7 +25,7 @@ dnl
 
 AC_PREREQ(2.57)
 
-AC_INIT(util-vserver, 0.26, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.26.1, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -85,12 +85,12 @@ AC_ARG_ENABLE([apis],
 	      [AC_HELP_STRING([--enable-apis=APIS],
 			      [enable support for the given apis; possible values are: legacy,compat,v11,ALL (default: ALL)])],
               [],
-	      [supported_apis=ALL])
+	      [enable_apis=ALL])
 
-test x"$supported_apis" != xALL || supported_apis='legacy,compat,v11'
+test x"$enable_apis" != xALL || enable_apis='legacy,compat,v11'
 old_IFS=$IFS
 IFS=,;
-for i in $supported_apis; do
+for i in $enable_apis; do
 	case "$i" in
 		compat)	AC_DEFINE(VC_ENABLE_API_COMPAT, 1, [Enable support for compatibily syscall API]);;
 		legacy) AC_DEFINE(VC_ENABLE_API_LEGACY, 1, [Enable support for old, /proc parsing API]);;
@@ -99,7 +99,7 @@ for i in $supported_apis; do
 	esac
 done
 IFS=$old_IFS
-AC_MSG_RESULT([$supported_apis])
+AC_MSG_RESULT([$enable_apis])
 
 AC_CHECK_HEADERS([ext2fs/ext2fs.h], [],
   [AC_CHECK_HEADERS([linux/ext2_fs.h], [],
