@@ -47,3 +47,9 @@ src_testsuite_chcontext_test_SOURCES =	src/testsuite/chcontext-test.c \
 src_testsuite_chcontext_test_LDADD =	lib/libvserver.la
 
 src_testsuite_CPPFLAGS =		-I $(top_srcdir)/src -D ENSC_TESTSUITE
+
+
+clean-local:		clean-testsuite
+
+clean-testsuite:
+			rm -rf src/testsuite/.libs src/testsuite/_libs
