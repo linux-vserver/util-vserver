@@ -38,7 +38,6 @@ base   @PKGLIBDIR@/chain-echo
 core   @PKGLIBDIR@/chcontext-compat
 base   @PKGLIBDIR@/chroot-cat
 base   @PKGLIBDIR@/chroot-rm
-base   @PKGLIBDIR@/clearenv
 base   @PKGLIBDIR@/exec-ulimit
 base   @PKGLIBDIR@/fakerunlevel
 base   @PKGLIBDIR@/filetime
@@ -51,6 +50,7 @@ base   @PKGLIBDIR@/rootshell
 build  @PKGLIBDIR@/rpm-fake-resolver
 base   @PKGLIBDIR@/save_ctxinfo
 base   @PKGLIBDIR@/secure-mount
+base   @PKGLIBDIR@/sigexec
 base   @PKGLIBDIR@/start-vservers
 build  @PKGLIBDIR@/vapt-get-worker
 @ENSC_HAVE_CXX_COMPILER_TRUE@build  @PKGLIBDIR@/vbuild
