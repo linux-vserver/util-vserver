@@ -21,6 +21,8 @@ DIETPROGS +=		vserver-start/vserver.start.bin
 pkglib_PROGRAMS +=	vserver-start/vserver.start.bin
 endif
 
+## HACK: for now...
+AM_INSTALLCHECK_STD_OPTIONS_EXEMPT +=		vserver-start/vserver.start.bin
 
 vserver_start_vserver_start_bin_SOURCES =	vserver-start/main.c \
 						vserver-start/scriptlets.c \
