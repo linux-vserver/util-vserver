@@ -24,6 +24,7 @@ CVS2CL_AMFLAGS		=  $(CVS2CL_TAG) -U cvsusers.map
 CVS2CL_ALLFLAGS        :=  $(CVS2CL_AMFLAGS) $(CVS2CL_FLAGS)
 
 confdir			=  $(sysconfdir)/vservers
+sbincfgdir		=  $(sbindir)
 
 include_HEADERS		=  $(lib_HDRS)
 noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h
@@ -31,11 +32,13 @@ noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h
 lib_LIBRARIES		=  $(lib_lib_LIBS)
 #lib_LTLIBRARIES		=  $(lib_lib_LTLIBS)
 
-pkglib_SCRIPTS		=  $(scripts_SCRPTS)
-pkglib_DATA		=  $(scriptscfg_DATA) $(scripts_DTA)
+pkglib_SCRIPTS		=  $(scripts_pkglib_SCRPTS)
+pkglib_DATA		=  $(scripts_pkglib_DTA)
 pkglib_PROGRAMS		=  $(src_pkglib_PRGS)
 
-sbin_SCRIPTS		=  $(scripts_PRGS)
+sbincfg_DATA		=  $(scripts_sbincfg_DTA)
+
+sbin_SCRIPTS		=  $(scripts_sbin_PRGS)
 sbin_PROGRAMS		=  $(src_sbin_PRGS)
 noinst_PROGRAMS		=  $(test_PRGS)
 
@@ -51,7 +54,7 @@ man_MANS		=  $(man_DATMAN)
 EXTRA_PROGRAMS		=  $(src_EXTRA_PROGS)
 EXTRA_DIST		=  $(sysv_XTRAS) $(sysv_CFG) \
                            $(doc_DAT) $(man_DATMAN) \
-			   $(scripts_SCRPTS) $(scripts_PRGS) $(scripts_XTRAS) \
+			   $(scripts_XTRAS) \
 			   pathconfig.h.pathsubst \
 			   util-vserver.spec \
                            m4/ensc_cflags.m4 m4/ensc_fpicsyscall.m4 \
@@ -60,7 +63,7 @@ EXTRA_DIST		=  $(sysv_XTRAS) $(sysv_CFG) \
 
 AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE $(RELEASE_CPPFLAGS)
 
-CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) $(BUILT_SOURCES) \
+CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_CLEANFILES) $(BUILT_SOURCES) \
 			   .*.pathsubst.stamp */.*.pathsubst.stamp \
 			   linuxcaps.h pathconfig.h
 
@@ -111,6 +114,7 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@mkdir -p $$(dirname '$@')
 			@echo "sed -e '...' $*.pathsubst >$*"
 			@sed -e '$(pathsubst_RULES)' '$<' >'$@.tmp'
+			@-chmod --reference='$<' '$@.tmp'
 			@if cmp -s '$@.tmp' '$*'; then \
 				echo "... no changes, reusing old version"; \
 				rm -f '$@.tmp'; \
@@ -125,6 +129,8 @@ vserverpkgdir		=  $(vserverdir)/.pkg
 
 install-data-hook:
 			$(mkinstalldirs) -m 755 $(DESTDIR)$(pkgstatedir)/rev
+
+install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
 
 if USE_DIETLIBC
