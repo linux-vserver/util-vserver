@@ -17,7 +17,8 @@
 
 <!ELEMENT script (description,params)>
 <!ATTLIST script
-        name  CDATA #REQUIRED
+        name  CDATA            #REQUIRED
+        type (fixed|symbolic)  #IMPLIED
 >
 
 <!ELEMENT description ANY>
