@@ -57,6 +57,22 @@ Possible commands are:
     build <buildopts>*
                 ... builds a new vserver from scratch
 
+    apt-get,apt-config,apt-cache <apt-opts>*
+		... execute the apt-* command for the given vserver
+    rpm <rpm-opts>*
+		... execute the rpm command for the given vserver
+
+    pkgmgmt externalize|internalize [-y]
+		... externalize or internalize the package-management for the
+		    given vserver. 'Externalize' means that package metadata
+		    and management tools (apt-get,rpm) are living in the host,
+		    while 'internalize' means that data and programs from the
+		    vserver will be used.
+
+    unify <vunify-opts>*
+                ... unify the vserver with its reference vserver(s).
+		    
+
 Please report bugs to $PACKAGE_BUGREPORT"
     exit 0
 }
@@ -162,6 +178,16 @@ case "$2" in
     running)
 	isVserverRunning "$VSERVER_DIR"
 	;;
+
+    apt-get|apt-config|apt-cache)
+	export _APT_GET=$2
+	shift 2
+	exec $_VAPT_GET -- "$@"
+	;;
+    rpm)
+	exec $_VRPM -- "$@"
+	;;
+	
     status)
 	if getVserverStatus "$VSERVER_DIR" ctx procnum; then
 	    echo $"Vserver '$1' is running at context '$ctx'"
