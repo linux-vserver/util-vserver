@@ -56,9 +56,9 @@ struct MountInfo {
     char const *	src;
     char const *	dst;
     char const *	type;
-    unsigned long	flags;
+    unsigned long	flag;
+    unsigned long	xflag;
     char *		data;
-    bool		noauto;
 };
 
 struct Options {
@@ -80,6 +80,8 @@ struct Options {
 #define OPTION_SECURE	1029
 #define OPTION_RBIND	1030
 
+#define XFLAG_NOAUTO	0x01
+
 static struct option const
 CMDLINE_OPTIONS[] = {
   { "help",    no_argument,       0, 'h' },
@@ -98,30 +100,44 @@ CMDLINE_OPTIONS[] = {
 #  define MS_REC	0x4000
 #endif
 
-static struct FstabOptions {
+static struct FstabOption {
     char const * const	opt;
-    unsigned long const	or_flag;
-    unsigned long const	and_flag;
-    bool const		is_dflt;
+    unsigned long const		flag;
+    unsigned long const		mask;
+    unsigned long const 	xflag;
+    bool const			is_dflt;
 } const FSTAB_OPTIONS[] = {
-  { "rbind",      MS_BIND|MS_REC, ~0, false },
-  { "bind",       MS_BIND,        ~0, false },
-  { "move",       MS_MOVE,        ~0, false },
-#if 0
-  { "noatime",    MS_NOATIME,     ~0, false },
-  { "mandlock",   MS_MANDLOCK,    ~0, false },
-  { "nodev",      MS_NODEV,       ~0, false },
-  { "nodiratime", MS_NODIRATIME,  ~0, false },
-  { "noexec",     MS_NOEXEC,      ~0, false },
-  { "nosuid",     MS_NOSUID,      ~0, false },
-  { "rdonly",     MS_RDONLY,      ~0, false },
-  { "remount",    MS_REMOUNT,     ~0, false },
-  { "sync",       MS_SYNCHRONOUS, ~0, false },
+  { "defaults",   0,             (MS_RDONLY|MS_NOSUID|MS_NODEV|MS_NOEXEC|
+				  MS_SYNCHRONOUS), 0, false },
+  { "rbind",      MS_BIND|MS_REC, MS_BIND|MS_REC,  0, false },
+  { "bind",       MS_BIND,        MS_BIND,         0, false },
+  { "move",       MS_MOVE,        MS_MOVE,         0, false },
+  { "async",      0,              MS_SYNCHRONOUS,  0, false },
+  { "sync",       MS_SYNCHRONOUS, MS_SYNCHRONOUS,  0, false },
+  { "atime",      0,              MS_NOATIME,      0, false },
+  { "noatime",    MS_NOATIME,     MS_NOATIME,      0, false },
+  { "dev",        0,              MS_NODEV,        0, false },
+  { "nodev",      MS_NODEV,       MS_NODEV,        0, false },
+  { "exec",       0,              MS_NOEXEC,       0, false },
+  { "noexec",     MS_NOEXEC,      MS_NOEXEC,       0, false },
+  { "suid",       0,              MS_NOSUID,       0, false },
+  { "nosuid",     MS_NOSUID,      MS_NOSUID,       0, false },
+  { "ro",         MS_RDONLY,      MS_RDONLY,       0, false },
+  { "rw",         0,              MS_RDONLY,       0, false },
+  
+  { "remount",    MS_REMOUNT,     MS_REMOUNT,      0, false },
+  { "users",      MS_NOEXEC|MS_NOSUID|MS_NODEV,
+                  MS_NOEXEC|MS_NOSUID|MS_NODEV,    0, false },
+  { "mandlock",   MS_MANDLOCK,    MS_MANDLOCK,     0, false },
+  { "nodiratime", MS_NODIRATIME,  MS_NODIRATIME,   0, false },
 #ifdef MS_DIRSYNC  
-  { "dirsync",    MS_DIRSYNC,     ~0, false },
+  { "dirsync",    MS_DIRSYNC,     MS_DIRSYNC,      0, false },
 #endif
-#endif
-  { "", 0, 0, false }
+  { "_netdev",    0,              0,               0, false },
+  { "auto",       0,              0,               0, false },
+  { "noauto",     0,              0,               XFLAG_NOAUTO, false },
+  { "user",       0,              0,               0, false },
+  { "nouser",     0,              0,               0, false },
 };
 
 static void
@@ -312,8 +328,8 @@ callExternalMount(struct MountInfo const *mnt)
 
   argv[idx++] = mount_prog;
   argv[idx++] = "-n";
-  if      (mnt->flags & MS_BIND) argv[idx++] = "--bind";
-  else if (mnt->flags & MS_MOVE) argv[idx++] = "--move";
+  if      (mnt->flag & MS_BIND) argv[idx++] = "--bind";
+  else if (mnt->flag & MS_MOVE) argv[idx++] = "--move";
 
   if (mnt->data &&
       strcmp(mnt->data, "defaults")!=0) {
@@ -380,10 +396,10 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
     }
   }
 
-  if (mnt->flags & (MS_BIND|MS_MOVE)) {
+  if (mnt->flag & (MS_BIND|MS_MOVE)) {
     if (mount(mnt->src, ".",
 	      mnt->type ? mnt->type : "",
-	      mnt->flags, mnt->data)==-1) {
+	      mnt->flag,  mnt->data)==-1) {
       perror("secure-mount: mount()");
       return false;
     }
@@ -393,7 +409,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
   }
 
     // Check if directories were moved between the chdirSecure() and mount(2)
-  if ((mnt->flags&MS_BIND) && opt->rootdir!=0 &&
+  if ((mnt->flag&MS_BIND) && opt->rootdir!=0 &&
       (verifyPosition(mnt->src, opt->rootdir, mnt->dst)==-1 ||
        fchroot(opt->cur_rootdir_fd)==-1)) {
     perror("secure-mount: verifyPosition/fchroot");
@@ -410,37 +426,40 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
   return true;
 }
 
-static bool
-searchAndRemoveOption(char *buf, char const *needle)
+static struct FstabOption const *
+searchOption(char const *opt, size_t len)
 {
-  char		*pos = strstr(buf, needle);
-  size_t	len  = strlen(needle);
+  struct FstabOption const *		i;
+  for (i=FSTAB_OPTIONS+0; i<FSTAB_OPTIONS+DIM_OF(FSTAB_OPTIONS); ++i)
+    if (strncmp(i->opt, opt, len)==0) return i;
 
-  if (pos==0)                          return false;
-  if (pos>buf && pos[-1]!=',')         return false;
-  if (pos[len]!=',' && pos[len]!='\0') return false;
-
-  if (pos>buf || pos[len]!='\0') ++len;
-  if (pos>buf) --pos;
-
-  memmove(pos, pos+len, strlen(pos+len));
-  return true;
+  return 0;
 }
 
 static bool
 transformOptionList(struct MountInfo *info)
 {
-  struct FstabOptions const *	flag;
-    
-  for (flag=FSTAB_OPTIONS; flag->opt[0]!='\0'; ++flag) {
-    if (searchAndRemoveOption(info->data, flag->opt) || flag->is_dflt) {
-      info->flags &= flag->and_flag;
-      info->flags |= flag->or_flag;
-    }
-  }
+  char const *			ptr = info->data;
 
-  if (searchAndRemoveOption(info->data, "noauto"))
-    info->noauto = true;
+  do {
+    char const *		pos = strchr(ptr, ',');
+    struct FstabOption const *	opt;
+    
+    if (pos==0) pos = ptr+strlen(ptr);
+    opt = searchOption(ptr, pos-ptr);
+
+    if (opt!=0) {
+      info->flag  &= ~opt->mask;
+      info->flag  |=  opt->flag;
+      info->xflag |=  opt->xflag;
+    }
+
+    if (*pos!='\0')
+      ptr = pos+1;
+    else
+      ptr = pos;
+
+  } while (*ptr!='\0');
 
   return true;
 }
@@ -469,10 +488,10 @@ parseFstabLine(struct MountInfo	*info, char *buf)
   if (strcmp(info->type, "swap")==0) return prIGNORE;
   if (strcmp(info->type, "none")==0) info->type = 0;
 
-  info->flags  = 0;
-  info->noauto = false;
+  info->flag   = 0;
+  info->xflag  = 0;
   if (!transformOptionList(info)) return prFAIL;
-  if (info->noauto)               return prIGNORE;
+  if (info->xflag & XFLAG_NOAUTO) return prIGNORE;
 
   return prDOIT;
 }
@@ -553,9 +572,9 @@ int main(int argc, char *argv[])
     .src         = 0,
     .dst         = 0,
     .type        = 0,
-    .flags       = 0,
+    .flag        = 0,
+    .xflag	 = 0,
     .data        = 0,
-    .noauto	 = false
   };
 
   struct Options	opt = {
@@ -586,9 +605,9 @@ int main(int argc, char *argv[])
       case 'n'		:  opt.ignore_mtab = true;    break;
       case 'a'		:  opt.mount_all   = true;    break;
       case 'o'		:  mnt.data        = optarg;  break;
-      case OPTION_RBIND	:  mnt.flags      |= MS_REC;  /*@fallthrough@*/
-      case OPTION_BIND	:  mnt.flags      |= MS_BIND; break;
-      case OPTION_MOVE	:  mnt.flags      |= MS_MOVE; break;
+      case OPTION_RBIND	:  mnt.flag       |= MS_REC;  /*@fallthrough@*/
+      case OPTION_BIND	:  mnt.flag       |= MS_BIND; break;
+      case OPTION_MOVE	:  mnt.flag       |= MS_MOVE; break;
       case OPTION_MTAB	:  opt.mtab        = optarg;  break;
       case OPTION_FSTAB	:  opt.fstab       = optarg;  break;
       case OPTION_CHROOT:  opt.rootdir     = optarg;  break;
