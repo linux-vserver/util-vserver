@@ -1,11 +1,7 @@
-.*-up-to-date
-.deps
 COPYING
 ChangeLog
 INSTALL
 Makefile
-aclocal.m4
-autom4te.cache
 compile
 config.h
 config.h.in
