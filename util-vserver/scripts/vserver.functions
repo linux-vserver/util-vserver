@@ -228,8 +228,7 @@ function _generateFlagOptions
     while read flag; do
 	case x"$flag" in
 	    x|x#)		;;
-	    dummy)		;;
-	    fakeinit)
+	    xfakeinit)
 		CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
 		;;
 	    *)
