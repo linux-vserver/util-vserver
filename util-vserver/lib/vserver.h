@@ -49,17 +49,15 @@ extern "C" {
     /** Puts current process into context <ctx>, removes the given caps and
      *  sets flags.
      *  Special values for ctx are
-     *  - -2 which means the current context (just for changing caps and flags)
-     *  - -1 which means the next free context; this value can be used by
-     *    ordinary users also */
+     *  - VC_SAMECTX  which means the current context (just for changing caps and flags)
+     *  - VC_RANDCTX  which means the next free context; this value can be used by
+     *                ordinary users also */
   int	vc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags);
 
     /** Sets the ipv4root information.
      *  \precondition: nb<16 */
   int	vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips);
   
-  int	vc_chrootsafe(char const *dir);
-
 
   /* rlimit related functions */
   typedef uint64_t	vc_limit_t;
@@ -81,6 +79,13 @@ extern "C" {
   int	vc_get_rlimit(ctx_t ctx, int resource, struct vc_rlimit *lim);
   int	vc_set_rlimit(ctx_t ctx, int resource, struct vc_rlimit const *lim);
   int	vc_get_rlimit_mask(ctx_t ctx, struct vc_rlimit_mask *lim);
+
+
+  /** sends a signal to a context/pid
+      Special values for pid are:
+      * -1   which means every process in ctx except the init-process
+      *  0   which means every process in ctx inclusive the init-process */
+  int	vc_ctx_kill(ctx_t ctx, pid_t pid, int sig);
   
     /** Returns the context of the given process. pid==0 means the current process. */
   ctx_t	vc_X_getctx(pid_t pid);
