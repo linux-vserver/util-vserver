@@ -22,6 +22,7 @@ fi
 
 function cleanup()
 {
+    test -z "$startsync_pipe"  || rm -f "$startsync_pipe"
     test -z "$is_started"      || return 0
 
     if test "$is_configured" -a -z "$is_executed"; then
@@ -50,7 +51,7 @@ is recommended to fix this."
 
 Failed to start vserver '$VSERVER_NAME'"
     fi
-    
+
     test    "$OPTION_DEBUG"    || exec 2>/dev/null >/dev/null
     test -z "$is_mounted"      || umountVserver     "$VSERVER_DIR" || :
     test -z "$have_interfaces" || disableInterfaces "$VSERVER_DIR" || :
@@ -62,6 +63,7 @@ is_started=
 is_mounted=
 is_vshelper_init=
 have_interfaces=
+startsync_pipe=
 
 set -e
 trap "cleanup" EXIT
@@ -75,11 +77,13 @@ enableInterfaces "$VSERVER_DIR" && have_interfaces=1
 mountVserver "$VSERVER_DIR"     && is_mounted=1
 prepareInit  "$VSERVER_DIR"
 
-cd "$VSERVER_DIR"/vdir/
+pushd "$VSERVER_DIR"/vdir/ >/dev/null
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" pre-start
+popd >/dev/null
 
-cd "$VSERVER_DIR"/vdir/
+test -z "$OPTION_DEFAULTTTY" || setDefaultTTY
 
+pushd "$VSERVER_DIR"/vdir/ >/dev/null
 is_configured=1
 if $_VSERVER_INFO - FEATURE migrate; then
     $_CHBIND     "${CHBIND_OPTS[@]}" -- \
@@ -95,20 +99,35 @@ if $_VSERVER_INFO - FEATURE migrate; then
     $_VCONTEXT   --migrate-self --endsetup --chroot $SILENT_OPT "${OPTS_VCONTEXT_MIGRATE[@]}" -- \
     "${INITCMD_START[@]}"
 else
+    if test "$_IS_FAKEINIT"; then
+	startsync_pipe=$(mktemp /tmp/vserver-start.XXXXXX)
+	rm -f "$startsync_pipe"
+	mkfifo -m600 "$startsync_pipe"	## safe, since mkfifo does not follow symlinks
+    fi
+    
     ${NICE_CMD[@]} \
     $_CHBIND           "${CHBIND_OPTS[@]}" \
     $_EXEC_ULIMIT      "$VSERVER_DIR/ulimits" \
     $_CHCONTEXT_COMPAT "${CHCONTEXT_OPTS[@]}" "${CHCONTEXT_INIT_OPTS[@]}" \
     $_SAVE_CTXINFO     "$VSERVER_DIR" \
     $_CLEARENV \
+    $_CHAINECHO "${_IS_FAKEINIT:+$startsync_pipe}" "" \
     $_CAPCHROOT        "${CAPCHROOT_OPTS[@]}" . \
     "${INITCMD_START[@]}"
+
+    ## the additional synchronization step is needed since vshelper.doInit
+    ## below might be executed before needed context information were
+    ## saved by $_SAVE_CTXINFO
+    ${_IS_FAKEINIT:+cat "$startsync_pipe"} >/dev/null
 fi
 is_executed=1
 
 "${INITCMD_START_SYNC[@]}"
+popd >/dev/null
 
+pushd "$VSERVER_DIR"/vdir/ >/dev/null
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" post-start
+popd >/dev/null
 
 is_vshelper_init=1
 ! vshelper.isEnabled "" "$VSERVER_DIR" || vshelper.doInit "$VSERVER_DIR"
