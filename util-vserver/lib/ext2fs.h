@@ -19,9 +19,9 @@
 #ifndef H_UTIL_VSERVER_SRC_EXT2FS_H
 #define H_UTIL_VSERVER_SRC_EXT2FS_H
 
-#ifdef HAVE_EXT2FS_EXT2FS_H
-#  include <ext2fs/ext2fs.h>
-#elif defined(HAVE_LINUX_EXT2_FS_H)
+#ifdef ENSC_HAVE_EXT2FS_EXT2_FS_H
+#  include <ext2fs/ext2_fs.h>
+#elif defined(ENSC_HAVE_LINUX_EXT2_FS_H)
 #  include <linux/ext2_fs.h>
 #else
 #  error Do not know how to include <ext2_fs.h>
