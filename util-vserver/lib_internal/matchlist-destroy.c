@@ -27,7 +27,7 @@ MatchList_destroy(struct MatchList *list)
 {
   size_t		i;
 
-  String_destroy(&list->id);
+  String_free(&list->id);
   free(list->data);
 
   for (i=0; i<list->buf_count; ++i)
