@@ -253,14 +253,14 @@ extern "C" {
      *
      *	\returns the xid of the created context, or VC_NOCTX on errors. errno
      *	         will be set appropriately. */
-  xid_t	vc_create_context(xid_t xid);
+  xid_t	vc_ctx_create(xid_t xid);
 
     /** \brief   Moves the current process into the specified context.
      *  \ingroup syscalls
      *
      *  \param   xid  The new context
      *  \returns 0 on success, -1 on errors */
-  int	vc_migrate_context(xid_t xid);
+  int	vc_ctx_migrate(xid_t xid);
   
     /* rlimit related functions */
   
@@ -394,8 +394,8 @@ extern "C" {
       size_t		len;
   };
  
-  int			vc_get_flags(xid_t xid, struct vc_ctx_flags *)       VC_ATTR_NONNULL((2));
-  int			vc_set_flags(xid_t xid, struct vc_ctx_flags const *) VC_ATTR_NONNULL((2));
+  int			vc_get_cflags(xid_t xid, struct vc_ctx_flags *)       VC_ATTR_NONNULL((2));
+  int			vc_set_cflags(xid_t xid, struct vc_ctx_flags const *) VC_ATTR_NONNULL((2));
 
   int			vc_get_ccaps(xid_t xid, struct vc_ctx_caps *);
   int			vc_set_ccaps(xid_t xid, struct vc_ctx_caps const *);
@@ -412,16 +412,16 @@ extern "C" {
 				     struct vc_err_listparser *err,
 				     struct vc_ctx_caps *);
 
-  int			vc_list2flag(char const *, size_t len,
+  int			vc_list2cflag(char const *, size_t len,
 				     struct vc_err_listparser *err,
 				     struct vc_ctx_flags *flags);
-  uint_least64_t	vc_text2flag(char const *, size_t len);
-  char const *		vc_loflag2text(uint_least64_t *);
+  uint_least64_t	vc_text2cflag(char const *, size_t len);
+  char const *		vc_locflag2text(uint_least64_t *);
   
-  uint_least32_t	vc_list2flag_compat(char const *, size_t len,
+  uint_least32_t	vc_list2cflag_compat(char const *, size_t len,
 					    struct vc_err_listparser *err);
-  uint_least32_t	vc_text2flag_compat(char const *, size_t len);
-  char const *		vc_hiflag2text_compat(uint_least32_t);
+  uint_least32_t	vc_text2cflag_compat(char const *, size_t len);
+  char const *		vc_hicflag2text_compat(uint_least32_t);
 
   uint_least32_t	vc_get_insecurecaps() VC_ATTR_CONST;
   int			vc_text2cap(char const *);

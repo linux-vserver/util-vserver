@@ -50,8 +50,8 @@ vc_set_ipv4root_compat(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const 
   msg.broadcast = bcast;
 
   for (i=0; i<nb; ++i) {
-    msg.ip_mask_pair[i].ip   = ips[i].ip;
-    msg.ip_mask_pair[i].mask = ips[i].mask;
+    msg.nx_mask_pair[i].ip   = ips[i].ip;
+    msg.nx_mask_pair[i].mask = ips[i].mask;
   }
 
   return vserver(VCMD_set_ipv4root, nb, &msg);

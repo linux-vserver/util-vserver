@@ -24,9 +24,9 @@
 #include <assert.h>
 #include <string.h>
 
-#define TEST_T2F_C(X,Y,Z) assert(vc_text2flag_compat(X,Y)==Z)
+#define TEST_T2F_C(X,Y,Z) assert(vc_text2cflag_compat(X,Y)==Z)
 #define TEST_F2T_C(Y,X) {			\
-    char const *x=vc_hiflag2text_compat(X);	\
+    char const *x=vc_hicflag2text_compat(X);	\
     assert((x==0 && Y==0) || (x!=0 && Y!=0));	\
     if (x!=0) assert(strcmp(x, Y)==0);		\
   }
@@ -35,7 +35,7 @@
     struct vc_err_listparser	err;			\
     char			buf[] = STR;		\
     uint32_t			res;			\
-    res = vc_list2flag_compat(buf, LEN, &err);		\
+    res = vc_list2cflag_compat(buf, LEN, &err);		\
     assert(res==(EXP));					\
     assert(err.len==ERR_LEN);				\
     if (ERR_POS==-1) assert(err.ptr==0);		\
@@ -44,10 +44,10 @@
 
 //----
 
-#define TEST_T2F(X,Y,Z) assert(vc_text2flag(X,Y)==Z)
+#define TEST_T2F(X,Y,Z) assert(vc_text2cflag(X,Y)==Z)
 #define TEST_F2T(Y,X) {				\
     uint_least64_t x = (X);			\
-    char const *rc=vc_loflag2text(&x);		\
+    char const *rc=vc_locflag2text(&x);		\
     assert((rc==0 && Y==0) || (rc!=0 && Y!=0));	\
     if (rc!=0) assert(strcmp(rc, Y)==0);	\
   }
@@ -56,7 +56,7 @@
     char			buf[] = STR;				\
     volatile int		res;					\
     struct vc_ctx_flags		flags = {0,0};				\
-    res = vc_list2flag(buf, LEN, &err, &flags);				\
+    res = vc_list2cflag(buf, LEN, &err, &flags);				\
     assert(res==(EXP_RES));						\
     assert(flags.flagword==(EXP_FLAG));					\
     assert(flags.mask    ==(EXP_MASK));					\
