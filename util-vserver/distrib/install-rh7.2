@@ -42,6 +42,8 @@ else
 	echo `ls /mnt/cdrom/RedHat/RPMS/*.noarch.rpm \
 		/mnt/cdrom/RedHat/RPMS/*.i386.rpm | wc -l` packages to install
 	VROOT=$VROOTDIR/$1
+	mkdir -p -m755 $VROOT
+	chattr -t $VROOT
 	mkdir -p $VROOT/proc
 	mount -t proc none $VROOT/proc
 	mkdir -p $VROOT/var/lib/rpm

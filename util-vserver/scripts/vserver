@@ -284,9 +284,11 @@ elif [ "$2" = "build" ] ; then
 		if [ ! -d $VROOTDIR ] ; then
 			mkdir $VROOTDIR || exit 1
 			chmod 000 $VROOTDIR
+			chattr +t $VROOTDIR
 			echo Directory $VROOTDIR was created with permissions 000
 		fi
 		mkdir -p $VROOTDIR/$1 || exit 1
+		chattr -t $VROOTDIR/$1
 		chmod 755 $VROOTDIR/$1
 		if test "$UTIL_VSERVER_AVOID_COPY"; then
 		    mkdir -p $VROOTDIR/$1/{etc/rc.d/init.d,sbin,var/run,var/log}

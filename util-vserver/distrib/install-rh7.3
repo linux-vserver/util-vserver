@@ -42,6 +42,8 @@ elif [ ! -d /mnt/cdrom/RedHat/RPMS ] ; then
 	echo No rpms in /mnt/cdrom/RedHat/RPMS. Is the CD mounted \?
 else
 	VROOT=$VROOTDIR/$1
+	mkdir -p -m755 $VROOT
+	chattr -t $VROOT
 	mkdir -p $VROOT/proc
 	mount -t proc none $VROOT/proc
 	mkdir -p $VROOT/var/lib/rpm

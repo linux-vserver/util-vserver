@@ -36,6 +36,8 @@ else
 	mkdir -p /etc/vservers
 	mkdir -p $VROOTDIR 2>/dev/null
 	VROOT=$VROOTDIR/$1
+	mkdir -p -m755 $VROOT
+	chattr -t $VROOT
 	rm -fr $VROOT/dev
 	mkdir -p $VROOT/dev && chmod 755 $VROOT/dev
 	mkdir $VROOT/dev/pts
