@@ -182,7 +182,7 @@ function sendKillSequence
     while isCtxRunning "$ctx"; do
 	test -z "$wait" || sleep "$wait"
 	
-	$_VKILL -c "$ctx" ${1:+-s "$1"}
+	$_VKILL -c "$ctx" ${1:+-s "$1"} 2>/dev/null || :
 	test "$2" || break
 	wait="$2"
 	shift 2
