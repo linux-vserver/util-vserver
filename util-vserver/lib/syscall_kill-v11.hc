@@ -27,5 +27,5 @@ vc_ctx_kill_v11(xid_t ctx, pid_t pid, int sig)
   param.pid = pid;
   param.sig = sig;
 
-  return vserver(VCMD_ctx_kill, ctx, &param);
+  return vserver(VCMD_ctx_kill, CTX_USER2KERNEL(ctx), &param);
 }

@@ -32,7 +32,7 @@ vc_get_iattr_v13(dev_t dev, ino_t ino,
   attr.ino = ino;
   
   rc = vserver(VCMD_get_iattr, dev, &attr);
-  if (xid)   *xid   = attr.xid;
+  if (xid)   *xid   = CTX_KERNEL2USER(attr.xid);
   if (flags) *flags = attr.flags;
   if (mask)  *mask  = attr.mask;
 

@@ -24,7 +24,9 @@ static inline ALWAYSINLINE int
 vc_get_vx_info_v13(xid_t xid, struct vc_vx_info *info)
 {
   struct vcmd_vx_info_v0	res;
-  int				rc = vserver(VCMD_vx_info, xid, &res);
+  int				rc;
+
+  rc = vserver(VCMD_vx_info, CTX_USER2KERNEL(xid), &res);
   if (rc==-1) return -1;
 
   info->xid     = CTX_KERNEL2USER(res.xid);
