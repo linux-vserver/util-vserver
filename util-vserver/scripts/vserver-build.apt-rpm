@@ -53,7 +53,7 @@ test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_V
 rpm.importGPGPubKeys "$SETUP_CONFDIR" "$CONFDIR/.distributions/$DISTRIBUTION/pubkeys" "$DISTRIBDIR/$DISTRIBUTION/pubkeys"
 rpm.initDB           "$SETUP_CONFDIR"
 $_VAPT_GET "$SETUP_CONFDIR" -- update
-apt.installBasePackages "$SETUP_CONFDIR" "$PKGDIR"
+apt.installBasePackages "$SETUP_CONFDIR" "$PKGINSTALLDIR"
 $_VAPT_GET "$SETUP_CONFDIR" -- dist-upgrade -y
 $_VAPT_GET "$SETUP_CONFDIR" -- clean
 test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
