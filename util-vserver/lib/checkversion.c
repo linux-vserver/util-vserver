@@ -34,7 +34,7 @@ utilvserver_checkCompatVersion()
     res     = vc_get_version_internal(VC_CAT_COMPAT);
     v_errno = errno;
 #ifdef VC_ENABLE_API_LEGACY
-    if (res==-1 && errno==ENOSYS) res=0;
+    if (res==-1 && (errno==ENOSYS || errno==EAGAIN)) res=0;
 #endif    
   }
 
