@@ -24,6 +24,7 @@
 #include "lib_internal/util-mem.h"
 #include "lib_internal/util-safechdir.h"
 #include "lib_internal/util-dotfile.h"
+#include "lib_internal/util-perror.h"
 
 #include <unistd.h>
 #include <string.h>
