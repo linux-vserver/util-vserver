@@ -31,7 +31,6 @@
 */
 #include "safechroot-internal.hc"
 
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -81,55 +80,85 @@ static int rev_chrootsafe=-1;
 static _syscall1 (int, chrootsafe, const char *, dir)
 
 static bool	is_init = false;
+
+#include "utils-legacy.h"
+
+#ifndef WRITE_MSG
+#  define WRITE_MSG(FD,X)         (void)(write(FD,X,sizeof(X)-1))
+#endif
+
+
+static bool
+getNumRevPair(char const *str, int *num, int *rev)
+{
+  char const *	blank_pos = strchr(str, ' ');
+  char const *	eol_pos   = strchr(str, '\n');
   
+  *num = atoi(str);
+  if (*num==0) return false;
+  
+  if (blank_pos!=0 && eol_pos!=0 && blank_pos<eol_pos &&
+      strncmp(blank_pos+1, "rev", 3)==0)
+    *rev = atoi(blank_pos+4);
+
+  return true;
+}
+
+#define SET_TAG_POS(TAG)			\
+  pos = strstr(buf, (TAG));			\
+  if (pos) pos+=sizeof(TAG)-1
+
+static bool init_internal()
+{
+  size_t			bufsize = utilvserver_getProcEntryBufsize();
+  char				buf[bufsize];
+  char const *			pos = 0;
+  pid_t				pid = getpid();
+  int				num;
+
+  errno = 0;
+
+  pos=utilvserver_getProcEntry(pid, 0, buf, bufsize);
+  if (pos==0 && errno==EAGAIN) return false;
+  
+  SET_TAG_POS("\n__NR_set_ipv4root: ");
+  if ( pos!=0 && getNumRevPair(pos, &num, &rev_ipv4root) ) {
+    __NR_set_ipv4root_rev0 =
+      __NR_set_ipv4root_rev1 =
+      __NR_set_ipv4root_rev2 =
+      __NR_set_ipv4root_rev3 = num;
+  }
+
+#if 0  
+  SET_TAG_POS("\n__NR_set_ctxlimit: ");
+  if ( pos!=0 && getNumRevPair(pos, &num, &rev_set_ctxlimit) )
+    __NR_set_ctxlimit = num;
+#endif  
+
+  SET_TAG_POS("\n__NR_chrootsafe: ");
+  if ( pos!=0 && getNumRevPair(pos, &num, &rev_chrootsafe) )
+    __NR_chrootsafe   = num;
+
+  SET_TAG_POS("\n__NR_new_s_context: ");
+  if ( pos!=0 && getNumRevPair(pos, &num, &rev_s_context) )
+    __NR_new_s_context_rev0 = num;
+
+  return true;
+}
+
+#undef SET_TAG_POS
+
 static void init()
 {
 	if (!is_init){
-		FILE *fin = fopen ("/proc/self/status","r");
 		__NR_set_ipv4root_rev0 = def_NR_set_ipv4root;
 		__NR_set_ipv4root_rev1 = def_NR_set_ipv4root;
 		__NR_set_ipv4root_rev2 = def_NR_set_ipv4root;
 		__NR_set_ipv4root_rev3 = def_NR_set_ipv4root;
 		__NR_new_s_context_rev0 = def_NR_new_s_context;
-		  //__NR_new_s_context_rev1 = def_NR_new_s_context;
-		if (fin != NULL){
-			char line[100];
-			while (fgets(line,sizeof(line)-1,fin)!=NULL){
-				int num;
-				char title[100],rev[100];
-				rev[0] = '\0';
-				if (sscanf(line,"%s %d %s",title,&num,rev)>=2){
-					if (strcmp(title,"__NR_set_ipv4root:")==0){
-						__NR_set_ipv4root_rev0 = num;
-						__NR_set_ipv4root_rev1 = num;
-						__NR_set_ipv4root_rev2 = num;
-						__NR_set_ipv4root_rev3 = num;
-						if (strncmp(rev,"rev",3)==0){
-							rev_ipv4root = atoi(rev+3);
-						}
-#if 0						
-					}else if (strcmp(title,"__NR_set_ctxlimit:")==0){
-						__NR_set_ctxlimit = num;
-						if (strncmp(rev,"rev",3)==0){
-							rev_set_ctxlimit = atoi(rev+3);
-						}
-#endif						
-					}else if (strcmp(title,"__NR_chrootsafe:")==0){
-						__NR_chrootsafe = num;
-						if (strncmp(rev,"rev",3)==0){
-							rev_chrootsafe = atoi(rev+3);
-						}
-					}else if (strcmp(title,"__NR_new_s_context:")==0){
-						__NR_new_s_context_rev0 = num;
-						  //__NR_new_s_context_rev1 = num;
-						if (strncmp(rev,"rev",3)==0){
-							rev_s_context = atoi(rev+3);
-						}
-					}
-				}
-			}
-			fclose (fin);
-		}
+
+		while (!init_internal() && errno==EAGAIN) {}
+
 		is_init = true;
 	}
 }
@@ -178,12 +207,12 @@ vc_set_ipv4root_legacy_internal (
 	init();
 	if (rev_ipv4root == 0){
 		if (nb > 1){
-			fprintf (stderr,"set_ipv4root: Several IP number specified, but this kernel only supports one. Ignored\n");
+			WRITE_MSG(2,"set_ipv4root: Several IP number specified, but this kernel only supports one. Ignored\n");
 		}
 		return set_ipv4root_rev0 (ip[0]);
 	}else if (rev_ipv4root == 1){
 		if (nb > 1){
-			fprintf (stderr,"set_ipv4root: Several IP number specified, but this kernel only supports one. Ignored\n");
+			WRITE_MSG(2,"set_ipv4root: Several IP number specified, but this kernel only supports one. Ignored\n");
 		}
 		return set_ipv4root_rev1 (ip[0],bcast);
 	}else if (rev_ipv4root == 2){
@@ -220,8 +249,7 @@ vc_chrootsafe_legacy (const char *dir)
 	}else if (rev_chrootsafe == 0){
 		return chrootsafe (dir);
 	}else{
-		fprintf (stderr,"chrootsafe: kernel support version %d, application expects version 0\n"
-			,rev_chrootsafe);
+	        WRITE_MSG(2, "chrootsafe: kernel supports wrong version, application expects version 0\n");
 	}
 	errno = EINVAL;
 	return -1;
