@@ -43,7 +43,7 @@ An error occured after executing the vserver startup sequence. This
 means that some processes may exist in the created context and the
 manual execution of
 
-  $_VSERVER '$VSERVER_NAME' stop
+  $_VSERVER '$VSERVER_DIR' stop
 
 is recommended to fix this."
     else
