@@ -20,6 +20,7 @@
 #  include <config.h>
 #endif
 
+#include "lib/utils-legacy.h"
 #include "pathconfig.h"
 #include "util.h"
 
@@ -33,6 +34,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/utsname.h>
+#include <dirent.h>
 
 #define ENSC_WRAPPERS_FCNTL	1
 #define ENSC_WRAPPERS_IO	1
@@ -177,7 +179,7 @@ getXid(char *buf, char const *vserver)
 }
 
 static char *
-getInitPid(char *buf, xid_t xid)
+getInitPid_native(char *buf, xid_t xid)
 {
   struct vc_vx_info		info;
   
@@ -188,6 +190,71 @@ getInitPid(char *buf, xid_t xid)
   }
 
   return 0;
+}
+
+#if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_V11)
+static int
+selectPid(struct dirent const *ent)
+{
+  return atoi(ent->d_name)!=0;
+}
+
+static bool
+getInitPid_internal(pid_t pid, xid_t xid, pid_t *res)
+{
+  *res = -1;
+  
+  for (;*res==-1;) {
+    size_t			bufsize = utilvserver_getProcEntryBufsize();
+    char			buf[bufsize+1];
+    char			*pos = 0;
+
+    pos = utilvserver_getProcEntry(pid, "\ns_context: ", buf, bufsize);
+    if (pos==0 && errno==EAGAIN) continue;
+
+    if (pos==0 || (xid_t)atoi(pos)!=xid) return false;
+
+    buf[bufsize] = '\0';
+    pos          = strstr(buf, "\ninitpid: ");
+    
+    if (pos!=0) {
+      pos         += sizeof("\ninitpid: ")-1;
+      if (strncmp(pos, "none", 4)==0) *res = -1;
+      else                            *res = atoi(pos);
+    }
+  }
+
+  return true;
+}
+
+static char *
+getInitPid_emulated(char *buf, xid_t xid)
+{
+  struct dirent **namelist;
+  int		n;
+  
+  vc_new_s_context(1,0,0);	// ignore errors silently...
+  n = scandir("/proc", &namelist, selectPid, alphasort);
+  if (n<0) perror("scandir()");
+  else while (n--) {
+    pid_t	pid;
+    if (!getInitPid_internal(atoi(namelist[n]->d_name), xid, &pid)) continue;
+
+    utilvserver_fmt_long(buf, pid);
+    return buf;
+  }
+
+  return 0;
+}
+#endif // VC_ENABLE_API_COMPAT
+
+static char *
+getInitPid(char *buf, xid_t xid)
+{
+  if (vc_isSupported(vcFEATURE_VINFO))
+    return getInitPid_native(buf, xid);
+  else
+    return getInitPid_emulated(buf, xid);
 }
 
 static char *
