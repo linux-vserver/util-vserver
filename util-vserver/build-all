@@ -54,7 +54,9 @@ function operate()
 
 case "$1" in
     dist)
-	test -e Makefile || CPPFLAGS=$CPPFLAGS ./configure $confflags
+	test -e Makefile || \
+	    CFLAGS='-O0 -g3' CXXFLAGS='-O0 -g3' CPPFLAGS=$CPPFLAGS \
+	    ./configure $confflags
 	$make
 	exit
 	;;
