@@ -47,13 +47,19 @@ struct MatchList
     size_t		buf_count;
 };
 
+struct MatchVserverInfo
+{
+    char const 		*name;
+    bool		use_pkgmgmt;
+};
+
 void		MatchList_init(struct MatchList *, char const *root,
 			       size_t count) NONNULL((1,2));
 bool		MatchList_initByVserver(struct MatchList *,
-					char const *vserver,
+					struct MatchVserverInfo const *vserver,
 					char const **res_appdir) NONNULL((1,2));
 void		MatchList_initManually(struct MatchList *list,
-				       char const *vserver,
+				       struct MatchVserverInfo const *vserver,
 				       char const *vdir,
 				       char const *exclude_file) NONNULL((1,3,4));
 void		MatchList_initRefserverList(struct MatchList **, size_t *cnt,
