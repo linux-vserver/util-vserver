@@ -41,6 +41,7 @@ base   @PKGLIBDIR@/clearenv
 base   @PKGLIBDIR@/exec-ulimit
 base   @PKGLIBDIR@/fakerunlevel
 base   @PKGLIBDIR@/filetime
+base   @PKGLIBDIR@/lockfile
 base   @PKGLIBDIR@/keep-ctx-alive
 base   @PKGLIBDIR@/mask2prefix
 build  @PKGLIBDIR@/pkgmgmt

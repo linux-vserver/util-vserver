@@ -19,6 +19,7 @@ filetime
 ifspec
 keep-ctx-alive
 listdevip
+lockfile
 lsxid
 mask2prefix
 new-namespace
