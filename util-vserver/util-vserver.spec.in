@@ -18,7 +18,8 @@ Requires:	%name-core = %epoch:%version-%release
 Provides:	vserver = %epoch:%version-%release
 Obsoletes:	vserver < %epoch:%version
 BuildRequires:	mount vconfig gawk iproute
-BuildRequires:	dietlibc gcc-c++
+BuildRequires:	gcc-c++
+%{!?_without_dietlibc:BuildRequires:	dietlibc}
 
 %package core
 Summary:	The core-utilities for util-vserver
@@ -64,7 +65,8 @@ set_ipv4root system call.
 
 
 %build
-%configure --with-initrddir=%_initrddir --enable-release
+%configure --with-initrddir=%_initrddir --enable-release \
+           %{?_without_dietlibc:--disable-dietlibc}
 %__make %{?_smp_mflags}
 
 
