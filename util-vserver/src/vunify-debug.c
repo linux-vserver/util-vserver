@@ -31,7 +31,7 @@ MatchList_destroy(struct MatchList *list)
   free(list->data);
 
   for (i=0; i<list->buf_count; ++i)
-    free(list->buf[i]);
+    free(const_cast(void *)(list->buf[i]));
 
   free(list->buf);
 }
