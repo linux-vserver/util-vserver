@@ -49,5 +49,5 @@ pushd $tmpdir &>/dev/null
 popd &>/dev/null
 
 
-$D ./src/vunify -n --manually $tmpdir/a '' $tmpdir/b ''
-$D ./src/vunify -n --manually $tmpdir/a '' $tmpdir/c ''
+$D ./src/vunify -n --manually $tmpdir/a '' $tmpdir/b '' >/dev/null
+$D ./src/vunify -n --manually $tmpdir/a '' $tmpdir/c '' >/dev/null
