@@ -33,9 +33,11 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
 
 #include "vserver.h"
+#include "util.h"
+#include "internal.h"
+#include "wrappers.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,10 +51,13 @@
 #include <errno.h>
 #include <syscall.h>
 #include <time.h>
+#include <stdbool.h>
 
 #define PROC_DIR_NAME "/proc"
 #define CTX_DIR_NAME "/var/run/vservers/"
 #define CTX_NAME_MAX_LEN 50
+
+int	wrapper_exit_code = 1;
 
 struct ctx_list
 {
@@ -78,52 +83,90 @@ struct process_info
 
 char *process_name;
 
-void usage()
-{
-	fprintf(stderr, "%s: from vserver kit version %s\n", process_name, VERSION);
-	fprintf(stderr, "(no argument needed)\n\n");
-	fprintf(stderr, "Show informations about all the active context.\n\n");
-	fprintf(stderr, "	CTX#		Context number\n");
-	fprintf(stderr, "			#0 = root context\n");
-	fprintf(stderr, "			#1 = monitoring context\n");
-	fprintf(stderr, "	PROC QTY	Quantity of processes in each context\n");
-	fprintf(stderr, "	VSZ		Number of pages of virtual memory\n");
-	fprintf(stderr, "	RSS		Resident set size\n");
-	fprintf(stderr, "	userTIME	User-mode CPU time accumulated\n");
-	fprintf(stderr, "	sysTIME		Kernel-mode CPU time accumulated\n");
-	fprintf(stderr, "	UPTIME		Uptime/context\n");
-	fprintf(stderr, "	NAME		Virtual server name\n");
-	fprintf(stderr, "\n");
+struct ArgInfo {
+    enum { tpUNSET, tpCTX, tpPID }	type;
+    ctx_t		ctx;
+    pid_t		pid;
+    unsigned int	interval;
+    bool		shutdown;
+    bool		omit_init;
+    size_t		argc;
+    char * const *	argv;
+};
 
+static void
+showHelp(int fd, char const *cmd, int res)
+{
+  WRITE_MSG(fd, "Usage:  ");
+  WRITE_STR(fd, cmd);
+  WRITE_MSG(fd,
+	    "\n"
+	    "Show informations about all the active context.\n\n"
+	    "	CTX#		Context number\n"
+	    "			#0 = root context\n"
+	    "			#1 = monitoring context\n"
+	    "	PROC QTY	Quantity of processes in each context\n"
+	    "	VSZ		Number of pages of virtual memory\n"
+	    "	RSS		Resident set size\n"
+	    "	userTIME	User-mode CPU time accumulated\n"
+	    "	sysTIME		Kernel-mode CPU time accumulated\n"
+	    "	UPTIME		Uptime/context\n"
+	    "	NAME		Virtual server name\n"
+	    "\n");
+  exit(res);
 }
 
-// return uptime (in ms) from /proc/uptime
-long get_uptime()
+static void
+showVersion()
 {
-	int fd;
-	double up;
-	char buffer[64];
+  WRITE_MSG(1,
+	    "vserver-stat " VERSION " -- show virtual context statistics\n"
+	    "This program is part of " PACKAGE_STRING "\n\n"
+	    "Copyright (C) 2003 Enrico Scholz\n"
+	    VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
+}
 
-	// open the /proc/uptime file
-	if ((fd = open("/proc/uptime", O_RDONLY, 0)) == -1)
-		return 0;
 
-	if (read(fd, buffer, sizeof(buffer)) < 1)
-		return 0;
+// return uptime (in ms) from /proc/uptime
+static uint64_t
+getUptime()
+{
+  int		fd;
+  char		buffer[64];
+  char *	errptr;
+  size_t	len;
+  time_t	secs;
+  uint32_t	msecs=0;
 
-	close(fd);
+    // open the /proc/uptime file
+  fd  = Eopen("/proc/uptime", O_RDONLY, 0);
+  len = Eread(fd, buffer, sizeof buffer);
 
-	if (sscanf(buffer, "%lf", &up) < 1)
-	{
-		fprintf(stderr, "%s: bad data in /proc/uptime\n", process_name);
-		return 0;
-	}
+  if (len==sizeof(buffer)) {
+    WRITE_MSG(2, "Too much data in /proc/uptime; aborting...\n");
+    exit(1);
+  }
+  Eclose(fd);
 
-	return up * 100;
+  while (len>0 && buffer[len-1]=='\n') --len;
+  buffer[len] = '\0';
+
+  secs = strtol(buffer, &errptr, 10);
+  if (*errptr!='.') errptr = buffer;
+  else              msecs = strtol(errptr+1, &errptr, 10);
+
+  if ((*errptr!='\0' && *errptr!=' ') || errptr==buffer) {
+    WRITE_MSG(2, "Bad data in /proc/uptime\n");
+    exit(1);
+  }
+
+  return secs*100 + msecs;
 }
 
 // insert a new record to the list
-struct ctx_list *insert_ctx(int ctx, struct ctx_list *next)
+static struct ctx_list *
+insert_ctx(int ctx, struct ctx_list *next)
 {
 	struct ctx_list *new;
 
@@ -141,24 +184,9 @@ struct ctx_list *insert_ctx(int ctx, struct ctx_list *next)
 	return new;
 }
 
-// find the ctx record with the ctx number
-struct ctx_list *find_ctx(struct ctx_list *list, int ctx)
-{
-	// very simple search engine...
-	while(list != NULL)
-	{
-		// find
-		if (list->ctx == ctx)
-		{
-			return list;
-		}
-		list = list->next;
-	}
-	return NULL;
-}
-
 // compute the process info into the list
-void add_ctx(struct ctx_list *list, struct process_info *process)
+static void
+add_ctx(struct ctx_list *list, struct process_info *process)
 {
 	list->process_count ++;
 	list->VmSize_total += process->VmSize;
@@ -174,7 +202,8 @@ void add_ctx(struct ctx_list *list, struct process_info *process)
 }
 
 // increment the count number in the ctx record using ctx number
-void count_ctx(struct ctx_list *list, struct process_info *process)
+static void
+count_ctx(struct ctx_list *list, struct process_info *process)
 {
 	struct ctx_list *prev = list;
 
@@ -206,7 +235,8 @@ void count_ctx(struct ctx_list *list, struct process_info *process)
 }
 
 // free mem
-void free_ctx(struct ctx_list *list)
+static void
+free_ctx(struct ctx_list *list)
 {
 	struct ctx_list *prev;
 
@@ -217,296 +247,247 @@ void free_ctx(struct ctx_list *list)
 	}
 }
 
-/*
-	Read the vserver description
-*/
-static void read_description(
-	const char *name,		// Vserver name
-	char descrip[1000])
-{
-	char conf[PATH_MAX];
-	FILE *fin;
-	descrip[0] = '\0';
-	snprintf (conf,sizeof(conf)-1,"/etc/vservers/%s.conf",name);
-	fin = fopen (conf,"r");
-	if (fin != NULL){
-		char line[1000];
-		while (fgets(line,sizeof(line)-1,fin)!=NULL){
-			if (line[0] == '#'){
-				char *pt = line+1;
-				while (isspace(*pt)) pt++;
-				if (strncmp(pt,"Description:",12)==0){
-					int last;
-					pt += 12;
-					while (isspace(*pt)) pt++;
-					strcpy (descrip,pt);
-					last = strlen(descrip)-1;
-					if (last >=0 && descrip[last] == '\n'){
-						descrip[last] = '\0';
-					}
-				}
-			}
-		}
-		fclose (fin);
-	}
-}
-
-// show the ctx_list with name from /var/run/servers/*.ctx
-void show_ctx(struct ctx_list *list)
-{
-	// fill the ctx_list using the /var/run/servers/*.ctx file(s)
-	 __extension__ int bind_ctx_name(struct ctx_list *list)
-	{
-		// fetch the context number in /var/run/vservers/'filename'
-		int fetch_ctx_number(char *filename)
-		{
-			int fd;
-			int ctx;
-			char buf[25];
-
-			// open file
-			if ((fd = open(filename, O_RDONLY, 0)) == -1)
-				return -1;
-			// put the file in a small buffer
-			if (read(fd, buf, sizeof(buf)) < 1)
-				return -1;
-
-			close(fd);
-
-			sscanf(buf, "S_CONTEXT=%d", &ctx);
-			return ctx;
-		}
-
-		/* begin bind_ctx_name */
-
-		DIR *ctx_dir;
-		struct dirent *dir_entry;
-		char *p;
-		char ctx_name[CTX_NAME_MAX_LEN];
-		struct ctx_list *ctx;
-		int ctx_number;
-
-		// open the /var/run/vservers directory
-		if ((ctx_dir = opendir(CTX_DIR_NAME)) == NULL)
-		{
-			fprintf(stderr, "%s: in openning %s: %s\n", process_name, CTX_DIR_NAME, strerror(errno));
-			return -1;
-		}
-	
-		chdir(CTX_DIR_NAME);
-		while ((dir_entry = readdir(ctx_dir)) != NULL)
-		{
-			strncpy(ctx_name, dir_entry->d_name, sizeof(ctx_name));
-			p = strstr(ctx_name, ".ctx");
-			if (p != NULL) // make sure that it is a .ctx file..
-			{
-				*p = '\0'; // remove the .ctx in the file name
-				if ((ctx_number = fetch_ctx_number(dir_entry->d_name)) > 1)
-				{
-					if ((ctx = find_ctx(list, ctx_number)) != NULL)
-						strncpy(ctx->name, ctx_name, CTX_NAME_MAX_LEN);
-				}
-			}
-			// else fprintf(stderr, "invalid file %s in %s\n", dir_entry->d_name, CTX_DIR_NAME);
-		}
-		closedir(ctx_dir);	
-		return 0;
-	}
-
-	 __extension__ char *convert_time(unsigned t, char *str)
-	{
-		unsigned hh, mm, ss, ms;
-
-		ms = t % 100;
-		t /= 100;
-
-		ss = t%60;
-		t /= 60;
-		mm = t%60;
-		t /= 60;
-		hh = t%60;
- 		t /= 24;
-
-		if (t > 0)	// day > 0
-		{
-	  			snprintf(str, 25, "%3.ud%02uh%02u", t, (hh%12) ? hh%12 : 12, mm);
-		}
-		else
-		{
-			if (hh > 0) // hour > 0
-	  			snprintf(str, 25, " %2.uh%02um%02u", hh, mm, ss);
-			else
-			{
-	  			snprintf(str, 25, " %2.um%02u.%02u", mm, ss, ms);
-			}
-		}
-		return str;
-	}
-
-	 __extension__ char *convert_mem(unsigned long total, char *str)
-	{
-		// Byte
-		if (total < 1024)
-		{
-			snprintf(str, 25, "%luB", total);
-			return str;
-		}
-
-		total >>= 10; // kByte
-		if (total < 1024)
-		{
-			snprintf(str, 25, "%lukB", total);
-			return str;
-		}
-
-		total >>= 10; // MByte
-		if (total < 1024)
-		{
-			snprintf(str, 25, "%luMB", total);
-			return str;
-		}
-
-		total >>= 10; // GByte
-		if (total < 1024)
-		{
-			snprintf(str, 25, "%luGB", total);
-			return str;
-		}
-		total >>= 10; // TByte
-		snprintf(str, 25, "%luTB", total);
-		return str;
-	}
-
-	/* begin show_ctx */
-	char utime[25], stime[25], ctx_uptime[25];
-	char vmsize[25], vmrss[25];
-	long uptime = get_uptime();
-
-	// now we have all the active context, fetch the name
-	// from /var/run/vservers/*.ctx
-	bind_ctx_name(list);
-
-	printf("CTX  PROC    VSZ    RSS  userTIME   sysTIME    UPTIME NAME     DESCRIPTION\n");
-	while(list != NULL)
-	{
-		char descrip[1000];
-		if (list->ctx == 1)
-			strncpy(list->name, "monitoring server", CTX_NAME_MAX_LEN);
-
-		read_description (list->name,descrip);
-
-		printf("%-4d %4d %6s %6s %9s %9s %9s %-8s %s\n", list->ctx, list->process_count,
-			convert_mem(list->VmSize_total, vmsize), convert_mem(list->VmRSS_total, vmrss),
-			convert_time(list->utime_total, utime), convert_time(list->stime_total, stime), convert_time(uptime - list->start_time_oldest, ctx_uptime)
-			, list->name,descrip);
-		list = list->next;
-	}
-}
 
 // open the process's status file to get the ctx number, and other stat
 struct process_info *get_process_info(char *pid)
 {
-	int fd;
-	char buffer[1024];
-	char *p;
-	static struct process_info process;
+  int 		fd;
+  char		buffer[1024];
+  char		*p;
+  size_t		idx, l=strlen(pid);
+  static struct process_info process;
 
-	// open the proc/#/status file
-	snprintf(buffer, sizeof(buffer),  "/proc/%s/status", pid);
-	if ((fd = open(buffer, O_RDONLY, 0)) == -1)
-		return NULL;
-	// put the file in a buffer
-	if (read(fd, buffer, sizeof(buffer)) < 1)
-		return NULL;
+  process.s_context = vc_X_getctx(atoi(pid));
 
-	close(fd);
+  
+  memcpy(buffer,     "/proc/", 6); idx  = 6;
+  memcpy(buffer+idx, pid,      l); idx += l;
+  memcpy(buffer+idx, "/stat",  6);
+	
+    // open the /proc/#/stat file
+  if ((fd = open(buffer, O_RDONLY, 0)) == -1)
+    return NULL;
+    // put the file in a buffer
+  if (read(fd, buffer, sizeof(buffer)) < 1)
+    return NULL;
 
-	// find the s_context entry
-	if ((p = strstr(buffer, "s_context:")) == NULL)
-		return NULL;
+  close(fd);
 
-	sscanf(p, "s_context: %d", &process.s_context);
+  p   = strchr(buffer, ')');		// go after the PID (process_name)
+  for (idx = 0; idx<12 && *p!='\0'; ++p)
+    if ((*p)==' ') ++idx;
 
-	// open the /proc/#/stat file
-	snprintf(buffer, sizeof(buffer),  "/proc/%s/stat", pid);
-	if ((fd = open(buffer, O_RDONLY, 0)) == -1)
-		return NULL;
-	// put the file in a buffer
-	if (read(fd, buffer, sizeof(buffer)) < 1)
-		return NULL;
+  process.utime  = strtol(p,   &p, 10);
+  process.stime  = strtol(p+1, &p, 10);
+  process.cutime = strtol(p+1, &p, 10);
+  process.cstime = strtol(p+1, &p, 10);
 
-	close(fd);
+  for (idx = 0; idx<5 && *p!='\0'; ++p)
+    if ((*p)==' ') ++idx;
 
-	p = strchr(buffer, ')');		// go after the PID (process_name)
-	sscanf(p + 2,
-		"%*s "
-		"%*s %*s %*s %*s %*s "
-		"%*s %*s %*s %*s %*s %ld %ld "
-		"%ld %ld %*s %*s %*s %*s "
-		"%ld %ld "
-		"%ld ", &process.utime, &process.stime,
-			&process.cutime, &process.cstime,
-			&process.start_time,
- 			&process.VmSize, &process.VmRSS);
+  process.start_time = strtol(p,   &p, 10);
+  process.VmSize     = strtol(p+1, &p, 10);
+  process.VmRSS      = strtol(p+1, &p, 10);
+	
+  return &process;
+}
 
-	return &process;
+
+
+static size_t
+fillUintZero(char *buf, unsigned long val, size_t cnt)
+{
+  size_t	l;
+  
+  l = utilvserver_fmt_ulong(buf, val);
+  if (l<cnt) {
+    memmove(buf+cnt-l, buf, l);
+    memset(buf, '0', cnt-l);
+  }
+  buf[cnt] = '\0';
+
+  return cnt;
+}
+
+static void
+shortenMem(char *buf, unsigned long val)
+{
+  char const *	SUFFIXES[] = { " ", "K", "M", "G", "T", "+" };
+  char		tmp[16];
+  char const *	suffix = "+";
+  size_t	i, l;
+  unsigned int	mod = 0;
+
+  for (i=0; i<6; ++i) {
+    if (val<1000) {
+      suffix = SUFFIXES[i];
+      break;
+    }
+    mod   = 10*(val & 1023)/1024;
+    val >>= 10;
+  }
+
+  if (val >9999) val=9999;
+  if (val>=1000) mod=0;
+
+  l = utilvserver_fmt_ulong(tmp, val);
+  if (mod!=0) {
+    tmp[l++] = '.';
+    l += utilvserver_fmt_ulong(tmp+l, mod);
+  }
+  i = 7-l-strlen(suffix);
+  
+  memcpy(buf+i,   tmp, l);
+  memcpy(buf+i+l, suffix, strlen(suffix));
+}
+
+static void
+shortenTime(char *buf, uint64_t t)
+{
+  char		tmp[32];
+  char		*ptr = tmp;
+
+  unsigned long	hh, mm, ss, ms;
+
+  ms = t % 100;
+  t /= 100;
+
+  ss = t%60;
+  t /= 60;
+  mm = t%60;
+  t /= 60;
+  hh = t%60;
+  t /= 24;
+
+  if (t>0) {
+    ptr   += utilvserver_fmt_ulong(ptr, t);
+    *ptr++ = 'd';
+    ptr   += fillUintZero(ptr, hh, 2);
+    *ptr++ = 'h';
+    ptr   += fillUintZero(ptr, mm, 2);
+  }
+  else if (hh>0) {
+    ptr   += utilvserver_fmt_ulong(ptr, hh);
+    *ptr++ = 'h';
+    ptr   += fillUintZero(ptr, mm, 2);
+    *ptr++ = 'm';
+    ptr   += fillUintZero(ptr, ss, 2);    
+  }
+  else {
+    ptr   += utilvserver_fmt_ulong(ptr, mm);
+    *ptr++ = 'm';
+    ptr   += fillUintZero(ptr, ss, 2);
+    *ptr++ = 's';
+    ptr   += fillUintZero(ptr, ms, 2);
+  }
+
+  *ptr = ' ';
+  memcpy(buf+10-(ptr-tmp), tmp, ptr-tmp);
+}
+
+void showContexts(struct ctx_list *list)
+{
+  uint64_t	uptime = getUptime();
+
+  WRITE_MSG(1, "CTX   PROC    VSZ    RSS  userTIME   sysTIME    UPTIME NAME\n");
+  while (list!=0) {
+    char	buf[512];
+    char	tmp[32];
+    size_t	l;
+
+    memset(buf, ' ', sizeof(buf));
+    l = utilvserver_fmt_ulong(buf, list->ctx);
+    l = utilvserver_fmt_ulong(tmp, list->process_count);
+    memcpy(buf+10-l, tmp, l);
+
+    shortenMem (buf+10, list->VmSize_total);
+    shortenMem (buf+17, list->VmRSS_total);
+    shortenTime(buf+24, list->utime_total);
+    shortenTime(buf+34, list->stime_total);
+    shortenTime(buf+44, uptime - list->start_time_oldest);
+
+    switch (list->ctx) {
+      case 0		:  strncpy(buf+55, "root server",       20); break;
+      case 1		:  strncpy(buf+55, "monitoring server", 20); break;
+      default		: {
+	char *	name     = 0;
+	char *	cfgpath  = 0;
+	vcCfgStyle	cfgstyle = vcCFG_AUTO;
+
+	if ((cfgpath = vc_getVserverByCtx(list->ctx, &cfgstyle, 0))!=0 &&
+	    (name    = vc_getVserverName(cfgpath, cfgstyle))!=0)
+	  strncpy(buf+55, name, 20);
+	free(name);
+	free(cfgpath);
+      }
+    }
+
+    write(1, buf, 80);
+    write(1, "\n", 1);
+
+    list = list->next;
+  }
 }
 
 int main(int argc, char **argv)
 {
-	DIR *proc_dir;
-	struct dirent *dir_entry;
-	pid_t my_pid;
+  DIR *proc_dir;
+  struct dirent *dir_entry;
+  pid_t my_pid;
 
-	// for error msg
-	process_name = argv[0];
+    // for error msg
+  process_name = argv[0];
 
-	if (argc > 1)
-	{
-		usage();
-		return 0;
-	}
+  if (argc==2) {
+    if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
+    if (strcmp(argv[1], "--version")==0) showVersion();
+  }
+  if (argc!=1) {
+    WRITE_MSG(2, "Unknown parameter, use '--help' for more information\n");
+    return EXIT_FAILURE;
+  }
 
-	// do not include own stat
-	my_pid = getpid();
+    // do not include own stat
+  my_pid = getpid();
 
-	// try to switch in context 1
-	if (vc_new_s_context(1,0, 0) < 0)
-	{
-		fprintf(stderr, "%s: unable to switch in context security #1\n", process_name);
-		return -1;
-	}
-
-	// create the fist...
-	my_ctx_list = insert_ctx(0, NULL);
-	// init with the default name for the context 0
-	strncpy(my_ctx_list->name, "root server", CTX_NAME_MAX_LEN);
-
-	// open the /proc dir
-	if ((proc_dir = opendir(PROC_DIR_NAME)) == NULL)
-	{
-		fprintf(stderr, "%s: %s\n", process_name, strerror(errno));
-		return -1;
-	}
+#if 1
+    // try to switch in context 1
+  if (vc_new_s_context(1,0, 0) < 0)
+  {
+    perror("vc_new_s_context(#1,...)");
+    return EXIT_FAILURE;
+  }
+#endif
 	
-	chdir(PROC_DIR_NAME);
-	while ((dir_entry = readdir(proc_dir)) != NULL)
-	{
-		// select only process file
-		if (!isdigit(*dir_entry->d_name))
-			continue;
+    // create the fist...
+  my_ctx_list = insert_ctx(0, NULL);
+    // init with the default name for the context 0
+  strncpy(my_ctx_list->name, "root server", CTX_NAME_MAX_LEN);
 
-		if (atoi(dir_entry->d_name) != my_pid)
-			count_ctx(my_ctx_list, get_process_info(dir_entry->d_name));
+    // open the /proc dir
+  if ((proc_dir = opendir(PROC_DIR_NAME)) == NULL) {
+    perror("opendir()");
+    return EXIT_FAILURE;
+  }
+	
+  chdir(PROC_DIR_NAME);
+  while ((dir_entry = readdir(proc_dir)) != NULL)
+  {
+      // select only process file
+    if (!isdigit(*dir_entry->d_name))
+      continue;
+
+    if (atoi(dir_entry->d_name) != my_pid)
+      count_ctx(my_ctx_list, get_process_info(dir_entry->d_name));
 		
-	}
-	closedir(proc_dir);
+  }
+  closedir(proc_dir);
 
-	// output the ctx_list	
-	show_ctx(my_ctx_list);
+    // output the ctx_list	
+  showContexts(my_ctx_list);
 
-	// free the ctx_list
-	free_ctx(my_ctx_list);
+    // free the ctx_list
+  free_ctx(my_ctx_list);
 
-	return 0;
+  return 0;
 }
