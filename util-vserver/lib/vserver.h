@@ -163,21 +163,9 @@ extern "C" {
 
 
 
-  int		vc_set_iattr(dev_t dev, ino_t ino, xid_t xid,  uint32_t flags, uint32_t mask); 
-  int		vc_get_iattr(dev_t dev, ino_t ino, xid_t * /*@null@*/ xid,
+  int		vc_set_iattr(char const *filename, xid_t xid,  uint32_t flags, uint32_t mask); 
+  int		vc_get_iattr(char const *filename, xid_t * /*@null@*/ xid,
 			     uint32_t * /*@null@*/ flags, uint32_t * /*@null@*/ mask);
-
-  int		vc_set_iattr_compat(char const *filename,
-				    dev_t dev, ino_t ino, xid_t xid,
-				    uint32_t flags, uint32_t mask,
-				    mode_t const * /*@null@*/ mode);
-
-  int		vc_get_iattr_compat(char const *filename,
-				    dev_t dev, ino_t ino,
-				    xid_t    * /*@null@*/ xid,
-				    uint32_t * /*@null@*/ flags,
-				    uint32_t * /*@inout@*/ mask,
-				    mode_t const * /*@null@*/ mode);
 
   struct vc_vx_info {
       xid_t	xid;
@@ -216,13 +204,13 @@ extern "C" {
 	     (1<<VC_CAP_MKNOD) | (1<<VC_CAP_QUOTACTL) );
   }
 
-  inline static int		vc_setfilecontext(dev_t dev, ino_t ino, xid_t xid) {
-    return vc_set_iattr(dev, ino, xid, 0, VC_IATTR_XID);
+  inline static int		vc_setfilecontext(char const *filename, xid_t xid) {
+    return vc_set_iattr(filename, xid, 0, VC_IATTR_XID);
   }
   
-  inline static xid_t		vc_getfilecontext(dev_t dev, ino_t ino) {
+  inline static xid_t		vc_getfilecontext(char const *filename) {
     xid_t	res;
-    if (vc_get_iattr(dev, ino, &res, 0,0)==-1) return VC_NOCTX;
+    if (vc_get_iattr(filename, &res, 0,0)==-1) return VC_NOCTX;
     return res;
   }
   
