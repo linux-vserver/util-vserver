@@ -127,6 +127,9 @@ function getDistribution
     elif test -e /etc/debian_version; then
 	set -- $(cat /etc/debian_version)
 	DISTRIBUTION=deb$1
+    elif test -e /etc/SuSE-release; then
+	set -- $(cat /etc/SuSE-release)
+	DISTRIBUTION=suse$3
     else
 	echo \
 "Can not determine distribution; please specify it manually
@@ -141,8 +144,9 @@ function base.initFilesystem
     test -z "$1" || _renameVserverCfg
     test ! -d "$VDIR" -a ! -d "$SETUP_CONFDIR" || {
 	echo \
-"vserver-topdirectory and/or configuration exist already;
-please try to use '--force', or remove them manually" >&2
+"vserver-topdirectory '$VDIR' and/or configuration at '$SETUP_CONFDIR'
+exist already; please try to use '--force', or remove them manually"
+>&2
 	exit 1
     } >&2
 
