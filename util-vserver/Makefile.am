@@ -84,6 +84,13 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 				s!@'PACKAGE_STRING'@!$(PACKAGE_STRING)!g; \
 				s!@'PACKAGE_TARNAME'@!$(PACKAGE_TARNAME)!g; \
 				s!@'PACKAGE_VERSION'@!$(PACKAGE_VERSION)!g; \
+				s!@'AWK'@!$(AWK)!g; \
+				s!@'GREP'@!$(GREP)!g; \
+				s!@'IP'@!$(IP)!g; \
+				s!@'MOUNT'@!$(MOUNT)!g; \
+				s!@'NICE'@!$(NICE)!g; \
+				s!@'VCONFIG'@!$(VCONFIG)!g; \
+				s!@'WC'@!$(WC)!g; \
 			       ' '$<' >'$@.tmp'
 			@if cmp -s '$@.tmp' '$*'; then \
 				echo "... no changes, reusing old version"; \
