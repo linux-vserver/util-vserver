@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.30.199, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.30.200, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -181,6 +181,8 @@ AC_CHECK_FUNCS([vserver])
 AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
 AC_CHECK_TYPES(xid_t,,,[#include <sys/types.h>])
 AC_CHECK_TYPES(nid_t,,,[#include <sys/types.h>])
+
+AC_CHECK_HEADERS([sys/capability.h])
 
 dnl BIG HACK! Do some autodetection here!
 AC_DEFINE(UTMP_GID, [22], [The utmp gid-number])
