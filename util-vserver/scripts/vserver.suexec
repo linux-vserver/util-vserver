@@ -16,17 +16,29 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-isVserverRunning "$VSERVER_DIR" S_CONTEXT || :
+isVserverRunning "$VSERVER_DIR" S_CONTEXT || {
+    echo $"'vserver ... suexec' is support for running vservers only; aborting..." >&2
+    exit 1
+}
 generateOptions  "$VSERVER_DIR"
 
 user=$1
 shift
 
 cd "$VSERVER_DIR"/vdir/
-exec \
-"${NICE_CMD[@]}" \
+
+if $_VSERVER_INFO - FEATURE migrate; then
+    exec \
+    ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT"} \
+    $_VCONTEXT $SILENT_OPT --migrate --chroot --xid "$S_CONTEXT" --uid "$user" \
+    -- "$@"
+else
+    exec \
+    "${NICE_CMD[@]}" \
     "$_CHBIND"       "${CHBIND_OPTS[@]}" \
     "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
+    ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT"} \
     "$_CHCONTEXT"    "${CHCONTEXT_OPTS[@]}" \
-    "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" --suid "$user" . "$@"
-    
+    "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" --suid "$user" . \
+    -- "$@"
+fi

@@ -32,13 +32,25 @@ cd "$VSERVER_DIR"/vdir/
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" pre-start
 
 cd "$VSERVER_DIR"/vdir/
-"${NICE_CMD[@]}" \
+
+if $_VSERVER_INFO - FEATURE migrate; then
+    $_CHBIND     "${CHBIND_OPTS[@]}" \
+    $_VCONTEXT   --create "${OPTS_VCONTEXT_CREATE[@]}" \
+    ${USE_VNAMESPACE:+$_VNAMESPACE --set} \
+    $_VLIMIT     --dir "$VSERVER_DIR/rlimits" --missingok \
+    $_VATTRIBUTE --set "${OPTS_VATTRIBUTE[@]}" \
+    $_VCONTEXT   --migrate --chroot $SILENT_OPT "${OPTS_VCONTEXT_MIGRATE[@]}" \
+    -- "${INITCMD_START[@]}"
+else
+    "${NICE_CMD[@]}" \
     "$_CHBIND"       "${CHBIND_OPTS[@]}" \
     "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
     "$_CHCONTEXT"    "${CHCONTEXT_OPTS[@]}" "${CHCONTEXT_INIT_OPTS[@]}" \
     "$_SAVE_CTXINFO" "$VSERVER_DIR" \
     "$_CLEARENV" \
-    "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . "${INITCMD_START[@]}"
+    "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . \
+    -- "${INITCMD_START[@]}"
+fi
 
 "${INITCMD_START_SYNC[@]}"
 

@@ -30,12 +30,20 @@ cd "$VSERVER_DIR"/vdir/
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
 
 cd "$VSERVER_DIR"/vdir/
-"${NICE_CMD[@]}" \
+
+if $_VSERVER_INFO - FEATURE migrate; then
+    ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT"} \
+    $_VCONTEXT $SILENT_OPT --migrate --chroot --xid "$S_CONTEXT" \
+    -- "${INITCMD_STOP_SYNC[@]}" || :
+else
+    "${NICE_CMD[@]}" \
     "$_CHBIND"       "${CHBIND_OPTS[@]}" \
     "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
+    ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT"} \
     "$_CHCONTEXT"    "${CHCONTEXT_OPTS[@]}" \
     "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . "${INITCMD_STOP[@]}" && \
-	"${INITCMD_STOP_SYNC[@]}" || :
+    -- "${INITCMD_STOP_SYNC[@]}" || :
+fi
 
 sendKillSequence  "$S_CONTEXT" "${INITKILL_SEQ[@]}"
 

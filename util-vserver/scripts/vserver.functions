@@ -36,6 +36,11 @@ declare -a INITCMD_PREPARE=()
 declare -a INITKILL_SEQ=()
 declare -a ENTER_SHELL=()
 
+declare -a OPTS_VCONTEXT_CREATE=()
+declare -a OPTS_VCONTEXT_MIGRATE=()
+declare -a OPTS_VATTRIBUTE=()
+USE_VNAMESPACE=
+
 INTERFACE_CMDS_IDX=0
 _HAVE_INTERFACE_OPTIONS=
 _HAVE_CHBIND_OPTIONS=
@@ -99,10 +104,12 @@ function _generateCapabilityOptions
 	case x"$cap" in
 	    x|x#)	;;
 	    !CAP_SYSCHROOT)
+		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]" --cap "$cap" )
 		CAP_OPTS=( "${CAP_OPTS[@]}" --cap "$cap" )
 		CAPCHROOT_OPTS=( "${CAPCHROOT_OPTS[@]}" --nochroot )
 		;;
 	    *)
+		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]" --cap "$cap" )
 		CAP_OPTS=( "${CAP_OPTS[@]}" --cap "$cap" );;
 	esac
     done <"$vdir"/capabilities
@@ -185,6 +192,7 @@ function _generateInitOptions
 	    INITCMD_START=( /sbin/init )
 	    INITCMD_STOP=(  /sbin/init )
 	    CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
+	    OPTS_VCONTEXT_MIGRATE=( "${OPTS_VCONTEXT_MIGRATE[@]}" --fakeinit --disconnect )
 	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
 	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
 	    ;;
@@ -195,6 +203,7 @@ function _generateInitOptions
 	    CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
 	    INITCMD_START_SYNC=( "$_INITSYNC_MINIT_START" "$vdir" )
 	    INITCMD_STOP_SYNC=(  "$_INITSYNC_MINIT_STOP"  "$vdir" )
+	    OPTS_VCONTEXT_MIGRATE=( "${OPTS_VCONTEXT_MIGRATE[@]}" --fakeinit --disconnect )
 	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
 	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
 	    ;;
@@ -231,16 +240,20 @@ function _generateFlagOptions
 	    xnamespace)		;;
 	    xfakeinit)
 		CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
+		OPTS_VCONTEXT_MIGRATE=( "${OPTS_VCONTEXT_MIGRATE[@]}" --fakeinit --disconnect )
 		;;
 	    *)
+		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --flag "$flag" )
 	    	CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}"
 				      --flag "$flag" )
 		;;
 	esac
     done <"$vdir"/flags
 
-    isAvoidNamespace "$cfgdir" || \
+    isAvoidNamespace "$cfgdir" || {
+	USE_VNAMESPACE=1
 	CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}" --flag namespace )
+    }
 }
 
 function _generateChcontextOptions
@@ -268,6 +281,11 @@ function _generateChcontextOptions
 		     ${ctx:+--ctx "$ctx"} \
                      ${hostname:+--hostname "$hostname"} \
 		     ${domainname:+--domainname "$domainname"} )
+
+    OPTS_VCONTEXT_CREATE=( $SILENT_OPT \
+			   ${ctx:+--xid "$ctx"} )
+    ## put '--secure' at front so that it can be overridden
+    OPTS_VATTRIBUTE=( --secure "${OPTS_VATTRIBUTE[@]}" )
 }
 
 function _getInterfaceValue
@@ -456,6 +474,10 @@ function mountVserver
     popd >/dev/null
 
     test "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$cfgdir"
+
+    test -z "$NAMESPACE_CLEANUP" || isAvoidNamespace "$cfgdir" || \
+	$_VNAMESPACE --cleanup
+	
     $_CHBIND "${CHBIND_OPTS[@]}" \
 	$_SECURE_MOUNT -a --chroot "$vdir" --fstab "$cfgdir"/fstab
 
