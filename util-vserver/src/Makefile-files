@@ -34,7 +34,6 @@ src_OPTIONS_EXEMPT	=  src/parserpmdump \
 			   src/rpm-fake.so \
 			   src/capchroot \
 			   src/chroot-cat \
-			   src/chroot-rm \
 			   src/filetime \
 			   src/ifspec \
 			   src/chbind \
@@ -50,16 +49,18 @@ src_OPTIONS_EXEMPT	=  src/parserpmdump \
 
 src_DIETPROGS		=  src/new-namespace \
 	     		   src/secure-mount \
-	     		   src/secure-umount \
 	     		   src/save_ctxinfo \
 	     		   src/mask2prefix \
-	     		   src/chroot-rm \
 	     		   src/chroot-cat \
+	     		   src/chroot-rm \
+			   src/exec-cd \
 	     		   src/fakerunlevel \
 			   src/pipe-sync \
 			   src/exec-ulimit \
 			   src/vlimit \
+			   src/vunify \
 	     		   src/ctx-kill \
+			   src/rpm-fake-resolver \
 			   src/vserver-stat
 
 src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
@@ -72,7 +73,7 @@ src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
 src_pkglib_SCRPTS	=  src/setattr
 src_pkglib_PRGS		=  src/capchroot \
 	     		   src/chroot-cat \
-			   src/chroot-rm \
+	     		   src/chroot-rm \
 			   src/fakerunlevel \
 			   src/filetime \
 			   src/ifspec \
@@ -84,16 +85,17 @@ src_pkglib_PRGS		=  src/capchroot \
 			   src/vreboot \
 			   src/save_ctxinfo \
 			   src/secure-mount \
-			   src/secure-umount \
 			   src/mask2prefix \
 			   src/pipe-sync \
 			   src/exec-ulimit \
 			   src/rpm-fake.so \
+			   src/rpm-fake-resolver \
 			   $(src_pkglib_CXX_PROGS)
 
 src_sbin_PRGS		=  src/chbind \
 			   src/chcontext \
 			   src/ctx-kill \
+			   src/exec-cd \
 			   src/rebootmgr \
 			   src/reducecap \
 			   src/vdu \
@@ -111,8 +113,9 @@ src_chbind_LDADD		=  lib/libvserver.a
 src_chcontext_SOURCES		=  src/chcontext.c
 src_chcontext_LDADD		=  lib/libvserver.a
 
-src_chroot_rm_SOURCES		=  src/chroot-rm.c
 src_chroot_cat_SOURCES		=  src/chroot-cat.c
+src_chroot_rm_SOURCES		=  src/chroot-rm.c
+src_exec_cd_SOURCES		=  src/exec-cd.c
 src_fakerunlevel_SOURCES	=  src/fakerunlevel.c
 src_filetime_SOURCES		=  src/filetime.c
 src_ifspec_SOURCES		=  src/ifspec.c
@@ -138,7 +141,9 @@ src_vdu_SOURCES			=  src/vdu.c
 src_vreboot_SOURCES		=  src/vreboot.c
 src_new_namespace_SOURCES	=  src/new-namespace.c
 src_secure_mount_SOURCES	=  src/secure-mount.c
-src_secure_umount_SOURCES	=  src/secure-umount.c
+
+src_rpm_fake_resolver_SOURCES	=  src/rpm-fake-resolver.c
+src_rpm_fake_resolver_LDADD	=  lib/libvserver.a
 
 src_mask2prefix_SOURCES		=  src/mask2prefix.c
 
@@ -150,9 +155,13 @@ src_vserver_stat_LDADD		=  lib/libvserver.a
 
 src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc src/vserver.cc
 src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc src/vserver.cc
-src_vunify_SOURCES		=  src/vunify.cc src/vutil.cc src/vserver.cc
 src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc src/vserver.cc
 
+
+src_vunify_SOURCES		=  src/vunify.c \
+				   src/util-safechdir.c \
+				   src/vunify-matchlist.c \
+				   src/vunify-operations.c
 
 src_rpm_fake_so_SOURCES		=  src/rpm-fake.c $(src_rpm_fake_so_XSRCS)
 src_rpm_fake_so_CFLAGS		=  $(AM_CFLAGS) -fPIC
@@ -170,9 +179,14 @@ src_rpm_fake_so_XSRCS		=
 src_rpm_fake_so_XLIBS		=  lib/libvserver.a
 endif
 
-
+src_check_PRGS			=  $(src_testsuite_check_PRGS)
+src_check_SCRPTS		=  $(src_testsuite_check_SCRPTS)
+src_TSTS			=  $(src_testsuite_TSTS)
+src_XTRAS			=  $(src_testsuite_XTRAS)
 
 src_EXTRA_PROGS			=  $(src_sbin_CXX_X_PROGS) $(src_pkglib_CXX_X_PROGS)
+
+src_TESTS_ENV			=  srctestsuitedir=$(top_builddir)/src/testsuite
 
 if ENSC_HAVE_CXX_COMPILER
 src_sbin_CXX_PROGS		=  $(src_sbin_CXX_X_PROGS)
@@ -187,6 +201,9 @@ src/setattr$(EXEEXT):		src/showattr$(EXEEXT)
 				ln -s showattr$(EXEEXT) '$@'
 
 
+include $(top_srcdir)/src/testsuite/Makefile-files
+
 ## Local Variables:
 ## compile-command: "make -C .. -k"
 ## End:
+
