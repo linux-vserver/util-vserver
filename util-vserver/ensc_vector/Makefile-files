@@ -29,7 +29,7 @@ ENSC_VECTOR_SRCS =		ensc_vector/vector-clear.c \
 ENSC_VECTOR_HDRS =		ensc_vector/vector.h \
 				ensc_vector/vector.hc
 
-ENSC_VECTOR_XHDRS =		ensc_vector/vector-resizeinternal.hc \
+noinst_HEADERS +=		ensc_vector/vector-resizeinternal.hc \
 				ensc_vector/vector-internal.h
 
 ENSC_VECTOR_LIBS =		libensc_vector.a

@@ -23,28 +23,27 @@ src_pkglib_CXX_PROGS =	src/vbuild src/vcheck
 src_pkglib_C99_PROGS =	src/vunify src/vcopy
 
 
-src_OPTIONS_EXEMPT	=  src/parserpmdump \
-			   src/readlink \
-			   src/showperm \
-			   src/vbuild \
-			   src/vcheck \
-			   src/vreboot \
-			   src/save_ctxinfo \
-			   src/mask2prefix \
-			   src/pipe-sync \
-			   src/capchroot \
-			   src/chroot-cat \
-			   src/filetime \
-			   src/ifspec \
-			   src/rebootmgr \
-			   src/vlimit \
-			   src/vdu \
-			   src/vfiles \
-			   src/vserver-stat
+AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
+			src/parserpmdump \
+			src/readlink \
+			src/showperm \
+			src/vbuild \
+			src/vcheck \
+			src/vreboot \
+			src/save_ctxinfo \
+			src/mask2prefix \
+			src/pipe-sync \
+			src/capchroot \
+			src/chroot-cat \
+			src/filetime \
+			src/ifspec \
+			src/rebootmgr \
+			src/vdu \
+			src/vfiles
 
 
 
-src_DIETPROGS =		src/chcontext-compat \
+DIETPROGS +=		src/chcontext-compat \
 	     		src/secure-mount \
 	     		src/save_ctxinfo \
 	     		src/mask2prefix \
@@ -77,7 +76,7 @@ src_DIETPROGS =		src/chcontext-compat \
 			src/vserver-stat \
 			src/vserver-info
 
-src_HDRS =  		src/vutil.h src/vutil.p \
+noinst_HEADERS +=	src/vutil.h src/vutil.p \
 			src/util.h \
 			src/fstool.h \
 			src/compat-pivot_root.h \
@@ -89,11 +88,7 @@ src_HDRS =  		src/vutil.h src/vutil.p \
 			src/vserver-visitdir.hc \
 			src/vserver.hh
 
-src_legacy_SCRPTS =
-src_legacy_PRGS =
-
-src_pkglib_SCRPTS =
-src_pkglib_PRGS =	src/capchroot \
+pkglib_PROGRAMS +=	src/capchroot \
 			src/chcontext-compat \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
@@ -116,11 +111,9 @@ src_pkglib_PRGS =	src/capchroot \
 			$(src_pkglib_C99_X_PROGS) \
 			$(src_pkglib_CXX_X_PROGS)
 
-src_pkglib_LTLIBS	=  src/rpm-fake.la
-src_lib_LTLIBS		=
+pkglib_LTLIBRARIES +=	src/rpm-fake.la
 
-src_sbin_SCRPTS =
-src_sbin_PRGS =		src/chbind \
+sbin_PROGRAMS +=	src/chbind \
 			src/exec-cd \
 			src/lsxid \
 			src/chxid \
@@ -265,14 +258,9 @@ src_rpm_fake_la_CFLAGS		=  $(AM_CFLAGS)
 src_rpm_fake_la_LDFLAGS		=  -module -avoid-version -rpath $(pkglibdir)
 src_rpm_fake_la_LIBADD		=  lib/libvserver.la -ldl
 
-src_check_PRGS			=  $(src_testsuite_check_PRGS)
-src_check_SCRPTS		=  $(src_testsuite_check_SCRPTS)
-src_TSTS			=  $(src_testsuite_TSTS)
-src_XTRAS			=  $(src_testsuite_XTRAS)
+EXTRA_PROGRAMS +=		$(src_sbin_CXX_PROGS) $(src_pkglib_CXX_PROGS)
 
-src_EXTRA_PROGS			=  $(src_sbin_CXX_PROGS) $(src_pkglib_CXX_PROGS)
-
-src_TESTS_ENV			=  srctestsuitedir=$(top_builddir)/src/testsuite
+TESTS_ENVIRONMENT +=		srctestsuitedir=$(top_builddir)/src/testsuite
 
 if ENSC_HAVE_C99_COMPILER
 src_sbin_C99_X_PROGS =		$(src_sbin_C99_PROGS)

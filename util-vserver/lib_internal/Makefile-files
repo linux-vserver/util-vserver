@@ -17,9 +17,8 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-lib_internal_LIBS =			lib_internal/libinternal.a
-
-lib_internal_libinternal_a_XHDRS =	lib_internal/matchlist.h \
+noinst_LIBRARIES +=			lib_internal/libinternal.a
+noinst_HEADERS +=			lib_internal/matchlist.h \
 					lib_internal/pathinfo.h \
 					lib_internal/string.h \
 					lib_internal/unify.h \
@@ -55,4 +54,4 @@ lib_internal_libinternal_a_SOURCES =	lib_internal/matchlist-appendfiles.c \
 					lib_internal/util-exitlikeprocess.c \
 					lib_internal/util-safechdir.c
 
-lib_internal_DIETPROGS =		$(lib_internal_LIBS)
+DIETPROGS +=				lib_internal/libinternal.a

@@ -105,9 +105,9 @@ lib_SRCS =  			lib/syscall.c \
 				$(lib_v11_SRCS) \
 				$(lib_v13_SRCS)
 
-lib_HDRS =			lib/vserver.h
+include_HEADERS +=		lib/vserver.h
 
-lib_XHDRS =			lib/syscall-compat.hc \
+noinst_HEADERS +=		lib/syscall-compat.hc \
 	 			lib/syscall-legacy.hc \
 				lib/createskeleton-full.hc \
 				lib/createskeleton-short.hc \
@@ -131,16 +131,15 @@ lib_XHDRS =			lib/syscall-compat.hc \
 				lib/utils-legacy.h \
 				lib/vserver-internal.h
 
-lib_lib_LTLIBS =		lib/libvserver.la
+lib_LTLIBRARIES +=		lib/libvserver.la
 
 lib_libvserver_la_SOURCES =  	$(lib_SRCS)
 lib_libvserver_la_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -D_REENTRANT -D_GNU_SOURCE
 lib_libvserver_la_LDFLAGS =	-version $(lib_VERSION)
 
-lib_DIETPROGS =			lib/lib_libvserver_la-% \
+DIETPROGS +=			lib/lib_libvserver_la-% \
 				lib/lib_libvserver_a-% \
-				lib/lib_libvserver_pic_a-% \
-				$(lib_testsuite_DIETPROGS)
+				lib/lib_libvserver_pic_a-%
 
 include $(srcdir)/lib/apidoc/Makefile-files
 include $(srcdir)/lib/testsuite/Makefile-files

@@ -22,10 +22,10 @@ contrib_gen_DTA =			contrib/manifest.dat
 contrib_subst_SRCS =			contrib/manifest.dat.pathsubst
 
 
-contrib_DTA =				$(contrib_gen_DTA)
-contrib_CLEANFILES =			$(contrib_gen_DTA)
+noinst_DATA +=				$(contrib_gen_DTA)
+CLEANFILES +=				$(contrib_gen_DTA)
 
-contrib_XTRAS =				$(contrib_subst_SRCS) \
+EXTRA_DIST +=				$(contrib_subst_SRCS) \
 					contrib/make-manifest
 
 contrib/manifest.dat:			contrib/.manifest.dat.pathsubst.stamp

@@ -15,7 +15,7 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-ENSC_WRAPPERS_HDRS =		ensc_wrappers/wrappers-clone.hc \
+noinst_HEADERS +=		ensc_wrappers/wrappers-clone.hc \
 				ensc_wrappers/wrappers-dirent.hc \
 				ensc_wrappers/wrappers-fcntl.hc \
 				ensc_wrappers/wrappers-io.hc \

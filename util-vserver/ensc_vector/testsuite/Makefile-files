@@ -15,8 +15,8 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-ENSC_VECTOR_TESTSUITE_PRGS =		ensc_vector/testsuite/test1
-ENSC_VECTOR_TESTSUITE_TSTS =		ensc_vector/testsuite/test1
+check_PROGRAMS +=		ensc_vector/testsuite/test1
+TESTS +=			ensc_vector/testsuite/test1
 
 ensc_vector_testsuite_test1_SOURCES =	ensc_vector/testsuite/test1.c
 ensc_vector_testsuite_test1_LDADD =	libensc_vector.a

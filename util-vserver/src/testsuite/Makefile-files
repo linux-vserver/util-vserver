@@ -21,7 +21,7 @@ src_testsuite_check_active_PRGS =	src/testsuite/vunify-functest \
 src_testsuite_check_passive_PRGS =	src/testsuite/rpm-fake-test
 
 
-src_testsuite_check_PRGS =		$(src_testsuite_check_passive_PRGS) \
+check_PROGRAMS +=			$(src_testsuite_check_passive_PRGS) \
 					$(src_testsuite_check_active_PRGS)
 
 if ENSC_HAVE_C99_COMPILER
@@ -33,13 +33,14 @@ endif
 src_testsuite_check_src_SCRPTS =	$(src_testsuite_check_src_C99_SCRPTS)
 src_testsuite_check_gen_SCRPTS =
 
-src_testsuite_check_SCRPTS =		$(src_testsuite_check_src_SCRPTS) \
+check_SCRIPTS +=			$(src_testsuite_check_src_SCRPTS) \
 					$(src_testsuite_check_gen_SCRPTS)
 
-src_testsuite_TSTS =			$(src_testsuite_check_active_PRGS) \
-					$(src_testsuite_check_SCRPTS)
+TESTS +=				$(src_testsuite_check_active_PRGS) \
+					$(src_testsuite_check_src_SCRPTS) \
+					$(src_testsuite_check_gen_SCRPTS)
 
-src_testsuite_XTRAS =			$(src_testsuite_check_src_SCRPTS)
+EXTRA_DIST +=				$(src_testsuite_check_src_SCRPTS)
 
 
 src_testsuite_rpm_fake_test_SOURCES =	src/testsuite/rpm-fake-test.c

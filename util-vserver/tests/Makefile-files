@@ -17,15 +17,19 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-tests_DIETPROGS			=  tests/getctx tests/getinitpid \
-				   tests/vserver-info
+tests_dietprogs =		tests/getctx \
+				tests/getinitpid \
+				tests/vserver-info
 
-test_PRGS			=  tests/escaperoot \
-				   tests/forkbomb \
-				   tests/testipc \
-				   tests/testlimit \
-				   tests/testopenf \
-				   $(tests_DIETPROGS)
+noinst_PROGRAMS +=		tests/escaperoot \
+				tests/forkbomb \
+				tests/testipc \
+				tests/testlimit \
+				tests/testopenf \
+				$(tests_dietprogs)
+
+
+DIETPROGS +=			$(tests_dietprogs)
 
 tests_escaperoot_SOURCES	=  tests/escaperoot.c
 tests_forkbomb_SOURCES		=  tests/forkbomb.c

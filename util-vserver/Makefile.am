@@ -28,71 +28,56 @@ confdefaultsdir		=  $(confdir)/.defaults
 sbincfgdir		=  $(sbindir)
 legacydir		=  $(pkglibdir)/legacy
 
-include_HEADERS =	$(lib_HDRS)
-noinst_HEADERS =	$(src_HDRS) $(lib_XHDRS) \
-			$(lib_internal_libinternal_a_XHDRS) \
-			$(ENSC_VECTOR_HDRS) $(ENSC_VECTOR_XHDRS) \
-			$(ENSC_WRAPPERS_HDRS) \
+include_HEADERS =
+noinst_HEADERS =	$(ENSC_VECTOR_HDRS) \
 			compat.h compat-c99.h
 
-noinst_LIBRARIES	=  $(src_lib_LIBS) $(ENSC_VECTOR_LIBS) $(lib_internal_LIBS)
-lib_LIBRARIES		=  $(lib_lib_LIBS)
-lib_LTLIBRARIES		=  $(lib_lib_LTLIBS) $(src_lib_LTLIBS)
-pkglib_LTLIBRARIES	=  $(src_pkglib_LTLIBS)
+noinst_LIBRARIES =	$(ENSC_VECTOR_LIBS)
+lib_LIBRARIES =
+lib_LTLIBRARIES =
+pkglib_LTLIBRARIES =
 
-pkglib_SCRIPTS		=  $(scripts_pkglib_SCRPTS)
-pkglib_DATA		=  $(scripts_pkglib_DTA) \
-			   FEATURES.txt
-pkglib_PROGRAMS =	$(src_pkglib_PRGS)
-legacy_SCRIPTS =	$(scripts_legacy_SCRPTS) $(src_legacy_SCRPTS)
-legacy_PROGRAMS =	$(src_legacy_PRGS)
+pkglib_SCRIPTS =
+pkglib_DATA =		FEATURES.txt
+pkglib_PROGRAMS =
+legacy_SCRIPTS =
+legacy_PROGRAMS =
 
-sbincfg_DATA		=  $(scripts_sbincfg_DTA)
-
-sbin_SCRIPTS		=  $(scripts_sbin_PRGS) $(src_sbin_SCRPTS)
-sbin_PROGRAMS		=  $(src_sbin_PRGS)
-noinst_PROGRAMS		=  $(test_PRGS)
-noinst_DATA		=  $(contrib_DTA) $(doc_DAT)
+sbin_SCRIPTS =
+sbin_PROGRAMS =
+noinst_PROGRAMS =
+noinst_DATA =
 
 initrd_SCRIPTS =
 sysconf_DATA =
 
-DIETPROGS =		$(src_DIETPROGS) $(tests_DIETPROGS) $(lib_DIETPROGS) \
-			$(lib_internal_DIETPROGS)
-			$(ENSC_VECTOR_LIBS)
+DIETPROGS =		$(ENSC_VECTOR_LIBS)
 
 BUILT_SOURCES =		linuxcaps.h pathconfig.h linuxvirtual.h
 
-man_MANS =		$(man_DATMAN)
+man_MANS =
 
-EXTRA_PROGRAMS =	$(src_EXTRA_PROGS)
-EXTRA_DIST =            $(doc_DAT) $(man_DATMAN) \
-			$(scripts_XTRAS) $(src_XTRAS) \
-			$(contrib_XTRAS) \
-			pathconfig.h.pathsubst \
+EXTRA_PROGRAMS =
+EXTRA_DIST =		pathconfig.h.pathsubst \
 			util-vserver.spec \
 			THANKS
 
-check_PROGRAMS =	$(src_check_PRGS) $(lib_testsuite_PRGS) \
-			$(ENSC_VECTOR_TESTSUITE_PRGS)
-check_SCRIPTS =		$(src_check_SCRPTS)
-TESTS =			$(src_TSTS) $(lib_testsuite_TSTS) \
-			$(ENSC_VECTOR_TESTSUITE_TSTS)
+check_PROGRAMS =
+check_SCRIPTS =
+TESTS =
 
-TESTS_ENVIRONMENT	=  $(src_TESTS_ENV)
+TESTS_ENVIRONMENT =
 
 AM_CPPFLAGS		=  -I $(top_srcdir)/lib -I $(top_srcdir)/ensc_wrappers -D _GNU_SOURCE $(RELEASE_CPPFLAGS)
 
-CLEANFILES =		$(scripts_CLEANFILES) $(BUILT_SOURCES) \
-			$(contrib_CLEANFILES) \
+CLEANFILES =		$(BUILT_SOURCES) \
 			.*.pathsubst.stamp */.*.pathsubst.stamp */*/.*.pathsubst.stamp \
 			linuxcaps.h pathconfig.h
 
 DISTCLEANFILES =	FEATURES.txt
 
 
-AM_INSTALLCHECK_STD_OPTIONS_EXEMPT	=  $(src_OPTIONS_EXEMPT) \
-					   $(scripts_OPTIONS_EXEMPT)
+AM_INSTALLCHECK_STD_OPTIONS_EXEMPT =
 
 LIBTOOL_CC =		@LIBTOOL@ --tag CC
 LIBTOOL_CXX =		@LIBTOOL@ --tag CXX
