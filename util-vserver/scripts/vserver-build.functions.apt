@@ -42,6 +42,7 @@ function installBasePackages
 
 function initVariablesApt
 {
+    :
 }
 
 function initFilesystemApt
