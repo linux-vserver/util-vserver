@@ -10,14 +10,16 @@ Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version/%n
 Provides:	%name-devel = %epoch:%version-%release
 BuildRoot:	%_tmppath/%name-%version-%release-root
 Provides:	vserver = %epoch:%version-%release
-Conflicts:	vserver < %epoch:%version
+Conflicts:	vserver < %epoch:%version-%release
+Conflicts:	vserver > %epoch:%version-%release
 
 %package linuxconf
 Summary:	Linuxconf administration modules for vservers
 Group:		Applications/System
 Requires:	%name = %epoch:%version-%release
 Provides:	vserver-admin = %epoch:%version-%release
-Conflicts:	vserver-admin < %epoch:%version
+Conflicts:	vserver-admin < %epoch:%version-%release
+Conflicts:	vserver-admin > %epoch:%version-%release
 
 %description
 This package provides the components and a framework to setup virtual
@@ -40,7 +42,7 @@ linuxconf.
 
 
 %build
-%configure
+%configure --enable-linuxconf
 %__make %{?_smp_mflags}
 
 
