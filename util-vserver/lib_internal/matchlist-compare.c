@@ -23,10 +23,9 @@
 #include "matchlist.h"
 #include <string.h>
 
-bool
+MatchType
 MatchList_compare(struct MatchList const *list, char const *path)
 {
-  bool					res = true;
   struct MatchItem const *		ptr = list->data;
   struct MatchItem const * const	end_ptr = list->data + list->count;
   
@@ -34,15 +33,9 @@ MatchList_compare(struct MatchList const *list, char const *path)
   //write(1, "\n", 1);
   for (; ptr<end_ptr; ++ptr) {
     if ((ptr->cmp==0 && strcmp(ptr->name, path)==0) ||
-	(ptr->cmp!=0 && (ptr->cmp)(ptr->name, path)==0)) {
-      switch (ptr->type) {
-	case stINCLUDE	:  res = true;  break;
-	case stEXCLUDE	:  res = false; break;
-	default		:  abort();
-      }
-      break;
-    }
+	(ptr->cmp!=0 && (ptr->cmp)(ptr->name, path)==0))
+      return ptr->type;
   }
 
-  return res;
+  return stINCLUDE;
 }

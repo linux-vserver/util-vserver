@@ -51,6 +51,7 @@ MatchList_appendFiles(struct MatchList *list, size_t idx,
       char	*file = files[i];
       switch (file[0]) {
 	case '+'	:  ptr->type = stINCLUDE; ++file; break;
+	case '~'	:  ptr->type = stSKIP;    ++file; break;
 	case '-'	:  ++file; /*@fallthrough@*/
 	default		:  ptr->type = stEXCLUDE; break;
       }
