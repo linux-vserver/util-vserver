@@ -230,6 +230,12 @@ case "$2" in
 	exec $_VPKG "$vserver" "$@"
 	;;
 
+    (pkgmgmt)
+	op=$3
+	shift 3
+	exec $_PKGMGMT ${op:+--$op} "$@" -- "$vserver"
+	;;
+
     (apt-get|apt-config|apt-cache)
 	export _APT_GET=$2
 	shift 2
