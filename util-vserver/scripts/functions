@@ -368,6 +368,7 @@ function callInNamespace
     isAvoidNamespace "$1" || \
     ctx=$( $_VSERVER_INFO "$1" CONTEXT t ) || ctx=
 
+    shift
     if test "$ctx"; then
 	$_VNAMESPACE --enter "$ctx" -- "$@"
     else
