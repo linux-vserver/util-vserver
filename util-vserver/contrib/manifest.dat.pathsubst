@@ -5,9 +5,11 @@ base   @PKGLIBDIR@/functions
 build  @PKGLIBDIR@/vserver-build.apt-rpm
 build  @PKGLIBDIR@/vserver-build.skeleton
 build  @PKGLIBDIR@/vserver-build.debootstrap
+build  @PKGLIBDIR@/vserver-build.yum
 build  @PKGLIBDIR@/vserver-build.functions
 build  @PKGLIBDIR@/vserver-build.functions.apt
 build  @PKGLIBDIR@/vserver-build.functions.rpm
+build  @PKGLIBDIR@/vserver-build.functions.yum
 build  @PKGLIBDIR@/vserver-build.functions.pkgmgmt
 build  @PKGLIBDIR@/vserver-setup.functions
 base   @PKGLIBDIR@/vserver.functions
@@ -38,6 +40,7 @@ build  @PKGLIBDIR@/defaults/debootstrap.uri
 base   @PKGLIBDIR@/capchroot
 base   @PKGLIBDIR@/chain-echo
 core   @PKGLIBDIR@/chcontext-compat
+base   @PKGLIBDIR@/check-unixfile
 base   @PKGLIBDIR@/chroot-cat
 base   @PKGLIBDIR@/chroot-rm
 base   @PKGLIBDIR@/exec-ulimit
@@ -54,6 +57,7 @@ base   @PKGLIBDIR@/secure-mount
 base   @PKGLIBDIR@/sigexec
 base   @PKGLIBDIR@/start-vservers
 build  @PKGLIBDIR@/vapt-get-worker
+build  @PKGLIBDIR@/vyum-worker
 @ENSC_HAVE_CXX_COMPILER_TRUE@build  @PKGLIBDIR@/vbuild
 @ENSC_HAVE_CXX_COMPILER_TRUE@build  @PKGLIBDIR@/vcheck
 build  @PKGLIBDIR@/vpkg
@@ -79,6 +83,7 @@ core   @SBINDIR@/reducecap
 core   @SBINDIR@/setattr
 core   @SBINDIR@/showattr
 build  @SBINDIR@/vapt-get
+build  @SBINDIR@/vyum
 core   @SBINDIR@/vattribute
 core   @SBINDIR@/vcontext
 core   @SBINDIR@/vnamespace
@@ -95,6 +100,7 @@ base   @SBINDIR@/vserver
 build  @SBINDIR@/vserver-copy
 core   @SBINDIR@/vserver-info
 base   @SBINDIR@/vserver-stat
+base   @SBINDIR@/vsomething
 base   @SBINDIR@/vtop
 core   @SBINDIR@/vuname
 devel  @INCLUDEDIR@/vserver.h
