@@ -98,7 +98,7 @@ int setext2flag (const char *fname, bool set, int ext2flags)
 			ret = ioctl (fd,EXT2_IOC_SETFLAGS,&flags);
 			close (fd);
 			if (ret == -1){
-				fprintf (stderr,"Can't %s immutable flag on file %s (^s)\n"
+				fprintf (stderr,"Can't %s immutable flag on file %s (%s)\n"
 					,(set ? "set" : "unset")
 					,fname
 					,strerror(errno));
@@ -212,7 +212,7 @@ int vbuild_file_copy(
 /*
 	Load the list of all packages in a vserver
 */
-void vutil_loadallpkg (string &refserver, list<Package> &packages)
+void vutil_loadallpkg (Vserver const &refserver, list<Package> &packages)
 {
 	FILE *fin = vutil_execdistcmd (K_PKGVERSION,refserver,NULL);
 	if (fin != NULL){
@@ -241,10 +241,10 @@ const char K_PKGVERSION[]="pkgversion";
 const char K_DUMPFILES[]="dumpfiles";
 const char K_UNIFILES[]="unifiles";
 
-FILE *vutil_execdistcmd (const char *key, const string &vserver, const char *args)
+FILE *vutil_execdistcmd (const char *key, Vserver const &vserver, const char *args)
 {
 	string cmd = PKGLIBDIR "/distrib-info ";
-	cmd += vserver;
+	cmd += vserver.getConfDir();
 	cmd += " ";
 	cmd += key;
 	if (args != NULL){
