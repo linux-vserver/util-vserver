@@ -3,6 +3,7 @@
 capchroot
 chbind
 chcontext
+chroot-cat
 chroot-rm
 ctx-kill
 fakerunlevel
