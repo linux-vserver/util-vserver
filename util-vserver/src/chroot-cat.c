@@ -1,4 +1,4 @@
-// $Id$    --*- c++ -*--
+// $Id$    --*- c -*--
 
 // Copyright (C) 2003 Enrico Scholz <>
 //  
