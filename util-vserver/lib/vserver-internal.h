@@ -40,7 +40,7 @@
 #  define VC_SELECT(ID)	case ID: if(1)
 #  define CALL_VC(...)					\
   switch (utilvserver_checkCompatVersion()&~0xff) {	\
-    case -1	:  if (1) break;			\
+    case -1 & 0xff	:  if (1) break;		\
       VC_SUFFIX, __VA_ARGS__ , VC_PREFIX;		\
     default	:  errno = EINVAL;			\
   }							\
