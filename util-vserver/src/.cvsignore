@@ -37,6 +37,7 @@ setattr
 setctxlimit
 showattr
 showperm
+sigexec
 src_rpm_fake_la-rpm-fake.lo
 vattribute
 vbuild

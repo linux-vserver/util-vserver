@@ -62,6 +62,7 @@ DIETPROGS +=		src/chcontext-compat \
 			src/reducecap \
 			src/showattr \
 			src/setattr \
+			src/sigexec \
 			src/vattribute \
 			src/vlimit \
 			src/vnamespace \
@@ -107,6 +108,7 @@ pkglib_PROGRAMS +=	src/capchroot \
 			src/exec-ulimit \
 			src/rpm-fake-resolver \
 			src/vshelper-sync \
+			src/sigexec \
 			$(src_pkglib_C99_X_PROGS) \
 			$(src_pkglib_CXX_X_PROGS)
 
