@@ -45,6 +45,8 @@
 #  define const_cast(X)         const_cast<X>
 #endif
 
+#define DIM_OF(X)		(sizeof(X)/sizeof((X)[0]))
+
 inline static void *
 Xmemcpy(void * restrict dst, void const * restrict src, size_t len)
 {
