@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
 {
   xid_t			xid   = VC_NOCTX;
   struct vc_set_sched	sched = { 0,0,0,0,0,0 };
+  bool			do_it = false;
   
   while (1) {
     int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
@@ -98,13 +99,13 @@ int main(int argc, char *argv[])
     switch (c) {
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
-      case CMD_XID	:  xid = Evc_xidopt2xid(optarg,true); break;
-      case CMD_FRATE	:  sched.fill_rate   = atoi(optarg);  break;
-      case CMD_INTERVAL	:  sched.interval    = atoi(optarg);  break;
-      case CMD_TOKENS	:  sched.tokens      = atoi(optarg);  break;
-      case CMD_TOK_MIN	:  sched.tokens_min  = atoi(optarg);  break;
-      case CMD_TOK_MAX	:  sched.tokens_max  = atoi(optarg);  break;
-      case CMD_CPU_MASK	:  sched.cpu_mask    = atoi(optarg);  break;
+      case CMD_XID	:  xid = Evc_xidopt2xid(optarg,true);              break;
+      case CMD_FRATE	:  sched.fill_rate   = atoi(optarg); do_it = true; break;
+      case CMD_INTERVAL	:  sched.interval    = atoi(optarg); do_it = true; break;
+      case CMD_TOKENS	:  sched.tokens      = atoi(optarg); do_it = true; break;
+      case CMD_TOK_MIN	:  sched.tokens_min  = atoi(optarg); do_it = true; break;
+      case CMD_TOK_MAX	:  sched.tokens_max  = atoi(optarg); do_it = true; break;
+      case CMD_CPU_MASK	:  sched.cpu_mask    = atoi(optarg); do_it = true; break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -115,14 +116,19 @@ int main(int argc, char *argv[])
   }
 
   if (xid==VC_NOCTX && optind==argc) {
-    WRITE_MSG(2, "Neither '--xid' nor a program was specified; try '--help' for more information\n");
-    exit(255);
+    WRITE_MSG(2, "Without a program, '--xid' must be used; try '--help' for more information\n");
+    exit(wrapper_exit_code);
+  }
+
+  if (!do_it && optind==argc) {
+    WRITE_MSG(2, "Neither an option nor a program was specified; try '--help' for more information\n");
+    exit(wrapper_exit_code);
   }
 
   if (xid==VC_NOCTX)
     xid = Evc_get_task_xid(0);
 
-  if (vc_set_sched(xid, &sched)==-1) {
+  if (do_it && vc_set_sched(xid, &sched)==-1) {
     perror("vc_set_sched()");
     exit(255);
   }
