@@ -19,7 +19,6 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
 
 #ifdef VC_ENABLE_API_COMPAT
 #  include "getinitpid-compat.hc"
@@ -33,14 +32,11 @@
 #include "vserver-internal.h"
 #include "internal.h"
 
-#include <unistd.h>
 #include <sys/types.h>
 
 pid_t
 vc_X_getinitpid(pid_t pid)
 {
-  if (pid==0) pid=getpid();
-
   CALL_VC(CALL_VC_COMPAT(vc_X_getinitpid, pid),
 	  CALL_VC_LEGACY(vc_X_getinitpid, pid));
 }

@@ -19,7 +19,6 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
 
 #include "utils-legacy.h"
 #include "internal.h"
@@ -49,16 +48,19 @@ utilvserver_getProcEntry(pid_t pid,
   size_t		len;
   char *		res = 0;
 
-  if (pid<=0 || (uint32_t)(pid)>99999) {
+  if (pid<0 || (uint32_t)(pid)>99999) {
     errno = EINVAL;
     return 0;
   }
 
-  strcpy(status_name, "/proc/");
-  len = utilvserver_uint2str(status_name+sizeof("/proc/")-1,
-			     sizeof(status_name)-sizeof("/proc//status")+1,
-			     pid, 10);
-  strcpy(status_name+sizeof("/proc/")+len-1, "/status");
+  if (pid==0) strcpy(status_name, "/proc/self/status");
+  else {
+    strcpy(status_name, "/proc/");
+    len = utilvserver_uint2str(status_name+sizeof("/proc/")-1,
+			       sizeof(status_name)-sizeof("/proc//status")+1,
+			       pid, 10);
+    strcpy(status_name+sizeof("/proc/")+len-1, "/status");
+  }
 
   fd = open(status_name, O_RDONLY);
   if (fd==-1) return 0;
