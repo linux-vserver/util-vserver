@@ -55,7 +55,7 @@ vc_getVserverByCtx(xid_t ctx, vcCfgStyle *style, char const *revdir)
     case vcCFG_RECENT_SHORT	:
     case vcCFG_RECENT_FULL	:
 	// check if expected ctx == actual ctx
-      if (vc_getVserverCtx(path, vcCFG_RECENT_FULL)!=ctx) return 0;
+      if (vc_getVserverCtx(path, vcCFG_RECENT_FULL, false, 0)!=ctx) return 0;
 
       if (style) *style = vcCFG_RECENT_FULL;
       return strdup(path);

@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <sys/types.h>
 
 /** the value which is returned in error-case (no ctx found) */
@@ -175,9 +176,15 @@ extern "C" {
 
   char *	vc_getVserverVdir(char const *id, vcCfgStyle style);
 
-  /** Returns the ctx of the given vserver, or VC_NOCTX if vserver is not
-   *  running */
-  xid_t		vc_getVserverCtx(char const *id, vcCfgStyle style);
+  /** Returns the ctx of the given vserver. When vserver is not running and
+   *  'honor_static' is false, VC_NOCTX will be returned. Else, when
+   *  'honor_static' is true and a static assignment exists, those value will
+   *  be returned. Else, the result will be VC_NOCTX.
+   *
+   *  When 'is_running' is not null, the status of the vserver will be
+   *  assigned to this variable. */
+  xid_t		vc_getVserverCtx(char const *id, vcCfgStyle style,
+				 bool honor_static, bool /*@null@*/ *is_running);
 
   /** Resolves the cfg-path of the vserver owning the given ctx. 'revdir' will
       be used as the directory holding the mapping-links; when NULL, the

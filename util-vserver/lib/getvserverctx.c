@@ -61,30 +61,41 @@ getCtxFromFile(char const *pathname)
 }
 
 xid_t
-vc_getVserverCtx(char const *id, vcCfgStyle style)
+vc_getVserverCtx(char const *id, vcCfgStyle style, bool honor_static, bool *is_running)
 {
   size_t		l1 = strlen(id);
   char			buf[sizeof(CONFDIR "//") + l1 + sizeof("/run")];
 			    
   if (style==vcCFG_NONE || style==vcCFG_AUTO)
     style = vc_getVserverCfgStyle(id);
-  
+
+  if (is_running) *is_running = false;
+
   switch (style) {
     case vcCFG_NONE		:  return VC_NOCTX;
     case vcCFG_LEGACY		:  return VC_NOCTX;	// todo
     case vcCFG_RECENT_SHORT	:
     case vcCFG_RECENT_FULL	: {
       size_t		idx = 0;
+      xid_t		res = 0;
+
       if (style==vcCFG_RECENT_SHORT) {
 	memcpy(buf, CONFDIR "/", sizeof(CONFDIR "/")-1);
 	idx  = sizeof(CONFDIR "/") - 1;
       }
       memcpy(buf+idx, id, l1);    idx += l1;
-      memcpy(buf+idx, "/run", 4); idx += 4;
-      buf[idx] = '\0';
+      memcpy(buf+idx, "/run", 5);	// appends '\0' too
       
+      res = getCtxFromFile(buf);
+      if (is_running) *is_running = res!=VC_NOCTX;
+      
+      if (res==VC_NOCTX && honor_static) {
+	memcpy(buf+idx, "/context", 9);	// appends '\0' too
 
-      return getCtxFromFile(buf);
+	res = getCtxFromFile(buf);
+      }
+      
+      return res;
     }
     default			:  return VC_NOCTX;
   }

@@ -32,7 +32,7 @@ CONCAT(FMT_P(xuint),)(char *ptr, CONCAT(uint_least,_t) val)
 
 size_t
 CONCAT(FMT_P(xint),)(char *ptr,
-		    CONCAT(int_least,_t) val)
+		     CONCAT(int_least,_t) val)
 {
   size_t	offset=0;
   if (val<0) {
