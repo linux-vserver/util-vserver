@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.27.190, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.27.193, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -50,6 +50,7 @@ AC_PATH_PROGS(UMOUNT,  [umount],  [/bin/umount], [ $check_paths ])
 AC_PATH_PROGS(NICE,    [nice],    [nice],        [ $check_paths ])
 AC_PATH_PROGS(VCONFIG, [vconfig], [vconfig],     [ $check_paths ])
 AC_PATH_PROGS(WC,      [wc],      [wc],          [ $check_paths ])
+AC_PATH_PROGS(PS,      [ps],      [/bin/ps],     [ $check_paths ])
 
 
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
@@ -84,7 +85,7 @@ ENSC_RELEASE(RELEASE_CPPFLAGS)
 ENSC_ENABLE_DIETLIBC(USE_DIETLIBC)
 ENSC_KERNEL_HEADERS(kernelincludedir)
 ENSC_UV_VROOTDIR(vserverdir)
-ENSC_CHANGELOG([HEAD])
+ENSC_CHANGELOG([MAIN])
 
 dnl Check whether to use external kernel headers
 AC_MSG_CHECKING([whether to use internal kernel headers])
