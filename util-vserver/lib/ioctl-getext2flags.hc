@@ -34,7 +34,7 @@
 #  define EXT2_IMMUTABLE_LINK_FL	0x00008000
 #endif
 
-int
+static inline ALWAYSINLINE int
 vc_X_get_ext2flags(int fd, long *flags)
 {
   int		rc;

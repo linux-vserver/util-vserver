@@ -26,12 +26,27 @@
 
 #include <sys/ioctl.h>
 
-xid_t
-vc_X_get_filecontext(int fd)
-{
-  int		c;
-  int		rc = ioctl(fd, EXT2_IOC_GETCONTEXT, &c);
+#ifndef EXT2_IMMUTABLE_FILE_FL
+#  define EXT2_IMMUTABLE_FILE_FL	0x00000010
+#endif
 
-  if (rc==-1) return VC_NOCTX;
-  else        return c;
+#ifndef EXT2_IMMUTABLE_LINK_FL
+#  define EXT2_IMMUTABLE_LINK_FL	0x00008000
+#endif
+
+static inline ALWAYSINLINE int
+vc_X_set_ext2flags(int fd, long set_flags, long del_flags)
+{
+  long		old_flags = 0;
+
+  set_flags = EXT2FLAGS_USER2KERNEL(set_flags);
+  del_flags = EXT2FLAGS_USER2KERNEL(del_flags);
+  
+  if (del_flags!=-1) {
+    if (ioctl(fd, EXT2_IOC_GETFLAGS, &old_flags)==-1) return -1;
+    old_flags &= ~del_flags;
+  }
+
+  old_flags |= set_flags;
+  return ioctl(fd, EXT2_IOC_SETFLAGS, &old_flags);
 }

@@ -26,11 +26,12 @@
 
 #include <sys/ioctl.h>
 
-int
-vc_X_set_filecontext(int fd, xid_t ctx)
+static inline ALWAYSINLINE xid_t
+vc_X_get_filecontext(int fd)
 {
-  int	c  = ctx;
-  int	rc = ioctl(fd, EXT2_IOC_SETCONTEXT, &c);
+  int		c;
+  int		rc = ioctl(fd, EXT2_IOC_GETCONTEXT, &c);
 
-  return rc;
+  if (rc==-1) return VC_NOCTX;
+  else        return c;
 }

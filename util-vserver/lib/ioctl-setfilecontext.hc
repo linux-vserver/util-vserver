@@ -26,27 +26,11 @@
 
 #include <sys/ioctl.h>
 
-#ifndef EXT2_IMMUTABLE_FILE_FL
-#  define EXT2_IMMUTABLE_FILE_FL	0x00000010
-#endif
-
-#ifndef EXT2_IMMUTABLE_LINK_FL
-#  define EXT2_IMMUTABLE_LINK_FL	0x00008000
-#endif
-
-int
-vc_X_set_ext2flags(int fd, long set_flags, long del_flags)
+static inline ALWAYSINLINE int
+vc_X_set_filecontext(int fd, xid_t ctx)
 {
-  long		old_flags = 0;
+  int	c  = ctx;
+  int	rc = ioctl(fd, EXT2_IOC_SETCONTEXT, &c);
 
-  set_flags = EXT2FLAGS_USER2KERNEL(set_flags);
-  del_flags = EXT2FLAGS_USER2KERNEL(del_flags);
-  
-  if (del_flags!=-1) {
-    if (ioctl(fd, EXT2_IOC_GETFLAGS, &old_flags)==-1) return -1;
-    old_flags &= ~del_flags;
-  }
-
-  old_flags |= set_flags;
-  return ioctl(fd, EXT2_IOC_SETFLAGS, &old_flags);
+  return rc;
 }
