@@ -102,7 +102,7 @@ the GNU General Public License.  This program has absolutely no warranty."
 
 set +e
 
-tmp=$(getopt -o +sv --long help,version,sync,verbose -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o +sv --long help,debug,version,sync,verbose -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 OPTION_FORCE_SYNC=
@@ -112,6 +112,7 @@ while true; do
     case "$1" in
 	--help)    	showHelp $0 ;;
 	--version) 	showVersion ;;
+	--debug)	set -x;              shift;;
 	-v|--verbose)	OPTION_VERBOSE=1;    shift;;
 	-s|--sync) 	OPTION_FORCE_SYNC=1; shift;;
 	--)	   	shift; break;;
