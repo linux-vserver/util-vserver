@@ -22,7 +22,7 @@
 
 #include <vserver.h>
 
-inline static UNUSED xid_t
+inline static WRAPPER_DECL xid_t
 Evc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags)
 {
   register xid_t	res = vc_new_s_context(ctx,remove_cap,flags);
@@ -30,10 +30,36 @@ Evc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags)
   return res;
 }
 
-inline static UNUSED xid_t
+inline static WRAPPER_DECL xid_t
 Evc_get_task_xid(pid_t pid)
 {
   register xid_t	res = vc_get_task_xid(pid);
   FatalErrnoError(res==VC_NOCTX, "vc_get_task_xid()");
   return res;
+}
+
+inline static WRAPPER_DECL xid_t
+Evc_create_context(xid_t xid)
+{
+  register xid_t	res = vc_create_context(xid);
+  FatalErrnoError(res==VC_NOCTX, "vc_create_context()");
+  return res;
+}
+
+inline static WRAPPER_DECL void
+Evc_migrate_context(xid_t xid)
+{
+  FatalErrnoError(vc_migrate_context(xid)==-1, "vc_migrate_context()");
+}
+
+inline static WRAPPER_DECL void
+Evc_get_flags(xid_t xid, struct vc_ctx_flags *flags)
+{
+  FatalErrnoError(vc_get_flags(xid, flags)!=-1, "vc_get_flags()");
+}
+
+inline static WRAPPER_DECL void
+Evc_set_flags(xid_t xid, struct vc_ctx_flags const *flags)
+{
+  FatalErrnoError(vc_set_flags(xid, flags)!=-1, "vc_get_flags()");
 }
