@@ -15,3 +15,29 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+
+if ENSC_HAVE_C99_COMPILER
+DIETPROGS +=		vserver-start/vserver.start.bin
+pkglib_PROGRAMS +=	vserver-start/vserver.start.bin
+endif
+
+
+vserver_start_vserver_start_bin_SOURCES =	vserver-start/main.c \
+						vserver-start/scriptlets.c \
+						vserver-start/vshelper.c \
+						vserver-start/vshelper.h \
+						vserver-start/interface.c \
+						vserver-start/interface.h \
+						vserver-start/interface-add.c \
+						vserver-start/interface-read.c \
+						vserver-start/interface-free.hc \
+						vserver-start/interface-init.hc \
+						vserver-start/configuration.c \
+						vserver-start/configuration-init.c \
+						vserver-start/configuration.h \
+						vserver-start/vserver-start.h
+
+vserver_start_vserver_start_bin_LDADD =		$(VSERVER_LDADDS) \
+						lib_internal/libinternal.a \
+						libensc_vector.a
+vserver_start_vserver_start_bin_LDFLAGS =	$(VSERVER_LDFLAGS)
