@@ -67,10 +67,12 @@ static void test1()
 */
 static void test2()
 {
+        int		fd;
+  
 	printf ("test2\n");
 	print_pwd();
 	mkdir ("dummy_dir",0755);
-	int fd = open (".",O_RDONLY);
+	fd = open (".",O_RDONLY);
 	if (fd == -1){
 		fprintf (stderr,"Can't open current directory (%s)\n",strerror(errno));
 	}else if (chroot ("dummy_dir")==-1){

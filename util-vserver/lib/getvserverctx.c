@@ -45,7 +45,7 @@ getCtxFromFile(char const *pathname)
       (lseek(fd, 0, SEEK_SET)==-1))
     return VC_NOCTX;
 
-  BS;
+  {
   char		buf[len+1];
   char		*errptr;
   xid_t		res;
@@ -57,7 +57,7 @@ getCtxFromFile(char const *pathname)
   if (*errptr!='\0' && *errptr!='\n') return VC_NOCTX;
 
   return res;
-  BE;
+  }
 }
 
 xid_t

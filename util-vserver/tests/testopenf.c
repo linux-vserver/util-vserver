@@ -32,6 +32,7 @@ int main (int argc, char *argv[])
 		int nbproc = atoi(argv[1]);
 		int nbopen = atoi(argv[2]);
 		int i;
+		int status;
 		for (i=0; i<nbproc; i++){
 			if (fork()==0){
 				int j;
@@ -47,7 +48,6 @@ int main (int argc, char *argv[])
 				_exit (0);
 			}
 		}
-		int status;
 		while (wait(&status)!=-1);
 	}
 	return 0;

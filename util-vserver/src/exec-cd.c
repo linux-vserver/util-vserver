@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
 {
   int		dirfd_root = Eopen("/", O_RDONLY, 0);
   int		idx = 1;
+  int		dirfd_cur;
 
   if (argc>=2) {
     if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
@@ -67,7 +68,7 @@ int main(int argc, char *argv[])
   Echroot(".");
   Echdir(argv[idx]);
 
-  int		dirfd_cur  = Eopen(".", O_RDONLY, 0);
+  dirfd_cur  = Eopen(".", O_RDONLY, 0);
 
   Efchdir(dirfd_root);
   Echroot(".");

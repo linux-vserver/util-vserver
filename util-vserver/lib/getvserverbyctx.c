@@ -33,7 +33,7 @@ vc_getVserverByCtx(xid_t ctx, vcCfgStyle *style, char const *revdir)
 {
   if (revdir==0) revdir = DEFAULT_PKGSTATEREVDIR;
 
-  BS;
+  {
   vcCfgStyle	cur_style = vcCFG_NONE;
   size_t	l = strlen(revdir);
   size_t	l1;
@@ -63,5 +63,5 @@ vc_getVserverByCtx(xid_t ctx, vcCfgStyle *style, char const *revdir)
     default		:
       return 0;
   }
-  BE;
+  }
 }

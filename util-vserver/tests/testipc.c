@@ -41,17 +41,18 @@ int main (int argc, char *argv[])
 		if (id == -1){
 			fprintf (stderr,"shmget failed (%s)\n",strerror(errno));
 		}else{
-			printf ("shmget id %d\n",id);
 			void *pt = shmat (id,NULL,0);
+			printf ("shmget id %d\n",id);
 			if (pt == NULL){
 				fprintf (stderr,"can't shmat to id %d (%s)\n",id,strerror(errno));
 			}else{
+				char tmp[100];
+				int  ok;
 				strcpy ((char*)pt,"original string");
 
 				printf ("Letting a sub-program attach to this memory\n");
-				char tmp[100];
 				sprintf (tmp,"./testipc accessshm %d",id);
-				int ok = system (tmp);
+				ok = system (tmp);
 				printf ("\tSub-program returned %d\n",ok);
 
 				printf ("\tThe segment now hold :%s:\n",(char*)pt);
@@ -87,12 +88,13 @@ int main (int argc, char *argv[])
 		if (id == -1){
 			fprintf (stderr,"semget failed (%s)\n",strerror(errno));
 		}else{
+			char tmp[100];
+			int  ok;
 			printf ("semget id %d\n",id);
 
 			printf ("Letting a sub-program play with this semaphore\n");
-			char tmp[100];
 			sprintf (tmp,"./testipc accesssem %d",id);
-			int ok = system (tmp);
+			ok = system (tmp);
 			printf ("\tSub-program returned %d\n",ok);
 
 			printf ("A sub-program in another context can't use the semaphore\n");
