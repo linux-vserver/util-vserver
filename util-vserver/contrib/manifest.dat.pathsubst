@@ -72,6 +72,7 @@ base   @PKGLIBDIR@/vshelper-sync
 sysv   @PKGLIBDIR@/vsysvwrapper
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vcopy
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vunify
+@ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vhashify
 base   @PKGLIBDIR@/vservers.grabinfo.sh
 build  @PKGLIBDIR@/distributions
 devel  @LIBDIR@/pkgconfig/util-vserver.pc
@@ -87,6 +88,7 @@ build  @SBINDIR@/vapt-get
 build  @SBINDIR@/vyum
 core   @SBINDIR@/vattribute
 core   @SBINDIR@/vcontext
+core   @SBINDIR@/vdlimit
 core   @SBINDIR@/vnamespace
 base   @SBINDIR@/vdu
 @ENSC_HAVE_CXX_COMPILER_TRUE@build  @SBINDIR@/vfiles
