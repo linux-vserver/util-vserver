@@ -28,7 +28,8 @@ defaults_DATA =		misc/debootstrap.uri \
 			misc/vprocunhide-files \
 			misc/vunify-exclude
 
-nobase_distrib_SCRIPTS	=  redhat/initpost
+nobase_distrib_SCRIPTS	=  redhat/initpost \
+			   redhat/initpre
 
 nobase_distrib_DATA	=  defaults/devs \
 			   defaults/apt.conf \
@@ -53,7 +54,8 @@ redhat_style		=  rh9 fc1
 
 install-data-hook:
 			l="$(redhat_style)"; for i in $$l; do \
-				ln -sf ../redhat/initpost $(DESTDIR)$(distribdir)/$$i/; \
+				ln -sf ../redhat/initpost $(DESTDIR)$(distribdir)/$$i/ && \
+				ln -sf ../redhat/initpre  $(DESTDIR)$(distribdir)/$$i/; \
 			done
 			$(mkinstalldirs) $(DESTDIR)$(confdir) $(DESTDIR)$(confdefaultsdir) \
 				$(DESTDIR)$(confdefaultsinitdir)
