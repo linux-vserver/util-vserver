@@ -74,12 +74,12 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 	    xdetected)
 		AM_CONDITIONAL($1, true)
 		AC_MSG_RESULT([yes (autodetected)])
-		ensc_have_dietlibc=1
+		ensc_have_dietlibc=yes
 		;;
 	    xforced)
 		AM_CONDITIONAL($1, true)
 		AC_MSG_RESULT([yes (forced)])
-		ensc_have_dietlibc=1
+		ensc_have_dietlibc=yes
 		;;
 	    xdetected_no)
 		AM_CONDITIONAL($1, false)
