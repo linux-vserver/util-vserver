@@ -195,9 +195,10 @@ setupContext(xid_t xid, char const **xid_str)
       l = utilvserver_fmt_uint(buf+sizeof("rpm-fake.so #")-1, getppid());
       Evc_set_vhi_name(rc, vcVHI_CONTEXT, buf, sizeof("rpm-fake.so #")+l-1);
 
-      caps.ccaps = ~0;
-      caps.cmask = ~0;
+      caps.ccaps = ~0ull;
+      caps.cmask = ~0ull;
       caps.bcaps = ~vc_get_securecaps();
+      caps.bmask = ~0ull;
       Evc_set_ccaps(rc, &caps);
       
 	// context will be activated later...
