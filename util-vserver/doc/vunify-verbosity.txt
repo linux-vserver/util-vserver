@@ -1,0 +1,23 @@
+>=1
+--
+	* skipping of normal, non-unified files
+	* general progress-messages
+
+>=2
+---
+	* deunify/unify messages
+        * skip-reason
+	* more detailed progress-messages
+
+>=3
+--
+	* skipping of already unified files
+
+>=4
+--
+	* source of unification; when verbosity==4 -> vserver-id, else
+	  physical path
+
+>=6
+---
+	* skipping of dirs and dotfiles
