@@ -21,31 +21,22 @@
 #include <utime.h>
 
 static bool
-doitUnify(char const *src, char const *dst)
+doitUnify(char const *src, struct stat const *src_stat,
+	  char const *dst, struct stat const UNUSED *dst_stat)
 {
   size_t	l = strlen(dst);
-  char		tmpfile[l + sizeof(".XXXXXX")];
+  char		tmpfile[l + sizeof(";XXXXXX")];
   int		fd;
-  int		fd_src;
   bool		res = false;
 
   // at first, set the ILI flags on 'src'
-  fd_src = open(src, O_RDONLY);
-  if (fd_src==-1) {
-    perror("open");
+  if (vc_set_iattr_compat(src, src_stat->st_dev, src_stat->st_ino,
+			  0, VC_IATTR_IUNLINK, VC_IATTR_IUNLINK)==-1)
     return false;
-  }
-  if (vc_X_set_ext2flags(fd_src,
-			 VC_IMMUTABLE_FILE_FL|VC_IMMUTABLE_LINK_FL, 0)==-1) {
-    perror("vc_X_set_ext2flags()");
-    close(fd_src);
-    return false;
-  }
-  close(fd_src);
 
   // now, create a temporary filename
   memcpy(tmpfile,   dst, l);
-  memcpy(tmpfile+l, ".XXXXXX", 8);
+  memcpy(tmpfile+l, ";XXXXXX", 8);
   fd = mkstemp(tmpfile);
   close(fd);
 
@@ -81,10 +72,11 @@ doitUnify(char const *src, char const *dst)
 }
 
 static bool
-doitDeUnify(char const UNUSED *src, char const *dst)
+doitDeUnify(char const UNUSED *src, struct stat const UNUSED *src_stat,
+	    char const *dst,        struct stat const UNUSED *dst_stat)
 {
   size_t		l = strlen(dst);
-  char			tmpfile[l + sizeof(".XXXXXX")];
+  char			tmpfile[l + sizeof(";XXXXXX")];
   int			fd_src, fd_tmp;
   struct stat		st;
   struct utimbuf	utm;
@@ -102,7 +94,7 @@ doitDeUnify(char const UNUSED *src, char const *dst)
   }
   
   memcpy(tmpfile,   dst, l);
-  memcpy(tmpfile+l, ".XXXXXX", 8);
+  memcpy(tmpfile+l, ";XXXXXX", 8);
   fd_tmp = mkstemp(tmpfile);
 
   if (fd_tmp==-1) {
