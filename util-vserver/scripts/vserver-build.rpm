@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-tmp=$(getopt -o +d:b: --long debug -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o +d:b:e --long debug,empty -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 . "$_LIB_VSERVER_BUILD_FUNCTIONS_RPM"
@@ -24,27 +24,9 @@ eval set -- "$tmp"
 set -e
 
 
-## Usage: installPackages <vserver> <rpm-options>*
-## it expects a list of packages on stdin
-function installPackages()
-{
-    local	cfgdir=$1
-    shift
-
-    while read; do
-	case x"$REPLY" in
-	    (x|\#*)	continue;;
-	esac
-	
-	echo "$BASEDIR/$REPLY"
-    done >>"$manifest"
-
-    cat "$manifest"
-    test ! -s "$manifest" || $_VRPM "$cfgdir" -- -Uv "$@" "$manifest"
-}
-
 BASEDIR=$(pwd)
 DISTRIBUTION=
+EMPTY=
 
 echo "$@"
 
@@ -52,6 +34,7 @@ while true; do
     case "$1" in
 	(-d)		DISTRIBUTION=$2; shift;;
 	(-b)		BASEDIR=$2; shift;;
+	(-e|--empty)	EMPTY=1;;
 	(--debug)	set -x;;
 	(--)		shift; break ;;
 	(*)		echo "vserver-build.rpm: internal error: unrecognized option '$1'" >&2
@@ -61,11 +44,32 @@ while true; do
     shift
 done
 
+
+####### some basic initializations
+
 getDistribution "template"
 
 base.initVariables
 pkgmgmt.initVariables
 rpm.initVariables
+
+if test -z "$EMPTY" -a "$#" -eq 0; then
+    rpmlist.initByDistribution rpm_lists "$DISTRIBUTION"
+    set -- "${rpm_lists[@]}"
+fi
+
+test -n "$EMPTY" -o "$#" -gt 0 || \
+    panic $"\
+No rpm-lists specified and no list found for distribution '$DISTRIBUTION'.
+When this is really indented, please use the '--empty' option."
+
+rpm_dflt_opts=()
+test "$OPTION_DEBUG" -lt 2 || rpm_dflt_opts=( "${rpm_dflt_opts[@]}" -v  )
+test "$OPTION_DEBUG" -lt 3 || rpm_dflt_opts=( "${rpm_dflt_opts[@]}" -v  )
+test -n "$OPTION_SILENT"   || rpm_dflt_opts=( "${rpm_dflt_opts[@]}" -vh )
+
+
+######  init the filesystem
 
 base.initFilesystem    "$OPTION_FORCE"
 pkgmgmt.initFilesystem "$OPTION_FORCE"
@@ -73,6 +77,7 @@ rpm.initFilesystem
 
 setup_writeOption "$VSERVER_NAME"
 setup_writeInitialFstab
+
 
 # when basedir is a non-local location, rpm will download it into the
 # current directory. Therefore, create and go into a temporay directory
@@ -82,17 +87,21 @@ manifest=$($_MKTEMP /tmp/vserver-build.rpm.manifest.XXXXXX)
 trap "rm -rf $tmpdir $manifest" EXIT
 cd "$tmpdir"			
 
+
+######  do the real work
+
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
 rpm.importGPGPubKeys "$SETUP_CONFDIR" "$CONFDIR/.distributions/$DISTRIBUTION/pubkeys" "$DISTRIBDIR/$DISTRIBUTION/pubkeys"
 rpm.initDB           "$SETUP_CONFDIR"
 
+opts=()
 for i; do
     case "$i" in
 	(--force|--nodeps)	opts=( "${opts[@]}" "$i" ); continue;;
     esac
     
-    installPackages "$VSERVER_NAME" "${opts[@]}" <"$i"
-    opts=
+    rpmlist.install "$VSERVER_NAME" "$BASEDIR" "$manifest" "$i" "${rpm_dflt_opts[@]}" "${opts[@]}" 
+    opts=()
 done
 
 test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
