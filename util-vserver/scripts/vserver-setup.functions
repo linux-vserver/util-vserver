@@ -27,7 +27,7 @@ SETUP_CONFDIR=
 declare -a SETUP_INTERFACES=()
 declare -a SETUP_FLAGS=()
 
-declare -r SETUP_OPTIONS="confdir:lockfile:lockrevdir:hostname:,netdev:,netmask:,netprefix:,netbcast:,interface:,flags:"
+declare -r SETUP_OPTIONS="confdir:,lockfile:,lockrevdir:,hostname:,netdev:,netmask:,netprefix:,netbcast:,interface:,flags:"
 declare -r SETUP_HELPMSG=$"
     --confdir   ...  [default: $CONFDIR/<name>]
     --lockfile <filename>
