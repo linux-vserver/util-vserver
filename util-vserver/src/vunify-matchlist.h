@@ -50,7 +50,7 @@ struct MatchList
     struct MatchItem	*data;
     size_t		count;
 
-    void		**buf;
+    void const		**buf;
     size_t		buf_count;
 };
 
