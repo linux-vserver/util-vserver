@@ -20,7 +20,9 @@
 scriptscfgdir		=  $(sbindir)
 
 scripts_DTA		=  scripts/functions \
-			   scripts/vserver.start
+			   scripts/vserver.functions \
+			   scripts/vserver.start \
+			   scripts/vserver.stop
 
 scripts_SCRPTS		=  scripts/distrib-info \
 			   scripts/vapt-get-worker \
