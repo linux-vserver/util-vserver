@@ -1,3 +1,25 @@
+Version 0.30
+============
+
+	- BUGFIX: vlimit: fixed communication with kernel so that it
+	  should work now. Output of this tools has been enhanced too.
+
+	- BUGFIX: fixed off-by-one error when setting ipv4root; now the
+	  full 16 IPs can be specified instead of 15 formerly
+
+	- added better detection for the syscall number; this can solve
+	  problems on non-ix86 architectures where __NR_vserver is not 273
+
+	- BUGFIX/ENHANCEMENTS: the CLI interface of 'reducecap' was fixed
+	  significantly: now it is possible to remove capabilities like
+	  CHOWN'. Formerly, only privileged caps like SYS_* or *_ADMIN
+	  could be removed because of a coding error. Changes in the
+	  related code are making it possible that both '--CAP_XXX' and
+	  '--XXX' syntax will be recognized (based on patches and reports
+	  by Bodo Eggert).
+
+
+	
 Version 0.29
 ============
 
