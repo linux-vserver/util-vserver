@@ -31,8 +31,10 @@ src_pkglib_PRGS		=  src/capchroot \
 			   src/vbuild \
 			   src/vcheck \
 			   src/vreboot \
+			   src/save_ctxinfo \
 			   src/secure-mount \
 			   src/vunify \
+			   src/mask2prefix \
 			   src/rpm-fake.so
 
 src_sbin_PRGS		=  src/chbind \
@@ -65,6 +67,9 @@ src_rebootmgr_SOURCES		=  src/rebootmgr.c
 src_reducecap_SOURCES		=  src/reducecap.c
 src_reducecap_LDADD		=  lib/libvserver.a
 
+src_save_ctxinfo_SOURCES	=  src/save_ctxinfo.c
+src_save_ctxinfo_LDADD		=  lib/libvserver.a
+
 src_setctxlimit_SOURCES		=  src/setctxlimit.c
 src_setctxlimit_LDADD		=  lib/libvserver.a
 
@@ -76,6 +81,8 @@ src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc
 src_vreboot_SOURCES		=  src/vreboot.c
 src_new_namespace_SOURCES	=  src/new-namespace.c
 src_secure_mount_SOURCES	=  src/secure-mount.c
+
+src_mask2prefix_SOURCES		=  src/mask2prefix.c
 
 src_rpm_fake_so_SOURCES		=  src/rpm-fake.c
 src_rpm_fake_so_LDFLAGS		=  -fpic -ldl -shared
@@ -89,6 +96,8 @@ src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc
 if USE_DIETLIBC
 src/new-namespace$(EXEEXT) src/new-namespace$(OBJEXT)	\
 src/secure-mount$(EXEEXT)  src/secure-mount$(OBJEXT)	\
+src/save_ctxinfo$(EXEEXT)  src/save_ctxinfo$(OBJEXT)	\
+src/mask2prefix$(EXEEXT)   src/mask2prefix$(OBJEXT)	\
 		:		CC=$(DIET_CC)
 endif
 
