@@ -20,7 +20,6 @@
 man_DATMAN		=  man/chbind.8 \
 			   man/chcontext.8 \
 			   man/distrib-info.8 \
-			   man/newvserver.8 \
 			   man/rebootmgr.8 \
 			   man/reducecap.8 \
 			   man/vps.8 \
