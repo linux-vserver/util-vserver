@@ -31,8 +31,9 @@ function showHelp()
 
 Return values:
     0  ...  no errors
-    1  ...  some files where changes but there occured errors on other ones
-    2  ...  operation failed on every file
+    1  ...  configuration error
+    2  ...  some files where changes but there occured errors on other ones
+    3  ...  operation failed on every file
 
 Report bugs to <$PACKAGE_BUGREPORT>."
     exit 0
@@ -65,18 +66,29 @@ findFile UNHIDEFILE \
 ok=1
 passed=
 while read filename; do
-    param=
+    params=()
+
     case "$filename" in
-	*/)	param=-R;;
-	*)	;;
+	(\#*)	continue;;
+	(-*)	params=( --admin         --hide ); filename=${filename#-};;
+	(~*)	params=( --admin --watch --hide ); filename=${filename#-};;
+	(:*)	params=(         --watch --hide ); filename=${filename#-};;
+	(!*)	params=(                 --hide ); filename=${filename#-};;
+	(+*)	params=(                --!hide ); filename=${filename#-};;
+	(*)	params=(                --!hide );;
+    esac
+	
+    case "$filename" in
+	(*/)	params=( "${params[@]}" -R );;
+	(*)	;;
     esac
 
     set -- $filename
     test -e "$1" || continue
     
-    $_SETATTR -x $param --!hide "$@" &&	passed=1 || ok=
+    $_SETATTR -x "${params[@]}" "$@" &&	passed=1 || ok=
 done <"$UNHIDEFILE"
 
 test "$ok"     && exit 0 || \
-test "$passed" && exit 1 || \
-exit 2
+test "$passed" && exit 2 || \
+exit 3
