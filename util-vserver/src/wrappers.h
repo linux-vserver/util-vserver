@@ -29,6 +29,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sched.h>
+#include <grp.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -198,6 +199,24 @@ inline static WRAPPER_DECL void
 Esetrlimit(int resource, struct rlimit const *rlim)
 {
   FatalErrnoError(setrlimit(resource, rlim)==-1, "setrlimit()");
+}
+
+inline static void
+Esetuid(uid_t uid)
+{
+  FatalErrnoError(setuid(uid)==-1, "setuid()");
+}
+
+inline static void
+Esetgid(gid_t gid)
+{
+  FatalErrnoError(setgid(gid)==-1, "setgid()");
+}
+
+inline static void
+Esetgroups(size_t size, const gid_t *list)
+{
+  FatalErrnoError(setgroups(size, list)==-1, "setgroups()");
 }
 
 
