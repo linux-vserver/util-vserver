@@ -4,6 +4,7 @@
 .gdb_history
 .libs
 capchroot
+chain-echo
 chbind
 chcontext
 chcontext-compat
