@@ -46,6 +46,7 @@ getRecentName(char *start, char *end)
 
       if (TEMP_FAILURE_RETRY(read(fd, buf, len+1))==len) {
 	while (len>0 && buf[len-1]=='\n') --len;
+	buf[len] = '\0';
 	if (len>0) res = buf;
       }
 
