@@ -71,7 +71,7 @@ vdir=$($_VSERVER_INFO "$1" VDIR) || :
 
 style=
 is_external=
-pkgmgmt.guessStyle "$vserver" style || exit 1
+pkgmgmt.guessStyle "$vserver" style || exit 2
 pkgmgmt.isInternal "$vserver"       || is_external=1
 
 cmd=()
@@ -134,7 +134,7 @@ case "$style" in
 	;;
     (*)
 	echo $"Packagemanagement is not supported for '$style' style" >&2
-	exit 1
+	exit 2
 	;;
 esac
 
