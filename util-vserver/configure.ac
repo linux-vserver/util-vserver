@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.29.193, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.29.195, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -177,9 +177,6 @@ if false; then
 	AC_DEFINE(HAVE_GROWING_STACK, [1], [Define to 1 if the stack is on growing addresses])
 fi
 
-AH_BOTTOM([#include "compat.h"])
-AC_CONFIG_FILES([util-vserver.spec Makefile distrib/Makefile])
-AC_OUTPUT
 
 ensc_cxx_affected=" (affected: vbuild, vcheck)"
 ensc_c99_affected=" (affected: vunify, vcopy)"
@@ -190,11 +187,7 @@ test x"$ensc_cv_c99_c99compiler"    = xno || ensc_c99_affected=
 test x"$ensc_have_dietlibc"         = xno || ensc_diet_msg=
 test x"$ensc_have_dietlibc$ensc_cv_c_dietlibc_compat" = xyesyes || ensc_diet_compat_msg=
 
-AC_MSG_NOTICE([
-
-$PACKAGE_STRING
-
-Features:
+FEATURES_TXT="Features:
 		       CC: $CC, $($CC   --version | sed -e '1p;d')
                       CXX: $CXX, $($CXX --version | sed -e '1p;d')
                  CPPFLAGS: '$CPPFLAGS'
@@ -216,4 +209,15 @@ Paths:
          initrd-Directory: $initrddir
             Kernelheaders: $kernelincludedir
           vserver-Rootdir: $vserverdir
-])
+"
+
+AH_BOTTOM([#include "compat.h"])
+AC_CONFIG_COMMANDS_PRE([echo "$FEATURES_TXT" >FEATURES.txt])
+AC_CONFIG_FILES([util-vserver.spec Makefile distrib/Makefile])
+AC_OUTPUT
+
+AC_MSG_NOTICE([
+
+$PACKAGE_STRING
+
+$FEATURES_TXT])
