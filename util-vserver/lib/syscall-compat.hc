@@ -21,42 +21,47 @@
 #endif
 #include "compat.h"
 
+#include "safechroot-internal.hc"
+
 #include "vserver.h"
 #include "vserver-internal.h"
-#include "linuxvirtual.h"
 
-#ifdef VC_ENABLE_API_COMPAT    
-#  include "syscall-compat.hc"
-#endif
+#include <unistd.h>
 
-#ifdef VC_ENABLE_API_LEGACY
-#  include "syscall-legacy.hc"
-#endif
-
-#include <stdbool.h>
-#include <errno.h>
-
-#if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
-
-int
-vc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
+static inline ALWAYSINLINE int
+vc_new_s_context_compat(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
 {
-  CALL_VC(CALL_VC_COMPAT(vc_new_s_context, ctx, remove_cap, flags),
-	  CALL_VC_LEGACY(vc_new_s_context, ctx, remove_cap, flags));
+  struct vcmd_new_s_context_v1	msg;
+  msg.remove_cap = remove_cap;
+  msg.flags      = flags;
+
+  return sys_virtual_context(VC_CMD(COMPAT, 1, 1), ctx, &msg);
 }
 
-int
-vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips)
+static inline ALWAYSINLINE int
+vc_set_ipv4root_compat(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips)
 {
-  CALL_VC(CALL_VC_COMPAT(vc_set_ipv4root, bcast, nb, ips),
-	  CALL_VC_LEGACY(vc_set_ipv4root, bcast, nb, ips));
+  struct vcmd_set_ipv4root_v3	msg;
+  size_t			i;
+
+  if (nb>=NB_IPV4ROOT) {
+    errno = -EINVAL;
+    return -1;
+  }
+
+  msg.broadcast = bcast;
+
+  for (i=0; i<nb; ++i) {
+    msg.ip_mask_pair[i].ip   = ips[i].ip;
+    msg.ip_mask_pair[i].mask = ips[i].mask;
+  }
+
+  return sys_virtual_context(VC_CMD(COMPAT, 2, 3), nb, &msg);
 }
 
-int
-vc_chrootsafe(char const *dir)
+static inline ALWAYSINLINE int
+vc_chrootsafe_compat(char const *dir)
 {
-  CALL_VC(CALL_VC_COMPAT(vc_chrootsafe, dir),
-	  CALL_VC_LEGACY(vc_chrootsafe, dir));
+  vc_tell_unsafe_chroot();
+  return chroot(dir);
 }
-
-#endif

@@ -24,7 +24,8 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.23.5, enrico.scholz@informatik.tu-chemnitz.de)
+
+AC_INIT(util-vserver, 0.23.91.1, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -63,7 +64,30 @@ test "$kerneldir" -a -e $i/include/linux/version.h || {
 kernelincludedir=$kerneldir/include
 AC_SUBST(kernelincludedir)
 AC_MSG_RESULT($kernelincludedir/linux)
-		
+
+AC_MSG_CHECKING([for supported APIs])
+AC_ARG_ENABLE([apis],
+	      [AC_HELP_STRING([--enable-apis=APIS],
+			      [enable support for the given apis; possible values are: legacy,compat,ALL (default: ALL)])],
+              [],
+	      [supported_apis=ALL])
+
+test x"$supported_apis" != xALL || supported_apis='legacy,compat'
+old_IFS=$IFS
+IFS=,;
+for i in $supported_apis; do
+	case "$i" in
+		compat)	AC_DEFINE(VC_ENABLE_API_COMPAT, 1, [Enable support for compatibily syscall API]);;
+		legacy) AC_DEFINE(VC_ENABLE_API_LEGACY, 1, [Enable support for old, /proc parsing API]);;
+		*)	AC_MSG_ERROR(['$i' is not a supported API]);;
+	esac
+done
+IFS=$old_IFS
+AC_MSG_RESULT([$supported_apis])
+
+AC_CHECK_FUNCS([sys_virtual_context])
+AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
+AC_CHECK_TYPES(ctx_t,,,[#include <sys/types.h>])
 
 AC_CONFIG_FILES([vserver.spec Makefile])
 AC_OUTPUT

@@ -19,19 +19,45 @@
 #ifndef H_VSERVER_SYSCALL_H
 #define H_VSERVER_SYSCALL_H
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <sys/types.h>
+
+#define VC_NOCTX	((ctx_t)(-1))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int call_new_s_context(int nbctx, int ctxs[], int remove_cap, int flags);
-int call_set_ipv4root (unsigned long ip[], int nb,
-		       unsigned long bcast, unsigned long mask[]);
-int call_chrootsafe (const char *dir);
-int has_chrootsafe();
-int call_set_ctxlimit (int res, long limit);
+  struct vc_ip_mask_pair {
+    uint32_t	ip;
+    uint32_t	mask;
+  };
 
-void	vserver_init();
+    /** Returns version of the given API-category */
+  int	vc_get_version(int category);
+  
+    /** Puts current process into context <ctx>, removes the given caps and
+     *  sets flags.
+     *  Special values for ctx are
+     *  - -2 which means the current context (just for changing caps and flags)
+     *  - -1 which means the next free context; this value can be used by
+     *    ordinary users also */
+  int	vc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags);
 
+    /** Sets the ipv4root information.
+     *  \precondition: nb<16 */
+  int	vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips);
+  
+  int	vc_chrootsafe(char const *dir);
+
+
+    /** Returns the context of the given process. */
+  ctx_t	vc_X_getctx(pid_t pid);
+
+    /** Returns the context of the current process. */
+#define vc_X_getcctx		(getctx(getpid()))
+    
 #ifdef __cplusplus
 }
 #endif

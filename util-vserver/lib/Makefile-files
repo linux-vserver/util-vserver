@@ -17,10 +17,24 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-lib_SRCS			=  lib/syscall.c
+lib_SRCS			=  lib/syscall.c \
+				   lib/checkversion.c \
+				   lib/getctx.c \
+				   lib/getversion.c \
+				   lib/uint2str.c
+
 lib_HDRS			=  lib/vserver.h
+
+lib_XHDRS                       =  lib/syscall-compat.hc \
+	 			   lib/syscall-legacy.hc \
+				   lib/getctx-compat.hc \
+				   lib/getctx-legacy.hc \
+				   lib/getversion-internal.hc \
+				   lib/safechroot-internal.hc \
+				   lib/virtual.h \
+				   lib/vserver-internal.h
 
 lib_lib_LIBS			=  lib/libvserver.a
 
-lib_libvserver_a_SOURCES	=  lib/syscall.c
-lib_libvserver_a_CPPFLAGS	=  -I$(kernelincludedir)
+lib_libvserver_a_SOURCES	=  $(lib_SRCS)
+lib_libvserver_a_CPPFLAGS	=  -I$(kernelincludedir) -D_GNU_SOURCE
