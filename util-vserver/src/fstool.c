@@ -96,7 +96,7 @@ iterateFilesystem(char const *path)
 
   // show current directory entry first
   if (lstat(".", &cur_st)==-1) perror("lstat()");
-  else err += handleFile(".", path, &cur_st) ? 0 : 1;
+  else err += handleFile(".", path) ? 0 : 1;
 
   // strip trailing '/'
   while (path_len>0 && path[path_len-1]=='/') --path_len;
@@ -122,7 +122,7 @@ iterateFilesystem(char const *path)
     
     {
       CONCAT_PATHS(path, path_len, ent->d_name);
-      err += handleFile(ent->d_name, new_path, &st) ? 0 : 1;
+      err += handleFile(ent->d_name, new_path) ? 0 : 1;
     }
   }
 
@@ -183,7 +183,7 @@ processFile(char const *path)
     return iterateFilesystem(path);
   }
   else
-    return handleFile(path, path, &st);
+    return handleFile(path, path) ? 0 : 1;
 }
 
 int main(int argc, char *argv[])

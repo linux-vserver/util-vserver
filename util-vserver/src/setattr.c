@@ -92,14 +92,12 @@ fixupParams(struct Arguments * args, int argc)
 }
 
 bool
-handleFile(char const *name, char const * display_name,
-	   struct stat const *exp_st)
+handleFile(char const *name, char const * display_name)
 {
-  int rc = vc_set_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
-			       0,
-			       global_args->set_mask & ~global_args->del_mask,
-			       global_args->set_mask |  global_args->del_mask,
-			       &exp_st->st_mode);
+  int rc = vc_set_iattr(name,
+			0,
+			global_args->set_mask & ~global_args->del_mask,
+			global_args->set_mask |  global_args->del_mask);
 
   if (rc==-1) {
     perror(display_name);

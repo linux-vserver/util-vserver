@@ -80,14 +80,13 @@ fixupParams(struct Arguments UNUSED * args, int UNUSED argc)
 }
 
 static bool
-getFlags(char const *name, struct stat const *exp_st, uint32_t *flags, uint32_t *mask)
+getFlags(char const *name, uint32_t *flags, uint32_t *mask)
 {
   xid_t		xid;
   *mask = ~0;
   
-  if (vc_get_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
-			  &xid, flags, mask, &exp_st->st_mode)==-1) {
-    perror("vc_get_iattr_compat()");
+  if (vc_get_iattr(name, &xid, flags, mask)==-1) {
+    perror("vc_get_iattr()");
     return false;
   }
 
@@ -95,8 +94,7 @@ getFlags(char const *name, struct stat const *exp_st, uint32_t *flags, uint32_t 
 }
 
 bool
-handleFile(char const *name, char const *display_name,
-	   struct stat const *exp_st)
+handleFile(char const *name, char const *display_name)
 {
   bool			res = true;
   char			buf[40];
@@ -106,7 +104,7 @@ handleFile(char const *name, char const *display_name,
 
   memset(buf, ' ', sizeof buf);
 
-  if (getFlags(name, exp_st, &flags, &mask)) {
+  if (getFlags(name, &flags, &mask)) {
       //                                   1       1       0       0
       //                            fedcba9876543210fedcba9876543210
     static char const	MARKER[33] = ".......x......ib.............hwa";

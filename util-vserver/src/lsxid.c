@@ -124,21 +124,19 @@ lookupContext(xid_t xid)
 }
 
 static xid_t
-getFileContext(char const *name, struct stat const *exp_st)
+getFileContext(char const *name)
 {
   xid_t		res;
   uint32_t	mask = VC_IATTR_XID;
   
-  if (vc_get_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
-			  &res, 0, &mask, &exp_st->st_mode)==-1)
-    perror("vc_get_iattr_compat()");
+  if (vc_get_iattr(name, &res, 0, &mask)==-1)
+    perror("vc_get_iattr()");
 
   return (mask&VC_IATTR_XID) ? res : VC_NOCTX;
 }
 
 bool
-handleFile(char const *name, char const *display_name,
-	   struct stat const *exp_st)
+handleFile(char const *name, char const *display_name)
 {
   xid_t		ctx = 0;
   char		buf[MAX(sizeof(ctx)*3+1, 20)];
@@ -147,7 +145,7 @@ handleFile(char const *name, char const *display_name,
   memset(buf, ' ', sizeof buf);
 
 #if 1
-  ctx = getFileContext(name, exp_st);
+  ctx = getFileContext(name);
 #else
 #  warning Compiling in debug-code
   ctx = random() % 10 + 49213;
