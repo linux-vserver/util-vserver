@@ -30,6 +30,7 @@ execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
 cd "$VSERVER_DIR"/vdir/
 "${NICE_CMD[@]}" \
     "$_CHBIND"       "${CHBIND_OPTS[@]}" \
+    "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
     "$_CHCONTEXT"    "${CHCONTEXT_OPTS[@]}" \
     "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . "${INITCMD_STOP[@]}"
 
