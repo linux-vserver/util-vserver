@@ -56,10 +56,3 @@ vc_set_ipv4root_compat(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const 
 
   return vserver(VCMD_set_ipv4root, nb, &msg);
 }
-
-static inline ALWAYSINLINE int
-vc_chrootsafe_compat(char const *dir)
-{
-  vc_tell_unsafe_chroot();
-  return chroot(dir);
-}
