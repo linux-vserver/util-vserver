@@ -164,6 +164,8 @@ function setup_writeOption
 
     ln -s "$SETUP_LOCKFILE"   "$cfgdir"/run
     ln -s "$SETUP_LOCKREVDIR" "$cfgdir"/run.rev
+
+    ## LEGACY ALERT
     ln -s uts/nodename        "$cfgdir"/hostname
     ln -s uts/domainname      "$cfgdir"/domainname
 }
