@@ -34,6 +34,7 @@ build  @PKGLIBDIR@/defaults/fstab
 build  @PKGLIBDIR@/defaults/debootstrap.uri
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/defaults/vunify-exclude
 base   @PKGLIBDIR@/capchroot
+base   @PKGLIBDIR@/chain-echo
 core   @PKGLIBDIR@/chcontext-compat
 base   @PKGLIBDIR@/chroot-cat
 base   @PKGLIBDIR@/chroot-rm
