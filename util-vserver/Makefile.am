@@ -73,8 +73,12 @@ linuxcaps.h:	${kernelincludedir}/linux/capability.h Makefile
 		@chmod a-w $@
 
 linuxvirtual.h:
+if ENSC_ENABLE_INTERNAL_HEADERS
+		ln -sf '$(top_srcdir)/lib/virtual.h' '$@'
+else
 		ln -sf '$(kernelincludedir)/linux/virtual.h' '$@' && test -e '$@' || \
 		ln -sf '$(top_srcdir)/lib/virtual.h' '$@'
+endif
 
 include $(top_srcdir)/lib/Makefile-files
 include $(top_srcdir)/src/Makefile-files
