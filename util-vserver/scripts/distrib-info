@@ -2,7 +2,8 @@
 
 # Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 # based on distrib-info by Jacques Gelinas
-#  
+# Debian support shoe-horned in by Matthew Lavy <mml@mupsych.org>
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2, or (at your option)
@@ -70,6 +71,27 @@ if [ -f $DIRDIR/etc/redhat-release -o -f $DISTDIR/etc/mandrake-release ] ; then
 	*)
 		echo unknown request $KEY >&2
 		;;
+	esac
+elif [ -f $DISTDIR/etc/debian_version ] ; then
+	case $KEY in
+	pkgversion)
+	    $CHROOTCMD /usr/bin/dpkg-query -W \
+		--showformat='${Package}=${Version}#${Status}\n' \
+		| perl -pe 's/(.+)-.*/$1/' \
+		| grep "install ok installed" | cut -d"#" -f1
+	    ;;
+	unifiles)
+	    echo $* | perl -pe 's/(.+)-.*/$1/' \
+		| xargs $CHROOTCMD /usr/bin/dpkg -L \
+		| grep -v  "^/etc\|^/var"
+	    ;;
+	dumpfiles)
+	    echo $* | perl -pe 's/(.+)-.*/$1/' \
+		| xargs $CHROOTCMD /usr/bin/dpkg -L
+	    ;;
+	*)
+	    echo unknown request $KEY >&2
+	    ;;
 	esac
 else
 	echo Distribution not supported yet >&2
