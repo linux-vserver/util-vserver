@@ -37,7 +37,10 @@ Unify_deUnify(char const *dst) NONNULL((1));
 bool
 Unify_setTime(char const *dst, struct stat const *stat) NONNULL((1,2));
 
-bool
+
+typedef enum { unifyUNSUPPORTED, unifyUINLINKABLE, unifyBUSY }	UnifyStatus;
+
+UnifyStatus
 Unify_isIUnlinkable(char const *filename) NONNULL((1));
 
 #define	Unify_isUnified(LHS, RHS)		\

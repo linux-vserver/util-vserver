@@ -24,7 +24,7 @@
 #include "vserver.h"
 
 
-bool
+UnifyStatus
 Unify_isIUnlinkable(char const *filename)
 {
   uint_least32_t const		V = VC_IATTR_IUNLINK|VC_IATTR_IMMUTABLE;
@@ -32,7 +32,8 @@ Unify_isIUnlinkable(char const *filename)
   uint_least32_t		flags;
   uint_least32_t		mask = V;
 
-  return (vc_get_iattr(filename, 0, &flags, &mask)!=-1 &&
-	  (mask  & V)==V &&
-	  (flags & V)!=V);
+  if (vc_get_iattr(filename, 0, &flags, &mask)==-1 || (mask & V) != V)
+    return unifyUNSUPPORTED;
+
+  return (flags & V)==V  ? unifyBUSY : unifyUINLINKABLE;
 }
