@@ -31,7 +31,8 @@ test -e "$UTIL_VSERVER_VARS" || {
 function showHelp()
 {
     echo \
-$"Usage: $(basename $0) [--] <vserver> <command> <args>*
+$"Usage: $(basename $0) [-s|--sync] [-v|--verbose]
+             [--] <vserver> <command> <args>*
 
 <vserver> is the name of a vserver.
 
@@ -77,22 +78,29 @@ the GNU General Public License.  This program has absolutely no warranty."
 
 set +e
 
-tmp=$(getopt -o + --long help,version -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o +sv --long help,version,sync,verbose -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
+
+OPTION_FORCE_SYNC=
+OPTION_VERBOSE=
 
 while true; do
     case "$1" in
-	--help)    showHelp $0 ;;
-	--version) showVersion ;;
-	--)	   shift; break;;
-	*)	   echo $"vserver: internal error; arg=='$1'"; exit 1;;
+	--help)    	showHelp $0 ;;
+	--version) 	showVersion ;;
+	-v|--verbose)	OPTION_VERBOSE=1;    shift;;
+	-s|--sync) 	OPTION_FORCE_SYNC=1; shift;;
+	--)	   	shift; break;;
+	*)	   	echo $"vserver: internal error; arg=='$1'"; exit 1;;
     esac
 done
 
-test "$2" != build || { shift; exec "$_VSERVER_BUILD" "$@"; }
 
 vserver=$1
 cmd=$2
+
+test "$cmd" != build || { shift 2; exec "$_VSERVER_BUILD" -n "$vserver" "$@"; }
+
 
 allow_legacy=
 
@@ -133,7 +141,7 @@ case "$2" in
 	. $PKGLIBDIR/vserver.$cmd
 	;;
     restart)
-	"$0" "$1" stop
+	"$0" --sync "$1" stop
 	exec "$0" "$1" start
 	;;
     condrestart)
