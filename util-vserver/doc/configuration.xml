@@ -53,6 +53,11 @@
 	    <description></description>
 	    <default>/vservers/.pkg</default>
 	  </symlink>
+
+	  <file name="apt.conf">
+	    <description>The default apt.conf which is going to be used. It is overridden by
+	    distribution specific configuration file.</description>
+	  </file>
 	</dir>
 
 	<dir name="debootstrap" type="fixed">
@@ -72,6 +77,11 @@
       <dir name="dist" type="symbolic">
 	<file name="dev">
 	  <description></description>
+	</file>
+
+	<file name="apt.conf">
+	  <description>The default apt.conf which is going to be used .It overrides the apt.conf
+	  from @CONFDIR@/.defaults/apps/pkgmgmt.</description>
 	</file>
 
 	<script name="initpre">
