@@ -50,6 +50,7 @@
 #define CMD_SILENT		0x4007
 #define CMD_SYNCSOCK		0x4008
 #define CMD_SYNCMSG		0x4009
+#define CMD_MIGRATESELF		0x4010
 
 struct option const
 CMDLINE_OPTIONS[] = {
@@ -59,19 +60,21 @@ CMDLINE_OPTIONS[] = {
   { "xid",        required_argument, 0, CMD_XID },
   { "create",     no_argument,       0, CMD_CREATE },
   { "migrate",    no_argument,       0, CMD_MIGRATE },
-  { "fakeinit",   no_argument,       0, CMD_FAKEINIT },
-  { "disconnect", no_argument,	     0, CMD_DISCONNECT },
-  { "silent",     no_argument,       0, CMD_SILENT },
-  { "uid",        no_argument,       0, CMD_UID },
-  { "chroot",     no_argument,       0, CMD_CHROOT },
-  { "syncsock",   required_argument, 0, CMD_SYNCSOCK },
-  { "syncmsg",    required_argument, 0, CMD_SYNCMSG },
+  { "migrate-self", no_argument,       	0, CMD_MIGRATESELF },
+  { "fakeinit",     no_argument,       	0, CMD_FAKEINIT },
+  { "disconnect",   no_argument,	0, CMD_DISCONNECT },
+  { "silent",       no_argument,       	0, CMD_SILENT },
+  { "uid",          no_argument,       	0, CMD_UID },
+  { "chroot",       no_argument,       	0, CMD_CHROOT },
+  { "syncsock",     required_argument, 	0, CMD_SYNCSOCK },
+  { "syncmsg",      required_argument, 	0, CMD_SYNCMSG },
   { 0,0,0,0 },
 };
 
 struct Arguments {
     bool		do_create;
     bool		do_migrate;
+    bool		do_migrateself;
     bool		do_disconnect;
     bool		is_fakeinit;
     int			verbosity;
@@ -93,7 +96,7 @@ showHelp(int fd, char const *cmd, int res)
 	    " --create [--xid <xid>] <opts>* [--] <program> <args>*\n    ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " --migrate --xid <xid>  <opts>* [--] <program> <args>*\n"
+	    " [(--migrate --xid <xid>)|--migrate-self]  <opts>* [--] <program> <args>*\n"
 	    "\n"
 	    "<opts> can be:\n"
 	    "    --chroot	 ...  chroot into current directory\n"
@@ -274,7 +277,7 @@ doit(struct Arguments const *args, char *argv[])
       Evc_set_flags(xid, &flags);
     }
 
-    if (args->do_migrate)
+    if (args->do_migrate && !args->do_migrateself)
       Evc_migrate_context(xid);
 
     doExternalSync(ext_sync_fd, args->sync_msg);
@@ -293,14 +296,15 @@ doit(struct Arguments const *args, char *argv[])
 int main (int argc, char *argv[])
 {
   struct Arguments		args = {
-    .do_create     = false,
-    .do_migrate    = false,
-    .do_disconnect = false,
-    .is_fakeinit   = false,
-    .verbosity     = 1,
-    .uid           = -1,
-    .xid           = VC_DYNAMIC_XID,
-    .sync_msg      = "ok",
+    .do_create      = false,
+    .do_migrate     = false,
+    .do_migrateself = false,
+    .do_disconnect  = false,
+    .is_fakeinit    = false,
+    .verbosity      = 1,
+    .uid            = -1,
+    .xid            = VC_DYNAMIC_XID,
+    .sync_msg       = "ok",
   };
   
   while (1) {
@@ -320,6 +324,10 @@ int main (int argc, char *argv[])
       case CMD_UID		:  args.uid           = atol(optarg); break;
       case CMD_SYNCSOCK		:  args.sync_sock     = optarg; break;
       case CMD_SYNCMSG		:  args.sync_msg      = optarg; break;
+      case CMD_MIGRATESELF	:
+	args.do_migrate     = true;
+	args.do_migrateself = true;
+	break;
 
       default		:
 	WRITE_MSG(2, "Try '");
@@ -330,6 +338,9 @@ int main (int argc, char *argv[])
     }
   }
 
+  if (args.do_migrateself)
+    args.xid = Evc_get_task_xid(0);
+  
   if (!args.do_create && !args.do_migrate)
     WRITE_MSG(2, "Neither '--create' nor '--migrate specified; try '--help' for more information\n");
   else if (args.do_create  &&  args.do_migrate)
