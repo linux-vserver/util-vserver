@@ -119,7 +119,7 @@ function msg()
 set +e
 
 OPTIONS_ORIG=( "$@" )
-tmp=$(getopt -o +sv --long nonamespace,--nonamespace,--insecure,help,debug,version,sync,verbose,silent -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o +sv --long nonamespace,--nonamespace,--insecure,defaulttty,help,debug,version,sync,verbose,silent -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 OPTION_FORCE_SYNC=
@@ -128,6 +128,7 @@ OPTION_SILENT=
 OPTION_DEBUG=
 OPTION_NONAMESPACE=
 OPTION_INSECURE=
+OPTION_DEFAULTTTY=
 
 while true; do
     case "$1" in
@@ -138,6 +139,7 @@ while true; do
 	(-s|--sync) 	OPTION_FORCE_SYNC=$1;;
 	(--silent) 	OPTION_SILENT=$1;;
 	(----nonamespace)OPTION_NONAMESPACE=$1;;
+	(--defaulttty)	OPTION_DEFAULTTTY=$1;;
 	(----insecure)	OPTION_INSECURE=1;;
 	(--)	   	shift; break;;
 	(*)	   	echo $"vserver: internal error; arg=='$1'" >&2; exit 1;;
@@ -145,7 +147,7 @@ while true; do
     shift
 done
 
-OPTION_ALL=( $OPTION_SILENT $OPTION_VERBOSE $OPTION_DEBUG )
+OPTION_ALL=( $OPTION_SILENT $OPTION_VERBOSE $OPTION_DEBUG $OPTION_DEFAULTTTY )
 SELF=( "$0" "${OPTION_ALL[@]}" )
 
 vserver=$1
