@@ -225,7 +225,9 @@ findDir  PKGDIR   $CONFDIR/.distributions/$distrib/pkgs     $DISTRIBDIR/$distrib
 
 mkdir -p "$confdir"/apps/pkgmgmt "$vdir"/{dev/pts,etc} \
          "$pkgcfg"/{rpm/{etc,state},apt/{etc,archives/partial,cache,state/lists/partial}}
-ln -s "$lockfile" "$confdir"/run
+
+ln -s "$lockfile"     "$confdir"/run
+ln -s "$lockfile/rev" "$confdir"/run.rev
 
 prepareRPMDb
 	 	 
