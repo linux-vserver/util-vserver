@@ -38,6 +38,8 @@
 #include "util.h"
 #include "internal.h"
 #include "wrappers.h"
+#include "wrappers-dirent.h"
+#include "wrappers-vserver.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -452,11 +454,7 @@ int main(int argc, char **argv)
 
 #if 1
     // try to switch in context 1
-  if (vc_new_s_context(1,0, 0) < 0)
-  {
-    perror("vc_new_s_context(#1,...)");
-    return EXIT_FAILURE;
-  }
+  Evc_new_s_context(1, 0,0);
 #endif
 	
     // create the fist...
@@ -464,13 +462,9 @@ int main(int argc, char **argv)
     // init with the default name for the context 0
   strncpy(my_ctx_list->name, "root server", CTX_NAME_MAX_LEN);
 
-    // open the /proc dir
-  if ((proc_dir = opendir(PROC_DIR_NAME)) == NULL) {
-    perror("opendir()");
-    return EXIT_FAILURE;
-  }
-	
-  chdir(PROC_DIR_NAME);
+
+  Echdir(PROC_DIR_NAME);
+  proc_dir = Eopendir(".");
   while ((dir_entry = readdir(proc_dir)) != NULL)
   {
       // select only process file
