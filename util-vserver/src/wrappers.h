@@ -169,6 +169,18 @@ Ewrite(int fd, void const *ptr, size_t len)
   return res;
 }
 
+inline static WRAPPER_DECL void
+Ereadlink(const char *path, char *buf, size_t bufsiz)
+{
+  FatalErrnoError(readlink(path, buf, bufsiz)==-1, "readlink()");
+}
+
+inline static WRAPPER_DECL void
+Esymlink(const char *oldpath, const char *newpath)
+{
+  FatalErrnoError(symlink(oldpath, newpath)==-1, "symlink()");
+}
+
 #undef WRAPPER_DECL
 
 #endif	//  H_UTIL_VSERVER_SRC_WRAPPERS_H
