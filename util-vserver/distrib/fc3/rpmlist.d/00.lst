@@ -1,0 +1,4 @@
+filesystem-*.rpm
+setup-*.rpm
+tzdata-*.rpm
+glibc-common-*.rpm
