@@ -93,7 +93,7 @@ function showVersion()
 $"chcontext $PACKAGE_VERSION -- allocates/enters a security context
 This program is part of $PACKAGE_STRING
 
-Copyright (C) 2003 Enrico Scholz
+Copyright (C) 2004 Enrico Scholz
 This program is free software; you may redistribute it under the terms of
 the GNU General Public License.  This program has absolutely no warranty."
     exit $1
