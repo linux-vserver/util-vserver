@@ -120,6 +120,7 @@ lib_SRCS =  			lib/syscall.c \
 				lib/issupportedstring.c \
 				lib/listparser_uint32.c \
 				lib/listparser_uint64.c \
+				lib/syscall-syscall.c \
 				lib/val2text-t2v-uint32.c \
 				lib/val2text-t2v-uint64.c \
 				lib/val2text-v2t-uint32.c \
