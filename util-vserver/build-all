@@ -85,4 +85,4 @@ operate Build/diet-opt     --enable-release
 operate Build/nodiet-noopt --disable-dietlibc CFLAGS='-O0 -g3' CXXFLAGS='-O0 -g3' 
 operate Build/nodiet-opt   --enable-release --disable-dietlibc
 operate Build/gcc32-opt    --enable-release --disable-dietlibc CC='ccache gcc32'  CXX='ccache g++'
-operate Build/gcc4-opt     --enable-release --disable-dietlibc CC='ccache gcc4'   CXX='ccache g++4'
+operate Build/gcc33-opt    --enable-release --disable-dietlibc CC='ccache gcc33'  CXX='ccache g++33'

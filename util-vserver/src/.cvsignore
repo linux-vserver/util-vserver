@@ -45,8 +45,10 @@ vbuild
 vcheck
 vcontext
 vcopy
+vdlimit
 vdu
 vfiles
+vhashify
 vkill
 vlimit
 vnamespace
