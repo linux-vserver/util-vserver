@@ -28,7 +28,7 @@ AC_INIT(util-vserver, 0.23.191, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
-AM_INIT_AUTOMAKE([gnu dist-bzip2 subdir-objects])
+AM_INIT_AUTOMAKE([gnits dist-bzip2 subdir-objects])
 AM_MAINTAINER_MODE
 
 AC_SUBST(CVS2CL_TAG, [])
