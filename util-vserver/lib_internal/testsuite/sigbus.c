@@ -83,6 +83,7 @@ int main()
   int		fd_dst    = mkstemp(f_name1);
   char		buf[TEST_BLOCKSIZE] = { [0] = '\0' };
   struct stat	st;
+  bool		res;
   
   fd_src = 
   
@@ -99,8 +100,12 @@ int main()
   is_gremlin = true;
 
   Esocketpair(AF_LOCAL, SOCK_STREAM, 0, sync_p);
+  signal(SIGCHLD, SIG_IGN);
 
-  return (checkTrunc(f_name0, f_name1, &st, TEST_BLOCKSIZE/2) &&
-	  checkTrunc(f_name0, f_name1, &st, 0x2345)
-	  ? EXIT_SUCCESS : EXIT_FAILURE);
+  res = (checkTrunc(f_name0, f_name1, &st, TEST_BLOCKSIZE/2) &&
+	 checkTrunc(f_name0, f_name1, &st, 0x2345));
+
+  unlink(f_name0);
+  unlink(f_name1);
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
