@@ -58,6 +58,7 @@
 #define CMD_ENDSETUP		0x400b
 #define CMD_SILENTEXIST		0x400c
 
+
 struct option const
 CMDLINE_OPTIONS[] = {
   { "help",       no_argument,       0, CMD_HELP },
@@ -180,16 +181,26 @@ connectExternalSync(char const *filename)
 static void
 setFlags(struct Arguments const *args, xid_t xid)
 {
-  struct vc_ctx_flags	flags = { 0,0 };
+  struct vc_ctx_flags	flags = {
+    .mask     = 0,
+    .flagword = VC_VXF_STATE_INIT|VC_VXF_STATE_SETUP,
+  };
 
-  if (args->is_fakeinit)
-    flags.mask |= VC_VXF_STATE_INIT;
+  if (args->is_fakeinit) {
+    flags.flagword &= ~VC_VXF_STATE_INIT;
+    flags.flagword |=  VC_VXF_INFO_INIT;
+    flags.mask     |=  VC_VXF_INFO_INIT|VC_VXF_STATE_INIT;
+  }
 
-  if (args->do_endsetup)
-    flags.mask |= VC_VXF_STATE_SETUP;
+  if (args->do_endsetup) {
+    flags.flagword &= ~VC_VXF_STATE_SETUP;
+    flags.mask     |=  VC_VXF_STATE_SETUP;
+  }
 
-  if (flags.mask!=0) 
-    Evc_set_flags(xid, &flags);
+  if (flags.mask!=0) {
+    DPRINTF("set_flags: mask=%08llx, flag=%08llx\n", flags.mask, flags.flagword);
+    Evc_set_cflags(xid, &flags);
+  }
 }
 
 static void
@@ -223,7 +234,7 @@ doit(struct Arguments const *args, char *argv[])
     doSyncStage0(p, args->do_disconnect);
     
     if (args->do_create) {
-      xid = vc_create_context(args->xid);
+      xid = vc_ctx_create(args->xid);
       if (xid==VC_NOCTX) {
 	switch (errno) {
 	  case EEXIST	:
@@ -246,7 +257,7 @@ doit(struct Arguments const *args, char *argv[])
     setFlags(args, xid);
 
     if (args->do_migrate && !args->do_migrateself)
-      Evc_migrate_context(xid);
+      Evc_ctx_migrate(xid);
 
     if (args->uid!=(uid_t)(-1) && getuid()!=args->uid) {
       Esetuid(args->uid);
@@ -258,6 +269,7 @@ doit(struct Arguments const *args, char *argv[])
     
     doExternalSync(ext_sync_fd, args->sync_msg);
     doSyncStage1(p, args->do_disconnect);
+    DPRINTF("doit: pid=%u, ppid=%u\n", getpid(), getppid());
     execvp (argv[optind],argv+optind);
     doSyncStage2(p, args->do_disconnect);
 
