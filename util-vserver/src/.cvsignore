@@ -6,6 +6,7 @@ chcontext
 chroot-cat
 chroot-rm
 ctx-kill
+exec-cd
 exec-ulimit
 fakerunlevel
 filetime
@@ -18,9 +19,9 @@ pipe-sync
 readlink
 rebootmgr
 reducecap
+rpm-fake-resolver
 save_ctxinfo
 secure-mount
-secure-umount
 setctxlimit
 showattr
 showperm
