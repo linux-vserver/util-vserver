@@ -27,13 +27,16 @@
 #define TONUMBER_uint64(S,E,B)		strtoll(S,E,B)
 #define TONUMBER_uint32(S,E,B)		strtol (S,E,B)
 
-#define ISNUMBER(TYPE,SHORT)					\
-  static inline ALWAYSINLINE bool				\
-  isNumber_##SHORT(char const *str,TYPE *res, char end_chr)	\
-  {								\
-    char	*err_ptr;					\
-    *res = TONUMBER_##SHORT(str, &err_ptr, 0);			\
-    return err_ptr>str && *err_ptr==end_chr;			\
+#define ISNUMBER(TYPE,SHORT)						\
+  static inline ALWAYSINLINE bool					\
+  isNumber_##SHORT(char const *str,TYPE *res, char end_chr)		\
+  {									\
+    char	*err_ptr;						\
+    if (*str=='^')							\
+      *res = ((TYPE)(1)) << TONUMBER_##SHORT(str+1, &err_ptr, 0);	\
+    else								\
+      *res = TONUMBER_##SHORT(str, &err_ptr, 0);			\
+    return err_ptr>str && *err_ptr==end_chr;				\
   }
 
 
