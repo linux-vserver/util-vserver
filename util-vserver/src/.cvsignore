@@ -8,6 +8,7 @@ chcontext
 chroot-cat
 chroot-rm
 chxid
+clearenv
 exec-cd
 exec-ulimit
 fakerunlevel
