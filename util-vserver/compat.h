@@ -31,15 +31,22 @@
 #if defined(__GNUC__)
 #  define UNUSED                __attribute__((__unused__))
 #  define NORETURN              __attribute__((__noreturn__))
-#  if __GNUC__ >= 3
+#  if __GNUC__>3 || (__GNUC__==3 && __GNUC__MINOR>=3)
+#    define NONNULL(ARGS)	__attribute__((__nonnull__ ARGS))
 #    define ALWAYSINLINE        __attribute__((__always_inline__))
 #  else
+#    define NONNULL(ARGS)
 #    define ALWAYSINLINE
 #  endif
 #else
+#  define NONNULL(ARGS)
 #  define UNUSED
 #  define NORETURN
 #  define ALWAYSINLINE
+#endif
+
+#if !defined(__STDC_VERSION__) || (__STDC_VERSION__<199901L)
+#  define restrict
 #endif
 
 #if !defined(HAVE_DECL_MS_MOVE) || !(HAVE_DECL_MS_MOVE)
