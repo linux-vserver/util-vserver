@@ -21,7 +21,6 @@
 #endif
 
 #include "vserver.h"
-#include "vserver-internal.h"
 #include "ext2fs.h"
 
 #include <sys/ioctl.h>

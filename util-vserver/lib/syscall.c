@@ -23,11 +23,15 @@
 
 #include "compat.h"
 #include "vserver.h"
-#include "vserver-internal.h"
 #include "internal.h"
 
 #define _LINUX_TYPES_H 1
 #include "linuxvirtual.h"
+
+#if defined(VC_ENABLE_API_COMPAT) && defined(VC_ENABLE_API_LEGACY)
+#  define VC_MULTIVERSION_SYSCALL	1
+#endif
+#include "vserver-internal.h"
 
 #ifdef VC_ENABLE_API_COMPAT    
 #  include "syscall-compat.hc"
@@ -39,6 +43,7 @@
 
 #include <stdbool.h>
 #include <errno.h>
+
 
 #if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
 

@@ -23,8 +23,6 @@
 #  include <config.h>
 #endif
 
-#include "vserver-internal.h"
-
 #define _LINUX_TYPES_H 1
 #include "linuxvirtual.h"
 

@@ -19,9 +19,9 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
 
 #include "vserver.h"
+#include "vserver-internal.h"
 #include "getversion-internal.hc"
 
 int

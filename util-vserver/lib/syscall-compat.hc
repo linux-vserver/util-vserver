@@ -22,9 +22,7 @@
 #include "compat.h"
 
 #include "safechroot-internal.hc"
-
 #include "vserver.h"
-#include "vserver-internal.h"
 
 #include <unistd.h>
 

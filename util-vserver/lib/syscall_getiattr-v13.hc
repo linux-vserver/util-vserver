@@ -21,7 +21,6 @@
 #endif
 
 #include "vserver.h"
-#include "vserver-internal.h"
 
 static inline ALWAYSINLINE int
 vc_get_iattr_v13(dev_t dev, ino_t ino, xid_t *xid,
