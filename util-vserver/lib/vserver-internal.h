@@ -26,8 +26,8 @@
 #include <asm/unistd.h>
 #include <errno.h>
 
-#ifndef __NR_vserver
-#  define __NR_vserver	273
+#if !defined(__NR_vserver) && defined(ENSC_SYSCALL__NR_vserver)
+#  define __NR_vserver	ENSC_SYSCALL__NR_vserver
 #endif
 
 #define VC_PREFIX	0)
