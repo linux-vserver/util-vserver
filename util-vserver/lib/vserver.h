@@ -169,13 +169,15 @@ extern "C" {
 
   int		vc_set_iattr_compat(char const *filename,
 				    dev_t dev, ino_t ino, xid_t xid,
-				    uint32_t flags, uint32_t mask);
+				    uint32_t flags, uint32_t mask,
+				    mode_t const * /*@null@*/ mode);
 
   int		vc_get_iattr_compat(char const *filename,
 				    dev_t dev, ino_t ino,
 				    xid_t    * /*@null@*/ xid,
 				    uint32_t * /*@null@*/ flags,
-				    uint32_t * /*@inout@*/ mask);
+				    uint32_t * /*@inout@*/ mask,
+				    mode_t const * /*@null@*/ mode);
 
   struct vc_vx_info {
       xid_t	xid;
