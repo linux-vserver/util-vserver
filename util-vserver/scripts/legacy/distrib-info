@@ -62,7 +62,7 @@ if [ -f $DIRDIR/etc/redhat-release -o -f $DISTDIR/etc/mandrake-release ] ; then
 		# We remove /etc and /var/log to make sure no special file
 		# there will be unified
 		$CHROOTCMD /bin/rpm -ql --dump $* \
-			| $PKGLIBDIR/parserpmdump /etc/
+			| $_PARSERPMDUMP /etc/
 		;;
 	dumpfiles)
 		$CHROOTCMD /bin/rpm -ql $*
@@ -74,4 +74,3 @@ if [ -f $DIRDIR/etc/redhat-release -o -f $DISTDIR/etc/mandrake-release ] ; then
 else
 	echo Distribution not supported yet >&2
 fi
-
