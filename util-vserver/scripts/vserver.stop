@@ -47,6 +47,7 @@ set +e
 
 vshelper.doDestroy "$VSERVER_DIR" "$S_CONTEXT"
 initSync           "$VSERVER_DIR" sync_fifo
+prepareStop "$VSERVER_DIR"
 
 cd "$VSERVER_DIR"/vdir/
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
