@@ -20,8 +20,6 @@
 #  error wrappers_handler.hc can not be used in this way
 #endif
 
-#include <vserver.h>
-
 inline static WRAPPER_DECL xid_t
 Evc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags)
 {
