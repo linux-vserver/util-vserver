@@ -125,17 +125,16 @@ int main(int argc, char *argv[])
     exit(255);
   }
 
-  Echdir(argv[1]);
+  if (chdir(argv[1])!=-1) {
+    for (i=0; i<sizeof(LIMITS)/sizeof(LIMITS[0]); ++i) {
+      struct rlimit	limit;
 
-  for (i=0; i<sizeof(LIMITS)/sizeof(LIMITS[0]); ++i) {
-    struct rlimit	limit;
-
-    Egetrlimit(LIMITS[i].code, &limit);
-    if (readSingleLimit(&limit, LIMITS[i].fname))
-      Esetrlimit(LIMITS[i].code, &limit);
+      Egetrlimit(LIMITS[i].code, &limit);
+      if (readSingleLimit(&limit, LIMITS[i].fname))
+	Esetrlimit(LIMITS[i].code, &limit);
+    }
+    Efchdir(cur_fd);
   }
-
-  Efchdir(cur_fd);
   Eclose(cur_fd);
 
   Eexecv(argv[2], argv+2);
