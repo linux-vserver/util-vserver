@@ -169,6 +169,7 @@
 #define VC_VXF_VIRT_MEM			0x00010000ull
 #define VC_VXF_VIRT_UPTIME		0x00020000ull
 #define VC_VXF_VIRT_CPU			0x00040000ull
+#define VC_VXF_VIRT_LOAD		0x00080000ull
 
 #define VC_VXF_HIDE_MOUNT		0x01000000ull
 #define VC_VXF_HIDE_NETIF		0x02000000ull
@@ -176,13 +177,20 @@
 #define	VC_VXF_STATE_SETUP		(1ULL<<32)
 #define	VC_VXF_STATE_INIT		(1ULL<<33)
 
+#define VC_VXF_FORK_RSS			(1ULL<<48)
+#define VC_VXF_PROLIFIC			(1ULL<<49)
+
+#define VC_VXF_IGNEG_NICE		(1ULL<<52)
+
+
 // the ccapabilities
 #define VC_VXC_SET_UTSNAME		0x00000001ull
 #define VC_VXC_SET_RLIMIT		0x00000002ull
 
-#define VC_VXC_ICMP_PING		0x00000100ull
+#define VC_VXC_RAW_ICMP			0x00000100ull
 
 #define VC_VXC_SECURE_MOUNT		0x00010000ull
+#define VC_VXC_SECURE_REMOUNT		0x00020000ull
 
 
 #define VC_VXSM_FILL_RATE          	0x0001
@@ -587,7 +595,7 @@ extern "C" {
 
   uint_least64_t		vc_get_insecurebcaps() VC_ATTR_CONST;
   inline static uint_least64_t	vc_get_insecureccaps() {
-    return ~(VC_VXC_SET_UTSNAME|VC_VXC_ICMP_PING);
+    return ~(VC_VXC_SET_UTSNAME|VC_VXC_RAW_ICMP);
   }
   
   inline static int	vc_setfilecontext(char const *filename, xid_t xid) {
