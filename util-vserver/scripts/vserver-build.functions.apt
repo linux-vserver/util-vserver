@@ -42,12 +42,25 @@ function apt.installBasePackages
 
 function apt.initVariables
 {
-    :
+    findFile APTCONFDEFAULT \
+	"$CONFDIR/.distributions/$DISTRIBUTION/apt.conf" \
+	"$CONFDIR/.defaults/apps/pkgmgmt/apt.conf" \
+	"$DISTRIBDIR/$DISTRIBUTION/apt.conf" \
+	"$DISTRIBDIR/defaults/apt.conf" \
+	''
+
+    findFile APTVENDORDEFAULT \
+	"$CONFDIR/.distributions/$DISTRIBUTION/vendor.conf" \
+	"$CONFDIR/.defaults/apps/pkgmgmt/vendor.conf" \
+	/etc/apt/vendors.list \
+	"$DISTRIBDIR/$DISTRIBUTION/vendor.conf" \
+	"$DISTRIBDIR/defaults/vendor.conf" \
+	''
 }
 
 function apt.initFilesystem
 {
-    mkdir -p "$PKGCFGDIR"/apt/{etc,archives/partial,cache,state/lists/partial}
+    mkdir -p "$PKGCFGDIR"/apt/{etc/sources.list.d,etc/vendors.list.d,etc/apt.conf.d,archives/partial,cache,state/lists/partial}
     
     populateDirectory "$PKGCFGDIR/apt/etc" \
 	"$DISTRIBDIR/defaults/apt" \
@@ -60,4 +73,10 @@ function apt.initFilesystem
 	cmp -s "$f" "$f.tmp" || cat "$f.tmp" >"$f"
 	rm -f "$f.tmp"
     fi
+
+    test -z "$APTCONFDEFAULT" || \
+	ln -s "$APTCONFDEFAULT"   "$PKGCFGDIR"/apt/etc/apt.conf.d/default.conf
+
+    test -z "$APTVENDORDEFAULT" || \
+	ln -s "$APTVENDORDEFAULT" "$PKGCFGDIR"/apt/etc/vendors.list.d/default.conf
 }
