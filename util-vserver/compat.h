@@ -60,6 +60,10 @@
 #  define CONST
 #endif
 
+  // shamelessly stolen from dietlibc
+#define LINK_WARNING(symbol,msg)					\
+  __asm__ (".section .gnu.warning." symbol "\n\t.string \"" msg "\"\n\t.previous")
+
 #if !defined(__builtin_expect) && (__GNUC__+0)<3
 #  define __builtin_expect(foo,bar)	(foo)
 #endif
