@@ -111,6 +111,6 @@ is_executed=1
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" post-start
 
 is_vshelper_init=1
-! vshelper.isEnabled "$VSERVER_DIR" || vshelper.doInit "$VSERVER_DIR"
+! vshelper.isEnabled "" "$VSERVER_DIR" || vshelper.doInit "$VSERVER_DIR"
 
 is_started=1
