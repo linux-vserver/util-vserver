@@ -20,6 +20,7 @@ eval set -- "$tmp"
 
 . "$_LIB_VSERVER_BUILD_FUNCTIONS_PKGMGMT"
 
+DISTRIBUTION=:
 use_pkgmgmt=
 while true; do
     case "$1" in
