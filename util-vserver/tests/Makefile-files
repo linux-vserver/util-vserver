@@ -22,7 +22,8 @@ test_PRGS		=  tests/chrootsafe \
 			   tests/forkbomb \
 			   tests/testipc \
 			   tests/testlimit \
-			   tests/testopenf
+			   tests/testopenf \
+			   tests/getctx
 
 tests_chrootsafe_SOURCES	=  tests/chrootsafe.cc
 tests_chrootsafe_LDADD		=  lib/libvserver.a
@@ -32,3 +33,11 @@ tests_forkbomb_SOURCES		=  tests/forkbomb.cc
 tests_testipc_SOURCES		=  tests/testipc.cc
 tests_testlimit_SOURCES		=  tests/testlimit.cc
 tests_testopenf_SOURCES		=  tests/testopenf.cc
+
+tests_getctx_SOURCES		=  tests/getctx.c
+tests_getctx_LDADD		=  lib/libvserver.a
+
+if USE_DIETLIBC
+tests/getctx$(EXEEXT) tests/getctx$(OBJEXT) \
+			:	CC=$(DIET_CC)
+endif
