@@ -16,6 +16,7 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 CLEANFILES +=		lib/apidoc/.apidoc
+EXTRA_DIST +=		lib/apidoc/list2xxx.syntax
 
 doc:			lib/apidoc/.apidoc
 clean-local:		clean_lib_apidoc
