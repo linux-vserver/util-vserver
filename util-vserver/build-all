@@ -19,7 +19,7 @@ set -e
 
 confflags="-C --enable-maintainer-mode --prefix=/usr --sysconfdir=/etc --localstatedir=/var"
 configure="`pwd`/configure $confflags"
-make=eval\ "${CLEAN:+make -j2 silent.clean}${CLEAN:-:}; \
+make=eval\ "${CLEAN:+make -j2 silent.clean;} \
 	    echo -e \"== executing 'make all'...\" && \
 	    make -j2 ${SILENT:+-s silent.}all && \
 	    echo -e \"\n== executing 'make check'...\" && \
@@ -85,4 +85,4 @@ operate Build/diet-opt     --enable-release
 operate Build/nodiet-noopt --disable-dietlibc CFLAGS='-O0 -g3' CXXFLAGS='-O0 -g3' 
 operate Build/nodiet-opt   --enable-release --disable-dietlibc
 operate Build/gcc32-opt    --enable-release --disable-dietlibc CC='ccache gcc32'  CXX='ccache g++'
-operate Build/gcc35-opt    --enable-release --disable-dietlibc CC='ccache gcc35'  CXX='ccache g++35'
+operate Build/gcc4-opt     --enable-release --disable-dietlibc CC='ccache gcc4'   CXX='ccache g++4'
