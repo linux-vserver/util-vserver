@@ -44,13 +44,20 @@ CMDLINE_OPTIONS[] = {
   { "hide",        no_argument, 0, CMD_HIDE  },
   { "barrier",     no_argument, 0, CMD_BARRIER },
   { "~iunlink",    no_argument, 0, CMD_UNSET_IMMU  },
+  { "!iunlink",    no_argument, 0, CMD_UNSET_IMMU  },
   { "~immu",       no_argument, 0, CMD_UNSET_IMMU  },
+  { "!immu",       no_argument, 0, CMD_UNSET_IMMU  },
   { "~admin",      no_argument, 0, CMD_UNSET_ADMIN },
+  { "!admin",      no_argument, 0, CMD_UNSET_ADMIN },
   { "~watch",      no_argument, 0, CMD_UNSET_WATCH },
+  { "!watch",      no_argument, 0, CMD_UNSET_WATCH },
   { "~hide",       no_argument, 0, CMD_UNSET_HIDE  },
+  { "!hide",       no_argument, 0, CMD_UNSET_HIDE  },
   { "~barrier",    no_argument, 0, CMD_UNSET_BARRIER },
+  { "!barrier",    no_argument, 0, CMD_UNSET_BARRIER },
   { "iunlink-but-not-immutable",   no_argument, 0, CMD_IMMUX },
   { "~iunlink-but-not-immutable",  no_argument, 0, CMD_UNSET_IMMUX },
+  { "!iunlink-but-not-immutable",  no_argument, 0, CMD_UNSET_IMMUX },
   { 0,0,0,0 }
 };
 
