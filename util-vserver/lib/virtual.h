@@ -120,4 +120,26 @@ struct  vcmd_ctx_rlimit_mask_v0 {
 #define CRLIM_KEEP		(~1ULL)
 
 
+
+#define VC_CAT_SCHED		14
+
+/* scheduler vserver commands */
+
+#define VCMD_get_sched		VC_CMD(SCHED, 1, 1)
+#define VCMD_set_sched		VC_CMD(SCHED, 2, 1)
+
+
+/* Structure for context's TBF scheduling priorities */
+
+struct  vcmd_tbf_sched_v1 {
+	uint32_t fill_level;
+	uint32_t fill_rate;
+	uint32_t period;
+	uint32_t bucket_size;
+};
+
+#define TBFS_PERIOD_AUTO	(0ULL)
+#define TBFS_KEEP_VALUE		(~0ULL)
+
+
 #endif /* _LINUX_VIRTUAL_H */
