@@ -22,6 +22,7 @@
 
 #include "vunify-matchlist.h"
 
+int wrapper_exit_code = 1;
 extern void	PathInfo_test();
 
 int main()
