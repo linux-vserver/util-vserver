@@ -84,7 +84,9 @@
 #define VCMD_new_s_context	VC_CMD(COMPAT, 1, 1)
 #define VCMD_set_ipv4root	VC_CMD(COMPAT, 2, 3)
 
-#define VCMD_enter_namespace	VC_CMD(PROCALT, 1, 0)
+#define	VCMD_enter_namespace	VC_CMD(PROCALT, 1, 0)
+#define	VCMD_cleanup_namespace	VC_CMD(PROCALT, 2, 0)
+#define	VCMD_set_namespace	VC_CMD(PROCALT, 3, 0)
 
 /*  compatibiliy vserver arguments */
 
