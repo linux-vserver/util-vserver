@@ -116,7 +116,7 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 
 %changelog
 * Thu Mar 18 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.29.3-0
-- removed '%%doc doc/FAQ.txt' since file was removed
+- removed '%%doc doc/FAQ.txt' since file does not exist anymore
 
 * Fri Sep 26 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.23.4-1
 - initial build.
