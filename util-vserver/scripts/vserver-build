@@ -50,9 +50,12 @@ Possible methods are:
 		     cfg-options will be ignored
     copy        ...  the copy-all-from-host method which uses the recent
                      configuration scheme
-    apt-rpm -d <distribution>
+    apt-rpm ... -- -d <distribution>
                 ...  installs the base-packages of the given distribution with
 		     help of 'vapt-get'
+    skeleton ... -- [<cmd> <args>*]
+                ...  installs a minimal skeleton filesystem, creates the
+		     configuration file and calls an optional command then
 
 Please report bugs to $PACKAGE_BUGREPORT"
     exit 0
@@ -112,7 +115,7 @@ setup_setDefaults "$VSERVER_NAME"
 
 case x"$method" in
     xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
-    xapt-rpm|xcopy)
+    xapt-rpm|xcopy|xskeleton)
 		. $PKGLIBDIR/vserver-build.$method
 		;;
     x)		echo $"No build-method specified" >&2
