@@ -28,6 +28,18 @@
 #include <unistd.h>
 #include <assert.h>
 
+static inline bool
+isRelPath(char const *p)
+{
+  return p[0]=='.' && (p[1]=='/' || (p[1]=='.' && p[2]=='/'));
+}
+
+static inline bool
+isAbsPath(char const *p)
+{
+  return p[0]=='/';
+}
+
 vcCfgStyle
 vc_getVserverCfgStyle(char const *id)
 {
@@ -41,9 +53,9 @@ vc_getVserverCfgStyle(char const *id)
   strcpy(buf,    id);
   marker = buf+l1;
   strcpy(marker, "/vdir");
-  
+
   if (access(buf, X_OK)==0) res = vcCFG_RECENT_FULL;
-  else {
+  else if (!isRelPath(buf) && !isAbsPath(buf)) {
     strcpy(buf,                         CONFDIR "/");
     strcpy(buf+sizeof(CONFDIR "/") - 1, id);
     marker = buf+sizeof(CONFDIR "/")+l1 - 1;
