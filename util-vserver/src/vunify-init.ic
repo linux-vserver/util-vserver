@@ -97,9 +97,9 @@ getConfigfileList(char const *vserver,
     //Eclose(0);
     if (fd!=1) Eclose(fd);
 
-    *ptr++  = PKGMGMT_INFO_PROG;
+    *ptr++  = VPKG_PROG;
     *ptr++  = vserver;
-    *ptr++  = "conffiles";
+    *ptr++  = "get-conffiles";
     *ptr    = 0;
 
     Eexecv(args[0], args);
@@ -146,10 +146,11 @@ initMatchList(struct MatchList *list, char const *vserver,
   }
 
   MatchList_init(list, vdir, fixed_count + expr_count);
-  list->buf       = Emalloc(sizeof(void *) * 2);
+  list->buf       = Emalloc(sizeof(void *) * 3);
   list->buf[0]    = buf[0];
   list->buf[1]    = buf[1];
-  list->buf_count = 2;
+  list->buf[2]    = vdir;
+  list->buf_count = 3;
 
   MatchList_appendFiles(list, 0,           fixed_files, fixed_count, false);
   MatchList_appendFiles(list, fixed_count, expr_files,  expr_count,  true);
@@ -167,7 +168,7 @@ initMatchListByVserver(struct MatchList *list, char const *vserver,
   char const 	*appdir;
 
   style  = vc_getVserverCfgStyle(vserver);
-  vdir   = vc_getVserverVdir(  vserver, style);
+  vdir   = vc_getVserverVdir(  vserver, style, true);
   appdir = vc_getVserverAppDir(vserver, style, "vunify");
 
   if (vdir==0 || appdir==0) {
@@ -178,11 +179,16 @@ initMatchListByVserver(struct MatchList *list, char const *vserver,
 
   {
     size_t		l1 = strlen(appdir);
-    char		excl_list[l1 + sizeof("/exclude")];
+    char		tmp[l1 + sizeof("/exclude")];
+    char const *	excl_list;
 
-    memcpy(excl_list,    appdir, l1);
-    memcpy(excl_list+l1, "/exclude", 9);
-    
+    memcpy(tmp,    appdir, l1);
+    memcpy(tmp+l1, "/exclude", 9);
+
+    excl_list = tmp;
+    if (access(excl_list, R_OK)==-1) excl_list = CONFDIR   "/.defaults/apps/vunify/exclude";
+    if (access(excl_list, R_OK)==-1) excl_list = PKGLIBDIR "/defaults/vunify-exclude";
+
       // 'vdir' is transferred to matchlist and must not be free'ed here
     initMatchList(list, vserver, vdir, excl_list);
   }
@@ -193,4 +199,90 @@ initMatchListByVserver(struct MatchList *list, char const *vserver,
     free((char *)appdir);
   
   return true;
+}
+
+
+static void
+initModeManually(struct Arguments const UNUSED *args, int argc, char *argv[])
+{
+  int		i, count=argc/2;
+  
+  if (argc%2) {
+    WRITE_MSG(2, "Odd number of (path,excludelist) arguments\n");
+    exit(1);
+  }
+
+  if (count<2) {
+    WRITE_MSG(2, "No reference path(s) given\n");
+    exit(1);
+  }
+
+  initMatchList(&global_info.dst_list, 0, argv[0], argv[1]);
+
+  --count;
+  global_info.src_lists.v = Emalloc(sizeof(struct MatchList) * count);
+  global_info.src_lists.l = count;
+
+  for (i=0; i<count; ++i)
+    initMatchList(global_info.src_lists.v+i, 0, strdup(argv[2 + i*2]), argv[3 + i*2]);
+}
+
+static int
+selectRefserver(struct dirent const *ent)
+{
+  return strncmp(ent->d_name, "refserver.", 10)==0;
+}
+
+static void
+initModeVserver(struct Arguments const UNUSED *args, int argc, char *argv[])
+{
+  char const	*appdir;
+  int		cur_dir = Eopen(".", O_RDONLY, 0);
+  struct dirent	**entries;
+  int		count, i;
+  
+  if (argc!=1) {
+    WRITE_MSG(2, "More than one vserver is not supported\n");
+    exit(1);
+  }
+
+  if (!initMatchListByVserver(&global_info.dst_list, argv[0], &appdir)) {
+    WRITE_MSG(2, "unification not configured for this vserver\n");
+    exit(1);
+  }
+
+  Echdir(appdir);
+  count = scandir(".", &entries, selectRefserver, alphasort);
+  if (count==-1) {
+    perror("scandir()");
+    exit(1);
+  }
+
+  if (count==0) {
+    WRITE_MSG(2, "no reference vserver configured\n");
+    exit(1);
+  }
+
+  global_info.src_lists.v = Emalloc(sizeof(struct MatchList) * count);
+  global_info.src_lists.l = count;
+  for (i=0; i<count; ++i) {
+    char const 		*tmp   = entries[i]->d_name;
+    size_t		l      = strlen(tmp);
+    char		vname[sizeof("./") + l];
+
+    memcpy(vname,   "./", 2);
+    memcpy(vname+2, tmp,  l+1);
+    
+    if (!initMatchListByVserver(global_info.src_lists.v+i, vname, 0)) {
+      WRITE_MSG(2, "unification for reference vserver not configured\n");
+      exit(1);
+    }
+
+    free(entries[i]);
+  }
+  free(entries);
+  free(const_cast(char *)(appdir));
+
+  Efchdir(cur_dir);
+  Eclose(cur_dir);
 }
