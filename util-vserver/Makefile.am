@@ -80,12 +80,14 @@ EXTRA_DIST =		pathconfig.h.pathsubst \
 
 check_PROGRAMS =
 check_SCRIPTS =
+
+TESTS_DEBUG =		no
 TESTS =
+TESTS_ENVIRONMENT =	ensc_use_expensive_tests="$(ENSC_USE_EXPENSIVE_TESTS)" \
+			ensc_test_debug="$(TESTS_DEBUG)"
 
-TESTS_ENVIRONMENT =
-
-AM_CPPFLAGS		=  -I $(top_srcdir)/lib -I $(top_srcdir)/ensc_wrappers \
-			   -D_GNU_SOURCE -D_REENTRANT $(RELEASE_CPPFLAGS)
+AM_CPPFLAGS =		-I $(top_srcdir)/lib -I $(top_srcdir)/ensc_wrappers \
+			-D_GNU_SOURCE -D_REENTRANT $(RELEASE_CPPFLAGS)
 
 CLEANFILES =		$(BUILT_SOURCES) \
 			.*.pathsubst.stamp */.*.pathsubst.stamp */*/.*.pathsubst.stamp \
@@ -221,6 +223,9 @@ if USE_DIETLIBC
 $(addsuffix $(EXEEXT), $(DIETPROGS)) \
 $(addsuffix $(OBJEXT), $(DIETPROGS)) \
 		:		CC=$(DIET_CC)
+else	!USE_DIETLIBC
+nodist_lib_dietlibc_not_enabled_error_a_SOURCES = \
+			lib-dietlibc-not-enabled-error.c
 endif
 
 include $(top_srcdir)/lib/Makefile-files
