@@ -91,10 +91,19 @@
 #endif
 
 #ifdef VC_ENABLE_API_OLDPROC
-#  define CALL_VC_OLDPROC(F,...)	CALL_VC_GENERAL(0x00000000, X, F, __VA_ARGS__)
+#  define CALL_VC_OLDPROC(F,...)	CALL_VC_GENERAL(0x00000000, oldproc, F, __VA_ARGS__)
 #else
 #  define CALL_VC_OLDPROC(F,...)	CALL_VC_NOOP
 #endif
+
+#ifdef VC_ENABLE_API_OLDUTS
+#  define CALL_VC_OLDUTS(F,...)		CALL_VC_GENERAL(0x00000000, olduts, F, __VA_ARGS__)
+#else
+#  define CALL_VC_OLDUTS(F,...)		CALL_VC_NOOP
+#endif
+
+
+  // Some  kernel <-> userspace wrappers; they should be noops in most cases
 
 #if 1
 #  define CTX_KERNEL2USER(X)	(((X)==(uint32_t)(-1)) ? VC_NOCTX   : \
@@ -119,6 +128,28 @@
 #else
 #  define EXT2FLAGS_KERNEL2USER(X)	(X)
 #  define EXT2FLAGS_USER2KERNEL(X)	(X)
+#endif
+
+#if 1
+#  define VHI_USER2KERNEL(X)		((((X)==vcVHI_CONTEXT)    ? VHIN_CONTEXT    : \
+					  ((X)==vcVHI_SYSNAME)    ? VHIN_SYSNAME    : \
+					  ((X)==vcVHI_NODENAME)   ? VHIN_NODENAME   : \
+					  ((X)==vcVHI_RELEASE)    ? VHIN_RELEASE    : \
+					  ((X)==vcVHI_VERSION)    ? VHIN_VERSION    : \
+					  ((X)==vcVHI_MACHINE)    ? VHIN_MACHINE    : \
+					  ((X)==vcVHI_DOMAINNAME) ? VHIN_DOMAINNAME : \
+					  (X)))
+#  define VHI_KERNEL2USER(X)		((((X)==VHIN_CONTEXT)     ? vcVHI_CONTEXT    : \
+					  ((X)==VHIN_SYSNAME)     ? vcVHI_SYSNAME    : \
+					  ((X)==VHIN_NODENAME)    ? vcVHI_NODENAME   : \
+					  ((X)==VHIN_RELEASE)     ? vcVHI_RELEASE    : \
+					  ((X)==VHIN_VERSION)     ? vcVHI_VERSION    : \
+					  ((X)==VHIN_MACHINE)     ? vcVHI_MACHINE    : \
+					  ((X)==VHIN_DOMAINNAME)  ? vcVHI_DOMAINNAME : \
+					  (X)))
+#else
+#  define VHI_USER2KERNEL(X)		(X)
+#  define VHI_KERNEL2USER(X)		(X)
 #endif
 
 
