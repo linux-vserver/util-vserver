@@ -411,6 +411,17 @@ function _addInterfaceCmd
     let ++INTERFACE_CMDS_IDX
 }
 
+## Usage: _generateMac <var> <iface> <ctx>
+function _generateMac
+{
+    isNumber "$2" || {
+	echo $"Interface basename '$iface' must be either a number, or the mac must be configured explicitly" >&2
+	return 1
+    }
+
+    eval $1=$(printf "f0:ff:%02x:%02x:%02x:%02x" $[ (~($2>>8)) & 0xff ] $[ ($2 & 0xff) ] $[ ($3>>8) & 0xff ] $[ $3 & 0xff ])
+}
+
 ## Usage: _processSingleInterface <interface-directory>
 function _processSingleInterface
 {
@@ -423,22 +434,29 @@ function _processSingleInterface
     local bcast
     local name
     local scope
+    local mac
+    local extip
+    local up="up"
 
     _getInterfaceValue ip     '' "$iface"
+    _getInterfaceValue extip  '' "$iface" "$iface/.."
     _getInterfaceValue dev    '' "$iface" "$iface/.."
     _getInterfaceValue prefix '' "$iface" "$iface/.."
     _getInterfaceValue mask   '' "$iface" "$iface/.."
     _getInterfaceValue bcast  '' "$iface" "$iface/.."
     _getInterfaceValue name   '' "$iface"
     _getInterfaceValue scope  '' "$iface" "$iface/.."
+    _getInterfaceValue mac    '' "$iface"
 
     test "$ip" || { echo $"Can not read ip for '$iface'"  >&2; return 1; }
-    
+
     test ! -e "$iface"/only_ip || {
+	## LEGACY ALERT
 	echo $"The 'only_ip' flag for interface '$iface' is deprecated; use 'nodev' instead of" >&2
 	unset dev
     }
     test ! -e "$iface"/nodev   || unset dev
+    test ! -e "$iface"/down    || up=
     
     if test "$dev"; then
 	_transformMask2Prefix prefix "$prefix" "$mask"
@@ -452,15 +470,27 @@ function _processSingleInterface
 		test -f /proc/net/vlan || {
 		    _addInterfaceCmd VCONFIG "${dev/./ }"
 		    _addInterfaceCmd IP_ADDR 127.0.0.1/8 broadcast 127.255.255.255 dev "$dev"
-		    _addInterfaceCmd IP_LINK "$dev"
+		    _addInterfaceCmd IP_LINK "$dev" $up
 		}
 		;;
 	esac
 
+	if ! test -e "$iface"/indirect; then
+	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" broadcast ${bcast:-+} ${name:+label "$dev:$name"} dev "$dev"
+	    #_addInterfaceCmd IP_ROUTE "$ip${prefix:+/$prefix}" dev "$dev"
+	    _addInterfaceCmd IP_LINK  "$dev" $up
+	elif ! test "$ctx"; then
+	    echo $"Using 'dummy' (indirect) for interface '$dev' requires a fixed context number; dynamic ctx are not supported" >&2
+	    return 1
+	else
+	    test "$mac" || _generateMac mac "$(basename '$iface')" "$ctx" || return 1
+	    _addInterfaceCmd MODPROBE -o "dummy${ctx}" dummy
+	    _addInterfaceCmd IP_LINK  dev "dummy${ctx}" address "$mac"
+	    _addInterfaceCmd NAMEIF   "$dev" "$mac"
+	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" ${name:+label "$dev:$name"} dev "$dev"
+	    test -z "$extip" || _addInterfaceCmd IPTABLES "$ip${prefix:+/$prefix}" "$ctx" "$extip"
+	fi
 	INTERFACES=( "${INTERFACES[@]}" "$ip${prefix:+/$prefix}" )
-	_addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" broadcast ${bcast:-+} ${name:+label "$dev:$name"} dev "$dev"
-	#_addInterfaceCmd IP_ROUTE "$ip${prefix:+/$prefix}" dev "$dev"
-	_addInterfaceCmd IP_LINK  "$dev"
     fi
 }
 
@@ -468,6 +498,9 @@ function _processSingleInterface
 function _generateInterfaceOptions
 {
     local iface
+    local ctx
+
+    test ! -e "$1"/context || read ctx <"$vdir"/context
 
     for iface in "$1/interfaces/"*; do
         test   -d "$iface"          || continue
@@ -489,9 +522,12 @@ function enableInterfaces
 	unset var[0]
 	
 	case "$type" in
+	    IPTABLES)	;; ## TODO
+	    MODPROBE)	$_MODPROBE "${var[@]}";;
+	    NAMEIF)	$_NAMEIF   "${var[@]}";;
 	    VCONFIG)	$_VCONFIG  add "${var[@]}";;
 	    IP_ADDR)	$_IP addr  add "${var[@]}";;
-	    IP_LINK)	$_IP link  set "${var[@]}" up;;
+	    IP_LINK)	$_IP link  set "${var[@]}";;
 	    IP_ROUTE)	$_IP route add "${var[@]}";;
 	    *)		echo "Unknown interface-command type '$type'" >&2; false;;
 	esac
@@ -515,6 +551,9 @@ function disableInterfaces
 	unset var[0]
 	
 	case "$type" in
+	    IPTABLES)	;; ## TODO
+	    MODPROBE)	$_RMMOD    "${var[@]}";;
+	    NAMEIF)	;;
 	    VCONFIG)	$_VCONFIG  rem "${var[@]}";;
 	    IP_ADDR)	$_IP addr  del "${var[@]}";;
 	    IP_LINK)	;; ## Ignore the link-down command for now
