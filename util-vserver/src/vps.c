@@ -28,6 +28,7 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <errno.h>
 
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_STDLIB	1
@@ -238,6 +239,12 @@ int main(int argc, char *argv[])
     perror(errptr);
     exit(wrapper_exit_code);
   }
+
+  if (access("/proc/uptime",R_OK)==-1 && errno==ENOENT)
+    WRITE_MSG(2,
+	      "WARNING: can not access /proc/uptime. Usually, this is caused by\n"
+	      "         procfs-security. Please read the FAQ for more details\n"
+	      "         http://www.linux-vserver.org/index.php?page=Linux-Vserver+FAQ\n");
 
   Epipe(p);
   pid = Efork();

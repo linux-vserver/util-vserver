@@ -493,6 +493,12 @@ int main(int argc, char **argv)
     exit(1);
   }
 
+  if (access("/proc/uptime",R_OK)==-1 && errno==ENOENT)
+    WRITE_MSG(2,
+	      "WARNING: can not access /proc/uptime. Usually, this is caused by\n"
+	      "         procfs-security. Please read the FAQ for more details\n"
+	      "         http://www.linux-vserver.org/index.php?page=Linux-Vserver+FAQ\n");
+
   Vector_init(&xid_data, sizeof(struct XidData));
 
   Echdir(PROC_DIR_NAME);
