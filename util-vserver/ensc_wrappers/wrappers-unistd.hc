@@ -206,3 +206,15 @@ Enice(int n)
 {
   FatalErrnoError(nice(n)==-1, "nice()");
 }
+
+inline static WRAPPER_DECL void
+Etruncate(const char *path, off_t length)
+{
+  FatalErrnoError(truncate(path,length)==-1, "truncate()");
+}
+
+inline static WRAPPER_DECL void
+Eftruncate(int fd, off_t length)
+{
+  FatalErrnoError(ftruncate(fd,length)==-1, "ftruncate()");
+}
