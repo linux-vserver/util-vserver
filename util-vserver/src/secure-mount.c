@@ -100,6 +100,7 @@ static struct FstabOptions {
     unsigned long const	and_flag;
     bool const		is_dflt;
 } const FSTAB_OPTIONS[] = {
+  { "rbind",      MS_BIND|MS_REC, ~0, false },
   { "bind",       MS_BIND,        ~0, false },
   { "move",       MS_MOVE,        ~0, false },
 #if 0
@@ -375,7 +376,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
     }
   }
 
-  if (mnt->flags&MS_BIND) {
+  if (mnt->flags & (MS_BIND|MS_MOVE)) {
     if (mount(mnt->src, ".",
 	      mnt->type ? mnt->type : "",
 	      mnt->flags, mnt->data)==-1) {
