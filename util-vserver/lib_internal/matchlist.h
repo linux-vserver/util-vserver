@@ -68,4 +68,6 @@ struct MatchItem
 const *		MatchList_find(struct MatchList const *,
 			       char const *path) NONNULL((1,2));
 
+void		MatchList_printId(struct MatchList const *, int fd) NONNULL((1));
+
 #endif	//  H_UTIL_VSERVER_LIB_INTERNAL_MATCHLIST_H
