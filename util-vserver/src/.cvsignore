@@ -37,6 +37,7 @@ vdu
 vfiles
 vkill
 vlimit
+vps
 vreboot
 vserver-info
 vserver-stat
