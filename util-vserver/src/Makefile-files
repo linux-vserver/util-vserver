@@ -74,7 +74,9 @@ src_HDRS =  		src/vutil.h src/vutil.p src/util.h \
 			src/vunify-matchlist.h \
 			src/wrappers-dirent.h \
 			src/vunify.h \
-			src/vunify-init.ic \
+			src/vunify-compare.hc \
+			src/vunify-doit.hc \
+			src/vunify-init.hc \
 			src/wrappers-io.h \
 			src/vserver.hh
 

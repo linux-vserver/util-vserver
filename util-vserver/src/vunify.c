@@ -90,7 +90,7 @@ showVersion()
   exit(0);
 }
 
-#include "vunify-compare.ic"
+#include "vunify-compare.hc"
 
 // Returns 'false' iff one of the files is not existing, or of the files are different/not unifyable
 static bool
@@ -226,7 +226,7 @@ EsafeChdir(char const *path, struct stat const *exp_stat)
   FatalErrnoError(safeChdir(path, exp_stat)==-1, "safeChdir()");
 }
 
-#include "vunify-doit.ic"
+#include "vunify-doit.hc"
 
 static bool
 doit(struct MatchList const *mlist,
@@ -382,7 +382,7 @@ visitDir(char const *name, struct stat const *expected_stat)
   global_info.state = old_state;
 }
 
-#include "vunify-init.ic"
+#include "vunify-init.hc"
 
 int main(int argc, char *argv[])
 {
