@@ -36,9 +36,7 @@ src_OPTIONS_EXEMPT	=  src/parserpmdump \
 			   src/chroot-cat \
 			   src/filetime \
 			   src/ifspec \
-			   src/chbind \
 			   src/rebootmgr \
-			   src/reducecap \
 			   src/vlimit \
 			   src/vdu \
 			   src/vfiles \
@@ -51,6 +49,7 @@ src_DIETPROGS =		src/new-namespace \
 	     		src/secure-mount \
 	     		src/save_ctxinfo \
 	     		src/mask2prefix \
+			src/chbind \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
 			src/exec-cd \
@@ -60,6 +59,7 @@ src_DIETPROGS =		src/new-namespace \
 			src/vps \
 			src/lsxid \
 			src/chxid \
+			src/reducecap \
 			src/showattr \
 			src/setattr \
 			src/vlimit \
