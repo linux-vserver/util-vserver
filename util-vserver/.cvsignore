@@ -5,6 +5,7 @@
 Build-*
 COPYING
 ChangeLog
+FEATURES.txt
 INSTALL
 Makefile
 aclocal.m4
