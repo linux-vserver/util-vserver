@@ -17,7 +17,10 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-src_HDRS		=  src/vutil.h src/vutil.p src/util.h
+src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
+			   src/wrappers.h src/wrappers-vserver.h \
+			   src/compat-pivot_root.h \
+			   src/stack-start.h
 
 src_pkglib_PRGS		=  src/capchroot \
 			   src/chroot-rm \
@@ -34,12 +37,14 @@ src_pkglib_PRGS		=  src/capchroot \
 			   src/vreboot \
 			   src/save_ctxinfo \
 			   src/secure-mount \
+			   src/secure-umount \
 			   src/vunify \
 			   src/mask2prefix \
 			   src/rpm-fake.so
 
 src_sbin_PRGS		=  src/chbind \
 			   src/chcontext \
+			   src/ctx-kill \
 			   src/rebootmgr \
 			   src/reducecap \
 			   src/vdu \
@@ -79,6 +84,7 @@ src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc
 src_vreboot_SOURCES		=  src/vreboot.c
 src_new_namespace_SOURCES	=  src/new-namespace.c
 src_secure_mount_SOURCES	=  src/secure-mount.c
+src_secure_umount_SOURCES	=  src/secure-umount.c
 
 src_mask2prefix_SOURCES		=  src/mask2prefix.c
 
@@ -86,19 +92,27 @@ src_rpm_fake_so_SOURCES		=  src/rpm-fake.c
 src_rpm_fake_so_LDFLAGS		=  -fpic -ldl -shared
 src_rpm_fake_so_LDADD		=  lib/libvserver.a
 
+src_ctx_kill_SOURCES		=  src/ctx-kill.c
+src_ctx_kill_LDADD		=  lib/libvserver.a
+
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
 src_vserver_stat_LDADD		=  lib/libvserver.a
 
 src_vunify_SOURCES		=  src/vunify.cc src/vutil.cc
 src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc
 
+src_DIETPROGS			=  src/new-namespace \
+				   src/secure-mount \
+				   src/secure-umount \
+				   src/save_ctxinfo \
+				   src/mask2prefix \
+				   src/chroot-rm \
+				   src/fakerunlevel \
+				   src/ctx-kill
+
 if USE_DIETLIBC
-src/new-namespace$(EXEEXT) src/new-namespace$(OBJEXT)	\
-src/secure-mount$(EXEEXT)  src/secure-mount$(OBJEXT)	\
-src/save_ctxinfo$(EXEEXT)  src/save_ctxinfo$(OBJEXT)	\
-src/mask2prefix$(EXEEXT)   src/mask2prefix$(OBJEXT)	\
-src/chroot-rm$(EXEEXT)     src/chroot-rm$(OBJEXT)	\
-src/fakerunlevel$(EXEEXT)  src/fakerunlevel$(OBJEXT)	\
+$(addsuffix $(EXEEXT), $(src_DIETPROGS)) \
+$(addsuffix $(OBJEXT), $(src_DIETPROGS)) \
 		:		CC=$(DIET_CC)
 endif
 
