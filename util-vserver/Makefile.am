@@ -75,7 +75,7 @@ kernel_HDRS =		kernel/context.h \
 EXTRA_PROGRAMS =
 EXTRA_DIST =		pathconfig.h.pathsubst \
 			util-vserver.spec \
-			THANKS \
+			THANKS REQUIREMENTS \
 			$(kernel_HDRS)
 
 check_PROGRAMS =
