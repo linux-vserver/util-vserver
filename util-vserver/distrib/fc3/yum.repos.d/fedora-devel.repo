@@ -1,0 +1,5 @@
+[development]
+name=Fedora Core 3 - Development Tree
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/development/$basearch/
+mirrorlist=http://fedora.redhat.com/download/mirrors/fedora-core-rawhide
+enabled=0

@@ -1,0 +1,6 @@
+[updates-released]
+name=Fedora Core 3 - $basearch - Released Updates
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/updates/3/$basearch/
+mirrorlist=http://fedora.redhat.com/download/mirrors/updates-released-fc3
+enabled=1
+gpgcheck=1

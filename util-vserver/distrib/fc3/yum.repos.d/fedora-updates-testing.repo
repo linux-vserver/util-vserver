@@ -1,0 +1,6 @@
+[updates-testing]
+name=Fedora Core 3 - $basearch - Test Updates
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/updates/testing/3/$basearch/
+mirrorlist=http://fedora.redhat.com/download/mirrors/updates-testing-fc3
+enabled=0
+gpgcheck=1

@@ -1,0 +1,6 @@
+[base]
+name=Fedora Core 3 - $basearch - Base
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/3/$basearch/os/
+mirrorlist=http://fedora.redhat.com/download/mirrors/fedora-core-3
+enabled=1
+gpgcheck=1
