@@ -739,13 +739,14 @@ function vshelper.isEnabled
     return 0
 }
 
-function vshelper.isDebug [<vserver>]
+## Usage: vshelper.isDebug [<vserver>]
+function vshelper.isDebug
 {
     test ! -e "$CONFDIR"/.defaults/apps/vshelper/debug	    || return 1
     $_VSERVER_INFO - FEATURE vshelper                       || return 1
-    if test -n "$2"; then
-	local appdir=$($_VSERVER_INFO "$2" APPDIR vshelper) || return 1
-	test -z "$2" -o ! -e "$appdir/debug"                || return 1
+    if test -n "$1"; then
+	local appdir=$($_VSERVER_INFO "$1" APPDIR vshelper) || return 1
+	test -z "$1" -o ! -e "$appdir/debug"                || return 1
     fi
 
     return 0
