@@ -123,6 +123,24 @@ extern "C" {
 
   int		vc_text2cap(char const *);
   char const *	vc_cap2text(int);
+
+  
+  // The management part
+
+#define VC_LIMIT_VSERVER_NAME_LEN	1024
+  
+  typedef enum { vcCFG_NONE, vcCFG_AUTO,
+		 vcCFG_LEGACY,
+		 vcCFG_RECENT_SHORT,
+		 vcCFG_RECENT_FULL }		vcCfgStyle;
+
+  vcCfgStyle	vc_getVserverCfgStyle(char const *id);
+  
+  // Resolves the name of the vserver. The result will be allocated and must
+  // be freed by the caller
+  char *	vc_getVserverName(char const *id, vcCfgStyle style);
+
+  char *	vc_getVserverVdir(char const *id, vcCfgStyle style);
   
 #ifdef __cplusplus
 }
