@@ -46,12 +46,18 @@ static struct Mapping_uint64 const VALUES[] = {
   DECL("virt_mem",      VC_VXF_VIRT_MEM),
   DECL("virt_uptime",   VC_VXF_VIRT_UPTIME),
   DECL("virt_cpu",      VC_VXF_VIRT_CPU),
+  DECL("virt_load",     VC_VXF_VIRT_LOAD),
 
   DECL("hide_mount",	VC_VXF_HIDE_MOUNT),
   DECL("hide_netif",	VC_VXF_HIDE_NETIF),
 
   DECL("state_setup",   VC_VXF_STATE_SETUP),
   DECL("state_init",    VC_VXF_STATE_INIT),
+
+  DECL("fork_rss",	VC_VXF_FORK_RSS),
+  DECL("prolific",	VC_VXF_PROLIFIC),
+  DECL("igneg_nice",    VC_VXF_IGNEG_NICE),
+  
 };
 
 uint_least64_t
