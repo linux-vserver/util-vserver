@@ -30,6 +30,7 @@ include_HEADERS		=  $(lib_HDRS)
 noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) compat.h
 
 lib_LIBRARIES		=  $(lib_lib_LIBS)
+#lib_LTLIBRARIES		=  $(lib_lib_LTLIBS)
 
 pkglib_SCRIPTS		=  $(scripts_SCRPTS)
 pkglib_DATA		=  $(scriptscfg_DATA) $(scripts_DTA)
@@ -48,16 +49,17 @@ BUILT_SOURCES		=  linuxcaps.h pathconfig.h linuxvirtual.h
 
 man_MANS		=  $(man_DATMAN)
 
+EXTRA_PROGRAMS		=  $(src_EXTRA_PROGS)
 EXTRA_DIST		=  $(sysv_XTRAS) $(sysv_CFG) \
                            $(doc_DAT) $(man_DATMAN) \
 			   $(scripts_SCRPTS) $(scripts_PRGS) $(scripts_XTRAS) \
 			   pathconfig.h.pathsubst \
 			   util-vserver.spec \
-                           m4/ensc_cflags.m4 \
+                           m4/ensc_cflags.m4 m4/ensc_fpicsyscall.m4 \
+			   m4/ensc_cxxcompiler.m4 \
 			   THANKS
 
 AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE
-AM_CFLAGS		=  -Wall -pedantic
 
 CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) $(BUILT_SOURCES) \
 			   .*.pathsubst.stamp */.*.pathsubst.stamp \
@@ -119,6 +121,8 @@ install-data-local:
 			$(INSTALL) -d -m755 $(DESTDIR)$(pkgstatedir)
 
 if USE_DIETLIBC
+$(DIETPROGS):		LIBTOOL=$(LIBTOOL) --tag CC
+
 $(addsuffix $(EXEEXT), $(DIETPROGS)) \
 $(addsuffix $(OBJEXT), $(DIETPROGS)) \
 		:		CC=$(DIET_CC)
