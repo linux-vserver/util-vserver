@@ -5,6 +5,7 @@
 capchroot
 chbind
 chcontext
+chcontext-compat
 chroot-cat
 chroot-rm
 chxid
@@ -45,6 +46,7 @@ vnamespace
 vps
 vreboot
 vrsetup
+vschedule
 vserver-info
 vserver-stat
 vuname
