@@ -75,6 +75,7 @@ readExcludeList(char const *filename,
   if (fd==-1) return; // todo: message on verbose?
 
   readExcludeListFD(fd, files, size, buf);
+  Eclose(fd);
 }
 
 static void
@@ -133,13 +134,26 @@ initMatchList(struct MatchList *list, char const *vserver,
 
   char			**expr_files   = 0;
   size_t		expr_count     = 0;
-  
+
+  if (global_args->verbosity>3) {
+    WRITE_MSG(1, "Initializing exclude-list for ");
+    WRITE_STR(1, vdir);
+    if (vserver!=0) {
+      WRITE_MSG(1, " (");
+      WRITE_STR(1, vserver);
+      WRITE_MSG(1, ")");
+    }
+    WRITE_MSG(1, "\n");
+  }
   if (vserver && global_args->do_renew) {
+    if (global_args->verbosity>4)
+      WRITE_MSG(1, "  Fetching configuration-file list from packagemanagement\n");
     getConfigfileList(vserver, &fixed_files, &fixed_count, buf+0);
   }
 
   // abuse special values (NULL, empty string) to skip the next step
   if (exclude_file && *exclude_file) {
+    if (global_args->verbosity>4) WRITE_MSG(1, "  Reading exclude file\n");
     readExcludeList(exclude_file,
 		    &expr_files,  &expr_count,
 		    buf+1);
@@ -224,7 +238,8 @@ initModeManually(struct Arguments const UNUSED *args, int argc, char *argv[])
   global_info.src_lists.l = count;
 
   for (i=0; i<count; ++i)
-    initMatchList(global_info.src_lists.v+i, 0, strdup(argv[2 + i*2]), argv[3 + i*2]);
+    initMatchList(global_info.src_lists.v+i, 0,
+		  strdup(argv[2 + i*2]), argv[3 + i*2]);
 }
 
 static int
