@@ -38,6 +38,7 @@
 #include <getopt.h>
 #include <assert.h>
 #include <fcntl.h>
+#include <libgen.h>
 
 #define ENSC_WRAPPERS_PREFIX	"chcontext: "
 #define ENSC_WRAPPERS_VSERVER	1
@@ -90,6 +91,8 @@ static struct Arguments const *		global_args = 0;
 static void
 showHelp(int fd, char const *cmd, int res)
 {
+  VSERVER_DECLARE_CMD(cmd);
+  
   WRITE_MSG(fd, "Usage: ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
@@ -165,7 +168,7 @@ static void
 showVersion()
 {
   WRITE_MSG(1,
-	    "chcontext " VERSION " -- allocates/enters a security context\n"
+	    "chcontext-compat " VERSION " -- allocates/enters a security context\n"
 	    "This program is part of " PACKAGE_STRING "\n\n"
 	    "Copyright (C) 2003,2004 Enrico Scholz\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
