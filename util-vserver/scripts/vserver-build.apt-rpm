@@ -24,10 +24,10 @@ eval set -- "$tmp"
 
 while true; do
     case "$1" in
-	-d)		DISTRIBUTION=$2; shift;;
-	--debug)	set -x;;
-	--)		shift; break ;;
-	*)		echo "vserver-build.apt-rpm: internal error: unrecognized option '$1'" >&2
+	(-d)		DISTRIBUTION=$2; shift;;
+	(--debug)	set -x;;
+	(--)		shift; break ;;
+	(*)		echo "vserver-build.apt-rpm: internal error: unrecognized option '$1'" >&2
 			exit 1
 			;;
     esac
