@@ -130,6 +130,12 @@ function getDistribution
     elif test -e /etc/SuSE-release; then
 	set -- $(cat /etc/SuSE-release)
 	DISTRIBUTION=suse$3
+    elif test -e /etc/gentoo-release; then
+	set -- $(cat /etc/gentoo-release)
+	DISTRIBUTION=gentoo$5
+    elif test -e /etc/slackware-release; then
+	set -- $(cat /etc/slackware-release)
+	DISTRIBUTION=slackware$2
     else
 	echo \
 "Can not determine distribution; please specify it manually
