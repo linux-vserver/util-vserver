@@ -23,20 +23,66 @@
 #include "vserver.h"
 #include "internal.h"
 #include <lib_internal/util-dimof.h>
+#include <linux/capability.h>
 
 #include <string.h>
 #include <assert.h>
 
-#define DECL(STR, VAL) { STR, sizeof(STR)-1, VAL }
+#ifndef CAP_QUOTACTL
+#  define CAP_QUOTACTL	VC_CAP_QUOTACTL
+#endif
+
+#define DECL(VAL) { #VAL, sizeof(#VAL)-1, 1 << (CAP_ ## VAL) }
 
 static struct Mapping_uint64 const VALUES[] = {
-#warning Add the 'bcap' values here
+  DECL(CHOWN),
+  DECL(DAC_OVERRIDE),
+  DECL(DAC_READ_SEARCH),
+  DECL(FOWNER),
+  DECL(FSETID),
+  DECL(KILL),
+  DECL(SETGID),
+  DECL(SETUID),
+  DECL(SETPCAP),
+  DECL(LINUX_IMMUTABLE),
+  DECL(NET_BIND_SERVICE),
+  DECL(NET_BROADCAST),
+  DECL(NET_ADMIN),
+  DECL(NET_RAW),
+  DECL(IPC_LOCK),
+  DECL(IPC_OWNER),
+  DECL(SYS_MODULE),
+  DECL(SYS_RAWIO),
+  DECL(SYS_CHROOT),
+  DECL(SYS_PTRACE),
+  DECL(SYS_PACCT),
+  DECL(SYS_ADMIN),
+  DECL(SYS_BOOT),
+  DECL(SYS_NICE),
+  DECL(SYS_RESOURCE),
+  DECL(SYS_TIME),
+  DECL(SYS_TTY_CONFIG),
+  DECL(MKNOD),
+  DECL(LEASE),
+  DECL(QUOTACTL),
 };
+
+inline static char const *
+removePrefix(char const *str, size_t *len)
+{
+  if (strncasecmp("cap_", str, 4)==0) {
+    if (len && *len) *len -= 4;
+    return str+4;
+  }
+  else
+    return str;
+}
 
 uint_least64_t
 vc_text2bcap(char const *str, size_t len)
 {
-  ssize_t	idx = utilvserver_value2text_uint64(str, len,
+  char const *	tmp = removePrefix(str, &len);
+  ssize_t	idx = utilvserver_value2text_uint64(tmp, len,
 						    VALUES, DIM_OF(VALUES));
   if (idx==-1) return 0;
   else         return VALUES[idx].val;
