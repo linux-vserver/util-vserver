@@ -561,9 +561,9 @@ function vshelper.doSanityCheck
     test -d "$VSHELPERSTATEDIR" || {
 	warnings=( "${warnings[@]}"
 		   $"\
-The vshelper state-directory '$VSHELPERSTATEDIR' does not exist;
-  since it is created by 'make install', this indicates a serious
-  problem with your util-vserver installation" )
+The vshelper state-directory '$VSHELPERSTATEDIR' does not exist; since
+it is created by 'make install', this indicates a serious problem with
+your util-vserver installation" )
 	solution_disable=1
     }
 
@@ -665,8 +665,8 @@ function vshelper.doInit
 {
     vshelper.isEnabled || return 0
     
-    local xid=$($_VSERVER_INFO "$1" CONTEXT false) || {
-	warning $"vshelper.init: can not determine xid of vserver '$vserver'"
+    local xid=$($_VSERVER_INFO "$1" CONTEXT false) && test "$xid" || {
+	warning $"vshelper.init: can not determine xid of vserver '$vserver'; returned value was '$xid'"
 	return 1
     }
 
