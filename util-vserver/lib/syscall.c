@@ -36,66 +36,6 @@
 #include <stdbool.h>
 #include <errno.h>
 
-
-
-static int
-checkCompatVersion()
-{
-  static int	res=0;
-  static int	v_errno;
-
-  if (res==0) {
-    res     = vc_get_version(VC_CAT_COMPAT);
-    v_errno = errno;
-#ifdef VC_ENABLE_API_LEGACY
-    if (res==-1 && errno==ENOSYS) res=0;
-#endif    
-  }
-
-  errno = v_errno;
-  return res;
-}
-
-#define VC_PREFIX	0)
-#define VC_SUFFIX	else (void)((void)0
-#define CALL_VC_NOOP	(void)0
-#define CALL_VC_GENERAL(ID, SUFFIX, FUNC, ...)				\
-  VC_PREFIX; VC_SELECT(ID) return FUNC ## _ ## SUFFIX(__VA_ARGS__); VC_SUFFIX
-
-#if 1
-#  define VC_SELECT(ID)	case ID: if(1)
-#  define CALL_VC(...)					\
-  switch (checkCompatVersion()) {			\
-    case -1	:  if (1) break;			\
-      VC_SUFFIX, __VA_ARGS__ , VC_PREFIX;		\
-    default	:  errno = EINVAL;			\
-  }							\
-  return -1
-#else
-#  define VC_SELECT(ID) if (1)
-#  define CALL_VC(...)				\
-  if (1) {} VC_SUFFIX, __VA_ARGS__, VC_PREFIX;	\
-  errno = ENOSYS; return -1
-#endif
-
-#ifdef VC_ENABLE_API_COMPAT
-#  define CALL_VC_COMPAT(F,...) CALL_VC_GENERAL(0x00010000, compat, F, __VA_ARGS__)
-#else
-#  define CALL_VC_COMPAT(F,...)	CALL_VC_NOOP
-#endif
-
-#ifdef VC_ENABLE_API_LEGACY
-#  define CALL_VC_LEGACY(F,...) CALL_VC_GENERAL(0x00000000, legacy, F, __VA_ARGS__)
-#else
-#  define CALL_VC_LEGACY(F,...) CALL_VC_NOOP
-#endif
-
-int
-vc_get_version(int cat)
-{
-  return sys_virtual_context(VC_CMD(VERSION, 0, 0), cat, 0);
-}
-
 #if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
 
 int
