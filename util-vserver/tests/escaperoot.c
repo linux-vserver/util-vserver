@@ -104,7 +104,7 @@ static void dotest (void (*f)())
 	}
 }
 
-int main (int argc, char *argv[])
+int main ()
 {
 	dotest (test1);
 	dotest (test2);

@@ -25,7 +25,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-enum MODE {MODE_SLEEP,MODE_LOOP,MODE_FORK, MODE_FORKSHELL};
+typedef enum {MODE_SLEEP,MODE_LOOP,MODE_FORK, MODE_FORKSHELL} MODE;
 
 
 static void forkbomb_userfork (MODE mode)

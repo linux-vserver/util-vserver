@@ -26,7 +26,6 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -40,7 +39,7 @@
 #include "compat.h"
 #include "vserver.h"
 
-int main (int argc, char *argv[])
+int main (int UNUSED argc, char *argv[])
 {
 	// This test must fail
 	int fd = open ("/",O_RDONLY);
