@@ -31,7 +31,6 @@ src_OPTIONS_EXEMPT	=  src/parserpmdump \
 			   src/vunify \
 			   src/mask2prefix \
 			   src/pipe-sync \
-			   src/rpm-fake.so \
 			   src/capchroot \
 			   src/chroot-cat \
 			   src/filetime \
@@ -61,6 +60,7 @@ src_DIETPROGS		=  src/new-namespace \
 			   src/vunify \
 	     		   src/ctx-kill \
 			   src/rpm-fake-resolver \
+			   src/vkill \
 			   src/vserver-stat
 
 src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
@@ -88,9 +88,11 @@ src_pkglib_PRGS		=  src/capchroot \
 			   src/mask2prefix \
 			   src/pipe-sync \
 			   src/exec-ulimit \
-			   src/rpm-fake.so \
 			   src/rpm-fake-resolver \
 			   $(src_pkglib_CXX_PROGS)
+
+src_pkglib_LTLIBS	=  src/rpm-fake.la
+src_lib_LTLIBS		=
 
 src_sbin_PRGS		=  src/chbind \
 			   src/chcontext \
@@ -101,17 +103,21 @@ src_sbin_PRGS		=  src/chbind \
 			   src/vdu \
 			   src/new-namespace \
 			   src/vlimit \
+			   src/vkill \
 			   src/vserver-stat \
 			   $(src_sbin_CXX_PROGS)
 
 src_capchroot_SOURCES		=  src/capchroot.c
-src_capchroot_LDADD		=  lib/libvserver.a
+src_capchroot_LDADD		=  lib/libvserver.la
+src_capchroot_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_chbind_SOURCES		=  src/chbind.c
-src_chbind_LDADD		=  lib/libvserver.a
+src_chbind_LDADD		=  lib/libvserver.la
+src_chbind_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_chcontext_SOURCES		=  src/chcontext.c
-src_chcontext_LDADD		=  lib/libvserver.a
+src_chcontext_LDADD		=  lib/libvserver.la
+src_chcontext_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_chroot_cat_SOURCES		=  src/chroot-cat.c
 src_chroot_rm_SOURCES		=  src/chroot-rm.c
@@ -127,13 +133,21 @@ src_pipe_sync_SOURCES		=  src/pipe-sync.c
 src_exec_ulimit_SOURCES		=  src/exec-ulimit.c
 
 src_reducecap_SOURCES		=  src/reducecap.c
-src_reducecap_LDADD		=  lib/libvserver.a
+src_reducecap_LDADD		=  lib/libvserver.la
+src_reducecap_LDFLAGS		=  $(VSERVER_LDFLAGS)
+
+src_vkill_SOURCES		=  src/vkill.c
+src_vkill_LDADD			=  lib/libvserver.la
+src_vkill_LDFLAGS		=  $(VSERVER_LDFLAGS)
+src_vkill_CPPFLAGS		=  $(AM_CPPFLAGS) -DLEGACYDIR=\"$(legacydir)\"
 
 src_vlimit_SOURCES		=  src/vlimit.c
-src_vlimit_LDADD		=  lib/libvserver.a
+src_vlimit_LDADD		=  lib/libvserver.la
+src_vlimit_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_save_ctxinfo_SOURCES	=  src/save_ctxinfo.c
-src_save_ctxinfo_LDADD		=  lib/libvserver.a
+src_save_ctxinfo_LDADD		=  lib/libvserver.la
+src_save_ctxinfo_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_showattr_SOURCES		=  src/showattr.c
 src_showperm_SOURCES		=  src/showperm.c
@@ -143,15 +157,18 @@ src_new_namespace_SOURCES	=  src/new-namespace.c
 src_secure_mount_SOURCES	=  src/secure-mount.c
 
 src_rpm_fake_resolver_SOURCES	=  src/rpm-fake-resolver.c
-src_rpm_fake_resolver_LDADD	=  lib/libvserver.a
+src_rpm_fake_resolver_LDADD	=  lib/libvserver.la
+src_rpm_fake_resolver_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_mask2prefix_SOURCES		=  src/mask2prefix.c
 
 src_ctx_kill_SOURCES		=  src/ctx-kill.c
-src_ctx_kill_LDADD		=  lib/libvserver.a
+src_ctx_kill_LDADD		=  lib/libvserver.la
+src_ctx_kill_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
-src_vserver_stat_LDADD		=  lib/libvserver.a
+src_vserver_stat_LDADD		=  lib/libvserver.la
+src_vserver_stat_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc src/vserver.cc
 src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc src/vserver.cc
@@ -163,21 +180,10 @@ src_vunify_SOURCES		=  src/vunify.c \
 				   src/vunify-matchlist.c \
 				   src/vunify-operations.c
 
-src_rpm_fake_so_SOURCES		=  src/rpm-fake.c $(src_rpm_fake_so_XSRCS)
-src_rpm_fake_so_CFLAGS		=  $(AM_CFLAGS) -fPIC
-src_rpm_fake_so_CPPFLAGS	=  $(AM_CPPFLAGS) -DPIC
-src_rpm_fake_so_LDFLAGS		=  -fPIC -shared
-src_rpm_fake_so_LDADD		=  $(src_rpm_fake_so_XLIBS) -ldl
-
-
-EXTRA_src_rpm_fake_so_SOURCES	=  $(lib_SRCS)
-if ENSC_ALLOW_FPIC_WITH_SYSCALL
-src_rpm_fake_so_XSRCS		=  $(lib_SRCS)
-src_rpm_fake_so_XLIBS		=
-else
-src_rpm_fake_so_XSRCS		=  
-src_rpm_fake_so_XLIBS		=  lib/libvserver.a
-endif
+src_rpm_fake_la_SOURCES		=  src/rpm-fake.c
+src_rpm_fake_la_CFLAGS		=  $(AM_CFLAGS)
+src_rpm_fake_la_LDFLAGS		=  -module -avoid-version -rpath $(pkglibdir)
+src_rpm_fake_la_LIBADD		=  lib/libvserver.la -ldl
 
 src_check_PRGS			=  $(src_testsuite_check_PRGS)
 src_check_SCRPTS		=  $(src_testsuite_check_SCRPTS)
@@ -200,6 +206,10 @@ src/setattr$(EXEEXT):		src/showattr$(EXEEXT)
 				@rm -f '$@'
 				ln -s showattr$(EXEEXT) '$@'
 
+install-exec-hook:		src_install_exec_hook
+
+src_install_exec_hook:
+				-rm -f $(DESTDIR)$(pkglibdir)/rpm-fake.a $(DESTDIR)$(pkglibdir)/rpm-fake.la
 
 include $(top_srcdir)/src/testsuite/Makefile-files
 
