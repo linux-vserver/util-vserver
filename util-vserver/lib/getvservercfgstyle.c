@@ -35,7 +35,7 @@ vc_getVserverCfgStyle(char const *id)
   size_t	l1  = strlen(id);
   char		buf[l1 +
 		    MAX(sizeof(CONFDIR "/"),sizeof(DEFAULT_VSERVERDIR "/")) +
-		    sizeof("/legacy") - 1];
+		    MAX(sizeof("/legacy"),  sizeof(".conf")) - 1];
   char *	marker = 0;
 
   strcpy(buf,    id);
@@ -54,9 +54,18 @@ vc_getVserverCfgStyle(char const *id)
       strcpy(buf,                                  DEFAULT_VSERVERDIR "/");
       strcpy(buf+sizeof(DEFAULT_VSERVERDIR)+1 - 1, id);
 
-      if (access(buf, X_OK)) res = vcCFG_LEGACY;
+      if (access(buf, X_OK)==0) res = vcCFG_LEGACY;
+    }
+
+    if (res==vcCFG_LEGACY) {
+      strcpy(buf,                            CONFDIR "/");
+      strcpy(buf+sizeof(CONFDIR "/") - 1,    id);
+      strcpy(buf+sizeof(CONFDIR "/")+l1 - 1, ".conf");
+
+      if (access(buf, R_OK)!=0) res = vcCFG_NONE;
     }
   }
+
 
   if (res==vcCFG_RECENT_FULL || res==vcCFG_RECENT_SHORT) {
     assert(marker!=0);
