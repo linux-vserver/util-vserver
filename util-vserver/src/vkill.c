@@ -115,7 +115,7 @@ str2sig(char const *str)
 
 #if defined(VC_ENABLE_API_LEGACY)
 inline static ALWAYSINLINE int
-kill_wrapper_legacy(xid_t ctx, char const *proc, int sig)
+kill_wrapper_legacy(xid_t UNUSED ctx, char const *proc, int UNUSED sig)
 {
   pid_t		pid = fork();
   if (pid==-1) {
