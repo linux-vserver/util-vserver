@@ -246,6 +246,9 @@ function getAllVservers
 	test   -d "$i"          || continue
 	test ! -e "$i"/disabled || continue
 	test   -d "$i"/vdir     || continue
+	case "$i" in
+	    *.~*~) continue;;
+	esac
 
 	_tmp=( "${_tmp[@]}" "${i##$CONFDIR/}")
     done
