@@ -155,6 +155,7 @@ function base.initFilesystem
 	makeDevEntry "$VDIR"/dev $spec
     done <$_DEV_FILE
 
+    mkdir -p "$VDIR"/proc
     findAndCopy "$VDIR"/etc/hosts         "$CONFDIR"/.defaults/files/hosts "$CONFDIR/.distributions/$DISTRIBUTION"/files/hosts \
 	                                  "$DISTRIBDIR/$DISTRIBUTION"/files/hosts "$DISTRIBDIR"/defaults/files/hosts ""
 
