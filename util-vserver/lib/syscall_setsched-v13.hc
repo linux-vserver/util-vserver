@@ -39,7 +39,7 @@ vc_set_sched_v13obs(xid_t xid, struct vc_set_sched const *data)
   k_data.tokens_min  = VCGET(VC_VXSM_TOKENS_MIN, data->tokens_min);
   k_data.tokens_max  = VCGET(VC_VXSM_TOKENS_MAX, data->tokens_max);
 
-  return vserver(VCMD_set_sched, CTX_USER2KERNEL(xid), &k_data);
+  return vserver(VCMD_set_sched_v2, CTX_USER2KERNEL(xid), &k_data);
 }
 
 #define X(ATTR)		ENSC_SAME_STRUCT_IDX(k_data, *data, ATTR)
