@@ -35,5 +35,9 @@ pushd "$vdir"/etc/init.d &>/dev/null ||
 
     mv -f halt{,.orig}
     ln -s /bin/true halt
+    
+popd >/dev/null
 
+pushd "$vdir"/etc &>/dev/null
+    echo 'NETWORKING=yes' >>sysconfig/network
 popd >/dev/null
