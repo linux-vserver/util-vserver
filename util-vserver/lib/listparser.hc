@@ -22,8 +22,23 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
+
+#define TONUMBER_uint64(S,E,B)		strtoll(S,E,B)
+#define TONUMBER_uint32(S,E,B)		strtol (S,E,B)
+
+#define ISNUMBER(TYPE,SHORT)					\
+  static inline ALWAYSINLINE bool				\
+  isNumber_##SHORT(char const *str,TYPE *res, char end_chr)	\
+  {								\
+    char	*err_ptr;					\
+    *res = TONUMBER_##SHORT(str, &err_ptr, 0);			\
+    return err_ptr>str && *err_ptr==end_chr;			\
+  }
+
 
 #define LISTPARSER(TYPE,SHORT)						\
+  ISNUMBER(TYPE,SHORT)							\
   int									\
   utilvserver_listparser_ ## SHORT(char const *str, size_t len,		\
 				   char const **err_ptr,		\
@@ -34,24 +49,32 @@
   {									\
     if (len==0) len = strlen(str);					\
     for (;len>0;) {							\
-      char const		*ptr = strchr(str, ',');		\
-      size_t		cnt  = ptr ? (size_t)(ptr-str) : len;		\
+      char const	*ptr = strchr(str, ',');			\
+      size_t		cnt;						\
       TYPE		tmp;						\
       bool		is_neg;						\
 									\
-      is_neg = len>1 && (*str=='!' || *str=='~');			\
+      is_neg = *str=='!' || *str=='~';					\
       if (is_neg) {							\
 	++str;								\
 	--len;								\
       }									\
-									\
+      									\
+      cnt = ptr ? (size_t)(ptr-str) : len;				\
       if (cnt>=len) { cnt=len; len=0; }					\
       else len-=(cnt+1);						\
 									\
-      tmp = (*func)(str,cnt);						\
+      if (cnt==0)							\
+	tmp = 0;							\
+      else if (strncasecmp(str,"all",cnt)==0 ||				\
+	       strncasecmp(str,"any",cnt)==0)				\
+	tmp = ~(TYPE)(0);						\
+      else if (!isNumber_##SHORT(str, &tmp, str[cnt]))			\
+	tmp = (*func)(str,cnt);						\
 									\
       if (tmp!=0) {							\
-	if (!is_neg) *flag |= tmp;					\
+	if (!is_neg) *flag |=  tmp;					\
+	else         *flag &= ~tmp;					\
 	*mask |= tmp;							\
       }									\
       else {								\
