@@ -15,6 +15,7 @@ config.status
 configure.scan
 depcomp
 install-sh
+linuxcaps.h
 missing
 mkinstalldirs
 pathconfig.h
