@@ -25,15 +25,21 @@
 
 #include <stdbool.h>
 
+typedef struct Vector	InterfaceList;
+
 struct Configuration {
     PathInfo		cfgdir;
     char const *	vdir;
     xid_t		xid;
     uint32_t		broadcast;
-    struct Vector	interfaces;
+    InterfaceList	interfaces;
+    char const *	nice;
+
+    struct vc_ctx_caps	ctx_caps;
+    struct vc_ctx_flags	ctx_flags;
 };
 
-extern struct Configuration		cfg;
+  //extern struct Configuration		cfg;
 
 void		Cfg_init(struct Configuration *);
 bool		getConfiguration(struct Configuration *, PathInfo const *cfgdir);

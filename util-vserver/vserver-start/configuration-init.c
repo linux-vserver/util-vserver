@@ -25,8 +25,22 @@
 void
 Cfg_init(struct Configuration *cfg)
 {
+  struct vc_ctx_caps const	caps = {
+    .bcaps = 0,
+    .bmask = 0,
+    .ccaps = 0,
+    .cmask = 0
+  };
+
+  struct vc_ctx_flags const	flags = {
+    .flagword = 0,
+    .mask     = 0
+  };
+  
   Vector_init(&cfg->interfaces, sizeof(struct Interface));
   cfg->vdir      = 0;
   cfg->xid       = VC_DYNAMIC_XID;
   cfg->broadcast = 0;
+  cfg->ctx_caps  = caps;
+  cfg->ctx_flags = flags;
 }

@@ -24,6 +24,7 @@
 #include "interface.h"
 
 #include <lib_internal/util.h>
+#include <lib_internal/filecfg.h>
 #include <ensc_vector/vector.h>
 #include <lib/internal.h>
 
@@ -94,18 +95,70 @@ initVdir(char const **vdir, PathInfo const *cfgdir)
 {
   *vdir = vc_getVserverVdir(cfgdir->d, vcCFG_RECENT_FULL, true);
   if (*vdir==0) {
-    WRITE_MSG(2, "Can not find root-directory of the vserver");
+    WRITE_MSG(2, "Can not find root-directory of the vserver\n");
     return false;
   }
 
   return true;
 }
 
+static bool
+setFlag(void *flags_v, char const *str, size_t len)
+{
+  struct vc_ctx_flags	*flags = flags_v;
+  int			rc = vc_list2cflag(str,len, 0,flags);
+
+  return rc!=-1;
+}
+
+static bool
+setCCap(void *caps_v, char const *str, size_t len)
+{
+  struct vc_ctx_caps	*caps = caps_v;
+  int			rc = vc_list2ccap(str,len, 0,caps);
+
+  return rc!=-1;
+}
+
+static bool
+setBCap(void *caps_v, char const *str, size_t len)
+{
+  struct vc_ctx_caps	*caps = caps_v;
+  int			rc = vc_list2bcap(str,len, 0,caps);
+
+  return rc!=-1;
+}
+
+static bool
+readSomething(void *dest, PathInfo const *cfgdir, char const *item,
+	      FileCfg_MultiLineHandler handler)
+{
+  char const	*data = FileCfg_readEntryStr(cfgdir, item, true, 0);
+  bool		res   = false;
+
+  if (!data) return true;
+  if (!FileCfg_iterateOverMultiLine(data, handler, dest)) {
+    WRITE_MSG(2, "Failed to parse '");
+    WRITE_STR(2, item);
+    WRITE_MSG(2, "' configuration\n");
+    goto finish;
+  }
+
+  res = true;
+  finish:
+  free(const_cast(char *)(data));
+  return res;
+}
+
 bool
 getConfiguration(struct Configuration *cfg, PathInfo const *cfgdir)
 {
   cfg->cfgdir = *cfgdir;
+  cfg->nice   = FileCfg_readEntryStr(cfgdir, "nice", false, 0);
   
   return (initVdir(&cfg->vdir, cfgdir) &&
+	  readSomething(&cfg->ctx_flags, cfgdir, "flags", setFlag) &&
+	  readSomething(&cfg->ctx_caps,  cfgdir, "ccapabilities", setCCap) &&
+	  readSomething(&cfg->ctx_caps,  cfgdir, "bcapabilities", setBCap) &&
 	  getInterfaces(cfg));
 }

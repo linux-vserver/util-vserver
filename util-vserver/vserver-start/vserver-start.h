@@ -27,10 +27,12 @@ struct Options {
     char const *		VSERVER_NAME;
     bool			OPTION_DEBUG;
     bool			OPTION_DEFAULTTTY;
+    bool			OPTION_SECURE;
 };
 
 extern struct Options		opts;
 
 void	execScriptlets(PathInfo const *cfgdir, char const *name, char const *style);
+void	setDefaultTTY(PathInfo const *cfgdir, char const *dflt);
 
 #endif	//  H_UTIL_VSERVER_VSERVER_START_VSERVER_START_H

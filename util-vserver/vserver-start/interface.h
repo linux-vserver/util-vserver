@@ -19,10 +19,11 @@
 #ifndef H_UTIL_VSERVER_VSERVER_START_INTERFACE_H
 #define H_UTIL_VSERVER_VSERVER_START_INTERFACE_H
 
-#include <lib_internal/util-cast.h>
+#include "configuration.h"
 
-#include <lib/vserver.h>
+#include <lib_internal/util-cast.h>
 #include <lib_internal/pathinfo.h>
+#include <lib/vserver.h>
 #include <stdbool.h>
 
 struct Interface {
@@ -44,8 +45,8 @@ struct Interface {
     bool			up;
 };
 
-void		activateInterfaces();
-void		deactivateInterfaces();
+void		activateInterfaces(InterfaceList const *interfaces);
+void		deactivateInterfaces(InterfaceList const *interfaces);
 
 static void	Iface_init(struct Interface *);
 static void	Iface_free(struct Interface *);

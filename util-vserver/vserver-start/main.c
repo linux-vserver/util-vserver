@@ -41,6 +41,7 @@
 
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_SOCKET	1
+#define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_FCNTL	1
 #define ENSC_WRAPPERS_STDLIB	1
 #include <ensc_wrappers/wrappers.h>
@@ -125,6 +126,17 @@ checkConstraints()
   Vshelper_doSanityCheck();
 }
 
+static void
+setCFlag(xid_t xid, uint_least64_t value)
+{
+  struct vc_ctx_flags	flags = {
+    .flagword = value,
+    .mask     = value
+  };
+
+  Evc_set_cflags(xid, &flags);
+}
+
 int main(int argc, char *argv[])
 {
   Cfg_init(&cfg);
@@ -151,15 +163,25 @@ int main(int argc, char *argv[])
     case 0	:
       Undo_init();
       execScriptlets(&cfgdir, opts.VSERVER_NAME, "prepre-start");
-      activateInterfaces();
+      activateInterfaces(&cfg.interfaces);
       
       xid = Evc_ctx_create(cfg.xid);
+      setCFlag(xid, VC_VXF_INFO_NAMESPACE);
+      
       mountVserver(&cfg);
 	//      prepareInit(&cfg, &cfgdir);
 
       Esend(sync_fd[0], &xid, sizeof xid, MSG_NOSIGNAL);
+	// 'pre-start.parent' will be executed now in the parent-context
       Erecv(sync_fd[0], &c, 1, 0);
       execScriptlets(&cfgdir, opts.VSERVER_NAME, "pre-start");
+
+      if (cfg.nice)
+	Enice(atoi(cfg.nice));
+      if (opts.OPTION_DEFAULTTTY)
+	setDefaultTTY(&cfgdir, 0);
+
+      
 
       Undo_detach();
       break;

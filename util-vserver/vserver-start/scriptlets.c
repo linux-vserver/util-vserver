@@ -157,14 +157,15 @@ execScriptlets(PathInfo const *cfgdir, char const *vname, char const *style)
   char *	ptr;
   bool		doit = true;
 
-  ptr = Xmemcpy(path_buf, cfgdir->d, cfgdir->l);
-  ptr = Xmemcpy(ptr,      "/scripts/", sizeof("/scripts/"));
+  ptr        = Xmemcpy(path_buf, cfgdir->d, cfgdir->l);
+  ptr        = Xmemcpy(ptr,      "/scripts/", sizeof("/scripts/"));
   basepath.l = ptr-path_buf-1;
-  doit =   !visitPath(&basepath, vname, &styledir);
+  doit       = !visitPath(&basepath, vname, &styledir);
 
   if (doit) {
     ptr = Xmemcpy(path_buf, CONFDIR "/.defaults/scripts/",
 		  sizeof(CONFDIR "/.defaults/scripts/"));
+    basepath.l = ptr-path_buf-1;
     doit = !visitPath(&basepath, vname, &styledir);
   }
 }

@@ -35,12 +35,12 @@ Iface_removeWrapper(void const *iface)
 }
 
 void
-activateInterfaces()
+activateInterfaces(InterfaceList const *interfaces)
 {
   struct Interface const *	iface;
 
-  for (iface=Vector_begin(&cfg.interfaces);
-       iface!=Vector_end(&cfg.interfaces);
+  for (iface=Vector_begin_const(interfaces);
+       iface!=Vector_end_const(interfaces);
        ++iface) {
     if (!Iface_add(iface)) {
       WRITE_MSG(2, "Failed to add interface ");
