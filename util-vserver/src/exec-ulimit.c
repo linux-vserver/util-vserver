@@ -58,6 +58,16 @@ readValue(int fd, char const *filename)
   if (strncmp(buf, "inf", 3)==0) return RLIM_INFINITY;
   res = strtol(buf, &errptr, 0);
 
+  if (errptr!=buf) {
+    switch (*errptr) {
+      case 'M'	:  res *= 1024; /* fallthrough */
+      case 'K'	:  res *= 1024; ++errptr; break;
+      case 'm'	:  res *= 1000; /* fallthrough */
+      case 'k'	:  res *= 1000; ++errptr; break;
+      default	:  break;
+    }
+  }
+
   if (errptr==buf || (*errptr!='\0' && *errptr!='\n')) {
     WRITE_MSG(2, "Invalid limit in '");
     WRITE_STR(2, filename);
