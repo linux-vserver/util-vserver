@@ -21,10 +21,10 @@ doc:			lib/apidoc/.apidoc
 clean-local:		clean_lib_apidoc
 
 clean_lib_apidoc:
-			-rm -rf lib/apidoc/html lib/apidoc/latex
+			-rm -rf lib/apidoc/html lib/apidoc/latex lib/apidoc/man
 
 lib/apidoc/.apidoc:	lib/apidoc/Doxyfile lib/vserver.h lib/internal.h
-			-rm -rf lib/apidoc/html lib/apidoc/latex
+			-rm -rf lib/apidoc/html lib/apidoc/latex lib/apidoc/man
 			cd "$$(dirname '$<')" && $(DOXYGEN) "$$(basename '$<')"
-			$(MAKE) -C lib/apidoc/latex
+			$(MAKE) -j1 -C lib/apidoc/latex
 			touch '$@'
