@@ -1,6 +1,7 @@
 # $Id$
 
 %define confdir		%_sysconfdir/vservers
+%define confdefaultdir	%confdir/.defaults
 %define pkglibdir	%_libdir/%name
 
 Summary:	Linux virtual server utilities
@@ -80,6 +81,11 @@ rm -rf $RPM_BUILD_ROOT
 rm -rf $RPM_BUILD_ROOT
 
 
+%post
+f="%confdefaultdir/vdirbase"; test -L "$f" -o -e "$f" || ln -s /vservers             "$f"
+f="%confdefaultdir/run.rev";  test -L "$f" -o -e "$f" || ln -s /var/run/vservers.rev "$f"
+
+
 %define v_services	httpd named portmap sendmail smb sshd xinetd
 %post sysv
 /sbin/chkconfig --add vservers
@@ -121,6 +127,7 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %_sbindir/rebootmgr
 %_sbindir/vdu
 %_sbindir/vfiles
+%_sbindir/vlimit
 %_sbindir/vps
 %_sbindir/vpstree
 %_sbindir/vserver
@@ -134,16 +141,20 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %exclude %_mandir/*/vserver-copy*
 %exclude %_mandir/*/vrpm*
 
-%dir %confdir/.defaults
-%dir %confdir/.defaults/*
-%pkglibdir/defaults
+%dir %confdefaultdir
+%dir %confdefaultdir/init
+%dir %confdefaultdir/apps
+%dir %confdefaultdir/apps/pkgmgmt
+%dir %confdefaultdir/files
+%ghost %confdefaultdir/vdirbase
+%ghost %confdefaultdir/run.rev
+
 
 %attr(000,root,root) %dir /vservers/.pkg
 %attr(000,root,root) %dir /vservers
 
 %dir /var/run/vservers
 %dir /var/run/vservers.rev
-
 
 
 %files core
