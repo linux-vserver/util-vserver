@@ -65,6 +65,7 @@ src_DIETPROGS =		src/new-namespace \
 			src/showattr \
 			src/setattr \
 			src/vlimit \
+			src/vnamespace \
 			src/vunify \
 			src/vuname \
 			src/rpm-fake-resolver \
@@ -129,6 +130,7 @@ src_sbin_PRGS =		src/chbind \
 			src/vcontext \
 			src/vlimit \
 			src/vkill \
+			src/vnamespace \
 			src/vrsetup \
 			src/vserver-stat \
 			src/vserver-info \
@@ -188,6 +190,10 @@ src_secure_mount_SOURCES =	src/secure-mount.c
 src_enter_namespace_SOURCES =	src/enter-namespace.c
 src_enter_namespace_LDADD =	$(VSERVER_LDADDS)
 src_enter_namespace_LDFLAGS =	$(VSERVER_LDFLAGS)
+
+src_vnamespace_SOURCES =	src/vnamespace.c
+src_vnamespace_LDADD =		$(VSERVER_LDADDS) lib_internal/libinternal.a
+src_vnamespace_LDFLAGS =	$(VSERVER_LDFLAGS)
 
 src_new_namespace_SOURCES =	src/new-namespace.c
 src_new_namespace_LDADD =	$(DIET_COMPAT_LDADDS) lib_internal/libinternal.a
