@@ -20,6 +20,7 @@
 #  include <config.h>
 #endif
 
+#include "pathconfig.h"
 #include "util.h"
 
 #include "internal.h"
@@ -30,8 +31,11 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <fcntl.h>
+#include <errno.h>
+#include <sys/utsname.h>
 
 #define ENSC_WRAPPERS_FCNTL	1
+#define ENSC_WRAPPERS_IO	1
 #define ENSC_WRAPPERS_UNISTD	1
 #include <wrappers.h>
 
@@ -39,7 +43,7 @@ typedef enum { tgNONE,tgCONTEXT, tgRUNNING,
 	       tgVDIR, tgNAME, tgCFGDIR, tgAPPDIR,
 	       tgAPIVER,
 	       tgINITPID, tgINITPID_PID,
-	       tgXID, tgUTS,
+	       tgXID, tgUTS, tgSYSINFO,
 }	VserverTag;
 
 static struct {
@@ -60,6 +64,7 @@ static struct {
   { "UTS",         tgUTS,         ("gives out an uts-entry; possible entries are "
 				   "context, sysname, nodename, release, version, "
 				   "machine and domainname") },
+  { "SYSINFO",     tgSYSINFO,     "gives out information about the systen" },
 };
 
 int wrapper_exit_code = 1;
@@ -137,6 +142,153 @@ utsText2Tag(char const *str)
   }
 }
 
+static char *
+getAPIVer(char *buf)
+{
+  int		v = vc_get_version();
+  size_t	l;
+  
+  if (v==-1) return 0;
+
+  
+  l = utilvserver_fmt_xulong(0, (unsigned int)v);
+  memcpy(buf, "0x00000000", 10);
+  utilvserver_fmt_xulong(buf+2+8-l, (unsigned int)v);
+
+  return buf;
+}
+
+static char *
+getXid(char *buf, char const *vserver)
+{
+  pid_t		pid = atoi(vserver);
+  xid_t		xid = vc_get_task_xid(pid);
+
+  if (xid==VC_NOCTX) perror("vc_get_task_xid()");
+  else {
+    utilvserver_fmt_long(buf, xid);
+    return buf;
+  }
+
+  return 0;
+}
+
+static char *
+getInitPid(char *buf, xid_t xid)
+{
+  struct vc_vx_info		info;
+  
+  if (vc_get_vx_info(xid, &info)==-1) perror("vc_get_vx_info()");
+  else {
+    utilvserver_fmt_long(buf, info.xid);
+    return buf;
+  }
+
+  return 0;
+}
+
+static char *
+getInitPidPid(char *buf, char const *vserver)
+{
+  struct vc_vx_info	info;
+  pid_t			pid = atoi(vserver);
+  xid_t 		xid = vc_get_task_xid(pid);
+
+  if (xid==VC_NOCTX) perror("vc_get_task_xid()");
+  else if (vc_get_vx_info(xid, &info)==-1) perror("vc_get_vx_info()");
+  else {
+    utilvserver_fmt_long(buf, info.xid);
+    return buf;
+  }
+
+  return 0;
+}
+
+static char *
+getUTS(char *buf, xid_t xid, size_t argc, char * argv[])
+{
+  if (argc>0) {
+    vc_uts_type	type = utsText2Tag(argv[0]);
+    if (vc_get_vhi_name(xid, type, buf, sizeof(buf)-1)==-1)
+      perror("vc_get_vhi_name()");
+    else
+      return buf;
+  }
+  else {
+    bool		is_passed = false;
+    char		tmp[128];
+#define APPEND_UTS(TYPE)						\
+    (((vc_get_vhi_name(xid, TYPE, tmp, sizeof(tmp)-1)!=-1) && (strcat(buf, tmp), strcat(buf, " "), is_passed=true)) || \
+     (strcat(buf, "??? ")))
+
+    if (APPEND_UTS(vcVHI_CONTEXT) &&
+	APPEND_UTS(vcVHI_SYSNAME) &&
+	APPEND_UTS(vcVHI_NODENAME) &&
+	APPEND_UTS(vcVHI_RELEASE) &&
+	APPEND_UTS(vcVHI_VERSION) &&
+	APPEND_UTS(vcVHI_MACHINE) &&
+	APPEND_UTS(vcVHI_DOMAINNAME) &&
+	is_passed)
+      return buf;
+
+    perror("vc_get_vhi_name()");
+#undef APPEND_UTS
+  }
+
+  return 0;
+}
+
+static int
+printSysInfo(char *buf)
+{
+  int			fd = open(PKGLIBDIR "/FEATURES.txt", O_RDONLY);
+  struct utsname	uts;
+
+  if (uname(&uts)==-1)
+    perror("uname()");
+  else {
+    WRITE_MSG(1,
+	      "Versions:\n"
+	      "                   Kernel: ");
+    WRITE_STR(1, uts.release);
+    WRITE_MSG(1, "\n"
+	      "                   VS-API: ");
+
+    memset(buf, 0, 128);
+    if (getAPIVer(buf)) WRITE_STR(1, buf);
+    else                WRITE_MSG(1, "???");
+    
+    WRITE_MSG(1, "\n"
+	      "             util-vserver: " PACKAGE_VERSION "; " __DATE__ ", " __TIME__"\n"
+	      "\n");
+  }
+
+  if (fd==-1)
+    WRITE_MSG(1, "FEATURES.txt not found\n");
+  else {
+    off_t		l  = Elseek(fd, 0, SEEK_END);
+    Elseek(fd, 0, SEEK_SET);
+    {
+      char		buf[l];
+      EreadAll(fd, buf, l);
+      EwriteAll(1, buf, l);
+    }
+    Eclose(fd);
+  }
+
+  return EXIT_SUCCESS;
+}
+
+static char *
+getContext(char *buf, char const *vserver)
+{
+  xid_t		xid = vc_getVserverCtx(vserver, vcCFG_AUTO, true, 0);
+  if (xid==VC_NOCTX) return 0;
+  
+  utilvserver_fmt_long(buf, xid);
+  return buf;
+}
+
 static int
 execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
 {
@@ -155,102 +307,17 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
       res = vc_getVserverAppDir(vserver, vcCFG_AUTO, argc==0 ? "" : argv[0]);
       break;
       
-    case tgCONTEXT	:
-      xid = vc_getVserverCtx(vserver, vcCFG_AUTO, true, 0);
-      if (xid!=VC_NOCTX) {
-	utilvserver_fmt_long(buf, xid);
-	res = buf;
-      }
-      break;
-      
     case tgRUNNING	:
       res = (vc_getVserverCtx(vserver, vcCFG_AUTO, false, 0)==VC_NOCTX) ? 0 : "1";
       break;
 
-    case tgXID		:
-    {
-      pid_t	pid = atoi(vserver);
-
-      xid = vc_get_task_xid(pid);
-      if (xid==VC_NOCTX) perror("vc_get_task_xid()");
-      else {
-	utilvserver_fmt_long(buf, xid);
-	res = buf;
-      }
-      break;
-    }
-
-    case tgINITPID	:
-    {
-      struct vc_vx_info		info;
-      if (vc_get_vx_info(xid, &info)==-1) perror("vc_get_vx_info()");
-      else {
-	utilvserver_fmt_long(buf, info.xid);
-	res = buf;
-      }
-      break;
-    }
-
-    case tgINITPID_PID	:
-    {
-      pid_t			pid = atoi(vserver);
-      struct vc_vx_info		info;
-
-      xid = vc_get_task_xid(pid);
-      if (xid==VC_NOCTX) perror("vc_get_task_xid()");
-      else if (vc_get_vx_info(xid, &info)==-1) perror("vc_get_vx_info()");
-      else {
-	utilvserver_fmt_long(buf, info.xid);
-	res = buf;
-      }
-      break;
-    }
-
-    case tgAPIVER	:
-    {
-      int	v = vc_get_version();
-      if (v!=-1) {
-	size_t	l = utilvserver_fmt_xulong(0, (unsigned int)v);
-	memcpy(buf, "0x00000000", 10);
-	utilvserver_fmt_xulong(buf+2+8-l, (unsigned int)v);
-	res = buf;
-      }
-      break;
-    }
-
-    case tgUTS		:
-    {
-      if (argc>0) {
-	vc_uts_type	type = utsText2Tag(argv[0]);
-	if (vc_get_vhi_name(xid, type, buf, sizeof(buf)-1)==-1)
-	  perror("vc_get_vhi_name()");
-	else
-	  res=buf;
-      }
-      else {
-	bool		is_passed = false;
-	char		tmp[128];
-#define APPEND_UTS(TYPE) \
-	(((vc_get_vhi_name(xid, TYPE, tmp, sizeof(tmp)-1)!=-1) && (strcat(buf, tmp), strcat(buf, " "), is_passed=true)) || \
-	 (strcat(buf, "??? ")))
-
-	APPEND_UTS(vcVHI_CONTEXT) &&
-	  APPEND_UTS(vcVHI_SYSNAME) &&
-	  APPEND_UTS(vcVHI_NODENAME) &&
-	  APPEND_UTS(vcVHI_RELEASE) &&
-	  APPEND_UTS(vcVHI_VERSION) &&
-	  APPEND_UTS(vcVHI_MACHINE) &&
-	  APPEND_UTS(vcVHI_DOMAINNAME) &&
-	  is_passed &&
-	  (res = buf);
-
-	if (!is_passed)
-	  perror("vc_get_vhi_name()");
-
-#undef APPEND_UTS
-      }
-      break;
-    }
+    case tgCONTEXT	:  res = getContext(buf, vserver);     break;
+    case tgXID		:  res = getXid(buf, vserver);         break;
+    case tgINITPID	:  res = getInitPid(buf, xid);         break;
+    case tgINITPID_PID	:  res = getInitPidPid(buf, vserver);  break;
+    case tgAPIVER	:  res = getAPIVer(buf);               break;
+    case tgUTS		:  res = getUTS(buf, xid, argc, argv); break;
+    case tgSYSINFO	:  return printSysInfo(buf);           break;
     
     default		:  assert(false); abort();  // TODO
   }
