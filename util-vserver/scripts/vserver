@@ -504,6 +504,9 @@ elif [ "$2" = "start" ] ; then
 				;;
 			esac
 		done
+		if [ -n "$S_START" ] ; then
+			STARTCMD=$S_START
+		fi		
 		if [ "$FAKEINIT" = "" ] ; then
 			$USR_LIB_VSERVER/fakerunlevel $INITDEFAULT var/run/utmp
 		fi
@@ -613,6 +616,10 @@ elif [ "$2" = "stop" ] ; then
 			esac
 		done
 
+		if [ -n "$S_STOP" ] ; then
+			STOPCMD=$S_STOP
+		fi
+		
 		calculateCaps $S_CAPS
 
 		cd $VROOTDIR/$1
