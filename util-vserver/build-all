@@ -57,7 +57,7 @@ case "$1" in
 	$make
 	exit
 	;;
-    debian-woody|debian-sarge|fc-1-90|fc-1|fc-2)
+    debian-woody|debian-sarge|fc-1-90|fc-1|fc-2|fc-3)
 	cat util-vserver-"$2".tar.bz2 | \
 	    ssh $1 "cd /tmp && rm -rf /tmp/util-vserver-* && \
 		    tar xjf - && cd util-vserver-$2 && \
