@@ -38,7 +38,7 @@ xid_t
 vc_X_getctx(pid_t pid)
 {
 #ifndef NDEBUG
-  if (!getenv("VC_BE_VALGRIND_FRIENDLY"))
+  if (getenv("VC_BE_VALGRIND_FRIENDLY")==0)
 #endif
     CALL_VC(CALL_VC_COMPAT(vc_X_getctx, pid),
 	    CALL_VC_LEGACY(vc_X_getctx, pid));
