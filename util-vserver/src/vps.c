@@ -44,6 +44,30 @@ struct ContextMapping {
 static struct ContextMapping		*mapping    = 0;
 static size_t				mapping_len = 0;
 
+
+static void
+showHelp(int fd, char const *cmd, int res)
+{
+  WRITE_MSG(fd, "Usage:  ");
+  WRITE_STR(fd, cmd);
+  WRITE_MSG(fd,
+	    " <ps-args>*\n\n"
+	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
+  exit(res);
+}
+
+static void
+showVersion()
+{
+  WRITE_MSG(1,
+	    "vps " VERSION " -- shows processes in vserver-contexts\n"
+	    "This program is part of " PACKAGE_STRING "\n\n"
+	    "Copyright (C) 2003 Enrico Scholz\n"
+	    VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
+}
+
+
 static size_t
 writeContextInfo(xid_t ctx, char const *name)
 {
@@ -188,6 +212,11 @@ int main(int argc, char *argv[])
   char *	data;
   size_t	len;
 
+  if (argc>1) {
+    if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
+    if (strcmp(argv[1], "--version")==0) showVersion();
+  }
+    
   if (vc_X_getctx(0)!=1)
     Evc_new_s_context(1, vc_get_securecaps(), 0);
 
