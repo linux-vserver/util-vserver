@@ -28,7 +28,7 @@ typedef struct
 } String;
 
 static void	String_init(String *);
-void		String_destroy(String *);
+static void	String_free(String *);
 
 #define ENSC_STRING_FIXED(VAL) { .d = VAL, .l = (sizeof(VAL)-1) }
 #define ENSC_STRING_ASSIGN_FIXED(DST,VAL) \
