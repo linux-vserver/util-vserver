@@ -17,14 +17,15 @@
 
 if ! isVserverRunning "$VSERVER_DIR" S_CONTEXT; then
     echo $"vserver '$VSERVER_NAME' is not running; aborting..."
-    umountVserver "$VSERVER_DIR"     &>/dev/null || :
+    umountVserver     "$VSERVER_DIR" &>/dev/null || :
     disableInterfaces "$VSERVER_DIR" &>/dev/null || :
     exit 1
 fi
 
-generateOptions   "$VSERVER_DIR"
-
 set -e
+generateOptions   "$VSERVER_DIR"
+set +e
+
 cd "$VSERVER_DIR"/vdir/
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
 
@@ -33,9 +34,9 @@ cd "$VSERVER_DIR"/vdir/
     "$_CHBIND"       "${CHBIND_OPTS[@]}" \
     "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
     "$_CHCONTEXT"    "${CHCONTEXT_OPTS[@]}" \
-    "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . "${INITCMD_STOP[@]}"
+    "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . "${INITCMD_STOP[@]}" && \
+	"${INITCMD_STOP_SYNC[@]}" || :
 
-"${INITCMD_STOP_SYNC[@]}"
 sendKillSequence  "$S_CONTEXT" "${INITKILL_SEQ[@]}"
 
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" post-stop
