@@ -474,6 +474,8 @@ elif [ "$2" = "start" ] ; then
 			STARTCMD="/etc/init.d/rc $INITDEFAULT"
 		elif [ -x $VROOTDIR/$1/usr/bin/emerge ] ; then
 			STARTCMD="/sbin/rc default"
+		elif [ -x $VROOTDIR/$1/etc/rc.d/rc.M ] ; then
+		        STARTCMD="/etc/rc.d/rc.M"			
 		fi
 
 		DISCONNECT=
@@ -589,6 +591,8 @@ elif [ "$2" = "stop" ] ; then
 			STOPCMD="/etc/init.d/rc 6"
 		elif [ -x $VROOTDIR/$1/usr/bin/emerge ] ; then
 			STOPCMD="/sbin/rc shutdown"
+		elif [ -x $VROOTDIR/$1/etc/rc.d/rc.6 ] ; then
+		        STOPCMD="/etc/rc.d/rc.6"
 		fi
 
 		for f in $S_FLAGS dummy
