@@ -252,13 +252,12 @@ int main (int argc, char *argv[])
       case CMD_PID		:  pid     = atoi(optarg);   break;
       case CMD_CAP		:  remove  = getCap(optarg); break;
       case CMD_FLAG		: {
-	char const	*err_ptr;
-	size_t		err_len;
+	struct vc_err_listparser	err;
 	
-	flags = vc_list2flag_compat(optarg, 0, &err_ptr, &err_len);
-	if (err_ptr!=0) {
+	flags = vc_list2flag_compat(optarg, 0, &err);
+	if (err.ptr!=0) {
 	  WRITE_MSG(2, "Unknown flag '");
-	  write(2, err_ptr, err_len);
+	  write(2, err.ptr, err.len);
 	  WRITE_MSG(2, "'\n");
 	  exit(wrapper_exit_code);
 	}

@@ -202,14 +202,13 @@ setCap(char const *str, uint32_t *add_caps, uint32_t *remove_caps)
 static inline void
 setFlags(char const *str, uint32_t *flags)
 {
-  char const		*err_ptr;
-  size_t		err_len;
+  struct vc_err_listparser	err;
   
-  *flags = vc_list2flag_compat(str, 0, &err_ptr, &err_len);
+  *flags = vc_list2flag_compat(str, 0, &err);
 
-  if (err_ptr!=0) {
+  if (err.ptr!=0) {
     WRITE_MSG(2, "Unknown flag '");
-    write(2, err_ptr, err_len);
+    write(2, err.ptr, err.len);
     WRITE_MSG(2, "'\n");
     exit(wrapper_exit_code);
   }
