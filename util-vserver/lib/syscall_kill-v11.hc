@@ -23,10 +23,9 @@
 static inline ALWAYSINLINE int
 vc_ctx_kill_v11(xid_t ctx, pid_t pid, int sig)
 {
-  struct vcmd_ctx_kill_v0	param = {
-    .pid = pid,
-    .sig = sig
-  };
+  struct vcmd_ctx_kill_v0	param = { 0 };
+  param.pid = pid;
+  param.sig = sig;
 
   return vserver(VC_CMD(PROCTRL, 1, 0), ctx, &param);
 }
