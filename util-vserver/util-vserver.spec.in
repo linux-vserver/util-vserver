@@ -1,15 +1,21 @@
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
-Release:	1
+Release:	0
 Epoch:		0
 Copyright:	GPL
 Group:		System Environment/Base
-Source:		%name-%version.tar.bz2
+URL:		http://savannah.nongnu.org/projects/util-vserver/
+Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version/%name-%version.tar.bz2
 Provides:	%name-devel = %epoch:%version-%release
 BuildRoot:	%_tmppath/%name-%version-%release-root
 Provides:	vserver = %epoch:%version-%release
 Conflicts:	vserver < %epoch:%version
+
+%package linuxconf
+Summary:	Linuxconf administration modules for vservers
+Group:		Applications/System
+Requires:	%name = %epoch:%version-%release
 
 
 %description
@@ -21,6 +27,11 @@ can't interact with services in the main server.
 
 This requires a special kernel supporting the new new_s_context and
 set_ipv4root system call.
+
+
+%description linuxconf
+This package provides the components to setup virtual servers with
+linuxconf.
 
 
 %prep
@@ -35,6 +46,11 @@ set_ipv4root system call.
 %install
 rm -rf $RPM_BUILD_ROOT
 %__make DESTDIR=$RPM_BUILD_ROOT install
+
+test "%_initrddir" = %_sysconfdir/init.d || {
+	mkdir -p ${RPM_BUILD_ROOT}%_initrddir
+	mv ${RPM_BUILD_ROOT}%_sysconfdir/init.d/* ${RPM_BUILD_ROOT}%_initrddir/
+}
 
 
 %clean
@@ -74,9 +90,18 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %_includedir/vserver.h
 %_libdir/libvserver.a
 %_mandir/man8/*
-%config /etc/init.d/*
-%config(noreplace) /etc/vservers/newvserver.defaults
+%config %_initrddir/*
 %config(noreplace) /etc/vservers.conf
+
+%exclude %_sbindir/newvserver
+%exclude %_mandir/man8/newvserver*
+
+
+%files linuxconf
+%defattr(-,root,root)
+%config(noreplace) /etc/vservers/newvserver.defaults
+%_sbindir/newvserver
+%_mandir/man8/newvserver*
 
 
 %changelog

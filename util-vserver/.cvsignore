@@ -1,8 +1,9 @@
-.X_usr_local_etc-up-to-date
+.*-up-to-date
 .deps
 COPYING
 ChangeLog
 INSTALL
+Makefile
 aclocal.m4
 autom4te.cache
 compile
@@ -18,5 +19,6 @@ stamp-h1
 stamp-h2
 util-vserver-*.tar.bz2*
 util-vserver-*.tar.gz
+util-vserver.spec
 vserver.spec
 vserverx-*.tar.*

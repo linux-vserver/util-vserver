@@ -36,6 +36,13 @@
 #   used so that if/when you reboot the source roothost you don't have the
 #   same vserver and IP address running on two machines.
 
+: ${UTIL_VSERVER_VARS:=$(dirname $0)/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo "Can not find util-vserver installation; aborting..."
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+
 VERSION="0.4"
 umask 022
 me=${0##*/}
@@ -271,7 +278,7 @@ if [ -n "$ip" ] && \
 fi
 
 # This works both locally and remote
-if ($shcmd $dhost /usr/sbin/vserver $newname running | grep 'is running'); then
+if ($shcmd $dhost $SBINDIR/vserver $newname running | grep 'is running'); then
 	warn "destination vserver \"$newname\" is running" 
 	error 1 "Cannot copy over a running vserver"
 fi
@@ -283,7 +290,7 @@ info "Attempting to copy $vserver to $dhost$colon$newname"
 
 if $stopstart; then
 	info "Stopping virtual server \"$vserver\" on localhost"
-	/usr/sbin/vserver $vserver stop
+	$SBINDIR/vserver $vserver stop
 fi
 
 info "Syncing directories"
@@ -358,8 +365,8 @@ fi
 
 if $stopstart; then
 	info "Starting virtual server \"$vserver\" on $dhost"
-	$shcmd $dhost /usr/sbin/vserver $vserver start
-	if ($shcmd $dhost /usr/sbin/vserver $vserver running | \
+	$shcmd $dhost $SBINDIR/vserver $vserver start
+	if ($shcmd $dhost $SBINDIR/vserver $vserver running | \
 	grep 'not running'); then
 		error 1 "Virtual server \"$vserver\" failed to start on $dhost"
 	fi

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 # based on vserver by Jacques Gelinas
@@ -287,7 +287,11 @@ elif [ "$2" = "build" ] ; then
 		fi
 		mkdir -p /vservers/$1 || exit 1
 		chmod 755 /vservers/$1
-		mkdir -p /vservers/$1/{etc/rc.d/init.d,sbin,var/run,var/log}
+		if test "$UTIL_VSERVER_AVOID_COPY"; then
+		    mkdir -p /vservers/$1/{etc/rc.d/init.d,sbin,var/run,var/log}
+		else
+		    cp -ax /sbin /bin /etc /usr /var /lib /vservers/$1/. || exit 1
+		fi
 		cd /vservers/$1 || exit 1
 		rm -fr lib/modules/*
 		rm -f var/spool/mail/*
@@ -406,10 +410,10 @@ S_NICE=
 S_FLAGS="lock nproc"
 # You can set various ulimit flags and they will be inherited by the
 # vserver. You enter here various command line argument of ulimit
-# ULIMIT="-H -u 200"
+# ULIMIT="-HS -u 200"
 # The example above, combined with the nproc S_FLAGS will limit the
 # vserver to a maximum of 200 processes
-ULIMIT="-H -u 1000"
+ULIMIT="-HS -u 1000"
 # You can set various capabilities. By default, the vserver are run
 # with a limited set, so you can let root run in a vserver and not
 # worry about it. He can't take over the machine. In some cases
@@ -737,17 +741,17 @@ elif [ "$2" = "service" ] ; then
 	exec $0 $NODEV $SILENT $VSERVER exec /sbin/service "$@"
 elif [ "$2" = "chkconfig" ] ; then
 	VSERVER=$1
+	LEVELS=()
 	shift
 	shift
 	if [ "$1" = "--level" ] ; then
-		shift
-		LEVELS=$1
-		shift
+		LEVELS=( --level "$2" )
+		shift 2
 	fi
 	if [ $# != 2 -a ! -x /vservers/$VSERVER/sbin/chkconfig ] ; then
 		echo Invalid argument, expected vserver name chkconfig [ --level nnn ] service on\|off
 	elif [ -x /vservers/$VSERVER/sbin/chkconfig ] ; then
-		exec $0 --silent $VSERVER exec /sbin/chkconfig "$@"
+		exec $0 --silent $VSERVER exec /sbin/chkconfig "${LEVELS[@]}" "$@"
 	elif [ -x /vservers/$VSERVER/usr/sbin/update-rc.d ] ; then
 		if [ "$2" = "on" -o "$2" = "start" ] ; then
 			$0 --silent $VSERVER exec /usr/sbin/update-rc.d -f $1 remove >/dev/null

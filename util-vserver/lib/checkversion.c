@@ -22,41 +22,22 @@
 #include "compat.h"
 
 #include "vserver.h"
-#include "vserver-internal.h"
-#include "linuxvirtual.h"
+#include "getversion-internal.hc"
 
-#ifdef VC_ENABLE_API_COMPAT    
-#  include "syscall-compat.hc"
-#endif
+int
+utilvserver_checkCompatVersion()
+{
+  static int	res=0;
+  static int	v_errno;
 
+  if (res==0) {
+    res     = vc_get_version_internal(VC_CAT_COMPAT);
+    v_errno = errno;
 #ifdef VC_ENABLE_API_LEGACY
-#  include "syscall-legacy.hc"
-#endif
+    if (res==-1 && (errno==ENOSYS || errno==EINVAL)) res=0;
+#endif    
+  }
 
-#include <stdbool.h>
-#include <errno.h>
-
-#if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
-
-int
-vc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
-{
-  CALL_VC(CALL_VC_COMPAT(vc_new_s_context, ctx, remove_cap, flags),
-	  CALL_VC_LEGACY(vc_new_s_context, ctx, remove_cap, flags));
+  errno = v_errno;
+  return res;
 }
-
-int
-vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips)
-{
-  CALL_VC(CALL_VC_COMPAT(vc_set_ipv4root, bcast, nb, ips),
-	  CALL_VC_LEGACY(vc_set_ipv4root, bcast, nb, ips));
-}
-
-int
-vc_chrootsafe(char const *dir)
-{
-  CALL_VC(CALL_VC_COMPAT(vc_chrootsafe, dir),
-	  CALL_VC_LEGACY(vc_chrootsafe, dir));
-}
-
-#endif

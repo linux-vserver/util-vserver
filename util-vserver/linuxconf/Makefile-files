@@ -15,26 +15,22 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-##  
 
-lib_SRCS			=  lib/syscall.c \
-				   lib/checkversion.c \
-				   lib/getctx.c \
-				   lib/getversion.c \
-				   lib/uint2str.c
+linuxconf_gen_SCRPTS	=  linuxconf/newvserver
+linuxconf_DATMAN	=  linuxconf/newvserver.8
+linuxconf_cfg_DTA	=  linuxconf/newvserver.defaults
 
-lib_HDRS			=  lib/vserver.h
+linuxconf_XTRAS		=  linuxconf/newvserver.subst \
+			   $(linuxconf_cfg_DTA)
 
-lib_XHDRS                       =  lib/syscall-compat.hc \
-	 			   lib/syscall-legacy.hc \
-				   lib/getctx-compat.hc \
-				   lib/getctx-legacy.hc \
-				   lib/getversion-internal.hc \
-				   lib/safechroot-internal.hc \
-				   lib/virtual.h \
-				   lib/vserver-internal.h
+linuxconf_SCRPTS	=  $(linuxconf_gen_SCRPTS)
+linuxconf_GENFILES	=  $(linuxconf_gen_SCRPTS)
 
-lib_lib_LIBS			=  lib/libvserver.a
-
-lib_libvserver_a_SOURCES	=  $(lib_SRCS)
-lib_libvserver_a_CPPFLAGS	=  -I$(kernelincludedir) -D_GNU_SOURCE
+linuxconf/%:		linuxconf/%.subst
+			@mkdir -p $$(dirname '$@')
+			sed -e 's!@'PKGLIBDIR'@!$(pkglibdir)!g; \
+				s!@'SBINDIR'@!$(sbindir)!g' '$<' >'$@.tmp'
+			@-chmod --reference='$<' '$@.tmp'
+			@-rm -f '$@'
+			mv '$@.tmp' '$@'
+			@chmod a-w '$@'

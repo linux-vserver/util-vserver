@@ -31,6 +31,13 @@
 	2001-11-20 added vmsize, rss, stime and utime stat
 */
 
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+#include "compat.h"
+
+#include "vserver.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -47,9 +54,6 @@
 #define PROC_DIR_NAME "/proc"
 #define CTX_DIR_NAME "/var/run/vservers/"
 #define CTX_NAME_MAX_LEN 50
-
-int call_new_s_context(int nbctx, int ctxs[], int remove_cap, int flags);
-
 
 struct ctx_list
 {
@@ -454,7 +458,6 @@ int main(int argc, char **argv)
 	DIR *proc_dir;
 	struct dirent *dir_entry;
 	pid_t my_pid;
-	static int ctx1[]={1};
 
 	// for error msg
 	process_name = argv[0];
@@ -469,7 +472,7 @@ int main(int argc, char **argv)
 	my_pid = getpid();
 
 	// try to switch in context 1
-	if (call_new_s_context(1,ctx1, 0, 0) < 0)
+	if (vc_new_s_context(1,0, 0) < 0)
 	{
 		fprintf(stderr, "%s: unable to switch in context security #1\n", process_name);
 		return -1;

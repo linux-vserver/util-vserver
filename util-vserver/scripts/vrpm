@@ -77,7 +77,7 @@ else
 			fi
 			#echo rpm --root /vservers/$serv $*
 			echo Updating server $serv
-			/usr/sbin/chcontext --silent $CTXOPT rpm --root /vservers/$serv $*
+			$SBINDIR/chcontext --silent $CTXOPT rpm --root /vservers/$serv $*
 		done
 		if [ "$UNIFY" = "yes" ] ; then
 			PACKAGES=

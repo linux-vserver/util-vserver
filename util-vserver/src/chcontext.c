@@ -22,6 +22,11 @@
 	does little more than mapping command line option to the system call
 	arguments.
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+#include "compat.h"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -30,6 +35,10 @@
 
 #include "linuxcaps.h"
 #include "vserver.h"
+
+#ifndef CAP_QUOTACTL
+#  define CAP_QUOTACTL	29
+#endif
 
 static void usage()
 {
@@ -127,7 +136,8 @@ int main (int argc, char *argv[])
 		|(1<<CAP_SYS_NICE)
 		|(1<<CAP_SYS_RESOURCE)
 		|(1<<CAP_SYS_TIME)
-		|(1<<CAP_MKNOD);
+		|(1<<CAP_MKNOD)
+	        |(1<<CAP_QUOTACTL);
 	const char *hostname=NULL, *domainname=NULL;
 
 	for (i=1; i<argc; i++){
@@ -204,6 +214,7 @@ int main (int argc, char *argv[])
 				{"CAP_SYS_RESOURCE",CAP_SYS_RESOURCE},
 				{"CAP_SYS_TIME",	CAP_SYS_TIME},
 				{"CAP_MKNOD",		CAP_MKNOD},
+				{"CAP_QUOTACTL",        CAP_QUOTACTL},
 				{NULL,0}
 			};
 			int j;
@@ -247,7 +258,7 @@ int main (int argc, char *argv[])
 		if (disconnect == 0 || fork()==0){
 		        int newctx;
 			if (nbctx == 0) ctxs[nbctx++] = -1;
-			newctx = call_new_s_context(nbctx,ctxs,0,flags);
+			newctx = vc_new_s_context(ctxs[0],0,flags);
 			if (newctx != -1){
 				if (hostname != NULL){
 					if (sethostname (hostname,strlen(hostname))==-1){
@@ -264,7 +275,7 @@ int main (int argc, char *argv[])
 					}
 				}
 				remove_cap &= (~add_cap);
-				if (remove_cap != 0) call_new_s_context (0,NULL,remove_cap,0);
+				if (remove_cap != 0) vc_new_s_context (-2,remove_cap,0);
 				if (!silent){
 					printf ("New security context is %d\n"
 						,ctxs[0] == -1 ? newctx : ctxs[0]);
