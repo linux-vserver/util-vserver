@@ -1,5 +1,4 @@
-#! /bin/bash
-# $Id$
+# $Id$  --*- sh -*--
 
 # Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 #  
@@ -18,7 +17,8 @@
 
 if ! isVserverRunning "$VSERVER_DIR" S_CONTEXT; then
     echo $"vserver '$VSERVER_NAME' is not running; aborting..."
-    umountVserver "$VSERVER_DIR" &>/dev/null || :
+    umountVserver "$VSERVER_DIR"     &>/dev/null || :
+    disableInterfaces "$VSERVER_DIR" &>/dev/null || :
     exit 1
 fi
 
