@@ -123,6 +123,7 @@ pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			   s!@'LIBDIR'@!$(libdir)!g; \
 			   s!@'MANDIR'@!$(mandir)!g; \
 			   s!@'INCLUDEDIR'@!$(includedir)!g; \
+			   s!@'PACKAGE'@!$(PACKAGE)!g; \
 			   s!@'PACKAGE_BUGREPORT'@!$(PACKAGE_BUGREPORT)!g; \
 			   s!@'PACKAGE_NAME'@!$(PACKAGE_NAME)!g; \
 			   s!@'PACKAGE_STRING'@!$(PACKAGE_STRING)!g; \
