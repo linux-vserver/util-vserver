@@ -108,6 +108,12 @@ function restart()
     exec "${SELF[@]}" "$vserver" start
 }
 
+function msg()
+{
+    test -z "$OPTION_SILENT" || return 0
+    echo "$@"
+}
+
 ### main starts here
 
 set +e
@@ -231,16 +237,16 @@ case "$2" in
 	
     status)
 	if getVserverStatus "$VSERVER_DIR" ctx procnum; then
-	    echo $"Vserver '$vserver' is running at context '$ctx'"
+	    msg $"Vserver '$vserver' is running at context '$ctx'"
 
 	    if test "$2" = status; then
-		echo    $"Number of processes:" $procnum
-		echo -n $"Uptime:              "
+		msg    $"Number of processes:" $procnum
+		msg -n $"Uptime:              "
 		"$_FILETIME" "$VSERVER_DIR/run"
 	    fi
 	    exit 0
 	else
-	    echo $"Vserver '$vserver' is not running"
+	    msg $"Vserver '$vserver' is not running"
 	    exit 1
 	fi
 	;;
