@@ -30,6 +30,7 @@
 
 #define MOUNT_PROG	"@MOUNT@"
 #define UMOUNT_PROG	"@UMOUNT@"
+#define PS_PROG		"@PS@"
 
 #define RESOLVER_PROG	PKGLIBDIR "/rpm-fake-resolver"
 
