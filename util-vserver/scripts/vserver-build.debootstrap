@@ -73,6 +73,12 @@ function findDebootstrap
     test -x "$DEBOOTSTRAP" || { echo $"Can not find debootstrap at '$DEBOOTSTRAP'" >&2; exit 1; }
 }
 
+function fixupDebian
+{
+    rm -rf "$1"/dev
+    mv "$1"/dev.X "$1"/dev
+}
+
 
 ###   main starts here <---
 
@@ -107,7 +113,6 @@ findDebootstrap
 
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
 mv "$VDIR"/dev "$VDIR"/dev.X
-"$DEBOOTSTRAP" "$DISTRIBUTION" "$VDIR" "$mirror"
-rm -rf "$VDIR"/dev
-mv "$VDIR"/dev.X "$VDIR"/dev
+"$DEBOOTSTRAP" "$DISTRIBUTION" "$VDIR" "$mirror" || :	## HACK: ignore all errors...
+fixupDebian "$VDIR"
 test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
