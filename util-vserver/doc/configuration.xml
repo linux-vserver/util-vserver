@@ -203,7 +203,16 @@
       </file>
 
       <file name="fstab">
-	<description>The fstab file for the vserver.</description>
+	<description>The fstab file for the vserver. Entries in this file will be mounted within the
+	network context of the vserver; this means that mount will be called as 'chbind &lt;options&gt;
+	mount ...'. Use the 'fstab.local' file when you do not want this behavior, but in most cases
+	the 'fstab' file should be used.</description>
+      </file>
+
+      <file name="fstab.local">
+	<description>The fstab file for the vserver. In opposite to the normal 'fstab' file, the
+	mounting happens in the local network context. Currently there is no way to mix entries of
+	both files; 'fstab' will be always processed before 'fstab.local'.</description>
       </file>
       
       <dir name="apps" type="fixed">
