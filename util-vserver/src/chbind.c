@@ -303,7 +303,6 @@ void test()
 {
   struct vc_ip_mask_pair	ip;
   uint32_t			bcast;
-  uint32_t			tmp;
 
   bcast = 0;
   readIP("1.2.3.4", &ip, &bcast);
