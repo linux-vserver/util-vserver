@@ -31,40 +31,41 @@
     if (x!=0) assert(strcmp(x, Y)==0);		\
   }
 
-#define TEST_LIST_C(STR,LEN,EXP,ERR_POS,ERR_LEN) {		\
-    char const	*err_ptr;					\
-    size_t	err_len;					\
-    char	buf[] = STR;					\
-    uint32_t	res;						\
-    res = vc_list2flag_compat(buf, LEN, &err_ptr, &err_len);	\
-    assert(res==(EXP));						\
-    assert(err_len==ERR_LEN);					\
-    if (ERR_POS==-1) assert(err_ptr==0);			\
-    else             assert(err_ptr==buf+(ERR_POS));		\
+#define TEST_LIST_C(STR,LEN,EXP,ERR_POS,ERR_LEN) {	\
+    struct vc_err_listparser	err;			\
+    char			buf[] = STR;		\
+    uint32_t			res;			\
+    res = vc_list2flag_compat(buf, LEN, &err);		\
+    assert(res==(EXP));					\
+    assert(err.len==ERR_LEN);				\
+    if (ERR_POS==-1) assert(err.ptr==0);		\
+    else             assert(err.ptr==buf+(ERR_POS));	\
   }
 
 //----
 
 #define TEST_T2F(X,Y,Z) assert(vc_text2flag(X,Y)==Z)
 #define TEST_F2T(Y,X) {				\
-    char const *x=vc_hiflag2text(X);		\
-    assert((x==0 && Y==0) || (x!=0 && Y!=0));	\
-    if (x!=0) assert(strcmp(x, Y)==0);		\
+    uint_least64_t x = (X);			\
+    char const *rc=vc_loflag2text(&x);		\
+    assert((rc==0 && Y==0) || (rc!=0 && Y!=0));	\
+    if (rc!=0) assert(strcmp(rc, Y)==0);	\
   }
 #define TEST_LIST(STR,LEN,EXP_RES,EXP_FLAG,EXP_MASK,ERR_POS,ERR_LEN) {	\
-    char const		*err_ptr;					\
-    size_t		err_len;					\
-    char		buf[] = STR;					\
-    volatile int	res;						\
-    uint_least64_t	flag=0,mask=0;					\
-    res = vc_list2flag(buf, LEN, &err_ptr, &err_len, &flag, &mask);	\
+    struct vc_err_listparser	err;					\
+    char			buf[] = STR;				\
+    volatile int		res;					\
+    struct vc_ctx_flags		flags;					\
+    res = vc_list2flag(buf, LEN, &err, &flags);				\
     assert(res==(EXP_RES));						\
-    assert(flag==(EXP_FLAG) && mask==(EXP_MASK));			\
-    assert(err_len==ERR_LEN);						\
-    if (ERR_POS==-1) assert(err_ptr==0);				\
-    else             assert(err_ptr==buf+(ERR_POS));			\
+    assert(flags.flagword==(EXP_FLAG));					\
+    assert(flags.mask    ==(EXP_MASK));					\
+    assert(err.len==ERR_LEN);						\
+    if (ERR_POS==-1) assert(err.ptr==0);				\
+    else             assert(err.ptr==buf+(ERR_POS));			\
   }
 
+#define ALL64		(~(uint_least64_t)(0))
 
 int main()
 {
@@ -113,6 +114,22 @@ int main()
   TEST_LIST("fakeinit,XXX", 0, -1, S_CTX_INFO_INIT, S_CTX_INFO_INIT, 9,3);
   TEST_LIST("",             0,  0, 0,               0,              -1,0);
   TEST_LIST("X",            0, -1, 0,               0,               0,1);
+  TEST_LIST("all",          0,  0, ALL64,           ALL64,          -1,0);
+  TEST_LIST("ALL",          0,  0, ALL64,           ALL64,          -1,0);
+  TEST_LIST("any",          0,  0, ALL64,           ALL64,          -1,0);
+  TEST_LIST("ANY",          0,  0, ALL64,           ALL64,          -1,0);
+  TEST_LIST("~all",         0,  0, 0,               ALL64,          -1,0);
+  TEST_LIST("~ALL",         0,  0, 0,               ALL64,          -1,0);
+  TEST_LIST("all,~fakeinit",0,  0, ~S_CTX_INFO_INIT,ALL64,          -1,0);
+  TEST_LIST("~all,fakeinit",0,  0, S_CTX_INFO_INIT, ALL64,          -1,0);
+  TEST_LIST("fakeinit,~all",0,  0, 0,               ALL64,          -1,0);
+  TEST_LIST("~",            0, -1, 0,               0,               1,0);
+  TEST_LIST("fakeinit,~",   0, -1, S_CTX_INFO_INIT, S_CTX_INFO_INIT,10,0);
+  TEST_LIST("1",            0,  0, 1,               1,              -1,0);
+  TEST_LIST("1,23,42",      0,  0, 1|23|42,         1|23|42,        -1,0);
+  TEST_LIST("~1",           0,  0, 0,               1,              -1,0);
+  TEST_LIST("42,fakeinit",  0,  0, S_CTX_INFO_INIT|42, S_CTX_INFO_INIT|42, -1,0);
+  TEST_LIST("42x,1",        0, -1, 0,               0,               0,3);
   
   return 0;
 }
