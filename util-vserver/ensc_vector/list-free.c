@@ -26,8 +26,9 @@
 void
 List_free(struct List *list)
 {
-  for (struct ListItem *itm = list->root;
-       itm!=0;)
+  struct ListItem 	*itm;
+
+  for (itm = list->root; itm!=0; /* noop */)
   {
     struct ListItem	*next = itm->next;
 
