@@ -244,27 +244,17 @@
       The bucket size.
      </description>
     </key>
-    <key name="cpu-mask">
+    <key name="priority-bias">
      <description>
-      Unused at the moment.
+      ???
      </description>
     </key>
    </keys>
   </hash>
-  <scalar name="hostname">
-   <description>
-    Contains the hostname of the vserver. Same as uts/nodename.
-   </description>
-  </scalar>
   <scalar name="name">
    <description>
     Contains the name of the vserver. When not given, the basename of the directory
     will be assumed as this name.
-   </description>
-  </scalar>
-  <scalar name="domainname">
-   <description>
-    The domainname of the vserver. Same as uts/domainname.
    </description>
   </scalar>
   <scalar name="nice">
