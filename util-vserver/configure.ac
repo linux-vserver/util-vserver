@@ -24,14 +24,12 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.23.196, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.23.198, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([gnits dist-bzip2 subdir-objects])
 AM_MAINTAINER_MODE
-
-AC_SUBST(CVS2CL_TAG, [])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -53,11 +51,6 @@ AC_PATH_PROGS(NICE,    [nice],    [nice],        [ $check_paths ])
 AC_PATH_PROGS(VCONFIG, [vconfig], [vconfig],     [ $check_paths ])
 AC_PATH_PROGS(WC,      [wc],      [wc],          [ $check_paths ])
 
-AC_CHECK_PROGS(CVS2CL, [cvs2cl])
-AM_CONDITIONAL(HAVE_CVS2CL,  [test x"$CVS2CL" != x])
-
-AC_CHECK_PROGS(RCS2LOG, [rcs2log])
-AM_CONDITIONAL(HAVE_RCS2LOG,  [test x"$RCS2LOG" != x])
 
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
 ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
@@ -91,6 +84,7 @@ ENSC_RELEASE(RELEASE_CPPFLAGS)
 ENSC_ENABLE_DIETLIBC(USE_DIETLIBC)
 ENSC_KERNEL_HEADERS(kernelincludedir)
 ENSC_UV_VROOTDIR(vserverdir)
+ENSC_CHANGELOG([HEAD])
 
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([apis],
