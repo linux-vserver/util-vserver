@@ -348,3 +348,10 @@ function checkComponents
 
     test -z "$x_failed"
 }
+
+## Usage: isKernelAPI <ver> [<cmp-modifier>]
+function isKernelAPI
+{
+    local api=$($_VSERVER_INFO - APIVER) || api=0
+    test $[ $api ] -${2:-ge} $[ $1 ]
+}
