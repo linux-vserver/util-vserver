@@ -15,6 +15,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+/** \file internal.h
+ *  \brief Declarations which are used by util-vserver internally.
+ */
 
 #ifndef H_UTIL_VSERVER_LIB_INTERNAL_H
 #define H_UTIL_VSERVER_LIB_INTERNAL_H
@@ -35,14 +38,14 @@ int	utilvserver_listparser_uint32(char const *str, size_t len,
 				      uint_least32_t *flag,
 				      uint_least32_t *mask,
 				      uint_least32_t (*func)(char const*,
-							     size_t)) NONNULL((0,4,5,6));
+							     size_t)) NONNULL((1,5,6,7));
   
 int	utilvserver_listparser_uint64(char const *str, size_t len,
 				      char const **err_ptr, size_t *err_len,
 				      uint_least64_t *flag,
 				      uint_least64_t *mask,
 				      uint_least64_t (*func)(char const*,
-							     size_t)) NONNULL((0,4,5,6));
+							     size_t)) NONNULL((1,5,6,7));
 
 struct Mapping_uint32 {
     char const * const	id;
@@ -58,19 +61,19 @@ struct Mapping_uint64 {
   
 ssize_t	utilvserver_value2text_uint32(char const *str, size_t len,
 				      struct Mapping_uint32 const *map,
-				      size_t map_len) NONNULL((0,3));
+				      size_t map_len) NONNULL((1,3));
 
 ssize_t	utilvserver_value2text_uint64(char const *str, size_t len,
 				      struct Mapping_uint64 const *map,
-				      size_t map_len) NONNULL((0,3));
+				      size_t map_len) NONNULL((1,3));
 
 ssize_t utilvserver_text2value_uint32(uint_least32_t *val,
 				      struct Mapping_uint32 const *map,
-				      size_t map_len) NONNULL((0,3));
+				      size_t map_len) NONNULL((1,2));
   
 ssize_t utilvserver_text2value_uint64(uint_least64_t *val,
 				      struct Mapping_uint64 const *map,
-				      size_t map_len) NONNULL((0,3));
+				      size_t map_len) NONNULL((1,2));
 #ifdef __cplusplus
 }
 #endif
