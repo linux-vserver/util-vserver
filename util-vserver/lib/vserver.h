@@ -463,6 +463,10 @@ extern "C" {
 		 vcCFG_RECENT_SHORT,
 		 vcCFG_RECENT_FULL }		vcCfgStyle;
 
+
+  /** Maps an xid given at '--xid' options to an xid_t */
+  xid_t		vc_xidopt2xid(char const *, bool honor_static, char const **err_info);
+
   vcCfgStyle	vc_getVserverCfgStyle(char const *id);
   
   /** Resolves the name of the vserver. The result will be allocated and must
