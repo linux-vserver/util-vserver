@@ -24,6 +24,7 @@
 #include <sys/types.h>
 
 #define VC_NOCTX		((ctx_t)(-1))
+#define VC_SAMECTX		((ctx_t)(-2))
 #define VC_LIM_INFINITY		(~0ULL)
 #define VC_LIM_KEEP		(~1ULL)
 
