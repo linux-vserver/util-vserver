@@ -47,7 +47,8 @@ VERSION="0.4"
 umask 022
 me=${0##*/}
 
-mktemp=$(which mktemp 2>/dev/null) || mktemp=$(which tempfile 2>/dev/null) || {
+mktemp="$(which mktemp 2>/dev/null) /tmp/vc.XXXXXX" || \
+mktemp=$(which tempfile 2>/dev/null) || {
     echo $"Can not find mktemp or tempfile" >&2
     exit 1
 }
