@@ -86,7 +86,7 @@ getFlags(char const *name, struct stat const *exp_st, uint32_t *flags, uint32_t 
   *mask = ~0;
   
   if (vc_get_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
-			  &xid, flags, mask)==-1) {
+			  &xid, flags, mask, &exp_st->st_mode)==-1) {
     perror("vc_get_iattr_compat()");
     return false;
   }
@@ -98,43 +98,38 @@ bool
 handleFile(char const *name, char const *display_name,
 	   struct stat const *exp_st)
 {
-  bool		res = true;
-  char		buf[40];
-  char		*ptr = buf;
+  bool			res = true;
+  char			buf[40];
+  char			*ptr = buf;
+  uint32_t		flags;
+  uint32_t		mask;
 
   memset(buf, ' ', sizeof buf);
-  if (!(S_ISREG(exp_st->st_mode) || S_ISDIR(exp_st->st_mode))) {
-    memcpy(ptr, "------", 6);
-  }
-  else {
-    uint32_t		flags;
-    uint32_t		mask;
 
-    if (getFlags(name, exp_st, &flags, &mask)) {
-	//                                   1       1       0       0
-	//                            fedcba9876543210fedcba9876543210
-      static char const	MARKER[33] = ".......x......ib.............hwa";
-      int		i;
-      uint32_t 		used_flags = (VC_IATTR_XID|VC_IATTR_ADMIN|
+  if (getFlags(name, exp_st, &flags, &mask)) {
+      //                                   1       1       0       0
+      //                            fedcba9876543210fedcba9876543210
+    static char const	MARKER[33] = ".......x......ib.............hwa";
+    int		i;
+    uint32_t 		used_flags = (VC_IATTR_XID|VC_IATTR_ADMIN|
 				      VC_IATTR_WATCH|VC_IATTR_HIDE|
 				      VC_IATTR_BARRIER|VC_IATTR_IUNLINK);
 
-      for (i=0; i<32; ++i) {
-	if (used_flags & 1) {
-	  if (!   (mask  & 1) ) *ptr++ = '-';
-	  else if (flags & 1)   *ptr++ = toupper(MARKER[31-i]);
-	  else                  *ptr++ = MARKER[31-i];
-	}
-
-	used_flags >>= 1;
-	flags      >>= 1;
-	mask       >>= 1;
+    for (i=0; i<32; ++i) {
+      if (used_flags & 1) {
+	if (!   (mask  & 1) ) *ptr++ = '-';
+	else if (flags & 1)   *ptr++ = toupper(MARKER[31-i]);
+	else                  *ptr++ = MARKER[31-i];
       }
-    }      
-    else {
-      memcpy(buf, "ERR   ", 6);
-      res = false;
+
+      used_flags >>= 1;
+      flags      >>= 1;
+      mask       >>= 1;
     }
+  }      
+  else {
+    memcpy(buf, "ERR   ", 6);
+    res = false;
   }
 
   write(1, buf, 8);

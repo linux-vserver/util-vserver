@@ -84,7 +84,7 @@ getFileContext(char const *name, struct stat const *exp_st)
   uint32_t	mask = VC_IATTR_XID;
   
   if (vc_get_iattr_compat(name, exp_st->st_dev, exp_st->st_ino,
-			  &res, 0, &mask)==-1)
+			  &res, 0, &mask, &exp_st->st_mode)==-1)
     perror("vc_get_iattr_compat()");
 
   return (mask&VC_IATTR_XID) ? res : VC_NOCTX;
@@ -100,30 +100,23 @@ handleFile(char const *name, char const *display_name,
 
   memset(buf, ' ', sizeof buf);
 
-  if (!S_ISREG(exp_st->st_mode)) {
-    memcpy(buf, "-------", 7);
+  ctx = getFileContext(name, exp_st);
+  
+  if (ctx==VC_NOCTX) {
+    memcpy(buf, "!!ERR!!", 7);
     write(1, buf, sizeof buf);
     need_write = false;
   }
-  else {
-    ctx = getFileContext(name, exp_st);
-  
-    if (ctx==VC_NOCTX) {
-      memcpy(buf, "!!ERR!!", 7);
-      write(1, buf, sizeof buf);
-      need_write = false;
-    }
-    else if (global_args->do_mapping) {
-      char const *	vname = vc_getVserverByCtx(ctx, 0,0);
-      if (!vname) buf[0] = '\0';
-      else {
-	size_t		l = strlen(vname);
-	if (l<sizeof(buf)) write(1, buf, sizeof(buf)-l);
-	write(1, vname, l);
+  else if (global_args->do_mapping) {
+    char const *	vname = vc_getVserverByCtx(ctx, 0,0);
+    if (!vname) buf[0] = '\0';
+    else {
+      size_t		l = strlen(vname);
+      if (l<sizeof(buf)) write(1, buf, sizeof(buf)-l);
+      write(1, vname, l);
 
-	free((char *)vname);
-	need_write = false;
-      }
+      free((char *)vname);
+      need_write = false;
     }
   }
 
