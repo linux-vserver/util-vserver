@@ -84,6 +84,7 @@ pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			   s!@'SBINDIR'@!$(sbindir)!g; \
 			   s!@'CONFDIR'@!$(confdir)!g; \
 			   s!@'SYSCONFDIR'@!$(sysconfdir)!g; \
+			   s!@'PKGSTATEDIR'@!$(pkgstatedir)!g; \
 			   s!@'PACKAGE'@!$(PACKAGE)!g; \
 			   s!@'PACKAGE_BUGREPORT'@!$(PACKAGE_BUGREPORT)!g; \
 			   s!@'PACKAGE_NAME'@!$(PACKAGE_NAME)!g; \
@@ -113,8 +114,9 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@chmod a-w '$*'
 			@touch '$@'
 
+pkgstatedir		=  $(localstatedir)/run/vservers
 install-data-local:
-			$(INSTALL) -d -m755 $(DESTDIR)$(localstatedir)/run/vservers
+			$(INSTALL) -d -m755 $(DESTDIR)$(pkgstatedir)
 
 if USE_DIETLIBC
 $(addsuffix $(EXEEXT), $(DIETPROGS)) \
