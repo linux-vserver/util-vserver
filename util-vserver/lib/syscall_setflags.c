@@ -32,6 +32,11 @@
 int
 vc_set_flags(xid_t xid, struct vc_ctx_flags const *flags)
 {
+  if (flags==0) {
+    errno = EFAULT;
+    return -1;
+  }
+  
   CALL_VC(CALL_VC_V13A(vc_set_flags, xid, flags));
 }
 #endif
