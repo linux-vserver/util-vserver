@@ -21,8 +21,8 @@ AC_DEFUN([_ENSC_DIETLIBC_C99],
 
 	AC_CACHE_CHECK([whether dietlibc supports C99], [ensc_cv_c_dietlibc_c99],
 	[
-		old_CFLAGS=$CFLAGS
-		old_CC=$CC
+		_ensc_dietlibc_c99_old_CFLAGS=$CFLAGS
+		_ensc_dietlibc_c99_old_CC=$CC
 
 		CFLAGS="-std=c99"
 		CC="${DIET:-diet} $CC"
@@ -42,8 +42,8 @@ AC_DEFUN([_ENSC_DIETLIBC_C99],
 			[ensc_cv_c_dietlibc_c99='skipped (compiler does not support C99)'])
 		AC_LANG_POP
 
-		CC=$old_CC
-		CFLAGS=$old_CFLAGS
+		CC=$_ensc_dietlibc_c99_old_CC
+		CFLAGS=$_ensc_dietlibc_c99_old_CFLAGS
 	])
 
 	if test x"$ensc_cv_c_dietlibc_c99" = xyes; then

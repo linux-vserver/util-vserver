@@ -20,14 +20,14 @@ AC_DEFUN([__ENSC_CHECK_WARNFLAGS],
 	warn_flags="-Werror -W"
 	AC_MSG_CHECKING([whether the $1-compiler accepts ${warn_flags}])
 	AC_LANG_PUSH($1)
-	old_CFLAGS="${$3}"
+	__ensc_check_warnflags_old_CFLAGS="${$3}"
 	$3="$warn_flags"
 	AC_TRY_COMPILE([inline static void f(){}],
 		       [],
 		       [ensc_sys_compilerwarnflags_$2=${warn_flags}],
 		       [ensc_sys_compilerwarnflags_$2=])
 	AC_LANG_POP($1)
-	$3="$old_CFLAGS"
+	$3="$__ensc_check_warnflags_old_CFLAGS"
 
 	if test x"${ensc_sys_compilerwarnflags_$2}" = x; then
 		AC_MSG_RESULT([no])

@@ -21,7 +21,7 @@ AC_DEFUN([ENSC_DIETLIBC_NEED_COMPAT],
 	AC_CACHE_CHECK([whether dietlibc needs '-lcompat'], [ensc_cv_c_dietlibc_compat],
 	[
 		AC_LANG_PUSH(C)
-		old_CC=$CC
+		ensc_dietlibc_need_compat_old_CC=$CC
 		CC="${DIET:-diet} $CC"
 		AC_LINK_IFELSE([
 			AC_LANG_PROGRAM([
@@ -35,7 +35,7 @@ inline static _syscall0(int, foo)
 			[foo()])],
 			[ensc_cv_c_dietlibc_compat=no],
 			[ensc_cv_c_dietlibc_compat=yes])
-		CC=$old_CC
+		CC=$ensc_dietlibc_need_compat_old_CC
 		AC_LANG_POP
 	])
 

@@ -19,7 +19,7 @@ AC_DEFUN([ENSC_FPIC_SYSCALL],
 [
     AC_CACHE_CHECK([whether syscall() allows -fpic], [ensc_cv_c_fpic_syscall],
     [
-        old_CFLAGS=$CFLAGS
+        ensc_fpic_syscall_old_CFLAGS=$CFLAGS
         CFLAGS="-fPIC -DPIC"
 
 	AC_LANG_PUSH(C)
@@ -34,7 +34,7 @@ AC_DEFUN([ENSC_FPIC_SYSCALL],
         [ensc_cv_c_fpic_syscall=yes], [ensc_cv_c_fpic_syscall=no])
 	AC_LANG_POP
 
-        CFLAGS=$old_CFLAGS
+        CFLAGS=$ensc_fpic_syscall_old_CFLAGS
     ])
     
     AM_CONDITIONAL(ENSC_ALLOW_FPIC_WITH_SYSCALL, [test x"$ensc_cv_c_fpic_syscall" = xyes])
