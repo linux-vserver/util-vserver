@@ -68,13 +68,15 @@ src_DIETPROGS =		src/new-namespace \
 			src/vunify \
 			src/vuname \
 			src/rpm-fake-resolver \
+			src/vcontext \
 			src/vcopy \
 			src/vkill \
 			src/vrsetup \
 			src/vserver-stat \
 			src/vserver-info
 
-src_HDRS =  		src/vutil.h src/vutil.p src/util.h \
+src_HDRS =  		src/vutil.h src/vutil.p \
+			src/util.h \
 			src/fstool.h \
 			src/compat-pivot_root.h \
 			src/stack-start.h \
@@ -124,6 +126,7 @@ src_sbin_PRGS =		src/chbind \
 			src/vdu \
 			src/enter-namespace \
 			src/new-namespace \
+			src/vcontext \
 			src/vlimit \
 			src/vkill \
 			src/vrsetup \
@@ -139,9 +142,13 @@ src_chbind_SOURCES		=  src/chbind.c
 src_chbind_LDADD		=  $(VSERVER_LDADDS)
 src_chbind_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
-src_chcontext_SOURCES		=  src/chcontext.c src/util-exitlikeprocess.c
-src_chcontext_LDADD		=  $(VSERVER_LDADDS)
+src_chcontext_SOURCES		=  src/chcontext.c
+src_chcontext_LDADD		=  $(VSERVER_LDADDS) lib_internal/libinternal.a
 src_chcontext_LDFLAGS		=  $(VSERVER_LDFLAGS)
+
+src_vcontext_SOURCES		=  src/vcontext.c
+src_vcontext_LDADD		=  $(VSERVER_LDADDS) lib_internal/libinternal.a
+src_vcontext_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_chroot_cat_SOURCES		=  src/chroot-cat.c
 src_chroot_rm_SOURCES		=  src/chroot-rm.c
@@ -182,9 +189,8 @@ src_enter_namespace_SOURCES =	src/enter-namespace.c
 src_enter_namespace_LDADD =	$(VSERVER_LDADDS)
 src_enter_namespace_LDFLAGS =	$(VSERVER_LDFLAGS)
 
-src_new_namespace_SOURCES =	src/new-namespace.c \
-				src/util-exitlikeprocess.c
-src_new_namespace_LDADD =	$(DIET_COMPAT_LDADDS)
+src_new_namespace_SOURCES =	src/new-namespace.c
+src_new_namespace_LDADD =	$(DIET_COMPAT_LDADDS) lib_internal/libinternal.a
 
 src_rpm_fake_resolver_SOURCES	=  src/rpm-fake-resolver.c
 src_rpm_fake_resolver_LDADD	=  $(VSERVER_LDADDS)
@@ -192,8 +198,8 @@ src_rpm_fake_resolver_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_mask2prefix_SOURCES		=  src/mask2prefix.c
 
-src_vps_SOURCES			=  src/vps.c src/util-exitlikeprocess.c
-src_vps_LDADD			=  $(VSERVER_LDADDS)
+src_vps_SOURCES			=  src/vps.c
+src_vps_LDADD			=  $(VSERVER_LDADDS) lib_internal/libinternal.a
 src_vps_LDFLAGS			=  $(VSERVER_LDFLAGS)
 
 src_vserver_info_SOURCES	=  src/vserver-info.c
