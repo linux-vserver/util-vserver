@@ -3,6 +3,7 @@
 %define confdir		%_sysconfdir/vservers
 %define confdefaultdir	%confdir/.defaults
 %define pkglibdir	%_libdir/%name
+%define __chattr	/usr/bin/chattr
 
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
@@ -21,6 +22,7 @@ Obsoletes:	vserver < %epoch:%version
 BuildRequires:	mount vconfig gawk iproute
 BuildRequires:	gcc-c++ wget
 BuildRequires:	e2fsprogs-devel
+Requires(post):	%__chattr
 %{!?_without_dietlibc:BuildRequires:	dietlibc >= 0:0.22}
 
 %package core
@@ -104,6 +106,8 @@ f="%confdefaultdir/run.rev";  test -L "$f" -o -e "$f" || ln -s /var/run/vservers
 for i in %v_services; do
 	/sbin/chkconfig --add v_$i
 done
+
+%__chattr +t /vservers || :
 
 
 %preun sysv
