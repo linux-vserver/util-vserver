@@ -26,18 +26,18 @@
 
 #include "util.h"
 #include "stack-start.h"
+#include "sys_clone.h"
 
+#include <sched.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <sched.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sched.h>
+#include <libgen.h>
 
-#define ENSC_WRAPPERS_CLONE	1
 #define ENSC_WRAPPERS_WAIT	1
 #include <wrappers.h>
 
@@ -47,19 +47,11 @@
 
 int	wrapper_exit_code = 255;
 
-static int
-childFunc(void *argv_v)
-{
-  char **	argv = argv_v;
-  
-  execvp(argv[0], argv);
-  perror("execvp()");
-  exit(255);
-}
-
 static void
-usage(int fd, char const *cmd, int exit_code)
+showHelp(int fd, char const *cmd, int exit_code)
 {
+  VSERVER_DECLARE_CMD(cmd);
+  
   WRITE_MSG(fd,	"Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
@@ -82,25 +74,31 @@ showVersion()
 	    VERSION_COPYRIGHT_DISCLAIMER);
   exit(0);
 }
-  
+
 int main(int argc, char *argv[])
 {
-  char			buf[128];
-  int			status;
-  pid_t			pid, p;
+  pid_t			pid;
 
-  if (argc==1) usage(2, argv[0], 255);
-  if (!strcmp(argv[1], "--help"))    usage(1, argv[0], 0);
+  if (argc==1) showHelp(2, argv[0], 255);
+  if (!strcmp(argv[1], "--help"))    showHelp(1, argv[0], 0);
   if (!strcmp(argv[1], "--version")) showVersion();
   if (!strcmp(argv[1], "--"))        ++argv;
 
+  
 #ifdef NDEBUG    
-  pid = Eclone(childFunc, STACK_START(buf), CLONE_NEWNS|CLONE_VFORK|SIGCHLD, argv+1);
+  pid = sys_clone(CLONE_NEWNS|CLONE_VFORK|SIGCHLD, 0);
 #else
-  pid = Eclone(childFunc, STACK_START(buf), CLONE_NEWNS|SIGCHLD, argv+1);
+  pid = sys_clone(CLONE_NEWNS|SIGCHLD, 0);
 #endif
-  p   = Ewait4(pid, &status, 0,0);
-
-  if (WIFEXITED(status)) return WEXITSTATUS(status);
-  else                   return 255;
+  switch (pid) {
+    case -1	:
+      perror("clone()");
+      exit(wrapper_exit_code);
+    case 0	:
+      execvp(argv[1], argv+1);
+      perror("execvp()");
+      exit(wrapper_exit_code);
+    default	:
+      exitLikeProcess(pid);
+  }
 }
