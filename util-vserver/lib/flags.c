@@ -35,7 +35,7 @@ static struct {
   DECL("sched",    S_CTX_INFO_SCHED),
   DECL("nproc",    S_CTX_INFO_NPROC),
   DECL("private",  S_CTX_INFO_PRIVATE),
-  DECL("init",     S_CTX_INFO_INIT),
+  DECL("fakeinit", S_CTX_INFO_INIT),
   DECL("hideinfo", S_CTX_INFO_HIDEINFO),
   DECL("ulimit",   S_CTX_INFO_ULIMIT),
 };

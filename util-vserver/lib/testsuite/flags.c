@@ -52,7 +52,7 @@ int main()
   TEST_T2F("sched",    0, S_CTX_INFO_SCHED);
   TEST_T2F("nproc",    0, S_CTX_INFO_NPROC);
   TEST_T2F("private",  0, S_CTX_INFO_PRIVATE);
-  TEST_T2F("init",     0, S_CTX_INFO_INIT);
+  TEST_T2F("fakeinit", 0, S_CTX_INFO_INIT);
   TEST_T2F("hideinfo", 0, S_CTX_INFO_HIDEINFO);
   TEST_T2F("ulimit",   0, S_CTX_INFO_ULIMIT);
   TEST_T2F("XXX",      0, 0);
@@ -62,12 +62,12 @@ int main()
   TEST_F2T("sched",    S_CTX_INFO_SCHED);
   TEST_F2T("nproc",    S_CTX_INFO_NPROC);
   TEST_F2T("private",  S_CTX_INFO_PRIVATE);
-  TEST_F2T("init",     S_CTX_INFO_INIT);
+  TEST_F2T("fakeinit", S_CTX_INFO_INIT);
   TEST_F2T("hideinfo", S_CTX_INFO_HIDEINFO);
   TEST_F2T("ulimit",   S_CTX_INFO_ULIMIT);
   TEST_F2T(0,          0);
   TEST_F2T("ulimit",   64 | 128 | 23 );
-  TEST_F2T("init",     23);
+  TEST_F2T("fakeinit", 23);
 
   TEST_LIST("lock",         0, S_CTX_INFO_LOCK,                  -1,0);
   TEST_LIST("lock,sched,",  0, S_CTX_INFO_LOCK|S_CTX_INFO_SCHED, -1,0);
