@@ -35,6 +35,7 @@ nobase_distrib_DATA	=  defaults/devs \
 			   defaults/apt.conf \
 			   defaults/rpm/macros \
 			   defaults/apt/apt.conf \
+			   template/initpost template/initpre \
 			   rh9/apt/rpmpriorities    rh9/pkgs/01    rh9/pkgs/02 \
 			   fc1/apt/rpmpriorities    fc1/pkgs/01    fc1/pkgs/02 \
 			   fc2/apt/rpmpriorities    fc2/pkgs/01    fc2/pkgs/02 \
