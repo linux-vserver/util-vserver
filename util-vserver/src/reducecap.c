@@ -31,6 +31,10 @@
 #include "linuxcaps.h"
 #include "vserver.h"
 
+#ifndef CAP_QUOTACTL
+#  define CAP_QUOTACTL	29
+#endif
+
 extern int capget (struct __user_cap_header_struct *, struct __user_cap_data_struct *);
 extern int capset (struct __user_cap_header_struct *, struct __user_cap_data_struct *);
 
@@ -73,7 +77,7 @@ static void reducecap_print(struct __user_cap_data_struct *user)
 		"CAP_SYS_TTY_CONFIG",
 		"CAP_MKNOD",
 		"CAP_LEASE",
-		"CAP_OPENDEV",
+		"CAP_QUOTACTL",
 		NULL
 	};
 	int i;
@@ -124,7 +128,8 @@ int main (int argc, char *argv[])
 		|(1<<CAP_SYS_NICE)
 		|(1<<CAP_SYS_RESOURCE)
 		|(1<<CAP_SYS_TIME)
-		|(1<<CAP_MKNOD);
+		|(1<<CAP_MKNOD)
+	        |(1<<CAP_QUOTACTL);
 	int i;
 	for (i=1; i<argc; i++){
 		const char *arg = argv[i];
@@ -188,6 +193,7 @@ int main (int argc, char *argv[])
 				{"--SYS_RESOURCE",CAP_SYS_RESOURCE},
 				{"--SYS_TIME",	CAP_SYS_TIME},
 				{"--MKNOD",		CAP_MKNOD},
+				{"--QUOTACTL",          CAP_QUOTACTL},
 				{NULL,0}
 			};
 			int j;

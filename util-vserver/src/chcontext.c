@@ -36,6 +36,10 @@
 #include "linuxcaps.h"
 #include "vserver.h"
 
+#ifndef CAP_QUOTACTL
+#  define CAP_QUOTACTL	29
+#endif
+
 static void usage()
 {
 	fprintf (stderr,"chcontext version %s\n",VERSION);
@@ -132,7 +136,8 @@ int main (int argc, char *argv[])
 		|(1<<CAP_SYS_NICE)
 		|(1<<CAP_SYS_RESOURCE)
 		|(1<<CAP_SYS_TIME)
-		|(1<<CAP_MKNOD);
+		|(1<<CAP_MKNOD)
+	        |(1<<CAP_QUOTACTL);
 	const char *hostname=NULL, *domainname=NULL;
 
 	for (i=1; i<argc; i++){
@@ -209,6 +214,7 @@ int main (int argc, char *argv[])
 				{"CAP_SYS_RESOURCE",CAP_SYS_RESOURCE},
 				{"CAP_SYS_TIME",	CAP_SYS_TIME},
 				{"CAP_MKNOD",		CAP_MKNOD},
+				{"CAP_QUOTACTL",        CAP_QUOTACTL},
 				{NULL,0}
 			};
 			int j;
