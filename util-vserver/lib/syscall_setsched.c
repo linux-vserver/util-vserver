@@ -23,6 +23,7 @@
 #include "vserver.h"
 #include "linuxvirtual.h"
 
+#define VC_MULTIVERSION_SYSCALL	1
 #include "vserver-internal.h"
 
 #ifdef VC_ENABLE_API_V13
@@ -32,5 +33,6 @@
 int
 vc_set_sched(xid_t xid, struct vc_set_sched const *data)
 {
-  CALL_VC(CALL_VC_V13(vc_set_sched,xid,data));
+  CALL_VC(CALL_VC_V13B  (vc_set_sched,xid,data),
+	  CALL_VC_V13OBS(vc_set_sched,xid,data));
 }
