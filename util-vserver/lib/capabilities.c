@@ -70,8 +70,7 @@ int
 vc_text2cap(char const *str)
 {
   size_t	i;
-  if (strncmp(str, "CAP_", 4)!=0) return -1;
-  str += 4;
+  if (strncmp(str, "CAP_", 4)==0) str += 4;
 
   for (i=0; i<sizeof(CAP2BIT)/sizeof(CAP2BIT[0]); ++i)
     if (strcmp(CAP2BIT[i].id+4, str)==0) return CAP2BIT[i].bit;
