@@ -42,12 +42,9 @@ mkdir2(char const *lhs, char const *rhs, int mode)
 static inline int
 setIAttr2(char const *lhs, char const *rhs, int flags)
 {
-  struct stat		st;
   CONCAT_TWO_ARGS(buf, lhs, rhs);
 
-  if (stat(buf, &st)==-1) return -1;
-  return vc_set_iattr_compat(buf, st.st_dev, st.st_ino,
-			     0, flags, VC_IMMUTABLE_ALL, 0);
+  return vc_set_iattr(buf, 0, flags, VC_IMMUTABLE_ALL);
 }
 
 static inline int
