@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.29.213, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.29.214, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -56,6 +56,7 @@ AC_PATH_PROGS(MODPROBE, [modprobe], [/sbin/modprobe], [ $check_paths ])
 AC_PATH_PROGS(RMMOD,    [rmmod],    [/sbin/rmmod],    [ $check_paths ])
 AC_PATH_PROGS(NAMEIF,   [nameif],   [/sbin/nameif],   [ $check_paths ])
 AC_PATH_PROGS(IPTABLES, [iptables], [/sbin/iptables], [ $check_paths ])
+AC_PATH_PROGS(ENV,      [env],      [/usr/bin/env])
 AC_PATH_PROGS(SED,      [sed],      [sed])
 AC_PATH_PROGS(CMP,      [cmp],      [cmp])
 AC_PATH_PROGS(WGET,     [wget],     [wget])

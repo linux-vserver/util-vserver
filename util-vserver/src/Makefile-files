@@ -51,7 +51,6 @@ DIETPROGS +=		src/chcontext-compat \
 			src/chbind \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
-	     		src/clearenv \
 			src/exec-cd \
 	     		src/fakerunlevel \
 			src/keep-ctx-alive \
@@ -96,7 +95,6 @@ pkglib_PROGRAMS +=	src/capchroot \
 			src/chcontext-compat \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
-			src/clearenv \
 			src/fakerunlevel \
 			src/filetime \
 			src/keep-ctx-alive \
@@ -169,7 +167,6 @@ src_filetime_LDFLAGS		=  $(VSERVER_LDFLAGS)
 src_chain_echo_SOURCES		=  src/chain-echo.c
 src_chroot_cat_SOURCES		=  src/chroot-cat.c
 src_chroot_rm_SOURCES		=  src/chroot-rm.c
-src_clearenv_SOURCES		=  src/clearenv.c
 src_exec_cd_SOURCES		=  src/exec-cd.c
 src_fakerunlevel_SOURCES	=  src/fakerunlevel.c
 src_ifspec_SOURCES		=  src/ifspec.c
