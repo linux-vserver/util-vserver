@@ -21,11 +21,11 @@
 #endif
 
 #include "pathconfig.h"
-#include "sys_clone.h"
 #include "util.h"
 
-#include "lib/vserver.h"
-#include "lib/internal.h"
+#include <lib/vserver.h>
+#include <lib/internal.h>
+#include <lib_internal/sys_clone.h>
 
 #include <sys/socket.h>
 #include <dlfcn.h>
