@@ -59,7 +59,9 @@ fail=
 if test -n "$_IS_FAKEINIT" && \
    $_VSERVER_INFO - FEATURE vkill && \
    initpid=$($_VSERVER_INFO "$S_CONTEXT" INITPID 2>/dev/null); then
-    $_VKILL -s INT -- "$initpid" || fail=1
+    $_VKILL -s INT --xid "$C_CONTEXT" -- 1 "$initpid" || fail=1
+    ## HACK: remove the 'initpid' stuff above when PID virtualization
+    ## is implemented
 elif $_VSERVER_INFO - FEATURE migrate; then
     "${NICE_CMD[@]}" \
     ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT" -- } \
