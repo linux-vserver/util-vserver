@@ -169,10 +169,11 @@ src_save_ctxinfo_SOURCES	=  src/save_ctxinfo.c
 src_save_ctxinfo_LDADD		=  lib/libvserver.la
 src_save_ctxinfo_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
-src_vdu_SOURCES			=  src/vdu.c
-src_vreboot_SOURCES		=  src/vreboot.c
-src_new_namespace_SOURCES	=  src/new-namespace.c
-src_secure_mount_SOURCES	=  src/secure-mount.c
+src_vdu_SOURCES =		src/vdu.c
+src_vreboot_SOURCES =		src/vreboot.c
+src_new_namespace_SOURCES =	src/new-namespace.c \
+				src/util-exitlikeprocess.c
+src_secure_mount_SOURCES =	src/secure-mount.c
 
 src_rpm_fake_resolver_SOURCES	=  src/rpm-fake-resolver.c
 src_rpm_fake_resolver_LDADD	=  lib/libvserver.la
