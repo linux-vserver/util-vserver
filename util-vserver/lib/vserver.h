@@ -143,6 +143,28 @@
 #define	VC_IATTR_IUNLINK		0x00020000
 #define VC_IATTR_IMMUTABLE		0x00040000
 
+
+// the flags
+#define VC_VXF_INFO_LOCK		0x00000001
+#define VC_VXF_INFO_NPROC		0x00000002
+#define VC_VXF_INFO_PRIVATE		0x00000004
+#define VC_VXF_INFO_INIT		0x00000008
+
+#define VC_VXF_INFO_HIDE		0x00000010
+#define VC_VXF_INFO_ULIMIT		0x00000020
+#define VC_VXF_INFO_NSPACE		0x00000040
+
+#define	VC_VXF_SCHED_HARD		0x00000100
+#define	VC_VXF_SCHED_PRIO		0x00000200
+#define	VC_VXF_SCHED_PAUSE		0x00000400
+
+#define VC_VXF_VIRT_MEM			0x00010000
+#define VC_VXF_VIRT_UPTIME		0x00020000
+
+#define	VC_VXF_STATE_SETUP		(1ULL<<32)
+#define	VC_VXF_STATE_INIT		(1ULL<<33)
+
+
 /** \defgroup  syscalls Syscall wrappers
  *  Functions which are calling the vserver syscall directly. */
 
@@ -402,9 +424,11 @@ extern "C" {
 
   struct vc_set_sched {
       int32_t	fill_rate;
-      int32_t	period;
-      int32_t	fill_level;
-      int32_t	bucket_size;
+      int32_t	interval;
+      int32_t	tokens;
+      int32_t	tokens_min;
+      int32_t	tokens_max;
+      uint64_t	cpu_mask;
   };
 
   int		vc_set_sched(xid_t xid, struct vc_set_sched const *);
