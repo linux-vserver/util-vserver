@@ -35,10 +35,12 @@ nobase_distrib_DATA	=  defaults/devs \
 			   defaults/rpm/macros \
 			   defaults/apt/apt.conf \
 			   rh9/apt/rpmpriorities rh9/pkgs/01 rh9/pkgs/02 \
-			   fc1/apt/rpmpriorities fc1/pkgs/01 fc1/pkgs/02
+			   fc1/apt/rpmpriorities fc1/pkgs/01 fc1/pkgs/02 \
+			   fc2/apt/rpmpriorities fc2/pkgs/01 fc2/pkgs/02
 
 nobase_confdistrib_DATA	=  rh9/apt/sources.list \
-			   fc1/apt/sources.list
+			   fc1/apt/sources.list \
+			   fc2/apt/sources.list
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT \
 			=  $(nobase_distrib_SCRIPTS)
@@ -48,7 +50,7 @@ EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(nobase_confdistrib_DATA) \
 			   $(defaults_DATA)
 
-redhat_style		=  rh9 fc1
+redhat_style		=  rh9 fc1 fc2
 
 
 install-data-hook:
