@@ -40,7 +40,9 @@ Unify_unify(char const *src, struct stat const UNUSED *src_stat,
 
   // at first, set the ILI flags on 'src'
   if (vc_set_iattr(src,
-		   0, VC_IATTR_IUNLINK, VC_IATTR_IUNLINK)==-1)
+		   0,
+		   VC_IATTR_IUNLINK|VC_IATTR_IMMUTABLE,
+		   VC_IATTR_IUNLINK|VC_IATTR_IMMUTABLE)==-1)
     return false;
 
   // now, create a temporary filename
