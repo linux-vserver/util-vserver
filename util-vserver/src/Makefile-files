@@ -19,6 +19,7 @@
 
 src_HDRS		=  src/vutil.h src/vutil.p
 
+src_pkglib_SCRPTS	=  src/setattr
 src_pkglib_PRGS		=  src/capchroot \
 			   src/fakerunlevel \
 			   src/filetime \
@@ -56,7 +57,9 @@ src_ifspec_SOURCES		=  src/ifspec.c
 src_listdevip_SOURCES		=  src/listdevip.c
 src_parserpmdump_SOURCES	=  src/parserpmdump.c
 src_readlink_SOURCES		=  src/readlink.c
+
 src_rebootmgr_SOURCES		=  src/rebootmgr.c
+src_rebootmgr_CPPFLAGS		=  $(AM_CPPFLAGS) -DSBINDIR=\"$(sbindir)\"
 
 src_reducecap_SOURCES		=  src/reducecap.c
 src_reducecap_LDADD		=  lib/libvserver.a
@@ -74,6 +77,14 @@ src_vserver_stat_LDADD		=  lib/libvserver.a
 src_vunify_SOURCES		=  src/vunify.cc src/vutil.cc
 src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc
 
+#install-data-hook:		$(DESTDIR)$(pkglibdir)/setattr
+
+#$(DESTDIR)$(pkglibdir)/setattr:
+#				ln -s showattr '$@'
+
+src/setattr$(EXEEXT):		src/showattr$(EXEEXT)
+				@rm -f '$@'
+				ln -s showattr$(EXEEXT) '$@'
 
 ## Local Variables:
 ## compile-command: "make -C .. -k"
