@@ -28,14 +28,15 @@ confdefaultsdir		=  $(confdir)/.defaults
 sbincfgdir		=  $(sbindir)
 legacydir		=  $(pkglibdir)/legacy
 
-include_HEADERS		=  $(lib_HDRS)
-noinst_HEADERS		=  $(src_HDRS) $(lib_XHDRS) \
-			   $(ENSC_VECTOR_HDRS) $(ENSC_VECTOR_XHDRS) \
-			   $(ENSC_WRAPPERS_HDRS) \
-			   compat.h compat-c99.h
+include_HEADERS =	$(lib_HDRS)
+noinst_HEADERS =	$(src_HDRS) $(lib_XHDRS) \
+			$(lib_internal_libinternal_a_XHDRS)
+			$(ENSC_VECTOR_HDRS) $(ENSC_VECTOR_XHDRS) \
+			$(ENSC_WRAPPERS_HDRS) \
+			compat.h compat-c99.h
 
 noinst_LIBRARIES	=  $(src_lib_LIBS) $(ENSC_VECTOR_LIBS)
-lib_LIBRARIES		=  $(lib_lib_LIBS)
+lib_LIBRARIES		=  $(lib_lib_LIBS) $(lib_internal_LIBS)
 lib_LTLIBRARIES		=  $(lib_lib_LTLIBS) $(src_lib_LTLIBS)
 pkglib_LTLIBRARIES	=  $(src_pkglib_LTLIBS)
 
@@ -54,8 +55,9 @@ noinst_DATA		=  $(contrib_DTA) $(doc_DAT)
 initrd_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
 
-DIETPROGS		=  $(src_DIETPROGS) $(tests_DIETPROGS) $(lib_DIETPROGS) \
-			   $(ENSC_VECTOR_LIBS)
+DIETPROGS =		$(src_DIETPROGS) $(tests_DIETPROGS) $(lib_DIETPROGS) \
+			$(lib_internal_DIETPROGS)
+			$(ENSC_VECTOR_LIBS)
 
 BUILT_SOURCES =		linuxcaps.h pathconfig.h linuxvirtual.h
 
@@ -214,6 +216,7 @@ include $(top_srcdir)/sysv/Makefile-files
 include $(top_srcdir)/contrib/Makefile-files
 include $(top_srcdir)/ensc_vector/Makefile-files
 include $(top_srcdir)/ensc_wrappers/Makefile-files
+include $(top_srcdir)/lib_internal/Makefile-files
 
 include $(top_srcdir)/m4/gpgsig.am
 include $(top_srcdir)/m4/validate.am
