@@ -25,8 +25,7 @@
 inline static void *
 Xmemcpy(void * restrict dst, void const * restrict src, size_t len)
 {
-  memcpy(dst, src, len);
-  return (char *)(dst)+len;
+  return (char *)(memcpy(dst, src, len))+len;
 }
 
 #endif	//  H_UTIL_VSERVER_LIB_INTERNAL_UTIL_MEM_H
