@@ -160,10 +160,11 @@ function _generateCapabilityOptions
 function getEnterShell
 {
     local vdir=$1
+    local shell_file
 
     ENTER_SHELL=()
-    
-    getFileValue ENTER_SHELL	 "$vdir"/shell
+
+    getFileValue ENTER_SHELL "$vdir"/shell "$CONFDIR"/.defaults/shell
     
     test "$ENTER_SHELL" || {
 	local i
@@ -356,7 +357,7 @@ function _generateScheduleOptions
     local f="$vdir"/schedule
     test -e "$f" || return 0
 
-    local fill_rate interval tokens tokens_min tokens_max cpu_mask
+    local fill_rate interval tokens tokens_min tokens_max prio_bias
     {
 	{
 	    read fill_rate   && \
@@ -364,18 +365,18 @@ function _generateScheduleOptions
 	    read tokens      && \
 	    read tokens_min  && \
 	    read tokens_max  && \
-	    read cpu_mask    || cpu_mask=
+	    read prio_bias   || prio_bias=
 	} <"$f"
     } 2>/dev/null
 
-    test "$cpu_mask" || {
+    test "$prio_bias" || {
 	echo $"Bad content in '$f'; aborting..." >&2
 	false
     }
 
     OPTS_VSCHED=( --fill-rate  "$fill_rate"  --interval "$interval" \
 		  --tokens     "$tokens"     --tokens_min "$tokens_min" \
-		  --tokens_max "$tokens_max" --cpu_mask "$cpu_mask" )
+		  --tokens_max "$tokens_max" --priority-bias "$prio_bias" )
 }
 
 function _getInterfaceValue
