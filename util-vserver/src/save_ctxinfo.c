@@ -34,7 +34,7 @@
 #include <limits.h>
 
 inline static void
-checkParams(int argc, char *argv[])
+checkParams(int argc, char UNUSED * argv[])
 {
   if (argc<3) {
     WRITE_MSG(2, "Usage:  save_ctxinfo <VSERVER_DIR> <cmd> <args>*\n");
@@ -49,8 +49,8 @@ int main(int argc, char *argv[])
   int		fd;
   char		buf[32];
   ctx_t		ctx;
-  size_t	len;
-  size_t	len1 = strlen(argv[1]);
+  ssize_t	len;
+  ssize_t	len1 = strlen(argv[1]);
 
   strcpy(runfile,      argv[1]);
   strcpy(runfile+len1, "/run");
