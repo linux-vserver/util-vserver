@@ -39,6 +39,7 @@ vkill
 vlimit
 vps
 vreboot
+vrsetup
 vserver-info
 vserver-stat
 vunify
