@@ -74,6 +74,24 @@ struct  vcmd_set_sched_v2 {
 	uint64_t cpu_mask;
 };
 
+struct  vcmd_set_sched_v3 {
+        uint32_t set_mask;
+        int32_t fill_rate;
+        int32_t interval;
+        int32_t tokens;
+        int32_t tokens_min;
+        int32_t tokens_max;
+        int32_t priority_bias;
+};
+
+#define VXSM_FILL_RATE          0x0001
+#define VXSM_INTERVAL           0x0002
+#define VXSM_TOKENS             0x0010
+#define VXSM_TOKENS_MIN         0x0020
+#define VXSM_TOKENS_MAX         0x0030
+#define VXSM_PRIO_BIAS          0x0100
+
+
 #define SCHED_KEEP		(-2)
 
 #ifdef	__KERNEL__
