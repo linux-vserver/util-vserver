@@ -137,7 +137,7 @@ function setup_setDefaults
 function setup_writeOption
 {
     local name=$1
-    local cfgdir=$SETUP_CONFDIR
+    local cfgdir=${SETUP_CONFDIR:?}
     local i
 
     mkdir -p "$cfgdir"/interfaces "$cfgdir"/apps/init "$cfgdir"/uts
@@ -166,7 +166,7 @@ function setup_writeOption
 
 function setup_writeInitialFstab
 {
-    cat "$SETUP_FSTAB" >"$SETUP_CONFDIR"/fstab
+    cat "${SETUP_FSTAB:?}" >"${SETUP_CONFDIR:?}"/fstab
 }
 
 function setup_test
