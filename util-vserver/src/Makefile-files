@@ -86,6 +86,7 @@ noinst_HEADERS +=	src/vutil.h src/vutil.p \
 			src/vunify.h \
 			src/vunify-init.hc \
 			src/vserver-visitdir.hc \
+			src/context-sync.hc \
 			src/vserver.hh
 
 pkglib_PROGRAMS +=	src/capchroot \
