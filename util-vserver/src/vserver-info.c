@@ -180,7 +180,7 @@ getInitPid(char *buf, xid_t xid)
   
   if (vc_get_vx_info(xid, &info)==-1) perror("vc_get_vx_info()");
   else {
-    utilvserver_fmt_long(buf, info.xid);
+    utilvserver_fmt_long(buf, info.initpid);
     return buf;
   }
 
@@ -197,7 +197,7 @@ getInitPidPid(char *buf, char const *vserver)
   if (xid==VC_NOCTX) perror("vc_get_task_xid()");
   else if (vc_get_vx_info(xid, &info)==-1) perror("vc_get_vx_info()");
   else {
-    utilvserver_fmt_long(buf, info.xid);
+    utilvserver_fmt_long(buf, info.initpid);
     return buf;
   }
 
