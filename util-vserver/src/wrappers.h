@@ -181,6 +181,12 @@ Esymlink(const char *oldpath, const char *newpath)
   FatalErrnoError(symlink(oldpath, newpath)==-1, "symlink()");
 }
 
+inline static WRAPPER_DECL void
+Eunlink(char const *pathname)
+{
+  FatalErrnoError(unlink(pathname)==-1, "unlink()");
+}
+
 #undef WRAPPER_DECL
 
 #endif	//  H_UTIL_VSERVER_SRC_WRAPPERS_H
