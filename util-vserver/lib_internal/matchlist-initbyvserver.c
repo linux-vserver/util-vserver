@@ -29,16 +29,17 @@
 
 
 bool
-MatchList_initByVserver(struct MatchList *list, char const *vserver,
+MatchList_initByVserver(struct MatchList *list,
+			struct MatchVserverInfo const *vserver,
 			char const **res_appdir)
 {
   vcCfgStyle	style;
   char const	*vdir;
   char const 	*appdir;
 
-  style  = vc_getVserverCfgStyle(vserver);
-  vdir   = vc_getVserverVdir(  vserver, style, true);
-  appdir = vc_getVserverAppDir(vserver, style, "vunify");
+  style  = vc_getVserverCfgStyle(vserver->name);
+  vdir   = vc_getVserverVdir(  vserver->name, style, true);
+  appdir = vc_getVserverAppDir(vserver->name, style, "vunify");
 
   if (vdir==0 || appdir==0) {
     free((char *)appdir);

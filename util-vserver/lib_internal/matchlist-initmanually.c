@@ -146,7 +146,8 @@ getConfigfileList(char const *vserver,
 }
 
 void
-MatchList_initManually(struct MatchList *list, char const *vserver,
+MatchList_initManually(struct MatchList *list,
+		       struct MatchVserverInfo const *vserver,
 		       char const *vdir, char const *exclude_file)
 {
   char			*buf[2] = { 0,0 };
@@ -162,15 +163,15 @@ MatchList_initManually(struct MatchList *list, char const *vserver,
     WRITE_STR(1, vdir);
     if (vserver!=0) {
       WRITE_MSG(1, " (");
-      WRITE_STR(1, vserver);
+      WRITE_STR(1, vserver->name);
       WRITE_MSG(1, ")");
     }
     WRITE_MSG(1, "\n");
   }
-  if (vserver && Global_doRenew()) {
+  if (vserver && vserver->use_pkgmgmt && Global_doRenew()) {
     if (Global_getVerbosity()>=2)
       WRITE_MSG(1, "  Fetching configuration-file list from packagemanagement\n");
-    getConfigfileList(vserver, &fixed_files, &fixed_count, buf+0);
+    getConfigfileList(vserver->name, &fixed_files, &fixed_count, buf+0);
   }
 
   // abuse special values (NULL, empty string) to skip the next step

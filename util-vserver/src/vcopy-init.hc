@@ -68,22 +68,25 @@ initModeManually(int argc, char *argv[])
 static void
 initModeVserver(int argc, char *argv[])
 {
-  int		count=argc;
+  int					count       = argc;
+  struct MatchVserverInfo const		src_vserver = { argv[1], true  };
+  struct MatchVserverInfo const		dst_vserver = { argv[0], false };
+  
 
   if (count!=2) {
     WRITE_MSG(2, "Bad arguments; try '--help' for more information\n");
     exit(1);
   }
 
-  if (!MatchList_initByVserver(&global_info.src_list, argv[1], 0)) {
+  if (!MatchList_initByVserver(&global_info.src_list, &src_vserver, 0)) {
     WRITE_MSG(2, "unification not configured for source vserver\n");
     exit(1);
   }
 
   if (!global_args->is_strict)
-    createSkeleton(argv[0]);
+    createSkeleton(dst_vserver.name);
 
-  if (!MatchList_initByVserver(&global_info.dst_list, argv[0], 0)) {
+  if (!MatchList_initByVserver(&global_info.dst_list, &dst_vserver, 0)) {
     WRITE_MSG(2, "unification not configured for destination vserver\n");
     exit(1);
   }

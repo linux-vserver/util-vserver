@@ -61,14 +61,15 @@ MatchList_initRefserverList(struct MatchList **lst, size_t *cnt,
   *lst = Emalloc(sizeof(struct MatchList) * count);
   *cnt = count;
   for (i=0; i<count; ++i) {
-    char const 		*tmp   = entries[i]->d_name;
-    size_t		l      = strlen(tmp);
-    char		vname[sizeof("./") + l];
+    char const 			*tmp   = entries[i]->d_name;
+    size_t			l      = strlen(tmp);
+    char			vname[sizeof("./") + l];
+    struct MatchVserverInfo	vserver = { vname, true };
 
     memcpy(vname,   "./", 2);
     memcpy(vname+2, tmp,  l+1);
     
-    if (!MatchList_initByVserver((*lst)+i, vname, 0)) {
+    if (!MatchList_initByVserver((*lst)+i, &vserver, 0)) {
       WRITE_MSG(2, "unification for reference vserver not configured\n");
       exit(1);
     }
