@@ -124,7 +124,7 @@ showAll(int ctx)
 
   if (vc_get_rlimit_mask(-2, &mask)==-1) {
     perror("vc_get_rlimit_mask()");
-    //exit(1);
+    exit(1);
   }
 
   for (i=0; i<32; ++i) {
@@ -134,7 +134,7 @@ showAll(int ctx)
     
     if (vc_get_rlimit(ctx, i, &limit)==-1) {
       perror("vc_get_rlimit()");
-      //continue;
+      continue;
     }
 
     memset(buf, ' ', sizeof buf);
@@ -147,7 +147,7 @@ showAll(int ctx)
 
     *ptr++ = '\n';
     write(1, buf, ptr-buf);
- }
+  }
 }
 
 static void
