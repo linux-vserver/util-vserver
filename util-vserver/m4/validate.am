@@ -26,4 +26,4 @@ distclean-uptodate:
 .%-up-to-date:
 			@rm -f  .*-up-to-date
 			@touch -t 197001020000 '$@'
-			@$(MAKE)  clean
+			@$(MAKE) -s clean $(BUILT_SOURCES)
