@@ -17,7 +17,7 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-src_HDRS		=  src/vutil.h src/vutil.p
+src_HDRS		=  src/vutil.h src/vutil.p src/util.h
 
 src_pkglib_PRGS		=  src/capchroot \
 			   src/fakerunlevel \
@@ -31,7 +31,9 @@ src_pkglib_PRGS		=  src/capchroot \
 			   src/vbuild \
 			   src/vcheck \
 			   src/vreboot \
-			   src/vunify
+			   src/secure-mount \
+			   src/vunify \
+			   src/rpm-fake.so
 
 src_sbin_PRGS		=  src/chbind \
 			   src/chcontext \
@@ -40,6 +42,7 @@ src_sbin_PRGS		=  src/chbind \
 			   src/setctxlimit \
 			   src/vdu \
 			   src/vfiles \
+			   src/new-namespace \
 			   src/vserver-stat
 
 src_capchroot_SOURCES		=  src/capchroot.c
@@ -71,6 +74,11 @@ src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc
 src_vdu_SOURCES			=  src/vdu.c
 src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc
 src_vreboot_SOURCES		=  src/vreboot.c
+src_new_namespace_SOURCES	=  src/new-namespace.c
+src_secure_mount_SOURCES	=  src/secure-mount.c
+
+src_rpm_fake_so_SOURCES		=  src/rpm-fake.c
+src_rpm_fake_so_LDFLAGS		=  -fpic -ldl -shared
 
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
 src_vserver_stat_LDADD		=  lib/libvserver.a
@@ -78,6 +86,11 @@ src_vserver_stat_LDADD		=  lib/libvserver.a
 src_vunify_SOURCES		=  src/vunify.cc src/vutil.cc
 src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc
 
+if USE_DIETLIBC
+src/new-namespace$(EXEEXT) src/new-namespace$(OBJEXT)	\
+src/secure-mount$(EXEEXT)  src/secure-mount$(OBJEXT)	\
+		:		CC=$(DIET_CC)
+endif
 
 ## Local Variables:
 ## compile-command: "make -C .. -k"
