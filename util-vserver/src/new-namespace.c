@@ -37,6 +37,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <libgen.h>
+#include <errno.h>
 
 #define ENSC_WRAPPERS_PREFIX	"new-namespace: "
 #define ENSC_WRAPPERS_WAIT	1
