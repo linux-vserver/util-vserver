@@ -34,7 +34,6 @@ src_OPTIONS_EXEMPT	=  src/parserpmdump \
 			   src/filetime \
 			   src/ifspec \
 			   src/chbind \
-			   src/chcontext \
 			   src/rebootmgr \
 			   src/reducecap \
 			   src/vlimit \
@@ -45,6 +44,7 @@ src_OPTIONS_EXEMPT	=  src/parserpmdump \
 
 
 src_DIETPROGS =		src/new-namespace \
+			src/chcontext \
 	     		src/secure-mount \
 	     		src/save_ctxinfo \
 	     		src/mask2prefix \
@@ -133,7 +133,7 @@ src_chbind_SOURCES		=  src/chbind.c
 src_chbind_LDADD		=  lib/libvserver.la
 src_chbind_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
-src_chcontext_SOURCES		=  src/chcontext.c
+src_chcontext_SOURCES		=  src/chcontext.c src/util-exitlikeprocess.c
 src_chcontext_LDADD		=  lib/libvserver.la
 src_chcontext_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
