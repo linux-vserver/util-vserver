@@ -17,13 +17,15 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-test_PRGS		=  tests/chrootsafe \
-			   tests/escaperoot \
-			   tests/forkbomb \
-			   tests/testipc \
-			   tests/testlimit \
-			   tests/testopenf \
-			   tests/getctx
+tests_DIETPROGS			=  tests/getctx tests/getinitpid
+
+test_PRGS			=  tests/chrootsafe \
+				   tests/escaperoot \
+				   tests/forkbomb \
+				   tests/testipc \
+				   tests/testlimit \
+				   tests/testopenf \
+				   $(tests_DIETPROGS)
 
 tests_chrootsafe_SOURCES	=  tests/chrootsafe.cc
 tests_chrootsafe_LDADD		=  lib/libvserver.a
@@ -37,7 +39,6 @@ tests_testopenf_SOURCES		=  tests/testopenf.cc
 tests_getctx_SOURCES		=  tests/getctx.c
 tests_getctx_LDADD		=  lib/libvserver.a
 
-if USE_DIETLIBC
-tests/getctx$(EXEEXT) tests/getctx$(OBJEXT) \
-			:	CC=$(DIET_CC)
-endif
+tests_getinitpid_SOURCES	=  tests/getinitpid.c
+tests_getinitpid_LDADD		=  lib/libvserver.a
+
