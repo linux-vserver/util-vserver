@@ -54,6 +54,17 @@
 	    <default>/vservers/.pkg</default>
 	  </symlink>
 	</dir>
+
+	<dir name="debootstrap" type="fixed">
+	  <file name="mirror">
+	    <description>The Debian mirror which is used for 'debootstrap'.</description>
+	  </file>
+
+	  <file name="uri">
+	    <description>When the 'debootstrap' package is not installed; fetch it from this uri and
+	    install it at a temporary place.</description>
+	  </file>
+	</dir>
       </dir>
     </dir>
 
