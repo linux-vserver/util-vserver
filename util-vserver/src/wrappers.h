@@ -219,6 +219,14 @@ Esetgroups(size_t size, const gid_t *list)
   FatalErrnoError(setgroups(size, list)==-1, "setgroups()");
 }
 
+inline static WRAPPER_DECL int
+Edup2(int oldfd, int newfd)
+{
+  register int          res = dup2(oldfd, newfd);
+  FatalErrnoError(res==-1, "dup2()");
+
+  return res;
+}
 
 #undef WRAPPER_DECL
 
