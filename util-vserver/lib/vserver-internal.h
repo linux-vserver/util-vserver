@@ -157,7 +157,7 @@
 #define EXT2_IOC_SETCONTEXT		_IOW('x', 2, long)
 
 #ifndef HAVE_VSERVER
-#if defined(__pic__) && defined(__i386)
+#ifdef ENSC_SYSCALL_TRADITIONAL
 inline static UNUSED ALWAYSINLINE
 int vserver(uint32_t cmd, uint32_t id, void *data)
 {
