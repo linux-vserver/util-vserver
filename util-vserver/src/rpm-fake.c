@@ -40,6 +40,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#ifndef CLONE_NEWNS
+#  define CLONE_NEWNS	0x00020000
+#endif
+
 #define LIBNAME		"rpm-fake.so"
 #define PLATFORM_FILE	"/etc/rpm/platform"
 
@@ -175,21 +179,21 @@ removeNamespaceMounts(char const *path, char * const argv[])
   if (mnts==0) return execvWorker(path, argv);
 
   {
-    char	buf[512 + 2*strlen(mnts)];
-    int		status;
-    pid_t	p;
-    struct ExecvParams		params = {
-      .path = path,
-      .argv = argv,
-      .mnts = mnts,
-    };
+    char			buf[512 + 2*strlen(mnts)];
+    int				status;
+    pid_t			p, pid;
+    struct ExecvParams		params;
+
+    params.path = path;
+    params.argv = argv;
+    params.mnts = mnts;
 
       // the rpmlib signal-handler is still active; use the default one to
       // make wait4() working...
     signal(SIGCHLD, SIG_DFL);
 
-    pid_t	pid = clone(removeNamespaceMountsChild, buf+sizeof(buf)/2,
-			    CLONE_NEWNS|SIGCHLD|CLONE_VFORK, &params);
+    pid = clone(removeNamespaceMountsChild, buf+sizeof(buf)/2,
+		CLONE_NEWNS|SIGCHLD|CLONE_VFORK, &params);
 
     if (pid==-1) return -1;
     while ((p=wait4(pid, &status, 0,0))==-1 &&
