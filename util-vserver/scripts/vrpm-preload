@@ -36,7 +36,7 @@ test -d "$vdir" || {
     echo $"Can not find chroot environment at '$vdir' for '$CUR_VSERVER'" >&2
     exit 1
 }
-for bin in `which rpm` /bin/rpm /usr/lib/rpm/rpmi ""; do
+for bin in `which rpm` /bin/rpm /usr/lib/rpm/rpm${RPM_FLAVOR:-i} ""; do
     ldd "$bin" &>/dev/null && break
 done
 
