@@ -406,9 +406,12 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
     return false;
 
   if (mnt->flag & (MS_BIND|MS_MOVE)) {
+    unsigned long	flag = mnt->flag;
+    if ((flag & MS_NODEV)==0) flag |= MS_NODEV;
+    
     if (mount(mnt->src, ".",
 	      mnt->type ? mnt->type : "",
-	      mnt->flag,  mnt->data)==-1) {
+	      flag,  mnt->data)==-1) {
       perror("secure-mount: mount()");
       return false;
     }
@@ -490,12 +493,14 @@ static enum {prDOIT, prFAIL, prIGNORE}
   info->data = buf;
   MOVE_TO_NEXT_FIELD(buf, true);
 
-  if (strcmp(info->type, "swap")==0) return prIGNORE;
-  if (strcmp(info->type, "none")==0) info->type = 0;
-
   info->flag  = MS_NODEV;
   info->mask  = 0;
   info->xflag = 0;
+
+  if      (strcmp(info->type, "swap")  ==0) return prIGNORE;
+  else if (strcmp(info->type, "none")  ==0) info->type  = 0;
+  else if (strcmp(info->type, "devpts")==0) info->mask |= MS_NODEV;
+
   if (col) *col = err_col;
   if (!transformOptionList(info,col)) return prFAIL;
   if (info->xflag & XFLAG_NOAUTO)     return prIGNORE;
