@@ -66,7 +66,7 @@ checkTrunc(char const *src,
     char		c;
     
     Erecv(sync_p[0], &c, 1, 0);
-    truncate(src, pos);
+    Etruncate(src, pos);
     Esend(sync_p[0], &c, 1, 0);
     exit(0);
   }
