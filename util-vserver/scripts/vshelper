@@ -52,7 +52,7 @@ function doInternalMethod
     case "$method" in
 	(restart)
 	    case "$ACTION" in
-		(restart*)
+		(restart)
 		    logging $"Restarting vserver '$VSERVER'"
 		    execute $_VSERVER "$VSERVER" restart
 		    ;;
@@ -63,6 +63,8 @@ function doInternalMethod
 		(swsusp)
 		    ## TODO: any senseful action here? Perhaps shutdown scheduler for it?
 		    exit 0
+		    ;;
+		(restart2)	;;
 		(*)
 		    warning $"Unknown action '$ACTION' for vserver '$VSERVER'"
 		    exit 1
@@ -111,6 +113,15 @@ function doDefaultMethod
 
 #===========
 
+if ! tty -s; then
+    findFile _VS_LOGFILE "$CONFDIR"/.defaults/apps/vshelper/logfile /dev/null
+    findFile _VS_ERRFILE "$CONFDIR"/.defaults/apps/vshelper/logfile /dev/null
+
+    exec  >>$_VS_LOGFILE
+    exec 2>>$_VS_ERRFILE
+fi
+    
+logging "$(date): vshelper $*"
 
 test "$1" != '--version' || showVersion
 test "$1" != '--help'    || showHelp
@@ -118,7 +129,6 @@ test "$#" -ge 2 ||
     panic $"vshelper called with missing arguments; try '--help' for more information"
 
 vshelper.isEnabled || exit 0
-logging "$(date): vshelper $*"
     
 set -eu
 
