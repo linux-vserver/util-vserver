@@ -82,3 +82,29 @@ Evc_set_ccaps(xid_t xid, struct vc_ctx_caps const *caps)
 {
   FatalErrnoError(vc_set_ccaps(xid, caps)==-1, "vc_set_ccaps()");
 }
+
+inline static WRAPPER_DECL xid_t
+Evc_xidopt2xid(char const *id, bool honor_static)
+{
+  char const *	err;
+  xid_t		rc = vc_xidopt2xid(id, honor_static, &err);
+  if (__builtin_expect(rc==VC_NOCTX,0)) {
+    ENSC_DETAIL1(msg, "vc_xidopt2xid", id, 1);
+#if 1
+    FatalErrnoErrorFail(msg);
+#else
+    {
+      size_t	l1 = strlen(msg);
+      size_t	l2 = strlen(err);
+      char	buf[l1 + l2 + sizeof(": ")];
+      memcpy(buf,       msg, l1);
+      memcpy(buf+l1,   ": ", 2);
+      memcpy(buf+l1+2,  err, l2+1);
+
+      FatalErrnoErrorFail(buf);
+    }
+#endif    
+  }
+
+  return rc;
+}
