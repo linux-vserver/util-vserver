@@ -29,15 +29,23 @@ vc_get_iattr_compat_fscompat(char const *filename,
 			     dev_t dev, ino_t ino,
 			     xid_t    * /*@null@*/ xid,
 			     uint32_t * /*@null@*/ flags,
-			     uint32_t * mask)
+			     uint32_t * mask,
+			     mode_t const *mode)
 {
-  int			fd = open(filename, O_RDONLY);
   struct stat		st;
   int			stat_rc;
+  int			fd;
   int			old_mask = *mask;
-    
-  if (fd==-1) return -1;
+
   *mask = 0;
+
+  if (mode!=0) st.st_mode = *mode;
+  else if (lstat(filename, &st)==-1) return -1;
+
+  if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode)) return 0;
+
+  fd = open(filename, O_RDONLY);
+  if (fd==-1) return -1;
 
   stat_rc = fstat(fd, &st);
   if (stat_rc==-1) goto err;

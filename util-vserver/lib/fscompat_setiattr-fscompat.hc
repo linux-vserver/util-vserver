@@ -28,12 +28,17 @@
 static inline ALWAYSINLINE int
 vc_set_iattr_compat_fscompat(char const *filename,
 			     dev_t dev, ino_t ino, xid_t xid,
-			     uint32_t flags, uint32_t mask)
+			     uint32_t flags, uint32_t mask,
+			     mode_t const *mode)
 {
-  int			fd = open(filename, O_RDONLY);
+  int			fd;
   struct stat		st;
   int			stat_rc;
-    
+
+  if (mode!=0) st.st_mode = *mode;
+  if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode)) return 0;
+  
+  fd = open(filename, O_RDONLY);
   if (fd==-1) return -1;
     
   stat_rc = fstat(fd, &st);
