@@ -28,7 +28,6 @@ test -e "$UTIL_VSERVER_VARS" || {
 
 USR_SBIN=$SBINDIR
 USR_LIB_VSERVER=$PKGLIBDIR
-VSERVERKILLALL_CMD=$LEGACYDIR/vserverkillall
 DEFAULTPATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin
 
 vserver_mknod(){
@@ -55,7 +54,7 @@ umountproc()
 testperm()
 {
 	return
-	PERM=`$USR_LIB_VSERVER/showperm $DEFAULT_VSERVERDIR/$1/..`
+	PERM=`$_SHOWPERM $DEFAULT_VSERVERDIR/$1/..`
 	if [ "$PERM" != 000 ] ; then
 		echo
 		echo "**********************************************************"
@@ -96,7 +95,7 @@ ifconfig_iproot()
 			case $oneip in
 			*/*)
 				eval `echo $oneip | tr / ' ' | (read ip msk; echo oneip=$ip; echo MASK=$msk)`
-				eval `$USR_LIB_VSERVER/ifspec "" "$oneip" "$MASK" "$BCAST"`
+				eval `$_IFSPEC "" "$oneip" "$MASK" "$BCAST"`
 				;;
 			esac
 			if [ "$IPDEV" != "" ] ; then
@@ -110,7 +109,7 @@ ifconfig_iproot()
 					;;
 				esac
 				# Compute the default netmask, if missing
-				eval `$USR_LIB_VSERVER/ifspec $IPDEV "$oneip" "$MASK" "$BCAST"`
+				eval `$_IFSPEC $IPDEV "$oneip" "$MASK" "$BCAST"`
 				IPROOTMASK=$NETMASK
 				IPROOTBCAST=$BCAST
 				#echo /sbin/ifconfig $IPDEV:$1$SUFFIX $oneip netmask $IPROOTMASK broadcast $IPROOTBCAST
@@ -158,7 +157,7 @@ setipopt(){
 		IPS=0.0.0.0
 	fi
 	if [ "$1" = "ALL" ] ; then
-		IPS=`$USR_LIB_VSERVER/listdevip`
+		IPS=`$_LISTDEVIP`
 	fi
 	for oneip in $IPS
 	do
@@ -187,14 +186,14 @@ get_initdefault()
 # found in /var/run/vservers
 readlastconf()
 {
-	if [ -f /var/run/vservers/$1.ctx ] ; then
-		. /var/run/vservers/$1.ctx
+	if [ -f $PKGSTATEDIR/$1.ctx ] ; then
+		. $PKGSTATEDIR/$1.ctx
 		if [ "$S_PROFILE" != "" ] ; then
 			export PROFILE=$S_PROFILE
 		fi
 	fi
 	export PROFILE
-	. /etc/vservers/$1.conf
+	. $CONFDIR/$1.conf
 }
 usage()
 {
@@ -338,17 +337,17 @@ elif [ "$2" = "build" ] ; then
 		echo /dev/hdv1 / ext2 defaults 1 1 >etc/fstab
 		echo /dev/hdv1 / ext2 rw 0 0 >etc/mtab
 		# Install the vreboot utility
-		cp -a $USR_LIB_VSERVER/vreboot sbin/.
+		cp -a "$_VREBOOT" sbin/.
 		ln -sf vreboot sbin/vhalt
 
 		echo Directory $DEFAULT_VSERVERDIR/$1 has been populated
-		if [ ! -d /etc/vservers ] ; then
-			mkdir /etc/vservers
-			chmod 600 /etc/vservers
-			echo Directory /etc/vservers has been created
+		if [ ! -d $CONFDIR ] ; then
+			mkdir $CONFDIR
+			chmod 600 $CONFDIR
+			echo Directory $CONFDIR has been created
 		fi
-		if [ ! -f /etc/vservers/$1.conf ] ; then
-			CONF=/etc/vservers/$1.conf
+		if [ ! -f $CONFDIR/$1.conf ] ; then
+			CONF=$CONFDIR/$1.conf
 			cat >$CONF <<-EOF
 if [ "$PROFILE" = "" ] ; then
 	PROFILE=prod
@@ -423,8 +422,8 @@ S_CAPS=""
 			echo $CONF has been created. Look at it\!
 		fi
 	fi
-elif [ ! -f /etc/vservers/$1.conf ] ; then
-	echo No configuration for this vserver: /etc/vservers/$1.conf
+elif [ ! -f $CONFDIR/$1.conf ] ; then
+	echo No configuration for this vserver: $CONFDIR/$1.conf
 	exit 1
 elif [ ! -d $DEFAULT_VSERVERDIR/$1/. ] ; then
 	echo No directory for this vserver: $DEFAULT_VSERVERDIR/$1
@@ -434,14 +433,14 @@ elif [ "$2" = "start" ] ; then
 	testperm $1
 	if ! $0 $1 running
 	then
-		test -x /etc/vservers/$1.sh && /etc/vservers/$1.sh pre-start $1
+		test -x $CONFDIR/$1.sh && $CONFDIR/$1.sh pre-start $1
 		IPROOT=
 		IPROOTMASK=
 		IPROOTBCAST=
 		IPROOTDEV=
 		S_NICE=
 		S_FLAGS=
-		. /etc/vservers/$1.conf
+		. $CONFDIR/$1.conf
 		export PROFILE
 		ifconfig_iproot $1
 		cd $DEFAULT_VSERVERDIR/$1 || exit 1
@@ -517,8 +516,8 @@ elif [ "$2" = "start" ] ; then
 		if [ "$S_NICE" != "" ] ; then
 			NICECMD="nice -$S_NICE"
 		fi
-		mkdir -p /var/run/vservers
-		chmod 700 /var/run/vservers
+		mkdir -p $PKGSTATEDIR
+		chmod 700 $PKGSTATEDIR
 		setdefulimit
 		if [ "$ULIMIT" != "" ] ; then
 			ulimit $ULIMIT
@@ -532,17 +531,17 @@ elif [ "$2" = "start" ] ; then
 		export PATH=$DEFAULTPATH
 		$NICECMD $_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
 			$_CHCONTEXT_COMPAT $SILENT $DISCONNECT $CAPS $FLAGS $CTXOPT $HOSTOPT $DOMAINOPT --secure \
-			$_SAVE_S_CONTEXT /var/run/vservers/$1.ctx \
+			$_SAVE_S_CONTEXT $PKGSTATEDIR/$1.ctx \
 			$_CAPCHROOT $CHROOTOPT . $STARTCMD
 		sleep 2
-		test -x /etc/vservers/$1.sh && /etc/vservers/$1.sh post-start $1
+		test -x $CONFDIR/$1.sh && $CONFDIR/$1.sh post-start $1
 	fi
 elif [ "$2" = "running" ] ; then
-	if [ ! -f /var/run/vservers/$1.ctx ] ; then
+	if [ ! -f $PKGSTATEDIR/$1.ctx ] ; then
 		echo Server $1 is not running
 		exit 1
 	else
-		. /var/run/vservers/$1.ctx
+		. $PKGSTATEDIR/$1.ctx
 		NB=$($USR_SBIN/vps ax | awk '{print $2}' | grep \^$S_CONTEXT\$ | wc -l)
 		#NB=`$_CHCONTEXT_COMPAT --silent --ctx $S_CONTEXT ps ax | wc -l`
 		#NB=`eval expr $NB + 0`
@@ -557,10 +556,10 @@ elif [ "$2" = "running" ] ; then
 elif [ "$2" = "status" ] ; then
 	if $0 $1 running
 	then
-		. /var/run/vservers/$1.ctx
+		. $PKGSTATEDIR/$1.ctx
 		NB=$($USR_SBIN/vps ax | awk '{print $2}' | grep \^$S_CONTEXT\$ | wc -l)
 		echo $NB processes running
-		echo Vserver uptime: `$USR_LIB_VSERVER/filetime /var/run/vservers/$1.ctx`
+		echo Vserver uptime: `$USR_LIB_VSERVER/filetime $PKGSTATEDIR/$1.ctx`
 	fi
 elif [ "$2" = "stop" ] ; then
 	echo Stopping the virtual server $1
@@ -573,7 +572,7 @@ elif [ "$2" = "stop" ] ; then
 	readlastconf $1
 	if $0 $1 running
 	then
-		test -x /etc/vservers/$1.sh && /etc/vservers/$1.sh pre-stop $1
+		test -x $CONFDIR/$1.sh && $CONFDIR/$1.sh pre-stop $1
 		ifconfig_iproot $1
 		cd $DEFAULT_VSERVERDIR/$1
 		mountproc $DEFAULT_VSERVERDIR/$1
@@ -628,13 +627,13 @@ elif [ "$2" = "stop" ] ; then
 		echo Killing all processes
 		$_CHBIND --silent $IPOPT --bcast $IPROOTBCAST \
 			$_CHCONTEXT_COMPAT $CAPS --secure --silent --ctx $S_CONTEXT \
-			$VSERVERKILLALL_CMD
+			$_VSERVERKILLALL
 	fi
 	# We umount anyway, because "enter" establish the mount
 	# but when you exit, the server is considered not running
 	umountproc $DEFAULT_VSERVERDIR/$1
 	cd /
-	test -x /etc/vservers/$1.sh && /etc/vservers/$1.sh post-stop $1
+	test -x $CONFDIR/$1.sh && $CONFDIR/$1.sh post-stop $1
 	ifconfig_iproot_off $1
 elif [ "$2" = "restart" ] ; then
 	if $0 $1 running
@@ -657,7 +656,7 @@ elif [ "$2" = "suexec" ] ; then
 		IPROOTBCAST=
 		IPROOTDEV=
 		readlastconf $1
-		. /etc/vservers/$1.conf
+		. $CONFDIR/$1.conf
 		cd $DEFAULT_VSERVERDIR/$1
 		ifconfig_iproot $1
 		mountproc $DEFAULT_VSERVERDIR/$1
@@ -701,7 +700,7 @@ elif [ "$2" = "suexec" ] ; then
 		fi
 		if $0 $VSERVER running >/dev/null
 		then
-			. /var/run/vservers/$VSERVER.ctx
+			. $PKGSTATEDIR/$VSERVER.ctx
 			cd $DEFAULT_VSERVERDIR/$VSERVER
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
@@ -709,7 +708,7 @@ elif [ "$2" = "suexec" ] ; then
 				$_CHCONTEXT_COMPAT $SILENT $FLAGS $CAPS --secure --ctx $S_CONTEXT \
 				$_CAPCHROOT --suid $USERID . "$@"
 		else
-			test -x /etc/vservers/$1.sh && /etc/vservers/$1.sh pre-start $1
+			test -x $CONFDIR/$1.sh && $CONFDIR/$1.sh pre-start $1
 			CTXOPT=
 			HOSTOPT=
 			DOMAINOPT=
@@ -723,13 +722,13 @@ elif [ "$2" = "suexec" ] ; then
 			if [ "$S_DOMAINNAME" != "" ] ; then
 				DOMAINOPT="--domainname $S_DOMAINNAME"
 			fi
-			mkdir -p /var/run/vservers
+			mkdir -p $PKGSTATEDIR
 			cd $DEFAULT_VSERVERDIR/$VSERVER
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
 			exec $_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
 				$_CHCONTEXT_COMPAT $SILENT $FLAGS $CAPS --secure $CTXOPT $HOSTOPT $DOMAINOPT \
-				$_SAVE_S_CONTEXT /var/run/vservers/$VSERVER.ctx \
+				$_SAVE_S_CONTEXT $PKGSTATEDIR/$VSERVER.ctx \
 				$_CAPCHROOT --suid $USERID $CHROOTOPT . "$@"
 		fi
 	fi
