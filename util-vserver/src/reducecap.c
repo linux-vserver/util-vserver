@@ -17,6 +17,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+#include "compat.h"
+
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
@@ -218,7 +223,7 @@ int main (int argc, char *argv[])
 			if (show){
 				reducecap_print (&user);
 			}
-			if (call_new_s_context(0,NULL,remove,flags)==-1){
+			if (vc_new_s_context(-2,remove,flags)==-1){
 				perror ("new_s_context -2");
 			}else{
 				fprintf (stderr,"Executing\n");

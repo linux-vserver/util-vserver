@@ -16,47 +16,21 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
+#ifndef H_UTIL_VSERVER_LIB_GETVERSION_INTERNAL_H
+#define H_UTIL_VSERVER_LIB_GETVERSION_INTERNAL_H
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
 #include "compat.h"
 
-#include "vserver.h"
 #include "vserver-internal.h"
 #include "linuxvirtual.h"
 
-#ifdef VC_ENABLE_API_COMPAT    
-#  include "syscall-compat.hc"
-#endif
-
-#ifdef VC_ENABLE_API_LEGACY
-#  include "syscall-legacy.hc"
-#endif
-
-#include <stdbool.h>
-#include <errno.h>
-
-#if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
-
-int
-vc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
+static inline ALWAYSINLINE int
+vc_get_version_internal(int cat)
 {
-  CALL_VC(CALL_VC_COMPAT(vc_new_s_context, ctx, remove_cap, flags),
-	  CALL_VC_LEGACY(vc_new_s_context, ctx, remove_cap, flags));
+  return sys_virtual_context(VC_CMD(VERSION, 0, 0), cat, 0);
 }
 
-int
-vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips)
-{
-  CALL_VC(CALL_VC_COMPAT(vc_set_ipv4root, bcast, nb, ips),
-	  CALL_VC_LEGACY(vc_set_ipv4root, bcast, nb, ips));
-}
-
-int
-vc_chrootsafe(char const *dir)
-{
-  CALL_VC(CALL_VC_COMPAT(vc_chrootsafe, dir),
-	  CALL_VC_LEGACY(vc_chrootsafe, dir));
-}
-
-#endif
+#endif	//  H_UTIL_VSERVER_LIB_GETVERSION_INTERNAL_H

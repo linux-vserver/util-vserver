@@ -37,6 +37,11 @@
 	The vreboot utility is used to send the signal from the vserver
 	environment.
 */
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
+#include "compat.h"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -197,7 +202,7 @@ int main (int argc, char *argv[])
 						int fd = sockets[i];
 						if (FD_ISSET(fd,&fdin)){
 							struct sockaddr_un unc;
-							size_t len = sizeof(unc);
+							socklen_t len = sizeof(unc);
 							unc.sun_family = AF_UNIX;
 							fd = accept (fd,(struct sockaddr*)&unc,&len);
 							if (fd != -1){

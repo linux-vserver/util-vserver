@@ -46,7 +46,7 @@ sysv_CFG		=  sysv/vservers.conf
 
 sysv/%:			sysv/%.subst
 			@mkdir -p $$(dirname '$@')
-			sed -s 's!/usr/lib/util-vserver!$(pkglibdir)!g; \
+			sed -e 's!/usr/lib/util-vserver!$(pkglibdir)!g; \
 				s!^USR_SBIN=/usr/sbin$$!USR_SBIN=$(sbindir)!g' '$<' >'$@.tmp'
 			if cmp -s '$<' '$@.tmp'; then \
 				cp -p '$<' '$@'; \
