@@ -32,13 +32,14 @@
 
 bool
 Unify_unify(char const *src, struct stat const UNUSED *src_stat,
-	    char const *dst)
+	    char const *dst, bool ignore_zero)
 {
   size_t	l = strlen(dst);
   char		tmpfile[l + sizeof(";XXXXXX")];
   int		fd;
   bool		res = false;
   struct stat	st;
+  bool		lstat_succeeded;
 
   // at first, set the ILI flags on 'src'
   if (vc_set_iattr(src,
@@ -47,8 +48,11 @@ Unify_unify(char const *src, struct stat const UNUSED *src_stat,
 		   VC_IATTR_IUNLINK|VC_IATTR_IMMUTABLE)==-1)
     return false;
 
+  lstat_succeeded = lstat(dst, &st)==0;
+
   // check if 'dst' already exists
-  if (lstat(dst, &st)==0) {
+  // when ignore_zero is true, do not make backups of empty destinations
+  if (lstat_succeeded && (st.st_size>0 || !ignore_zero)) {
       // now, create a temporary filename
     memcpy(tmpfile,   dst, l);
     memcpy(tmpfile+l, ";XXXXXX", 8);
@@ -70,8 +74,10 @@ Unify_unify(char const *src, struct stat const UNUSED *src_stat,
       goto err;
     }
   }
-  else
+  else {
+    if (lstat_succeeded) unlink(dst);	
     tmpfile[0] = '\0';
+  }
 
   // now, link the src-file to dst
   if (link(src, dst)==-1) {
