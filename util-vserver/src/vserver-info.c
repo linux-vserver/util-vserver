@@ -37,6 +37,9 @@
 #include <dirent.h>
 #include <strings.h>
 
+#include <sys/capability.h>
+
+
 #define ENSC_WRAPPERS_FCNTL	1
 #define ENSC_WRAPPERS_IO	1
 #define ENSC_WRAPPERS_UNISTD	1
@@ -49,6 +52,7 @@ typedef enum { tgNONE,tgCONTEXT, tgID, tgRUNNING,
 	       tgINITPID, tgINITPID_PID,
 	       tgXID, tgUTS, tgSYSINFO,
 	       tgFEATURE, tgCANONIFY,
+	       tgVERIFYCAP,
 }	VserverTag;
 
 static struct {
@@ -75,6 +79,7 @@ static struct {
   { "FEATURE",     tgFEATURE,     "returns 0 iff the queried feature is supported" },
   { "PXID",        tgPXID,        "returns the xid of the parent context" },
   { "CANONIFY",    tgCANONIFY,    "canonifies the vserver-name and removes dangerous characters" },
+  { "VERIFYCAP",   tgVERIFYCAP,   "test if the kernel supports linux capabilities" },
 };
 
 int wrapper_exit_code = 1;
@@ -150,6 +155,41 @@ utsText2Tag(char const *str)
     WRITE_MSG(2, "Unknown UTS tag\n");
     exit(1);
   }
+}
+
+static bool
+verifyCap()
+{
+  struct __user_cap_header_struct header;
+  struct __user_cap_data_struct user;
+  header.version = _LINUX_CAPABILITY_VERSION;
+  header.pid     = 0;
+
+  if (getuid()!=0) {
+    WRITE_MSG(2, "'VERIFYCAP' can be executed as root only\n");
+    return false;
+  }
+
+//  if( prctl( PR_SET_KEEPCAPS, 1,0,0,0 ) < 0 ) {
+//    perror( "prctl:" );
+//    return false;
+//  }
+  
+  if (capget(&header, &user)==-1) {
+    perror("capget()");
+    return false;
+  }
+
+  user.effective   = 0;
+  user.permitted   = 0;
+  user.inheritable = 0;
+
+  if (capset(&header, &user)==-1) {
+    perror("capset()");
+    return false;
+  }
+
+  return chroot("/")==-1;
 }
 
 static char *
@@ -418,6 +458,7 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
     case tgPXID		:  res = getPXid(buf, vserver);        break;
     case tgSYSINFO	:  return printSysInfo(buf);           break;
     case tgFEATURE	:  return testFeature(argc,argv);      break;
+    case tgVERIFYCAP	:  return verifyCap() ? 0 : 1;         break;
 
 
     default		: {
