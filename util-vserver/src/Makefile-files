@@ -23,6 +23,7 @@ src_DIETPROGS		=  src/new-namespace \
 	     		   src/save_ctxinfo \
 	     		   src/mask2prefix \
 	     		   src/chroot-rm \
+	     		   src/chroot-cat \
 	     		   src/fakerunlevel \
 	     		   src/ctx-kill
 
@@ -32,6 +33,7 @@ src_HDRS		=  src/vutil.h src/vutil.p src/util.h \
 			   src/stack-start.h
 
 src_pkglib_PRGS		=  src/capchroot \
+	     		   src/chroot-cat \
 			   src/chroot-rm \
 			   src/fakerunlevel \
 			   src/filetime \
@@ -71,6 +73,7 @@ src_chcontext_SOURCES		=  src/chcontext.c
 src_chcontext_LDADD		=  lib/libvserver.a
 
 src_chroot_rm_SOURCES		=  src/chroot-rm.c
+src_chroot_cat_SOURCES		=  src/chroot-cat.c
 src_fakerunlevel_SOURCES	=  src/fakerunlevel.c
 src_filetime_SOURCES		=  src/filetime.c
 src_ifspec_SOURCES		=  src/ifspec.c
