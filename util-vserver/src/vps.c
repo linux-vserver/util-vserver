@@ -51,7 +51,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " <ps-args>*\n\n"
+	    " <ps-opts>*\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
@@ -62,7 +62,7 @@ showVersion()
   WRITE_MSG(1,
 	    "vps " VERSION " -- shows processes in vserver-contexts\n"
 	    "This program is part of " PACKAGE_STRING "\n\n"
-	    "Copyright (C) 2003 Enrico Scholz\n"
+	    "Copyright (C) 2004 Enrico Scholz\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
   exit(0);
 }
