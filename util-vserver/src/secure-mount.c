@@ -323,14 +323,14 @@ callExternalMount(struct MountInfo const *mnt)
     if (mnt->mask & MS_NODEV)
       argv[idx++] = mnt->data;
     else {
-      char const	tmp[strlen(mnt->data) + sizeof("nodev,")];
+      char *	tmp = alloca(strlen(mnt->data) + sizeof("nodev,"));
       strcpy(tmp, "nodev,");
       strcat(tmp, mnt->data);
       argv[idx++] = tmp;
     }
   }
   else
-    argv[idx++] = 'nodev';
+    argv[idx++] = "nodev";
 
   if (mnt->type) {
     argv[idx++] = "-t";
