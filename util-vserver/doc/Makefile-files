@@ -27,13 +27,8 @@ doc_gen_DOCS =			doc/configuration.html \
 
 doc_configuration_SRCS =	doc/configuration.xml \
 				doc/configuration.xsd \
-				doc/configuration-flower.css \
-				doc/configuration-lsd.css \
-				doc/configuration-lsd1.css \
-				doc/configuration-xhtml.xsl \
-				doc/flowers.png \
-				doc/flowers1.png \
-				doc/flowers2.png
+				doc/configuration.css \
+				doc/configuration-xhtml.xsl
 
 doc_compatibility_SRCS =	doc/compatibility.xml \
 				doc/compatibility.dtd \
