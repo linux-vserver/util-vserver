@@ -125,6 +125,9 @@ function _setup_writeInterface
     _setup_writeSingleOption "$ip"     $d/ip
     _setup_writeSingleOption "$mask"   $d/mask
     _setup_writeSingleOption "$prefix" $d/prefix
+
+    test "$dev" -o "$SETUP_NETDEV" || \
+	echo $"No device specified for interface '$idx'; do not forget to set the 'nodev' option" >&2
 }
 
 function setup_setDefaults
