@@ -19,4 +19,4 @@ vdir=$1/vdir
 . "$2"
 
 ## Fix/workaround the misclassification of %_netsharedpath's parent directories
-mkdir -p "$vdir"/{etc/rc.d/init.d,/sbin,/usr/bin}
+mkdir -p "$vdir"/{etc/rc.d/init.d,/sbin,/usr/bin,/usr/X11}
