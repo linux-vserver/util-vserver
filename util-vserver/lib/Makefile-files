@@ -41,4 +41,4 @@ lib_XHDRS                       =  lib/syscall-compat.hc \
 lib_lib_LIBS			=  lib/libvserver.a
 
 lib_libvserver_a_SOURCES	=  $(lib_SRCS)
-lib_libvserver_a_CPPFLAGS	=  -I$(kernelincludedir) -D_GNU_SOURCE
+lib_libvserver_a_CPPFLAGS	=  -D_GNU_SOURCE
