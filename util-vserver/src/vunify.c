@@ -22,7 +22,6 @@
 
 #include "vunify.h"
 #include "wrappers-dirent.h"
-#include "vunify-operations.h"
 #include "util.h"
 
 #include <lib/vserver.h>
@@ -37,10 +36,6 @@
 int	wrapper_exit_code = 1;
 
 
-static struct WalkdownInfo	global_info;
-static struct Operations	operations;
-
-
 #define CMD_HELP		0x8000
 #define CMD_VERSION		0x8001
 #define CMD_MANUALLY		0x8002
@@ -53,16 +48,9 @@ CMDLINE_OPTIONS[] = {
   { 0,0,0,0 }
 };
 
-struct Arguments {
-    enum {mdMANUALLY, mdVSERVER}	mode;
-    bool				do_revert;
-    bool				do_dry_run;
-    unsigned int			verbosity;
-    bool				local_fs;
-    bool				do_renew;
-};
-
-struct Arguments const *		global_args;
+static struct WalkdownInfo		global_info;
+static struct SkipReason		skip_reason;
+static struct Arguments const *		global_args;
 
 static void
 showHelp(int fd, char const *cmd, int res)
@@ -102,6 +90,7 @@ showVersion()
   exit(0);
 }
 
+#include "vunify-compare.ic"
 
 // Returns 'false' iff one of the files is not existing, or of the files are different/not unifyable
 static bool
@@ -115,6 +104,7 @@ checkFstat(struct MatchList const * const mlist,
   if (*result==0) {
     // local file does not exist... strange
     // TODO: message
+    skip_reason.r = rsFSTAT;
     if (lstat(basename->d, result_buf)==-1) return false;
     *result = result_buf;
   }
@@ -129,13 +119,17 @@ checkFstat(struct MatchList const * const mlist,
     PathInfo_append(&src_path, path, src_path_buf);
 
     // source file does not exist
+    skip_reason.r = rsNOEXISTS;
     if (lstat(src_path.d, &src_fstat)==-1) return false;
 
-    // these are directories
+    // these are directories; this succeeds everytime
     if (S_ISDIR((*result)->st_mode) && S_ISDIR(src_fstat.st_mode)) return true;
 
     // both files are different, so return false
-    if (!(operations.compare)(*result, &src_fstat)) return false;
+    skip_reason.r = rsDIFFERENT;
+    if ((!global_args->do_revert && !compareUnify(*result, &src_fstat)) ||
+	( global_args->do_revert && !compareDeUnify(*result, &src_fstat)))
+      return false;
   }
 
   // these are the same files
@@ -148,23 +142,38 @@ checkDirEntry(PathInfo const *path,
 {
   struct WalkdownInfo const * const	info     = &global_info;
   struct MatchList const *		mlist;
-  struct stat const *			cache_stat = 0;
+  struct stat const *			cache_stat;
 
   // Check if it is in the exclude/include list of the destination vserver and
   // abort when it is not matching an allowed entry
+  skip_reason.r      = rsEXCL_DST;
+  skip_reason.d.list = &info->dst_list;
   if (!MatchList_compare(&info->dst_list, path->d)) return 0;
 
   // Now, go through the reference vservers and do the lightweigt list-check
   // first and compare then the fstat's.
   for (mlist=info->src_lists.v; mlist<info->src_lists.v+info->src_lists.l; ++mlist) {
+    cache_stat = 0;
+    skip_reason.r      = rsEXCL_SRC;
+    skip_reason.d.list = mlist;
     if (MatchList_compare(mlist, path->d) &&
 	checkFstat(mlist, d_path, path, &cache_stat, f_stat)) {
 
       // Failed the check or is it a symlink which can not be handled
-      if (cache_stat==0 || S_ISLNK(f_stat->st_mode)) return 0;
+      if (cache_stat==0) return 0;
+
+      skip_reason.r = rsSYMLINK;
+      if (S_ISLNK(f_stat->st_mode)) return 0;
       
       *is_dir = S_ISDIR(f_stat->st_mode);
       return mlist;
+    }
+    else if (cache_stat!=0 && !global_args->do_revert &&
+	     skip_reason.r == rsDIFFERENT &&
+	     compareDeUnify(cache_stat, f_stat)) {
+      skip_reason.r      = rsUNIFIED;
+      skip_reason.d.list = mlist;
+      return 0;
     }
   }
 
@@ -212,6 +221,8 @@ EsafeChdir(char const *path, struct stat const *exp_stat)
   FatalErrnoError(safeChdir(path, exp_stat)==-1, "safeChdir()");
 }
 
+#include "vunify-doit.ic"
+
 static bool
 doit(struct MatchList const *mlist, PathInfo const *src_path,
      char const *dst_path)
@@ -238,9 +249,46 @@ doit(struct MatchList const *mlist, PathInfo const *src_path,
   }
   
   PathInfo_append(&path, src_path, path_buf);
-  return (operations.doit)(path.d, dst_path);
+  return (global_args->do_dry_run ||
+	  (!global_args->do_revert && doitUnify(path.d, dst_path)) ||
+	  ( global_args->do_revert && doitDeUnify(path.d, dst_path)));
 }
 
+static void
+printListId(struct MatchList const *l)
+{
+  if (l->id.l>0) {
+    WRITE_MSG(1, "'");
+    write(1, l->id.d, l->id.l);
+    WRITE_MSG(1, "'");
+  }
+  else if (l->root.l>0) {
+    write(1, l->root.d, l->root.l);
+  }
+  else
+    WRITE_MSG(1, "???");
+}
+
+static void
+printSkipReason()
+{
+  WRITE_MSG(1, " (");
+  switch (skip_reason.r) {
+    case rsDOTFILE	:  WRITE_MSG(1, "dotfile"); break;
+    case rsEXCL_DST	:
+    case rsEXCL_SRC	:
+      WRITE_MSG(1, "excluded by ");
+      printListId(skip_reason.d.list);
+      break;
+    case rsFSTAT	:  WRITE_MSG(1, "fstat error"); break;
+    case rsNOEXISTS	:  WRITE_MSG(1, "does not exists in refserver(s)"); break;
+    case rsSYMLINK	:  WRITE_MSG(1, "symlink"); break;
+    case rsUNIFIED	:  WRITE_MSG(1, "already unified"); break;
+    case rsDIFFERENT	:  WRITE_MSG(1, "different"); break;
+    default		:  assert(false); abort();
+  }
+  WRITE_MSG(1, ")");
+}
 
 static void
 visitDirEntry(struct dirent const *ent)
@@ -262,6 +310,8 @@ visitDirEntry(struct dirent const *ent)
   is_dotfile = (dirname[0]=='.' &&
 		(dirname[1]=='\0' || (dirname[1]=='.' && dirname[2]=='\0')));
   memset(&f_stat, 0, sizeof f_stat);
+  skip_reason.r = rsDOTFILE;
+
   if (is_dotfile ||
       (match=checkDirEntry(&path, &d_path, &is_dir, &f_stat))==0) {
     bool	is_link = is_dotfile ? false : S_ISLNK(f_stat.st_mode);
@@ -272,7 +322,9 @@ visitDirEntry(struct dirent const *ent)
 	 (global_args->verbosity>4 && is_link)) ) {
       WRITE_MSG(1, "  skipping '");
       write(1, path.d, path.l);
-      WRITE_MSG(1, "'\n");
+      WRITE_MSG(1, "'");
+      if (global_args->verbosity>2) printSkipReason();
+      WRITE_MSG(1, "\n");
     }
     return;
   }
@@ -364,13 +416,9 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  Operations_init(&operations,
-		  args.do_revert ? opDEUNIFY : opUNIFY,
-		  args.do_dry_run);
-
   switch (args.mode) {
     case mdMANUALLY	:  initModeManually(&args, argc-optind, argv+optind); break;
-    case mdVSERVER	:  initModeVserver(&args,  argc-optind, argv+optind); break;
+    case mdVSERVER	:  initModeVserver (&args, argc-optind, argv+optind); break;
     default		:  assert(false); return EXIT_FAILURE;
   }
     
@@ -378,6 +426,7 @@ int main(int argc, char *argv[])
   global_info.state.l = 0;
 
 
+  if (global_args->verbosity>3) WRITE_MSG(1, "Starting to traverse directories...\n");
   Echdir(global_info.dst_list.root.d);
   visitDir("/", 0);
 
