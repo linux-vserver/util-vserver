@@ -23,7 +23,38 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#define VC_NOCTX	((ctx_t)(-1))
+#ifndef VC_NOCTX
+#  define VC_NOCTX	((ctx_t)(-1))
+#endif
+
+#ifndef S_CTX_INFO_LOCK
+#  define S_CTX_INFO_LOCK	1
+#endif
+
+#ifndef S_CTX_INFO_SCHED
+#  define S_CTX_INFO_SCHED	2
+#endif
+
+#ifndef S_CTX_INFO_NPROC
+#  define S_CTX_INFO_NPROC	4
+#endif
+
+#ifndef S_CTX_INFO_PRIVATE
+#  define S_CTX_INFO_PRIVATE	8
+#endif
+
+#ifndef S_CTX_INFO_INIT
+#  define S_CTX_INFO_INIT	16
+#endif
+
+#ifndef S_CTX_INFO_HIDEINFO
+#  define S_CTX_INFO_HIDEINFO	32
+#endif
+
+#ifndef S_CTX_INFO_ULIMIT
+#  define S_CTX_INFO_ULIMIT	64
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {
