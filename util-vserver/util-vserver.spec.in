@@ -107,6 +107,8 @@ rm -rf $RPM_BUILD_ROOT
 f="%confdefaultdir/vdirbase"; test -L "$f" -o -e "$f" || ln -s /vservers             "$f"
 f="%confdefaultdir/run.rev";  test -L "$f" -o -e "$f" || ln -s /var/run/vservers.rev "$f"
 
+%__chattr +t /vservers || :
+
 
 %define v_services	httpd named portmap sendmail smb sshd xinetd
 %post sysv
@@ -116,8 +118,6 @@ f="%confdefaultdir/run.rev";  test -L "$f" -o -e "$f" || ln -s /var/run/vservers
 for i in %v_services; do
 	/sbin/chkconfig --add v_$i
 done
-
-%__chattr +t /vservers || :
 
 
 %preun sysv
