@@ -176,6 +176,8 @@ function _pkgMountRPM
 
     "$_SECURE_MOUNT" --chroot "$VDIR" -n --secure --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
     test -z "$WORKAROUND_106057" || mount -n --bind "$RPMSTATEDIR" "$_rpmdb_mntpoint"
+    
+    "$_SECURE_MOUNT" --chroot "$VDIR" -n --secure -t proc none /proc
 }
 
 function _pkgSetEnvBase
@@ -277,7 +279,7 @@ function getVserverStatus
     eval "$3"=\$_tmp
 
     test "$4" -a $_tmp = 0 || return 0
-    _tmp=$(readlink "$1/run")
+    _tmp=$($_READLINK "$1/run")
     test "$_tmp"           || return 1
     rm -f "$_tmp"
     return 0
