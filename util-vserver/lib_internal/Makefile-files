@@ -23,9 +23,16 @@ lib_internal_libinternal_a_XHDRS =	lib_internal/matchlist.h \
 					lib_internal/pathinfo.h \
 					lib_internal/string.h \
 					lib_internal/unify.h \
+					lib_internal/util.h \
+					lib_internal/util-cast.h \
+					lib_internal/util-commonstrings.h \
+					lib_internal/util-declarecmd.h \
+					lib_internal/util-dimof.h \
 					lib_internal/util-dotfile.h \
+					lib_internal/util-exitlikeprocess.h \
 					lib_internal/util-io.h \
 					lib_internal/util-mem.h \
+					lib_internal/util-perror.h \
 					lib_internal/util-safechdir.h \
 					lib_internal/string.hc
 
@@ -44,6 +51,7 @@ lib_internal_libinternal_a_SOURCES =	lib_internal/matchlist-appendfiles.c \
 					lib_internal/unify-deunify.c \
 					lib_internal/unify-settime.c \
 					lib_internal/unify-unify.c \
+					lib_internal/util-exitlikeprocess.c \
 					lib_internal/util-safechdir.c
 
 lib_internal_DIETPROGS =		$(lib_internal_LIBS)
