@@ -28,6 +28,7 @@ nobase_distrib_SCRIPTS	=  redhat/initpost
 
 nobase_distrib_DATA	=  defaults/devs \
 			   defaults/rpm/macros \
+			   defaults/apt/apt.conf \
 			   rh9/apt/rpmpriorities rh9/pkgs/01 rh9/pkgs/02 \
 			   fc1/apt/rpmpriorities fc1/pkgs/01 fc1/pkgs/02
 
