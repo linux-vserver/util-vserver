@@ -24,7 +24,7 @@ legacy @LEGACYDIR@/distrib-info
 base   @PKGLIBDIR@/defaults/mtab
 build  @PKGLIBDIR@/defaults/fstab
 build  @PKGLIBDIR@/defaults/debootstrap.uri
-build  @PKGLIBDIR@/defaults/vunify-exclude
+@ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/defaults/vunify-exclude
 base   @PKGLIBDIR@/capchroot
 base   @PKGLIBDIR@/chroot-cat
 base   @PKGLIBDIR@/chroot-rm
@@ -44,14 +44,14 @@ base   @PKGLIBDIR@/save_ctxinfo
 base   @PKGLIBDIR@/secure-mount
 base   @PKGLIBDIR@/showperm
 build  @PKGLIBDIR@/vapt-get-worker
-build  @PKGLIBDIR@/vbuild
-build  @PKGLIBDIR@/vcheck
+@ENSC_HAVE_CXX_COMPILER_TRUE@build  @PKGLIBDIR@/vbuild
+@ENSC_HAVE_CXX_COMPILER_TRUE@build  @PKGLIBDIR@/vcheck
 build  @PKGLIBDIR@/vpkg
 base   @PKGLIBDIR@/vreboot
 build  @PKGLIBDIR@/vrpm-preload
 build  @PKGLIBDIR@/vrpm-worker
 build  @PKGLIBDIR@/vserver-build
-build  @PKGLIBDIR@/vunify
+@ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vunify
 base   @PKGLIBDIR@/vservers.grabinfo.sh
 build  @PKGLIBDIR@/distributions
 devel  @LIBDIR@/pkgconfig/util-vserver.pc
@@ -67,7 +67,7 @@ core   @SBINDIR@/setattr
 core   @SBINDIR@/showattr
 build  @SBINDIR@/vapt-get
 base   @SBINDIR@/vdu
-build  @SBINDIR@/vfiles
+@ENSC_HAVE_CXX_COMPILER_TRUE@build  @SBINDIR@/vfiles
 core   @SBINDIR@/vkill
 core   @SBINDIR@/vlimit
 base   @SBINDIR@/vps
