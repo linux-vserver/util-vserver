@@ -52,6 +52,7 @@ src_DIETPROGS =		src/new-namespace \
 			src/chbind \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
+	     		src/clearenv \
 			src/exec-cd \
 	     		src/fakerunlevel \
 			src/pipe-sync \
@@ -87,6 +88,7 @@ src_pkglib_SCRPTS =
 src_pkglib_PRGS =	src/capchroot \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
+			src/clearenv \
 			src/fakerunlevel \
 			src/filetime \
 			src/ifspec \
@@ -142,6 +144,7 @@ src_chcontext_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_chroot_cat_SOURCES		=  src/chroot-cat.c
 src_chroot_rm_SOURCES		=  src/chroot-rm.c
+src_clearenv_SOURCES		=  src/clearenv.c
 src_exec_cd_SOURCES		=  src/exec-cd.c
 src_fakerunlevel_SOURCES	=  src/fakerunlevel.c
 src_filetime_SOURCES		=  src/filetime.c
