@@ -255,7 +255,7 @@ int main (int argc, char *argv[])
 	char const	*err_ptr;
 	size_t		err_len;
 	
-	flags = vc_textlist2flag(optarg, 0, &err_ptr, &err_len);
+	flags = vc_list2flag_compat(optarg, 0, &err_ptr, &err_len);
 	if (err_ptr!=0) {
 	  WRITE_MSG(2, "Unknown flag '");
 	  write(2, err_ptr, err_len);
