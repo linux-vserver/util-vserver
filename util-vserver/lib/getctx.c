@@ -37,6 +37,13 @@
 xid_t
 vc_X_getctx(pid_t pid)
 {
-  CALL_VC(CALL_VC_COMPAT(vc_X_getctx, pid),
-	  CALL_VC_LEGACY(vc_X_getctx, pid));
+#ifndef NDEBUG
+  if (!getenv("VC_BE_VALGRIND_FRIENDLY"))
+#endif
+    CALL_VC(CALL_VC_COMPAT(vc_X_getctx, pid),
+	    CALL_VC_LEGACY(vc_X_getctx, pid));
+#ifndef NDEBUG
+  else
+    return vc_X_getctx_legacy(pid);
+#endif
 }
