@@ -19,6 +19,7 @@
 
 lib_SRCS			=  lib/syscall.c \
 				   lib/syscall_rlimit.c \
+				   lib/syscall_kill.c \
 				   lib/checkversion.c \
 				   lib/getctx.c \
 				   lib/getversion.c \
@@ -29,6 +30,7 @@ lib_HDRS			=  lib/vserver.h
 lib_XHDRS                       =  lib/syscall-compat.hc \
 	 			   lib/syscall-legacy.hc \
 				   lib/syscall_rlimit-v11.hc \
+				   lib/syscall_kill-v11.hc \
 				   lib/getctx-compat.hc \
 				   lib/getctx-legacy.hc \
 				   lib/getversion-internal.hc \
