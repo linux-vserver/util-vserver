@@ -233,7 +233,7 @@ src_vserver_info_LDADD		=  $(LIBINTERNAL) $(VSERVER_LDADDS)
 src_vserver_info_LDFLAGS	=  $(VSERVER_LDFLGS)
 
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
-src_vserver_stat_LDADD		=  $(LIBINTERNAL) $(VSERVER_LDADDS) libensc_vector.a
+src_vserver_stat_LDADD		=  $(LIBINTERNAL) $(VSERVER_LDADDS) $(LIBENSCVECTOR)
 src_vserver_stat_LDFLAGS	=  $(VSERVER_LDFLGS)
 
 src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc src/vserver.cc
@@ -241,7 +241,7 @@ src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc src/vserver.cc
 src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc src/vserver.cc
 
 src_lsxid_SOURCES		=  src/fstool.c src/lsxid.c
-src_lsxid_LDADD			=  $(LIBINTERNAL) $(VSERVER_LDADDS) libensc_vector.a
+src_lsxid_LDADD			=  $(LIBINTERNAL) $(VSERVER_LDADDS) $(LIBENSCVECTOR)
 src_lsxid_LDFLAGS		=  $(VSERVER_LDFLGS) 
 
 src_chxid_SOURCES		=  src/fstool.c src/chxid.c
@@ -271,10 +271,10 @@ src_vunify_LDFLAGS =		$(VSERVER_LDFLGS)
 
 src_vhashify_SOURCES =		src/vhashify.c
 if CAN_BEECRYPT_WITH_DIETLIBC
-src_vhashify_LDADD =		$(LIBINTERNAL) libensc_vector.a -lbeecrypt $(VSERVER_LDADDS)
+src_vhashify_LDADD =		$(LIBINTERNAL) $(LIBENSCVECTOR) -lbeecrypt $(VSERVER_LDADDS)
 src_vhashify_LDFLAGS =		$(VSERVER_LDFLGS)
 else
-src_vhashify_LDADD =		$(LIBINTERNAL_GLIBC) libensc_vector.a lib/libvserver.la -lbeecrypt
+src_vhashify_LDADD =		$(LIBINTERNAL_GLIBC) $(LIBENSCVECTOR_GLIBC) $(LIBVSERVER_GLIBC) -lbeecrypt
 src_vhashify_LDFLAGS =
 endif
 
@@ -285,7 +285,7 @@ src_vuname_LDFLAGS =		$(VSERVER_LDFLGS)
 src_rpm_fake_la_SOURCES		=  src/rpm-fake.c
 src_rpm_fake_la_CFLAGS		=  $(AM_CFLAGS)
 src_rpm_fake_la_LDFLAGS		=  -module -avoid-version -rpath $(pkglibdir)
-src_rpm_fake_la_LIBADD		=  lib/libvserver.la -ldl
+src_rpm_fake_la_LIBADD		=  $(LIBVSERVER_GLIBC) -ldl
 
 src_vdlimit_SOURCES		= src/vdlimit.c
 src_vdlimit_LDADD		= $(VSERVER_LDADDS)
