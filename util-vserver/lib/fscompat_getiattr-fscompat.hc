@@ -20,22 +20,25 @@
 #  include <config.h>
 #endif
 
-#include "ioctl-setext2flags.hc"
-#include "ioctl-setfilecontext.hc"
-#include "ioctl-setxflg.hc"
+#include "ioctl-getext2flags.hc"
+#include "ioctl-getfilecontext.hc"
 #include "ioctl-getxflg.hc"
 
 static inline ALWAYSINLINE int
-vc_set_iattr_compat_v11(char const *filename,
-			dev_t dev, ino_t ino, xid_t xid,
-			uint32_t flags, uint32_t mask)
+vc_get_iattr_compat_fscompat(char const *filename,
+			     dev_t dev, ino_t ino,
+			     xid_t    * /*@null@*/ xid,
+			     uint32_t * /*@null@*/ flags,
+			     uint32_t * mask)
 {
   int			fd = open(filename, O_RDONLY);
   struct stat		st;
   int			stat_rc;
+  int			old_mask = *mask;
     
   if (fd==-1) return -1;
-    
+  *mask = 0;
+
   stat_rc = fstat(fd, &st);
   if (stat_rc==-1) goto err;
 
@@ -43,34 +46,36 @@ vc_set_iattr_compat_v11(char const *filename,
     errno = EINVAL;
     goto err;
   }
-
-  if ( (mask&VC_IATTR_IUNLINK) ) {
-    int const		tmp = VC_IMMUTABLE_FILE_FL|VC_IMMUTABLE_LINK_FL;
-    if (vc_X_set_ext2flags(fd,
-			   (flags&VC_IATTR_IUNLINK) ? tmp : 0,
-			   (flags&VC_IATTR_IUNLINK) ? 0   : tmp)==-1)
-      goto err;
+    
+  if ( old_mask&VC_IATTR_XID ) {
+    *xid = vc_X_get_filecontext(fd);
+    if (*xid!=VC_NOCTX) *mask |= VC_IATTR_XID;
   }
 
-  if ( (mask&VC_IATTR_BARRIER) ) {
-    if (fchmod(fd, (flags&VC_IATTR_BARRIER) ? 0 : (st.st_mode|0500))==-1)
-      goto err;
-  }
-
-  if ( (mask&VC_IATTR_XID) &&
-       vc_X_set_filecontext(fd, xid)==-1)
-    goto err;
-
-  if ( (mask&(VC_IATTR_HIDE|VC_IATTR_WATCH)) ) {
+  if ( old_mask&VC_IATTR_IUNLINK ) {
     long		tmp;
-    if (vc_X_get_xflg(fd, &tmp)==-1) goto err;
+    int		rc = vc_X_get_ext2flags(fd, &tmp);
 
-    tmp &= ~( ((mask&VC_IATTR_HIDE)   ? 1 : 0) |
-	      ((mask&VC_IATTR_WATCH) ? 2 : 0) );
-    tmp |= ( ((flags&VC_IATTR_HIDE)  ? 1 : 0) |
-	     ((flags&VC_IATTR_WATCH) ? 2 : 0) );
+    if (rc!=-1) {
+      *mask |= VC_IATTR_IUNLINK;
+      if (tmp & (VC_IMMUTABLE_FILE_FL|VC_IMMUTABLE_LINK_FL))
+	*flags |= VC_IATTR_IUNLINK;
+    }
+  }
 
-    if (vc_X_set_xflg(fd, tmp)==-1) goto err;
+  if ( (old_mask&VC_IATTR_BARRIER) && S_ISDIR(st.st_mode)) {
+    *mask  |= VC_IATTR_BARRIER;
+    if ((st.st_mode&0777) == 0) *flags |= VC_IATTR_BARRIER;
+  }
+
+  if ( (old_mask&(VC_IATTR_WATCH|VC_IATTR_HIDE)) ){
+    long		tmp;
+    int		rc = vc_X_get_xflg(fd, &tmp);
+    if (rc!=-1) {
+      *mask |= (VC_IATTR_WATCH|VC_IATTR_HIDE);
+      if (tmp&1) *flags |= VC_IATTR_HIDE;
+      if (tmp&2) *flags |= VC_IATTR_WATCH;
+    }
   }
 
   close(fd);
@@ -81,5 +86,5 @@ vc_set_iattr_compat_v11(char const *filename,
     close(fd);
     errno = old_errno;
     return -1;
-  }
+  } 
 }
