@@ -1,23 +1,44 @@
 /etc/vservers
 |-- <vserver>
-    |-- [vdir]  ->  /vservers/<vserver>    Link to vserver top-dir
-    `-- apps
-        |-- pkgmgmt
-        |   |-- base        ->  ...        Link to pkgmgmt cfg-dir
-        |   |-- aptetc               \
-        |   |-- aptcache              \
-        |   |-- aptstate               \   Overriding of cfg-dir values
-        |   |-- aptarchives            /
-        |   |-- rpmetc                /
-        |   |-- rpmstate             /
-        |   |-- execdir                    Alternative executables
-        |   `-- rpmlib                     Alternative /usr/lib/rpm dir
-        `-- vunify
-            |-- refserver   ->  ...        link to cfg-dir of refserver
-            |                              (e.g. /etc/vservers/<xxx>)
-            `-- dirs                       file with incldir(+) or
-                                           excldir(-) entries
-
+    |-- vdir    ->  /vservers/<vserver>    Link to vserver top-dir
+    |-- [ctx]
+    |-- [hostname]
+    |-- [domainname]
+    |-- run     ->  /var/run/vservers/<lock>
+    |-- [flags]
+    |-- [capabilities]
+    |-- apps
+    |   |-- pkgmgmt
+    |   |   |-- base        ->  ...        Link to pkgmgmt cfg-dir
+    |   |   |-- aptetc               \
+    |   |   |-- aptcache              \
+    |   |   |-- aptstate               \   Overriding of cfg-dir values
+    |   |   |-- aptarchives            /
+    |   |   |-- rpmetc                /
+    |   |   |-- rpmstate             /
+    |   |   |-- execdir                    Alternative executables
+    |   |   `-- rpmlib                     Alternative /usr/lib/rpm dir
+    |   `-- vunify
+    |       |-- refserver   ->  ...        link to cfg-dir of refserver
+    |       |                              (e.g. /etc/vservers/<xxx>)
+    |       `-- dirs                       file with incldir(+) or
+    |                                      excldir(-) entries
+    `-- interfaces
+        |-- [dev]
+        |-- [prefix]
+        |-- [mask]
+        |-- [bcast]
+        `-- <interface>*
+            |-- ip
+            |-- [dev]
+            |-- [prefix]
+            |-- [mask]
+            |-- [bcast]
+            |-- [name]
+            |-- [scope]
+            |-- [only_ip]   ...            use only the ip; do not modify/set
+            |                              the interface
+            `-- [disabled]  ...            ignore this interface
 
 pkgmgmt cfg-dir
 |-- apt/etc		(e.g. sources.list, apt.conf, rpmpriorities,...)
