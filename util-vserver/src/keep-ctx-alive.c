@@ -131,7 +131,7 @@ doit(char const *filename, struct timeval *timeout)
   int			fd;
   struct sockaddr_un	sock;
   pid_t			pid;
-  fd_set		fd_set;
+  fd_set		fdset;
 
   ENSC_INIT_UNIX_SOCK(sock, filename);
 
@@ -141,13 +141,13 @@ doit(char const *filename, struct timeval *timeout)
 
   printXid(1);
 
-  FD_ZERO(&fd_set);
-  FD_SET(fd, &fd_set);
+  FD_ZERO(&fdset);
+  FD_SET(fd, &fdset);
 
   pid = Efork();
   if (pid==0) {
-    Eselect(fd+1, &fd_set, 0,0, timeout);
-    if (FD_ISSET(fd, &fd_set)) handleMessage(fd);
+    Eselect(fd+1, &fdset, 0,0, timeout);
+    if (FD_ISSET(fd, &fdset)) handleMessage(fd);
     exit(1);
   }
 
