@@ -42,6 +42,7 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 DIETPROGS +=		src/chcontext-compat \
 			src/capchroot \
 			src/chain-echo \
+			src/check-unixfile \
 			src/filetime \
 			src/lockfile \
 			src/readlink \
@@ -92,6 +93,7 @@ noinst_HEADERS +=	src/vutil.h src/vutil.p \
 pkglib_PROGRAMS +=	src/capchroot \
 			src/chain-echo \
 			src/chcontext-compat \
+			src/check-unixfile \
 	     		src/chroot-cat \
 	     		src/chroot-rm \
 			src/fakerunlevel \

@@ -8,6 +8,7 @@ chain-echo
 chbind
 chcontext
 chcontext-compat
+check-unixfile
 chroot-cat
 chroot-rm
 chxid
