@@ -116,14 +116,14 @@ lib_lib_LTLIBS			=  lib/libvserver.la
 
 #lib_libvserver_la_SOURCES	=  $(lib_SRCS)
 #lib_libvserver_a_SOURCES	=  $(lib_SRCS)
-#lib_libvserver_a_CPPFLAGS	=  $(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -I$(kernelincludedir) -D_REENTRANT -D_GNU_SOURCE
+#lib_libvserver_a_CPPFLAGS	=  $(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -D_REENTRANT -D_GNU_SOURCE
 # _REENTRANT is needed for dietlibc to use __error_location
 
 #lib_libvserver_pic_a_SOURCES	=  $(lib_SRCS)
 #lib_libvserver_pic_a_CPPFLAGS	=  $(lib_libvserver_a_CPPFLAGS) -fPIC
 
 lib_libvserver_la_SOURCES =  	$(lib_SRCS)
-lib_libvserver_la_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -I$(kernelincludedir) -D_REENTRANT -D_GNU_SOURCE
+lib_libvserver_la_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -D_REENTRANT -D_GNU_SOURCE
 lib_libvserver_la_LDFLAGS =	-version $(lib_VERSION)
 
 lib_DIETPROGS =			lib/lib_libvserver_la-% \
