@@ -55,9 +55,9 @@ int main(int argc, char *argv[])
   strcpy(runfile,      argv[1]);
   strcpy(runfile+len1, "/run");
 
-  ctx=getcctx();
+  ctx=vc_X_getcctx();
   if (ctx==-1) {
-    perror("getctx()");
+    perror("vc_X_getcctx()");
     return -1;
   }
 

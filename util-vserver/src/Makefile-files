@@ -84,6 +84,7 @@ src_mask2prefix_SOURCES		=  src/mask2prefix.c
 
 src_rpm_fake_so_SOURCES		=  src/rpm-fake.c
 src_rpm_fake_so_LDFLAGS		=  -fpic -ldl -shared
+src_rpm_fake_so_LDADD		=  lib/libvserver.a
 
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
 src_vserver_stat_LDADD		=  lib/libvserver.a

@@ -25,11 +25,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 int main(int argc, char *argv[])
 {
-  if (argc==1) printf("%i\n", getcctx());
-  else         printf("%i\n", getctx(atoi(argv[1])));
+  if (argc==1) printf("%i\n", vc_X_getcctx());
+  else         printf("%i\n", vc_X_getctx(atoi(argv[1])));
 
   return 0;
 }

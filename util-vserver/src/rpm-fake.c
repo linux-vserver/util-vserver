@@ -19,6 +19,9 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
+#include "compat.h"
+
+#include <vserver.h>
 
 #include <dlfcn.h>
 #include <stdlib.h>
@@ -28,7 +31,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <errno.h>
-#include <asm/unistd.h>
 #include <fcntl.h>
 #include <stdarg.h>
 #include <sys/mount.h>
@@ -47,58 +49,6 @@
 static bool		is_initialized = false;
 DECLARE(execv);
   //DECLARE(open);
-
-static int def_NR_new_s_context = 259;
-#undef __NR_new_s_context
-static int __NR_new_s_context_rev0;
-static int __NR_new_s_context_rev1;
-
-static int new_s_context_rev0(int, int, int);
-static int new_s_context_rev1(int, int *, int, int);
-
-_syscall3(int, new_s_context_rev0, int, newctx,              int, remove_cap, int, flags)
-_syscall4(int, new_s_context_rev1, int, nbctx,  int *, ctxs, int, remove_cap, int, flags)
-
-static int
-new_s_context(int rev,
-	      int nbctx,  int *ctxs, int remove_cap, int flags)
-{
-  int		ret;
-
-  switch (rev) {
-    case 0	:
-    {
-      int	ctx;
-
-      switch (nbctx) {
-	case 0	:  ctx = -1;      break;
-	case 1	:  ctx = ctxs[0]; break;
-	default	:  errno = EINVAL; return -1;
-      }
-
-      ret = new_s_context_rev0(ctx, remove_cap, flags);
-
-      break;
-    }
-
-    case 1	:
-      ret = new_s_context_rev1(nbctx, ctxs, remove_cap, flags);
-      break;
-
-    default	:
-      errno = EINVAL; return -1;
-  }
-
-  return ret;
-}
-
-static void
-initVserverSyscalls(int s_context_NR)
-{
-  int	nr = (s_context_NR!=-1) ? s_context_NR : def_NR_new_s_context;
-
-  __NR_new_s_context_rev0 = __NR_new_s_context_rev1 = nr;
-}
 
 static int
 getAndClearEnv(char const *key, int dflt)
@@ -120,7 +70,6 @@ initLib()
 {
   if (is_initialized) return;
 
-  initVserverSyscalls(getAndClearEnv("RPM_FAKE_S_CONTEXT_NR", -1));
   INIT(RTLD_NEXT, execv);
     //INIT(RTLD_NEXT, open);
 
@@ -166,11 +115,9 @@ execvWorker(char const *path, char * const argv[])
   int		ctx;
 
   ctx = getAndClearEnv("RPM_FAKE_CTX",  -1);
-  if ( (res=new_s_context(getAndClearEnv("RPM_FAKE_S_CONTEXT_REV", 0),
-			  ctx==-1 ? 0 : 1,
-			  &ctx,
-			  getAndClearEnv("RPM_FAKE_CAP",  ~0x3404040f),
-			  getAndClearEnv("RPM_FAKE_FLAGS", 0)))!=-1 &&
+  if ( (res=vc_new_s_context(ctx,
+			     getAndClearEnv("RPM_FAKE_CAP",  ~0x3404040f),
+			     getAndClearEnv("RPM_FAKE_FLAGS", 0)))!=-1 &&
        (res=execv_func(path, argv)!=-1) ) {}
 
   return res;
