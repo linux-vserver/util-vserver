@@ -12,22 +12,22 @@
 
 /*
 
-  Syscall Matrix V2.5
+  Syscall Matrix V2.6
 
          |VERSION|CREATE |MODIFY |MIGRATE|CONTROL|EXPERIM| |SPECIAL|SPECIAL|
          |STATS  |DESTROY|ALTER  |CHANGE |LIMIT  |TEST   | |       |       |
          |INFO   |SETUP  |       |MOVE   |       |       | |       |       |
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
-  SYSTEM |VERSION|       |       |       |       |       | |DEVICES|       |
+  SYSTEM |VERSION|VSETUP |VHOST  |       |       |       | |DEVICES|       |
   HOST   |     00|     01|     02|     03|     04|     05| |     06|     07|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
-  CPU    |       |       |PROCALT|PROCMIG|PROCTRL|       | |SCHED. |       |
+  CPU    |       |VPROC  |PROCALT|PROCMIG|PROCTRL|       | |SCHED. |       |
   PROCESS|     08|     09|     10|     11|     12|     13| |     14|     15|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
   MEMORY |       |       |       |       |       |       | |SWAP   |       |
          |     16|     17|     18|     19|     20|     21| |     22|     23|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
-  NETWORK|       |       |       |       |       |       | |SERIAL |       |
+  NETWORK|       |VNET   |NETALT |NETMIG |NETCTL |       | |SERIAL |       |
          |     24|     25|     26|     27|     28|     29| |     30|     31|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
   DISK   |       |       |       |       |       |       | |INODE  |       |
@@ -48,16 +48,23 @@
 #define VC_CAT_VERSION		0
 
 #define VC_CAT_VSETUP		1
-#define	VC_CAT_VHOST		2
+#define VC_CAT_VHOST		2
 	
-#define	VC_CAT_PROCALT		10
-#define	VC_CAT_PROCMIG		11
+#define VC_CAT_VPROC		9
+#define VC_CAT_PROCALT		10
+#define VC_CAT_PROCMIG		11
 #define VC_CAT_PROCTRL		12
 
 #define VC_CAT_SCHED		14
+
+#define VC_CAT_VNET		25
+#define VC_CAT_NETALT		26
+#define VC_CAT_NETMIG		27
+#define VC_CAT_NETCTRL		28
+
 #define VC_CAT_INODE		38
 
-#define	VC_CAT_VINFO		46
+#define VC_CAT_VINFO		46
 
 #define VC_CAT_FLAGS		52
 #define VC_CAT_RLIMIT		60
@@ -67,7 +74,7 @@
 	
 /*  interface version */
 
-#define VCI_VERSION		0x00010014
+#define VCI_VERSION		0x00010016
 
 
 /*  query version */
@@ -79,10 +86,10 @@
 
 #include <linux/errno.h>
 
-#define	ENOTSUP		-EOPNOTSUPP
+#define ENOTSUP		-EOPNOTSUPP
 
 #else	/* __KERNEL__ */
-#define	__user
+#define __user
 #endif	/* __KERNEL__ */
 
 #endif	/* _VX_SWITCH_H */

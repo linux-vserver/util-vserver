@@ -9,6 +9,8 @@
 #define VCMD_new_s_context	VC_CMD(COMPAT, 1, 1)
 #define VCMD_set_ipv4root	VC_CMD(COMPAT, 2, 3)
 
+#define VCMD_create_context	VC_CMD(VSETUP, 1, 0)
+
 /*  compatibiliy vserver arguments */
 
 struct  vcmd_new_s_context_v1 {
@@ -22,7 +24,7 @@ struct  vcmd_set_ipv4root_v3 {
 	struct {
 		uint32_t ip;
 		uint32_t mask;
-	} ip_mask_pair[NB_IPV4ROOT];
+	} nx_mask_pair[NB_IPV4ROOT];
 };
 
 

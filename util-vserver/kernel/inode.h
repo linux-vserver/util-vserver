@@ -35,16 +35,16 @@ struct  vcmd_ctx_iattr_v1 {
 #define IATTR_FLAGS	0x00000007
 
 #define IATTR_BARRIER	0x00010000
-#define	IATTR_IUNLINK	0x00020000
-#define	IATTR_IMMUTABLE	0x00040000
+#define IATTR_IUNLINK	0x00020000
+#define IATTR_IMMUTABLE	0x00040000
 
 
 #ifdef	CONFIG_PROC_SECURE
-#define	IATTR_PROC_DEFAULT	( IATTR_ADMIN | IATTR_HIDE )
-#define	IATTR_PROC_SYMLINK	( IATTR_ADMIN )
+#define IATTR_PROC_DEFAULT	( IATTR_ADMIN | IATTR_HIDE )
+#define IATTR_PROC_SYMLINK	( IATTR_ADMIN )
 #else
-#define	IATTR_PROC_DEFAULT	( IATTR_ADMIN )
-#define	IATTR_PROC_SYMLINK	( IATTR_ADMIN )
+#define IATTR_PROC_DEFAULT	( IATTR_ADMIN )
+#define IATTR_PROC_SYMLINK	( IATTR_ADMIN )
 #endif
 
 #ifdef	__KERNEL__
@@ -61,7 +61,7 @@ extern int vc_set_iattr(uint32_t, void __user *);
 
 /* inode ioctls */
 
-#define	FIOC_GETXFLG	_IOR('x', 5, long)
-#define	FIOC_SETXFLG	_IOW('x', 6, long)
+#define FIOC_GETXFLG	_IOR('x', 5, long)
+#define FIOC_SETXFLG	_IOW('x', 6, long)
 
-#endif	/* _VX_LEGACY_H */
+#endif	/* _VX_INODE_H */

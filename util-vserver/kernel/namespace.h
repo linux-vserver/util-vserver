@@ -2,13 +2,12 @@
 #define _VX_NAMESPACE_H
 
 #include <linux/types.h>
-#include <linux/compiler.h>
 
 	
 /* virtual host info names */
 
-#define	VCMD_vx_set_vhi_name	VC_CMD(VHOST, 1, 0)
-#define	VCMD_vx_get_vhi_name	VC_CMD(VHOST, 2, 0)
+#define VCMD_vx_set_vhi_name	VC_CMD(VHOST, 1, 0)
+#define VCMD_vx_get_vhi_name	VC_CMD(VHOST, 2, 0)
 
 struct  vcmd_vx_vhi_name_v0 {
 	uint32_t field;
@@ -28,14 +27,17 @@ enum vx_vhi_name_field {
 
 
 #ifdef	__KERNEL__
+
+#include <linux/compiler.h>
+
 extern int vc_set_vhi_name(uint32_t, void __user *);
 extern int vc_get_vhi_name(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 
-#define	VCMD_enter_namespace	VC_CMD(PROCALT, 1, 0)
-#define	VCMD_cleanup_namespace	VC_CMD(PROCALT, 2, 0)
-#define	VCMD_set_namespace	VC_CMD(PROCALT, 3, 0)
+#define VCMD_enter_namespace	VC_CMD(PROCALT, 1, 0)
+#define VCMD_cleanup_namespace	VC_CMD(PROCALT, 2, 0)
+#define VCMD_set_namespace	VC_CMD(PROCALT, 3, 0)
 
 #ifdef	__KERNEL__
 

@@ -13,7 +13,7 @@
 #include <linux/list.h>
 #include <linux/spinlock.h>
 
-#define	_VX_INFO_DEF_
+#define _VX_INFO_DEF_
 #include "cvirt.h"
 #include "limit.h"
 #include "sched.h"
@@ -45,21 +45,21 @@ extern spinlock_t vxlist_lock;
 extern struct list_head vx_infos;
 
 
-#define	VX_ADMIN	0x0001
-#define	VX_WATCH	0x0002
+#define VX_ADMIN	0x0001
+#define VX_WATCH	0x0002
 #define VX_DUMMY	0x0008
 
-#define	VX_IDENT	0x0010
-#define	VX_EQUIV	0x0020
-#define	VX_PARENT	0x0040
-#define	VX_CHILD	0x0080
+#define VX_IDENT	0x0010
+#define VX_EQUIV	0x0020
+#define VX_PARENT	0x0040
+#define VX_CHILD	0x0080
 
-#define	VX_ARG_MASK	0x00F0
+#define VX_ARG_MASK	0x00F0
 
-#define	VX_DYNAMIC	0x0100
-#define	VX_STATIC	0x0200
+#define VX_DYNAMIC	0x0100
+#define VX_STATIC	0x0200
 
-#define	VX_ATR_MASK	0x0F00
+#define VX_ATR_MASK	0x0F00
 
 
 void free_vx_info(struct vx_info *);
@@ -76,16 +76,16 @@ extern int vx_migrate_task(struct task_struct *, struct vx_info *);
 
 /* vinfo commands */
 
-#define	VCMD_task_xid		VC_CMD(VINFO, 1, 0)
-#define	VCMD_task_nid		VC_CMD(VINFO, 2, 0)
+#define VCMD_task_xid		VC_CMD(VINFO, 1, 0)
+#define VCMD_task_nid		VC_CMD(VINFO, 2, 0)
 
 #ifdef	__KERNEL__
 extern int vc_task_xid(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 
-#define	VCMD_vx_info		VC_CMD(VINFO, 5, 0)
-#define	VCMD_nx_info		VC_CMD(VINFO, 6, 0)
+#define VCMD_vx_info		VC_CMD(VINFO, 5, 0)
+#define VCMD_nx_info		VC_CMD(VINFO, 6, 0)
 
 struct  vcmd_vx_info_v0 {
 	uint32_t xid;
@@ -98,17 +98,17 @@ extern int vc_vx_info(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 
-#define VCMD_create_context	VC_CMD(VSETUP, 1, 0)
-#define VCMD_migrate_context	VC_CMD(PROCMIG, 1, 0)
+#define VCMD_ctx_create		VC_CMD(VPROC, 1, 0)
+#define VCMD_ctx_migrate	VC_CMD(PROCMIG, 1, 0)
 
 #ifdef	__KERNEL__
-extern int vc_create_context(uint32_t, void __user *);
-extern int vc_migrate_context(uint32_t, void __user *);
+extern int vc_ctx_create(uint32_t, void __user *);
+extern int vc_ctx_migrate(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 
-#define VCMD_get_flags		VC_CMD(FLAGS, 1, 0)
-#define VCMD_set_flags		VC_CMD(FLAGS, 2, 0)
+#define VCMD_get_cflags		VC_CMD(FLAGS, 1, 0)
+#define VCMD_set_cflags		VC_CMD(FLAGS, 2, 0)
 
 struct  vcmd_ctx_flags_v0 {
 	uint64_t flagword;
@@ -116,8 +116,8 @@ struct  vcmd_ctx_flags_v0 {
 };
 
 #ifdef	__KERNEL__
-extern int vc_get_flags(uint32_t, void __user *);
-extern int vc_set_flags(uint32_t, void __user *);
+extern int vc_get_cflags(uint32_t, void __user *);
+extern int vc_set_cflags(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
 
@@ -131,9 +131,9 @@ extern int vc_set_flags(uint32_t, void __user *);
 #define VXF_INFO_ULIMIT		0x00000040
 #define VXF_INFO_NSPACE		0x00000080
 
-#define	VXF_SCHED_HARD		0x00000100
-#define	VXF_SCHED_PRIO		0x00000200
-#define	VXF_SCHED_PAUSE		0x00000400
+#define VXF_SCHED_HARD		0x00000100
+#define VXF_SCHED_PRIO		0x00000200
+#define VXF_SCHED_PAUSE		0x00000400
 
 #define VXF_VIRT_MEM		0x00010000
 #define VXF_VIRT_UPTIME		0x00020000
@@ -142,11 +142,11 @@ extern int vc_set_flags(uint32_t, void __user *);
 #define VXF_HIDE_MOUNT		0x01000000
 #define VXF_HIDE_NETIF		0x02000000
 
-#define	VXF_STATE_SETUP		(1ULL<<32)
-#define	VXF_STATE_INIT		(1ULL<<33)
+#define VXF_STATE_SETUP		(1ULL<<32)
+#define VXF_STATE_INIT		(1ULL<<33)
 
 
-#define	VXF_ONE_TIME		(0x0003ULL<<32)
+#define VXF_ONE_TIME		(0x0003ULL<<32)
 
 #define VCMD_get_ccaps		VC_CMD(FLAGS, 3, 0)
 #define VCMD_set_ccaps		VC_CMD(FLAGS, 4, 0)

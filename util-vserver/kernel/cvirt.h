@@ -20,9 +20,9 @@ struct _vx_cvirt {
 	unsigned long total_forks;
 
 	unsigned int bias_cswtch;
-	long bias_jiffies;
-	long bias_idle;
+	struct timespec bias_idle;
 	struct timespec bias_tp;
+	uint64_t bias_jiffies;
 
 	struct new_utsname utsname;
 
@@ -42,16 +42,18 @@ static inline long vx_sock_total(struct _vx_cvirt *cvirt, int type, int pos)
 }
 
 
+extern uint64_t vx_idle_jiffies(void);
+
 static inline void vx_info_init_cvirt(struct _vx_cvirt *cvirt)
 {
 	int i,j;
+	uint64_t idle_jiffies = vx_idle_jiffies();
 
 	cvirt->nr_threads = 1;
 	// new->virt.bias_cswtch = kstat.context_swtch;
-	cvirt->bias_jiffies = jiffies;
-	/* new->virt.bias_idle = init_tasks[0]->times.tms_utime +
-		init_tasks[0]->times.tms_stime;
-	*/
+	cvirt->bias_jiffies = get_jiffies_64();
+
+	jiffies_to_timespec(idle_jiffies, &cvirt->bias_idle);
 	do_posix_clock_monotonic_gettime(&cvirt->bias_tp);
 
 	down_read(&uts_sem);
@@ -99,7 +101,7 @@ static inline int vx_info_proc_cvirt(struct _vx_cvirt *cvirt, char *buffer)
 
 struct timespec;
 
-void vx_vsi_uptime(struct timespec *uptime);
+void vx_vsi_uptime(struct timespec *uptime, struct timespec *idle);
 
 #endif	/* __KERNEL__ */
 

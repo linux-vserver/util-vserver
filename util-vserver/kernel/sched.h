@@ -63,15 +63,6 @@ static inline int vx_info_proc_sched(struct _vx_sched *sched, char *buffer)
 
 /*  sched vserver commands */
 
-#define VCMD_set_sched_v1	VC_CMD(SYSTEST, 1, 1)
-
-struct  vcmd_set_sched_v1 {
-	int32_t fill_rate;
-	int32_t period;
-	int32_t fill_level;
-	int32_t bucket_size;
-};
-
 #define VCMD_set_sched		VC_CMD(SCHED, 1, 2)
 
 struct  vcmd_set_sched_v2 {
