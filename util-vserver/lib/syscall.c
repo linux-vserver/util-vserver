@@ -45,7 +45,7 @@ checkCompatVersion()
   static int	v_errno;
 
   if (res==0) {
-    res     = sys_virtual_context(VC_CMD(VERSION, 0, 0), VC_CAT_COMPAT, 0);
+    res     = vc_get_version(VC_CAT_COMPAT);
     v_errno = errno;
 #ifdef VC_ENABLE_API_LEGACY
     if (res==-1 && errno==ENOSYS) res=0;
@@ -56,59 +56,67 @@ checkCompatVersion()
   return res;
 }
 
+#define VC_PREFIX	0)
+#define VC_SUFFIX	else (void)((void)0
+#define CALL_VC_NOOP	(void)0
+#define CALL_VC_GENERAL(ID, SUFFIX, FUNC, ...)				\
+  VC_PREFIX; VC_SELECT(ID) return FUNC ## _ ## SUFFIX(__VA_ARGS__); VC_SUFFIX
+
+#if 1
+#  define VC_SELECT(ID)	case ID: if(1)
+#  define CALL_VC(...)					\
+  switch (checkCompatVersion()) {			\
+    case -1	:  if (1) break;			\
+      VC_SUFFIX, __VA_ARGS__ , VC_PREFIX;		\
+    default	:  errno = EINVAL;			\
+  }							\
+  return -1
+#else
+#  define VC_SELECT(ID) if (1)
+#  define CALL_VC(...)				\
+  if (1) {} VC_SUFFIX, __VA_ARGS__, VC_PREFIX;	\
+  errno = ENOSYS; return -1
+#endif
+
+#ifdef VC_ENABLE_API_COMPAT
+#  define CALL_VC_COMPAT(F,...) CALL_VC_GENERAL(0x00010000, compat, F, __VA_ARGS__)
+#else
+#  define CALL_VC_COMPAT(F,...)	CALL_VC_NOOP
+#endif
+
+#ifdef VC_ENABLE_API_LEGACY
+#  define CALL_VC_LEGACY(F,...) CALL_VC_GENERAL(0x00000000, legacy, F, __VA_ARGS__)
+#else
+#  define CALL_VC_LEGACY(F,...) CALL_VC_NOOP
+#endif
+
+int
+vc_get_version(int cat)
+{
+  return sys_virtual_context(VC_CMD(VERSION, 0, 0), cat, 0);
+}
+
+#if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
+
 int
 vc_new_s_context(ctx_t ctx, unsigned int remove_cap, unsigned int flags)
 {
-  switch (checkCompatVersion()) {
-#ifdef VC_ENABLE_API_COMPAT    
-    case 0x00010000	:
-      return vc_new_s_context_compat(ctx, remove_cap, flags);
-#endif      
-#ifdef VC_ENABLE_API_LEGACY
-    case 0x0000000	:
-      return vc_new_s_context_legacy(ctx, remove_cap, flags);
-#endif
-    case -1		:  break;
-    default		:  errno = EINVAL;
-  }
-
-  return -1;
+  CALL_VC(CALL_VC_COMPAT(vc_new_s_context, ctx, remove_cap, flags),
+	  CALL_VC_LEGACY(vc_new_s_context, ctx, remove_cap, flags));
 }
 
 int
 vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips)
 {
-  switch (checkCompatVersion()) {
-#ifdef VC_ENABLE_API_COMPAT    
-    case 0x00010000	:
-      return vc_set_ipv4root_compat(bcast, nb, ips);
-#endif
-#ifdef VC_ENABLE_API_LEGACY
-    case 0x0000000	:
-      return vc_set_ipv4root_legacy(bcast, nb, ips);
-#endif
-    case -1		:  break;
-    default		:  errno = EINVAL;
-  }
-
-  return -1;
+  CALL_VC(CALL_VC_COMPAT(vc_set_ipv4root, bcast, nb, ips),
+	  CALL_VC_LEGACY(vc_set_ipv4root, bcast, nb, ips));
 }
 
 int
 vc_chrootsafe(char const *dir)
 {
-  switch (checkCompatVersion()) {
-#ifdef VC_ENABLE_API_COMPAT    
-    case 0x00010000	:
-      return vc_chrootsafe_compat(dir);
-#endif
-#ifdef VC_ENABLE_API_LEGACY
-    case 0x0000000	:
-      return vc_chrootsafe_legacy(dir);
-#endif
-    case -1		:  break;
-    default		:  errno = EINVAL;
-  }
-
-  return -1;
+  CALL_VC(CALL_VC_COMPAT(vc_chrootsafe, dir),
+	  CALL_VC_LEGACY(vc_chrootsafe, dir));
 }
+
+#endif
