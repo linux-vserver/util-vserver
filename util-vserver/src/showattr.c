@@ -43,7 +43,7 @@ CMDLINE_OPTIONS[] = {
   { 0,0,0,0 }
 };
 
-char const		CMDLINE_OPTIONS_SHORT[] = "Rad";
+char const		CMDLINE_OPTIONS_SHORT[] = "Radx";
 
 void
 showHelp(int fd, char const *cmd, int res)
@@ -51,12 +51,13 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-Rad] [--] <file>*\n\n"
+	    " [-Radx] [--] <file>*\n\n"
 	    " Options:\n"
 	    "   -R  ...  recurse through directories\n"
 	    "   -a  ...  display files starting with '.' also\n"
 	    "   -d  ...  list directories like other files instead of listing\n"
 	    "            their content\n"
+	    "   -x  ...  do not cross filesystems\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }

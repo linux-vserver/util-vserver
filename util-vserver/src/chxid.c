@@ -38,7 +38,7 @@ CMDLINE_OPTIONS[] = {
   { 0,0,0,0 }
 };
 
-char const		CMDLINE_OPTIONS_SHORT[] = "Rc:";
+char const		CMDLINE_OPTIONS_SHORT[] = "Rc:x";
 
 void
 showHelp(int fd, char const *cmd, int res)
@@ -46,10 +46,11 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " -c <ctx|vserver> [-R] [--] <file>+\n\n"
+	    " -c <ctx|vserver> [-Rx] [--] <file>+\n\n"
 	    " Options:\n"
 	    "   -R  ...  recurse through directories\n"
 	    "   -c  ...  assign the given context/vserver to the file(s)\n"
+	    "   -x  ...  do not cross filesystems\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }

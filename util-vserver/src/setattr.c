@@ -42,7 +42,7 @@ CMDLINE_OPTIONS[] = {
   { 0,0,0,0 }
 };
 
-char const		CMDLINE_OPTIONS_SHORT[] = "Rsu";
+char const		CMDLINE_OPTIONS_SHORT[] = "Rsux";
 
 static long	set_mask = 0;
 static long	del_mask = VC_IMMUTABLE_ALL;
@@ -53,12 +53,13 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-Rsu] [--immutable] [--immulink] [--] <file>+\n\n"
+	    " [-Rsux] [--immutable] [--immulink] [--] <file>+\n\n"
 	    " Options:\n"
 	    "   -R  ...  recurse through directories\n"
 	    "   -s  ...  set flag only; when only one of the '--immu*' options\n"
 	    "            is given, do not delete the other ones\n"
 	    "   -u  ...  revert operation and unset the given flags\n"
+	    "   -x  ...  do not cross filesystems\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
