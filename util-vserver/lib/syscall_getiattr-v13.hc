@@ -29,10 +29,9 @@ vc_get_iattr_v13(dev_t dev, ino_t ino, xid_t *xid,
   struct vcmd_ctx_iattr_v0	attr;
   int				rc;
 
-  attr.dev = dev;
   attr.ino = ino;
   
-  rc = vserver(VC_CMD(INODE, 2, 0), 0, &attr);
+  rc = vserver(VC_CMD(INODE, 2, 0), dev, &attr);
   if (xid)   *xid   = attr.xid;
   if (flags) *flags = attr.flags;
   if (mask)  *mask  = attr.mask;

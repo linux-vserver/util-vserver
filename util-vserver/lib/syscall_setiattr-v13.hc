@@ -27,10 +27,9 @@ vc_set_iattr_v13(dev_t dev, ino_t ino, xid_t xid,  uint32_t flags, uint32_t mask
 {
   struct vcmd_ctx_iattr_v0	attr;
 
-  attr.dev   = dev;
   attr.ino   = ino;
   attr.xid   = xid;
   attr.flags = flags;
   attr.mask  = mask;
-  return vserver(VC_CMD(INODE, 1, 0), 0, &attr);
+  return vserver(VC_CMD(INODE, 1, 0), dev, &attr);
 }
