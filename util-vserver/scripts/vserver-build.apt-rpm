@@ -36,12 +36,12 @@ done
 
 getDistribution
 
-initVariables
+base.initVariables
 pkgmgmt.initVariables
 rpm.initVariables
 apt.initVariables
 
-initFilesystem         "$OPTION_FORCE"
+base.initFilesystem    "$OPTION_FORCE"
 pkgmgmt.initFilesystem "$OPTION_FORCE"
 rpm.initFilesystem
 apt.initFilesystem

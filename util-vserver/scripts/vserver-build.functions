@@ -135,7 +135,7 @@ function getDistribution
 }
 
 ## Usage: initFilesystem [force]
-function initFilesystem
+function base.initFilesystem
 {
     test -z "$1" || _renameVserverCfg
     test ! -d "$VDIR" -a ! -d "$SETUP_CONFDIR" || {
@@ -161,7 +161,7 @@ function initFilesystem
     done
 }
 
-function initVariables
+function base.initVariables
 {
     _setRootDir
     _setVserverDir

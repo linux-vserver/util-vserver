@@ -36,10 +36,10 @@ done
 
 getDistribution
 
-initVariables
+base.initVariables
 test -z "$use_pkgmgmt" || pkgmgmt.initVariables
 
-initFilesystem "$OPTION_FORCE"
+base.initFilesystem "$OPTION_FORCE"
 test -z "$use_pkgmgmt" || pkgmgmt.initFilesystem "$OPTION_FORCE"
 
 
