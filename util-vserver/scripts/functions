@@ -50,6 +50,19 @@ function findDir
     findObject -d "$@"
 }
 
+function findAndCopy
+{
+    local dst=$1
+    test ! -s "$dst"         || return 0
+    
+    local tmp
+    shift
+    findFile tmp "$@"
+
+    test "$tmp" -a -s "$tmp" || return 0
+    cp -af "$tmp" "$dst"
+}
+
 function getPhysicalDir
 {
     ( set -P && cd "$1" && pwd )
