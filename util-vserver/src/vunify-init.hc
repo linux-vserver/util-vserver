@@ -132,8 +132,8 @@ initMatchList(struct MatchList *list, char const *vserver,
   char			**fixed_files = 0;
   size_t		fixed_count   = 0;
 
-  char			**expr_files   = 0;
-  size_t		expr_count     = 0;
+  char			**expr_files  = 0;
+  size_t		expr_count    = 0;
 
   if (global_args->verbosity>3) {
     WRITE_MSG(1, "Initializing exclude-list for ");
@@ -175,7 +175,7 @@ initMatchList(struct MatchList *list, char const *vserver,
 
 static bool
 initMatchListByVserver(struct MatchList *list, char const *vserver,
-	      char const **res_appdir)
+		       char const **res_appdir)
 {
   vcCfgStyle	style;
   char const	*vdir;

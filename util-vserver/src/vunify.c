@@ -69,7 +69,7 @@ showHelp(int fd, char const *cmd, int res)
 	    "                       done (in combination with '-v')\n"
 	    "  -v              ...  verbose mode\n"
 	    "  -x              ...  do not cross filesystems; this is valid in manual\n"
-	    "                       mode only and will be ignored for vserver unification\n"
+	    "                       mode only and will be ignored for vserver unification\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 #if 0	    
 	    "  -C              ...  use cached excludelists; usually they will be\n"
