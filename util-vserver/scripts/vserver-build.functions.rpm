@@ -73,3 +73,54 @@ function rpm.initDB
 {
     RPM_FLAVOR=d "$_VRPM" "$1" -- --initdb
 }
+
+
+
+## Usage: rpmlist.install <vserver> <basedir> <tmpfile> <listfile> <rpm-options>*
+function rpmlist.install()
+{
+    local	cfgdir=$1
+    local	basedir=$2
+    local       manifest=$3
+    local	listfile=$4
+    shift 4
+
+    while read; do
+	case x"$REPLY" in
+	    (x|\#*)	continue;;
+	esac
+	
+	echo "$basedir/$REPLY"
+    done >"$manifest" <"$listfile"
+
+    test "$OPTION_DEBUG" -eq 0 || cat "$manifest"
+    test ! -s "$manifest"      || $_VRPM "$cfgdir" -- -U "$@" "$manifest"
+}
+
+
+## Usage: rpmlist.initByDistribution <result-var> <distribution>
+function rpmlist.initByDistribution()
+{
+    local	_rlid_listdir
+    declare -a	_rlid_res=() 
+    
+
+    findDir _rlid_listdir "$CONFDIR/.distributions/$2/rpmlist.d" \
+			  "$DISTRIBDIR/$2/rpmlist.d" \
+			  ''
+		    
+    test -d "$_rlid_listdir" || return 0
+
+    local	_rlid_lst
+    for _rlid_lst in "$_rlid_listdir"/*.lst; do
+	test -e "$_rlid_lst" || continue
+
+	local		_rlid_opts=${_rlid_lst%%lst}cmd
+	declare -a	_rlid_tmp=()
+
+	test ! -e "$_rlid_opts" || getFileArray _rlid_tmp "$_rlid_opts"
+	_rlid_res=( "${_rlid_res[@]}" "${_rlid_tmp[@]}" "$_rlid_lst" )
+    done
+
+    eval "$1"='( "${_rlid_res[@]}" )'
+}
