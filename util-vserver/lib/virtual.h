@@ -153,7 +153,6 @@ struct  vcmd_tbf_sched_v1 {
 #define VCMD_set_iattr		VC_CMD(INODE, 2, 0)
 
 struct  vcmd_ctx_iattr_v0 {
-	uint64_t dev;
 	uint64_t ino;
 	uint32_t xid;
 	uint32_t flags;
