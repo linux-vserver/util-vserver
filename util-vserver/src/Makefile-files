@@ -129,14 +129,13 @@ src_sbin_PRGS =		src/chbind \
 
 src_capchroot_SOURCES		=  src/capchroot.c
 src_capchroot_LDADD		=  lib/libvserver.la
-src_capchroot_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_chbind_SOURCES		=  src/chbind.c
-src_chbind_LDADD		=  lib/libvserver.la
+src_chbind_LDADD		=  $(VSERVER_LDADDS)
 src_chbind_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_chcontext_SOURCES		=  src/chcontext.c src/util-exitlikeprocess.c
-src_chcontext_LDADD		=  lib/libvserver.la
+src_chcontext_LDADD		=  $(VSERVER_LDADDS)
 src_chcontext_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_chroot_cat_SOURCES		=  src/chroot-cat.c
@@ -154,44 +153,46 @@ src_pipe_sync_SOURCES		=  src/pipe-sync.c
 src_exec_ulimit_SOURCES		=  src/exec-ulimit.c
 
 src_reducecap_SOURCES		=  src/reducecap.c
-src_reducecap_LDADD		=  lib/libvserver.la
+src_reducecap_LDADD		=  $(VSERVER_LDADDS)
 src_reducecap_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_vkill_SOURCES		=  src/vkill.c
-src_vkill_LDADD			=  lib/libvserver.la
+src_vkill_LDADD			=  $(VSERVER_LDADDS)
 src_vkill_LDFLAGS		=  $(VSERVER_LDFLAGS)
 src_vkill_CPPFLAGS		=  $(AM_CPPFLAGS) -DLEGACYDIR=\"$(legacydir)\"
 
 src_vlimit_SOURCES		=  src/vlimit.c
-src_vlimit_LDADD		=  lib/libvserver.la
+src_vlimit_LDADD		=  $(VSERVER_LDADDS)
 src_vlimit_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_save_ctxinfo_SOURCES	=  src/save_ctxinfo.c
-src_save_ctxinfo_LDADD		=  lib/libvserver.la
+src_save_ctxinfo_LDADD		=  $(VSERVER_LDADDS)
 src_save_ctxinfo_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_vdu_SOURCES =		src/vdu.c
 src_vreboot_SOURCES =		src/vreboot.c
-src_new_namespace_SOURCES =	src/new-namespace.c \
-				src/util-exitlikeprocess.c
 src_secure_mount_SOURCES =	src/secure-mount.c
 
+src_new_namespace_SOURCES =	src/new-namespace.c \
+				src/util-exitlikeprocess.c
+src_new_namespace_LDADD =	$(DIET_COMPAT_LDADDS)
+
 src_rpm_fake_resolver_SOURCES	=  src/rpm-fake-resolver.c
-src_rpm_fake_resolver_LDADD	=  lib/libvserver.la
+src_rpm_fake_resolver_LDADD	=  $(VSERVER_LDADDS)
 src_rpm_fake_resolver_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_mask2prefix_SOURCES		=  src/mask2prefix.c
 
 src_vps_SOURCES			=  src/vps.c src/util-exitlikeprocess.c
-src_vps_LDADD			=  lib/libvserver.la
+src_vps_LDADD			=  $(VSERVER_LDADDS)
 src_vps_LDFLAGS			=  $(VSERVER_LDFLAGS)
 
 src_vserver_info_SOURCES	=  src/vserver-info.c
-src_vserver_info_LDADD		=  lib/libvserver.la
+src_vserver_info_LDADD		=  $(VSERVER_LDADDS)
 src_vserver_info_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
-src_vserver_stat_LDADD		=  lib/libvserver.la libensc_vector.a
+src_vserver_stat_LDADD		=  $(VSERVER_LDADDS) libensc_vector.a
 src_vserver_stat_LDFLAGS	=  $(VSERVER_LDFLAGS)
 
 src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc src/vserver.cc
@@ -199,30 +200,30 @@ src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc src/vserver.cc
 src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc src/vserver.cc
 
 src_lsxid_SOURCES		=  src/fstool.c src/util-safechdir.c src/lsxid.c
-src_lsxid_LDADD			=  lib/libvserver.la libensc_vector.a
+src_lsxid_LDADD			=  $(VSERVER_LDADDS) libensc_vector.a
 src_lsxid_LDFLAGS		=  $(VSERVER_LDFLAGS) 
 
 src_chxid_SOURCES		=  src/fstool.c src/util-safechdir.c \
 				   src/fstool-resolvectx.c src/chxid.c
-src_chxid_LDADD			=  lib/libvserver.la
+src_chxid_LDADD			=  $(VSERVER_LDADDS)
 src_chxid_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_showattr_SOURCES		=  src/fstool.c src/util-safechdir.c src/showattr.c
-src_showattr_LDADD		=  lib/libvserver.la
+src_showattr_LDADD		=  $(VSERVER_LDADDS)
 src_showattr_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 src_setattr_SOURCES		=  src/fstool.c src/util-safechdir.c src/setattr.c
-src_setattr_LDADD		=  lib/libvserver.la
+src_setattr_LDADD		=  $(VSERVER_LDADDS)
 src_setattr_LDFLAGS		=  $(VSERVER_LDFLAGS)
 
 
 src_vunify_SOURCES =		src/vunify.c \
 				src/util-safechdir.c
-src_vunify_LDADD =		lib_internal/libinternal.a lib/libvserver.la
+src_vunify_LDADD =		lib_internal/libinternal.a $(VSERVER_LDADDS)
 src_vunify_LDFLAGS =		$(VSERVER_LDFLAGS)
 
 src_vuname_SOURCES =		src/vuname.c
-src_vuname_LDADD =		lib/libvserver.la
+src_vuname_LDADD =		$(VSERVER_LDADDS)
 src_vuname_LDFLAGS =		$(VSERVER_LDFLAGS)
 
 src_rpm_fake_la_SOURCES		=  src/rpm-fake.c
