@@ -39,14 +39,17 @@ Red Hat 7.3, Red Hat 9, Fedora Core 1&2
   for path-detection only and paths from RH systems will be assumed by
   default, this should not be a big problem.
 
-* guest systems can be created with the 'apt-rpm' build-method. This
-  requires the 'apt' package e.g. from http://fedora.us. Before first
-  invocation, a near mirror should be activated in
+* guest systems can be created with the 'apt-rpm' or 'yum' build-methods.
+  The first one requires the 'apt' package e.g. from http://fedora.us and
+  the configuration of a near mirror in
 
   | /etc/vservers/.distributions/<id>/apt/sources.list
 
   (To avoid slashdotting by the masses of util-vserver-users, there
-  does not exist a standard mirror)
+  does not exist a standard mirror).
+
+  The 'yum' method uses the repository configuration shipped by the
+  fedora-release package.
 
 * RH/FC uses the 'sysv' initstyle which is assumed by default
 
@@ -59,8 +62,8 @@ Red Hat 7.3, Red Hat 9, Fedora Core 1&2
 
 * when having RH/FC guestsystems, it is *strongly* recommended to use
   a dietlibc linked version of 'rpm-fake-resolver'. Else, package
-  installation with 'vrpm' or 'vapt-get' can fail since users can not
-  be resolved.
+  installation with 'vrpm', 'vapt-get' or 'vyum' can fail since users
+  can not be resolved.
 
 
 
