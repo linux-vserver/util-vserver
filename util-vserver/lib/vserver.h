@@ -113,7 +113,8 @@ extern "C" {
      *  Special values for ctx are
      *  - VC_SAMECTX  which means the current context (just for changing caps and flags)
      *  - VC_RANDCTX  which means the next free context; this value can be used by
-     *                ordinary users also */
+     *                ordinary users also
+     *  See http://vserver.13thfloor.at/Stuff/Logic.txt for details */
   int	vc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags);
 
     /** Sets the ipv4root information.
