@@ -14,6 +14,7 @@ sortserver(){
 	do
 		PRIORITY=100
 		. $serv
+		test "$ONBOOT" || continue
 		printf "%03d %s\n" $PRIORITY `basename $serv .conf`
 	done
 	) | sort $* | (while read a b; do echo $b; done)
