@@ -12,7 +12,7 @@ build  @PKGLIBDIR@/vserver-build.functions.pkgmgmt
 build  @PKGLIBDIR@/vserver-setup.functions
 base   @PKGLIBDIR@/vserver.functions
 base   @PKGLIBDIR@/vserver.start
-base   @PKGLIBDIR@/vserver.start.bin
+@ENSC_HAVE_C99_COMPILER_TRUE@base   @PKGLIBDIR@/vserver.start.bin
 base   @PKGLIBDIR@/vserver.stop
 base   @PKGLIBDIR@/vserver.suexec
 core   @PKGLIBDIR@/util-vserver-vars
