@@ -30,7 +30,7 @@ legacydir		=  $(pkglibdir)/legacy
 
 include_HEADERS =	$(lib_HDRS)
 noinst_HEADERS =	$(src_HDRS) $(lib_XHDRS) \
-			$(lib_internal_libinternal_a_XHDRS)
+			$(lib_internal_libinternal_a_XHDRS) \
 			$(ENSC_VECTOR_HDRS) $(ENSC_VECTOR_XHDRS) \
 			$(ENSC_WRAPPERS_HDRS) \
 			compat.h compat-c99.h
