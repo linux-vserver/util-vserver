@@ -24,7 +24,6 @@ util-vserver*.diff*
 util-vserver*.patch*
 util-vserver-*.tar.bz2*
 util-vserver-*.tar.gz
-util-vserver-0.23.94__0.23.95.patch
 util-vserver.spec
 vserver.spec
 vserverx-*.tar.*
