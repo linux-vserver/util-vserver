@@ -53,6 +53,10 @@ fi
 
 sendKillSequence  "$S_CONTEXT" "${INITKILL_SEQ[@]}"
 
+## Small hack... isVserverRunning removes stale runfiles as a sideeffect
+! isVserverRunning  "$VSERVER_DIR" || \
+    echo $"Vserver '$VSERVER_DIR' still running unexpectedly; please investigate it manually..." >&2
+
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" post-stop
     
 umountVserver     "$VSERVER_DIR" || :
