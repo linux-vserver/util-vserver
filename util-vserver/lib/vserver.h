@@ -697,6 +697,13 @@ extern "C" {
   bool		vc_isSupported(vcFeatureSet) VC_ATTR_CONST;
   bool		vc_isSupportedString(char const *);
 
+  
+  typedef enum { vcTYPE_INVALID, vcTYPE_MAIN, vcTYPE_WATCH,
+		 vcTYPE_STATIC, vcTYPE_DYNAMIC }
+    vcXidType;
+  
+  vcXidType	vc_getXIDType(xid_t xid) VC_ATTR_CONST;
+
   /* The management part */
 
 #define VC_LIMIT_VSERVER_NAME_LEN	1024
