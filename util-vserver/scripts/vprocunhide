@@ -1,4 +1,5 @@
 #!/bin/bash
+# $Id$
 #
 # Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 #  
@@ -32,7 +33,7 @@ function showHelp()
 Return values:
     0  ...  no errors
     1  ...  configuration error
-    2  ...  some files where changes but there occured errors on other ones
+    2  ...  some files were changed but errors occured on other ones
     3  ...  operation failed on every file
 
 Report bugs to <$PACKAGE_BUGREPORT>."
