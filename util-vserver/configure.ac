@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.27.196, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.27.197, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -106,11 +106,11 @@ dnl Check for the APIs to be used
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([apis],
 	      [AC_HELP_STRING([--enable-apis=APIS],
-			      [enable support for the given apis; possible values are: legacy,compat,v11,ALL (default: ALL)])],
+			      [enable support for the given apis; possible values are: legacy,compat,v11,v13,fscompat,ALL (default: ALL)])],
               [],
 	      [enable_apis=ALL])
 
-test x"$enable_apis" != xALL || enable_apis='legacy,compat,v11'
+test x"$enable_apis" != xALL || enable_apis='legacy,compat,v11,v13,fscompat'
 old_IFS=$IFS
 IFS=,;
 for i in $enable_apis; do
@@ -118,6 +118,8 @@ for i in $enable_apis; do
 		compat)	AC_DEFINE(VC_ENABLE_API_COMPAT, 1, [Enable support for compatibily syscall API]);;
 		legacy) AC_DEFINE(VC_ENABLE_API_LEGACY, 1, [Enable support for old, /proc parsing API]);;
 		v11)    AC_DEFINE(VC_ENABLE_API_V11,    1, [Enable support for API of vserver 1.1.x]);;
+		v13)    AC_DEFINE(VC_ENABLE_API_V13,    1, [Enable support for API of vserver 1.3.x]);;
+		fscompat)	AC_DEFINE(VC_ENABLE_API_FSCOMPAT,    1, [Enable support for filesystem compatibility API]);;
 		*)	AC_MSG_ERROR(['$i' is not a supported API]);;
 	esac
 done
