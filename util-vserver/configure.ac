@@ -101,11 +101,13 @@ done
 IFS=$old_IFS
 AC_MSG_RESULT([$enable_apis])
 
+AC_LANG_PUSH(C++)
 AC_CHECK_HEADERS([ext2fs/ext2fs.h], [],
   [AC_CHECK_HEADERS([linux/ext2_fs.h], [],
                     [AC_MSG_ERROR([Sorry, do not know, how to include 'ext2fs.h'])])])
+AC_LANG_POP
 
-AC_CHECK_FUNCS([sys_virtual_context])
+AC_CHECK_FUNCS([vserver])
 AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
 AC_CHECK_TYPES(xid_t,,,[#include <sys/types.h>])
 
