@@ -69,14 +69,14 @@ MatchList_initRefserverList(struct MatchList **lst, size_t *cnt,
       .use_pkgmgmt = true
     };
 
+    memcpy(vname,   "./", 2);
+    memcpy(vname+2, tmp,  l+1);
+    
     if (!MatchVserverInfo_init(&vserver)) {
       WRITE_MSG(2, "failed to initialize unification of reference vserver\n");
       exit(1);
     }
 
-    memcpy(vname,   "./", 2);
-    memcpy(vname+2, tmp,  l+1);
-    
     if (!MatchList_initByVserver((*lst)+i, &vserver)) {
       WRITE_MSG(2, "unification for reference vserver not configured\n");
       exit(1);
