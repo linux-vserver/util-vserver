@@ -1,0 +1,32 @@
+body {
+  font-size: 12pt;
+  background-color: pink;
+  margin: 0px;
+}
+
+span.directory {
+  background-color: green;
+  color: cyan;
+}
+
+span.symlink {
+  background-color: red;
+  color: yellow;
+}
+
+span.script {
+  background-color: blue;
+  color: grey;
+}
+
+span.symbolic:before { content: "<"; }
+span.symbolic:after  { content: ">"; }
+
+span.symbolic {
+  font-style: italic;
+}
+
+span.description {
+  background-color: yellow;
+  color: red;
+}
