@@ -205,24 +205,21 @@ add_ctx(struct ctx_list *list, struct process_info *process)
 
 // increment the count number in the ctx record using ctx number
 static void
-count_ctx(struct ctx_list **list, struct process_info *process)
+count_ctx(struct ctx_list **ptr, struct process_info *process)
 {
-  struct ctx_list	**ptr = list;
-
   for (;;) {
     if (*ptr==0 || (*ptr)->ctx > process->s_context) {
       *ptr = insert_ctx(process->s_context, *ptr);
-      add_ctx(*ptr, process);
-      return;
+      break;
     }
 
-    if ((*ptr)->ctx == process->s_context) {
-      add_ctx(*ptr, process);
-      return;
-    }
+    if ((*ptr)->ctx == process->s_context)
+      break;
 
     ptr = &(*ptr)->next;
   }
+
+  add_ctx(*ptr, process);
 }
 
 // free mem
@@ -256,6 +253,7 @@ struct process_info *get_process_info(char *pid)
     WRITE_STR(2, pid);
     WRITE_MSG(2, "): ");
     WRITE_STR(2, strerror(err));
+    WRITE_MSG(2, "\n");
   }
   
   memcpy(buffer,     "/proc/", 6); idx  = 6;
