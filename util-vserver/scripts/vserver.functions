@@ -450,11 +450,6 @@ function _processSingleInterface
 
     test "$ip" || { echo $"Can not read ip for '$iface'"  >&2; return 1; }
 
-    test ! -e "$iface"/only_ip || {
-	## LEGACY ALERT
-	echo $"The 'only_ip' flag for interface '$iface' is deprecated; use 'nodev' instead of" >&2
-	unset dev
-    }
     test ! -e "$iface"/down    || up=
     
     while test "$dev"; do
@@ -462,6 +457,11 @@ function _processSingleInterface
 	INTERFACES=( "${INTERFACES[@]}" "$ip${prefix:+/$prefix}" )
 
 	test ! -e "$iface"/nodev || break
+	test ! -e "$iface"/only_ip || {
+	    ## LEGACY ALERT
+	    echo $"The 'only_ip' flag for interface '$iface' is deprecated; use 'nodev' instead of" >&2
+	    break
+	}
 
 	case "$dev" in
 	    (*.*)
