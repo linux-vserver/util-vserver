@@ -17,8 +17,7 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-doc_old_doc =			doc/FAQ.txt \
-				doc/intro.txt
+doc_old_doc =			doc/intro.txt
 
 XSLT_AMFLAGS =			--stringparam confdir '$(sysconfdir)/vservers'
 XSLTP_AMFLAGS =			-param confdir '$(sysconfdir)/vservers'
@@ -27,7 +26,7 @@ doc_gen_DOCS =			doc/configuration.html \
 				doc/compatibility.html
 
 doc_configuration_SRCS =	doc/configuration.xml \
-				doc/configuration.dtd \
+				doc/configuration.xsd \
 				doc/configuration-lsd.css \
 				doc/configuration-xhtml.xsl
 
