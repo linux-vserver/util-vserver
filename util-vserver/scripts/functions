@@ -293,3 +293,32 @@ function getFileArray
     local IFS=$_VS_NEWLINE
     eval "$1"='( $(< "$2") )'
 }
+
+function checkComponents
+{
+    local	i
+    local	msg=$1
+    local	x_failed=
+
+    shift
+    
+    for i; do
+	local failed=
+	case "$i" in
+	    core)	test -x "$_CHBIND"           || failed=1;;
+	    build)	test -x "$_VSERVER_BUILD"    || failed=1;;
+	    sysv)	test -x "$INITRDDIR/vserver" || failed=1;;
+	    devel)	test -d "$INCLUDEDIR/vserver.h" || failed=1;;
+	    *)		echo "Unknown component '$i'"
+			return false
+			;;
+	esac
+
+	test -z "$failed" || {
+	    echo "$msg: $i"
+	    x_failed=1
+	}
+    done
+
+    test -z "$x_failed"
+}
