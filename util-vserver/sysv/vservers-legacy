@@ -1,0 +1,92 @@
+#!/bin/sh
+# chkconfig: 345 98 02
+# description: The vservers service is used to start and stop all
+#              the virtual servers.
+
+: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo $"Can not find util-vserver installation; aborting...">&2
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+
+# Print the vserver name in priority/alpha order
+sortserver(){
+	(
+	cd $CONFDIR
+	for serv in *.conf
+	do
+	        test -f "$serv" || continue
+
+		PRIORITY=100
+		. $serv
+		test "$ONBOOT" || continue
+		printf "%03d %s\n" $PRIORITY `basename $serv .conf`
+	done
+	) | sort $* | (while read a b; do echo $b; done)
+}
+
+startservers(){
+	echo "Starting the virtual servers"
+	cd $CONFDIR
+	for name in `sortserver`
+	do
+		ONBOOT=
+		. $name.conf
+		if [ "$ONBOOT" = "yes" ] ; then
+			$_VSERVER_LEGACY $name start
+		else
+			echo virtual server $name not configured for on boot start
+		fi
+	done
+}
+
+BACKGROUND=off
+if [ -f /etc/vservers.conf ] ; then
+	. /etc/vservers.conf
+fi
+
+
+# See how we were called.
+case "$1" in
+  start)
+	if [ "$BACKGROUND" = "yes" ] ; then
+		startservers >/dev/tty8 </dev/tty8 2>/dev/tty8 &
+	else
+		startservers
+	fi
+	touch /var/lock/subsys/vservers-legacy
+	;;
+  stop)
+	echo "Stopping the virtual servers"
+	cd $CONFDIR
+	for name in `sortserver -r`
+	do
+		$_VSERVER_LEGACY $name stop
+	done
+	rm -f /var/lock/subsys/vservers-legacy
+	;;
+  restart)
+	$0 stop
+	$0 start
+	;;
+  reload)
+	echo Not implemented
+	;;
+  status)
+	cd $CONFDIR
+	for serv in *.conf
+	do
+		ONBOOT=no
+		name=`basename $serv .conf`
+		. $serv
+		echo -n ONBOOT=$ONBOOT " "
+		$_VSERVER_LEGACY $name running
+	done
+	;;
+  *)
+	echo "Usage: vservers {start|stop|restart|reload|status}"
+	exit 1
+esac
+
+exit 0
