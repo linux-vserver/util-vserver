@@ -41,6 +41,7 @@ nobase_distrib_DATA	=  defaults/devs \
 			   fc2/apt/rpmpriorities    fc2/pkgs/01    fc2/pkgs/02 \
 			   fc3/pkgs/01 fc3/pkgs/02 fc3/pkgs/03 \
 			   fc3/yum/yum.conf $(wildcard fc3/yum.repos.d/fedora*.repo) \
+			   $(wildcard fc3/rpmlist.d/*.lst) $(wildcard fc3/rpmlist.d/*.opt) \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros
 
