@@ -79,6 +79,7 @@ DIETPROGS +=		src/chcontext-compat \
 			src/vserver-info
 
 noinst_HEADERS +=	src/vutil.h src/vutil.p \
+			src/capability-compat.h \
 			src/util.h \
 			src/fstool.h \
 			src/compat-pivot_root.h \
