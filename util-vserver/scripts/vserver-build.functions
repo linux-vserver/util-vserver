@@ -20,8 +20,6 @@
 
 ROOTDIR=
 ROOTDIR_REL=
-PKGCFGBASE=
-PKGCFGBASE_REL=
 VSERVERDIRNAME=
 
 VDIR=
@@ -86,31 +84,6 @@ function _setRootDir
     }
 }
 
-function _setPkgCfgBase
-{
-    test -z "$PKGCFGBASE" || return 0
-
-    for item in "\"$CONFDIR/.defaults/apps/pkgmgmt/base\" 1" "$ROOTDIR/.pkg" "$DEFAULT_VSERVERPKGDIR"; do
-	eval set -- "$item"
-	PKGCFGBASE=$1
-	PKGCFGBASE_REL=$2
-	test ! -d "$PKGCFGBASE" || break
-    done
-
-    test -d "$PKGCFGBASE"  || {
-	echo "pkgcfgbase-dir '$PKGCFGBASE' does not exists or is invalid"
-	exit 1
-    }
-}
-
-function _setPkgCfg
-{
-    _setPkgCfgBase
-
-    test -z "$PKGCFGDIR" || return 0
-    PKGCFGDIR="$PKGCFGBASE/$VSERVERDIRNAME"
-}
-
 function _setVserverDir
 {
     test -z "$VSERVERDIRNAME" || return 0
@@ -133,7 +106,7 @@ function _renameVserverCfg
     local suffix=.~$(date +'%s')~
     local i
     
-    for i in "$VDIR" "$SETUP_CONFDIR" "$PKGCFGDIR"; do
+    for i in "$VDIR" "$SETUP_CONFDIR"; do
 	test ! -e "$i" || {
 	    mv "$i" "$i$suffix"
 	    say "Renamed '$i' to '$i$suffix'"
@@ -171,15 +144,9 @@ function initFilesystem
 	exit 1
     } >&2
 
-    mkdir -p "$SETUP_CONFDIR"/apps/pkgmgmt "$VDIR"/{dev/pts,etc} "$SETUP_LOCKREVDIR"
+    mkdir -p "$SETUP_CONFDIR"/apps "$VDIR"/{dev/pts,etc} "$SETUP_LOCKREVDIR"
     
     ln -s "$VDIR"       "$SETUP_CONFDIR/vdir"
-
-    test -z "$PKGCFGDIR" || {
-	ln -s "$PKGCFGDIR" "$SETUP_CONFDIR/apps/pkgmgmt/base"
-
-	test "$_EXECDIR" = / || ln -s "$_EXECDIR" "$confdir/apps/pkgmgmt/execdir"
-    }
 
     local spec
     while read spec; do
@@ -198,12 +165,10 @@ function initVariables
 {
     _setRootDir
     _setVserverDir
-    _setPkgCfg
     _setVdir
 
     findFile _DEV_FILE      "$CONFDIR/.distributions/$DISTRIBUTION/devs"      "$DISTRIBDIR/$DISTRIBUTION/devs"     "$DISTRIBDIR/defaults/devs"
     findDir  _EXECDIR       "$CONFDIR/.distributions/$DISTRIBUTION/execdir"   "$DISTRIBDIR/$DISTRIBUTION/execdir"  /
     findFile BUILD_INITPRE  "$CONFDIR/.distributions/$DISTRIBUTION/initpre"   "$DISTRIBDIR/$DISTRIBUTION/initpre"  ""
     findFile BUILD_INITPOST "$CONFDIR/.distributions/$DISTRIBUTION/initpost"  "$DISTRIBDIR/$DISTRIBUTION/initpost" ""
-    findDir  PKGDIR         "$CONFDIR/.distributions/$DISTRIBUTION/pkgs"      "$DISTRIBDIR/$DISTRIBUTION/pkgs"     /
 }

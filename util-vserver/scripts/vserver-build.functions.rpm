@@ -18,7 +18,7 @@
 RPMDB_PATH=
 RPMLIBDIR=
 
-function importGPGPubKeys
+function rpm.importGPGPubKeys
 {
     local dst=$1
     local pkgs
@@ -39,7 +39,7 @@ function importGPGPubKeys
     "$_VRPM" "$dst" -- --import "${pkgs[@]}"
 }
 
-function initVariablesRPM
+function rpm.initVariables
 {
     test "$WORKAROUND_106057" && \
 	RPMDB_PATH=/.rpmdb || \
@@ -48,7 +48,7 @@ function initVariablesRPM
     findDir RPMLIBDIR "$CONFDIR/.distributions/$DISTRIBUTION/rpmlib" "$DISTRIBDIR/$DISTRIBUTION/rpmlib" /
 }
 
-function initFilesystemRPM
+function rpm.initFilesystem
 {
     test -z "$WORKAROUND_106057" || mkdir -p "$RPMDB_PATH"
     mkdir -p "$VDIR$RPMDB_PATH"
