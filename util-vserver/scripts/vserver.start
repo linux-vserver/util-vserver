@@ -75,7 +75,7 @@ startsync_pipe=
 set -e
 trap "cleanup" EXIT
 
-vshelper.doSanityCheck
+sanityCheck      "$VSERVER_DIR"
 
 mountRootFS      "$VSERVER_DIR"
 generateOptions  "$VSERVER_DIR"
