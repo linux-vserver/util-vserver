@@ -76,29 +76,30 @@ linuxvirtual.h:
 			ln -sf '$(kernelincludedir)/linux/virtual.h' '$@' && test -e '$@' || \
 			ln -sf '$(top_srcdir)/lib/virtual.h' '$@'
 
+pathsubst_RULES		=  s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
+			   s!@'SBINDIR'@!$(sbindir)!g; \
+			   s!@'CONFDIR'@!$(confdir)!g; \
+			   s!@'SYSCONFDIR'@!$(sysconfdir)!g; \
+			   s!@'PACKAGE'@!$(PACKAGE)!g; \
+			   s!@'PACKAGE_BUGREPORT'@!$(PACKAGE_BUGREPORT)!g; \
+			   s!@'PACKAGE_NAME'@!$(PACKAGE_NAME)!g; \
+			   s!@'PACKAGE_STRING'@!$(PACKAGE_STRING)!g; \
+			   s!@'PACKAGE_TARNAME'@!$(PACKAGE_TARNAME)!g; \
+			   s!@'PACKAGE_VERSION'@!$(PACKAGE_VERSION)!g; \
+			   s!@'AWK'@!$(AWK)!g; \
+			   s!@'GREP'@!$(GREP)!g; \
+			   s!@'IP'@!$(IP)!g; \
+			   s!@'MOUNT'@!$(MOUNT)!g; \
+			   s!@'UMOUNT'@!$(UMOUNT)!g; \
+			   s!@'NICE'@!$(NICE)!g; \
+			   s!@'VCONFIG'@!$(VCONFIG)!g; \
+			   s!@'WC'@!$(WC)!g
+
 pathconfig.h:		.pathconfig.h.pathsubst.stamp
 .%.pathsubst.stamp:	%.pathsubst Makefile
 			@mkdir -p $$(dirname '$@')
 			@echo "sed -e '...' $*.pathsubst >$*"
-			@sed -e 's!@'PKGLIBDIR'@!$(pkglibdir)!g; \
-				s!@'SBINDIR'@!$(sbindir)!g; \
-				s!@'CONFDIR'@!$(confdir)!g; \
-				s!@'SYSCONFDIR'@!$(sysconfdir)!g; \
-				s!@'PACKAGE'@!$(PACKAGE)!g; \
-				s!@'PACKAGE_BUGREPORT'@!$(PACKAGE_BUGREPORT)!g; \
-				s!@'PACKAGE_NAME'@!$(PACKAGE_NAME)!g; \
-				s!@'PACKAGE_STRING'@!$(PACKAGE_STRING)!g; \
-				s!@'PACKAGE_TARNAME'@!$(PACKAGE_TARNAME)!g; \
-				s!@'PACKAGE_VERSION'@!$(PACKAGE_VERSION)!g; \
-				s!@'AWK'@!$(AWK)!g; \
-				s!@'GREP'@!$(GREP)!g; \
-				s!@'IP'@!$(IP)!g; \
-				s!@'MOUNT'@!$(MOUNT)!g; \
-				s!@'UMOUNT'@!$(UMOUNT)!g; \
-				s!@'NICE'@!$(NICE)!g; \
-				s!@'VCONFIG'@!$(VCONFIG)!g; \
-				s!@'WC'@!$(WC)!g; \
-			       ' '$<' >'$@.tmp'
+			@sed -e '$(pathsubst_RULES)' '$<' >'$@.tmp'
 			@if cmp -s '$@.tmp' '$*'; then \
 				echo "... no changes, reusing old version"; \
 				rm -f '$@.tmp'; \
