@@ -132,15 +132,8 @@ function processVserver_RH()
     cfgdir=$($_VSERVER_INFO "$vserver" APPDIR)/pkgmgmt
 
     ## Figure out the environment....
-    if test "$is_internalize"; then
-	have_apt=1
-	test -d "$cfgdir"/base/apt -o -d "$cfgdir"/aptetc || have_apt=
-    else
-	have_apt=
-	for i in /bin /usr/bin /usr/local/bin; do
-	    test ! -x "$vdir$i"/apt-get || { have_apt=1; break; }
-	done
-    fi
+    have_apt=1
+    pkgmgmt.isAptAvailable "$cfgdir" "$vdir" "$is_internalize" || have_apt=
 
     local APTETCDIR=
     local APTSTATEDIR=
