@@ -28,8 +28,28 @@ Eopen(char const *fname, int flags, mode_t mode)
   return res;
 }
 
+inline static WRAPPER_DECL int
+EopenD(char const *fname, int flags, mode_t mode)
+{
+  ENSC_DETAIL1(msg, "open", fname, 1);
+  
+  {
+    int		res = open(fname, flags, mode);
+    FatalErrnoError(res==-1, msg);
+    return res;
+  }
+}
+
+
 inline static WRAPPER_DECL void
 Emkdir(const char *pathname, mode_t mode)
 {
   FatalErrnoError(mkdir(pathname,mode)==-1, "mkdir()");
+}
+
+inline static WRAPPER_DECL void
+EmkdirD(const char *pathname, mode_t mode)
+{
+  ENSC_DETAIL1(msg, "mkdir", pathname, 1);
+  FatalErrnoError(mkdir(pathname,mode)==-1, msg);
 }

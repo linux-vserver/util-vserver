@@ -57,6 +57,16 @@ Eexecvp(char const *path, char *argv[])
   FatalErrnoErrorFail("execvp()");
 }
 
+inline static WRAPPER_DECL NORETURN void
+EexecvpD(char const *path, char *argv[])
+{
+  execvp(path,argv);
+  {
+    ENSC_DETAIL1(msg, "execvp", path, 1);
+    FatalErrnoErrorFail(msg);
+  }
+}
+
 inline static WRAPPER_DECL void
 Epipe(int filedes[2])
 {
@@ -97,9 +107,23 @@ Ereadlink(const char *path, char *buf, size_t bufsiz)
 }
 
 inline static WRAPPER_DECL void
+EreadlinkD(const char *path, char *buf, size_t bufsiz)
+{
+  ENSC_DETAIL1(msg, "readlink", path, 1);
+  FatalErrnoError(readlink(path, buf, bufsiz)==-1, msg);
+}
+
+inline static WRAPPER_DECL void
 Esymlink(const char *oldpath, const char *newpath)
 {
   FatalErrnoError(symlink(oldpath, newpath)==-1, "symlink()");
+}
+
+inline static WRAPPER_DECL void
+EsymlinkD(const char *oldpath, const char *newpath)
+{
+  ENSC_DETAIL2(msg, "symlink", oldpath, newpath, 1, 1);
+  FatalErrnoError(symlink(oldpath, newpath)==-1, msg);
 }
 
 inline static WRAPPER_DECL void
