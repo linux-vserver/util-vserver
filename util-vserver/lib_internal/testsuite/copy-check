@@ -42,8 +42,8 @@ function execWrap()
 
 function doit()
 {
-    execWrap "$nr" "copying"   $COPY  $dir/$nr-in $dir/$nr-out
-    execWrap "$nr" "comparing" cmp -s $dir/$nr-in $dir/$nr-out
+    execWrap "$nr" "copying"   $COPY $dir/$nr-in $dir/$nr-out
+    execWrap "$nr" "comparing" cmp   $dir/$nr-in $dir/$nr-out
 }
 
 ## Usage: execCheck <nr> [<dd-args>*]
