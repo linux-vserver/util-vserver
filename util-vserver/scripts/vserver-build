@@ -56,7 +56,7 @@ Possible methods are:
     yum     ... -- -d <distribution>
                 ...  installs the base-packages of the given distribution with
 		     help of 'vyum'
-    rpm     ... -- [-d <distribution>] ([--force] [--nodeps] <manifest>)*
+    rpm     ... -- [-d <distribution>] --empty|([--force] [--nodeps] <manifest>)+
                 ...  installs lists of rpm-packages
     skeleton ... -- [<cmd> <args>*]
                 ...  installs a minimal skeleton filesystem, creates the
@@ -93,13 +93,14 @@ eval set -- "$tmp"
 
 VSERVER_NAME=
 OPTION_FORCE=
+OPTION_DEBUG=0
 
 while true; do
     case "$1" in
 	(--help)    showHelp $0 ;;
 	(--version) showVersion ;;
 	(--force)   OPTION_FORCE=1;;
-	(--debug)   set -x;;
+	(--debug)   let ++OPTION_DEBUG;  set -x;;
 	(--rootdir) ROOTDIR=$2;      shift;;
 	(--pkgbase) PKGCFGBASE=$2;   shift;;
 	(-m)	    method=$2;       shift;;
