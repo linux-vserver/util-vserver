@@ -711,7 +711,7 @@ elif [ "$2" = "suexec" ] ; then
 			cd $VROOTDIR/$VSERVER
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
-			$CHBIND_CMD $SILENT $IPOPT --bcast $IPROOTBCAST \
+			exec $CHBIND_CMD $SILENT $IPOPT --bcast $IPROOTBCAST \
 				$CHCONTEXT_CMD $SILENT $FLAGS $CAPS --secure --ctx $S_CONTEXT \
 				$CAPCHROOT_CMD --suid $USERID . "$@"
 		else
@@ -733,7 +733,7 @@ elif [ "$2" = "suexec" ] ; then
 			cd $VROOTDIR/$VSERVER
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
-			$CHBIND_CMD $SILENT $IPOPT --bcast $IPROOTBCAST \
+			exec $CHBIND_CMD $SILENT $IPOPT --bcast $IPROOTBCAST \
 				$CHCONTEXT_CMD $SILENT $FLAGS $CAPS --secure $CTXOPT $HOSTOPT $DOMAINOPT \
 				$SAVE_S_CONTEXT_CMD /var/run/vservers/$VSERVER.ctx \
 				$CAPCHROOT_CMD --suid $USERID $CHROOTOPT . "$@"
