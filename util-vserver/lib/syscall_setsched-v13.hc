@@ -25,12 +25,14 @@
 static inline ALWAYSINLINE int
 vc_set_sched_v13(xid_t xid, struct vc_set_sched const *data)
 {
-  struct vcmd_set_sched_v1	k_data;
+  struct vcmd_set_sched_v2	k_data;
 
   k_data.fill_rate   = data->fill_rate;
-  k_data.period      = data->period;
-  k_data.fill_level  = data->fill_level;
-  k_data.bucket_size = data->bucket_size;
+  k_data.interval    = data->interval;
+  k_data.tokens      = data->tokens;
+  k_data.tokens_min  = data->tokens_min;
+  k_data.tokens_max  = data->tokens_max;
+  k_data.cpu_mask    = data->cpu_mask;
 
   return vserver(VCMD_set_sched, CTX_USER2KERNEL(xid), &k_data);
 }

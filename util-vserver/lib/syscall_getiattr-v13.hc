@@ -29,7 +29,7 @@ vc_get_iattr_v13(char const *filename,
   struct vcmd_ctx_iattr_v1	attr;
   int				rc;
 
-  attr.file_name = filename;
+  attr.name = filename;
   
   rc = vserver(VCMD_get_iattr, 0, &attr);
   if (xid)   *xid   = CTX_KERNEL2USER(attr.xid);

@@ -27,9 +27,9 @@ vc_set_iattr_v13(char const *filename, xid_t xid,  uint32_t flags, uint32_t mask
 {
   struct vcmd_ctx_iattr_v1	attr;
 
-  attr.file_name = filename;
-  attr.xid       = CTX_USER2KERNEL(xid);
-  attr.flags     = flags;
-  attr.mask      = mask;
+  attr.name  = filename;
+  attr.xid   = CTX_USER2KERNEL(xid);
+  attr.flags = flags;
+  attr.mask  = mask;
   return vserver(VCMD_set_iattr, 0, &attr);
 }
