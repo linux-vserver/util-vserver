@@ -30,7 +30,7 @@
 #include <assert.h>
 
 #define CTXNR_WIDTH	5
-#define HUNK_SIZE	0x40;
+#define HUNK_SIZE	0x4000
 #define CONTEXT_WIDTH	20
 #define CONTEXT_PLACE	"                    "
 
