@@ -29,6 +29,7 @@ lib_SRCS			=  lib/syscall.c \
 				   lib/getversion.c \
 				   lib/uint2str.c \
 				   lib/int2str.c \
+				   lib/capabilities.c \
 				   $(lib_legacy_SRCS)
 
 lib_HDRS			=  lib/vserver.h
@@ -49,7 +50,7 @@ lib_XHDRS                       =  lib/syscall-compat.hc \
 lib_lib_LIBS			=  lib/libvserver.a
 
 lib_libvserver_a_SOURCES	=  $(lib_SRCS)
-lib_libvserver_a_CPPFLAGS	=  -I$(kernelincludedir) -D_REENTRANT -D_GNU_SOURCE
+lib_libvserver_a_CPPFLAGS	=  $(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS) -I$(kernelincludedir) -D_REENTRANT -D_GNU_SOURCE
 # _REENTRANT is needed for dietlibc to use __error_location
 
 if USE_DIETLIBC
