@@ -16,9 +16,36 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifndef H_UTIL_VSERVER_LIB_FMT_H
-#define H_UTIL_VSERVER_LIB_FMT_H
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
-#include "../ensc_fmt/fmt.h"
+#include "fmt.h"
+#include "fmt-internal.h"
 
-#endif	//  H_UTIL_VSERVER_LIB_FMT_H
+#include <sys/time.h>
+#include <string.h>
+#include <assert.h>
+
+size_t
+FMT_P(tai64n)(char *buf, struct timeval const *now)
+{
+  uint64_t		tai_secs = 1ll << 62;
+  char *		ptr = buf;
+  size_t		l;
+  
+  tai_secs += now->tv_sec;
+  *ptr++ = '@';
+
+  l = FMT_P(xuint64)(ptr, tai_secs);	// always 16 bytes
+  assert(l==16);
+  ptr +=  16;
+
+  memset(ptr, '0', 8);
+  l = FMT_P(xuint32)(0,   now->tv_usec*1000);
+  FMT_P(xuint32)(ptr+8-l, now->tv_usec*1000);
+
+  ptr +=  8;
+
+  return ptr-buf;
+}
