@@ -49,9 +49,8 @@ src_testsuite_vunify_functest_LDADD =	lib_internal/libinternal.a
 src_testsuite_vunify_functest_CPPFLAGS=	$(AM_CPPFLAGS) $(src_testsuite_CPPFLAGS)
 
 
-src_testsuite_chcontext_test_SOURCES =	src/testsuite/chcontext-test.c \
-					src/util-exitlikeprocess.c
-src_testsuite_chcontext_test_LDADD =	lib/libvserver.la
+src_testsuite_chcontext_test_SOURCES =	src/testsuite/chcontext-test.c
+src_testsuite_chcontext_test_LDADD =	lib/libvserver.la lib_internal/libinternal.a
 
 
 src_testsuite_chbind_test_SOURCES =	src/testsuite/chbind-test.c
