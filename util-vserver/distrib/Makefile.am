@@ -22,7 +22,8 @@ confdistribdir		=  $(confdir)/.distributions
 confdefaultsdir		=  $(confdir)/.defaults
 confdefaultsinitdir	=  $(confdefaultsdir)/init
 
-defaults_DATA =  	misc/fstab \
+defaults_DATA =		misc/debootstrap.uri \
+			misc/fstab \
 			misc/mtab \
 			misc/vunify-exclude
 
