@@ -24,6 +24,7 @@ ENSC_WRAPPERS_HDRS =		ensc_wrappers/wrappers-clone.hc \
 				ensc_wrappers/wrappers-mount.hc \
 				ensc_wrappers/wrappers-pivot.hc \
 				ensc_wrappers/wrappers-resource.hc \
+				ensc_wrappers/wrappers-socket.hc \
 				ensc_wrappers/wrappers-stdlib.hc \
 				ensc_wrappers/wrappers-unistd.hc \
 				ensc_wrappers/wrappers-vserver.hc \
