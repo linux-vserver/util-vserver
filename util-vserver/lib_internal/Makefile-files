@@ -25,10 +25,16 @@ command_SRCS =			lib_internal/command-appendparameter.c \
 				lib_internal/command-wait.c \
 				lib_internal/command.h
 
+if ENSC_HAVE_C99_COMPILER
+filecfg_SRCS =			lib_internal/filecfg.h \
+				lib_internal/filecfg-readentryflag.c \
+				lib_internal/filecfg-readentrystr.c
+endif
 
 noinst_LIBRARIES +=		lib_internal/libinternal.a
 noinst_HEADERS += \
 				lib_internal/coreassert.h \
+				lib_internal/errinfo.h \
 				lib_internal/jail.h \
 				lib_internal/matchlist.h \
 				lib_internal/pathinfo.h \
@@ -43,6 +49,7 @@ noinst_HEADERS += \
 				lib_internal/util-dotfile.h \
 				lib_internal/util-exitlikeprocess.h \
 				lib_internal/util-io.h \
+				lib_internal/util-lockfile.h \
 				lib_internal/util-mem.h \
 				lib_internal/util-perror.h \
 				lib_internal/util-safechdir.h \
@@ -50,6 +57,7 @@ noinst_HEADERS += \
 				lib_internal/string.hc
 
 lib_internal_libinternal_a_SOURCES = \
+				lib_internal/errinfo-writeerrno.c \
 				lib_internal/jailintotempdir.c \
 				lib_internal/matchlist-appendfiles.c \
 				lib_internal/matchlist-compare.c \
@@ -67,9 +75,12 @@ lib_internal_libinternal_a_SOURCES = \
 				lib_internal/unify-deunify.c \
 				lib_internal/unify-settime.c \
 				lib_internal/unify-unify.c \
+				lib_internal/util-canonify.c \
 				lib_internal/util-exitlikeprocess.c \
+				lib_internal/util-lockfile.c \
 				lib_internal/util-safechdir.c \
-				$(command_SRCS)
+				$(command_SRCS) \
+				$(filecfg_SRCS)
 
 DIETPROGS +=			lib_internal/libinternal.a
 
