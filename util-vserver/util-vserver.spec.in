@@ -47,7 +47,7 @@ Group:		System Environment/Base
 Provides:	init(@PACKAGE@)
 Requires:	%name = %epoch:%version-%release
 Requires:	initscripts
-Require(pre,postun):	%_initrddir
+Requires(pre,postun):	%_initrddir
 
 %package legacy
 Summary:	Legacy utilities for util-vserver
