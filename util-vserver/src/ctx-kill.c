@@ -159,6 +159,7 @@ static void
 doKillAll(struct ArgInfo const * const args)
 {
   size_t	i=0;
+  pid_t		init_pid = vc_X_getinitpid(0);
 
   signal(SIGSTOP, SIG_IGN);
 
@@ -171,6 +172,9 @@ doKillAll(struct ArgInfo const * const args)
       next_time += atoi(args->argv[i]);
     
     iterateThroughProc(&doKillAllSingle, args, &sig);
+    if (init_pid!=-1 && init_pid>1 && init_pid!=getpid())
+      kill(init_pid, sig);
+
     while (time(0)<next_time && getRemainingProcCount(args)>0)
       usleep(args->interval * 1000);
 
@@ -224,6 +228,8 @@ childFunc(void *args_v)
   Emkdir("old/foo",0600);
   Emount("none", "/proc", "proc", 0, 0);
 
+    // TODO: drop additional capabilities?
+  
     // TODO: it may be be better for ctx-shutdown to:
     // * generate ctx with S_CTX_INFO_INIT
     // * send kill to -1
@@ -321,6 +327,11 @@ int main(int argc, char *argv[])
 
   if (args.type==tpPID)
     args.ctx = determineContext(args.pid);
+
+  if (args.ctx==0) {
+    WRITE_MSG(2, "Can not operate in ctx 0\n");
+    return EXIT_FAILURE;
+  }
   
   args.argc = argc-optind;
   args.argv = argv+optind;
