@@ -72,6 +72,7 @@ DIETPROGS +=		src/chcontext-compat \
 			src/vcopy \
 			src/vkill \
 			src/vsched \
+			src/vshelper-sync \
 			src/vrsetup \
 			src/vserver-stat \
 			src/vserver-info
@@ -104,6 +105,7 @@ pkglib_PROGRAMS +=	src/capchroot \
 			src/pipe-sync \
 			src/exec-ulimit \
 			src/rpm-fake-resolver \
+			src/vshelper-sync \
 			$(src_pkglib_C99_X_PROGS) \
 			$(src_pkglib_CXX_X_PROGS)
 
@@ -173,6 +175,7 @@ src_readlink_SOURCES		=  src/readlink.c
 src_rebootmgr_SOURCES		=  src/rebootmgr.c
 src_pipe_sync_SOURCES		=  src/pipe-sync.c
 src_exec_ulimit_SOURCES		=  src/exec-ulimit.c
+src_vshelper_sync_SOURCES	=  src/vshelper-sync.c
 
 src_reducecap_SOURCES		=  src/reducecap.c
 src_reducecap_LDADD		=  $(VSERVER_LDADDS)
