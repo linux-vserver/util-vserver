@@ -21,6 +21,7 @@ legacy @LEGACYDIR@/vps
 legacy @LEGACYDIR@/vserver
 legacy @LEGACYDIR@/vserverkillall
 legacy @LEGACYDIR@/distrib-info
+base   @PKGLIBDIR@/FEATURES.txt
 base   @PKGLIBDIR@/defaults/mtab
 build  @PKGLIBDIR@/defaults/fstab
 build  @PKGLIBDIR@/defaults/debootstrap.uri
@@ -51,6 +52,7 @@ base   @PKGLIBDIR@/vreboot
 build  @PKGLIBDIR@/vrpm-preload
 build  @PKGLIBDIR@/vrpm-worker
 build  @PKGLIBDIR@/vserver-build
+@ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vcopy
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vunify
 base   @PKGLIBDIR@/vservers.grabinfo.sh
 build  @PKGLIBDIR@/distributions
