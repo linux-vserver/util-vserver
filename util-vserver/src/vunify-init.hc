@@ -230,7 +230,7 @@ initModeManually(struct Arguments const UNUSED *args, int argc, char *argv[])
     exit(1);
   }
 
-  initMatchList(&global_info.dst_list, 0, argv[0], argv[1]);
+  initMatchList(&global_info.dst_list, 0, strdup(argv[0]), argv[1]);
 
   --count;
   global_info.src_lists.v = Emalloc(sizeof(struct MatchList) * count);
