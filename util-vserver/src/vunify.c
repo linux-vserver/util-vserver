@@ -285,7 +285,7 @@ printSkipReason()
       MatchList_printId(skip_reason.d.list, 1);
       break;
     case rsFSTAT	:  WRITE_MSG(1, "fstat error"); break;
-    case rsNOEXISTS	:  WRITE_MSG(1, "does not exists in refserver(s)"); break;
+    case rsNOEXISTS	:  WRITE_MSG(1, "does not exist in refserver(s)"); break;
     case rsSYMLINK	:  WRITE_MSG(1, "symlink"); break;
     case rsSPECIAL	:  WRITE_MSG(1, "non regular file"); break;
     case rsUNIFIED	:  WRITE_MSG(1, "already unified"); break;

@@ -670,7 +670,7 @@ function vshelper.doSanityCheck
     if ! test -r "$proc_file"; then
 	vshelper=
 	warnings=( "${warnings[@]}"
-		   $"File '$proc_file' does not exists but is required for vshelper setup" )
+		   $"File '$proc_file' does not exist but is required for vshelper setup" )
         solution_disable=1
     else
 	vshelper=$(cat "$proc_file")
