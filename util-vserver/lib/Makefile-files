@@ -112,6 +112,7 @@ lib_SRCS =  			lib/syscall.c \
 				lib/checkversion.c \
 				lib/isdirectory.c \
 				lib/isfile.c \
+				lib/islink.c \
 				lib/getnbipv4root.c \
 				lib/getversion.c \
 				lib/capabilities.c \
