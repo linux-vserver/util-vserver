@@ -23,6 +23,7 @@ legacy @LEGACYDIR@/vserverkillall
 legacy @LEGACYDIR@/distrib-info
 core   @PKGLIBDIR@/FEATURES.txt
 base   @PKGLIBDIR@/defaults/mtab
+base   @PKGLIBDIR@/defaults/vprocunhide-files
 build  @PKGLIBDIR@/defaults/fstab
 build  @PKGLIBDIR@/defaults/debootstrap.uri
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/defaults/vunify-exclude
@@ -50,6 +51,7 @@ build  @PKGLIBDIR@/vapt-get-worker
 @ENSC_HAVE_CXX_COMPILER_TRUE@build  @PKGLIBDIR@/vbuild
 @ENSC_HAVE_CXX_COMPILER_TRUE@build  @PKGLIBDIR@/vcheck
 build  @PKGLIBDIR@/vpkg
+base   @PKGLIBDIR@/vprocunhide
 base   @PKGLIBDIR@/vreboot
 build  @PKGLIBDIR@/vrpm-preload
 build  @PKGLIBDIR@/vrpm-worker
