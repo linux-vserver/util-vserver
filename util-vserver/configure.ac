@@ -31,6 +31,7 @@ AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([gnu dist-bzip2 subdir-objects])
 AM_MAINTAINER_MODE
 
+AC_SUBST(CVS2CL_TAG, [])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -39,6 +40,9 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
+
+AC_CHECK_PROGS(CVS2CL, [cvs2cl])
+AM_CONDITIONAL(HAVE_CVS2CL,  [test x"$CVS2CL" != x])
 
 ENSC_CHECK_CC_FLAG([-std=c99])
 
