@@ -16,37 +16,28 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-: ${UTIL_VSERVER_VARS:=$(dirname $0)/util-vserver-vars}
-test -e "$UTIL_VSERVER_VARS" || {
-    echo "Can not find util-vserver installation; aborting..."
+if ! isVserverRunning "$VSERVER_DIR" S_CONTEXT; then
+    echo $"vserver '$VSERVER_NAME' is not running; aborting..."
+    umountVserver "$VSERVER_DIR" &>/dev/null || :
     exit 1
-}
-. "$UTIL_VSERVER_VARS"
-. "$_LIB_FUNCTIONS"
-
-vserver=$1
-cmd=$2
-
-case "$vserver" in
-    ./*) VSERVER_DIR=`pwd`/$vserver;;
-    /*)  VSERVER_DIR=$vserver;;
-    *)	 VSERVER_DIR=$CONFDIR/$vserver;;
-esac
-
-test -d "$VSERVER_DIR" || {
-    echo "Can not find vserver-setup"
-    exit 1
-}
-
-if test -e "$VSERVER_DIR"/name; then
-    read VSERVER_NAME <"$VSERVER_DIR"/name
-else
-    VSERVER_NAME=$(basename "$VSERVER_DIR")
 fi
 
-. $PKGLIBDIR/vserver.functions
-case "$2" in
-    start|stop)
-	. $PKGLIBDIR/vserver.$2
-	;;
-esac
+generateOptions   "$VSERVER_DIR"
+
+set +e
+execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
+
+cd "$VSERVER_DIR"/vdir/
+"${NICE_CMD[@]}" \
+    "$_CHBIND"       "${CHBIND_OPTS[@]}" \
+    "$_CHCONTEXT"    "${CHCONTEXT_OPTS[@]}" \
+    "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" . "${INITCMD_STOP[@]}"
+
+"${INITCMD_STOP_SYNC[@]}"
+
+execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" post-stop
+    
+umountVserver     "$VSERVER_DIR" || :
+disableInterfaces "$VSERVER_DIR"
+
+execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" postpost-stop

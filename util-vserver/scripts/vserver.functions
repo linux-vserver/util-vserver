@@ -1,0 +1,462 @@
+#! /bin/bash
+
+# Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+## Expected env:
+#  $VSERVER_DIR   ... path to vserver-cfg dir
+#  $VSERVER_NAME  ... name of vserver
+
+declare -a NICE_CMD=()
+declare -a CHBIND_OPTS=()
+declare -a CAP_OPTS=()
+declare -a CHCONTEXT_INIT_OPTS=()
+declare -a CHCONTEXT_FLAG_OPTS=()
+declare -a CHCONTEXT_OPTS=()
+declare -a CAPCHROOT_OPTS=()
+declare -a INTERFACES=()
+
+declare -a INITCMD_START=()
+declare -a INITCMD_START_SYNC=()
+declare -a INITCMD_STOP=()
+declare -a INITCMD_STOP_SYNC=()
+declare -a INITCMD_PREPARE=()
+
+INTERFACE_CMDS_IDX=0
+
+INITSTYLE=sysv
+
+S_CONTEXT=
+
+SILENT_OPT=
+_NEWLINE='
+'
+_NEWLINE=${_NEWLINE:0-1}
+
+: ${VSERVER_NAME:=$(basename "$VSERVER_DIR")}
+
+if test -e "$VSERVER_DIR"/noisy; then
+    SILENT_OPT=
+else
+    SILENT_OPT='--silent'
+fi
+
+## Called as '_getFileValue <varname> <filename>'
+function _getFileValue
+{
+    test -r "$2" || return 0
+    eval read "$1" <"$2"
+}
+
+## Called as '_getFileArray <varname> <filename>'
+function _getFileArray
+{
+    test -r "$2" || return 0
+    
+    local IFS=$_NEWLINE
+    eval "$1"='( $(< "$2") )'
+}
+
+function _generateChbindOptions
+{
+    local vdir="$1"
+    local i
+    local bcast=
+
+    local f=$vdir/interfaces/bcast
+    _getFileValue bcast "$f"
+    
+    CHBIND_OPTS=( $SILENT_OPT ${bcast:+--bcast "$bcast"} )
+
+    for i in "${INTERFACES[@]}"; do
+	CHBIND_OPTS=( "${CHBIND_OPTS[@]}" --ip "$i" )
+    done
+}
+
+function _generateNiceCommand
+{
+    local vdir=$1
+    local nice
+
+    test -r "$vdir/nice" || return 0;
+    read nice <"$vdir"/nice
+
+    NICE_CMD=( $_NICE -$nice )
+}
+
+function _generateCapabilityOptions
+{
+    local vdir=$1
+    local cap
+
+    test -e "$vdir"/capabilities || return 0
+
+    CAP_OPTS=()
+    CAPCHROOT_OPTS=()
+
+    while read cap; do
+	case x"$cap" in
+	    x|x#)	;;
+	    !CAP_SYSCHROOT)
+		CAP_OPTS=( "${CAP_OPTS[@]}" --cap "$cap" )
+		CAPCHROOT_OPTS=( "${CAPCHROOT_OPTS[@]}" --nochroot )
+		;;
+	    *)
+		CAP_OPTS=( "${CAP_OPTS[@]}" --cap "$cap" );;
+	esac
+    done <"$vdir"/capabilities
+}
+
+
+function _generateInitOptions
+{
+    local vdir=$1
+    local cfgdir=$vdir/apps/init
+    local runlevel_start=3
+    local runlevel_stop=6
+    local i f
+
+    INITCMD_START=()
+    INITCMD_STOP=()
+    INITCMD_START_SYNC=()
+    INITCMD_STOP_SYNC=()
+    INITCMD_PREPARE=()
+    
+    CHCONTEXT_INIT_OPTS=()
+    
+    _getFileValue INITSTYLE      "$cfgdir"/style
+    _getFileValue runlevel_start "$cfgdir"/runlevel
+    _getFileValue runlevel_start "$cfgdir"/runlevel.start
+    _getFileValue runlevel_stop  "$cfgdir"/runlevel.stop
+
+    case x"$INITSTYLE" in
+	xsysv)
+	    for i in /etc/init.d/rc /etc/rc.d/rc; do
+		test -x "$vdir/vdir/$i" || continue
+		INITCMD_START=( "$i" "$runlevel_start" )
+		INITCMD_STOP=(  "$i" "$runlevel_stop"  )
+	    done
+	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL "$runlevel_start" /var/run/utmp )
+	    ;;
+	    
+	xplain)
+	    INITCMD_START=( /sbin/init )
+	    INITCMD_STOP=(  /sbin/init )
+	    CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
+	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
+	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
+	    ;;
+	    
+	xminit)
+	    INITCMD_START=( /sbin/minit-start )
+	    INITCMD_STOP=(  /sbin/minit-stop  )
+	    CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
+	    INITCMD_START_SYNC=( "$_INITSYNC_MINIT_START" "$vdir" )
+	    INITCMD_STOP_SYNC=(  "$_INITSYNC_MINIT_STOP"  "$vdir" )
+	    test -z "$runlevel_start" || INITCMD_START=( "${INITCMD_START[@]}" "$runlevel_start" )
+	    test -z "$runlevel_stop"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$runlevel_stop"  )
+	    ;;
+
+	x)  ;;
+	*)  echo "Unknown init-style '$INITSTYLE'; aborting" >&2;
+	    exit 1;;
+    esac
+
+    _getFileArray INITCMD_START      "$cfgdir"/cmd.start
+    _getFileArray INITCMD_STOP       "$cfgdir"/cmd.stop
+    _getFileArray INITCMD_START_SYNC "$cfgdir"/cmd.start-sync
+    _getFileArray INITCMD_STOP_SYNC  "$cfgdir"/cmd.stop-sync
+    _getFileArray INITCMD_PREPARE    "$cfgdir"/cmd.prepare
+    
+    test -e "$cfgdir"/sync -o "$OPTION_FORCE_SYNC" || {
+	INITCMD_START_SYNC=()
+	INITCMD_STOP_SYNC=()
+    }
+}
+
+function _generateFlagOptions
+{
+    local vdir=$1
+
+    CHCONTEXT_FLAG_OPTS=()
+
+    test -e "$vdir"/flags || return 0
+
+    while read flag; do
+	case x"$flag" in
+	    x|x#)		;;
+	    dummy)		;;
+	    fakeinit)
+		CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}" 
+				      --disconnect --flag --fakeinit )
+		;;
+	    *)
+	    	CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}"
+				      --flag "$flag" )
+		;;
+	esac
+    done <"$vdir"/flags
+}
+
+function _generateChcontextOptions
+{
+    local vdir=$1
+    local ctx hostname domainname
+    local cap_opts
+    local flag
+
+    {
+	read ctx        <"$vdir"/context
+	read hostname   <"$vdir"/hostname
+	read domainname <"$vdir"/domainname
+    } 2>/dev/null
+
+    test -z "$S_CONTEXT" || ctx=$S_CONTEXT
+
+    _generateCapabilityOptions "$vdir"
+    _generateFlagOptions       "$vdir"
+
+    CHCONTEXT_OPTS=( $SILENT_OPT \
+                     "${CHCONTEXT_FLAG_OPTS[@]}" \
+		     "${CHCONTEXT_INIT_OPTS[@]}" \
+		     "${CAP_OPTS[@]}" \
+		     --secure
+		     ${ctx:+--ctx "$ctx"} \
+                     ${hostname:+--hostname "$hostname"} \
+		     ${domainname:+--domainname "$domainname"} )
+}
+
+function _getInterfaceValue
+{
+    local val=$1
+    local dflt=$2
+    shift 2
+    
+    local i
+    local tmp
+
+    for i; do
+	read tmp  <"$i/$val" && break || :
+    done 2>/dev/null
+
+    : ${tmp:=$dflt}
+    eval $val=\$tmp
+}
+
+## Usage: _transformMask2Prefix <result-varname> <prefix> <mask>
+function _transformMask2Prefix
+{
+    local tmp=$2
+    
+    test "$tmp" || {
+	$_MASK2PREFIX "$3" || tmp=$?
+    }
+
+    eval $1=\$tmp
+    return 0
+}
+
+function _addInterfaceCmd
+{
+    eval INTERFACE_CMDS_${INTERFACE_CMDS_IDX}='( "$@" )'
+    let ++INTERFACE_CMDS_IDX
+}
+
+## Usage: _processSingleInterface <interface-directory>
+function _processSingleInterface
+{
+    local iface=$1
+
+    local ip
+    local dev
+    local prefix
+    local mask
+    local bcast
+    local name
+    local scope
+
+    _getInterfaceValue ip     '' "$iface"
+    _getInterfaceValue dev    '' "$iface" "$iface/.."
+    _getInterfaceValue prefix '' "$iface" "$iface/.."
+    _getInterfaceValue mask   '' "$iface" "$iface/.."
+    _getInterfaceValue bcast  '' "$iface" "$iface/.."
+    _getInterfaceValue name   '' "$iface"
+    _getInterfaceValue scope  '' "$iface" "$iface/.."
+
+    test "$ip" || { echo $"Can not read ip for '$iface'"; return 1; }
+    
+    test ! -e "$iface"/only_ip   || unset dev
+    
+    if test "$dev"; then
+	_transformMask2Prefix prefix "$prefix" "$mask"
+
+	case "$dev" in
+	    *.*)
+		test -d /proc/net/vlan || {
+		    echo -e $"VLAN device-name used, but vlan subsystem not enabled.\nTry to execute 'modprobe 8021q' before starting the vservers"
+		    return 1
+		}
+		test -f /proc/net/vlan || {
+		    _addInterfaceCmd VCONFIG "${dev/./ }"
+		    _addInterfaceCmd IP_ADDR 127.0.0.1/8 broadcast 127.255.255.255 dev "$dev"
+		    _addInterfaceCmd IP_LINK "$dev"
+		}
+		;;
+	esac
+
+	INTERFACES=( "${INTERFACES[@]}" "$ip${prefix:+/$prefix}" )
+	_addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" broadcast ${bcast:-+} ${name:+label "$dev:$name"} dev "$dev"
+	#_addInterfaceCmd IP_ROUTE "$ip${prefix:+/$prefix}" dev "$dev"
+	_addInterfaceCmd IP_LINK  "$dev"
+    fi
+}
+
+## Usage: _generateInterfaceOptions <vserver-directory>
+function _generateInterfaceOptions
+{
+    local iface
+
+    for iface in "$1/interfaces/"*; do
+        test   -d "$iface"          || continue
+        test ! -e "$iface"/disabled || continue
+    
+        _processSingleInterface "$iface"
+    done
+}
+
+function enableInterfaces
+{
+    local i=0
+    declare -a var
+
+    while test $i -lt $INTERFACE_CMDS_IDX; do
+	eval var='( "${INTERFACE_CMDS_'$i'[@]}" )'
+	local type=${var[0]}
+	unset var[0]
+	
+	case "$type" in
+	    VCONFIG)	$_VCONFIG  add "${var[@]}";;
+	    IP_ADDR)	$_IP addr  add "${var[@]}";;
+	    IP_LINK)	$_IP link  set "${var[@]}" up;;
+	    IP_ROUTE)	$_IP route add "${var[@]}";;
+	    *)		echo "Unknown interface-command type '$type'" >&2; false;;
+	esac
+
+	let ++i
+    done
+}
+
+function disableInterfaces
+{
+    local i=$INTERFACE_CMDS_IDX
+    declare -a var
+
+    while test $i -gt 0; do
+	let --i
+
+	eval var='( "${INTERFACE_CMDS_'$i'[@]}" )'
+	local type=${var[0]}
+	unset var[0]
+	
+	case "$type" in
+	    VCONFIG)	$_VCONFIG  rem "${var[@]}";;
+	    IP_ADDR)	$_IP addr  del "${var[@]}";;
+	    IP_LINK)	;; ## Ignore the link-down command for now
+	    IP_ROUTE)	$_IP route del "${var[@]}";;
+	    *)		echo "Unknown interface-command type '$type'" >&2; false;;
+	esac
+    done
+}
+
+## Usage: prepareInit <vserver-directory>
+function prepareInit
+{
+    pushd "$1/vdir" >/dev/null
+    case "$INITSTYLE" in
+	sysv)
+	    { find var/run  ! -type d -print0; \
+	      find var/lock ! -type d -print0; } | xargs -0r $_CHROOT_RM
+	    ;;
+	minit)
+	    ;;
+    esac
+    "${INITCMD_PREPARE[@]}"
+    popd >/dev/null
+}
+
+function generateOptions
+{
+    _generateInterfaceOptions  "$1"
+    _generateChbindOptions     "$1"
+    _generateNiceCommand       "$1"
+    _generateInitOptions       "$1"
+    _generateChcontextOptions  "$1"
+}
+
+function mountVserver
+{
+    local cfgdir=$1
+    local vdir=$1/vdir
+
+    test -e "$cfgdir"/fstab || return 0
+    $_CHBIND "${CHBIND_OPTS[@]}" \
+	$_SECURE_MOUNT -a --chroot "$vdir" --fstab "$cfgdir"/fstab
+}
+
+function umountVserver
+{
+    local cfgdir=$1
+    local vdir=$1/vdir
+
+    is_ok=1
+
+    test -e "$cfgdir"/fstab || return 0
+    
+    pushd "$vdir/" >/dev/null
+    tac "$cfgdir"/fstab | while read src dst tmp; do
+	test "$tmp" || continue
+	case x"$src" in
+	    x#*)	continue;;
+	esac
+
+	$_CHBIND "${CHBIND_OPTS[@]}" \
+	    $_SECURE_UMOUNT "$dst" || is_ok=
+    done
+    popd >/dev/null
+
+    test "$is_ok"
+}
+
+function _sourceWrap
+{
+    local vdir name flavor start i
+    . "$@"
+}
+
+## Usage: execScriptlets <vserver-cfgdir> <vserver-name> <script-flavor>
+function execScriptlets
+{
+    local vdir=$1
+    local name=$2
+    local flavor=$3
+    local start=
+    local i
+
+    for i in "$vdir/scripts/$flavor" "$vdir/scripts/$flavor.d"/*; do
+	test -f "$i" -a -r "$i" || continue
+	test -x "$i" || start=_sourceWrap
+	$start "$i" "$flavor" "$name"
+    done
+}

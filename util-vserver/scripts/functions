@@ -223,21 +223,30 @@ function getAllVservers
     done
 }
 
+## Usage: getVserverCtx <vdir> <result-varname> [<procnumber-varname> [<do-cleanup>]]
+function getVserverStatus
+{
+    test -r "$1"/run || return 1
+    eval read "$2" <"$1"/run
+
+    test "$3"        || return 0
+    local _tmp=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$ctx" | $_WC -l )
+    eval "$3"=\$_tmp
+
+    test "$4" -a $_tmp = 0 || return 0
+    _tmp=$(readlink "$1/run")
+    test "$_tmp"           || return 1
+    rm -f "$_tmp"
+    return 0
+}
+
+## Usage: isVserverRunning <vdir> [<ctx-varname>]
 function isVserverRunning
 {
-    local vdir=$1
-    test -r "$vdir/run"   || return 1
+    local ctx procnum
 
-    local ctx
-    read ctx <"$vdir"/run || { echo "Failed to read ctx information" >&2; return 0; }
-    
-    local cnt=$($_VPS ax | $_AWK '{print $2}' | $_GREP -x "$ctx" | $_WC -l )
-
-    if test $cnt = 0; then
-	## Remove old lock-file
-	rm -f $(readlink "$vdir/run")
-	return 1
-    else
-	return 0
-    fi
+    getVserverStatus "$1" ctx procnum 1 || return 1
+    test $procnum != 0                  || return 1
+    test -z "$2" || eval "$2"=\$ctx
+    return 0
 }
