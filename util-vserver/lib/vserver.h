@@ -232,9 +232,9 @@ extern "C" {
      *  correct syscallnumber (which may differ between the different
      *  architectures).
      *
-     *  \params  cmd  the command to be executed
-     *  \params  xid  the xid on which the cmd shall be applied
-     *  \params  data additional arguments; depends on \c cmd
+     *  \param   cmd  the command to be executed
+     *  \param   xid  the xid on which the cmd shall be applied
+     *  \param   data additional arguments; depends on \c cmd
      *  \returns depends on \c cmd; usually, -1 stands for an error
      */
   int	vc_syscall(uint32_t cmd, xid_t xid, void *data);
@@ -424,6 +424,33 @@ extern "C" {
 
   int		vc_set_iattr(char const *filename, xid_t xid,
 			     uint_least32_t flags, uint_least32_t mask) VC_ATTR_NONNULL((1));
+
+    /** \brief   Returns information about attributes and assigned context of a file.
+     *  \ingroup syscalls
+     *
+     *  This function returns the VC_IATTR_XXX flags and about the assigned
+     *  context of a file. To request an information, the appropriate bit in
+     *  \c mask must be set and the corresponding parameter (\a xid or \a
+     *  flags) must not be NULL.
+     *
+     *  E.g. to receive the assigned context, the \c VC_IATTR_XID bit must be
+     *  set in \a mask, and \a xid must point to valid memory.
+     *
+     *  Possible flags are \c VC_IATTR_ADMIN, \c VC_IATTR_WATCH , \c VC_IATTR_HIDE,
+     *  \c VC_IATTR_BARRIER, \c VC_IATTR_IUNLINK and \c VC_IATTR_IMMUTABLE.
+     *
+     *  \param filename  The name of the file whose attributes shall be determined.
+
+     *  \param xid       When non-zero and the VC_IATTR_XID bit is set in \a mask,
+     *                   the assigned context of \a filename will be stored there.
+     *  \param flags     When non-zero, a bitmask of current attributes will be
+     *                   stored there. These attributes must be requested explicitly
+     *                   by setting the appropriate bit in \a mask
+     *  \param mask      Points to a bitmask which tells which attributes shall be
+     *                   determined. On return, it will masquerade the attributes
+     *                   which were determined.
+     *
+     *  \pre  mask!=0 && !((*mask&VC_IATTR_XID) && xid==0) && !((*mask&~VC_IATTR_XID) && flags==0) */
   int		vc_get_iattr(char const *filename, xid_t * /*@null@*/ xid,
 			     uint_least32_t * /*@null@*/ flags,
 			     uint_least32_t * /*@null@*/ mask) VC_ATTR_NONNULL((1));
@@ -433,9 +460,10 @@ extern "C" {
       pid_t	initpid;
   };
   
-    /** \brief  Returns the context of the given process.
+    /** \brief   Returns the context of the given process.
+     *  \ingroup syscalls
      *
-     *  \params pid  the process-id whose xid shall be determined;
+     *  \param  pid  the process-id whose xid shall be determined;
      *               pid==0 means the current process.
      *  \returns     the xid of process \c pid or -1 on errors
      */
