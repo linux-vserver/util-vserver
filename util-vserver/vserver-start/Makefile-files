@@ -28,6 +28,7 @@ vserver_start_vserver_start_bin_SOURCES = \
 						vserver-start/main.c \
 						vserver-start/mount.c \
 						vserver-start/mount.h \
+						vserver-start/defaulttty.c \
 						vserver-start/scriptlets.c \
 						vserver-start/undo.c \
 						vserver-start/undo.h \
