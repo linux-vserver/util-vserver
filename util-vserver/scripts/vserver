@@ -27,11 +27,26 @@ test -e "$UTIL_VSERVER_VARS" || {
 vserver=$1
 cmd=$2
 
+allow_legacy=
+
 case "$vserver" in
     ./*) VSERVER_DIR=`pwd`/$vserver;;
     /*)  VSERVER_DIR=$vserver;;
-    *)	 VSERVER_DIR=$CONFDIR/$vserver;;
+    *)	 VSERVER_DIR=$CONFDIR/$vserver
+	 allow_legacy=1
+	 ;;
 esac
+
+if test "$allow_legacy"; then
+    do_legacy=
+    test ! -e "$VSERVER_DIR/legacy" || do_legacy=1
+    test -d "$VSERVER_DIR" -o ! -e "$CONFDIR/$vserver.conf" || do_legacy=1
+
+    test -z "$do_legacy" || {
+	echo $"WARNING: can not find configuration, assuming legacy method"
+	exec "$_VSERVER_LEGACY" "$@"
+    }
+fi
 
 test -d "$VSERVER_DIR" || {
     echo "Can not find vserver-setup"
@@ -46,7 +61,46 @@ fi
 
 . $PKGLIBDIR/vserver.functions
 case "$2" in
-    start|stop)
-	. $PKGLIBDIR/vserver.$2
+    start|stop|suexec)
+	shift 2
+	. $PKGLIBDIR/vserver.$cmd
+	;;
+    restart)
+	"$0" "$1" stop
+	exec "$0" "$1" start
+	;;
+    condrestart)
+	test ! isVserverRunning "$VSERVER_DIR" || exec "$0" "$1" restart
+	;;
+    exec)
+	shift 2
+	exec "$0" "$vserver" suexec root "$@"
+	;;
+    chkconfig)
+	shift 2
+	exec "$0" "$vserver" suexec root chkconfig "$@"
+	;;
+    enter)
+	getEnterShell "$VSERVER_DIR"
+	exec "$0" "$1" suexec root "${ENTER_SHELL[@]}"
+	;;
+    running|status)
+	if getVserverStatus "$VSERVER_DIR" ctx procnum; then
+	    echo $"Vserver '$1' is running at context '$ctx'"
+
+	    if test "$2" = status; then
+		echo    $"Number of processes:" $procnum
+		echo -n $"Uptime:              "
+		"$_FILETIME" "$VSERVER_DIR/run"
+	    fi
+	    exit 0
+	else
+	    echo $"Vserver '$1' is not running"
+	    exit 1
+	fi
+	;;
+    *)
+	echo $"Usage: $0 {start|stop|suexec|restart|condrestart|exec|enter|chkconfig|running|status}"
+	exit 2
 	;;
 esac
