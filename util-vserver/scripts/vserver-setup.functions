@@ -19,7 +19,7 @@ SETUP_HOSTNAME=
 SETUP_NETDEV=
 SETUP_NETMASK=
 SETUP_NETPREFIX=
-SETUP_BCAST=
+SETUP_NETBCAST=
 SETUP_LOCKFILE=
 SETUP_LOCKREVDIR=
 SETUP_CONFDIR=
@@ -36,6 +36,7 @@ declare -r SETUP_HELPMSG=$"
 		...  [default: $RUNDIR/rev/]
     --hostname <hostname>
     --netdev   <device>
+    --netbcast <broadcast>
     --netmask <netmask>|--netprefix <prefix>
                 ...  sets the  default netmask  (a.b.c.d quadruple)  or prefix
 		     (length of the interface)
@@ -64,7 +65,7 @@ function setup_setOption2
 	--netdev)	SETUP_NETDEV=$2;;
 	--netmask)	SETUP_NETMASK=$2;;
 	--netprefix)	SETUP_NETPREFIX=$2;;
-	--netbcast)	SETUP_BCAST=$2;;
+	--netbcast)	SETUP_NETBCAST=$2;;
 	--interface)	SETUP_INTERFACES=( "${SETUP_INTERFACES[@]}" "$2" );;
 	--flags)	old_IFS=$IFS
 			IFS=,
@@ -138,6 +139,7 @@ function setup_writeOption
     _setup_writeSingleOption "$SETUP_NETDEV"    "$cfgdir"/interfaces/dev
     _setup_writeSingleOption "$SETUP_NETMASK"   "$cfgdir"/interfaces/mask
     _setup_writeSingleOption "$SETUP_NETPREFIX" "$cfgdir"/interfaces/prefix
+    _setup_writeSingleOption "$SETUP_NETBCAST"  "$cfgdir"/interfaces/bcast
 
     local idx=0
     for i in "${SETUP_INTERFACES[@]}"; do
