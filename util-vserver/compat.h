@@ -39,7 +39,8 @@
 #endif
 
 #ifndef HAVE_CTX_T
-typedef short int		ctx_t;
+#include <stdint.h>
+typedef uint32_t		ctx_t;
 #endif
 
 #endif	//  H_UTIL_VSERVER_COMPAT_H
