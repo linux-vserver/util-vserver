@@ -55,11 +55,11 @@ Evc_migrate_context(xid_t xid)
 inline static WRAPPER_DECL void
 Evc_get_flags(xid_t xid, struct vc_ctx_flags *flags)
 {
-  FatalErrnoError(vc_get_flags(xid, flags)!=-1, "vc_get_flags()");
+  FatalErrnoError(vc_get_flags(xid, flags)==-1, "vc_get_flags()");
 }
 
 inline static WRAPPER_DECL void
 Evc_set_flags(xid_t xid, struct vc_ctx_flags const *flags)
 {
-  FatalErrnoError(vc_set_flags(xid, flags)!=-1, "vc_set_flags()");
+  FatalErrnoError(vc_set_flags(xid, flags)==-1, "vc_set_flags()");
 }
