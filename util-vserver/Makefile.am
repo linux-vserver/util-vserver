@@ -38,23 +38,24 @@ noinst_PROGRAMS		=  $(test_PRGS)
 
 sysv_SCRIPTS		=  $(sysv_SCRPTS)
 sysconf_DATA		=  $(sysv_CFG)
-conf_DATA		=  newvserver.defaults
 
-BUILT_SOURCES		=  linuxcaps.h
+BUILT_SOURCES		=  linuxcaps.h pathconfig.h
 
 man_MANS		=  $(man_DATMAN)
 
 EXTRA_DIST		=  $(sysv_XTRAS) $(sysv_CFG) \
                            $(doc_DAT) $(man_DATMAN) \
 			   $(scripts_SCRPTS) $(scripts_PRGS) $(scripts_XTRAS) \
-			   vserver.spec newvserver.defaults \
+			   pathconfig.h.pathsubst \
+			   vserver.spec \
                            m4/ensc_cflags.m4 \
 			   THANKS
 
-AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D VERSION=\"$(VERSION)\" -D PKGLIBDIR=\"$(pkglibdir)\" -D _GNU_SOURCE
+AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D _GNU_SOURCE
 AM_CFLAGS		=  -Wall -pedantic
 
-CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) linuxcaps.h
+CLEANFILES		=  $(sysv_GENSCRPTS) $(scripts_GENSCRPTS) \
+			   linuxcaps.h pathconfig.h
 
 if USE_DIETLIBC
 DIET			=  diet
@@ -63,7 +64,16 @@ DIET_CC		       :=  $(DIET) $(DIET_FLAGS) $(CC)
 endif
 
 linuxcaps.h:
-		ln -sf ${kernelincludedir}/linux/capability.h linuxcaps.h
+			ln -sf ${kernelincludedir}/linux/capability.h linuxcaps.h
+
+%:			%.pathsubst Makefile
+			@mkdir -p $$(dirname '$@')
+			sed -e 's!@'PKGLIBDIR'@!$(pkglibdir)!g; \
+				s!@'SBINDIR'@!$(sbindir)!g; \
+				s!@'CONFDIR'@!$(confdir)!g; \
+				s!@'SYSCONFDIR'@!$(sysconfdir)!g' '$<' >'$@.tmp'
+			if cmp -s '$@.tmp' '$@'; then rm -f '$@.tmp'; else rm -f '$@'; mv '$@.tmp' '$@'; fi
+			@chmod a-w '$@'
 
 
 include $(top_srcdir)/lib/Makefile-files
