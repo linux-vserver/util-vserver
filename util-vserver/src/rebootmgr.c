@@ -40,7 +40,7 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include "compat.h"
+#include "pathconfig.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -104,13 +104,13 @@ static int rebootmgr_process (int fd, const char *vname)
 		if (strcmp(buf,"reboot\n")==0){
 			char cmd[1000];
 			syslog (LOG_NOTICE,"reboot vserver %s\n",vname);
-			snprintf (cmd,sizeof(cmd)-1,"/usr/sbin/vserver %s restart >>/var/log/boot.log 2>&1",vname);
+			snprintf (cmd,sizeof(cmd)-1, SBINDIR "/vserver %s restart >>/var/log/boot.log 2>&1", vname);
 			system (cmd);
 			ret = 0;
 		}else if (strcmp(buf,"halt\n")==0){
 			char cmd[1000];
 			syslog (LOG_NOTICE,"halt vserver %s\n",vname);
-			snprintf (cmd,sizeof(cmd)-1,"/usr/sbin/vserver %s stop >>/var/log/boot.log 2>&1",vname);
+			snprintf (cmd,sizeof(cmd)-1, SBINDIR "/vserver %s stop >>/var/log/boot.log 2>&1", vname);
 			system (cmd);
 			ret = 0;
 		}else{
