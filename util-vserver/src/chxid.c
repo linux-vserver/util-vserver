@@ -97,4 +97,5 @@ fixupParams(struct Arguments UNUSED *args, int argc)
 
   args->ctx            = resolveCtx(args->ctx_str);
   args->do_display_dir = !args->do_recurse;
+  args->do_display_dot = true;
 }

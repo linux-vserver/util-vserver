@@ -88,6 +88,7 @@ fixupParams(struct Arguments * args, int argc)
   }
 
   args->do_display_dir = !args->do_recurse;
+  args->do_display_dot = true;
 }
 
 bool
