@@ -54,6 +54,7 @@
 #include <signal.h>
 
 #define ENSC_WRAPPERS_FCNTL	1
+#define ENSC_WRAPPERS_UNISTD	1
 #include <wrappers.h>
 
 #define MNTPOINT	"/etc"
@@ -520,7 +521,7 @@ showFstabPosition(int fd, char const *fname, size_t line_nr, size_t col_nr)
   buf[len++] = ':';
   len += utilvserver_fmt_uint(buf+len, col_nr);
   WRITE_STR(fd, fname);
-  write(fd, buf, len);
+  Vwrite(fd, buf, len);
 }
 
 
@@ -572,7 +573,7 @@ mountFstab(struct Options const *opt)
 	case prIGNORE	:  break;
 	case prDOIT	: {
 	  bool		is_rootfs = (strcmp(mnt.dst, "/")==0);
-	  chdir("/");
+	  Echdir("/");
 	  if (( is_rootfs && opt->rootfs==rfsNO) ||
 	      (!is_rootfs && opt->rootfs==rfsONLY)) { /* ignore the entry */ }
 	  else if (!mountSingle(&mnt, opt)) {
