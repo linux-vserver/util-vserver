@@ -1,6 +1,6 @@
 dnl $Id$
 
-dnl Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+dnl Copyright (C) 2003,2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 dnl  
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.27.193, enrico.scholz@informatik.tu-chemnitz.de)
+AC_INIT(util-vserver, 0.27.195, enrico.scholz@informatik.tu-chemnitz.de)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -85,7 +85,7 @@ ENSC_RELEASE(RELEASE_CPPFLAGS)
 ENSC_ENABLE_DIETLIBC(USE_DIETLIBC)
 ENSC_KERNEL_HEADERS(kernelincludedir)
 ENSC_UV_VROOTDIR(vserverdir)
-ENSC_CHANGELOG([MAIN])
+ENSC_CHANGELOG([trunk])
 
 dnl Check whether to use external kernel headers
 AC_MSG_CHECKING([whether to use internal kernel headers])
