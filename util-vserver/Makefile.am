@@ -49,7 +49,7 @@ EXTRA_DIST		=  $(distrib_SCRPTS) $(distrib_DAT) \
 			   $(scripts_SCRPTS) $(scripts_XTRAS) \
 			   $(linuxconf_XTRAS) \
 			   util-vserver.spec \
-                           m4/ensc_cflags.m4 \
+                           m4/ensc_cflags.m4 m4/ensc_kerneldir.m4 \
 			   THANKS
 
 AM_CPPFLAGS		=  -I $(top_srcdir)/lib -D VERSION=\"$(VERSION)\" -D PKGLIBDIR=\"$(pkglibdir)\" -D _GNU_SOURCE
