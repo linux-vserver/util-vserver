@@ -1,3 +1,7 @@
+# $Id$
+
+%define confdir	%_sysconfdir/vservers
+
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
@@ -6,10 +10,20 @@ Epoch:		0
 License:	GPL
 Group:		System Environment/Base
 URL:		http://savannah.nongnu.org/projects/util-vserver/
-Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version//%name-%version.tar.bz2
+Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version/%name-%version.tar.bz2
 BuildRoot:	%_tmppath/%name-%version-%release-root
 Provides:	vserver = %epoch:%version-%release
 Conflicts:	vserver < %epoch:%version
+
+%package sysv
+Summary:	SysV-initscripts for vserver
+Group:		System Environment/Base
+Requires:	%name = %epoch:%version-%release
+Requires:	initscripts
+
+%package devel
+Summary:	Header-files and libraries which are needed to develop vserver based applications
+Group:		Development/Libraries
 
 
 %description
@@ -22,6 +36,8 @@ can't interact with services in the main server.
 This requires a special kernel supporting the new new_s_context and
 set_ipv4root system call.
 
+%description sysv
+%description devel
 
 %prep
 %setup -q
@@ -36,13 +52,17 @@ set_ipv4root system call.
 rm -rf $RPM_BUILD_ROOT
 %__make DESTDIR="$RPM_BUILD_ROOT" install
 
+test "%_initrddir" = %_sysconfdir/init.d || {
+	mkdir -p ${RPM_BUILD_ROOT}%_initrddir
+	mv ${RPM_BUILD_ROOT}%_sysconfdir/init.d/* ${RPM_BUILD_ROOT}%_initrddir/
+}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 
 %define v_services	httpd named portmap sendmail smb sshd xinetd
-%post
+%post sysv
 /sbin/chkconfig --add vservers
 /sbin/chkconfig --add rebootmgr
 
@@ -51,7 +71,7 @@ for i in %v_services; do
 done
 
 
-%preun
+%preun sysv
 test "$1" != 0 || for i in %v_services; do
 	/sbin/chkconfig --del v_$i
 done
@@ -61,7 +81,7 @@ test "$1" != 0 || /sbin/chkconfig --del rebootmgr
 test "$1" != 0 || /sbin/chkconfig --del vservers
 
 
-%postun
+%postun sysv
 test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 
 
@@ -69,7 +89,24 @@ test "$1" = 0  || %{_initrddir}/rebootmgr condrestart >/dev/null || :
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING ChangeLog NEWS README THANKS
 %doc doc/FAQ.txt
+%_libdir/%name
+%_sbindir/*
+%_mandir/man8/*
+%dir %confdir
+%dir %confdir/.distributions
+%dir %confdir/.distributions/rh*
+%dir %confdir/.distributions/*/apt
+%config(noreplace) %confdir/.distributions/*/apt/sources.list
 
+%files sysv
+%defattr(-,root,root,-)
+%_initrddir/*
+%config(noreplace) %_sysconfdir/vservers.conf
+
+%files devel
+%defattr(-,root,root,-)
+%_includedir/*.h
+%_libdir/*.a
 
 %changelog
 * Wed Oct  1 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.23.5-0
