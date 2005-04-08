@@ -447,7 +447,7 @@ testFeature(int argc, char *argv[])
 static bool
 str2bool(char const *str)
 {
-  return atoi(str)!=0 || strchr("yYtY", str[0])!=0 || strcasecmp("true", str)==0;
+  return atoi(str)!=0 || strchr("yYtT", str[0])!=0 || strcasecmp("true", str)==0;
 }
 
 static int
