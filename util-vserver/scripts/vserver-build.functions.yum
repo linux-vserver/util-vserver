@@ -57,6 +57,7 @@ function yum.__substituteConf
 	$_SED -e "s!@YUMETCDIR@!$prefix$PKGCFGDIR/yum/etc!g;
 		  s!@YUMCACHEDIR@!$prefix$PKGCFGDIR/yum/cache!g;
 		  s!@YUMLOGDIR@!$prefix$PKGCFGDIR/yum!g;
+		  s!@YUMLOCKDIR@!$prefix$PKGCFGDIR/yum!g;
                  " "$f" >"$f.tmp"
 	$_CMP -s "$f" "$f.tmp" || $_CAT "$f.tmp" >"$f"
 	$_RM -f "$f.tmp"
