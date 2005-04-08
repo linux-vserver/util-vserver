@@ -23,7 +23,7 @@ vdir=$1/vdir
 function relink
 {
     test ! -e "$2" -o -L "$2" || mv -f "$2"{,.orig}
-    ln -s "$1" "$2"
+    ln -sf "$1" "$2"
 }
 
 ## Usage: subst <file> <regexp>
