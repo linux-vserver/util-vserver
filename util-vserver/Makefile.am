@@ -100,8 +100,8 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT =
 
 if USE_DIETLIBC
 DIET			=  diet
-DIET_FLAGS		=
-DIET_CC		       :=  $(DIET) $(DIET_FLAGS) $(CC)
+DIETFLAGS		=
+DIET_CC		       :=  $(DIET) $(DIETFLAGS) $(CC)
 VSERVER_LDFLGS	       :=  -static
 else
 VSERVER_LDFLGS	       :=
