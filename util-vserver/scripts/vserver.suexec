@@ -18,7 +18,7 @@
 is_stopped=
 isVserverRunning "$VSERVER_DIR" S_CONTEXT || is_stopped=1
 test -z "$is_stopped" -o "$OPTION_INSECURE" || {
-    echo $"'vserver ... suexec' is support for running vservers only; aborting..." >&2
+    echo $"'vserver ... suexec' is supported for running vservers only; aborting..." >&2
     exit 1
 }
 generateOptions  "$VSERVER_DIR"
