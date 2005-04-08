@@ -59,7 +59,7 @@ EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(nobase_confdistrib_DATA) \
 			   $(defaults_DATA)
 
-redhat_style		=  rh9 fc1 fc2
+redhat_style		=  rh9 fc1 fc2 fc3
 
 
 install-data-hook:
