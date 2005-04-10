@@ -186,8 +186,8 @@ function sendKillSequence
 
     while isCtxRunning "$ctx"; do
 	test -z "$wait" || sleep "$wait"
-	
-	$_VKILL --xid "$ctx" ${1:+-s "$1"} 2>/dev/null || :
+
+	killContext "$ctx" "$1"
 	test -n "$2" || break
 	wait="$2"
 	shift 2
@@ -245,8 +245,9 @@ function _generateInitOptions
 	    _IS_FAKEINIT=1
 	    INITCMD_START_SYNC=( "$_INITSYNC_MINIT_START" "$vdir" )
 	    _NEED_VSHELPER_SYNC=1
-	    test -z "$RUNLEVEL_START" || INITCMD_START=( "${INITCMD_START[@]}" "$RUNLEVEL_START" )
-	    test -z "$RUNLEVEL_STOP"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$RUNLEVEL_STOP"  )
+	    test -z "$RUNLEVEL_START"         || INITCMD_START=( "${INITCMD_START[@]}" "$RUNLEVEL_START" )
+	    test -z "$RUNLEVEL_STOP"          || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$RUNLEVEL_STOP"  )
+	    ! isNumber "${RUNLEVEL_START:-3}" || INITCMD_PREPARE=( $_FAKE_RUNLEVEL "${RUNLEVEL_START:-3}" /var/run/utmp )
 	    ;;
 
 	(xgentoo)
@@ -722,7 +723,10 @@ function umountVserver
 ## Usage: waitForSync <vserver> <vshelper-fifo-varname>
 function initSync
 {
-    test -z "$_NEED_VSHELPER_SYNC" || vshelper.initSync "$1" "$2"
+    local _is_meth=sync
+    test -n "$_NEED_VSHELPER_SYNC" || _is_meth=async
+
+    vshelper.initSync "$1" "$2" "$_is_meth"
 }
 
 ## Usage: waitForSync <vserver> [<vshelper-fifo>]
