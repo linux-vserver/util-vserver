@@ -61,19 +61,25 @@ dnl        * $ENSC_VERSION_DIETLIBC
 AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 [
 	AC_MSG_CHECKING([whether to enable dietlibc])
+
+	AC_ARG_VAR(DIET,      [The 'diet' wrapper (default: diet)])
+	AC_ARG_VAR(DIETFLAGS, [Flags passed to the 'diet' wrapper (default: -O)])
+
+	: ${DIET:=diet}
+	: ${DIETFLAGS=-Os}
+
 	AC_ARG_ENABLE([dietlibc],
 		      [AC_HELP_STRING([--disable-dietlibc],
 				      [do not use dietlibc (default: use dietlibc)])],
 		      [case "$enableval" in
-			  yes)	use_dietlibc=forced;;
-			  no)	use_dietlibc=forced_no;;
-			  *)	AC_MSG_ERROR(['$enableval' is not a valid value for --enable-dietlibc]);;
+			  (yes)	use_dietlibc=forced;;
+			  (no)	use_dietlibc=forced_no;;
+			  (*)	AC_MSG_ERROR(['$enableval' is not a valid value for --enable-dietlibc]);;
 		       esac],
-		      [: ${DIET:=diet}
-		       which "$DIET" >/dev/null 2>/dev/null && use_dietlibc=detected || use_dietlibc=detected_no])
+		      [which "$DIET" >/dev/null 2>/dev/null && use_dietlibc=detected || use_dietlibc=detected_no])
 
 	if test "$use_dietlibc" = detected -a '$2'; then
-	    _dietlibc_ver=$(${DIET:-diet} -v 2>&1 | sed '1p;d')
+	    _dietlibc_ver=$($DIET -v 2>&1 | sed '1p;d')
 	    _dietlibc_ver=${_dietlibc_ver##*diet version }
 	    _dietlibc_ver=${_dietlibc_ver##*dietlibc-}
 	    _dietlibc_ver_maj=${_dietlibc_ver%%.*}
