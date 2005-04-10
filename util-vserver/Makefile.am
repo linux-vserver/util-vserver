@@ -244,5 +244,6 @@ include $(top_srcdir)/m4/gpgsig.am
 include $(top_srcdir)/m4/validate.am
 include $(top_srcdir)/m4/changelog.am
 include $(top_srcdir)/m4/pkgconfig.am
+include $(top_srcdir)/m4/libsel.am
 
 .PHONY:		FORCE update-doc
