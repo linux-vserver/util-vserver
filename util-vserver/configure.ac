@@ -136,6 +136,9 @@ else
 	ENSC_DIETLIBC_NEED_COMPAT(USE_DIETLIBC_COMPAT)
 fi
 
+AM_CONDITIONAL(ENSC_USE_DIETLIBC, test x"$ensc_have_dietlibc" = xyes)
+AM_CONDITIONAL(ENSC_USE_GLIBC,    true)
+
 # HACK: see comments at 'enable_static' above
 AC_PROG_LIBTOOL
 dnl
