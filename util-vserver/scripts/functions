@@ -111,6 +111,14 @@ function execute
     exit 0
 }
 
+
+## Usage: spawn <message>
+function spawn
+{
+    test -z "${DEBUG_EXEC:-}"       || echo  "$@"
+    test "${DEBUG_EXEC:-}" = noexec || "$@"
+}
+
 ## Usage: isNumber <arg>
 function isNumber
 {
@@ -566,6 +574,13 @@ function setDefaultTTY
     exec  &>$ttyname
 }
 
+## Usage: killContext <XID> [<SIG>]
+function killContext
+{
+    $_VKILL -s "${2:-9}" --xid "$1" 1 &>/dev/null || :
+    $_VKILL -s "${2:-9}" --xid "$1"   &>/dev/null || :
+}
+
 ## Usage: pkgmgmt.guessStyle <vserver> <resultvar>
 function pkgmgmt.guessStyle()
 {
@@ -842,7 +857,7 @@ function vshelper.doDestroy
     $_RM -f "$__VSHELPERSTATEDIR/$2"
 }
 
-## Usage: vshelper.initSync <vserver> <pipe-varname>
+## Usage: vshelper.initSync <vserver> <pipe-varname> [<method>]
 function vshelper.initSync
 {
     local _vis_tmpdir
@@ -853,7 +868,7 @@ function vshelper.initSync
 
     local _vis_fifo="$_vis_tmpdir"/pipe
     $_MKFIFO -m700 "$_vis_fifo"
-    vshelper.doInit "$1" sync "$_vis_fifo"
+    vshelper.doInit "$1" "${method:-sync}" "$_vis_fifo"
     eval $2=\$_vis_fifo
 }
 
