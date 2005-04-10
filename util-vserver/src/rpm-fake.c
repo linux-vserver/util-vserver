@@ -579,12 +579,14 @@ void
 endgrent()
 {
   if (pw_sock==-1) endgrent_func();
+  TEMP_FAILURE_RETRY(write(pw_sock, "Cg", 2));
 }
 
 void
 endpwent()
 {
   if (pw_sock==-1) endpwent_func();
+  TEMP_FAILURE_RETRY(write(pw_sock, "Cp", 2));
 }
 
 
