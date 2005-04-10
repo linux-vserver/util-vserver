@@ -41,25 +41,26 @@ function cleanup
 sync_fifo=
 trap "cleanup" EXIT
 
+OPTION_FORCE_SYNC=1
+
 set -e
 generateOptions   "$VSERVER_DIR"
 set +e
 
 vshelper.doDestroy "$VSERVER_DIR" "$S_CONTEXT"
 initSync           "$VSERVER_DIR" sync_fifo
-prepareStop "$VSERVER_DIR"
+prepareStop        "$VSERVER_DIR"
 
 cd "$VSERVER_DIR"/vdir/
-execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
+execScriptlets     "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
 cd "$VSERVER_DIR"/vdir/
 
 test -z "$OPTION_DEFAULTTTY" || setDefaultTTY "$VSERVER_DIR"
 
 fail=
 if test -n "$_IS_FAKEINIT" && \
-   $_VSERVER_INFO - FEATURE vkill && \
-   initpid=$($_VSERVER_INFO "$S_CONTEXT" INITPID 2>/dev/null); then
-    $_VKILL -s INT --xid "$S_CONTEXT" -- 1 "$initpid" || fail=1
+   $_VSERVER_INFO - FEATURE vkill; then
+    $_VKILL -s INT --xid "$S_CONTEXT" -- 1 || fail=1
     ## HACK: remove the 'initpid' stuff above when PID virtualization
     ## is implemented
 elif $_VSERVER_INFO - FEATURE migrate; then
