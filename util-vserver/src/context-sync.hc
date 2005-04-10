@@ -48,7 +48,7 @@ doSyncStage1(int p[2][2], bool do_disconnect)
   if (!do_disconnect) return;
   
   fd = EopenD("/dev/null", O_RDONLY|O_NONBLOCK, 0);
-  Esetsid();
+  (void)setsid();	// ignore error when we are already a session-leader
   Edup2(fd, 0);
   Eclose(p[1][0]);
   if (fd!=0) Eclose(fd);
