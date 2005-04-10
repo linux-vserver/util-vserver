@@ -54,10 +54,12 @@ function doInternalMethod
 	    case "$ACTION" in
 		(restart)
 		    logging $"Restarting vserver '$VSERVER'"
+		    spawn   killContext "$XID"
 		    execute $_VSERVER --defaulttty "$VSERVER" restart
 		    ;;
 		(halt|poweroff)
 		    logging $"Stopping vserver '$VSERVER'"
+		    spawn   killContext "$XID"
 		    execute $_VSERVER --defaulttty "$VSERVER" stop
 		    ;;
 		(swsusp)
@@ -70,6 +72,10 @@ function doInternalMethod
 		    exit 1
 	    esac
 	    ;;
+
+	(async)
+	    spawn killContext "$XID"
+	    ;;
 	    
 	(sync)
 	    local f=${METHOD_ARGS[0]}
@@ -79,6 +85,7 @@ function doInternalMethod
 	    test -p "$f" ||
 		panic $"File '$f' which is required for synchronisation of vserver '$VSERVER' is not a pipe"
 
+	    spawn killContext "$XID"
 	    echo "$ACTION" >"$f"
 	    ;;
 
