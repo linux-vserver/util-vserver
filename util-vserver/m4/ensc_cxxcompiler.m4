@@ -61,6 +61,6 @@ int main(int argc, char *argv[]) {
                        [test x"$ensc_cv_c99_c99compiler" = xyes])
 
 	if test x"$ensc_cv_c99_c99compiler" = xno; then
-		AC_MSG_WARN([*** some programs will not be built because a C99 compiler is lacking])
+		AC_MSG_WARN([*** some programs will not be built because system is lacking a C99 compiler])
 	fi
 ])
