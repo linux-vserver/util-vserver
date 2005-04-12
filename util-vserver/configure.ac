@@ -113,7 +113,13 @@ dnl ###########################
 dnl
 dnl {some dietlibc related tests
 dnl
-ENSC_ENABLE_DIETLIBC(USE_DIETLIBC, [0.25])
+
+case $host_cpu in
+	(i*86|athlon)	min_diet_ver=0.25;;
+	(*)		min_diet_ver=0.29;;
+esac
+
+ENSC_ENABLE_DIETLIBC(USE_DIETLIBC, [$min_diet_ver])
 
 if test x"$ensc_have_dietlibc" = xno; then
 	AC_MSG_WARN([***                                                         ***])
