@@ -823,4 +823,10 @@ WARNING: The 'only_ip' flag for interface '$iface' is deprecated; use
 
     $_VSERVER_INFO - VERIFYCAP ||
 	panic $"capabilities are not enabled in kernel-setup"
+
+    $_VSERVER_INFO - VERIFYPROC ||
+	panic $"\
+/proc/uptime can not be accessed. Usually, this is caused by
+procfs-security. Please read the FAQ for more details
+http://www.linux-vserver.org/index.php?page=Linux-Vserver+FAQ"
 }
