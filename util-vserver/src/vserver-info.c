@@ -52,7 +52,7 @@ typedef enum { tgNONE,tgCONTEXT, tgID, tgRUNNING,
 	       tgINITPID, tgINITPID_PID,
 	       tgXID, tgUTS, tgSYSINFO,
 	       tgFEATURE, tgCANONIFY,
-	       tgVERIFYCAP, tgXIDTYPE,
+	       tgVERIFYCAP, tgXIDTYPE, tgVERIFYPROC,
 }	VserverTag;
 
 static struct {
@@ -80,6 +80,7 @@ static struct {
   { "PXID",        tgPXID,        "returns the xid of the parent context" },
   { "CANONIFY",    tgCANONIFY,    "canonifies the vserver-name and removes dangerous characters" },
   { "VERIFYCAP",   tgVERIFYCAP,   "test if the kernel supports linux capabilities" },
+  { "VERIFYPROC",  tgVERIFYPROC,  "test if /proc can be read by contexts!=0" },
   { "XIDTYPE",     tgXIDTYPE,     "returns the type of the given XID" },
 };
 
@@ -156,6 +157,26 @@ utsText2Tag(char const *str)
     WRITE_MSG(2, "Unknown UTS tag\n");
     exit(1);
   }
+}
+
+static bool
+verifyProc()
+{
+  char const		*errptr;
+  
+  if (!switchToWatchXid(&errptr)) {
+    perror(errptr);
+    return false;
+  }
+
+  if (access("/proc/uptime", R_OK)==-1) {
+    if (errno!=ENOENT)
+      perror("access(\"/proc/uptime\")");
+    
+    return false;
+  }
+
+  return true;
 }
 
 static bool
@@ -485,6 +506,7 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
     case tgSYSINFO	:  return printSysInfo(buf);           break;
     case tgFEATURE	:  return testFeature(argc,argv);      break;
     case tgVERIFYCAP	:  return verifyCap() ? 0 : 1;         break;
+    case tgVERIFYPROC	:  return verifyProc() ? 0 : 1;        break;
 
 
     default		: {
