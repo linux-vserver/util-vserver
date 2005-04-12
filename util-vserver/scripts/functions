@@ -577,8 +577,13 @@ function setDefaultTTY
 ## Usage: killContext <XID> [<SIG>]
 function killContext
 {
-    $_VKILL -s "${2:-9}" --xid "$1" 1 &>/dev/null || :
-    $_VKILL -s "${2:-9}" --xid "$1"   &>/dev/null || :
+    local sig=${2:-9}
+
+    #$_VKILL -s STOP   --xid "$1" 1 &>/dev/null || :
+    $_VKILL -s "$sig" --xid "$1" 1 &>/dev/null || :
+    $_VKILL -s "$sig" --xid "$1"   &>/dev/null || :
+    #$_VKILL -s "$sig" --xid "$1" 1 &>/dev/null || :
+    #$_VKILL -s CONT   --xid "$1" 1 &>/dev/null || :
 }
 
 ## Usage: pkgmgmt.guessStyle <vserver> <resultvar>
