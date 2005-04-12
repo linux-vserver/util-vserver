@@ -302,6 +302,7 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 
 %files build -f %name-build.list
 %defattr(-,root,root,-)
+%doc contrib/yum*.patch
 %dir %confdir/.distributions
 %dir %confdir/.distributions/*
 %dir %confdir/.distributions/*/apt
