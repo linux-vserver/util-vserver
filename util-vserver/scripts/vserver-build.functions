@@ -55,12 +55,7 @@ function populateDirectory
 	local file=
 	
 	for file in "$i"/*; do
-	    test -e "$file" || continue
-	    case "$file" in
-		(*/CVS)	test ! -d "$file" || continue;;
-		(*.rpmsave|*.rpmnew|*.rpmorig)
-			continue;;
-	    esac
+	    isRegularFile "$file" || continue
 	    
 	    cp -a "$file" "$dst/"
 	done

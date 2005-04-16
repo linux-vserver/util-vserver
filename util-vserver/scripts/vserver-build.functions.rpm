@@ -29,7 +29,7 @@ function rpm.importGPGPubKeys
     for i; do
 	local file=
 	for file in "$i"/*; do
-	    test -f "$file" || continue
+	    isRegularFile "$file" || continue
 
 	    pkgs=( "${pkgs[@]}" "$file" )
 	done
@@ -113,7 +113,7 @@ function rpmlist.initByDistribution()
 
     local	_rlid_lst
     for _rlid_lst in "$_rlid_listdir"/*.lst; do
-	test -e "$_rlid_lst" || continue
+	isRegularFile "$_rlid_lst" || continue
 
 	local		_rlid_opts=${_rlid_lst%%lst}cmd
 	declare -a	_rlid_tmp=()

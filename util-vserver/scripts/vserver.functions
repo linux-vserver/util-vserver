@@ -771,7 +771,9 @@ function execScriptlets
 	local	already_handled=
 	
 	for i in "$base/$flavor" "$base/$flavor.d"/*; do
-	    test -f "$i" -a -r "$i" || continue
+	    isRegularFile "$i" || continue
+	    test  -r "$i"      || continue
+
 	    already_handled=1
 	    local start=
 	    test -x "$i" || start=_sourceWrap

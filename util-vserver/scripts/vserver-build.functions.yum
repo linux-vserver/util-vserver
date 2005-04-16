@@ -22,7 +22,7 @@ function yum.installBasePackages
 
     test "$dir" != / || return 0
     for filelist in "$dir"/*; do
-	test -f "$filelist" || continue
+	isRegularFile "$filelist" || continue
 	local idx=0
 	local can_fail=false
 	local flags=
