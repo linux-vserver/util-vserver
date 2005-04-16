@@ -70,15 +70,33 @@ ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
 
 ENSC_FPIC_SYSCALL
 
+AC_MSG_CHECKING([whether to enable extra optimizations])
+AC_ARG_ENABLE([extra-optimizations],
+	      [AC_HELP_STRING([--disable-extra-optimizations],
+			      [disable certain extra optimizations (default: no)])],
+	      [case "$enableval" in
+		  (yes) use_extra_optimizations=1;;
+		  (no)  use_extra_optimizations=;;
+                  (*)   AC_MSG_ERROR(['$enableval' is not a valid value for '--disable-extra-optimizations']);;
+               esac],
+              [use_extra_optimizations=1])
+
+if test x"$use_extra_optimizations" = x; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	ENSC_CHECK_CC_FLAG([-funit-at-a-time])
+	ENSC_CHECK_CXX_FLAG([-funit-at-a-time])
+fi
 
 AC_MSG_CHECKING([whether to enable debug-code in library])
 AC_ARG_ENABLE([lib-debug],
 	      [AC_HELP_STRING([--enable-lib-debug],
                               [enable additional debug code in library (default: no)])],
               [case "$enableval" in
-		  yes)  use_lib_debug=1;;
-                  no)   use_lib_debug=;;
-                  *)    AC_MSG_ERROR(['$enableval' is not a valid value for '--enable-lib-debug']);;
+		  (yes) use_lib_debug=1;;
+                  (no)  use_lib_debug=;;
+                  (*)   AC_MSG_ERROR(['$enableval' is not a valid value for '--enable-lib-debug']);;
                esac],
               [ use_lib_debug= ])
 
