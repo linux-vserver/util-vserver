@@ -66,6 +66,18 @@ function findAndCopy
     $_CP -af "$tmp" "$dst"
 }
 
+## Usage: isRegularFile <filename>
+function isRegularFile
+{
+    test -f "$1" || return 1
+
+    case $file in
+	(*.rpmsave|*.rpmnew|*.rpmorig|*.cfsaved*|*.~*~)	return 1;;
+    esac
+
+    return 0
+}
+
 function getPhysicalDir
 {
     ( set -P && cd "$1" && pwd )
