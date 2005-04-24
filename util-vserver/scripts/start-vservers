@@ -31,7 +31,7 @@ function showHelp()
 {
     echo \
 $"Usage: $(basename $0) [-c <CFGDIR>] [-m <MARK>] [-j <NUM] [--test]
-             [--start|--stop] [--all] -- <name>+
+             [--start|--stop] [--all|--[un]marked|--running|--stopped] -- <name>+
 
 Please report bugs to $PACKAGE_BUGREPORT"
     exit 0
@@ -60,12 +60,14 @@ function verifyVserver()
 set +e
 
 
-tmp=$(getopt -o c:j:m: --long debug,help,version,start,stop,test,all -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o c:j:m: \
+      --long debug,help,version,start,stop,test,$VS_ALLVSERVERS_ARGS \
+      -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
+declare -a tmp_vservers=()
 declare -r TAB=$(echo -en "\t")
 OPTION_MARK=
-OPTION_ALL=
 OPTION_PARALLEL=99
 OPTION_DEBUG=
 NOOPTION_DEBUG=1
@@ -77,18 +79,18 @@ case "`basename $0`" in
 esac
 
 while true; do
+    getAllVserversByArg tmp_vservers "$1" || \
     case "$1" in
-	--help)    	showHelp    $0 ;;
-	--version) 	showVersion $0 ;;
-	-c)		CONFDIR=$2;     shift;;
-	-m)		OPTION_MARK=$2; shift;;
-	-j)		OPTION_PARALLEL=$2; shift;;
-	--start)	OPTION_FLAVOR=start;;
-	--stop)		OPTION_FLAVOR=stop;;
-	--all)		OPTION_ALL=1;;
-	--debug)	OPTION_DEBUG=1; NOOPTION_DEBUG=; set -x;;
-	--)	   	shift; break;;
-	*)	   	echo $"$0: internal error; arg=='$1'" >&2; exit 1;;
+	(--help)    	showHelp    $0 ;;
+	(--version) 	showVersion $0 ;;
+	(-c)		CONFDIR=$2;     shift;;
+	(-m)		OPTION_MARK=$2; shift;;
+	(-j)		OPTION_PARALLEL=$2; shift;;
+	(--start)	OPTION_FLAVOR=start;;
+	(--stop)	OPTION_FLAVOR=stop;;
+	(--debug)	OPTION_DEBUG=1; NOOPTION_DEBUG=; set -x;;
+	(--)	   	shift; break;;
+	(*)	   	echo $"$0: internal error; arg=='$1'" >&2; exit 1;;
     esac
     shift
 done
@@ -98,8 +100,7 @@ test -n "$OPTION_FLAVOR" || {
     exit 1
 }
 
-vservers=( "$@" )
-test -z  "$OPTION_ALL" || getAllVservers vservers
+vservers=( "$@" "${tmp_vservers[@]}" )
 
 orig_vservers=$vservers
 i=${#vservers[*]}

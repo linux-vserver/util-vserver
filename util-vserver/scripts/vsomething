@@ -75,15 +75,15 @@ title=${VSOMETHING_TITLE:-$cmd}
 shift
 
 while test "$#" -ge 1; do
-    case "$1" in
-	--)		shift; break;;
-	--all)
-	    getAllVservers tmp
-	    vservers=( "${vservers[@]}" "${tmp[@]}" )
-	    ;;
-	*)  vservers=( "${vservers[@]}" "$1" )
-     esac
-     shift
+    if getAllVserversByArg tmp "$1"; then
+	vservers=( "${vservers[@]}" "${tmp[@]}" )
+    else
+	case "$1" in
+	    (--) shift; break;;
+	    (*)  vservers=( "${vservers[@]}" "$1" )
+	esac
+    fi
+    shift
 done
 
 
