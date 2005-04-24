@@ -18,6 +18,7 @@ dnl Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 AC_DEFUN([ENSC_DIETLIBC_NEED_COMPAT],
 [
 	AC_REQUIRE([ENSC_ENABLE_DIETLIBC])
+	AC_REQUIRE([ENSC_SYSCALL_ALTERNATIVE])
 	AC_CACHE_CHECK([whether dietlibc needs '-lcompat'], [ensc_cv_c_dietlibc_compat],
 	[
 		AC_LANG_PUSH(C)
@@ -25,8 +26,7 @@ AC_DEFUN([ENSC_DIETLIBC_NEED_COMPAT],
 		CC="${DIET:-diet} $CC"
 		AC_LINK_IFELSE([
 			AC_LANG_PROGRAM([
-#include <sys/syscall.h>
-#include <unistd.h>
+#include "$srcdir/lib/syscall-wrap.h"
 #include <errno.h>
 
 #define __NR_foo0		42
