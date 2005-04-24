@@ -31,6 +31,7 @@
 
 static struct Mapping_uint64 const VALUES[] = {
 #warning Add the 'nflags' values here
+  DECL("", 0)
 };
 
 uint_least64_t
