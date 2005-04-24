@@ -21,6 +21,7 @@ _VS_ERRFILE=
 _VS_NEWLINE='
 '
 declare -r _VS_NEWLINE=${_VS_NEWLINE:0-1}
+declare -r VS_ALLVSERVERS_ARGS=all,marked,unmarked,stopped,running
 
 function findObject
 {
@@ -66,10 +67,10 @@ function findAndCopy
     $_CP -af "$tmp" "$dst"
 }
 
-## Usage: isRegularFile <filename>
+## Usage: isRegularFile <filename> [<mod>]
 function isRegularFile
 {
-    test -f "$1" || return 1
+    test ${mod:--f} "$1" || return 1
 
     case $file in
 	(*.rpmsave|*.rpmnew|*.rpmorig|*.cfsaved*|*.~*~)	return 1;;
@@ -417,23 +418,51 @@ function isAvoidNamespace
          -e "$cfgdir"/nonamespace
 }
 
+## Usage: getAllVservers <var> [<KIND>*]
 function getAllVservers
 {
     local _ga_i
     declare -a _ga_tmp=()
 
     for _ga_i in $__CONFDIR/*; do
-	test   -d "$_ga_i"          || continue
+	isRegularFile "$_ga_i" -d   || continue
+
 	test ! -e "$_ga_i"/disabled || continue
 	test   -d "$_ga_i"/vdir     || continue
-	case "$_ga_i" in
-	    *.~*~) continue;;
+
+	local _ga_doadd=1
+	local _ga_markfile=$_ga_i/apps/init/mark
+	
+	case ${2:-ALL} in
+	    (MARKED)	test   -s "$_ga_markfile" || _ga_doadd=;;
+	    (UNMARKED)	test ! -s "$_ga_markfile" || _ga_doadd=;;
+	    (STOPPED)   ! $_VSERVER "$_ga_i" runnning &>/dev/null || _ga_doadd=;;
+	    (RUNNING)     $_VSERVER "$_ga_i" runnning &>/dev/null || _ga_doadd=;;
+	    (ALL)	;;
+	    (*)		panic $"Unknown vserver tagging '$2'";;
 	esac
 
-	_ga_tmp=( "${_ga_tmp[@]}" "${_ga_i##$__CONFDIR/}")
+	test -z "$_ga_doadd" || _ga_tmp=( "${_ga_tmp[@]}" "${_ga_i##$__CONFDIR/}")
     done
 
     eval $1='( "${_ga_tmp[@]}" )'
+}
+
+## Usage: getAllVserversByArg <var> <arg>
+function getAllVserversByArg
+{
+    local _gav_mark=
+    
+    case $2 in
+	(--all)		_gav_mark=ALL;;
+	(--marked)	_gav_mark=MARKED;;
+	(--unmarked)	_gav_mark=UNMARKED;;
+	(--stopped)	_gav_mark=STOPPED;;
+	(--running)	_gav_mark=RUNNING;;
+	(*)		return 1;;
+    esac
+
+    getAllVservers "$1" "$_gav_mark"
 }
 
 ## Usage: _getProcNumberCount <ctx> <var>
