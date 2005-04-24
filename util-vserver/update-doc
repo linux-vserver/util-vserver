@@ -18,4 +18,5 @@ install -p -m644 doc/*.css doc/*.html             "$tmp"/conf/
 install -p -m644 lib/apidoc/latex/refman.pdf      "$tmp"/apidoc/refman.pdf
 install -p -m644 lib/apidoc/html/*.{css,html,png} "$tmp"/apidoc/html/
 
-rsync -av --delete --exclude=css --exclude=img --exclude=CVS --exclude=.symlinks --exclude=.htaccess "$tmp"/ "$1"/
+rsync -av --delete --exclude=lt2004 --exclude=virtual-servers.pdf --exclude=css \
+      --exclude=img --exclude=CVS --exclude=.symlinks --exclude=.htaccess "$tmp"/ "$1"/
