@@ -25,6 +25,14 @@
 
 #include <string.h>
 
+static uint_least64_t
+vc_text2ccap_err(char const *str, size_t len, bool *failed)
+{
+  uint_least64_t	res = vc_text2ccap(str, len);
+  if (res==0) *failed = true;
+  return res;
+}
+
 int
 vc_list2ccap(char const *str, size_t len,
 	     struct vc_err_listparser *err,
@@ -34,5 +42,5 @@ vc_list2ccap(char const *str, size_t len,
 				       err ? &err->ptr : 0,
 				       err ? &err->len : 0,
 				       &caps->ccaps, &caps->cmask,
-				       vc_text2ccap);
+				       vc_text2ccap_err);
 }
