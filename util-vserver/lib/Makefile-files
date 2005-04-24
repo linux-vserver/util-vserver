@@ -168,6 +168,8 @@ noinst_HEADERS +=		lib/syscall-compat.hc \
 				lib/val2text.hc \
 				lib/virtual.h \
 				lib/internal.h \
+				lib/syscall-alternative.h \
+				lib/syscall-wrap.h \
 				lib/utils-legacy.h \
 				lib/vserver-internal.h
 
