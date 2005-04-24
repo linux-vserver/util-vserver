@@ -2,6 +2,7 @@
 
 <!ELEMENT collection (collection?,data?,link?,scalar?,program?,boolean?,list?,description?,hash?)*>
 <!ATTLIST collection
+        id      CDATA #IMPLIED
 	name	CDATA #REQUIRED
         type    CDATA #IMPLIED
         use     CDATA #IMPLIED
@@ -9,11 +10,13 @@
 
 <!ELEMENT data (description?)>
 <!ATTLIST data
+        id      CDATA #IMPLIED
         name    CDATA #REQUIRED>
 
 
 <!ELEMENT link (default?,description?)>
 <!ATTLIST link
+        id      CDATA #IMPLIED
         name    CDATA #REQUIRED
         type    CDATA #IMPLIED
         since   CDATA #IMPLIED>
@@ -22,6 +25,7 @@
 
 <!ELEMENT scalar (default?,description?,restriction?)>
 <!ATTLIST scalar
+        id      CDATA #IMPLIED
         name    CDATA #REQUIRED
         type    CDATA #IMPLIED
         since   CDATA #IMPLIED>
@@ -31,18 +35,21 @@
 
 <!ELEMENT program (description?,parameterList?)>
 <!ATTLIST program
+        id      CDATA #IMPLIED
         name    CDATA #REQUIRED
         type    CDATA #IMPLIED
         since   CDATA #IMPLIED>
 
 <!ELEMENT boolean (description?)>
 <!ATTLIST boolean
+        id      CDATA #IMPLIED
         name    CDATA    #REQUIRED
         default (on|off) #IMPLIED
         since   CDATA    #IMPLIED>
 
 <!ELEMENT list (description?,elements?)>
 <!ATTLIST list
+        id      CDATA #IMPLIED
         name    CDATA #REQUIRED
         since   CDATA #IMPLIED>
 
@@ -50,6 +57,7 @@
 <!ELEMENT parameterList (parameter*)>
 <!ELEMENT parameter (description?)>
 <!ATTLIST parameter
+        id      CDATA #IMPLIED
         name    CDATA #REQUIRED
         since   CDATA #IMPLIED>
 
@@ -61,12 +69,14 @@
 
 <!ELEMENT hash (description?,keys*)>
 <!ATTLIST hash
+        id      CDATA #IMPLIED
         name    CDATA #REQUIRED
         since   CDATA #IMPLIED>
 
 <!ELEMENT keys (key*)>
 <!ELEMENT key  (description?)>
 <!ATTLIST key
+        id      CDATA #IMPLIED
         name    CDATA #REQUIRED
         since   CDATA #IMPLIED>
 
@@ -82,3 +92,12 @@
 <!ATTLIST enumeration
         value   CDATA #REQUIRED
         since   CDATA #IMPLIED>
+
+<!ELEMENT optionref (#PCDATA)>
+<!ATTLIST optionref
+        ref     CDATA #IMPLIED>
+
+<!ELEMENT br EMPTY>
+<!ELEMENT p       ANY>
+<!ELEMENT tool    (#PCDATA)>
+<!ELEMENT command (#PCDATA)>

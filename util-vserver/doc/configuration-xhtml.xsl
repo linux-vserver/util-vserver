@@ -19,10 +19,11 @@
   <xsl:template match="database">
     <head>
       <title>The <xsl:value-of select="$confdir"/> directory</title>
-      <link rel="stylesheet"           title="gras"   type="text/css" href="css/configuration-lsd.css"></link>
-      <link rel="alternate stylesheet" title="gras1"  type="text/css" href="css/configuration-lsd1.css"></link>
-      <link rel="alternate stylesheet" title="flower" type="text/css" href="css/configuration-flower.css"></link>
-      <link rel="alternate stylesheet" title="boring" type="text/css" href="configuration.css"></link>
+      <link rel="stylesheet"           title="gras"     type="text/css" href="css/configuration-lsd.css" />
+      <link rel="alternate stylesheet" title="gras1"    type="text/css" href="css/configuration-lsd1.css" />
+      <link rel="alternate stylesheet" title="flower"   type="text/css" href="css/configuration-flower.css" />
+      <link rel="alternate stylesheet" title="boring"   type="text/css" href="configuration.css" />
+      <link rel="alternate stylesheet" title="weedpage" type="text/css" href="css/WeedPageStyle.css" />
     </head>
     <body>
       <h1>The content of the <xsl:value-of select="$confdir"/> directory</h1>
@@ -37,6 +38,7 @@
     <xsl:param name="thisdir"/>
     <xsl:if test="count(scalar) + count(link) + count(program) + count(data) + count(hash) + count(list) + count(boolean) + count(collection)>0">
       <ul>
+        <xsl:if test="@id"><xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute></xsl:if>
         <xsl:call-template name="dir-iterate">
           <xsl:with-param name="thisdir"><xsl:value-of select="$thisdir"/></xsl:with-param>
         </xsl:call-template>
@@ -144,7 +146,7 @@
       <xsl:call-template name="printcontent"/>
 
       <xsl:call-template name="collection">
-        <xsl:with-param name="thisdir"><xsl:value-of select="$thisdir"/>/<xsl:value-of select="@name"/></xsl:with-param>
+        <xsl:with-param name="thisdir"><xsl:value-of select="$thisdir"/>/<xsl:call-template name="printdirname"/></xsl:with-param>
       </xsl:call-template>
     </li>
   </xsl:template>
@@ -167,13 +169,17 @@
   </xsl:template>
 
   <xsl:template match="elements/element">
-    <dt class="elements"><xsl:value-of select="@name"/></dt>
+    <dt class="elements">
+      <xsl:if test="@id"><xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute></xsl:if>
+      <xsl:value-of select="@name"/>
+    </dt>
     <dd class="elements"><xsl:apply-templates select="description"/></dd>
   </xsl:template>
   
   <xsl:template name="printfullname">
     <xsl:param name="thisdir"/>
     <xsl:param name="style"/>
+    <xsl:if test="@id"><xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute></xsl:if>
     <span class="{$style}">
       <xsl:value-of select="$confdir"/>
       <xsl:apply-templates select="ancestor-or-self::collection" mode="printrpath"/>
@@ -183,7 +189,11 @@
   <xsl:template name="printname">
     <xsl:param name="thisdir"/>
     <xsl:param name="style"/>
-    <span class="{$style}" title="{$thisdir}/{@name}">
+    <xsl:if test="@id"><xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute></xsl:if>
+    <span class="{$style}">
+      <xsl:attribute name="title">
+        <xsl:value-of select="$thisdir"/>/<xsl:call-template name="printdirname"/>
+      </xsl:attribute>
       <xsl:value-of select="@name"/>
     </span>
   </xsl:template>
@@ -192,6 +202,11 @@
     <br/>
     <xsl:apply-templates select="description"/>
     <xsl:apply-templates select="elements"/>
+  </xsl:template>
+
+  <xsl:template name="printdirname">
+    <xsl:if test="@type='symbolic'">$</xsl:if>
+    <xsl:value-of select="@name"/>
   </xsl:template>
 
   <xsl:template match="description">
@@ -204,4 +219,30 @@
     <a href="{@url}"><xsl:apply-templates/></a>
   </xsl:template>
 
+  <xsl:template match="br">
+    <br />
+  </xsl:template>
+
+  <xsl:template match="p">
+    <div><xsl:apply-templates/></div>
+  </xsl:template>
+
+  <xsl:template match="tool">
+    <code class="tool"><xsl:apply-templates/></code>
+  </xsl:template>
+
+  <xsl:template match="command">
+    <code class="command"><xsl:apply-templates/></code>
+  </xsl:template>
+
+  <xsl:template match="optionref">
+    <a class="optionref">
+      <xsl:attribute name="href">
+        <xsl:choose>
+          <xsl:when test="@ref">#<xsl:value-of select="@ref"/></xsl:when>
+          <xsl:otherwise>#<xsl:value-of select="text()"/></xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute><xsl:apply-templates/>
+    </a>
+  </xsl:template>
 </xsl:stylesheet>

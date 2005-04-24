@@ -19,10 +19,11 @@
     </link>
 
 
-    <boolean name="nonamespace">
+    <boolean id="global-nonamespace" name="nonamespace">
       <description>
-Disable namespace usage globally. It can be overridden for a single
-vserver by setting the 'namespace' flag there.
+Disable namespace usage globally. It can be overridden for a single vserver
+by setting the <optionref ref="global-namespace">namespace</optionref> flag
+there.
 
 In this mode the /vservers directory must have the 'barrier'
 attribute. Else, common chroot(2) exploits are possible.
@@ -56,13 +57,13 @@ distribution specific configuration file.
       <collection name="debootstrap">
 	<scalar name="mirror">
 	  <description>
-The Debian mirror to use with the 'debootstrap' program
+The Debian mirror to use with the <tool>debootstrap</tool> program
           </description>
 	</scalar>
 	<scalar name="uri">
 	  <description>
-When the 'debootstrap' package is not installed; fetch it from this
-uri and install it at a temporary place.
+When the <tool>debootstrap</tool> package is not installed; fetch it
+from this uri and install it at a temporary place.
           </description>
 	</scalar>
       </collection>
@@ -70,8 +71,9 @@ uri and install it at a temporary place.
       <collection name="vshelper">
 	<link name="logfile">
 	  <description>
-The file where output will be logged to when 'vshelper' is invoked
-from the kernel. This should point somewhere e.g. into /var/log.
+The file where output will be logged to when <tool>vshelper</tool>
+is invoked from the kernel. This should point somewhere e.g. into
+/var/log.
           </description>
 	</link>
 
@@ -132,8 +134,8 @@ at startup via initscript.
 
 	<collection name="hash" since="0.30.205">
 	  <description>
-A directory which will be used as the storage place for the 'vhashify'
-command.
+A directory which will be used as the storage place for the
+<tool>vhashify</tool> command.
           </description>
 	  <link name="id" type="symbolic">
 	    <description>
@@ -182,7 +184,7 @@ The default, yum-related content of the /etc directory.
 	  <description>
 The master yum configuration file. It supports the @YUMETCDIR@,
 @YUMCACHEDIR@ and @YUMLOGDIR@ placeholder which will be replaced at
-'vserver ... build' time.
+<command>vserver ... build</command> time.
           </description>
 	</scalar>
       </collection>
@@ -232,7 +234,7 @@ The pathname of the vserver binary.
       
       <collection name="pkgs">
 	<description>
-Contains files with packages.
+Contains files with packagenames.
         </description>
 	<list name="list">
 	  <description>
@@ -294,7 +296,7 @@ the vserver is stopped, this can be a dangling symlink.
       </description>
     </link>
 
-    <list name="bcapabilities">
+    <list id="bcapabilities" name="bcapabilities">
       <description>
 [experimental; name is subject of possible change] Contains the system capabilities. See
 <ulink url="http://savannah.nongnu.org/cgi-bin/viewcvs/util-vserver/util-vserver/lib/bcaps-v13.c?rev=HEAD">lib/bcaps-v13.c</ulink>
@@ -310,10 +312,10 @@ for possible values.
       </description>
     </list>
 
-    <boolean name="namespace">
+    <boolean id="global-namespace" name="namespace">
       <description>
-Overrides the global 'nonamespace' flag and enables namespace usage
-for the current vserver.
+Overrides the global <optionref ref="global-nonamespace">nonamespace</optionref> flag and enables
+namespace usage for the current vserver.
       </description>
     </boolean>
 
@@ -341,15 +343,15 @@ hold queue. When the bucket has been refilled to at least M tokens,
 all on hold processes are rescheduled.
       </description>
       <keys>
-	<key name="fill-rate">
+	<key id="fill_rate" name="fill-rate">
 	  <description>
 Amount of tokens append to the bucket each interval.
             </description>
 	</key>
 	<key name="interval">
 	  <description>
-The intervall between refills of amount 'fill_rate'. This value is
-express in ticks.
+The intervall between refills of amount <optionref>fill_rate</optionref>. This
+value is express in ticks.
           </description>
 	</key>
 	<key name="tokens">
@@ -388,7 +390,7 @@ The nice-level on which the vserver will be started.
     <list name="capabilities">
       <description>
 Contains per line a capability. This file is used for the 2.4 kernel
-only; for 2.6 use 'bcapabilities'.
+only; for 2.6 use <optionref>bcapabilities</optionref>.
       </description>
     </list>
     <scalar name="shell">
@@ -450,9 +452,9 @@ Contains the context which shall be used for the vserver.
       <description>
 The fstab file for the vserver. Entries in this file will be mounted
 within the network context of the vserver; this means that mount will
-be called as 'chbind &lt;options&gt; mount ...'. Use the 'fstab.local'
-file when you do not want this behavior, but in most cases the 'fstab'
-file should be used.
+be called as <command>chbind &lt;options&gt; mount ...</command>. Use
+the 'fstab.local' file when you do not want this behavior, but in most
+cases the 'fstab' file should be used.
       </description>
     </data>
     <data name="fstab.local">
@@ -514,8 +516,8 @@ a separate line.
 	  <description>
 The command which is used to wait on the vserver after it has been
 started. Each option must be on a separate line. This file will be
-ignored when the 'sync' does not exist and the '--sync' option was not
-used.
+ignored when the <optionref>sync</optionref> flag does not exist and the
+'--sync' option was not used.
 	  </description>
 	</list>
 	
@@ -530,8 +532,8 @@ a separate line.
 	  <description>
 The command which is used to wait on the vserver after it has been
 stopped. Each option must be on a separate line. This file will be
-ignored when the 'sync' does not exist and the '--sync' option was not
-used.
+ignored when the <optionref>sync</optionref> flag does not exist and the
+'--sync' option was not used.
           </description>
 	</list>
 	
@@ -542,7 +544,7 @@ runlevel in the utmp-file). Each option must be on a separate line.
  	  </description>
 	</list>
 	
-	<boolean name="sync">
+	<boolean id="sync" name="sync">
 	  <description>
 If this file is not present, all 'cmd.*-sync files will be ignored.
 	    </description>
@@ -585,18 +587,19 @@ assumed.
 	<scalar name="action">
 	  <default>restart</default>
 	  <description>
-The action which is going to be executed when a vshelper event occurs. The
-default value is 'restart', but there can be defined own methods by placing
-scripts into the 'vshelper-methods' directories. These scripts are fed with
-the same arguments as the 'vshelper' script.
+The action which is going to be executed when a vshelper event
+occurs. The default value is 'restart', but there can be defined own
+methods by placing scripts into the
+<optionref>vshelper-methods</optionref> directories. These scripts are
+fed with the same arguments as the <tool>vshelper</tool> script.
           </description>
 	</scalar>
 	
 	<program name="event" type="symbolic">
 	  <description>
-When existing. these scripts will be executed *instead* of the default
-handler defined in 'action'. Their name must match the event which
-caused the execution of 'vshelper'; e.g. 'restart' or 'poweroff'. See
+When existing, these scripts will be executed *instead* of the default
+handler defined in 'action'. Their name must match the event which caused
+the execution of <tool>vshelper</tool>; e.g. 'restart' or 'poweroff'. See
 the vs_reboot() function in the kernel for more details.
           </description>
 	  <parameterList>
@@ -635,7 +638,7 @@ skipped.
 	
       </collection>
       
-      <collection name="vshelper-methods">
+      <collection id="vshelper-methods" name="vshelper-methods">
 	<program name="handler" type="symbolic">
 	  <description>
 See vshelper/action.
@@ -651,10 +654,13 @@ unification.
 	
 	<list name="exclude">
 	  <description>
-Static list of excluded files. This list supports an rsync syntax:
-when a file is prefixed by '+', it is a candidate for unification;
-when there is no prefix or a '-' it will be excluded. Shell-wildcards
-are allowed for the filenames.
+<p>Static list of files which are excluded for unification. This list
+supports an rsync-like syntax: when a file is prefixed by '+', it is a
+candidate for unification; when there is no prefix or a '-' or a '~' it
+will be excluded. Shell-wildcards are allowed for the filenames.</p>
+<p>When used with <tool>vcopy</tool>, the '~' prefix prevents copying
+of the file entirely (e.g. for keyfiles). With this tool, the file will
+be copied instead of hardlinked when the '-' prefix is used.</p>
           </description>
 	</list>
 	
@@ -669,8 +675,8 @@ will be processed in alphanumerical order.
 
 	<collection name="hash" since="0.30.205">
 	  <description>
-A directory which will be used as the storage place for the 'vhashify'
-command.
+A directory which will be used as the storage place for the
+<tool>vhashify</tool> command.
           </description>
 	  <link name="id" type="symbolic">
 	    <description>
@@ -992,8 +998,8 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
 	<description>
 'iface' is an arbitrary name for the interface; the value itself is
 not important but may be interesting regarding interface-creation and
-usage with 'chbind'. Both happens in alphabetical order and numbers
-like '00' are good names for these directories.
+usage with <tool>chbind</tool>. Both happens in alphabetical order and
+numbers like '00' are good names for these directories.
         </description>
 	
 	<boolean name="disabled">
@@ -1020,10 +1026,10 @@ like '00' are good names for these directories.
 	</scalar>
 	<scalar name="name">
 	  <description>
-When this file exists, the interface will be named with the text in this
-file. Without such an entry, the IP will not be shown by 'ifconfig' but
-by 'ip addr ls' only.  Such a labeled interface is known as an "alias"
-also (e.g. 'eth0:foo').
+When this file exists, the interface will be named with the text in
+this file. Without such an entry, the IP will not be shown by
+<tool>ifconfig</tool> but by <command>ip addr ls</command> only.  Such
+a labeled interface is known as an "alias" also (e.g. 'eth0:foo').
           </description>
 	</scalar>
 	<boolean name="nodev">
