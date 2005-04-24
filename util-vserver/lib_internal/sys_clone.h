@@ -19,7 +19,7 @@
 #ifndef H_UTIL_VSERVER_SRC_SYS_CLONE_H
 #define H_UTIL_VSERVER_SRC_SYS_CLONE_H
 
-#include <asm/unistd.h>
+#include "lib/syscall-wrap.h"
 #define __NR_sys_clone		__NR_clone
 
 #ifndef CLONE_NEWNS

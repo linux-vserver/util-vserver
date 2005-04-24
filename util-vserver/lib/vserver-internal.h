@@ -30,6 +30,7 @@
 #include <unistd.h>
 
 #include "internal.h"
+#include "syscall-wrap.h"
 
 #if !defined(__NR_vserver) && defined(ENSC_SYSCALL__NR_vserver)
 #  define __NR_vserver	ENSC_SYSCALL__NR_vserver
