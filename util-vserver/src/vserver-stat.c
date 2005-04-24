@@ -400,7 +400,7 @@ shortenTime(char *buf, uint64_t t)
 }
 
 static void
-showContexts(struct Vector *vec)
+showContexts(struct Vector const *vec)
 {
   uint64_t			uptime  = getUptime();
   struct XidData const *	ptr     = Vector_begin_const(vec);
