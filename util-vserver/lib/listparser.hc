@@ -48,9 +48,10 @@
   utilvserver_listparser_ ## SHORT(char const *str, size_t len,		\
 				   char const **err_ptr,		\
 				   size_t *err_len,			\
-				   TYPE *flag,				\
-				   TYPE *mask,				\
-				   TYPE (*func)(char const *, size_t))	\
+				   TYPE * const flag,			\
+				   TYPE * const mask,			\
+				   TYPE (*func)(char const *,		\
+						size_t, bool *))	\
   {									\
     if (len==0) len = strlen(str);					\
     for (;len>0;) {							\
@@ -58,9 +59,9 @@
       size_t		cnt;						\
       TYPE		tmp = 0;					\
       bool		is_neg     = false;				\
-      bool		allow_zero = true;				\
+      bool		failed     = false;				\
       									\
-      while (len>0 && (*str=='!' || *str=='~')) {			\
+      while (mask!=0 && len>0 && (*str=='!' || *str=='~')) {		\
 	is_neg = !is_neg;						\
 	++str;								\
 	--len;								\
@@ -71,20 +72,19 @@
       else len-=(cnt+1);						\
 									\
       if (cnt==0) 							\
-	allow_zero = false;						\
-      else if (strncasecmp(str,"all",cnt)==0 ||				\
-	       strncasecmp(str,"any",cnt)==0)				\
+	failed = true;							\
+      else if (mask!=0 &&						\
+	       (strncasecmp(str,"all",cnt)==0 ||			\
+		strncasecmp(str,"any",cnt)==0))				\
 	tmp = ~(TYPE)(0);						\
-      else if (strncasecmp(str,"none",cnt)==0) {}			\
-      else if (!isNumber_##SHORT(&str, &cnt, &tmp, str[cnt])) {		\
-	tmp        = (*func)(str,cnt);					\
-	allow_zero = false;						\
-      }									\
+      else if (mask!=0 && strncasecmp(str,"none",cnt)==0) {}		\
+      else if (!isNumber_##SHORT(&str, &cnt, &tmp, str[cnt]))		\
+	tmp = (*func)(str,cnt, &failed);				\
 									\
-      if (tmp!=0 || allow_zero) {					\
+      if (!failed) {							\
 	if (!is_neg) *flag |=  tmp;					\
 	else         *flag &= ~tmp;					\
-	*mask |= tmp;							\
+	if (mask!=0) *mask |=  tmp;					\
       }									\
       else {								\
 	if (err_ptr) *err_ptr = str;					\
