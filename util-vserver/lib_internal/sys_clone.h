@@ -27,7 +27,6 @@
 #endif
 
 #ifdef ENSC_SYSCALL_TRADITIONAL
-#include <sys/syscall.h>
 #include <unistd.h>
 
 inline static UNUSED ALWAYSINLINE
