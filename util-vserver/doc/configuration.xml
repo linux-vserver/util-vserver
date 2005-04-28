@@ -25,8 +25,8 @@ Disable namespace usage globally. It can be overridden for a single vserver
 by setting the <optionref ref="global-namespace">namespace</optionref> flag
 there.
 
-In this mode the /vservers directory must have the 'barrier'
-attribute. Else, common chroot(2) exploits are possible.
+In this mode the <directory>/vservers</directory> directory must have
+the 'barrier' attribute. Else, common chroot(2) exploits are possible.
       </description>
     </boolean>
 
@@ -73,7 +73,7 @@ from this uri and install it at a temporary place.
 	  <description>
 The file where output will be logged to when <tool>vshelper</tool>
 is invoked from the kernel. This should point somewhere e.g. into
-/var/log.
+<directory>/var/log</directory>.
           </description>
 	</link>
 
@@ -178,7 +178,8 @@ operation will fail. Most tools assume 'on' as the default value.
       </scalar>
       <collection name="yum">
 	<description>
-The default, yum-related content of the /etc directory.
+The default, yum-related content of the <directory>/etc</directory>
+directory.
         </description>
 	<scalar name="yum.conf">
 	  <description>
@@ -253,19 +254,19 @@ distribution.
       
       <collection name="apt">
 	<description>
-Default content of the /etc/apt/ directory.
+Default content of the <directory>/etc/apt/</directory> directory.
         </description>
       </collection>
       
       <collection name="rpm">
 	<description>
-Default content of the /etc/rpm directory.
+Default content of the <directory>/etc/rpm</directory> directory.
         </description>
       </collection>
       
       <link name="rpmlib">
 	<description>
-Directory which overrides /usr/lib/rpm.
+Directory which overrides <directory>/usr/lib/rpm</directory>.
         </description>
       </link>
       <link name="execdir">
@@ -323,8 +324,8 @@ namespace usage for the current vserver.
       <description>
 Disables namespace usage for the current vserver.
 
-In this mode the /vservers directory must have the 'barrier'
-attribute. Else, common chroot(2) exploits are possible.
+In this mode the <directory>/vservers</directory> directory must have
+the 'barrier' attribute. Else, common chroot(2) exploits are possible.
       </description>
     </boolean>
 
@@ -399,6 +400,14 @@ Contains the pathname of the shell which will be used by the "vserver
 ... enter" command.
       </description>
     </scalar>
+    <list name="personality">
+      <description>
+Used to set the personality of the vserver. First line in the file
+is the personality-type followed by flags (one item per line). See
+<filename>/usr/include/linux/personality.h</filename> for possible
+values.
+      </description>
+    </list>
     <list name="flags">
       <description>
 Contains per line a flag. See <ulink
@@ -448,21 +457,21 @@ Apply the current ulimit to the whole context
 Contains the context which shall be used for the vserver.
         </description>
     </scalar>
-    <data name="fstab">
+    <data id="fstab" name="fstab">
       <description>
 The fstab file for the vserver. Entries in this file will be mounted
-within the network context of the vserver; this means that mount will
-be called as <command>chbind &lt;options&gt; mount ...</command>. Use
-the 'fstab.local' file when you do not want this behavior, but in most
-cases the 'fstab' file should be used.
+within the network context of the host. Use the
+<optionref>fstab.remote</optionref> file when you want that the
+mounting happens in the network context of the vserver. In most cases
+the 'fstab' file should be used.
       </description>
     </data>
-    <data name="fstab.local">
+    <data id="fstab.remote" name="fstab.remote">
       <description>
-The fstab file for the vserver. In opposite to the normal 'fstab'
-file, the mounting happens in the local network context. Currently
-there is no way to mix entries of both files; 'fstab' will be always
-processed before 'fstab.local'.
+The fstab file for the vserver. Entries in this file will be mounted
+within the network context of the host; this means that mount will be
+called as <command>chbind &lt;options&gt; mount ...</command>. See
+<optionref>fstab</optionref> also.
       </description>
     </data>
     
