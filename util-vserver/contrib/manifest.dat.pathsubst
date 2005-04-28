@@ -100,7 +100,7 @@ build  @SBINDIR@/vrpm
 core   @SBINDIR@/vrsetup
 core   @SBINDIR@/vsched
 base   @SBINDIR@/vserver
-build  @SBINDIR@/vserver-copy
+legacy @SBINDIR@/vserver-copy
 core   @SBINDIR@/vserver-info
 base   @SBINDIR@/vserver-stat
 base   @SBINDIR@/vsomething
