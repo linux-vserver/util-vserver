@@ -134,7 +134,8 @@ dnl
 
 case $host_cpu in
 	(i*86|athlon)	min_diet_ver=0.25;;
-	(*)		min_diet_ver=0.29;;
+	(ia64|hppa)	min_diet_ver=0.29;;
+	(*)		min_diet_ver=0.28;;
 esac
 
 ENSC_ENABLE_DIETLIBC(USE_DIETLIBC, [$min_diet_ver])
