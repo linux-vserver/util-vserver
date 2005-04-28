@@ -204,6 +204,8 @@
 #define VC_VXSM_PRIO_BIAS          	0x0100
 
 
+#define VC_BAD_PERSONALITY		((uint_least32_t)(-1))
+
 
 /** \defgroup  syscalls Syscall wrappers
  *  Functions which are calling the vserver syscall directly. */
@@ -632,6 +634,20 @@ extern "C" {
   inline static int	vc_setfilecontext(char const *filename, xid_t xid) {
     return vc_set_iattr(filename, xid, 0, VC_IATTR_XID);
   }
+
+
+  uint_least32_t	vc_text2personalityflag(char const *str,
+						size_t len) VC_ATTR_NONNULL((1));
+
+  char const *		vc_lopersonality2text(uint_least32_t *) VC_ATTR_NONNULL((1));
+  
+  int			vc_list2personalityflag(char const /*@in@*/ *,
+						size_t len,
+						uint_least32_t /*@out@*/ *personality,
+						struct vc_err_listparser /*@out@*/ *err) VC_ATTR_NONNULL((1,3));
+
+  uint_least32_t	vc_str2personalitytype(char const /*@in@*/*,
+					       size_t len) VC_ATTR_NONNULL((1));
   
   /** \brief   Returns the context of \c filename
    *  \ingroup syscalls
