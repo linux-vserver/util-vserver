@@ -72,6 +72,15 @@ is_vshelper_init=
 have_interfaces=
 startsync_pipe=
 
+while test "$#" -gt 0; do
+    case "$1" in
+	(--rescue)	INITSTYLE=rescue;;
+	(--rescue-cmd)	INITCMD_RESCUE=( $2 ); shift;;
+	(*)		panic $"vserver ... start: unknown option '$1'";;
+    esac
+    shift
+done
+
 set -e
 trap "cleanup" EXIT
 
@@ -106,7 +115,8 @@ if $_VSERVER_INFO - FEATURE migrate; then
     $_VATTRIBUTE --set "${OPTS_VATTRIBUTE[@]}" -- \
     $_SAVE_CTXINFO "$VSERVER_DIR" \
     $_ENV -i -- \
-    $_VCONTEXT   --migrate-self --endsetup --chroot $SILENT_OPT "${OPTS_VCONTEXT_MIGRATE[@]}" -- \
+    $_VCONTEXT   --migrate-self --endsetup --chroot $SILENT_OPT \
+    "${OPTS_VCONTEXT_MIGRATE[@]}" "${OPTS_VCONTEXT_ENTER[@]}" -- \
     "${INITCMD_START[@]}"
 else
     if test -n "$_IS_FAKEINIT"; then

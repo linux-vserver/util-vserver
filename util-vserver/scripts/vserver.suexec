@@ -33,7 +33,8 @@ if $_VSERVER_INFO - FEATURE migrate; then
 	exec \
         $_CHBIND   "${CHBIND_OPTS[@]}" \
 	${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT" -- } \
-	$_VCONTEXT $SILENT_OPT --migrate --chroot --xid "$S_CONTEXT" --uid "$user" -- \
+	$_VCONTEXT $SILENT_OPT --migrate --chroot \
+	  --xid "$S_CONTEXT" --uid "$user" "${OPTS_VCONTEXT_ENTER[@]}" -- \
 	"$@"
     else
 	exec \
