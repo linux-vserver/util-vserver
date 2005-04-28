@@ -41,7 +41,7 @@ int	utilvserver_listparser_uint32(char const *str, size_t len,
 				      uint_least32_t *mask,
 				      uint_least32_t (*func)(char const*,
 							     size_t, bool *
-					)) NONNULL((1,5,6,7));
+					)) NONNULL((1,5,7));
   
 int	utilvserver_listparser_uint64(char const *str, size_t len,
 				      char const **err_ptr, size_t *err_len,
@@ -49,7 +49,7 @@ int	utilvserver_listparser_uint64(char const *str, size_t len,
 				      uint_least64_t *mask,
 				      uint_least64_t (*func)(char const*,
 							     size_t, bool *
-					)) NONNULL((1,5,6,7));
+					)) NONNULL((1,5,7));
 
 struct Mapping_uint32 {
     char const * const	id;
