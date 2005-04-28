@@ -17,6 +17,7 @@
 
 PKGCFGBASE=
 PKGCFGBASE_REL=
+YUM_RELEASEPKGS=( {redhat,fedora}-release )
 
 function pkgmgmt._setPkgCfgBase
 {
