@@ -28,6 +28,7 @@ declare -a CHCONTEXT_OPTS=()
 declare -a CAPCHROOT_OPTS=()
 declare -a INTERFACES=()
 
+declare -a INITCMD_RESCUE=( /bin/sleep 900 )
 declare -a INITCMD_START=()
 declare -a INITCMD_START_SYNC=()
 declare -a INITCMD_STOP=()
@@ -38,6 +39,7 @@ declare -a ENTER_SHELL=()
 
 declare -a OPTS_VCONTEXT_CREATE=()
 declare -a OPTS_VCONTEXT_MIGRATE=()
+declare -a OPTS_VCONTEXT_ENTER=()
 declare -a OPTS_VATTRIBUTE=( --flag fakeinit )
 declare -a OPTS_VSCHED=()
 
@@ -45,6 +47,7 @@ declare -a STOPCMD_PREPARE=()
 
 declare -a VSERVER_EXTRA_CMDS=()
 
+INIT_RESCUE=
 VSHELPER_SYNC_TIMEOUT=30
 USE_VNAMESPACE=
 INTERFACE_CMDS_IDX=0
@@ -98,6 +101,34 @@ function _generateNiceCommand
     read nice <"$vdir"/nice
 
     NICE_CMD=( $_NICE -$nice )
+}
+
+
+function _generatePersonalityOptions
+{
+    local vdir="$1"
+    local f="$vdir"/personality
+    local type flags
+
+    test -s "$f" || return 0
+
+    {
+	local delim tmp
+
+	read type
+	while read tmp; do
+	    case x$tmp in
+		(x\#*|x)	;;
+		(*)		flags=$flags$delim$tmp
+				delim=,
+				;;
+	    esac
+	done
+    } <"$f"
+
+    OPTS_VCONTEXT_ENTER=( "${OPTS_VCONTEXT_ENTER[@]}"
+                          --personality-type "$type"
+			  ${flags:+--personality-flags "$flags"} )
 }
 
 function _generateCCapabilityOptions
@@ -218,6 +249,13 @@ function _generateInitOptions
     getFileArray INITKILL_SEQ	"$cfgdir"/killseq || :
 
     case x"$INITSTYLE" in
+	(xrescue)
+	    INITCMD_START=( "${INITCMD_RESCUE[@]}" )
+	    INITCMD_STOP=( /sbin/killall5 )
+	    _IS_FAKEINIT=1
+	    _NEED_VSHELPER_SYNC=
+	    ;;
+	    
 	(xsysv)
 	    test -n "$RUNLEVEL_START" || RUNLEVEL_START=3
 	    test -n "$RUNLEVEL_STOP"  || RUNLEVEL_STOP=6
@@ -260,12 +298,13 @@ function _generateInitOptions
 	    exit 1;;
     esac
 
-    getFileArray INITCMD_START      "$cfgdir"/cmd.start      || :
-    getFileArray INITCMD_STOP       "$cfgdir"/cmd.stop       || :
-    getFileArray INITCMD_START_SYNC "$cfgdir"/cmd.start-sync || :
-    getFileArray INITCMD_STOP_SYNC  "$cfgdir"/cmd.stop-sync  || :
-    getFileArray INITCMD_PREPARE    "$cfgdir"/cmd.prepare    || :
-
+    if test x"$INITSTYLE" != xrescue; then
+	getFileArray INITCMD_START      "$cfgdir"/cmd.start      || :
+	getFileArray INITCMD_STOP       "$cfgdir"/cmd.stop       || :
+	getFileArray INITCMD_START_SYNC "$cfgdir"/cmd.start-sync || :
+	getFileArray INITCMD_STOP_SYNC  "$cfgdir"/cmd.stop-sync  || :
+	getFileArray INITCMD_PREPARE    "$cfgdir"/cmd.prepare    || :
+    fi
     
     test -n "$OPTION_FORCE_SYNC" -o -e "$cfgdir"/sync || {
 	INITCMD_START_SYNC=()
@@ -614,12 +653,13 @@ function prepareStop
 
 function generateOptions
 {
-    _generateInterfaceOptions  "$1"
+    _generateInterfaceOptions   "$1"
     test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1" 
-    _generateNiceCommand       "$1"
-    _generateInitOptions       "$1"
-    _generateChcontextOptions  "$1"
-    _generateScheduleOptions   "$1"
+    _generateNiceCommand        "$1"
+    _generateInitOptions        "$1"
+    _generateChcontextOptions   "$1"
+    _generateScheduleOptions    "$1"
+    _generatePersonalityOptions "$1"
 
     if test -n "$_IS_FAKEINIT"; then
 	CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
