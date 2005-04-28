@@ -16,24 +16,32 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 DIETPROGS +=			lib/testsuite/cflags \
+				lib/testsuite/personality \
 				lib/testsuite/fmt
 
 check_PROGRAMS +=		lib/testsuite/cflags \
+				lib/testsuite/personality \
 				lib/testsuite/fmt \
 				lib/testsuite/parselimit
 TESTS +=			lib/testsuite/cflags \
+				lib/testsuite/personality \
 				lib/testsuite/fmt \
 				lib/testsuite/parselimit
 
-lib_testsuite_cflags_SOURCES =	lib/testsuite/cflags.c
-lib_testsuite_cflags_LDADD =	$(LIBVSERVER)
-lib_testsuite_cflags_LDFLAGS =	$(VSERVER_LDFLGS)
-lib_testsuite_cflags_CPPFLAGS =	$(AM_CPPFLAGS) -DENSC_TESTSUITE
+lib_testsuite_cflags_SOURCES =		lib/testsuite/cflags.c
+lib_testsuite_cflags_LDADD =		$(LIBVSERVER)
+lib_testsuite_cflags_LDFLAGS =		$(VSERVER_LDFLGS)
+lib_testsuite_cflags_CPPFLAGS =		$(AM_CPPFLAGS) -DENSC_TESTSUITE
 
-lib_testsuite_fmt_SOURCES =	lib/testsuite/fmt.c
-lib_testsuite_fmt_LDADD =	$(LIBVSERVER)
-lib_testsuite_fmt_LDFLAGS =	$(VSERVER_LDFLGS)
-lib_testsuite_fmt_CPPFLAGS =	$(AM_CPPFLAGS) -DENSC_TESTSUITE
+lib_testsuite_personality_SOURCES =	lib/testsuite/personality.c
+lib_testsuite_personality_LDADD =	$(LIBVSERVER)
+lib_testsuite_personality_LDFLAGS =	$(VSERVER_LDFLGS)
+lib_testsuite_personality_CPPFLAGS =	$(AM_CPPFLAGS) -DENSC_TESTSUITE
+
+lib_testsuite_fmt_SOURCES =		lib/testsuite/fmt.c
+lib_testsuite_fmt_LDADD =		$(LIBVSERVER)
+lib_testsuite_fmt_LDFLAGS =		$(VSERVER_LDFLGS)
+lib_testsuite_fmt_CPPFLAGS =		$(AM_CPPFLAGS) -DENSC_TESTSUITE
 
 lib_testsuite_parselimit_SOURCES =	lib/testsuite/parselimit.c
 lib_testsuite_parselimit_LDADD =	$(LIBVSERVER)
