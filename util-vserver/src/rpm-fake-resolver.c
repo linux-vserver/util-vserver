@@ -238,7 +238,7 @@ daemonize(struct ArgInfo const UNUSED * args, int pid_fd)
     _exit(0);
   }
   Eclose(p[1]);
-  read(p[0], &c, 1);
+  TEMP_FAILURE_RETRY(read(p[0], &c, 1));
   Eclose(p[0]);
 }
 
