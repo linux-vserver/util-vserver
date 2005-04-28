@@ -23,6 +23,7 @@
 #include "util.h"
 #include "lib/internal.h"
 #include "lib_internal/jail.h"
+#include "lib_internal/sys_personality.h"
 
 #include <vserver.h>
 #include <getopt.h>
@@ -32,6 +33,8 @@
 #include <sys/un.h>
 #include <assert.h>
 #include <signal.h>
+
+#include <linux/personality.h>
 
 #define ENSC_WRAPPERS_PREFIX	"vcontext: "
 #define ENSC_WRAPPERS_UNISTD	1
@@ -57,6 +60,8 @@
 #define CMD_ENDSETUP		0x400b
 #define CMD_SILENTEXIST		0x400c
 #define CMD_NAMESPACE		0x400d
+#define CMD_PERSTYPE		0x400e
+#define CMD_PERSFLAG		0x400f
 
 
 struct option const
@@ -78,6 +83,8 @@ CMDLINE_OPTIONS[] = {
   { "namespace",    no_argument,       	0, CMD_NAMESPACE },
   { "syncsock",     required_argument, 	0, CMD_SYNCSOCK },
   { "syncmsg",      required_argument, 	0, CMD_SYNCMSG },
+  { "personality-type",  required_argument, 0, CMD_PERSTYPE },
+  { "personality-flags", required_argument, 0, CMD_PERSFLAG },
 #if 1  
   { "fakeinit",     no_argument,       	0, CMD_INITPID },	// compatibility
 #endif  
@@ -93,6 +100,8 @@ struct Arguments {
     bool		is_initpid;
     bool		is_silentexist;
     bool		set_namespace;
+    uint_least32_t	personality_flags;
+    uint_least32_t	personality_type;
     int			verbosity;
     bool		do_chroot;
     uid_t		uid;
@@ -122,6 +131,10 @@ showHelp(int fd, char const *cmd, int res)
 	    "                         for ctx (possible for --migrate only)\n"
 	    "    --endsetup      ...  clear the setup flag; usefully for migrate only\n"
 	    "    --disconnect    ...  start program in background\n"
+	    "    --personality-type <type>\n"
+	    "                    ...  execute <program> in the given execution domain\n"
+	    "    --personality-flags <flags>+\n"
+	    "                    ...  set special flags for the given execution domain\n"
 	    "    --silent        ...  be silent\n"
 	    "    --silentexist   ...  be silent when context exists already; usefully\n"
 	    "                         for '--create' only\n"
@@ -213,7 +226,7 @@ doExternalSync(int fd, char const *msg)
 
   if (TEMP_FAILURE_RETRY(recv(fd, &c, 1, MSG_NOSIGNAL))!=0) {
     WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "unexpected external synchronization event\n");
-    exit(255);
+    exit(wrapper_exit_code);
   }
 
   Eclose(fd);
@@ -229,7 +242,7 @@ doit(struct Arguments const *args, char *argv[])
     xid_t			xid;
     int				ext_sync_fd = connectExternalSync(args->sync_sock);
 
-    doSyncStage0(p, args->do_disconnect);
+    doSyncStage0(p, args->do_disconnect);  
     
     if (args->do_create) {
       xid = vc_ctx_create(args->xid);
@@ -266,10 +279,16 @@ doit(struct Arguments const *args, char *argv[])
       Esetuid(args->uid);
       if (getuid()!=args->uid) {
 	WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "Something went wrong while changing the UID\n");
-	exit(255);
+	exit(wrapper_exit_code);
       }
     }
-    
+
+    if (args->personality_type!=VC_BAD_PERSONALITY &&
+	sys_personality(args->personality_type | args->personality_flags)==-1) {
+      perror(ENSC_WRAPPERS_PREFIX "personality()");
+      exit(wrapper_exit_code);
+    }  
+
     doExternalSync(ext_sync_fd, args->sync_msg);
     doSyncStage1(p, args->do_disconnect);
     DPRINTF("doit: pid=%u, ppid=%u\n", getpid(), getppid());
@@ -277,7 +296,7 @@ doit(struct Arguments const *args, char *argv[])
     doSyncStage2(p, args->do_disconnect);
 
     PERROR_Q(ENSC_WRAPPERS_PREFIX "execvp", argv[optind]);
-    exit(255);
+    exit(wrapper_exit_code);
   }
 
   assert(args->do_disconnect);
@@ -286,21 +305,51 @@ doit(struct Arguments const *args, char *argv[])
   return EXIT_SUCCESS;
 }
 
+static uint_least32_t
+parsePersonalityType(char const *str)
+{
+  uint_least32_t	res = vc_str2personalitytype(str, 0);
+  if (res==VC_BAD_PERSONALITY) {
+    WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "bad personality type\n");
+    exit(wrapper_exit_code);
+  }
+
+  return res;
+}
+
+static uint_least32_t
+parsePersonalityFlags(char const *str)
+{
+  struct vc_err_listparser	err;
+  uint_least32_t		res;
+
+  if (vc_list2personalityflag(str, 0, &res, &err)==-1) {
+    WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "bad personality flag '");
+    Vwrite(2, err.ptr, err.len);
+    WRITE_MSG(2, "'\n");
+    exit(wrapper_exit_code);
+  }
+
+  return res;
+}
+
 int main (int argc, char *argv[])
 {
   struct Arguments		args = {
-    .do_create      = false,
-    .do_migrate     = false,
-    .do_migrateself = false,
-    .do_disconnect  = false,
-    .do_endsetup    = false,
-    .is_initpid     = false,
-    .is_silentexist = false,
-    .set_namespace  = false,
-    .verbosity      = 1,
-    .uid            = -1,
-    .xid            = VC_DYNAMIC_XID,
-    .sync_msg       = "ok",
+    .do_create         = false,
+    .do_migrate        = false,
+    .do_migrateself    = false,
+    .do_disconnect     = false,
+    .do_endsetup       = false,
+    .is_initpid        = false,
+    .is_silentexist    = false,
+    .set_namespace     = false,
+    .verbosity         = 1,
+    .uid               = -1,
+    .xid               = VC_DYNAMIC_XID,
+    .personality_type  = VC_BAD_PERSONALITY,
+    .personality_flags = 0,
+    .sync_msg          = "ok",
   };
   
   while (1) {
@@ -323,6 +372,12 @@ int main (int argc, char *argv[])
       case CMD_UID		:  args.uid = atol(optarg);      break;
       case CMD_XID		:  args.xid = Evc_xidopt2xid(optarg,true); break;
       case CMD_SILENT		:  --args.verbosity; break;
+      case CMD_PERSTYPE		:
+	args.personality_type   = parsePersonalityType(optarg);
+	break;
+      case CMD_PERSFLAG		:
+	args.personality_flags |= parsePersonalityFlags(optarg);
+	break;
       case CMD_MIGRATESELF	:
 	args.do_migrate     = true;
 	args.do_migrateself = true;
@@ -332,7 +387,7 @@ int main (int argc, char *argv[])
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
 	WRITE_MSG(2, " --help\" for more information.\n");
-	return 255;
+	return wrapper_exit_code;
 	break;
     }
   }
@@ -355,5 +410,5 @@ int main (int argc, char *argv[])
   else
     return doit(&args, argv);
 
-  return 255;
+  return wrapper_exit_code;
 }
