@@ -70,9 +70,9 @@ function findAndCopy
 ## Usage: isRegularFile <filename> [<mod>]
 function isRegularFile
 {
-    test ${mod:--f} "$1" || return 1
+    test ${2:--f} "$1" || return 1
 
-    case $file in
+    case $1 in
 	(*.rpmsave|*.rpmnew|*.rpmorig|*.cfsaved*|*.~*~)	return 1;;
     esac
 
@@ -138,6 +138,22 @@ function isNumber
     local tmp
     let tmp=$1+0 2>/dev/null || test -z "${1//0/}" -a -n "$1" || return 1
     return 0
+}
+
+## Usage: hasSubstring <haystack> <needle>+
+function hasSubstring
+{
+    local pat=$1
+    local i
+    
+    shift
+
+    for i; do
+	test x"${pat/*$i*/$i}" = x"$i" || continue
+	return 0
+    done
+
+    return 1
 }
 
 ## Usage: colorize <style> <command>
@@ -436,8 +452,8 @@ function getAllVservers
 	case ${2:-ALL} in
 	    (MARKED)	test   -s "$_ga_markfile" || _ga_doadd=;;
 	    (UNMARKED)	test ! -s "$_ga_markfile" || _ga_doadd=;;
-	    (STOPPED)   ! $_VSERVER "$_ga_i" runnning &>/dev/null || _ga_doadd=;;
-	    (RUNNING)     $_VSERVER "$_ga_i" runnning &>/dev/null || _ga_doadd=;;
+	    (STOPPED)   ! $_VSERVER "$_ga_i" running &>/dev/null || _ga_doadd=;;
+	    (RUNNING)     $_VSERVER "$_ga_i" running &>/dev/null || _ga_doadd=;;
 	    (ALL)	;;
 	    (*)		panic $"Unknown vserver tagging '$2'";;
 	esac
