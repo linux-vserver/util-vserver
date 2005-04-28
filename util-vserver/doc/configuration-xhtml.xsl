@@ -235,6 +235,17 @@
     <code class="command"><xsl:apply-templates/></code>
   </xsl:template>
 
+  <xsl:template match="directory">
+    <span class="directory"><xsl:apply-templates/></span>
+  </xsl:template>
+
+  <xsl:template match="filename">
+    <a class="filename">
+      <xsl:attribute name="href">file://<xsl:value-of select="text()"/></xsl:attribute>
+      <xsl:apply-templates/>
+    </a>
+  </xsl:template>
+  
   <xsl:template match="optionref">
     <a class="optionref">
       <xsl:attribute name="href">

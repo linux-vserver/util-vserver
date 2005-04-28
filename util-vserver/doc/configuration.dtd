@@ -93,6 +93,9 @@
         value   CDATA #REQUIRED
         since   CDATA #IMPLIED>
 
+<!ELEMENT directory (#PCDATA)>
+<!ELEMENT filename (#PCDATA)>
+
 <!ELEMENT optionref (#PCDATA)>
 <!ATTLIST optionref
         ref     CDATA #IMPLIED>
