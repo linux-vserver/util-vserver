@@ -23,7 +23,6 @@
 #include "vserver.h"
 #include "internal.h"
 
-#include <string.h>
 
 static uint_least64_t
 vc_text2cflag_err(char const *str, size_t len, bool *failed)
