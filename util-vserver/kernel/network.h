@@ -1,19 +1,21 @@
 #ifndef _VX_NETWORK_H
 #define _VX_NETWORK_H
 
+#include <linux/types.h>
+
+
 #define MAX_N_CONTEXT	65535	/* Arbitrary limit */
 
 #define NX_DYNAMIC_ID	((uint32_t)-1)		/* id for dynamic context */
 
 #define NB_IPV4ROOT	16
 
+
 #ifdef	__KERNEL__
 
 #include <linux/list.h>
 #include <linux/spinlock.h>
-#include <linux/utsname.h>
 #include <linux/rcupdate.h>
-#include <asm/resource.h>
 #include <asm/atomic.h>
 
 
@@ -43,14 +45,13 @@ struct nx_info {
 
 struct rcu_head;
 
-extern void rcu_free_nx_info(struct rcu_head *);
 extern void unhash_nx_info(struct nx_info *);
 
 extern struct nx_info *locate_nx_info(int);
 extern struct nx_info *locate_or_create_nx_info(int);
 
 extern int get_nid_list(int, unsigned int *, int);
-extern int nx_info_is_hashed(nid_t);
+extern int nid_is_hashed(nid_t);
 
 extern int nx_migrate_task(struct task_struct *, struct nx_info *);
 
@@ -64,89 +65,7 @@ struct sock;
 
 int nx_addr_conflict(struct nx_info *, uint32_t, struct sock *);
 
-
 #endif	/* __KERNEL__ */
-
-#include "switch.h"
-
-/* vinfo commands */
-
-#define VCMD_task_nid		VC_CMD(VINFO, 2, 0)
-
-#ifdef	__KERNEL__
-extern int vc_task_nid(uint32_t, void __user *);
-
-#endif	/* __KERNEL__ */
-
-#define VCMD_nx_info		VC_CMD(VINFO, 6, 0)
-
-struct	vcmd_nx_info_v0 {
-	uint32_t nid;
-	/* more to come */
-};
-
-#ifdef	__KERNEL__
-extern int vc_nx_info(uint32_t, void __user *);
-
-#endif	/* __KERNEL__ */
-
-#define VCMD_net_create		VC_CMD(VNET, 1, 0)
-#define VCMD_net_migrate	VC_CMD(NETMIG, 1, 0)
-
-#define VCMD_net_add		VC_CMD(NETALT, 1, 0)
-#define VCMD_net_remove		VC_CMD(NETALT, 2, 0)
-
-struct	vcmd_net_nx_v0 {
-	uint16_t type;
-	uint16_t count;
-	uint32_t ip[4];
-	uint32_t mask[4];
-	/* more to come */
-};
-
-//	IPN_TYPE_IPV4
-
-
-#ifdef	__KERNEL__
-extern int vc_net_create(uint32_t, void __user *);
-extern int vc_net_migrate(uint32_t, void __user *);
-
-#endif	/* __KERNEL__ */
-
-#define VCMD_get_nflags		VC_CMD(FLAGS, 5, 0)
-#define VCMD_set_nflags		VC_CMD(FLAGS, 6, 0)
-
-struct	vcmd_net_flags_v0 {
-	uint64_t flagword;
-	uint64_t mask;
-};
-
-#ifdef	__KERNEL__
-extern int vc_get_nflags(uint32_t, void __user *);
-extern int vc_set_nflags(uint32_t, void __user *);
-
-#endif	/* __KERNEL__ */
-
-#define IPF_STATE_SETUP		(1ULL<<32)
-
-
-#define IPF_ONE_TIME		(0x0001ULL<<32)
-
-#define VCMD_get_ncaps		VC_CMD(FLAGS, 7, 0)
-#define VCMD_set_ncaps		VC_CMD(FLAGS, 8, 0)
-
-struct	vcmd_net_caps_v0 {
-	uint64_t ncaps;
-	uint64_t cmask;
-};
-
-#ifdef	__KERNEL__
-extern int vc_get_ncaps(uint32_t, void __user *);
-extern int vc_set_ncaps(uint32_t, void __user *);
-
-#endif	/* __KERNEL__ */
-
-#define IPC_WOSSNAME		0x00000001
-
-
+#else	/* _VX_NETWORK_H */
+#warning duplicate inclusion
 #endif	/* _VX_NETWORK_H */

@@ -39,7 +39,7 @@
   SPECIAL|EVENT  |       |       |       |FLAGS  |       | |       |       |
 	 |     48|     49|     50|     51|     52|     53| |     54|     55|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
-  SPECIAL|       |       |       |       |RLIMIT |SYSCALL| |       |COMPAT |
+  SPECIAL|DEBUG  |       |       |       |RLIMIT |SYSCALL| |       |COMPAT |
 	 |     56|     57|     58|     59|     60|TEST 61| |     62|     63|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
 
@@ -69,6 +69,7 @@
 #define VC_CAT_EVENT		48
 
 #define VC_CAT_FLAGS		52
+#define VC_CAT_DEBUG		56
 #define VC_CAT_RLIMIT		60
 
 #define VC_CAT_SYSTEST		61
@@ -76,7 +77,7 @@
 
 /*  interface version */
 
-#define VCI_VERSION		0x00010022
+#define VCI_VERSION		0x00010025
 
 
 /*  query version */

@@ -46,8 +46,6 @@ struct namespace;
 struct fs_struct;
 struct vfsmount;
 
-extern int vx_check_vfsmount(struct vx_info *, struct vfsmount *);
-
 extern int vx_set_namespace(struct vx_info *, struct namespace *, struct fs_struct *);
 
 extern int vc_enter_namespace(uint32_t, void __user *);
@@ -55,4 +53,6 @@ extern int vc_cleanup_namespace(uint32_t, void __user *);
 extern int vc_set_namespace(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
+#else	/* _VX_NAMESPACE_H */
+#warning duplicate inclusion
 #endif	/* _VX_NAMESPACE_H */
