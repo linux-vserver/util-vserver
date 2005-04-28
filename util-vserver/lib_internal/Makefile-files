@@ -58,6 +58,7 @@ noinst_HEADERS += \
 				lib_internal/pathinfo.h \
 				lib_internal/string.h \
 				lib_internal/sys_clone.h \
+				lib_internal/sys_personality.h \
 				lib_internal/unify.h \
 				lib_internal/util.h \
 				lib_internal/util-cast.h \
