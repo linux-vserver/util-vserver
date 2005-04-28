@@ -1,7 +1,7 @@
 #!/bin/bash
 # $Id$
 
-# Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# Copyright (C) 2004,2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 #  
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ function showVersion()
 vpkg $PACKAGE_VERSION -- shows information about packages in vservers
 This program is part of $PACKAGE_STRING
 
-Copyright (C) 2004 Enrico Scholz
+Copyright (C) 2004,2005 Enrico Scholz
 This program is free software; you may redistribute it under the terms of
 the GNU General Public License.  This program has absolutely no warranty."
     exit 0
@@ -164,6 +164,51 @@ function _umountFilesystems()
     test -n "$is_ok"
 }
 
+# Usage: verifyInternalPackages <vserver> <style>
+function verifyInternalPackages()
+{
+    local pkgs res=0
+    local ERR="\
+The following errors occured while trying to internalize the
+packagemanagement:
+"
+    
+    case $2 in
+	(RH)	pkgs=$(vrpm "$1" -- -q --qf '---%{NAME}---\n' rpm apt yum "${YUM_RELEASEPKGS[@]}")
+		hasSubstring "$pkgs" ---rpm--- || {
+		    warning "$ERR
+* The vserver does not seem to have the 'rpm' package which is required
+  for internal package management. It is suggested to install it before
+  continuing."
+		    res=1
+		    ERR=
+		}
+		
+		hasSubstring "$pkgs"  ---apt--- ---yum--- || {
+		    warning "$ERR
+* The vserver does not seem to have a depsolver like 'apt' or 'yum'
+  installed. It is suggested to install such a program before setting
+  up internal package management."
+		    res=1
+		    ERR=
+		}
+
+		test -n "$have_apt" || test -z "$have_yum"   || \
+		hasSubstring "$pkgs" "${YUM_RELEASEPKGS[@]}" || {
+		    warning "$ERR
+* yum requires a special package which describes the version of the
+  distribution. Such a package could not be found within the vserver
+  so please install it before continuing. Usually, this package is
+  named 'redhat-release' of 'fedora-release'."
+		    res=1
+		    ERR=
+		}
+		;;
+    esac
+
+    return $res
+}
+
 function processVserver_RH()
 {
     local vserver=$1
@@ -177,7 +222,9 @@ function processVserver_RH()
 
     ## Figure out the environment....
     have_apt=1
+    have_yum=1
     pkgmgmt.isAptAvailable "$cfgdir" "$vdir" "$is_internalize" || have_apt=
+    pkgmgmt.isYumAvailable "$cfgdir" "$vdir" "$is_internalize" || have_yum=
 
     local APTETCDIR=
     local APTSTATEDIR=
@@ -189,6 +236,10 @@ function processVserver_RH()
     ## Create directories and assign variables where configuration
     ## can/will be found on the host
     if test -n "$is_internalize"; then
+	verifyInternalPackages "$vserver" RH || test -n "$IS_FORCE" ||
+	    panic "
+Can not continue; use '--force' to override this check"
+    
 	pushd "$vdir" >/dev/null
 
 	test ! -L var/lib/rpm || {
@@ -348,12 +399,13 @@ function processVserver()
     _umountFilesystems "$vserver"       || return 1
 }
 
-tmp=$(getopt -o y --long debug,externalize,internalize,help,version -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o y --long debug,externalize,internalize,help,version,force -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 IS_EXTERNALIZE=
 IS_INTERNALIZE=
 IS_YES=
+IS_FORCE=
 
 while true; do
     case "$1" in
@@ -362,6 +414,7 @@ while true; do
 	(--debug)	set -x;;
 	(--externalize)	IS_EXTERNALIZE=1;;
 	(--internalize)	IS_INTERNALIZE=1;;
+	(--force)       IS_FORCE=1;;
 	(-y)		IS_YES=1;;
 	(--)		shift; break;;
 	(*)	   	echo $"vserver: internal error; arg=='$1'" >&2; exit 1;;
