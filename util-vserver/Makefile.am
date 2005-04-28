@@ -58,19 +58,31 @@ BUILT_SOURCES =		pathconfig.h linuxvirtual.h \
 
 man_MANS =
 
-kernel_HDRS =		kernel/context.h \
-			kernel/cvirt.h \
-			kernel/debug.h \
-			kernel/dlimit.h \
-			kernel/inode.h \
-			kernel/legacy.h \
-			kernel/limit.h \
-			kernel/namespace.h \
-			kernel/network.h \
-			kernel/sched.h \
-			kernel/signal.h \
-			kernel/switch.h \
+kernel_HDRS =		kernel/context.h	\
+			kernel/context_cmd.h	\
+			kernel/cvirt.h		\
+			kernel/cvirt_cmd.h	\
+			kernel/cvirt_def.h	\
+			kernel/debug.h		\
+			kernel/debug_cmd.h	\
+			kernel/dlimit.h		\
+			kernel/dlimit_cmd.h	\
+			kernel/inode.h		\
+			kernel/inode_cmd.h	\
+			kernel/legacy.h		\
+			kernel/limit.h		\
+			kernel/limit_cmd.h	\
+			kernel/limit_def.h	\
+			kernel/namespace.h	\
+			kernel/network.h	\
+			kernel/network_cmd.h	\
+			kernel/sched.h		\
+			kernel/sched_cmd.h	\
+			kernel/sched_def.h	\
+			kernel/signal.h		\
+			kernel/switch.h		\
 			kernel/xid.h
+
 
 EXTRA_PROGRAMS =
 EXTRA_DIST =		pathconfig.h.pathsubst \
