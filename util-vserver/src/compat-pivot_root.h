@@ -19,10 +19,10 @@
 #ifndef H_UTIL_VSERVER_SRC_COMPAT_PIVOT_ROOT_H
 #define H_UTIL_VSERVER_SRC_COMPAT_PIVOT_ROOT_H
 
-#include <sys/syscall.h>
 #include <unistd.h>
-#include <asm/unistd.h>
 #include <errno.h>
+
+#include "syscall-wrap.h"
 
 inline static _syscall2(int,pivot_root,const char *,new_root,const char *,put_old)
 
