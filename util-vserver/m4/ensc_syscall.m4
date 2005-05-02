@@ -41,6 +41,7 @@ AC_DEFUN([ENSC_SYSCALL],
 [
 	AC_REQUIRE([ENSC_KERNEL_HEADERS])
 	AC_REQUIRE([ENSC_SYSCALL_ALTERNATIVE])
+
         AC_MSG_CHECKING([for syscall(2) invocation method])
         AC_ARG_WITH([syscall],
         	    [AC_HELP_STRING([--with-syscall=METHOD],
@@ -57,6 +58,7 @@ AC_DEFUN([ENSC_SYSCALL],
 				AC_COMPILE_IFELSE(AC_LANG_SOURCE([
 #include "$srcdir/lib/syscall-wrap.h"
 #include <errno.h>
+
 #define __NR_foo0	300
 #define __NR_foo1	301
 #define __NR_foo2	302
