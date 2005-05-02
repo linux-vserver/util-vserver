@@ -61,8 +61,10 @@ EXTRA_DIST		=  $(nobase_distrib_DATA) \
 
 redhat_style		=  rh9 fc1 fc2 fc3
 
+install-exec-hook:	install-notify-xtra
+install-data-hook:	install-data-xtras
 
-install-data-hook:
+install-data-xtras:
 			l="$(redhat_style)"; for i in $$l; do \
 				ln -sf ../redhat/initpost $(DESTDIR)$(distribdir)/$$i/ && \
 				ln -sf ../redhat/initpre  $(DESTDIR)$(distribdir)/$$i/; \
@@ -72,3 +74,6 @@ install-data-hook:
 				$(DESTDIR)$(confdefaultsdir) \
 				$(DESTDIR)$(confdefaultsdir)/apps/vunify/hash \
 				$(DESTDIR)$(confdefaultsdir)/files
+
+
+include $(top_srcdir)/m4/install-notify.am

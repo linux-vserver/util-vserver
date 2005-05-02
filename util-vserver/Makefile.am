@@ -225,6 +225,7 @@ _install-vshelperlink:
 _install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
 
+
 .fixups:		config.status util-vserver.spec
 			chmod a-w util-vserver.spec
 			touch $@
@@ -257,5 +258,6 @@ include $(top_srcdir)/m4/validate.am
 include $(top_srcdir)/m4/changelog.am
 include $(top_srcdir)/m4/pkgconfig.am
 include $(top_srcdir)/m4/libsel.am
+include $(top_srcdir)/m4/install-notify.am
 
 .PHONY:		FORCE update-doc
