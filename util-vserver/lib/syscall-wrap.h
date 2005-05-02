@@ -20,6 +20,7 @@
 #define H_UTIL_VSERVER_LIB_SYSCALL_WRAP_H
 
 #include <sys/syscall.h>
+#include <syscall.h>
 #include <unistd.h>
 
 #ifdef ENSC_USE_ALTERNATIVE_SYSCALL_MACROS

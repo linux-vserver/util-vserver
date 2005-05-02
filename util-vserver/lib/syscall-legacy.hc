@@ -34,9 +34,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <syscall.h>
 #include <asm/unistd.h>
 #include <stdbool.h>
+
+#include "syscall-wrap.h"
 
 // Here is the trick. We keep a copy of the define, then undef it
 // and then later, we try to locate the value reading /proc/self/status
