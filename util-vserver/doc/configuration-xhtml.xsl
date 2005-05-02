@@ -236,7 +236,7 @@
   </xsl:template>
 
   <xsl:template match="directory">
-    <span class="directory"><xsl:apply-templates/></span>
+    <span class="directoryname"><xsl:apply-templates/></span>
   </xsl:template>
 
   <xsl:template match="filename">
