@@ -23,10 +23,8 @@
 #define H_VSERVER_SYSCALL_INTERNAL_H
 
 #include <asm/unistd.h>
-#include <syscall.h>
 #include <errno.h>
 #include <stdint.h>
-#include <sys/syscall.h>
 #include <unistd.h>
 
 #include "internal.h"
