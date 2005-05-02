@@ -17,21 +17,21 @@ dnl Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 AC_DEFUN([ENSC_FPIC_SYSCALL],
 [
+    AC_REQUIRE([ENSC_SYSCALL_ALTERNATIVE])
+
     AC_CACHE_CHECK([whether syscall() allows -fpic], [ensc_cv_c_fpic_syscall],
     [
         ensc_fpic_syscall_old_CFLAGS=$CFLAGS
         CFLAGS="-fPIC -DPIC"
 
 	AC_LANG_PUSH(C)
-        AC_COMPILE_IFELSE([
-            #include <sys/syscall.h>
-            #include <unistd.h>
-            #include <asm/unistd.h>
+	AC_COMPILE_IFELSE(AC_LANG_SOURCE([
+	    #include "$srcdir/lib/syscall-wrap.h"
             #include <errno.h>
             
             #define __NR_dummy	42
-            _syscall3(int, dummy, int, a, int, b, int, c)],
-        [ensc_cv_c_fpic_syscall=yes], [ensc_cv_c_fpic_syscall=no])
+            _syscall3(int, dummy, int, a, int, b, int, c)]),
+	    [ensc_cv_c_fpic_syscall=yes], [ensc_cv_c_fpic_syscall=no])
 	AC_LANG_POP
 
         CFLAGS=$ensc_fpic_syscall_old_CFLAGS
