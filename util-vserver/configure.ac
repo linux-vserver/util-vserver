@@ -68,8 +68,6 @@ AM_CONDITIONAL(HAVE_XSLTPROC, test "$XSLTPROC" != ':')
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
 ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
 
-ENSC_FPIC_SYSCALL
-
 AC_MSG_CHECKING([whether to enable extra optimizations])
 AC_ARG_ENABLE([extra-optimizations],
 	      [AC_HELP_STRING([--disable-extra-optimizations],
@@ -134,7 +132,7 @@ dnl
 
 case $host_cpu in
 	(i*86|athlon)	min_diet_ver=0.25;;
-	(ia64|hppa)	min_diet_ver=0.29;;
+	(ia64|hppa*)	min_diet_ver=0.29;;
 	(*)		min_diet_ver=0.28;;
 esac
 
