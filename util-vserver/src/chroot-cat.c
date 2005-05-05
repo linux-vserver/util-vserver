@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2003 Enrico Scholz <>
+// Copyright (C) 2003,2004,2005 Enrico Scholz <>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,19 +33,56 @@
 
 int	wrapper_exit_code = 1;
 
+static void
+showHelp(char const UNUSED *cmd)
+{
+  WRITE_MSG(1,
+	    "Usage: chroot-cat [-a] [--] <file>\n"
+	    "\n"
+	    "Does something similarly to 'chroot . cat > <file>' without\n"
+	    "the need for a 'cat' in the chroot.\n"
+	    "\n"
+	    "Options:\n"
+	    "    -a          ...  append instead of truncate (do '>> <file>'\n"
+	    "                     instead of '> <file>)\n\n"
+ 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
+  exit(0);
+}
+
+static void
+showVersion()
+{
+  WRITE_MSG(1,
+	    "chroot-cat " VERSION " -- cat stdin into a chrooted file\n"
+	    "This program is part of " PACKAGE_STRING "\n\n"
+	    "Copyright (C) 2003,2004,2005 Enrico Scholz\n"
+	    VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
+}
+
+
 int main(int argc, char *argv[])
 {
   int		fd;
+  int		idx = 1;
+  bool		do_append = false;
 
-  if (argc!=2) {
-    WRITE_MSG(2, "Usage: chroot-cat file\n");
-    return EXIT_FAILURE;
+  if (argc>=2) {
+    if (strcmp(argv[idx], "--help")   ==0) showHelp(argv[0]);
+    if (strcmp(argv[idx], "--version")==0) showVersion();
+    if (strcmp(argv[idx], "-a")       ==0) { do_append = true; ++idx; }
+    if (strcmp(argv[idx], "--")       ==0) ++idx;
+  }
+  
+  if (argc!=idx+1) {
+    WRITE_MSG(2, "Not enough parameters; use '--help' for more information\n");
+    return wrapper_exit_code;
   }
 
   Echroot(".");
   Echdir("/");
 
-  fd = Eopen(argv[1], O_WRONLY|O_CREAT|O_TRUNC, 0644);
+  fd = EopenD(argv[idx], O_WRONLY|O_CREAT| (do_append ? O_APPEND : O_TRUNC), 0644);
   for (;;) {
     char		buf[4096];
     char const *	ptr=buf;
