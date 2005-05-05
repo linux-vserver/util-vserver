@@ -95,6 +95,8 @@ lib_v13_SRCS =			lib/syscall_ctxcreate.c \
 				lib/syscall_setvhiname-olduts.hc \
 				lib/syscall_setvhiname-v13.hc \
 				lib/syscall_setvhiname.c \
+				lib/syscall_waitexit.c  \
+				lib/syscall_waitexit-v13.hc \
 				lib/bcaps-v13.c \
 				lib/bcaps_list-v13.c \
 				lib/ccaps-v13.c \

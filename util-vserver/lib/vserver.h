@@ -702,7 +702,11 @@ extern "C" {
   int		vc_get_dlimit(char const *filename, xid_t xid,
 			      uint_least32_t flags,
 			      struct vc_ctx_dlimit *limits) VC_ATTR_NONNULL((1));
-  
+
+  /** \brief   Waits for the end of a context
+   *  \ingroup syscalls
+   */
+  int		vc_wait_exit(xid_t xid);
     
   typedef enum { vcFEATURE_VKILL,  vcFEATURE_IATTR,   vcFEATURE_RLIMIT,
 		 vcFEATURE_COMPAT, vcFEATURE_MIGRATE, vcFEATURE_NAMESPACE,
