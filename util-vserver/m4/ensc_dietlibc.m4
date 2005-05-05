@@ -69,8 +69,9 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 	: ${DIETFLAGS=-Os}
 
 	AC_ARG_ENABLE([dietlibc],
-		      [AC_HELP_STRING([--disable-dietlibc],
-				      [do not use dietlibc (default: use dietlibc)])],
+		      [AS_HELP_STRING([--disable-dietlibc],
+				      [do not use dietlibc resp. enforce its usage
+				       (with --enable-dietlibc) (default: autodetect dietlibc)])],
 		      [case "$enableval" in
 			  (yes)	use_dietlibc=forced;;
 			  (no)	use_dietlibc=forced_no;;
