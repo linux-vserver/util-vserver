@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     FD_ZERO(&fds);
     FD_SET(fd, &fds);
 
-#ifndef __linux
+#ifndef __linux__
 #  error vshelper relies on the Linux select() behavior (timeout holds remaining time)
 #endif
 
