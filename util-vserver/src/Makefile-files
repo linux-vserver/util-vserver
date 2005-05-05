@@ -31,7 +31,6 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 			src/vreboot \
 			src/save_ctxinfo \
 			src/mask2prefix \
-			src/chroot-cat \
 			src/ifspec \
 			src/rebootmgr \
 			src/vdu \
@@ -75,7 +74,8 @@ DIETPROGS +=		src/chcontext-compat \
 			src/vrsetup \
 			src/vserver-stat \
 			src/vserver-info \
-			src/vdlimit
+			src/vdlimit \
+			src/vwait
 
 if ENSC_CAN_BEECRYPT_WITH_DIETLIBC
 DIETPROGS +=		src/vhashify
@@ -151,6 +151,7 @@ sbin_PROGRAMS +=	src/chbind \
 			src/vserver-stat \
 			src/vserver-info \
 			src/vuname \
+			src/vwait \
 			$(src_sbin_CXX_X_PROGS)
 
 if ENSC_HAVE_C99_COMPILER
@@ -300,6 +301,10 @@ src_rpm_fake_la_LIBADD		=  $(LIBVSERVER_GLIBC) -ldl
 src_vdlimit_SOURCES		= src/vdlimit.c
 src_vdlimit_LDADD		= $(VSERVER_LDADDS)
 src_vdlimit_LDFLAGS		= $(VSERVER_LDFLGS)
+
+src_vwait_SOURCES		= src/vwait.c
+src_vwait_LDADD			= $(VSERVER_LDADDS)
+src_vwait_LDFLAGS		= $(VSERVER_LDFLGS)
 
 EXTRA_PROGRAMS +=		$(src_sbin_CXX_PROGS) $(src_pkglib_CXX_PROGS)
 
