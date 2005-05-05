@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
   if (argc<idx+2) {
     WRITE_MSG(2, "Not enough parameters; use '--help' for more information\n");
-   return wrapper_exit_code;
+    return wrapper_exit_code;
   }
 
 
