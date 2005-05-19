@@ -52,6 +52,7 @@
 #define VXC_SET_RLIMIT		0x00000002
 
 #define VXC_RAW_ICMP		0x00000100
+#define VXC_SYSLOG		0x00001000
 
 #define VXC_SECURE_MOUNT	0x00010000
 #define VXC_SECURE_REMOUNT	0x00020000
@@ -60,10 +61,12 @@
 #define VXC_QUOTA_CTL		0x00100000
 
 
-/* vshelper sync commands */
+/* context state changes */
 
-#define	VS_CONTEXT_CREATED	1
-#define	VS_CONTEXT_DESTROY	2
+enum {
+	VSC_STARTUP = 1,
+	VSC_SHUTDOWN,
+};
 
 
 #ifdef	__KERNEL__
@@ -94,7 +97,7 @@ struct vx_info {
 	pid_t vx_initpid;			/* PID of fake init process */
 
 	spinlock_t vx_lock;
-	wait_queue_head_t vx_exit;		/* context exit waitqueue */
+	wait_queue_head_t vx_wait;		/* context exit waitqueue */
 
 	struct _vx_limit limit;			/* vserver limits */
 	struct _vx_sched sched;			/* vserver scheduler */
@@ -145,7 +148,7 @@ extern int xid_is_hashed(xid_t);
 
 extern int vx_migrate_task(struct task_struct *, struct vx_info *);
 
-extern long vs_context_state(struct vx_info *, unsigned int);
+extern long vs_state_change(struct vx_info *, unsigned int);
 
 extern void free_vx_info(struct vx_info *);
 

@@ -1,9 +1,7 @@
-#ifndef _VX_SIGNAL_H
-#define _VX_SIGNAL_H
+#ifndef _VX_SIGNAL_CMD_H
+#define _VX_SIGNAL_CMD_H
 
-#include "switch.h"
-
-/*  context signalling */
+/*  signalling vserver commands */
 
 #define VCMD_ctx_kill		VC_CMD(PROCTRL, 1, 0)
 #define VCMD_wait_exit		VC_CMD(EVENT, 99, 0)
@@ -24,4 +22,4 @@ extern int vc_ctx_kill(uint32_t, void __user *);
 extern int vc_wait_exit(uint32_t, void __user *);
 
 #endif	/* __KERNEL__ */
-#endif	/* _VX_SIGNAL_H */
+#endif	/* _VX_SIGNAL_CMD_H */

@@ -9,6 +9,12 @@
 	(((struct inode *)in)->i_sb && \
 	(((struct inode *)in)->i_sb->s_flags & MS_TAGXID)))
 
+#ifdef CONFIG_XID_TAG_NFSD
+#define	XID_TAG_NFSD	1
+#else
+#define	XID_TAG_NFSD	0
+#endif
+
 
 #ifdef CONFIG_INOXID_NONE
 

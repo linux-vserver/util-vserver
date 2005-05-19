@@ -2,7 +2,6 @@
 #define _VX_DLIMIT_H
 
 #include "switch.h"
-#include <linux/spinlock.h>
 
 #define CDLIM_UNSET		(0ULL)
 #define CDLIM_INFINITY		(~0ULL)
@@ -10,6 +9,8 @@
 
 
 #ifdef	__KERNEL__
+
+#include <linux/spinlock.h>
 
 struct super_block;
 
