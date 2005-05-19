@@ -29,9 +29,15 @@ function relink
 ## Usage: subst <file> <regexp>
 function subst
 {
-    sed -e "$2" "$1" | $_CHROOT_CAT "$1".tmp
-    cmp -s "$1".tmp "$1" || cat "$1".tmp | $_CHROOT_CAT "$1"
-    rm -f "$1".tmp
+    tmp=$(mktemp /tmp/initpost-subst.XXXXXX)
+
+    case "$1" in
+	(/*|./*)	cat "$1";;
+	(*)		$_CHROOT_CAT -i "$1";;
+    esac              | sed -e "$2"          >$tmp
+    cmp -s $tmp "$1" || $_CHROOT_CAT -o "$1" <$tmp
+
+    rm -f $tmp
 }
 
 pushd "$vdir"/etc/init.d &>/dev/null ||
@@ -59,15 +65,14 @@ pushd "$vdir"/usr/bin &>/dev/null
     relink /bin/true rhgb-client
 popd >/dev/null
 
-pushd "$vdir"/etc &>/dev/null
-    # TODO: remove race/symlink-attack
-    echo 'NETWORKING=yes' >>sysconfig/network
+pushd "$vdir" &>/dev/null
+    echo 'NETWORKING=yes' | $_CHROOT_CAT -a /etc/sysconfig/network
 popd >/dev/null
 
 pushd "$vdir" &>/dev/null
-    : | $_CHROOT_CAT /etc/sysctl.conf
-    echo "none    /       none    defaults" | $_CHROOT_CAT /etc/fstab
-    cat "$__DISTRIBDIR"/redhat/rc.sysinit   | $_CHROOT_CAT /etc/rc.d/rc.sysinit.vserver
+    : | $_CHROOT_CAT -o /etc/sysctl.conf
+    echo "none    /       none    defaults" | $_CHROOT_CAT -o /etc/fstab
+    cat "$__DISTRIBDIR"/redhat/rc.sysinit   | $_CHROOT_CAT -o /etc/rc.d/rc.sysinit.vserver
     # TODO: remove race/symlink-attack
     chmod +x etc/rc.d/rc.sysinit.vserver
     subst etc/inittab 's!^\([^#].*:respawn:.* tty\)!#\1!;
