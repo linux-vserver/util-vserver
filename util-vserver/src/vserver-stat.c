@@ -359,7 +359,7 @@ shortenTime(char *buf, uint64_t t)
   t /= 60;
   mm = t%60;
   t /= 60;
-  hh = t%60;
+  hh = t%24;
   t /= 24;
 
   if (t>999*999) {
