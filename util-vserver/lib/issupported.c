@@ -40,6 +40,7 @@ vc_isSupported(vcFeatureSet feature)
     case vcFEATURE_IATTR	:  return ver >= 0x00010011;
     case vcFEATURE_MIGRATE	:  return ver >= 0x00010012;
     case vcFEATURE_NAMESPACE	:  return ver >= 0x00010012;
+    case vcFEATURE_VWAIT	:  return ver >= 0x00010025;
     case vcFEATURE_SCHED	:  return ver >= 0x00020000;  // todo
     default			:  assert(false); 
   }
