@@ -24,8 +24,8 @@ AC_DEFUN([ENSC_SYSCALL_ALTERNATIVE],
 		      [AC_HELP_STRING([--disable-alternative-syscalls],
 				      [do not use the alternative _syscallX macros
 				       provided by Herbert Poetzl (default: use them)])],
-		      [case $enable_val in
-		           (yes|no)   ensc_use_alternative_syscall_macros=$enable_val;;
+		      [case $enableval in
+		           (yes|no)   ensc_use_alternative_syscall_macros=$enableval;;
 			   (*)	      AC_MSG_ERROR(['$enableval' is not a valid value for '--disable-alternative-syscalls']);;
 		       esac],
                       [ensc_use_alternative_syscall_macros=yes])
