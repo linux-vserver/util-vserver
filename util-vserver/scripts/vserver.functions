@@ -624,11 +624,11 @@ function prepareInit
     case "$INITSTYLE" in
 	sysv)
 	    { find var/run  ! -type d -print0; \
-	      find var/lock ! -type d -print0; } | xargs -0r $_CHROOT_RM
+	      find var/lock ! -type d -print0; } | xargs -0r $_CHROOT_SH rm
 	    ;;
 	plain)
-	    $_CHROOT_RM .autofsck forcefsck 2>/dev/null || :
-	    : | $_CHROOT_CAT fastboot       2>/dev/null || :
+	    $_CHROOT_SH rm .autofsck forcefsck 2>/dev/null || :
+	    : | $_CHROOT_SH truncate fastboot  2>/dev/null || :
 	    ;;
 	minit)
 	    ;;
@@ -704,7 +704,7 @@ function mountVserver
     findObject -r mtab_src "$cfgdir"/apps/init/mtab "$__CONFDIR"/.defaults/init/mtab "$__PKGLIBDEFAULTDIR"/mtab /dev/null
     
     pushd "$vdir" >/dev/null
-    $_CHROOT_CAT /etc/mtab <"$mtab_src"
+    $_CHROOT_SH truncate /etc/mtab <"$mtab_src"
     popd >/dev/null
 
     test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$cfgdir"
@@ -769,13 +769,62 @@ function initSync
     vshelper.initSync "$1" "$2" "$_is_meth"
 }
 
-## Usage: waitForSync <vserver> [<vshelper-fifo>]
+## Usage: initWait <vserver> <context> <vwait-tmpdir-varname>
+function initWait
+{
+    if $_VSERVER_INFO - FEATURE vwait; then
+	local _is_tmpdir
+	_is_tmpdir=$($_MKTEMPDIR /tmp/vwaitstat.XXXXXX)
+	    
+	$_NOHUP $_VWAIT --timeout "$VSHELPER_SYNC_TIMEOUT" \
+	    --terminate --status-fd 3 "$2"  \
+	    >>$_is_tmpdir/out 2>$_is_tmpdir/err 3>$_is_tmpdir/fifo &
+
+	echo "$!" >$_is_tmpdir/pid
+	eval "$4"=$_is_tmpdir
+    fi
+}
+
+
+## Usage: _waitForVWait <fifo> <pid>
+function _waitForVWait
+{
+    declare -a status
+    getFileArray status "$1"
+    wait "$2" || :
+    set -- ${status[0]}
+
+    case "$1" in
+	(ERROR)		warning $"\
+'vwait' exited with error '$2' which indicates that vserver could not
+be stopped properly"
+			;;
+	(FINISHED)	;;
+	(KILLED)	warning $"\
+A timeout occured while waiting for the vserver to finish and it was
+killed by sending a SIGKILL signal. Please investigate the reasons
+and/or increase the timeout in apps/vshelper/sync-timeout."
+			;;
+	(TIMEOUT|\?\?\?|*)	warning $"\
+internal error: 'vwait' exited with an unexpected status; I will try
+to continue but be prepared for unexpected events."
+			;;
+    esac
+
+    return 0
+}
+
+## Usage: waitForSync <vserver> [<vshelper-fifo>] [<vwait-statdir>]
 function waitForSync
 {
     local cfgdir=$1
     local fifo=$2
-    
-    if test -n "$_NEED_VSHELPER_SYNC"; then
+    local vwait_statdir=$3
+    local vwait_pid=$4
+
+    if test -d "$vwait_statdir"; then
+	_waitForVWait "$vwait_statdir/fifo" "$( <$vwait_statdir/pid )"
+    elif test -n "$_NEED_VSHELPER_SYNC"; then
 	$_VSHELPER_SYNC "$fifo" "$VSHELPER_SYNC_TIMEOUT" || \
 	    warning $"\
 A timeout or other error occured while waiting for the synchronization

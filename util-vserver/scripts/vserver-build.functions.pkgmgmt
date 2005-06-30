@@ -67,6 +67,9 @@ function pkgmgmt.initFilesystem
 	exit 1
     }
 
+    mkdir -p "$PKGCFGDIR"
+    base._addGeneratedFile "$PKGCFGDIR"
+    
     mkdir -p "${SETUP_CONFDIR:?}"/apps/pkgmgmt
 
     test -z "$PKGCFGDIR" || {
