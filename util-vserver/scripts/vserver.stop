@@ -36,8 +36,13 @@ function cleanup
 	$_RM -f "$sync_fifo"
 	$_RMDIR $($_DIRNAME "$sync_fifo")
     }
+
+    test ! -d "$vwait_statdir" ||
+	$_RM -rf "$vwait_statdir"
 }
 
+vwait_statdir=
+vwait_pid=
 sync_fifo=
 trap "cleanup" EXIT
 
@@ -48,7 +53,7 @@ generateOptions   "$VSERVER_DIR"
 set +e
 
 vshelper.doDestroy "$VSERVER_DIR" "$S_CONTEXT"
-initSync           "$VSERVER_DIR" sync_fifo
+initSync           "$VSERVER_DIR" "$S_CONTEXT" sync_fifo
 prepareStop        "$VSERVER_DIR"
 
 cd "$VSERVER_DIR"/vdir/
@@ -58,6 +63,7 @@ cd "$VSERVER_DIR"/vdir/
 test -z "$OPTION_DEFAULTTTY" || setDefaultTTY "$VSERVER_DIR"
 
 fail=
+initWait	   "$VSERVER_DIR" "$S_CONTEXT" vwait_statdir
 if test -n "$_IS_FAKEINIT" && \
    $_VSERVER_INFO - FEATURE vkill; then
     $_VKILL -s INT --xid "$S_CONTEXT" -- 1 || fail=1
@@ -78,7 +84,7 @@ else
     "${INITCMD_STOP[@]}" || fail=1
 fi
 
-test -n "$fail" || waitForSync "$VSERVER_DIR" "$sync_fifo"
+test -n "$fail" || waitForSync "$VSERVER_DIR" "$sync_fifo" "$vwait_statdir"
 
 vshelper.doDestroy "$VSERVER_DIR" "$S_CONTEXT"
 sendKillSequence   "$S_CONTEXT" "${INITKILL_SEQ[@]}"
