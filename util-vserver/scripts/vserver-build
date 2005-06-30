@@ -35,7 +35,10 @@ $"Usage: $(basename $0) -m <method> -n <name> --force <cfg-options>*
     --rootdir <dir> --pkgbase <dir> [--] <method-args>*
 
 Options:
-    --force     ...  remove/rename already existing vservers with the same name
+    --force     ...  remove/rename already existing vservers with the same
+                     name
+    --keep      ...  do not delete generated files and directories when
+                     build of vserver failed.
     -m <method> ...  use method <method>; see below for possible values
     --rootdir <dir>
                 ...  [default: $__DEFAULT_VSERVERDIR]
@@ -87,19 +90,21 @@ set -e
 declare -a default_opts=()
 test -n "$NO_DEFAULT_OPTS" || getFileArray default_opts "$__CONFDIR/.defaults/apps/build/options" || :
 
-tmp=$(getopt -o +m:n: --long force,debug,help,version,rootdir:,pkgbase:,$SETUP_OPTIONS -n "$(basename $0)" -- \
+tmp=$(getopt -o +m:n: --long keep,force,debug,help,version,rootdir:,pkgbase:,$SETUP_OPTIONS -n "$(basename $0)" -- \
 	"${default_opts[@]}" "$@") || exit 1
 eval set -- "$tmp"
 
 VSERVER_NAME=
 OPTION_FORCE=
 OPTION_DEBUG=0
+OPTION_KEEP=1
 
 while true; do
     case "$1" in
 	(--help)    showHelp $0 ;;
 	(--version) showVersion ;;
 	(--force)   OPTION_FORCE=1;;
+	(--keep)    OPTION_KEEP=1;;
 	(--debug)   let ++OPTION_DEBUG;  set -x;;
 	(--rootdir) ROOTDIR=$2;      shift;;
 	(--pkgbase) PKGCFGBASE=$2;   shift;;
