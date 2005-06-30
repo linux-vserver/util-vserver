@@ -30,6 +30,9 @@ _EXEC_DIR=
 BUILD_INITPRE=
 BUILD_INITPOST=
 
+__BASE_GENERATED_FILES=()
+__BASE_SUCCESS=
+
 function makeDevEntry
 {
     local dst=$1/$2
@@ -143,6 +146,11 @@ with the '-d' option"  >&2
     fi >&2
 }
 
+function base._addGeneratedFile
+{
+    __BASE_GENERATED_FILES=( "${__BASE_GENERATED_FILES[@]}" "$@" )
+}
+
 ## Usage: initFilesystem [force]
 function base.initFilesystem
 {
@@ -157,7 +165,10 @@ exist already; please try to use '--force', or remove them manually"
 
     mkdir -p -m755 "$VDIR"
     chattr -t "$VDIR"
+    base._addGeneratedFile "$VDIR"
+    
     mkdir -p -m755 "$SETUP_CONFDIR"/apps "$VDIR"/{dev/pts,etc}
+    base._addGeneratedFile "$SETUP_CONFDIR"
     
     ln -s "$VDIR"       "$SETUP_CONFDIR/vdir"
 
@@ -175,7 +186,7 @@ exist already; please try to use '--force', or remove them manually"
     done
 }
 
-function base.initVariables
+function base._initVariables
 {
     _setRootDir
     _setVserverDir
@@ -185,4 +196,23 @@ function base.initVariables
     findDir  _EXECDIR       "$__CONFDIR/.distributions/$DISTRIBUTION/execdir"   "$__DISTRIBDIR/$DISTRIBUTION/execdir"  /
     findFile BUILD_INITPRE  "$__CONFDIR/.distributions/$DISTRIBUTION/initpre"   "$__DISTRIBDIR/$DISTRIBUTION/initpre"  ""
     findFile BUILD_INITPOST "$__CONFDIR/.distributions/$DISTRIBUTION/initpost"  "$__DISTRIBDIR/$DISTRIBUTION/initpost" ""
+}
+
+function base.__cleanup
+{
+    test -z "$OPTION_KEEP"    || return 0
+    test -z "$__BASE_SUCCESS" || return 0
+    
+    echo rm -rf "${__BASE_GENERATED_FILES[@]}"
+}
+
+function base.init
+{
+    trap "base.__cleanup" EXIT
+    base._initVariables
+}
+
+function base.setSuccess
+{
+    __BASE_SUCCESS=1
 }
