@@ -11,6 +11,7 @@ chcontext-compat
 check-unixfile
 chroot-cat
 chroot-rm
+chroot-sh
 chxid
 clearenv
 enter-namespace
