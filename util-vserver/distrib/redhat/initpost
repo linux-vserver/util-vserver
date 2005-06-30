@@ -33,9 +33,9 @@ function subst
 
     case "$1" in
 	(/*|./*)	cat "$1";;
-	(*)		$_CHROOT_CAT -i "$1";;
+	(*)		$_CHROOT_SH cat "$1";;
     esac              | sed -e "$2"          >$tmp
-    cmp -s $tmp "$1" || $_CHROOT_CAT -o "$1" <$tmp
+    cmp -s $tmp "$1" || $_CHROOT_SH truncate "$1" <$tmp
 
     rm -f $tmp
 }
@@ -66,13 +66,13 @@ pushd "$vdir"/usr/bin &>/dev/null
 popd >/dev/null
 
 pushd "$vdir" &>/dev/null
-    echo 'NETWORKING=yes' | $_CHROOT_CAT -a /etc/sysconfig/network
+    echo 'NETWORKING=yes' | $_CHROOT_SH append /etc/sysconfig/network
 popd >/dev/null
 
 pushd "$vdir" &>/dev/null
-    : | $_CHROOT_CAT -o /etc/sysctl.conf
-    echo "none    /       none    defaults" | $_CHROOT_CAT -o /etc/fstab
-    cat "$__DISTRIBDIR"/redhat/rc.sysinit   | $_CHROOT_CAT -o /etc/rc.d/rc.sysinit.vserver
+    : | $_CHROOT_SH truncate /etc/sysctl.conf
+    echo "none    /       none    defaults" | $_CHROOT_SH truncate /etc/fstab
+    cat "$__DISTRIBDIR"/redhat/rc.sysinit   | $_CHROOT_SH truncate /etc/rc.d/rc.sysinit.vserver
     # TODO: remove race/symlink-attack
     chmod +x etc/rc.d/rc.sysinit.vserver
     subst etc/inittab 's!^\([^#].*:respawn:.* tty\)!#\1!;
