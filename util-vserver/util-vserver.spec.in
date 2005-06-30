@@ -13,7 +13,7 @@
 %global _localstatedir	%_var
 
 
-%{!?release_func:%global release_func() %1}
+%{!?release_func:%global release_func() %1%{?dist}}
 
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
@@ -31,7 +31,7 @@ Requires:	diffutils mktemp sed
 Provides:	vserver = %version-%release
 Obsoletes:	vserver < %version
 BuildRequires:	mount vconfig gawk iproute iptables
-BuildRequires:	gcc-c++ wget
+BuildRequires:	gcc-c++ wget which diffutils
 BuildRequires:	e2fsprogs-devel beecrypt-devel
 BuildRequires:	doxygen tetex-latex
 Requires(post):		%__chattr
@@ -52,10 +52,14 @@ Requires:		util-linux
 %package build
 Summary:		Tools which can be used to build vservers
 Group:			Applications/System
-Requires:		rpm apt wget binutils tar e2fsprogs
+Requires:		rpm wget binutils tar e2fsprogs
 Requires:		%name = %version-%release
 Requires(pre):		%confdir
 Requires(postun):	%confdir
+
+%ifarch %ix86
+Requires:		apt
+%endif
 
 %package sysv
 Summary:		SysV-initscripts for vserver
