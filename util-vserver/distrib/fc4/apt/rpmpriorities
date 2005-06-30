@@ -1,0 +1,7 @@
+Essential:
+  basesystem
+  coreutils
+  filesystem
+  glibc
+  setup
+  fedora-release

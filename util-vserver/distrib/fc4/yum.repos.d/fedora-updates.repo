@@ -1,0 +1,6 @@
+[updates-released]
+name=Fedora Core 4 - $basearch - Released Updates
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/updates/4/$basearch/
+mirrorlist=http://fedora.redhat.com/download/mirrors/updates-released-fc4
+enabled=1
+gpgcheck=1
