@@ -36,7 +36,8 @@ done
 
 getDistribution
 
-base.initVariables
+base.init
+
 pkgmgmt.initVariables
 rpm.initVariables
 apt.initVariables

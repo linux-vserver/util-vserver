@@ -49,7 +49,7 @@ done
 
 getDistribution "template"
 
-base.initVariables
+base.init
 pkgmgmt.initVariables
 rpm.initVariables
 

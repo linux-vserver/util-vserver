@@ -29,7 +29,7 @@ function init
 
 function initVariables
 {
-    base.initVariables
+    base.init
 
     test -n "${mirror-unset}" || {
 	local aux

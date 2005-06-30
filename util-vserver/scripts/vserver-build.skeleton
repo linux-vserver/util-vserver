@@ -37,7 +37,7 @@ done
 
 getDistribution
 
-base.initVariables
+base.init
 test -z "$use_pkgmgmt" || pkgmgmt.initVariables
 
 base.initFilesystem "$OPTION_FORCE"
