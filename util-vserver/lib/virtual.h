@@ -28,7 +28,7 @@
 #include <kernel/namespace.h>
 #include <kernel/network_cmd.h>
 #include <kernel/sched_cmd.h>
-#include <kernel/signal.h>
+#include <kernel/signal_cmd.h>
 
 #include <kernel/network.h>
 #include <kernel/legacy.h>
