@@ -17,8 +17,8 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-src_sbin_CXX_PROGS =	src/vfiles
-src_pkglib_CXX_PROGS =	src/vbuild src/vcheck
+src_sbin_CXX_PROGS =	
+src_pkglib_CXX_PROGS =	
 
 src_pkglib_C99_PROGS =	src/vunify src/vcopy
 
@@ -80,8 +80,7 @@ if ENSC_CAN_BEECRYPT_WITH_DIETLIBC
 DIETPROGS +=		src/vhashify
 endif
 
-noinst_HEADERS +=	src/vutil.h src/vutil.p \
-			src/capability-compat.h \
+noinst_HEADERS +=	src/capability-compat.h \
 			src/util.h \
 			src/fstool.h \
 			src/compat-pivot_root.h \
@@ -92,8 +91,7 @@ noinst_HEADERS +=	src/vutil.h src/vutil.p \
 			src/vhashify.h \
 			src/vhashify-init.hc \
 			src/vserver-visitdir.hc \
-			src/context-sync.hc \
-			src/vserver.hh
+			src/context-sync.hc
 
 pkglib_PROGRAMS +=	src/capchroot \
 			src/chain-echo \
@@ -243,10 +241,6 @@ src_vserver_info_LDFLAGS	=  $(VSERVER_LDFLGS)
 src_vserver_stat_SOURCES	=  src/vserver-stat.c
 src_vserver_stat_LDADD		=  $(LIBINTERNAL) $(VSERVER_LDADDS) $(LIBENSCVECTOR)
 src_vserver_stat_LDFLAGS	=  $(VSERVER_LDFLGS)
-
-src_vfiles_SOURCES		=  src/vfiles.cc src/vutil.cc src/vserver.cc
-src_vbuild_SOURCES		=  src/vbuild.cc src/vutil.cc src/vserver.cc
-src_vcheck_SOURCES		=  src/vcheck.cc src/vutil.cc src/vserver.cc
 
 src_lsxid_SOURCES		=  src/fstool.c src/lsxid.c
 src_lsxid_LDADD			=  $(LIBINTERNAL) $(VSERVER_LDADDS) $(LIBENSCVECTOR)
