@@ -88,7 +88,11 @@ sanityCheck      "$VSERVER_DIR"
 
 mountRootFS      "$VSERVER_DIR"
 generateOptions  "$VSERVER_DIR"
+
+pushd "$VSERVER_DIR" >/dev/null
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" prepre-start
+popd
+
 enableInterfaces "$VSERVER_DIR" && have_interfaces=1
 
 mountVserver "$VSERVER_DIR"     && is_mounted=1
