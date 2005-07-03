@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #define ENSC_WRAPPERS_PREFIX	"chroot-sh"
 #define ENSC_WRAPPERS_UNISTD	1
@@ -70,6 +71,22 @@ redirectFileInternal(int argc, char *argv[],
   Eclose(fd);
 
   return EXIT_SUCCESS;
+}
+
+static mode_t
+testInternal(int argc, char *argv[], char const *operation)
+{
+  struct stat		st;
+    
+  if (argc<2) {
+    WRITE_MSG(2, "Not enough parameters for '");
+    WRITE_STR(2, operation);
+    WRITE_MSG(2, "' operation; use '--help' for more information\n");
+    return wrapper_exit_code;
+  }
+
+  if (stat(argv[1], &st)==-1) return 0;
+  else                        return st.st_mode;
 }
 
 static int
@@ -117,6 +134,15 @@ execRm(int argc, char *argv[])
   return res;
 }
 
+static int
+execTestFile(int argc, char *argv[])
+{
+  int		res = testInternal(argc, argv, "testfile");
+  
+  return res!=-1 && S_ISREG(res) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+
 static struct Command {
     char const		*cmd;
     int			(*handler)(int argc, char *argv[]);
@@ -124,6 +150,7 @@ static struct Command {
   { "cat",      execCat },
   { "append",   execAppend },
   { "truncate", execTruncate },
+  { "testfile", execTestFile },
   { "rm",       execRm },
   { 0,0 }
 };
