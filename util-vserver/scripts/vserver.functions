@@ -771,13 +771,14 @@ function umountVserver
     test -n "$is_ok"
 }
 
-## Usage: waitForSync <vserver> <vshelper-fifo-varname>
+## Usage: waitForSync <vserver> <context> <vshelper-fifo-varname>
 function initSync
 {
     local _is_meth=sync
-    test -n "$_NEED_VSHELPER_SYNC" || _is_meth=async
+    test -n "$_NEED_VSHELPER_SYNC" && \
+	! $_VSERVER_INFO - FEATURE vwait || _is_meth=async
 
-    vshelper.initSync "$1" "$2" "$_is_meth"
+    vshelper.initSync "$1" "$3" "$_is_meth"
 }
 
 ## Usage: initWait <vserver> <context> <vwait-tmpdir-varname>
@@ -792,7 +793,7 @@ function initWait
 	    >>$_is_tmpdir/out 2>$_is_tmpdir/err 3>$_is_tmpdir/fifo &
 
 	echo "$!" >$_is_tmpdir/pid
-	eval "$4"=$_is_tmpdir
+	eval "$3"=$_is_tmpdir
     fi
 }
 
@@ -801,8 +802,8 @@ function initWait
 function _waitForVWait
 {
     declare -a status
-    getFileArray status "$1"
     wait "$2" || :
+    getFileArray status "$1"
     set -- ${status[0]}
 
     case "$1" in
@@ -817,8 +818,8 @@ killed by sending a SIGKILL signal. Please investigate the reasons
 and/or increase the timeout in apps/vshelper/sync-timeout."
 			;;
 	(TIMEOUT|\?\?\?|*)	warning $"\
-internal error: 'vwait' exited with an unexpected status; I will try
-to continue but be prepared for unexpected events."
+internal error: 'vwait' exited with an unexpected status '$1'; I will
+try to continue but be prepared for unexpected events."
 			;;
     esac
 
