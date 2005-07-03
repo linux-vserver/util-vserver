@@ -22,10 +22,17 @@
 
 #include <string.h>
 
+  // HACK: workaround naming changes instead of defining yet another interface
+  // version
+#if !defined(VCMD_set_vhi_name) && defined(VCMD_vx_set_vhi_name)
+#  define VCMD_set_vhi_name	VCMD_vx_set_vhi_name
+#  define vcmd_vhi_name_v0	vcmd_vxi_vhi_name_v0
+#endif
+
 static inline ALWAYSINLINE int
 vc_set_vhi_name_v13(xid_t xid, vc_uts_type type, char const *val, size_t len)
 {
-  struct vcmd_vx_vhi_name_v0	cmd;
+  struct vcmd_vhi_name_v0	cmd;
   int				rc;
 
   if (len>=sizeof(cmd.name)) {
@@ -37,7 +44,7 @@ vc_set_vhi_name_v13(xid_t xid, vc_uts_type type, char const *val, size_t len)
   memcpy(cmd.name, val, len);
   cmd.name[len] = '\0';
 
-  rc = vserver(VCMD_vx_set_vhi_name, CTX_USER2KERNEL(xid), &cmd);
+  rc = vserver(VCMD_set_vhi_name, CTX_USER2KERNEL(xid), &cmd);
   ENSC_FIX_IOCTL(rc);
 
   return rc;
