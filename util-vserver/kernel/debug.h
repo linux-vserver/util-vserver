@@ -152,185 +152,84 @@ static inline void __vxh_copy_vxi(struct _vx_hist_entry *entry, struct vx_info *
 	}
 }
 
-static inline void vxh_throw_oops(void)
-{
-	struct _vx_hist_entry *entry;
 
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	entry->type = VXH_THROW_OOPS;
+#define __VXH_BODY(__type, __data)		\
+	struct _vx_hist_entry *entry;		\
+						\
+	preempt_disable();			\
+	entry = vxh_advance(VXH_HERE());	\
+	__data;					\
+	entry->type = __type;			\
 	preempt_enable();
 
+
+	/* pass vxi only */
+#define __VXH_SIMPLE				\
+	__vxh_copy_vxi(entry, vxi)
+
+#define VXH_SIMPLE(__name, __type)		\
+static inline void __name(struct vx_info *vxi)	\
+{						\
+	__VXH_BODY(__type, __VXH_SIMPLE)	\
+}
+
+	/* pass vxi and data (void *) */
+#define __VXH_DATA				\
+	__vxh_copy_vxi(entry, vxi);		\
+	entry->sc.data = data
+
+#define VXH_DATA(__name, __type)		\
+static inline 					\
+void __name(struct vx_info *vxi, void *data)	\
+{						\
+	__VXH_BODY(__type, __VXH_DATA)		\
+}
+
+	/* pass vxi and arg (long) */
+#define __VXH_LARG				\
+	__vxh_copy_vxi(entry, vxi);		\
+	entry->ll.arg = arg
+
+#define VXH_LARG(__name, __type)		\
+static inline 					\
+void __name(struct vx_info *vxi, long arg)	\
+{						\
+	__VXH_BODY(__type, __VXH_LARG)		\
+}
+
+
+static inline void vxh_throw_oops(void)
+{
+	__VXH_BODY(VXH_THROW_OOPS, {});
 	/* prevent further acquisition */
 	vxh_active = 0;
 }
 
-static inline void vxh_get_vx_info(struct vx_info *vxi)
-{
-	struct _vx_hist_entry *entry;
+VXH_SIMPLE(vxh_get_vx_info,	VXH_GET_VX_INFO);
+VXH_SIMPLE(vxh_put_vx_info,	VXH_PUT_VX_INFO);
 
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->type = VXH_GET_VX_INFO;
-	preempt_enable();
-}
+VXH_DATA(vxh_init_vx_info,	VXH_INIT_VX_INFO);
+VXH_DATA(vxh_set_vx_info,	VXH_SET_VX_INFO);
+VXH_DATA(vxh_clr_vx_info,	VXH_CLR_VX_INFO);
 
-static inline void vxh_put_vx_info(struct vx_info *vxi)
-{
-	struct _vx_hist_entry *entry;
+VXH_DATA(vxh_claim_vx_info,	VXH_CLAIM_VX_INFO);
+VXH_DATA(vxh_release_vx_info,	VXH_RELEASE_VX_INFO);
 
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->type = VXH_PUT_VX_INFO;
-	preempt_enable();
-}
+VXH_SIMPLE(vxh_alloc_vx_info,	VXH_ALLOC_VX_INFO);
+VXH_SIMPLE(vxh_dealloc_vx_info, VXH_DEALLOC_VX_INFO);
 
-static inline void vxh_init_vx_info(struct vx_info *vxi, void *data)
-{
-	struct _vx_hist_entry *entry;
+VXH_SIMPLE(vxh_hash_vx_info,	VXH_HASH_VX_INFO);
+VXH_SIMPLE(vxh_unhash_vx_info,	VXH_UNHASH_VX_INFO);
 
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->sc.data = data;
-	entry->type = VXH_INIT_VX_INFO;
-	preempt_enable();
-}
-
-static inline void vxh_set_vx_info(struct vx_info *vxi, void *data)
-{
-	struct _vx_hist_entry *entry;
-
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->sc.data = data;
-	entry->type = VXH_SET_VX_INFO;
-	preempt_enable();
-}
-
-static inline void vxh_clr_vx_info(struct vx_info *vxi, void *data)
-{
-	struct _vx_hist_entry *entry;
-
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->sc.data = data;
-	entry->type = VXH_CLR_VX_INFO;
-	preempt_enable();
-}
-
-static inline void vxh_claim_vx_info(struct vx_info *vxi, void *data)
-{
-	struct _vx_hist_entry *entry;
-
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->sc.data = data;
-	entry->type = VXH_CLAIM_VX_INFO;
-	preempt_enable();
-}
-
-static inline void vxh_release_vx_info(struct vx_info *vxi, void *data)
-{
-	struct _vx_hist_entry *entry;
-
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->sc.data = data;
-	entry->type = VXH_RELEASE_VX_INFO;
-	preempt_enable();
-}
-
-static inline void vxh_alloc_vx_info(struct vx_info *vxi)
-{
-	struct _vx_hist_entry *entry;
-
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->type = VXH_ALLOC_VX_INFO;
-	preempt_enable();
-}
-
-static inline void vxh_dealloc_vx_info(struct vx_info *vxi)
-{
-	struct _vx_hist_entry *entry;
-
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->type = VXH_DEALLOC_VX_INFO;
-	preempt_enable();
-}
-
-static inline void vxh_hash_vx_info(struct vx_info *vxi)
-{
-	struct _vx_hist_entry *entry;
-
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->type = VXH_HASH_VX_INFO;
-	preempt_enable();
-}
-
-static inline void vxh_unhash_vx_info(struct vx_info *vxi)
-{
-	struct _vx_hist_entry *entry;
-
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->type = VXH_UNHASH_VX_INFO;
-	preempt_enable();
-}
-
-static inline void vxh_loc_vx_info(unsigned arg, struct vx_info *vxi)
-{
-	struct _vx_hist_entry *entry;
-
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->ll.arg = arg;
-	entry->type = VXH_LOC_VX_INFO;
-	preempt_enable();
-}
-
-static inline void vxh_lookup_vx_info(unsigned arg, struct vx_info *vxi)
-{
-	struct _vx_hist_entry *entry;
-
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->ll.arg = arg;
-	entry->type = VXH_LOOKUP_VX_INFO;
-	preempt_enable();
-}
-
-static inline void vxh_create_vx_info(unsigned arg, struct vx_info *vxi)
-{
-	struct _vx_hist_entry *entry;
-
-	preempt_disable();
-	entry = vxh_advance(VXH_HERE());
-	__vxh_copy_vxi(entry, vxi);
-	entry->ll.arg = arg;
-	entry->type = VXH_CREATE_VX_INFO;
-	preempt_enable();
-}
-
+VXH_LARG(vxh_loc_vx_info,	VXH_LOC_VX_INFO);
+VXH_LARG(vxh_lookup_vx_info,	VXH_LOOKUP_VX_INFO);
+VXH_LARG(vxh_create_vx_info,	VXH_CREATE_VX_INFO);
 
 extern void vxh_dump_history(void);
 
+
 #else  /* CONFIG_VSERVER_HISTORY */
+
 
 #define vxh_throw_oops()		do { } while (0)
 

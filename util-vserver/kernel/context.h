@@ -36,12 +36,16 @@
 #define VXF_STATE_SETUP		(1ULL<<32)
 #define VXF_STATE_INIT		(1ULL<<33)
 
+#define VXF_STATE_HELPER	(1ULL<<36)
+
 #define VXF_FORK_RSS		(1ULL<<48)
 #define VXF_PROLIFIC		(1ULL<<49)
 
 #define VXF_IGNEG_NICE		(1ULL<<52)
 
 #define VXF_ONE_TIME		(0x0003ULL<<32)
+
+#define VXF_INIT_SET		(VXF_STATE_SETUP|VXF_STATE_INIT)
 
 
 /* context caps */
@@ -66,6 +70,9 @@
 enum {
 	VSC_STARTUP = 1,
 	VSC_SHUTDOWN,
+
+	VSC_NETUP,
+	VSC_NETDOWN,
 };
 
 
@@ -81,7 +88,6 @@ enum {
 
 struct vx_info {
 	struct hlist_node vx_hlist;		/* linked list of contexts */
-	struct rcu_head vx_rcu;			/* the rcu head */
 	xid_t vx_id;				/* context id */
 	atomic_t vx_usecnt;			/* usage count */
 	atomic_t vx_tasks;			/* tasks count */
@@ -96,7 +102,6 @@ struct vx_info {
 
 	pid_t vx_initpid;			/* PID of fake init process */
 
-	spinlock_t vx_lock;
 	wait_queue_head_t vx_wait;		/* context exit waitqueue */
 
 	struct _vx_limit limit;			/* vserver limits */
@@ -114,7 +119,6 @@ struct vx_info {
 #define VXS_PAUSED	0x0010
 #define VXS_ONHOLD	0x0020
 #define VXS_SHUTDOWN	0x0100
-#define VXS_DEFUNCT	0x1000
 #define VXS_RELEASED	0x8000
 
 /* check conditions */
@@ -149,8 +153,6 @@ extern int xid_is_hashed(xid_t);
 extern int vx_migrate_task(struct task_struct *, struct vx_info *);
 
 extern long vs_state_change(struct vx_info *, unsigned int);
-
-extern void free_vx_info(struct vx_info *);
 
 
 #endif	/* __KERNEL__ */

@@ -11,6 +11,15 @@
 #define NB_IPV4ROOT	16
 
 
+/* context flags */
+
+#define NXF_STATE_SETUP		(1ULL<<32)
+
+#define NXF_STATE_HELPER	(1ULL<<36)
+
+#define NXF_INIT_SET		(0)
+
+
 #ifdef	__KERNEL__
 
 #include <linux/list.h>
@@ -21,10 +30,10 @@
 
 struct nx_info {
 	struct hlist_node nx_hlist;	/* linked list of nxinfos */
-	struct rcu_head nx_rcu;		/* the rcu head */
 	nid_t nx_id;			/* vnet id */
 	atomic_t nx_usecnt;		/* usage count */
-	atomic_t nx_refcnt;		/* reference count */
+	atomic_t nx_tasks;		/* tasks count */
+	int nx_state;			/* context state */
 
 	uint64_t nx_flags;		/* network flag word */
 	uint64_t nx_ncaps;		/* network capabilities */
@@ -43,9 +52,11 @@ struct nx_info {
 };
 
 
-struct rcu_head;
+/* status flags */
 
-extern void unhash_nx_info(struct nx_info *);
+#define NXS_HASHED      0x0001
+#define NXS_SHUTDOWN    0x0100
+#define NXS_RELEASED    0x8000
 
 extern struct nx_info *locate_nx_info(int);
 extern struct nx_info *locate_or_create_nx_info(int);
@@ -54,6 +65,8 @@ extern int get_nid_list(int, unsigned int *, int);
 extern int nid_is_hashed(nid_t);
 
 extern int nx_migrate_task(struct task_struct *, struct nx_info *);
+
+extern long vs_net_change(struct nx_info *, unsigned int);
 
 struct in_ifaddr;
 struct net_device;

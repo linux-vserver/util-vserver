@@ -27,7 +27,13 @@ extern int vc_vx_info(uint32_t, void __user *);
 
 /* context commands */
 
-#define VCMD_ctx_create		VC_CMD(VPROC, 1, 0)
+#define VCMD_ctx_create_v0	VC_CMD(VPROC, 1, 0)
+#define VCMD_ctx_create		VC_CMD(VPROC, 1, 1)
+
+struct	vcmd_ctx_create {
+	uint64_t flagword;
+};
+
 #define VCMD_ctx_migrate	VC_CMD(PROCMIG, 1, 0)
 
 #ifdef	__KERNEL__
