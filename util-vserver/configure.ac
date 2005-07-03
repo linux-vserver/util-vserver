@@ -52,6 +52,7 @@ ENSC_PATHPROG(IP,        ip,,      [Usually, this tool is shipped in the 'iprout
 ENSC_PATHPROG(IPTABLES,  iptables)
 ENSC_PATHPROG(MODPROBE,  modprobe)
 ENSC_PATHPROG(NAMEIF,    nameif)
+ENSC_PATHPROG(NOHUP,     nohup)
 ENSC_PATHPROG(RMMOD,     rmmod)
 ENSC_PATHPROG(VCONFIG,   vconfig,, [See http://www.candelatech.com/~greear/vlan.html; usually this tool is shipped in the 'vconfig' or 'vlan' package of your distribution])
 ENSC_PATHPROG(WGET,      wget)
