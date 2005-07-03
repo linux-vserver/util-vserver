@@ -91,7 +91,7 @@ generateOptions  "$VSERVER_DIR"
 
 pushd "$VSERVER_DIR" >/dev/null
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" prepre-start
-popd
+popd >/dev/null
 
 enableInterfaces "$VSERVER_DIR" && have_interfaces=1
 
