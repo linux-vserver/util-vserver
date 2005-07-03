@@ -108,3 +108,5 @@ for i; do
 done
 
 test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
+
+base.setSuccess

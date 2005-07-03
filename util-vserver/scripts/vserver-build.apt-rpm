@@ -62,3 +62,5 @@ apt.installBasePackages "$SETUP_CONFDIR" "$PKGINSTALLDIR"
 $_VAPT_GET "$SETUP_CONFDIR" -- dist-upgrade -y
 $_VAPT_GET "$SETUP_CONFDIR" -- clean
 test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
+
+base.setSuccess
