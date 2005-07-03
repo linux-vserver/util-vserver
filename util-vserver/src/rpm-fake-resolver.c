@@ -44,6 +44,7 @@
 #define ENSC_WRAPPERS_PREFIX	"rpm-fake-resolver: "
 #define ENSC_WRAPPERS_VSERVER	1
 #define ENSC_WRAPPERS_UNISTD	1
+#define ENSC_WRAPPERS_IO	1
 #define ENSC_WRAPPERS_FCNTL	1
 #include <wrappers.h>
 
@@ -151,15 +152,17 @@ static void
 do_getpwnam()
 {
   uint32_t	len;
-  Eread(0, &len, sizeof len);
 
-  if (len<MAX_RQSIZE) {
+  if (EreadAll(0, &len, sizeof len) &&
+      len<MAX_RQSIZE) {
     char		buf[len+1];
-    struct passwd *	res;
+    struct passwd *	res = 0;
     
-    Eread(0, buf, len);
-    buf[len] = '\0';
-    res = getpwnam(buf);
+    if (EreadAll(0, buf, len)) {
+      buf[len] = '\0';
+      res = getpwnam(buf);
+    }
+    
     if (res!=0) sendResult(true,  res->pw_uid);
     else        sendResult(false, -1);
   }
@@ -170,15 +173,17 @@ static void
 do_getgrnam()
 {
   uint32_t	len;
-  Eread(0, &len, sizeof len);
 
-  if (len<MAX_RQSIZE) {
+  if (EreadAll(0, &len, sizeof len) &&
+      len<MAX_RQSIZE) {
     char		buf[len+1];
-    struct group *	res;
+    struct group *	res = 0;
     
-    Eread(0, buf, len);
-    buf[len] = '\0';
-    res = getgrnam(buf);
+    if (EreadAll(0, buf, len)) {
+      buf[len] = '\0';
+      res = getgrnam(buf);
+    }
+    
     if (res!=0) sendResult(true,  res->gr_gid);
     else        sendResult(false, -1);
   }
@@ -189,11 +194,13 @@ static void
 do_closenss()
 {
   uint8_t	what;
-  Eread(0, &what, sizeof what);
-  switch (what) {
-    case 'p'	:  endpwent(); break;
-    case 'g'	:  endgrent(); break;
-    default	:  break;
+
+  if (EreadAll(0, &what, sizeof what)) {
+    switch (what) {
+      case 'p'	:  endpwent(); break;
+      case 'g'	:  endgrent(); break;
+      default	:  break;
+    }
   }
 }
 
@@ -202,9 +209,8 @@ run()
 {
   uint8_t	c;
 
-  while (true) {
-    Ewrite(3, ".", 1);
-    Eread (0, &c,  sizeof c);
+  while (EwriteAll(3, ".", 1),
+	 EreadAll (0, &c, sizeof c)) {
     switch (c) {
       case 'P'	:  do_getpwnam(); break;
       case 'G'	:  do_getgrnam(); break;
