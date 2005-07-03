@@ -732,7 +732,8 @@ environment variable must be set by one of the in-shellcontext scripts
       <program name="prepre-start">
 	<description>
 The scriptlet which will be executed before the network-interfaces are
-enabled and the directories are mounted."
+enabled and the directories are mounted. Before executing the script,
+the configuration directory will be made the working directory.
         </description>
 	<parameterList>
 	  <parameter name="vserver-dir">
@@ -754,7 +755,8 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
       </program>
       <collection name="prepre-start.d">
 	<description>
-Repository of prepre-start like scripts
+Repository of prepre-start like scripts.  Before executing the script,
+the configuration directory will be made the working directory.
         </description>                                                                                                                 
 	<program name="script" type="symbolic">
 	  <description>See prepre-start.</description>
@@ -782,7 +784,8 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
 	<description>
 The scriptlet which will be executed after network-interfaces were
 enabled and the directories mounted, but before the vserver itself has
-been started.
+been started.  Before executing the script, the vserver root directory
+will be made the working directory.
         </description>
 	<parameterList>
 	  <parameter name="vserver-dir">
@@ -804,7 +807,8 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
       </program>
       <collection name="pre-start.d">
 	<description>
-Repository of pre-start like scripts
+Repository of pre-start like scripts. Before executing these scripts,
+the vserver root directory will be made the working directory.
         </description>                                                                                                                 
 	<program name="script" type="symbolic">
 	  <description>See pre-start.</description>
@@ -829,7 +833,9 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
 
       <program name="post-start">
 	<description>
-The scriptlet which will be executed after the vserver has been started.
+The scriptlet which will be executed after the vserver has been
+started. Before executing the script, the vserver root directory
+will be made the working directory.
         </description>
 	<parameterList>
 	  <parameter name="vserver-dir">
@@ -846,7 +852,10 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
 	</parameterList>
       </program>
       <collection name="post-start.d">
-	<description>Repository of post-start like scripts</description>
+	<description>
+Repository of post-start like scripts. Before executing these scripts,
+the vserver root directory will be made the working directory.
+        </description>
 	<program name="script" type="symbolic">
 	  <description>See post-start.</description>
 	  <parameterList>
@@ -868,7 +877,9 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
 
       <program name="pre-stop">
 	<description>
-The scriptlet which will be executed before the vserver will be stopped.
+The scriptlet which will be executed before the vserver will be
+stopped. Before executing the script, the vserver root directory
+will be made the working directory.
         </description>
 	<parameterList>
 	  <parameter name="vserver-dir">
@@ -886,7 +897,8 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
       </program>
       <collection name="pre-stop.d">
 	<description>
-Repository of pre-stop like scripts
+Repository of pre-stop like scripts. Before executing the script, the
+vserver root directory will be made the working directory.
         </description>                                                                                                                 
 	<program name="script" type="symbolic">
 	  <description>See pre-stop.</description>
@@ -910,7 +922,8 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
 	<description>
 The scriptlet which will be executed after the vserver has been
 stopped, but before the directories will be umounted and the the
-interfaces disabled.
+interfaces disabled. Before executing the script, the vserver root
+directory will be made the working directory.
         </description>
 	<parameterList>
 	  <parameter name="vserver-dir">
@@ -927,7 +940,10 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
 	</parameterList>
       </program>
       <collection name="post-stop.d">
-	<description>Repository of post-stop like scripts</description>
+	<description>
+Repository of post-stop like scripts. Before executing the script, the
+vserver root directory will be made the working directory.
+        </description>
 	<program name="script" type="symbolic">
 	  <description>See post-stop.</description>
 	  <parameterList>
@@ -949,7 +965,8 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
       <program name="postpost-stop">
 	<description>
 The scriptlet which will be executed after the vserver has been stopped
-completely.
+completely. Before executing the script, the vserver root directory
+will be made the working directory.
         </description>
 	<parameterList>
 	  <parameter name="vserver-dir">
@@ -966,7 +983,10 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
 	</parameterList>
       </program>
       <collection name="postpost-stop.d">
-	<description>Repository of postpost-stop like scripts</description>
+	<description>
+Repository of postpost-stop like scripts. Before executing the script,
+the vserver root directory will be made the working directory.
+        </description>
 	<program name="script" type="symbolic">
 	  <description>See postpost-stop.</description>
 	  <parameterList>
