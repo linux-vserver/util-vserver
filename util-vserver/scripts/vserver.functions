@@ -670,11 +670,17 @@ function generateOptions
 function _mountVserverInternal
 {
     local fstab="$1"
+    local xflag=
+    
     test -e "$fstab" || return 0
     shift
 
     pushd "$vdir" >/dev/null
-    "$@" $_SECURE_MOUNT -a --chroot --fstab "$fstab" --rootfs no
+    # check whether / is mounted readonly or whether there is special
+    # magic regarding the mtab file; when etc/mtab can not be touched,
+    # add the '-n' flag to mount
+    test -w etc -o -w etc/mtab || xflag=-n
+    "$@" $_SECURE_MOUNT -a $xflag --chroot --fstab "$fstab" --rootfs no
     popd >/dev/null
 }
 
@@ -683,10 +689,15 @@ function mountRootFS
     local cfgdir=$1
     local vdir=$1/vdir
     local fstab="$cfgdir"/fstab
+    local xflag=
 
     test -e "$fstab" || return 0
     pushd "$vdir" >/dev/null
-    $_SECURE_MOUNT -a --chroot --fstab "$fstab" --rootfs only -n
+    # check whether / is mounted readonly or whether there is special
+    # magic regarding the mtab file; when etc/mtab can not be touched,
+    # add the '-n' flag to mount
+    test -w etc -o -w etc/mtab || xflag=-n
+    $_SECURE_MOUNT -a $xflag --chroot --fstab "$fstab" --rootfs only -n
     popd >/dev/null
 }
 
