@@ -42,6 +42,9 @@ nobase_distrib_DATA	=  defaults/devs \
 			   fc3/apt/rpmpriorities    fc3/pkgs/01    fc3/pkgs/02    fc3/pkgs/03 \
 			   fc3/yum/yum.conf $(wildcard fc3/yum.repos.d/fedora*.repo) \
 			   $(wildcard fc3/rpmlist.d/*.lst) $(wildcard fc3/rpmlist.d/*.opt) \
+			   fc4/apt/rpmpriorities    fc4/pkgs/01    fc4/pkgs/02    fc4/pkgs/03 \
+			   fc4/yum/yum.conf $(wildcard fc4/yum.repos.d/fedora*.repo) \
+			   $(wildcard fc4/rpmlist.d/*.lst) $(wildcard fc4/rpmlist.d/*.opt) \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros
 
@@ -49,6 +52,7 @@ nobase_confdistrib_DATA	=  rh9/apt/sources.list \
 			   fc1/apt/sources.list \
 			   fc2/apt/sources.list \
 			   fc3/apt/sources.list \
+			   fc4/apt/sources.list \
 			   suse91/apt/sources.list
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT \
@@ -59,7 +63,7 @@ EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(nobase_confdistrib_DATA) \
 			   $(defaults_DATA)
 
-redhat_style		=  rh9 fc1 fc2 fc3
+redhat_style		=  rh9 fc1 fc2 fc3 fc4
 
 install-exec-hook:	install-notify-xtra
 install-data-hook:	install-data-xtras
