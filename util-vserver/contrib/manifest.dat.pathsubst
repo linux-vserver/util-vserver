@@ -42,8 +42,7 @@ base   @PKGLIBDIR@/capchroot
 base   @PKGLIBDIR@/chain-echo
 core   @PKGLIBDIR@/chcontext-compat
 base   @PKGLIBDIR@/check-unixfile
-base   @PKGLIBDIR@/chroot-cat
-base   @PKGLIBDIR@/chroot-rm
+base   @PKGLIBDIR@/chroot-sh
 base   @PKGLIBDIR@/exec-ulimit
 base   @PKGLIBDIR@/fakerunlevel
 base   @PKGLIBDIR@/filetime
@@ -59,8 +58,6 @@ base   @PKGLIBDIR@/sigexec
 base   @PKGLIBDIR@/start-vservers
 build  @PKGLIBDIR@/vapt-get-worker
 build  @PKGLIBDIR@/vyum-worker
-@ENSC_HAVE_CXX_COMPILER_TRUE@build  @PKGLIBDIR@/vbuild
-@ENSC_HAVE_CXX_COMPILER_TRUE@build  @PKGLIBDIR@/vcheck
 build  @PKGLIBDIR@/vpkg
 base   @PKGLIBDIR@/vprocunhide
 build  @PKGLIBDIR@/vrpm-preload
@@ -91,7 +88,6 @@ core   @SBINDIR@/vcontext
 core   @SBINDIR@/vdlimit
 core   @SBINDIR@/vnamespace
 base   @SBINDIR@/vdu
-@ENSC_HAVE_CXX_COMPILER_TRUE@build  @SBINDIR@/vfiles
 core   @SBINDIR@/vkill
 core   @SBINDIR@/vlimit
 base   @SBINDIR@/vps
@@ -106,6 +102,7 @@ base   @SBINDIR@/vserver-stat
 base   @SBINDIR@/vsomething
 base   @SBINDIR@/vtop
 core   @SBINDIR@/vuname
+core   @SBINDIR@/vwait
 devel  @INCLUDEDIR@/vserver.h
 core   @MANDIR@/*/chbind*
 core   @MANDIR@/*/chcontext*
