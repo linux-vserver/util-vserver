@@ -207,7 +207,7 @@ else
 fi
 
 case "$method" in
-    (default)	doDefaultMethod "$@";;
-    (sync)	doInternalMethod "$method" "$@";;
-    (*)		panic $"Unknown method '$method' used by vserver '$VSERVER'";;
+    (default)		doDefaultMethod "$@";;
+    (sync|async)	doInternalMethod "$method" "$@";;
+    (*)			panic $"Unknown method '$method' used by vserver '$VSERVER'";;
 esac
