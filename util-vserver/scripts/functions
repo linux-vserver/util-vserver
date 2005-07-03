@@ -792,7 +792,7 @@ To fix this, you can:"
 
 	test -x "$solution_sysctl" || warning $"\
 * configure the util-vserver vshelper script, e.g. by adding
-  | kernel.vshelper = \"$_VSHELPER\"
+  | kernel.vshelper = $_VSHELPER
   to /etc/sysctl.conf and rebooting the machine, or by executing
   | echo \"$_VSHELPER\" >$proc_file"
 
