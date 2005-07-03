@@ -40,6 +40,7 @@
 #include <syscall.h>
 #include <time.h>
 #include <stdbool.h>
+#include <getopt.h>
 #include <sys/param.h>
 
 #define ENSC_WRAPPERS_DIRENT	1
@@ -58,16 +59,20 @@ int	wrapper_exit_code = 1;
 #define AT_CLKTCK       17    /* frequency of times() */
 #endif
 
-static unsigned long	hertz=0x42;
+static unsigned long	hertz   =0x42;
+static unsigned long	pagesize=0x42;
 
 struct XidData
 {
-    xid_t	xid;
-    int		process_count;
-    int		VmSize_total;
-    int		VmRSS_total;
-    uint64_t	start_time_oldest;
-    uint64_t	stime_total, utime_total;
+    xid_t		xid;
+    int			process_count;
+    int			VmSize_total;
+    int			VmRSS_total;
+    uint64_t		start_time_oldest;
+    uint64_t		stime_total, utime_total;
+
+    vcCfgStyle		cfgstyle;
+    char const *	name;
 };
 
 struct process_info
@@ -91,12 +96,23 @@ struct ArgInfo {
     char * const *	argv;
 };
 
+#define CMD_HELP		0x1000
+#define CMD_VERSION		0x1001
+
+struct option const
+CMDLINE_OPTIONS[] = {
+  { "help",     no_argument,  0, CMD_HELP },
+  { "version",  no_argument,  0, CMD_VERSION },
+  { "sort",     required_argument, 0, 'O' },
+  {0,0,0,0}
+};
+
 static void
-showHelp(int fd, char const *cmd, int res)
+showHelp(char const *cmd)
 {
-  WRITE_MSG(fd, "Usage:  ");
-  WRITE_STR(fd, cmd);
-  WRITE_MSG(fd,
+  WRITE_MSG(1, "Usage:  ");
+  WRITE_STR(1, cmd);
+  WRITE_MSG(1,
 	    "\n"
 	    "Show informations about all the active context.\n\n"
 	    "	CTX#		Context number\n"
@@ -110,7 +126,7 @@ showHelp(int fd, char const *cmd, int res)
 	    "	UPTIME		Uptime/context\n"
 	    "	NAME		Virtual server name\n"
 	    "\n");
-  exit(res);
+  exit(0);
 }
 
 static void
@@ -119,7 +135,7 @@ showVersion()
   WRITE_MSG(1,
 	    "vserver-stat " VERSION " -- show virtual context statistics\n"
 	    "This program is part of " PACKAGE_STRING "\n\n"
-	    "Copyright (C) 2003 Enrico Scholz\n"
+	    "Copyright (C) 2003,2005 Enrico Scholz\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
   exit(0);
 }
@@ -226,7 +242,8 @@ find_elf_note(unsigned long findme){
   return (unsigned long)(-1);
 }
 
-static void initHertz()	__attribute__((__constructor__));
+static void initHertz()	   __attribute__((__constructor__));
+static void initPageSize() __attribute__((__constructor__));
 
 static void
 initHertz()
@@ -234,6 +251,12 @@ initHertz()
   hertz = find_elf_note(AT_CLKTCK);
   if (hertz==(unsigned long)(-1))
     hertz = sysconf(_SC_CLK_TCK);
+}
+
+static void
+initPageSize()
+{
+  pagesize = sysconf(_SC_PAGESIZE);
 }
 
 // open the process's status file to get the ctx number, and other stat
@@ -399,6 +422,33 @@ shortenTime(char *buf, uint64_t t)
   memcpy(buf+10-(ptr-tmp), tmp, ptr-tmp);
 }
 
+static char *
+formatName(char *dst, vcCfgStyle style, char const *name)
+{
+  size_t		len;
+  
+  if (name==0) name = "";
+  len = strlen(name);
+
+  switch (style) {
+    case vcCFG_LEGACY	:
+      len    = MIN(len, 18);
+      *dst++ = '[';
+      memcpy(dst, name, len);
+      dst   += len;
+      *dst++ = ']';
+      break;
+
+    default		:
+      len    = MIN(len, 20);
+      memcpy(dst, name, len);
+      dst   += len;
+      break;
+  }
+
+  return dst;
+}
+
 static void
 showContexts(struct Vector const *vec)
 {
@@ -419,50 +469,57 @@ showContexts(struct Vector const *vec)
     memcpy(buf+10-l, tmp, l);
 
     shortenMem (buf+10, ptr->VmSize_total);
-    shortenMem (buf+17, ptr->VmRSS_total);
+    shortenMem (buf+17, ptr->VmRSS_total*pagesize);
     shortenTime(buf+24, ptr->utime_total);
     shortenTime(buf+34, ptr->stime_total);
     //printf("%llu, %llu\n", uptime, ptr->start_time_oldest);
     shortenTime(buf+44, uptime - ptr->start_time_oldest);
 
-    switch (ptr->xid) {
-      case 0		:  strcpy(buf+55, "root server"      ); break;
-      case 1		:  strcpy(buf+55, "monitoring server"); break;
-      default		: {
-	char *		name     = 0;
-	char *		cfgpath  = 0;
-	vcCfgStyle	cfgstyle = vcCFG_AUTO;
-
-	if ((cfgpath = vc_getVserverByCtx(ptr->xid, &cfgstyle, 0))==0 ||
-	    (name    = vc_getVserverName(cfgpath, cfgstyle))==0) {
-	  name     = strdup("");
-	  cfgstyle = vcCFG_NONE;
-	}
-	
-	switch (cfgstyle) {
-	  case vcCFG_LEGACY	: {
-	    size_t	len = MIN(strlen(name), 18);
-	    buf[55]     = '[';
-	    memcpy(buf+56,     name, len);
-	    memcpy(buf+56+len, "]",  2);
-	    break;
-	  }
-	  default		: {
-	    size_t	len = MIN(strlen(name), 20);
-	    memcpy(buf+55, name, len);
-	    buf[55+len] = '\0';
-	    break;
-	  }
-	}
-	
-	free(name);
-	free(cfgpath);
-      }
-    }
+    formatName(buf+55, ptr->cfgstyle, ptr->name)[0] = '\0';
 
     Vwrite(1, buf, strlen(buf));
     Vwrite(1, "\n", 1);
   }
+}
+
+static void
+fillName(void *obj_v, void UNUSED * a)
+{
+  struct XidData *	obj = obj_v;
+
+  switch (obj->xid) {
+    case 0		:
+      obj->cfgstyle = vcCFG_NONE;
+      obj->name     = strdup("root server");
+      break;
+
+    case 1		:
+      obj->cfgstyle = vcCFG_NONE;
+      obj->name     = strdup("monitoring server");
+      break;
+
+    default		: {
+      char *		cfgpath;
+
+      if ((cfgpath   = vc_getVserverByCtx(obj->xid, &obj->cfgstyle, 0))==0 ||
+	  (obj->name = vc_getVserverName(cfgpath, obj->cfgstyle))==0) {
+	obj->name     = 0;
+	obj->cfgstyle = vcCFG_NONE;
+      }
+
+      free(cfgpath);
+
+      break;
+    }
+  }
+}
+
+static void UNUSED
+freeXidData(void *obj_v, void UNUSED * a)
+{
+  struct XidData *	obj = obj_v;
+
+  free(const_cast(char *)(obj->name));
 }
 
 int main(int argc, char **argv)
@@ -473,19 +530,31 @@ int main(int argc, char **argv)
   struct Vector		xid_data;
   char const *		errptr;
 
-  if (argc==2) {
-    if (strcmp(argv[1], "--help")   ==0) showHelp(1, argv[0], 0);
-    if (strcmp(argv[1], "--version")==0) showVersion();
+  while (1) {
+    int		c = getopt_long(argc, argv, "+O:", CMDLINE_OPTIONS, 0);
+    if (c==-1) break;
+
+    switch (c) {
+      case CMD_HELP	:  showHelp(argv[0]);
+      case CMD_VERSION	:  showVersion();
+      case 'O'		:  break;
+      default		:
+	WRITE_MSG(2, "Try '");
+	WRITE_STR(2, argv[0]);
+	WRITE_MSG(2, " --help\" for more information.\n");
+	return EXIT_FAILURE;
+	break;
+    }
   }
-  if (argc!=1) {
+    
+  if (optind!=argc) {
     WRITE_MSG(2, "Unknown parameter, use '--help' for more information\n");
     return EXIT_FAILURE;
   }
 
-  if (hertz==0x42) initHertz();
+  if (hertz==0x42)    initHertz();
+  if (pagesize==0x42) initPageSize();
   
-  //printf("hertz=%lu\n", hertz);
-    // do not include own stat
   my_pid = getpid();
 
   if (!switchToWatchXid(&errptr)) {
@@ -517,10 +586,13 @@ int main(int argc, char **argv)
   }
   closedir(proc_dir);
 
+  Vector_foreach(&xid_data, fillName, 0);
+
     // output the ctx_list	
   showContexts(&xid_data);
 
 #ifndef NDEBUG
+  Vector_foreach(&xid_data, freeXidData, 0);
   Vector_free(&xid_data);
 #endif
   
