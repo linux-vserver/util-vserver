@@ -21,11 +21,13 @@
 
 #include <kernel/context.h>
 #include <kernel/context_cmd.h>
+#include <kernel/cvirt_cmd.h>
+#include <kernel/cvirt_cmd.h>
 #include <kernel/dlimit.h>
 #include <kernel/dlimit_cmd.h>
 #include <kernel/inode_cmd.h>
 #include <kernel/limit_cmd.h>
-#include <kernel/namespace.h>
+#include <kernel/namespace_cmd.h>
 #include <kernel/network_cmd.h>
 #include <kernel/sched_cmd.h>
 #include <kernel/signal_cmd.h>
