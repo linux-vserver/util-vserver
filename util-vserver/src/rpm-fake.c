@@ -524,12 +524,11 @@ exitRPMFake()
 static bool
 doPwStringRequest(uint32_t *result, char style, char const *name)
 {
-  size_t	len = strlen(name);
+  uint32_t	len = strlen(name);
   uint8_t	code;
   uint8_t	c;
 
   return (TEMP_FAILURE_RETRY(read (sync_sock, &c, 1))==1 &&
-	  
 	  TEMP_FAILURE_RETRY(write(pw_sock, &style, 1))==1 &&
 	  TEMP_FAILURE_RETRY(write(pw_sock, &len,   sizeof len))==sizeof(len) &&
 	  TEMP_FAILURE_RETRY(write(pw_sock, name,   len))==(ssize_t)(len) &&
@@ -543,6 +542,7 @@ getpwnam(const char * name)
 {
   if (pw_sock==-1) return getpwnam_func(name);
   else {
+    uint32_t			id;
     static struct passwd	res = {
       .pw_passwd = "*",
       .pw_gid    = -1,
@@ -552,7 +552,8 @@ getpwnam(const char * name)
     };
 
     res.pw_name = (char *)(name);
-    if (!doPwStringRequest(&res.pw_uid, 'P', name)) return 0;
+    if (!doPwStringRequest(&id, 'P', name)) return 0;
+    res.pw_uid = id;
     
     return &res;
   }
@@ -563,13 +564,15 @@ getgrnam(const char * name)
 {
   if (pw_sock==-1) return getgrnam_func(name);
   else {
+    uint32_t			id;
     static struct group		res = {
       .gr_passwd = "*",
       .gr_mem    = 0
     };
 
     res.gr_name = (char *)(name);
-    if (!doPwStringRequest(&res.gr_gid, 'G', name)) return 0;
+    if (!doPwStringRequest(&id, 'G', name)) return 0;
+    res.gr_gid = id;
 
     return &res;
   }
