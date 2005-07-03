@@ -46,7 +46,11 @@ void	Vector_popback(struct Vector *);
 void	Vector_resize(struct Vector *vec);
 void	Vector_clear(struct Vector *vec);
 void	Vector_zeroEnd(struct Vector *vec);
+void	Vector_foreach(struct Vector *vec, void (*func)(void *, void *), void *);
 
+static void		Vector_foreach_const(struct Vector const *vec,
+					     void (*func)(void const *, void *),
+					     void *);
 static void const *	Vector_searchSelfOrg_const(struct Vector const *, void const *key,
 						   int (*compar)(const void *, const void *),
 						   VectorSelfOrgMethod method);

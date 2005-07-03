@@ -59,3 +59,12 @@ Vector_searchSelfOrg_const(struct Vector const *vec, void const *key,
 {
   return Vector_searchSelfOrg((struct Vector *)(vec), key, compare, method);
 }
+
+static inline UNUSED void
+Vector_foreach_const(struct Vector const *vec, void (*func)(void const *, void *),
+		     void *data)
+{
+  Vector_foreach((struct Vector *)(vec),
+		 (void (*)(void *, void *))(func),
+		 data);
+}
