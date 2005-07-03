@@ -48,8 +48,8 @@ EwriteAll(int fd, void const *ptr_v, size_t len)
   register char const	*ptr = ptr_v;
 
   while (len>0) {
-    size_t	res = TEMP_FAILURE_RETRY(write(fd, ptr, len));
-    FatalErrnoError(res==(size_t)-1, "write()");
+    ssize_t	res = TEMP_FAILURE_RETRY(write(fd, ptr, len));
+    FatalErrnoError(res==-1, "write()");
 
     ptr += res;
     len -= res;
@@ -85,8 +85,8 @@ EreadAll(int fd, void *ptr_v, size_t len)
   register char	*ptr = ptr_v;
   
   while (len>0) {
-    size_t	res = TEMP_FAILURE_RETRY(read(fd, ptr, len));
-    FatalErrnoError(res==(size_t)-1, "read()");
+    ssize_t	res = TEMP_FAILURE_RETRY(read(fd, ptr, len));
+    FatalErrnoError(res==-1, "read()");
 
     if (res==0) return false;
 

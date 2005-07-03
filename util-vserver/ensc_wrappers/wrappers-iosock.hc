@@ -29,8 +29,8 @@ WsendAll(int fd, void const *ptr_v, size_t len, int *err)
   if (err) *err = 0;
 
   while (len>0) {
-    size_t	res = TEMP_FAILURE_RETRY(send(fd, ptr, len, MSG_NOSIGNAL));
-    if (res==(size_t)-1) {
+    ssize_t	res = TEMP_FAILURE_RETRY(send(fd, ptr, len, MSG_NOSIGNAL));
+    if (res==-1) {
       if (err) *err = errno;
       return false;
     }
@@ -49,8 +49,8 @@ EsendAll(int fd, void const *ptr_v, size_t len)
   register char const	*ptr = ptr_v;
 
   while (len>0) {
-    size_t	res = TEMP_FAILURE_RETRY(send(fd, ptr, len, MSG_NOSIGNAL));
-    FatalErrnoError(res==(size_t)-1, "send()");
+    ssize_t	res = TEMP_FAILURE_RETRY(send(fd, ptr, len, MSG_NOSIGNAL));
+    FatalErrnoError(res==-1, "send()");
 
     ptr += res;
     len -= res;
@@ -65,8 +65,8 @@ WrecvAll(int fd, void *ptr_v, size_t len, int *err)
   if (err) *err = 0;
   
   while (len>0) {
-    size_t	res = TEMP_FAILURE_RETRY(recv(fd, ptr, len, MSG_NOSIGNAL));
-    if (res==(size_t)-1) {
+    ssize_t	res = TEMP_FAILURE_RETRY(recv(fd, ptr, len, MSG_NOSIGNAL));
+    if (res==-1) {
       if (err) *err = errno;
       return false;
     }
@@ -85,8 +85,8 @@ ErecvAll(int fd, void *ptr_v, size_t len)
   register char	*ptr = ptr_v;
   
   while (len>0) {
-    size_t	res = TEMP_FAILURE_RETRY(recv(fd, ptr, len, MSG_NOSIGNAL));
-    FatalErrnoError(res==(size_t)-1, "recv()");
+    ssize_t	res = TEMP_FAILURE_RETRY(recv(fd, ptr, len, MSG_NOSIGNAL));
+    FatalErrnoError(res==-1, "recv()");
 
     if (res==0) return false;
 

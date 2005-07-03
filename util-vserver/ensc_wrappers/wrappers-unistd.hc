@@ -85,8 +85,8 @@ Efork()
 inline static WRAPPER_DECL size_t
 Eread(int fd, void *ptr, size_t len)
 {
-  size_t	res = read(fd, ptr, len);
-  FatalErrnoError((ssize_t)(res)==-1, "read()");
+  ssize_t	res = read(fd, ptr, len);
+  FatalErrnoError(res==-1, "read()");
 
   return res;
 }
@@ -94,8 +94,8 @@ Eread(int fd, void *ptr, size_t len)
 inline static WRAPPER_DECL size_t
 Ewrite(int fd, void const *ptr, size_t len)
 {
-  size_t	res = write(fd, ptr, len);
-  FatalErrnoError((ssize_t)(res)==-1, "write()");
+  ssize_t	res = write(fd, ptr, len);
+  FatalErrnoError(res==-1, "write()");
 
   return res;
 }
@@ -103,8 +103,8 @@ Ewrite(int fd, void const *ptr, size_t len)
 inline static WRAPPER_DECL size_t
 Ereadlink(const char *path, char *buf, size_t bufsiz)
 {
-  size_t	res = readlink(path, buf, bufsiz);
-  FatalErrnoError((ssize_t)(res)==-1, "readlink()");
+  ssize_t	res = readlink(path, buf, bufsiz);
+  FatalErrnoError(res==-1, "readlink()");
 
   return res;
 }
@@ -112,7 +112,7 @@ Ereadlink(const char *path, char *buf, size_t bufsiz)
 inline static WRAPPER_DECL size_t
 EreadlinkD(const char *path, char *buf, size_t bufsiz)
 {
-  size_t	res = readlink(path, buf, bufsiz);
+  ssize_t	res = readlink(path, buf, bufsiz);
   ENSC_DETAIL1(msg, "readlink", path, 1);
   FatalErrnoError((ssize_t)(res)==-1, msg);
 
