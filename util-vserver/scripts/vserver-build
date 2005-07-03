@@ -97,7 +97,7 @@ eval set -- "$tmp"
 VSERVER_NAME=
 OPTION_FORCE=
 OPTION_DEBUG=0
-OPTION_KEEP=1
+OPTION_KEEP=
 
 while true; do
     case "$1" in
