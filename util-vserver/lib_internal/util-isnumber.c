@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,25 +16,23 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifndef H_UTILVSERVER_LIB_INTERNAL_UTIL_H
-#define H_UTILVSERVER_LIB_INTERNAL_UTIL_H
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
-#include "util-cast.h"
-#include "util-commonstrings.h"
-#include "util-debug.h"
-#include "util-declarecmd.h"
-#include "util-dimof.h"
-#include "util-dotfile.h"
-#include "util-exitlikeprocess.h"
-#include "util-io.h"
-#include "util-lockfile.h"
-#include "util-mem.h"
-#include "util-perror.h"
-#include "util-safechdir.h"
-#include "util-unixsock.h"
+#include "util.h"
 
-bool		switchToWatchXid(char const **);
-size_t		canonifyVserverName(char *);
-bool		isNumber(char const *, signed long *result);
+bool
+isNumber(char const *str, signed long *result)
+{
+  char *	errptr;
+  signed long	val;
 
-#endif	//  H_UTILVSERVER_LIB_INTERNAL_UTIL_H
+  val = strtol(str, &errptr, 0);
+  if (*errptr!='\0' || errptr==str)
+    return false;
+  else {
+    if (result) *result = val;
+    return true;
+  }
+}
