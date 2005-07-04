@@ -208,6 +208,10 @@ function base.__cleanup
 
 function base.init
 {
+    test -z "$SETUP_CONTEXT" || ! $_VSERVER_INFO -q "$SETUP_CONTEXT" RUNNING || \
+	panic $"\
+Context '$SETUP_CONTEXT' is already in use. Please select another one."
+
     trap "base.__cleanup" EXIT
     base._initVariables
 }
