@@ -910,7 +910,7 @@ type name (type1 arg1, type2 arg2, type3 arg3,				\
  	M68K	M68K	M68K	M68K		*
 	m68k kernel interface 			*/
 
-#elif	defined(__mc68000__)
+#elif	defined(__m68000__)
 
 #warning syscall arch m68k not implemented yet
 
@@ -919,7 +919,7 @@ type name (type1 arg1, type2 arg2, type3 arg3,				\
  	MIPS	MIPS	MIPS	MIPS		*
 	mips kernel interface 			*/
 
-#elif	defined(__mips__)
+#elif defined(__mips__)
 
 #warning syscall arch mips not implemented yet
 
@@ -928,16 +928,249 @@ type name (type1 arg1, type2 arg2, type3 arg3,				\
  	HPPA	HPPA	HPPA	HPPA		*
 	hppa kernel interface 			*/
 
-#elif	defined(__hppa__)
+#elif defined(__hppa__)
 
-#warning syscall arch hppa not implemented yet
+/*  	The hppa calling convention uses r26-r23 for the first 4
+    	arguments, the rest is spilled onto the stack. However the
+    	Linux kernel passes the first six arguments in the registers
+	r26-r21. 
+	
+	The system call number MUST ALWAYS be loaded in the delay 
+	slot of the ble instruction, or restarting system calls 
+	WILL NOT WORK.
+	
+	scnr:	r20
+	args:	r26, r25, r24, r23, r22, r21 
+	sret:	r28
+	serr:	(err= sret > (unsigned)-EMAXERRNO)
+	clob:	r1, r2, r4, r20, r29, r31, memory
+*/
+
+#ifndef EMAXERRNO
+#define EMAXERRNO   4095
+#endif
+
+#define __syscall_errcon(res)						\
+	((unsigned long)(res) >= (unsigned long)(-EMAXERRNO))
+
+#define __syscall_return(type, res) do {				\
+	__syscall_retval(res);						\
+	if (__syscall_errcon(res)) {					\
+		int __err = -(res);					\
+		__syscall_error(__err);					\
+		res = -1;						\
+	}								\
+	return (type) res;						\
+} while (0)				
+
+#define __syscall_clobbers						\
+	"%r1", "%r2", "%r4", "%r20", "%r29", "%r31", "memory" 
+
+#define __syscall_regdef(name, reg)					\
+	register unsigned long __sc_##name __asm__ (reg)
+
+#define __syscall_regval(name, reg, val)				\
+	register unsigned long __sc_##name __asm__ (reg) =  	    	\
+	(unsigned long)(val)
+
+
+#define _syscall0(type, name)						\
+type name(void)								\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regdef(ret, "r28");				\
+									\
+ 	 	__asm__ __volatile__ (  	      			\
+		__check("%0", "%%r28")					\
+ 	 		"ble  0x100(%%sr2, %%r0)" 			\
+				__comment(name) "\n\t"			\
+			"ldi %1, %%r20"					\
+ 	 	      : "=r"(__sc_ret)					\
+ 	 	      : "i"(__NR_##name)				\
+ 	 	      : "%r21", "%r22", "%r23", 			\
+		      	"%r24", "%r25", "%r26", 			\
+		      	__syscall_clobbers				\
+	    	);  				      			\
+ 	 	__sc_res = __sc_ret;		      			\
+    	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall1(type, name, type1, arg1)				\
+type name(type1 arg1)							\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regdef(ret, "r28");				\
+		__syscall_regval(a1, "r26", arg1);			\
+									\
+ 	 	__asm__ __volatile__ (  	      			\
+		__check("%0%2", "%%r28%%r26")				\
+ 	 		"ble  0x100(%%sr2, %%r0)" 			\
+				__comment(name) "\n\t"			\
+			"ldi %1, %%r20"					\
+ 	 	      : "=r"(__sc_ret)					\
+ 	 	      : "i"(__NR_##name), 				\
+		      	"r"(__sc_a1)					\
+ 	 	      : "%r21", "%r22", "%r23", "%r24", "%r25",		\
+		      	__syscall_clobbers				\
+	    	);  				      			\
+ 	 	__sc_res = __sc_ret;		      			\
+    	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall2(type, name, type1, arg1, type2, arg2)			\
+type name(type1 arg1, type2 arg2)					\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regdef(ret, "r28");				\
+		__syscall_regval(a1, "r26", arg1);			\
+		__syscall_regval(a2, "r25", arg2);			\
+									\
+ 	 	__asm__ __volatile__ (  	      			\
+		__check("%0%2%3", "%%r28%%r26%%r25")			\
+ 	 		"ble  0x100(%%sr2, %%r0)" 			\
+				__comment(name) "\n\t"			\
+			"ldi %1, %%r20"					\
+ 	 	      : "=r"(__sc_ret)					\
+ 	 	      : "i"(__NR_##name),				\
+		      	"r"(__sc_a1), "r"(__sc_a2)			\
+ 	 	      : "%r21", "%r22", "%r23", "%r24",			\
+		      	__syscall_clobbers				\
+	    	);  				      			\
+ 	 	__sc_res = __sc_ret;		      			\
+    	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall3(type, name, type1, arg1, type2, arg2, type3, arg3)	\
+type name(type1 arg1, type2 arg2, type3 arg3)				\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regdef(ret, "r28");				\
+		__syscall_regval(a1, "r26", arg1);			\
+		__syscall_regval(a2, "r25", arg2);			\
+		__syscall_regval(a3, "r24", arg3);			\
+									\
+ 	 	__asm__ __volatile__ (  	      			\
+		__check("%0%2%3%4", "%%r28%%r26%%r25%%r24")		\
+ 	 		"ble  0x100(%%sr2, %%r0)" 			\
+				__comment(name) "\n\t"			\
+			"ldi %1, %%r20"					\
+ 	 	      : "=r"(__sc_ret)					\
+ 	 	      : "i"(__NR_##name),				\
+		      	"r"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3)	\
+ 	 	      : "%r21", "%r22", "%r23",				\
+		      	__syscall_clobbers				\
+	    	);  				      			\
+ 	 	__sc_res = __sc_ret;		      			\
+    	}								\
+	__syscall_return(type, __sc_res);				\
+} 
+
+#define _syscall4(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			      type4, arg4)				\
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4)		\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regdef(ret, "r28");				\
+		__syscall_regval(a1, "r26", arg1);			\
+		__syscall_regval(a2, "r25", arg2);			\
+		__syscall_regval(a3, "r24", arg3);			\
+		__syscall_regval(a4, "r23", arg4);			\
+									\
+ 	 	__asm__ __volatile__ (  	      			\
+		__check("%0%2%3%4%5", "%%r28%%r26%%r25%%r24%%r23")	\
+ 	 		"ble  0x100(%%sr2, %%r0)" 			\
+				__comment(name) "\n\t"			\
+			"ldi %1, %%r20"					\
+ 	 	      : "=r"(__sc_ret)					\
+ 	 	      : "i"(__NR_##name),				\
+		      	"r"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3),	\
+		      	"r"(__sc_a4)					\
+ 	 	      : "%r21", "%r22",					\
+		      	__syscall_clobbers				\
+	    	);  				      			\
+ 	 	__sc_res = __sc_ret;		      			\
+    	}								\
+	__syscall_return(type, __sc_res);				\
+} 
+
+#define _syscall5(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			      type4, arg4, type5, arg5)			\
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)	\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regdef(ret, "r28");				\
+		__syscall_regval(a1, "r26", arg1);			\
+		__syscall_regval(a2, "r25", arg2);			\
+		__syscall_regval(a3, "r24", arg3);			\
+		__syscall_regval(a4, "r23", arg4);			\
+		__syscall_regval(a5, "r22", arg5);			\
+									\
+ 	 	__asm__ __volatile__ (  	      			\
+		__check("%0%2%3%4%5%6", 				\
+			"%%r28%%r26%%r25%%r24%%r23%%r22")		\
+ 	 		"ble  0x100(%%sr2, %%r0)" 			\
+				__comment(name) "\n\t"			\
+			"ldi %1, %%r20"					\
+ 	 	      : "=r"(__sc_ret)					\
+ 	 	      : "i"(__NR_##name),				\
+		      	"r"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3),	\
+		      	"r"(__sc_a4), "r"(__sc_a5)			\
+ 	 	      : "%r21",						\
+		      	__syscall_clobbers				\
+	    	);  				      			\
+ 	 	__sc_res = __sc_ret;		      			\
+    	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall6(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			type4, arg4, type5, arg5, type6, arg6)		\
+type name (type1 arg1, type2 arg2, type3 arg3,				\
+	   type4 arg4, type5 arg5, type6 arg6)				\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regdef(ret, "r28");				\
+		__syscall_regval(a1, "r26", arg1);			\
+		__syscall_regval(a2, "r25", arg2);			\
+		__syscall_regval(a3, "r24", arg3);			\
+		__syscall_regval(a4, "r23", arg4);			\
+		__syscall_regval(a5, "r22", arg5);			\
+		__syscall_regval(a6, "r21", arg6);			\
+									\
+ 	 	__asm__ __volatile__ (  	      			\
+		__check("%0%2%3%4%5%6%7", 				\
+			"%%r28%%r26%%r25%%r24%%r23%%r22%%r21")		\
+ 	 		"ble  0x100(%%sr2, %%r0)" 			\
+				__comment(name) "\n\t"			\
+			"ldi %1, %%r20"					\
+ 	 	      : "=r"(__sc_ret)					\
+ 	 	      : "i"(__NR_##name),				\
+		      	"r"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3),	\
+		      	"r"(__sc_a4), "r"(__sc_a5), "r"(__sc_a6)	\
+ 	 	      : __syscall_clobbers				\
+	    	);  				      			\
+ 	 	__sc_res = __sc_ret;		      			\
+    	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
 
 
 /*	*****************************************
  	PPC64	PPC64	PPC64	PPC64		*
 	ppc64 kernel interface 			*/
 
-#elif	defined(__powerpc64__)
+#elif defined(__powerpc64__)
 
 #warning syscall arch ppc64 not implemented yet
 
@@ -946,25 +1179,447 @@ type name (type1 arg1, type2 arg2, type3 arg3,				\
  	PPC	PPC	PPC	PPC		*
 	ppc kernel interface 			*/
 
-#elif	defined(__powerpc__)
+#elif defined(__powerpc__)
 
-#warning syscall arch ppc not implemented yet
+/*      The powerpc calling convention uses r3-r10 to pass the first
+    	eight arguments, the remainder is spilled onto the stack.
+        
+        scnr:   r0
+        args:   a1(r3), a2(r4), a3(r5), a4(r6), a5(r7), a6(r8)
+        sret:   r3
+        serr:   (carry)
+    	call:	sc
+	clob:	cr0, ctr
+*/
+
+#define __syscall_errcon(err)	(err & 0x10000000)
+
+#define __syscall_return(type, ret, err) do {				\
+	__syscall_retval(ret);						\
+	if (__syscall_errcon(err)) {					\
+		int __err = (ret);					\
+		__syscall_error(__err);					\
+		ret = -1;						\
+	}								\
+	return (type) ret;						\
+} while (0)				
+
+#define __syscall_regdef(name, reg)					\
+	register long __sc_##name __asm__ (reg)
+
+#define __syscall_regval(name, reg, val)				\
+	register long __sc_##name __asm__ (reg) = (long)(val)
+
+#define __syscall_clobbers						\
+    	"r9", "r10", "r11", "r12",					\
+	"cr0", "ctr", "memory"
+
+
+#define _syscall0(type, name)						\
+type name(void)								\
+{									\
+	long __sc_ret, __sc_err;				\
+	{								\
+		__syscall_regval(r0, "r0", __NR_##name);		\
+		__syscall_regdef(a1, "r3");				\
+									\
+		__asm__ __volatile__ (					\
+			"sc" __comment(name) "\n\t"			\
+			"mfcr %0"   					\
+		      : "=r"(__sc_r0), "=r"(__sc_a1)			\
+		      : "0"(__sc_r0)					\
+		      : "r4", "r5", "r6", "r7", "r8",			\
+			__syscall_clobbers				\
+		);							\
+		__sc_ret = __sc_a1;					\
+		__sc_err = __sc_r0;					\
+	}								\
+	__syscall_return(type, __sc_ret, __sc_err);			\
+}
+
+#define _syscall1(type, name, type1, arg1)				\
+type name(type1 arg1)							\
+{									\
+	unsigned long __sc_ret, __sc_err;				\
+	{								\
+		__syscall_regval(r0, "r0", __NR_##name);		\
+		__syscall_regval(a1, "r3", arg1);			\
+									\
+		__asm__ __volatile__ (					\
+			"sc" __comment(name) "\n\t"			\
+			"mfcr %0"   					\
+		      : "=r"(__sc_r0), "=r"(__sc_a1)			\
+		      : "0"(__sc_r0),  					\
+		      	"1"(__sc_a1)					\
+		      : "r4", "r5", "r6", "r7", "r8",			\
+			__syscall_clobbers				\
+		);							\
+		__sc_ret = __sc_a1;					\
+		__sc_err = __sc_r0;					\
+	}								\
+	__syscall_return(type, __sc_ret, __sc_err);			\
+}
+
+#define _syscall2(type, name, type1, arg1, type2, arg2)			\
+type name(type1 arg1, type2 arg2)					\
+{									\
+	unsigned long __sc_ret, __sc_err;				\
+	{								\
+		__syscall_regval(r0, "r0", __NR_##name);		\
+		__syscall_regval(a1, "r3", arg1);			\
+		__syscall_regval(a2, "r4", arg2);			\
+									\
+		__asm__ __volatile__ (					\
+			"sc" __comment(name) "\n\t"			\
+			"mfcr %0"   					\
+		      : "=r"(__sc_r0), "=r"(__sc_a1)			\
+		      : "0"(__sc_r0),  					\
+		      	"1"(__sc_a1), "r"(__sc_a2)			\
+		      : "r5", "r6", "r7", "r8",				\
+			__syscall_clobbers				\
+		);							\
+		__sc_ret = __sc_a1;					\
+		__sc_err = __sc_r0;					\
+	}								\
+	__syscall_return(type, __sc_ret, __sc_err);			\
+}
+
+#define _syscall3(type, name, type1, arg1, type2, arg2, type3, arg3)	\
+type name(type1 arg1, type2 arg2, type3 arg3)				\
+{									\
+	unsigned long __sc_ret, __sc_err;				\
+	{								\
+		__syscall_regval(r0, "r0", __NR_##name);		\
+		__syscall_regval(a1, "r3", arg1);			\
+		__syscall_regval(a2, "r4", arg2);			\
+		__syscall_regval(a3, "r5", arg3);			\
+									\
+		__asm__ __volatile__ (					\
+			"sc" __comment(name) "\n\t"			\
+			"mfcr %0"   					\
+		      : "=r"(__sc_r0), "=r"(__sc_a1)			\
+		      : "0"(__sc_r0),  					\
+		      	"1"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3)	\
+		      : "r6", "r7", "r8",				\
+			__syscall_clobbers				\
+		);							\
+		__sc_ret = __sc_a1;					\
+		__sc_err = __sc_r0;					\
+	}								\
+	__syscall_return(type, __sc_ret, __sc_err);			\
+} 
+
+
+#define _syscall4(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			      type4, arg4) 				\
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4)		\
+{									\
+	unsigned long __sc_ret, __sc_err;				\
+	{								\
+		__syscall_regval(r0, "r0", __NR_##name);		\
+		__syscall_regval(a1, "r3", arg1);			\
+		__syscall_regval(a2, "r4", arg2);			\
+		__syscall_regval(a3, "r5", arg3);			\
+		__syscall_regval(a4, "r6", arg4);			\
+									\
+		__asm__ __volatile__ (					\
+			"sc" __comment(name) "\n\t"			\
+			"mfcr %0"   					\
+		      : "=r"(__sc_r0), "=r"(__sc_a1)			\
+		      : "0"(__sc_r0),  					\
+		      	"1"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3),	\
+		      	"r"(__sc_a4)					\
+		      : "r7", "r8",					\
+			__syscall_clobbers				\
+		);							\
+		__sc_ret = __sc_a1;					\
+		__sc_err = __sc_r0;					\
+	}								\
+	__syscall_return(type, __sc_ret, __sc_err);			\
+} 
+
+#define _syscall5(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+    			      type4, arg4, type5, arg5)			\
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)	\
+{									\
+	unsigned long __sc_ret, __sc_err;				\
+	{								\
+		__syscall_regval(r0, "r0", __NR_##name);		\
+		__syscall_regval(a1, "r3", arg1);			\
+		__syscall_regval(a2, "r4", arg2);			\
+		__syscall_regval(a3, "r5", arg3);			\
+		__syscall_regval(a4, "r6", arg4);			\
+		__syscall_regval(a5, "r7", arg5);			\
+									\
+		__asm__ __volatile__ (					\
+			"sc" __comment(name) "\n\t"			\
+			"mfcr %0"   					\
+		      : "=r"(__sc_r0), "=r"(__sc_a1)			\
+		      : "0"(__sc_r0),  					\
+		      	"1"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3),	\
+		      	"r"(__sc_a4), "r"(__sc_a5)			\
+		      : "r8",						\
+			__syscall_clobbers				\
+		);							\
+		__sc_ret = __sc_a1;					\
+		__sc_err = __sc_r0;					\
+	}								\
+	__syscall_return(type, __sc_ret, __sc_err);			\
+}
+
+#define _syscall6(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			      type4, arg4, type5, arg5, type6, arg6)	\
+type name (type1 arg1, type2 arg2, type3 arg3,				\
+	   type4 arg4, type5 arg5, type6 arg6)				\
+{									\
+	unsigned long __sc_ret, __sc_err;				\
+	{								\
+		__syscall_regval(r0, "r0", __NR_##name);		\
+		__syscall_regval(a1, "r3", arg1);			\
+		__syscall_regval(a2, "r4", arg2);			\
+		__syscall_regval(a3, "r5", arg3);			\
+		__syscall_regval(a4, "r6", arg4);			\
+		__syscall_regval(a5, "r7", arg5);			\
+		__syscall_regval(a6, "r8", arg6);			\
+									\
+		__asm__ __volatile__ (					\
+			"sc" __comment(name) "\n\t"			\
+			"mfcr %0"   					\
+		      : "=r"(__sc_r0), "=r"(__sc_a1)			\
+		      : "0"(__sc_r0),  					\
+		      	"1"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3),	\
+		      	"r"(__sc_a4), "r"(__sc_a5), "r"(__sc_a6)	\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_ret = __sc_a1;					\
+		__sc_err = __sc_r0;					\
+	}								\
+	__syscall_return(type, __sc_ret, __sc_err);			\
+}
 
 
 /*	*****************************************
  	S390X	S390X	S390X	S390X		*
 	s390x kernel interface 			*/
 
-#elif	defined(__s390x__)
+#elif defined(__s390x__)
 
-#warning syscall arch s390x not implemented yet
+/*      The s390x calling convention passes the first five arguments
+    	in r2-r6, the remainder is spilled onto the stack. However 
+	the Linux kernel passes the first six arguments in r2-r7.
+	
+        scnr:   imm, r1 
+        args:   a1(r2), a2(r3), a3(r4), a4(r5), a5(r6), a6(r7)
+        sret:   r2
+        serr:   (err= sret > (unsigned)-EMAXERRNO)
+    	call:	svc
+	clob:	memory
+*/
+
+#ifndef EMAXERRNO
+#define EMAXERRNO   4095
+#endif
+
+#define __syscall_errcon(res)                                           \
+        ((unsigned long)(res) >= (unsigned long)(-EMAXERRNO))
+
+#define __syscall_return(type, res) do {                                \
+        __syscall_retval(res);                                          \
+        if (__syscall_errcon(res)) {                                    \
+                int __err = -(res);                                     \
+                __syscall_error(__err);                                 \
+                res = -1;                                               \
+        }                                                               \
+        return (type) res;                                              \
+} while (0)                             
+
+#define __syscall_regdef(name, reg)					\
+	register unsigned long __sc_##name __asm__ (reg)
+
+#define __syscall_regval(name, reg, val)				\
+	register unsigned long __sc_##name __asm__ (reg) = 		\
+		(unsigned long)(val)
+
+#define __syscall_clobbers	"memory"
+
+
+#define _syscall0(type, name)						\
+type name(void)								\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(nr, "r1", __NR_##name);		\
+		__syscall_regdef(a1, "r2");				\
+									\
+		__asm__ volatile (					\
+ 		__check("%0%1", "%%r2%%r1")				\
+			"svc  0" __comment(name)			\
+		      : "=r"(__sc_a1)					\
+		      : "r"(__sc_nr)					\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_a1;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall1(type, name, type1, arg1)				\
+type name(type1 arg1)							\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(nr, "r1", __NR_##name);		\
+		__syscall_regval(a1, "r2", arg1);			\
+									\
+		__asm__ volatile (					\
+ 		__check("%0%1%2", "%%r2%%r1%%r2")			\
+			"svc  0" __comment(name)			\
+		      : "=r"(__sc_a1)					\
+		      : "r"(__sc_nr), 					\
+			"0"(__sc_a1)					\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_a1;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall2(type, name, type1, arg1, type2, arg2)			\
+type name(type1 arg1, type2 arg2)					\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(nr, "r1", __NR_##name);		\
+		__syscall_regval(a1, "r2", arg1);			\
+		__syscall_regval(a2, "r3", arg2);			\
+									\
+		__asm__ volatile (					\
+ 		__check("%0%1%2%3", "%%r2%%r1%%r2%%r3")			\
+			"svc  0" __comment(name)			\
+		      : "=r"(__sc_a1)					\
+		      : "r"(__sc_nr), 					\
+			"0"(__sc_a1), "r"(__sc_a2)			\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_a1;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall3(type, name, type1, arg1, type2, arg2, type3, arg3)	\
+type name(type1 arg1, type2 arg2, type3 arg3)				\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(nr, "r1", __NR_##name);		\
+		__syscall_regval(a1, "r2", arg1);			\
+		__syscall_regval(a2, "r3", arg2);			\
+		__syscall_regval(a3, "r4", arg3);			\
+									\
+		__asm__ volatile (					\
+ 		__check("%0%1%2%3%4", "%%r2%%r1%%r2%%r3%%r4")		\
+			"svc  0" __comment(name)			\
+		      : "=r"(__sc_a1)					\
+		      : "r"(__sc_nr), 					\
+			"0"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3)	\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_a1;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+} 
+
+#define _syscall4(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			      type4, arg4)				\
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4)		\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(nr, "r1", __NR_##name);		\
+		__syscall_regval(a1, "r2", arg1);			\
+		__syscall_regval(a2, "r3", arg2);			\
+		__syscall_regval(a3, "r4", arg3);			\
+		__syscall_regval(a4, "r5", arg4);			\
+									\
+		__asm__ volatile (					\
+ 		__check("%0%1%2%3%4%5", "%%r2%%r1%%r2%%r3%%r4%%r5")	\
+			"svc  0" __comment(name)			\
+		      : "=r"(__sc_a1)					\
+		      : "r"(__sc_nr), 					\
+			"0"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3),	\
+			"r"(__sc_a4)					\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_a1;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+} 
+
+#define _syscall5(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			      type4, arg4, type5, arg5)			\
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)	\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(nr, "r1", __NR_##name);		\
+		__syscall_regval(a1, "r2", arg1);			\
+		__syscall_regval(a2, "r3", arg2);			\
+		__syscall_regval(a3, "r4", arg3);			\
+		__syscall_regval(a4, "r5", arg4);			\
+		__syscall_regval(a5, "r6", arg5);			\
+									\
+		__asm__ volatile (					\
+ 		__check("%0%1%2%3%4%5%6",				\
+			"%%r2%%r1%%r2%%r3%%r4%%r5%%r6")			\
+			"svc  0" __comment(name)			\
+		      : "=r"(__sc_a1)					\
+		      : "r"(__sc_nr), 					\
+			"0"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3),	\
+			"r"(__sc_a4), "r"(__sc_a5)			\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_a1;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall6(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			type4, arg4, type5, arg5, type6, arg6)		\
+type name (type1 arg1, type2 arg2, type3 arg3,				\
+	   type4 arg4, type5 arg5, type6 arg6)				\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(nr, "r1", __NR_##name);		\
+		__syscall_regval(a1, "r2", arg1);			\
+		__syscall_regval(a2, "r3", arg2);			\
+		__syscall_regval(a3, "r4", arg3);			\
+		__syscall_regval(a4, "r5", arg4);			\
+		__syscall_regval(a5, "r6", arg5);			\
+		__syscall_regval(a6, "r7", arg6);			\
+									\
+		__asm__ volatile (					\
+ 		__check("%0%1%2%3%4%5%6%7",				\
+			"%%r2%%r1%%r2%%r3%%r4%%r5%%r6%%r7")		\
+			"svc  0" __comment(name)			\
+		      : "=r"(__sc_a1)					\
+		      : "r"(__sc_nr), 					\
+			"0"(__sc_a1), "r"(__sc_a2), "r"(__sc_a3),	\
+			"r"(__sc_a4), "r"(__sc_a5), "r"(__sc_a6)	\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_a1;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
 
 
 /*	*****************************************
  	S390	S390	S390	S390		*
 	s390 kernel interface 			*/
 
-#elif	defined(__s390__)
+#elif defined(__s390__)
 
 #warning syscall arch s390 not implemented yet
 
@@ -973,7 +1628,7 @@ type name (type1 arg1, type2 arg2, type3 arg3,				\
  	SH	SH	SH	SH		*
 	sh kernel interface 			*/
 
-#elif	defined(__sh__) && !defined(__SH5__)
+#elif defined(__sh__) && !defined(__SH5__)
 
 #warning syscall arch sh not implemented yet
 
@@ -982,7 +1637,7 @@ type name (type1 arg1, type2 arg2, type3 arg3,				\
  	SH64	SH64	SH64	SH64		*
 	sh64 kernel interface 			*/
 
-#elif	defined(__sh__) && defined(__SH5__)
+#elif defined(__sh__) && defined(__SH5__)
 
 #warning syscall arch sh64 not implemented yet
 
@@ -991,25 +1646,472 @@ type name (type1 arg1, type2 arg2, type3 arg3,				\
  	SPARC64	SPARC64	SPARC64	SPARC64		*
 	sparc64 kernel interface 		*/
 
-#elif	defined(__sparc__) && defined(__sparc_v9__)
+#elif defined(__sparc__) && defined(__arch64__)
 
-#warning syscall arch sparc64 not implemented yet
+/*      The sparc64 calling convention uses o0-o5 to pass the first six
+    	arguments (mapped via register windows).
+        
+        scnr:   g1
+        args:   o0, o1, o2, o3, o4, o5 
+        sret:   o0
+        serr:   (carry)
+    	call:	t 0x10
+	clob:	g1-g6, g7?, o7?, f0-f31, cc
+*/
+
+#ifndef EMAXERRNO
+#define EMAXERRNO   515
+#endif
+
+#define __syscall_errcon(res)                                           \
+        ((unsigned long)(res) >= (unsigned long)(-EMAXERRNO))
+
+#define __syscall_return(type, res) do {                                \
+        __syscall_retval(res);                                          \
+        if (__syscall_errcon(res)) {                                    \
+                int __err = -(res);                                     \
+                __syscall_error(__err);                                 \
+                res = -1;                                               \
+        }                                                               \
+        return (type) res;                                              \
+} while (0)                             
+
+#define __syscall_clobbers						\
+	"g2", "g3", "g4", "g5", "g6", 					\
+	"f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", 		\
+	"f9", "f10", "f11", "f12", "f13", "f14", "f15", "f16", 		\
+	"f17", "f18", "f19", "f20", "f21", "f22", "f23", "f24", 	\
+	"f25", "f26", "f27", "f28", "f29", "f30", "f31", "f32",		\
+	"f34", "f36", "f38", "f40", "f42", "f44", "f46", "f48",		\
+	"f50", "f52", "f54", "f56", "f58", "f60", "f62",    	    	\
+	"cc", "memory" 
+
+#define __syscall_regdef(name, reg)					\
+	register long __sc_##name __asm__ (reg)
+
+#define __syscall_regval(name, reg, val)				\
+	register long __sc_##name __asm__ (reg) = (long)(val)
+
+#define _syscall0(type, name)						\
+type name(void)								\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regdef(o0, "o0");				\
+									\
+		__asm__ volatile (					\
+			"ta 0x6d" __comment(name) "\n\t"		\
+			"bcs,a,pt %%xcc,1f\n\t"   			\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1) 					\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall1(type, name, type1, arg1)				\
+type name(type1 arg1)							\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+									\
+		__asm__ volatile (					\
+			"ta 0x6d" __comment(name) "\n\t"		\
+			"bcs,a,pt %%xcc,1f\n\t"   			\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0)					\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall2(type, name, type1, arg1, type2, arg2)			\
+type name(type1 arg1, type2 arg2)					\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+		__syscall_regval(o1, "o1", arg2);			\
+									\
+		__asm__ volatile (					\
+			"ta 0x6d" __comment(name) "\n\t"		\
+			"bcs,a,pt %%xcc,1f\n\t"   			\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0), "r"(__sc_o1)			\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall3(type, name, type1, arg1, type2, arg2, type3, arg3)	\
+type name(type1 arg1, type2 arg2, type3 arg3)				\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+		__syscall_regval(o1, "o1", arg2);			\
+		__syscall_regval(o2, "o2", arg3);			\
+									\
+		__asm__ volatile (					\
+			"ta 0x6d" __comment(name) "\n\t"		\
+			"bcs,a,pt %%xcc,1f\n\t"   			\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0), "r"(__sc_o1), "r"(__sc_o2)	\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+} 
+
+#define _syscall4(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			      type4, arg4)				\
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4)		\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+		__syscall_regval(o1, "o1", arg2);			\
+		__syscall_regval(o2, "o2", arg3);			\
+		__syscall_regval(o3, "o3", arg4);			\
+									\
+		__asm__ volatile (					\
+			"ta 0x6d" __comment(name) "\n\t"		\
+			"bcs,a,pt %%xcc,1f\n\t"   			\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0), "r"(__sc_o1), "r"(__sc_o2),	\
+			"r"(__sc_o3)					\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+} 
+
+#define _syscall5(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			      type4, arg4, type5, arg5)			\
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)	\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+		__syscall_regval(o1, "o1", arg2);			\
+		__syscall_regval(o2, "o2", arg3);			\
+		__syscall_regval(o3, "o3", arg4);			\
+		__syscall_regval(o4, "o4", arg5);			\
+									\
+		__asm__ volatile (					\
+			"ta 0x6d" __comment(name) "\n\t"		\
+			"bcs,a,pt %%xcc,1f\n\t"   			\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0), "r"(__sc_o1), "r"(__sc_o2),	\
+			"r"(__sc_o3), "r"(__sc_o4)			\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall6(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			type4, arg4, type5, arg5, type6, arg6)		\
+type name (type1 arg1, type2 arg2, type3 arg3,				\
+	   type4 arg4, type5 arg5, type6 arg6)				\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+		__syscall_regval(o1, "o1", arg2);			\
+		__syscall_regval(o2, "o2", arg3);			\
+		__syscall_regval(o3, "o3", arg4);			\
+		__syscall_regval(o4, "o4", arg5);			\
+		__syscall_regval(o5, "o5", arg6);			\
+									\
+		__asm__ volatile (					\
+			"ta 0x6d" __comment(name) "\n\t"		\
+			"bcs,a,pt %%xcc,1f\n\t"   			\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0), "r"(__sc_o1), "r"(__sc_o2),	\
+			"r"(__sc_o3), "r"(__sc_o4), "r"(__sc_o5)	\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
 
 
 /*	*****************************************
  	SPARC	SPARC	SPARC	SPARC		*
 	sparc kernel interface 			*/
 
-#elif	defined(__sparc__)
+#elif defined(__sparc__)
 
-#warning syscall arch sparc not implemented yet
+/*      The sparc calling convention uses o0-o5 to pass the first six
+    	arguments (mapped via register windows).
+        
+        scnr:   g1
+        args:   o0, o1, o2, o3, o4, o5 
+        sret:   o0
+        serr:   (carry)
+    	call:	t 0x10
+	clob:	g1-g6, g7?, o7?, f0-f31, cc
+*/
+
+#ifndef EMAXERRNO
+#define EMAXERRNO   515
+#endif
+
+#define __syscall_errcon(res)                                           \
+        ((unsigned long)(res) >= (unsigned long)(-EMAXERRNO))
+
+#define __syscall_return(type, res) do {                                \
+        __syscall_retval(res);                                          \
+        if (__syscall_errcon(res)) {                                    \
+                int __err = -(res);                                     \
+                __syscall_error(__err);                                 \
+                res = -1;                                               \
+        }                                                               \
+        return (type) res;                                              \
+} while (0)                             
+
+#define __syscall_clobbers						\
+	"g2", "g3", "g4", "g5", "g6", 					\
+	"f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", 		\
+	"f9", "f10", "f11", "f12", "f13", "f14", "f15", "f16", 		\
+	"f17", "f18", "f19", "f20", "f21", "f22", "f23", "f24", 	\
+	"f25", "f26", "f27", "f28", "f29", "f30", "f31", 		\
+	"cc", "memory" 
+
+#define __syscall_regdef(name, reg)					\
+	register long __sc_##name __asm__ (reg)
+
+#define __syscall_regval(name, reg, val)				\
+	register long __sc_##name __asm__ (reg) = (long)(val)
+
+#define _syscall0(type, name)						\
+type name(void)								\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regdef(o0, "o0");				\
+									\
+		__asm__ volatile (					\
+			"t 0x10" __comment(name) "\n\t"			\
+			"bcs,a 1f\n\t"					\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1) 					\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall1(type, name, type1, arg1)				\
+type name(type1 arg1)							\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+									\
+		__asm__ volatile (					\
+			"t 0x10" __comment(name) "\n\t"			\
+			"bcs,a 1f\n\t"					\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0)					\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall2(type, name, type1, arg1, type2, arg2)			\
+type name(type1 arg1, type2 arg2)					\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+		__syscall_regval(o1, "o1", arg2);			\
+									\
+		__asm__ volatile (					\
+			"t 0x10" __comment(name) "\n\t"			\
+			"bcs,a 1f\n\t"					\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0), "r"(__sc_o1)			\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall3(type, name, type1, arg1, type2, arg2, type3, arg3)	\
+type name(type1 arg1, type2 arg2, type3 arg3)				\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+		__syscall_regval(o1, "o1", arg2);			\
+		__syscall_regval(o2, "o2", arg3);			\
+									\
+		__asm__ volatile (					\
+			"t 0x10" __comment(name) "\n\t"			\
+			"bcs,a 1f\n\t"					\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0), "r"(__sc_o1), "r"(__sc_o2)	\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+} 
+
+#define _syscall4(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			      type4, arg4)				\
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4)		\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+		__syscall_regval(o1, "o1", arg2);			\
+		__syscall_regval(o2, "o2", arg3);			\
+		__syscall_regval(o3, "o3", arg4);			\
+									\
+		__asm__ volatile (					\
+			"t 0x10" __comment(name) "\n\t"			\
+			"bcs,a 1f\n\t"					\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0), "r"(__sc_o1), "r"(__sc_o2),	\
+			"r"(__sc_o3)					\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+} 
+
+#define _syscall5(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			      type4, arg4, type5, arg5)			\
+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)	\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+		__syscall_regval(o1, "o1", arg2);			\
+		__syscall_regval(o2, "o2", arg3);			\
+		__syscall_regval(o3, "o3", arg4);			\
+		__syscall_regval(o4, "o4", arg5);			\
+									\
+		__asm__ volatile (					\
+			"t 0x10" __comment(name) "\n\t"			\
+			"bcs,a 1f\n\t"					\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0), "r"(__sc_o1), "r"(__sc_o2),	\
+			"r"(__sc_o3), "r"(__sc_o4)			\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
+
+#define _syscall6(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			type4, arg4, type5, arg5, type6, arg6)		\
+type name (type1 arg1, type2 arg2, type3 arg3,				\
+	   type4 arg4, type5 arg5, type6 arg6)				\
+{									\
+	long __sc_res;							\
+	{								\
+		__syscall_regval(g1, "g1", __NR_##name);		\
+		__syscall_regval(o0, "o0", arg1);			\
+		__syscall_regval(o1, "o1", arg2);			\
+		__syscall_regval(o2, "o2", arg3);			\
+		__syscall_regval(o3, "o3", arg4);			\
+		__syscall_regval(o4, "o4", arg5);			\
+		__syscall_regval(o5, "o5", arg6);			\
+									\
+		__asm__ volatile (					\
+ 		__check("%0%1%2%3%4%5", "$o0$g1$o0$o1$o2$o3$o4$o5$o6")	\
+			"t 0x10" __comment(name) "\n\t"			\
+			"bcs,a 1f\n\t"					\
+			"sub %%g0,%%o0,%%o0\n"   			\
+			"1:" 	  					\
+		      : "=r"(__sc_o0)					\
+		      : "r"(__sc_g1), 					\
+			"0"(__sc_o0), "r"(__sc_o1), "r"(__sc_o2),	\
+			"r"(__sc_o3), "r"(__sc_o4), "r"(__sc_o5)	\
+		      : __syscall_clobbers				\
+		);							\
+		__sc_res = __sc_o0;					\
+	}								\
+	__syscall_return(type, __sc_res);				\
+}
 
 
 /*	*****************************************
  	V850	V850	V850	V850		*
 	v850 kernel interface 			*/
 
-#elif	defined(__v850__)
+#elif defined(__v850__)
 
 #warning syscall arch v850 not implemented yet
 
@@ -1018,7 +2120,7 @@ type name (type1 arg1, type2 arg2, type3 arg3,				\
  	X86_64	X86_64	X86_64	X86_64		*
 	x86_64 kernel interface 		*/
 
-#elif	defined(__x86_64__)
+#elif defined(__x86_64__)
 
 /*      The x86_64 calling convention uses rdi, rsi, rdx, rcx, r8, r9
         but the Linux kernel interface uses rdi, rsi, rdx, r10, r8, r9.
