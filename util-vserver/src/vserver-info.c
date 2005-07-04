@@ -488,9 +488,17 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
       res = vc_getVserverAppDir(vserver, vcCFG_AUTO, argc==0 ? "" : argv[0]);
       break;
       
-    case tgRUNNING	:
-      res = (vc_getVserverCtx(vserver, vcCFG_AUTO, false, 0)==VC_NOCTX) ? 0 : "1";
+    case tgRUNNING	: {
+      signed long		xid;	// type is a small hack, but should be ok...
+      struct vc_vx_info		info;
+	
+      if (isNumber(vserver, &xid) && xid>=0)
+	res = (vc_get_vx_info(xid, &info)==-1) ? 0 : "1";
+      else
+	res = (vc_getVserverCtx(vserver, vcCFG_AUTO, false, 0)==VC_NOCTX) ? 0 : "1";
+      
       break;
+    }
 
     case tgCANONIFY	:
       strcpy(buf, vserver);
