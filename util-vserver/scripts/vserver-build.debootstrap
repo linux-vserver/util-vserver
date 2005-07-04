@@ -59,6 +59,9 @@ function findDebootstrap
         case "$tmp" in
     	(/*)			ln -s "$tmp" "$dst";;
     	(http://*|ftp://*)
+	    echo $"\
+Could not find local version of 'debootstrap'; downloading it from
+${tmp}..."
 	    $_WGET -nv -O "$dst" "$tmp" || {
 		$_CAT <<EOF >&2
 ERROR: Could not download the debootstrap package from
