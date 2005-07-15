@@ -32,10 +32,12 @@ vc_get_insecurebcaps()
 	   (1<<VC_CAP_SYS_PACCT) | (1<<VC_CAP_SYS_ADMIN) |
 	   (1<<VC_CAP_SYS_NICE) |
 	   (1<<VC_CAP_SYS_RESOURCE) | (1<<VC_CAP_SYS_TIME) |
-	   (1<<VC_CAP_MKNOD) | (1<<VC_CAP_QUOTACTL)
+	   (1<<VC_CAP_MKNOD) | (1<<VC_CAP_AUDIT_CONTROL)
+	   | ~(0x7fffffff)
 
 #if defined(VC_ENABLE_API_COMPAT)
 	   | (vc_isSupported(vcFEATURE_VSHELPER) ? 0 : (1<<VC_CAP_SYS_BOOT))
+	   | (vc_isSupported(vcFEATURE_MIGRATE)  ? 0 : (1<<29)) // formerly QUOTACTL
 #endif
     );
 }
