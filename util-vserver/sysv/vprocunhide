@@ -12,6 +12,8 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 
+$_VSERVER_INFO - FEATURE iattr || exit 0
+
 f=/etc/rc.d/init.d/functions
 if test -e "$f"; then
     . "$f"
