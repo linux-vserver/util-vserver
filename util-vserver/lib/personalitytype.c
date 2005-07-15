@@ -32,27 +32,90 @@
 #define DECL(VAL) { #VAL, sizeof(#VAL)-1, (PER_ ## VAL) }
 
 static struct Mapping_uint32 const VALUES[] = {
+#if HAVE_DECL_PER_LINUX
   DECL(LINUX),
+#endif
+
+#if HAVE_DECL_PER_LINUX_32BIT
   DECL(LINUX_32BIT),
+#endif
+
+#if HAVE_DECL_PER_SVR4
   DECL(SVR4),
+#endif
+
+#if HAVE_DECL_PER_SVR3
   DECL(SVR3),
+#endif
+
+#if HAVE_DECL_PER_SCOSVR3
   DECL(SCOSVR3),
+#endif
+
+#if HAVE_DECL_PER_OSR5
   DECL(OSR5),
+#endif
+
+#if HAVE_DECL_PER_WYSEV386
   DECL(WYSEV386),
+#endif
+
+#if HAVE_DECL_PER_ISCR4
   DECL(ISCR4),
+#endif
+
+#if HAVE_DECL_PER_BSD
   DECL(BSD),
+#endif
+
+#if HAVE_DECL_PER_SUNOS
   DECL(SUNOS),
+#endif
+
+#if HAVE_DECL_PER_XENIX
   DECL(XENIX),
+#endif
+
+#if HAVE_DECL_PER_LINUX32
   DECL(LINUX32),
+#endif
+
+#if HAVE_DECL_PER_LINUX32_3GB
   DECL(LINUX32_3GB),
+#endif
+
+#if HAVE_DECL_PER_IRIX32
   DECL(IRIX32),
+#endif
+
+#if HAVE_DECL_PER_IRIXN32
   DECL(IRIXN32),
+#endif
+
+#if HAVE_DECL_PER_IRIX64
   DECL(IRIX64),
+#endif
+
+#if HAVE_DECL_PER_RISCOS
   DECL(RISCOS),
+#endif
+
+#if HAVE_DECL_PER_SOLARIS
   DECL(SOLARIS),
+#endif
+
+#if HAVE_DECL_PER_UW7
   DECL(UW7),
+#endif
+
+#if HAVE_DECL_PER_HPUX
   DECL(HPUX),
-  DECL(OSF4)
+#endif
+
+#if HAVE_DECL_PER_OSF4
+  DECL(OSF4),
+#endif
+
 };
 
 static char const *

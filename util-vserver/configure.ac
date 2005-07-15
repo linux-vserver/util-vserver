@@ -121,6 +121,8 @@ AC_MSG_RESULT($use_expensive_tests)
 AC_SUBST(ENSC_USE_EXPENSIVE_TESTS, "$use_expensive_tests")
 
 
+ENSC_CHECK_PERSONALITY_FLAGS
+
 AC_ARG_VAR(CC, [The C compiler])
 
 ENSC_INITRDDIR(initrddir)
