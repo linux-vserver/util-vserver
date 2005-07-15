@@ -30,13 +30,19 @@
 #define DECL(STR, VAL) { STR, sizeof(STR)-1, VAL }
 
 static struct Mapping_uint64 const VALUES[] = {
-  DECL("utsname", VC_VXC_SET_UTSNAME),
-  DECL("rlimit",  VC_VXC_SET_RLIMIT),
-  DECL("icmp",    VC_VXC_RAW_ICMP),
-  DECL("mount",   VC_VXC_SECURE_MOUNT),
-  DECL("remount", VC_VXC_SECURE_REMOUNT),
+  DECL("utsname",         VC_VXC_SET_UTSNAME),
+  DECL("rlimit",          VC_VXC_SET_RLIMIT),
+  DECL("raw_icmp",        VC_VXC_RAW_ICMP),
+  DECL("syslog",          VC_VXC_SYSLOG),
+  DECL("secure_mount",    VC_VXC_SECURE_MOUNT),
+  DECL("secure_remount",  VC_VXC_SECURE_REMOUNT),
+  DECL("binary_mount",    VC_VXC_BINARY_MOUNT),
+  DECL("quota_ctl",       VC_VXC_QUOTA_CTL),
     // some deprecated values...
-  DECL("ping",    VC_VXC_RAW_ICMP),
+  DECL("mount",           VC_VXC_SECURE_MOUNT),
+  DECL("remount",         VC_VXC_SECURE_REMOUNT),
+  DECL("icmp",            VC_VXC_RAW_ICMP),
+  DECL("ping",            VC_VXC_RAW_ICMP),
 };
 
 uint_least64_t
