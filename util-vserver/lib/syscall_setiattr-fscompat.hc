@@ -36,7 +36,7 @@ vc_set_iattr_fscompat(char const *filename,
   struct stat		st;
   int			stat_rc;
 
-  fd = open(filename, O_RDONLY);
+  fd = open(filename, O_RDONLY|O_NONBLOCK);
   if (fd==-1) return -1;
     
   stat_rc = fstat(fd, &st);
@@ -51,11 +51,16 @@ vc_set_iattr_fscompat(char const *filename,
   }
 
   if ( (mask&VC_IATTR_BARRIER) ) {
-    mode_t	m = ((flags&VC_IATTR_BARRIER) ? 0 :
-		     st.st_mode ? st.st_mode : 0500);
-    
-    if (fchmod(fd, m)==-1)
-      goto err;
+    if ((flags&VC_IATTR_BARRIER)) {
+      if (vc_X_set_ext2flags(fd, VC_IMMUTABLE_LINK_FL, 0)==-1 ||
+	  fchmod(fd, 0))
+	goto err;
+    }
+    else {
+      if (vc_X_set_ext2flags(fd, 0, VC_IMMUTABLE_LINK_FL)==-1 ||
+	  fchmod(fd, 0500))
+	goto err;
+    }      
   }
 
   if ( (mask&VC_IATTR_XID) &&

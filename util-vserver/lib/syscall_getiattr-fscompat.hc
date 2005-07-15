@@ -41,7 +41,7 @@ vc_get_iattr_fscompat(char const *filename,
   if (lstat(filename, &st)==-1) return -1;
   if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode)) return 0;
 
-  fd = open(filename, O_RDONLY);
+  fd = open(filename, O_RDONLY|O_NONBLOCK);
   if (fd==-1) return -1;
 
   stat_rc = fstat(fd, &st);
@@ -64,8 +64,13 @@ vc_get_iattr_fscompat(char const *filename,
   }
 
   if ( (old_mask&VC_IATTR_BARRIER) && S_ISDIR(st.st_mode)) {
+    long		ext2_flags;
+    
     *mask  |= VC_IATTR_BARRIER;
-    if ((st.st_mode&0777) == 0) *flags |= VC_IATTR_BARRIER;
+    if ((st.st_mode&0777)==0 &&
+	vc_X_get_ext2flags(fd, &ext2_flags)!=-1 &&
+	(ext2_flags & VC_IMMUTABLE_LINK_FL))
+      *flags |= VC_IATTR_BARRIER;
   }
 
   if ( (old_mask&(VC_IATTR_WATCH|VC_IATTR_HIDE)) ){
