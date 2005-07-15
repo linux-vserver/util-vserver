@@ -137,7 +137,8 @@
 #define VC_CAP_SYS_TTY_CONFIG   	26
 #define VC_CAP_MKNOD            	27
 #define VC_CAP_LEASE            	28
-#define VC_CAP_QUOTACTL          	29
+#define VC_CAP_AUDIT_WRITE          	29
+#define VC_CAP_AUDIT_CONTROL          	30
 
 #define VC_IMMUTABLE_FILE_FL		0x0000010lu
 #define VC_IMMUTABLE_LINK_FL		0x0008000lu
@@ -191,9 +192,13 @@
 #define VC_VXC_SET_RLIMIT		0x00000002ull
 
 #define VC_VXC_RAW_ICMP			0x00000100ull
+#define VC_VXC_SYSLOG			0x00001000ull
 
 #define VC_VXC_SECURE_MOUNT		0x00010000ull
 #define VC_VXC_SECURE_REMOUNT		0x00020000ull
+#define VC_VXC_BINARY_MOUNT		0x00040000ull
+
+#define VC_VXC_QUOTA_CTL		0x00100000ull
 
 
 #define VC_VXSM_FILL_RATE          	0x0001
