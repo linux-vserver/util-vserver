@@ -29,11 +29,15 @@
 #include <strings.h>
 #include <assert.h>
 
-#ifndef CAP_QUOTACTL
-#  define CAP_QUOTACTL	VC_CAP_QUOTACTL
+#define DECL(VAL) { #VAL, sizeof(#VAL)-1, 1 << (CAP_ ## VAL) }
+
+#ifndef CAP_AUDIT_WRITE
+#  define CAP_AUDIT_WRITE	29
 #endif
 
-#define DECL(VAL) { #VAL, sizeof(#VAL)-1, 1 << (CAP_ ## VAL) }
+#ifndef CAP_AUDIT_CONTROL
+#  define CAP_AUDIT_CONTROL	30
+#endif
 
 static struct Mapping_uint64 const VALUES[] = {
   DECL(CHOWN),
@@ -65,7 +69,8 @@ static struct Mapping_uint64 const VALUES[] = {
   DECL(SYS_TTY_CONFIG),
   DECL(MKNOD),
   DECL(LEASE),
-  DECL(QUOTACTL),
+  DECL(AUDIT_WRITE),
+  DECL(AUDIT_CONTROL),
 };
 
 inline static char const *
