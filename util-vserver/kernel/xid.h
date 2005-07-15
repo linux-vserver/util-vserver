@@ -5,9 +5,12 @@
 #warning config options missing
 #endif
 
+#define XID_TAG_SB(sb)	(sb->s_flags & MS_TAGXID)
+
 #define XID_TAG(in)	(!(in) || \
 	(((struct inode *)in)->i_sb && \
-	(((struct inode *)in)->i_sb->s_flags & MS_TAGXID)))
+	XID_TAG_SB(((struct inode *)in)->i_sb)))
+
 
 #ifdef CONFIG_XID_TAG_NFSD
 #define	XID_TAG_NFSD	1
@@ -101,6 +104,13 @@
 
 #endif
 
+
+#ifdef CONFIG_INOXID_NONE
+#define vx_current_fsxid(sb)	(0)
+#else
+#define vx_current_fsxid(sb)	\
+	(XID_TAG_SB(sb) ? current->xid : 0)
+#endif
 
 #define INOXID_UID(tag, uid, gid)	\
 	((tag) ? ((uid) & MAX_UID) : (uid))

@@ -11,13 +11,25 @@
 #define NB_IPV4ROOT	16
 
 
-/* context flags */
+/* network flags */
 
 #define NXF_STATE_SETUP		(1ULL<<32)
 
 #define NXF_STATE_HELPER	(1ULL<<36)
 
+#define NXF_ONE_TIME		(0x0001ULL<<32)
+
 #define NXF_INIT_SET		(0)
+
+
+/* address types */
+
+#define	NXA_TYPE_IPV4		1
+#define	NXA_TYPE_IPV6		2
+
+#define	NXA_MOD_BCAST		(1<<8)
+
+#define	NXA_TYPE_ANY		(~0)
 
 
 #ifdef	__KERNEL__

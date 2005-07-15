@@ -78,7 +78,7 @@
 /*  interface version */
 
 #define VCI_VERSION		0x00020001
-
+#define VCI_LEGACY_VERSION	0x000100FF
 
 /*  query version */
 
