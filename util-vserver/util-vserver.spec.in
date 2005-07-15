@@ -86,6 +86,7 @@ requires(postun):	%_initrddir %pkglibdir
 Summary:		Header-files and libraries needed to develop vserver based applications
 Group:			Development/Libraries
 Requires:		pkgconfig
+Requires:		%name-lib = %version-%release
 
 
 %description
@@ -237,6 +238,7 @@ function copy()
     done
 }
 copy fedora /usr/share/doc/fedora-release-*/RPM-GPG-*
+copy fedora /etc/pki/rpm-gpg/RPM-GPG-*
 
 
 %preun build
@@ -328,6 +330,10 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 
 
 %changelog
+* Fri Jul 15 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.30.208-1
+- require the -lib subpackage by -devel
+- copy GPG keys from /etc/pki/rpm-gpg/
+
 * Fri Apr 15 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.30.206-1
 - added patches to make yum work in chroot environments
 - version 0.30.206
