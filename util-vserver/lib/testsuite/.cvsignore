@@ -6,3 +6,4 @@ cflags
 flags
 fmt
 parselimit
+personality
