@@ -23,7 +23,7 @@
 static inline ALWAYSINLINE int
 vc_net_remove_net(nid_t nid, struct vc_net_nx const *info)
 {
-  struct vcmd_net_nx_v0		k_info;
+  struct vcmd_net_addr_v0		k_info;
 
   k_info.type  = NETTYPE_USER2KERNEL(info->type);
   k_info.count = info->count;
