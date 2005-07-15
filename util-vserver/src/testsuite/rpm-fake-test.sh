@@ -1,9 +1,13 @@
 #! /bin/bash
 
 : ${srcdir=.}
+: ${builddir=.}
 : ${srctestsuitedir=./src/testsuite}
 : ${srcdatadir=$srctestsuitedir/data}
 : ${tmptopdir=/var/tmp}
+
+abssrcdir=$(cd $srcdir && pwd)
+absbuilddir=$(cd $builddir && pwd)
 
 DEBUG='strace -E'
 
@@ -30,8 +34,8 @@ chmod +rx $tmpdir
 RPM_FAKE_RESOLVER_UID=1000 \
 RPM_FAKE_RESOLVER_GID=1000 \
 RPM_FAKE_CTX=-1 \
-RPM_FAKE_RESOLVER=$srcdir/src/rpm-fake-resolver \
+RPM_FAKE_RESOLVER=$(pwd)/src/rpm-fake-resolver \
 RPM_FAKE_CHROOT=$tmpdir \
 RPM_FAKE_NAMESPACE_MOUNTS=/proc \
-LD_PRELOAD=./src/.libs/rpm-fake.so \
+LD_PRELOAD=$(pwd)/src/.libs/rpm-fake.so \
 ./src/testsuite/rpm-fake-test <$srcdir/src/testsuite/data/rpm-fake-test.inp
