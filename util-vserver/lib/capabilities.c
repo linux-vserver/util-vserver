@@ -63,7 +63,7 @@ static struct {
   DECLARECAP(CAP_SYS_TTY_CONFIG,   26),
   DECLARECAP(CAP_MKNOD,            27),
   DECLARECAP(CAP_LEASE,            28),
-  DECLARECAP(CAP_QUOTACTL,         29),
+  { "CAP_QUOTACTL",		   29 },
 };
   
 int
