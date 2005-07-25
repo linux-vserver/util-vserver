@@ -41,6 +41,9 @@ pkgmgmt.initVariables
 rpm.initVariables
 yum.initVariables
 
+rpm.sanityCheck
+
+
 base.initFilesystem    "$OPTION_FORCE"
 pkgmgmt.initFilesystem "$OPTION_FORCE"
 rpm.initFilesystem

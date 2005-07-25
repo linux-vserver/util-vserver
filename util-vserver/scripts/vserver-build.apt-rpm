@@ -42,6 +42,9 @@ pkgmgmt.initVariables
 rpm.initVariables
 apt.initVariables
 
+rpm.sanityCheck
+
+
 base.initFilesystem    "$OPTION_FORCE"
 pkgmgmt.initFilesystem "$OPTION_FORCE"
 rpm.initFilesystem

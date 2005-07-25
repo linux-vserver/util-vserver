@@ -68,12 +68,15 @@ test "$OPTION_DEBUG" -lt 2 || rpm_dflt_opts=( "${rpm_dflt_opts[@]}" -v  )
 test "$OPTION_DEBUG" -lt 3 || rpm_dflt_opts=( "${rpm_dflt_opts[@]}" -v  )
 test -n "$OPTION_SILENT"   || rpm_dflt_opts=( "${rpm_dflt_opts[@]}" -vh )
 
+rpm.sanityCheck
+
 
 ######  init the filesystem
 
 base.initFilesystem    "$OPTION_FORCE"
 pkgmgmt.initFilesystem "$OPTION_FORCE"
 rpm.initFilesystem
+
 
 setup_writeOption "$VSERVER_NAME"
 setup_writeInitialFstab
@@ -86,7 +89,6 @@ tmpdir=$($_MKTEMPDIR /var/tmp/vserver-build.rpm.XXXXXX)
 manifest=$($_MKTEMP /tmp/vserver-build.rpm.manifest.XXXXXX)
 trap "rm -rf $tmpdir $manifest" EXIT
 cd "$tmpdir"			
-
 
 ######  do the real work
 
