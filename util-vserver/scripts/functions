@@ -84,6 +84,29 @@ function getPhysicalDir
     ( set -P && cd "$1" && pwd )
 }
 
+## Usage:: isDirectoryEmpty <dir> [<ignore-lost+found>]
+function isDirectoryEmpty
+{
+    (
+	shopt -s dotglob  || *
+	shopt -s nullglob || *
+
+	ignore_lostfound=1
+	test -z "$2" -o "$2" = 0 || ignore_lostfound=
+	
+	for i in "$1"/*; do
+	    case "$i" in
+		(lost+found)
+		    test "$ignore_lostfound" || exit 1
+		    ;;
+		(*)	echo "$i"; exit 1
+	    esac
+        done
+
+	exit 0
+    )
+}
+
 ## Usage: logging <message>
 function logging
 {
@@ -184,6 +207,22 @@ function colorize
 	echo -ne "\e[m"
     fi
 }
+
+function colpanic
+{
+    colorize error   panic     "$@"
+}
+
+function colwarning
+{
+    colorize warning warning "$@"
+}
+
+function colinfo
+{
+    colorize info    echo "$@"
+}
+
 
 ## Usage: xtermTitle <title>
 function xtermTitle
