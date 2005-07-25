@@ -113,37 +113,46 @@ function _renameVserverCfg
 }
 
 
-## Usage: getDistribution [<default>]
+## Usage: getDistribution [<default>] [<ignore-config>]
 function getDistribution
 {
-    test -z "$DISTRIBUTION" || return 0
+    local ignore_config=$2
+    
+    if test -z "$DISTRIBUTION"; then
+	if test -e /etc/fedora-release; then
+	    set -- $(cat /etc/fedora-release)
+	    DISTRIBUTION=fdr$4
+	elif test -e /etc/redhat-release; then
+	    set -- $(cat /etc/redhat-release)
+	    DISTRIBUTION=rh$5
+	elif test -e /etc/debian_version; then
+	    set -- $(cat /etc/debian_version)
+	    DISTRIBUTION=deb$1
+	elif test -e /etc/SuSE-release; then
+	    set -- $(cat /etc/SuSE-release)
+	    DISTRIBUTION=suse$3
+	elif test -e /etc/gentoo-release; then
+	    set -- $(cat /etc/gentoo-release)
+	    DISTRIBUTION=gentoo$5
+	elif test -e /etc/slackware-release; then
+	    set -- $(cat /etc/slackware-release)
+	    DISTRIBUTION=slackware$2
+	elif test -n "$1"; then
+	    DISTRIBUTION=$1
+	else
+	    colpanic $"\
+ERROR: Can not determine distribution; please specify it manually with
+  the '-d' option."
+	fi
+    fi
 
-    if test -e /etc/fedora-release; then
-	set -- $(cat /etc/fedora-release)
-	DISTRIBUTION=fdr$4
-    elif test -e /etc/redhat-release; then
-	set -- $(cat /etc/redhat-release)
-	DISTRIBUTION=rh$5
-    elif test -e /etc/debian_version; then
-	set -- $(cat /etc/debian_version)
-	DISTRIBUTION=deb$1
-    elif test -e /etc/SuSE-release; then
-	set -- $(cat /etc/SuSE-release)
-	DISTRIBUTION=suse$3
-    elif test -e /etc/gentoo-release; then
-	set -- $(cat /etc/gentoo-release)
-	DISTRIBUTION=gentoo$5
-    elif test -e /etc/slackware-release; then
-	set -- $(cat /etc/slackware-release)
-	DISTRIBUTION=slackware$2
-    elif test -n "$1"; then
-	DISTRIBUTION=$1
-    else
-	echo \
-"Can not determine distribution; please specify it manually
-with the '-d' option"  >&2
-	exit 1
-    fi >&2
+    test -n "$ignore_config" -o \
+         -d "$__CONFDIR/.distributions/$DISTRIBUTION" -o \
+         -d "$__DISTRIBDIR/$DISTRIBUTION" ||
+	    colpanic $"\
+ERROR: Can not find configuration for the distribution '$DISTRIBUTION';
+  please read http://linux-vserver.org/HowToRegisterNewDistributions
+  for information how to add support for your own distribution."
 }
 
 function base._addGeneratedFile
@@ -155,7 +164,7 @@ function base._addGeneratedFile
 function base.initFilesystem
 {
     test -z "$1" || _renameVserverCfg
-    test ! -d "$VDIR" -a ! -d "$SETUP_CONFDIR" || {
+    test isDirectoryEmpty "$VDIR" -a ! -e "$SETUP_CONFDIR" || {
 	echo \
 "vserver-topdirectory '$VDIR' and/or configuration at '$SETUP_CONFDIR'
 exist already; please try to use '--force', or remove them manually"
@@ -203,7 +212,7 @@ function base.__cleanup
     test -z "$OPTION_KEEP"    || return 0
     test -z "$__BASE_SUCCESS" || return 0
     
-    echo rm -rf "${__BASE_GENERATED_FILES[@]}"
+    rm -rf "${__BASE_GENERATED_FILES[@]}"
 }
 
 function base.init
