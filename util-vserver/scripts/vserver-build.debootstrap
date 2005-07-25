@@ -125,7 +125,7 @@ while true; do
     shift
 done
 
-getDistribution
+getDistribution '' 1
 
 initVariables  
 initFilesystem "$OPTION_FORCE"
