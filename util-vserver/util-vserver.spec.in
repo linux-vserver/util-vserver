@@ -22,7 +22,8 @@ Release:	%release_func 0
 License:	GPL
 Group:		System Environment/Base
 URL:		http://savannah.nongnu.org/projects/util-vserver/
-Source0:	http://savannah.nongnu.org/download/util-vserver/stable.pkg/%version/%name-%version.tar.bz2
+Source0:	http://www.13thfloor.at/~ensc/util-vserver/files/alpha/%name-%version.tar.bz2
+#Source1:	http://www.13thfloor.at/~ensc/util-vserver/files/alpha/%name-%version.tar.bz2.asc
 BuildRoot:	%_tmppath/%name-%version-%release-root
 Requires:	init(%name)
 Requires:	%name-core = %version-%release
@@ -330,7 +331,11 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 
 
 %changelog
+* Sat Jul 16 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.30.208-2
+- updated URLs
+
 * Fri Jul 15 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.30.208-1
+- version 0.30.208
 - require the -lib subpackage by -devel
 - copy GPG keys from /etc/pki/rpm-gpg/
 
