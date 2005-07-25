@@ -124,3 +124,18 @@ function rpmlist.initByDistribution()
 
     eval "$1"='( "${_rlid_res[@]}" )'
 }
+
+
+## Usage: rpm.sanityCheck
+function rpm.sanityCheck
+{
+    test -x "$BUILD_INITPRE" || colorize warn warning $"\
+WARNING: you are going to use an rpm-based installation method without
+  having an 'initpre' script. Such a script is highly recommend to
+  workaround bugs in rpm which can cause messages like
+
+  | error: unpacking of archive failed on file /usr/bin/X11;42dd8791:
+
+  Please read http://linux-vserver.org/HowToRegisterNewDistributions
+  for information how to add support for your own distribution."
+}
