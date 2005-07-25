@@ -40,6 +40,6 @@ else
 	do
 		IPOPT="$IPOPT --ip $oneip"
 	done
-	echo exec $CHBIND $IPOPT /etc/init.d/$SERVICE "$@"
-	exec $CHBIND $IPOPT /etc/init.d/$SERVICE "$@"
+	echo exec $_CHBIND $IPOPT /etc/init.d/$SERVICE "$@"
+	exec $_CHBIND $IPOPT /etc/init.d/$SERVICE "$@"
 fi
