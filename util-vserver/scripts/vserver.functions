@@ -140,7 +140,7 @@ function _generateCCapabilityOptions
     test -e "$f" || return 0
     while read cap; do
 	case x"$cap" in
-	    (x|x\#)	;;
+	    (x|x\#*)	;;
 	    (*)		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --ccap "$cap" );;
 	esac
     done <"$f"
@@ -155,7 +155,7 @@ function _generateBCapabilityOptions
     test -e "$f" || return 0
     while read cap; do
 	case x"$cap" in
-	    (x|x\#)	;;
+	    (x|x\#*)	;;
 	    (*)		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --bcap "$cap" );;
 	esac
     done <"$f"
@@ -176,7 +176,7 @@ function _generateCapabilityOptions
 
     while read cap; do
 	case x"$cap" in
-	    (x|x\#)	;;
+	    (x|x\#*)	;;
 	    (!CAP_SYSCHROOT)
 		CAP_OPTS=( "${CAP_OPTS[@]}" --cap "$cap" )
 		CAPCHROOT_OPTS=( "${CAPCHROOT_OPTS[@]}" --nochroot )
@@ -328,7 +328,7 @@ function _generateFlagOptions
     test ! -e "$vdir"/flags || \
     while read flag; do
 	case x"$flag" in
-	    (x|x\#)		;;
+	    (x|x\#*)		;;
 	    (xnamespace)	;;
 	    (xfakeinit)
 		_IS_FAKEINIT=1
