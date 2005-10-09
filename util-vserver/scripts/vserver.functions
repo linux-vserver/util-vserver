@@ -294,8 +294,7 @@ function _generateInitOptions
 	    ;;
 
 	(x) ;;
-	(*) echo "Unknown init-style '$INITSTYLE'; aborting" >&2;
-	    exit 1;;
+	(*) panic "Unknown init-style '$INITSTYLE'; aborting";;
     esac
 
     if test x"$INITSTYLE" != xrescue; then
@@ -455,6 +454,29 @@ function _generateMac
     eval $1=$(printf "f0:ff:%02x:%02x:%02x:%02x" $[ (~($2>>8)) & 0xff ] $[ ($2 & 0xff) ] $[ ($3>>8) & 0xff ] $[ $3 & 0xff ])
 }
 
+function _getVLANInfo
+{
+    case "$1" in
+	(vlan????)
+	    panic "\
+creation of VLAN_PLUS_VID devices is not supported; please create them
+before starting the vserver and use the 'nodev' flag then"
+	    echo "$1 vlan ${1##vlan} VLAN_PLUS_VID"
+	    ;;
+	(vlan*)
+	    panic "\
+creation of VLAN_PLUS_VID_NO_PAD devices is not supported; please
+create them before starting the vserver and use the 'nodev' flag then"
+	    echo "$1 vlan ${1##vlan} VLAN_PLUS_VID_N0_PAD"
+	    ;;
+	(*.????)	echo "$1 ${1%%.*} ${1##*.} DEV_PLUS_VID";;
+	(*.*)		echo "$1 ${1%%.*} ${1##*.} DEV_PLUS_VID_NO_PAD";;
+	(*)		return 1
+    esac
+
+    return 0
+}
+
 ## Usage: _processSingleInterface <interface-directory>
 function _processSingleInterface
 {
@@ -497,19 +519,16 @@ function _processSingleInterface
 	## LEGACY ALERT
 	test ! -e "$iface"/only_ip || break
 
-	case "$dev" in
-	    (*.*)
-		test -d /proc/net/vlan || {
-		    echo -e $"VLAN device-name used, but vlan subsystem not enabled.\nTry to execute 'modprobe 8021q' before starting the vservers"  >&2
-		    return 1
-		}
-		test -f /proc/net/vlan || {
-		    _addInterfaceCmd VCONFIG ${dev/./ }
-		    _addInterfaceCmd IP_ADDR 127.0.0.1/8 broadcast 127.255.255.255 dev "$dev"
-		    _addInterfaceCmd IP_LINK "$dev" $up
-		}
-		;;
-	esac
+	local vlan_info
+	if vlan_info=$(_getVLANInfo "$dev"); then
+	    test -d /proc/net/vlan || {
+		echo -e $"VLAN device-name used, but vlan subsystem not enabled.\nTry to execute 'modprobe 8021q' before starting the vservers"  >&2
+		return 1
+	    }
+	    test -f /proc/net/vlan || {
+		_addInterfaceCmd VCONFIG $vlan_info
+	    }
+	fi
 
 	if ! test -e "$iface"/indirect; then
 	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" broadcast ${bcast:-+} ${name:+label "$dev:$name"} dev "$dev"
@@ -569,8 +588,9 @@ function enableInterfaces
 		shift 2
 		$_MODPROBE ${name:+-o "$name"} "$mod" "$@"
 		;;
-	    NAMEIF)		$_NAMEIF "$@";;
-	    VCONFIG)		$_VCONFIG  add   "$@";;
+	    NAMEIF)		$_NAMEIF   "$@";;
+	    VCONFIG)		$_VCONFIG  set_name_type "$4"      >/dev/null
+				$_VCONFIG  add           "$2" "$3" >/dev/null;;
 	    IP_ADDR)		$_IP addr  add   "$@";;
 	    IP_ADDR_FLUSH)	$_IP addr  flush "$@";;
 	    IP_LINK)		$_IP link  set   "$@";;
@@ -605,7 +625,7 @@ function disableInterfaces
 	    IPTABLES)		;; ## TODO
 	    MODPROBE)		$_RMMOD "${2:-$1}";;
 	    NAMEIF)		;;
-	    VCONFIG)		$_VCONFIG  rem "$@";;
+	    VCONFIG)		$_VCONFIG  rem "$2.$3" >/dev/null;;
 	    IP_ADDR)		$_IP addr  del "$@";;
 	    IP_ADDR_FLUSH)	;;
 	    IP_LINK)		;; ## Ignore the link-down command for now
@@ -919,7 +939,7 @@ WARNING: The 'only_ip' flag for interface '$iface' is deprecated; use
   'nodev' instead of"
 	fi
     done
-
+    
     find "$cfgdir" -type f -exec "$_CHECK_UNIXFILE" '{}' ';'
 
     vshelper.doSanityCheck
