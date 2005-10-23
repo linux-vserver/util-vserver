@@ -269,6 +269,7 @@ convertDigest(HashPath d_path)
   return true;
 }
 
+#ifndef ENSC_TESTSUITE
 static bool
 addStatHash(hashFunctionContext *h_ctx, struct stat const * const st)
 {
@@ -293,7 +294,14 @@ addStatHash(hashFunctionContext *h_ctx, struct stat const * const st)
 
   return hashFunctionContextUpdate(h_ctx, (void *)&tmp, sizeof tmp)!=-1;
 }
-
+#else
+static bool
+addStatHash(hashFunctionContext *h_ctx, struct stat const * const st)
+{
+  return true;
+}
+#endif
+  
 static bool
 calculateHashFromFD(int fd, HashPath d_path, struct stat const * const st)
 {
