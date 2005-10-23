@@ -85,7 +85,7 @@ testInternal(int argc, char *argv[], char const *operation)
     return wrapper_exit_code;
   }
 
-  if (stat(argv[1], &st)==-1) return 0;
+  if (stat(argv[1], &st)==-1) return -1;
   else                        return st.st_mode;
 }
 
