@@ -3,5 +3,6 @@
 .libs
 chbind-test
 chcontext-test
+hashcalc
 rpm-fake-test
 vunify-functest

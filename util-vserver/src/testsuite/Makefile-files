@@ -18,8 +18,14 @@
 src_testsuite_check_active_PRGS =	src/testsuite/vunify-functest \
 					src/testsuite/chcontext-test \
 					src/testsuite/chbind-test
+
 src_testsuite_check_passive_PRGS =	src/testsuite/rpm-fake-test
 
+if ENSC_HAVE_C99_COMPILER
+if ENSC_HAVE_BEECRYPT
+src_testsuite_check_passive_PRGS +=	src/testsuite/hashcalc
+endif
+endif
 
 check_PROGRAMS +=			$(src_testsuite_check_passive_PRGS) \
 					$(src_testsuite_check_active_PRGS)
@@ -57,6 +63,14 @@ src_testsuite_chcontext_test_LDADD =	lib/libvserver.la $(LIBINTERNAL)
 src_testsuite_chbind_test_SOURCES =	src/testsuite/chbind-test.c
 src_testsuite_chbind_test_LDADD =	lib/libvserver.la
 
+src_testsuite_hashcalc_SOURCES =	src/testsuite/hashcalc.c
+if ENSC_CAN_BEECRYPT_WITH_DIETLIBC
+src_testsuite_hashcalc_LDADD =		$(LIBINTERNAL) $(LIBENSCVECTOR) -lbeecrypt $(VSERVER_LDADDS)
+src_testsuite_hashcalc_LDFLAGS =	$(VSERVER_LDFLGS)
+else
+src_testsuite_hashcalc_LDADD =		$(LIBINTERNAL_GLIBC) $(LIBENSCVECTOR_GLIBC) $(LIBVSERVER_GLIBC) -lbeecrypt
+src_testsuite_hashcalc_LDFLAGS =
+endif
 
 src_testsuite_CPPFLAGS =		-I $(top_srcdir)/src -D ENSC_TESTSUITE
 
