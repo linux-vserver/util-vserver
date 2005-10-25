@@ -32,6 +32,9 @@ check_PROGRAMS +=			$(src_testsuite_check_passive_PRGS) \
 
 if ENSC_HAVE_C99_COMPILER
 src_testsuite_check_src_C99_SCRPTS =	src/testsuite/vunify-test.sh
+if ENSC_HAVE_BEECRYPT
+src_testsuite_check_src_C99_SCRPTS +=	src/testsuite/hashcalc.sh
+endif
 else
 src_testsuite_check_src_C99_SCRPTS =
 endif
@@ -46,8 +49,9 @@ TESTS +=				$(src_testsuite_check_active_PRGS) \
 					$(src_testsuite_check_src_SCRPTS) \
 					$(src_testsuite_check_gen_SCRPTS)
 
-EXTRA_DIST +=				$(src_testsuite_check_src_SCRPTS)
-
+EXTRA_DIST +=				$(src_testsuite_check_src_SCRPTS) \
+					src/testsuite/vunify-test.sh \
+					src/testsuite/hashcalc.sh
 
 src_testsuite_rpm_fake_test_SOURCES =	src/testsuite/rpm-fake-test.c
 
