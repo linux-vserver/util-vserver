@@ -22,7 +22,8 @@ lib_VERSION =			0.0.0
 lib_compat_SRCS =		lib/cflags-compat.c \
 				lib/cflags_list-compat.c
 lib_legacy_SRCS =		lib/getprocentry-legacy.c
-lib_management_SRCS =		lib/createskeleton.c \
+lib_management_SRCS =		lib/comparevserverbyid.c \
+				lib/createskeleton.c \
 				lib/getvserverbyctx.c \
 				lib/getvserverbyctx-compat.hc \
 				lib/getvserverbyctx-v13.hc \
