@@ -109,13 +109,13 @@ fi
 
 AC_MSG_CHECKING([whether to enable expensive tests])
 AC_ARG_ENABLE([expensive-tests],
-	      [AC_HELP_STRING([--disable-expensive-tests],
+	      [AC_HELP_STRING([--enable-expensive-tests],
 			      [disable tests which might be expensive on some systems (default: no)])],
 	      [case "$enableval" in
 		 (yes|no)  use_expensive_tests=$enableval;;
-		 (*)       AC_MSG_ERROR(['$enableval' is not a valid value for '--disable-expensive-tests']);;
+		 (*)       AC_MSG_ERROR(['$enableval' is not a valid value for '--enable-expensive-tests']);;
 	       esac],
-              [ use_expensive_tests=yes ])
+              [ use_expensive_tests=no ])
 AC_MSG_RESULT($use_expensive_tests)
 
 AC_SUBST(ENSC_USE_EXPENSIVE_TESTS, "$use_expensive_tests")
