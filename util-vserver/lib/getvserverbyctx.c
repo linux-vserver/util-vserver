@@ -31,11 +31,21 @@
 #include "getvserverbyctx-compat.hc"
 #include "getvserverbyctx-v13.hc"
 
+
+char *
+vc_getVserverByCtx_Internal(xid_t ctx, /*@null@*/vcCfgStyle *style,
+			    /*@null@*/char const *revdir,
+			    bool validate_result)
+{
+  if (vc_isSupported(vcFEATURE_MIGRATE))
+    return vc_getVserverByCtx_v13(ctx, style, revdir, validate_result);
+  else
+    return vc_getVserverByCtx_compat(ctx, style, revdir, validate_result);
+}
+
 char *
 vc_getVserverByCtx(xid_t ctx, vcCfgStyle *style, char const *revdir)
 {
-  if (vc_isSupported(vcFEATURE_MIGRATE))
-    return vc_getVserverByCtx_v13(ctx, style, revdir);
-  else
-    return vc_getVserverByCtx_compat(ctx, style, revdir);
+  return vc_getVserverByCtx_Internal(ctx, style, revdir, true);
+  
 }
