@@ -32,7 +32,7 @@
 size_t
 CONCAT(FMT_P(xuint),)(char *ptr, CONCAT(uint_least,_t) val)
 {
-  FMT_FN(16,8);
+  FMT_FN(16,2);
 }
 
 size_t
