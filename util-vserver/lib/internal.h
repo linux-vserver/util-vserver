@@ -23,6 +23,8 @@
 #define H_UTIL_VSERVER_LIB_INTERNAL_H
 
 #include "fmt.h"
+#include "vserver.h"
+
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -30,6 +32,11 @@
 extern "C" {
 #endif
 
+char *	vc_getVserverByCtx_Internal(xid_t ctx, /*@null@*/vcCfgStyle *style,
+				    /*@null@*/char const *revdir,
+				    bool validate_result);
+
+  
 int	utilvserver_checkCompatVersion();
 bool	utilvserver_isDirectory(char const *path, bool follow_link);
 bool	utilvserver_isFile(char const *path, bool follow_link);
