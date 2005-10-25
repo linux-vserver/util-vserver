@@ -127,14 +127,16 @@ endif
 VSERVER_LDADDS =	$(LIBVSERVER) $(DIET_COMPAT_LDADDS)
 
 silent.%:		FORCE
-			@t=$$(mktemp /tmp/build.XXXXXX) && \
-			$(MAKE) '$*' -s 2>$$t >/dev/null && \
-			( cat $$t | \
-				grep -v ': In function' | \
-				grep -v 'your code still has assertions enabled' | \
-				grep -v ' is obsoleted' | \
-				grep -v 'warning: #warning'; \
-				rm -f $$t || : )
+			@t=$$($(MKTEMP) -d /tmp/build.XXXXXX) && \
+			trap "rm -rf $$t" EXIT && \
+			mkfifo $$t/fifo && \
+			( grep --line-buffered -v \
+				     -e ': In function' \
+				     -e 'your code still has assertions enabled' \
+				     -e ' is obsoleted' \
+				     -e 'warning: #warning' <$$t/fifo & ) && \
+			exec 2>$$t/fifo && \
+			$(MAKE) '$*' -s >/dev/null
 
 
 linuxvirtual.h:
