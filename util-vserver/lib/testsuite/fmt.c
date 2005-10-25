@@ -28,11 +28,14 @@
 #define TEST(VAL, EXP) {			\
     char	buf[512];			\
     size_t	l;				\
-    memset(buf, '\23', sizeof buf);		\
+    memset(buf+1, '\23', sizeof(buf)-2);	\
+    buf[0] = buf[sizeof(EXP)] = '\42';		\
     l = FUNC(buf+1, VAL);			\
     assert(l==sizeof(EXP)-1);			\
     assert(memcmp(buf+1, EXP, l)==0);		\
-    assert(buf[l+1]=='\23');			\
+    assert(buf[0]  =='\42');			\
+    assert(buf[l+1]=='\42');			\
+    assert(buf[l+2]=='\23');			\
   }
 
 int main()
