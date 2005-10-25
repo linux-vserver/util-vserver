@@ -779,6 +779,9 @@ extern "C" {
       freed by the caller. */
   char *	vc_getVserverByCtx(xid_t ctx, /*@null@*/vcCfgStyle *style,
 				   /*@null@*/char const *revdir);
+
+  int		vc_compareVserverById(char const *lhs, vcCfgStyle lhs_style,
+				      char const *rhs, vcCfgStyle rhs_style);
  
 #define vcSKEL_INTERFACES	1u
 #define vcSKEL_PKGMGMT		2u
