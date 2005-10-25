@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   memset(&st, 0, sizeof st);
   st.st_size = size;
   
-  assert(calculateHashFromFD(fd, &d_path, &st));
+  assert(calculateHashFromFD(fd, d_path, &st));
 
   write(1, d_path, strlen(d_path));
   write(1, "\n", 1);
