@@ -103,7 +103,7 @@ int main() {
         fi
         
         AH_BOTTOM([
-#if defined(__pic__) && defined(__i386) && !defined(ENSC_SYSCALL_TRADITIONAL)
+#if defined(__pic__) && defined(__i386) && !defined(ENSC_SYSCALL_TRADITIONAL) && !defined(ENSC_USE_ALTERNATIVE_SYSCALL_MACROS)
 #  define ENSC_SYSCALL_TRADITIONAL	1
 #endif])
 ])
