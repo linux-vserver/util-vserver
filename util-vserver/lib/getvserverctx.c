@@ -24,6 +24,7 @@
 #include "pathconfig.h"
 #include "compat-c99.h"
 #include "lib_internal/util.h"
+#include "internal.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
