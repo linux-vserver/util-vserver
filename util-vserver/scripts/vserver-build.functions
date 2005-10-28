@@ -105,7 +105,7 @@ function _renameVserverCfg
     local i
     
     for i in "$VDIR" "$SETUP_CONFDIR"; do
-	test ! -e "$i" || {
+	test ! -e "$i" || isDirectoryEmpty "$i" || {
 	    mv "$i" "$i$suffix"
 	    say "Renamed '$i' to '$i$suffix'"
 	}
@@ -164,13 +164,9 @@ function base._addGeneratedFile
 function base.initFilesystem
 {
     test -z "$1" || _renameVserverCfg
-    test isDirectoryEmpty "$VDIR" -a ! -e "$SETUP_CONFDIR" || {
-	echo \
-"vserver-topdirectory '$VDIR' and/or configuration at '$SETUP_CONFDIR'
-exist already; please try to use '--force', or remove them manually"
->&2
-	exit 1
-    } >&2
+    { isDirectoryEmpty "$VDIR" && test  ! -e "$SETUP_CONFDIR"; } || colpanic $"\
+vserver-topdirectory '$VDIR' and/or configuration at '$SETUP_CONFDIR'
+exist already; please try to use '--force', or remove them manually."
 
     mkdir -p -m755 "$VDIR"
     chattr -t "$VDIR"
