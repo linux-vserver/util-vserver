@@ -203,14 +203,21 @@ function colorize
 	  esac
 	fi
 	    
-	"$@"
+	( "$@" )
 	echo -ne "\e[m"
     fi
 }
 
 function colpanic
 {
-    colorize error   panic     "$@"
+    if test -n "$_VS_ERRFILE"; then
+	echo "$@" >>"$_VS_ERRFILE"
+    else
+	colorize echo -n "$@" >&2
+    fi
+    echo
+
+    exit 1
 }
 
 function colwarning
