@@ -25,6 +25,17 @@ pkgconf_DATA            =  $(addsuffix .pc, $(PKGCONFIG_FILES))
 CLEANFILES		+= $(addsuffix .pc,       $(PKGCONFIG_FILES))
 EXTRA_DIST		+= $(addsuffix .pc.subst, $(PKGCONFIG_FILES))
 
+pkgconf_SUBST =		s!@'PACKAGE'@!$(PACKAGE)!g;					\
+			s!@'VERSION'@!$(VERSION)!g;					\
+			s!@'prefix'@!$(prefix)!g;					\
+			s!@'exec_prefix'@!$(exec_prefix)!g;				\
+			s!@'libdir'@!$(libdir)!g;					\
+			s!@'includedir'@!$(includedir)!g;				\
+			s!@'libflags"@!$${libflags}$(pkgconf_LIBFLAGS)!g;"'		\
+			s!@'incflags"@!$${incflags}$(pkgconf_INCFLAGS)!g;"'		\
+			s!@'pkgincflags"@!$${pkgincflags}$(pkgconf_PKGINCFLAGS)!g;"'	\
+			s!@'pkgincludedir'@!$(pkgincludedir)!g
+
 
 %.pc:			%.pc.subst Makefile
 			rm -f $@
@@ -40,16 +51,6 @@ EXTRA_DIST		+= $(addsuffix .pc.subst, $(PKGCONFIG_FILES))
 				$(BAD_INC_PATHS))	incflags=;;				\
 				*)			incflags='-I$${includedir} ';;		\
 			esac;									\
-			sed -e 's!@'PACKAGE'@!$(PACKAGE)!g;					\
-				s!@'VERSION'@!$(VERSION)!g;					\
-				s!@'prefix'@!$(prefix)!g;					\
-				s!@'exec_prefix'@!$(exec_prefix)!g;				\
-				s!@'libdir'@!$(libdir)!g;					\
-				s!@'includedir'@!$(includedir)!g;				\
-				s!@'libflags"@!$${libflags}$(pkgconf_LIBFLAGS)!g;"'		\
-				s!@'incflags"@!$${incflags}$(pkgconf_INCFLAGS)!g;"'		\
-				s!@'pkgincflags"@!$${pkgincflags}$(pkgconf_PKGINCFLAGS)!g;"'	\
-				s!@'pkgincludedir'@!$(pkgincludedir)!g'				\
-                        $< >$@
+			sed -e '$(pkgconf_SUBST)' $< >$@
 			test -z "$(CHMOD_REFERENCE)" || $(CHMOD_REFERENCE) '$<' '$@'
 			chmod a-w $@
