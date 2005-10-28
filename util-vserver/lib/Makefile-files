@@ -158,6 +158,7 @@ include_HEADERS +=		lib/vserver.h
 
 noinst_HEADERS +=		lib/syscall-compat.hc \
 	 			lib/syscall-legacy.hc \
+				lib/syscall-fallback.h \
 				lib/createskeleton-full.hc \
 				lib/createskeleton-short.hc \
 				lib/fmt.h \
