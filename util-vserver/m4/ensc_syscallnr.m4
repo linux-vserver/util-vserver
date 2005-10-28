@@ -15,19 +15,22 @@ dnl You should have received a copy of the GNU General Public License
 dnl along with this program; if not, write to the Free Software
 dnl Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-dnl Usage: ENSC_SYSCALLNR(<syscall>,<default>)
+dnl Usage: ENSC_SYSCALLNR(<syscall>,<default>[,<fallback>])
 
 AC_DEFUN([ENSC_SYSCALLNR],
 [
 	AC_REQUIRE([AC_PROG_CPP])
 	AC_REQUIRE([AC_PROG_EGREP])
-	AC_REQUIRE([ENSC_KERNEL_HEADERS])
 
 	AC_CACHE_CHECK([for number of syscall '$1'], [ensc_cv_value_syscall_$1],
 	[
 		AC_LANG_PUSH(C)
 		AC_LANG_CONFTEST([
-#include <asm/unistd.h>
+#ifdef ENSC_SYSCALL_FALLBACK
+#  include ENSC_SYSCALL_FALLBACK
+#else
+#  include <asm/unistd.h>
+#endif
 #ifdef __NR_$1
 ensc_syscall_tmp_nr=__NR_$1;
 ensc_syscall_tmp_src=ENSC_MARK
@@ -35,10 +38,10 @@ ensc_syscall_tmp_src=ENSC_MARK
 ])
 		ensc_syscall_tmp_nr=
 		ensc_syscall_tmp_src=
-		test "$ensc_syscall_tmp_nr" || \
-			eval $($CPP $CPPFLAGS -D ENSC_MARK='glibc'                                 conftest.c | $EGREP '^ensc_syscall_tmp_(nr=[[1-9]][[0-9]]*;|src=.*)$')
-		test "$ensc_syscall_tmp_nr" || \
-			eval $($CPP $CPPFLAGS -D ENSC_MARK='kernel' -I $ensc_cv_path_kernelheaders conftest.c | $EGREP '^ensc_syscall_tmp_(nr=[[1-9]][[0-9]]*;|src=.*)$')
+		test x"$ensc_syscall_tmp_nr" != x || \
+			eval $($CPP $CPPFLAGS -D ENSC_MARK='glibc'                                    conftest.c | $EGREP '^ensc_syscall_tmp_(nr=[[1-9]][[0-9]]*;|src=.*)$')
+		test x"$ensc_syscall_tmp_nr" != x -o x'$3' = x || \
+			eval $($CPP $CPPFLAGS -D ENSC_MARK='fallback' -D ENSC_SYSCALL_FALLBACK='"$3"' conftest.c | $EGREP '^ensc_syscall_tmp_(nr=[[1-9]][[0-9]]*;|src=.*)$')
 		test "$ensc_syscall_tmp_nr" || {
 			ensc_syscall_tmp_nr=$2
 			ensc_syscall_tmp_src=default
