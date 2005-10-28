@@ -37,7 +37,7 @@ $"Usage: $(basename $0) [-s|--sync] [-v|--verbose] [--silent]
 <vserver> is the name of a vserver.
 
 Possible commands are:
-    start [--rescue] [--rescue-cmd <cmd>]
+    start [--rescue] [<rescue-cmd> <args>*]
                 ... starts the specified vserver
     stop        ... stops the specified vserver
     restart     ... restarts the specified vserver; this is the subsequent
