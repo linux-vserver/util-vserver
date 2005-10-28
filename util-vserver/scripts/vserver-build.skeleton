@@ -35,7 +35,7 @@ while true; do
     shift
 done
 
-getDistribution
+getDistribution '' 1
 
 base.init
 test -z "$use_pkgmgmt" || pkgmgmt.initVariables
