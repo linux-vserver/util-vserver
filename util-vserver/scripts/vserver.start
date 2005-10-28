@@ -71,15 +71,29 @@ is_mounted=
 is_vshelper_init=
 have_interfaces=
 startsync_pipe=
+have_initcmd=
 
 while test "$#" -gt 0; do
     case "$1" in
 	(--rescue)	INITSTYLE=rescue;;
-	(--rescue-cmd)	INITCMD_RESCUE=( $2 ); shift;;
-	(*)		panic $"vserver ... start: unknown option '$1'";;
+	(--rescue-cmd)
+	    warning $"\
+The '--rescue-cmd' option is deprecated; just add the the initcmd
+inclusive its arguments to the cmdline."
+	    INITCMD_RESCUE=( $2 );
+	    have_initcmd=1
+	    shift;;
+	(--)		shift; break;;
+	(-*)		panic $"vserver ... start: unknown option '$1'";;
+	(*)		break;
     esac
     shift
 done
+
+if test x"$INITSTYLE" = xrescue -a -z "$have_initcmd" -a "$#" -gt 0; then
+    INITCMD_RESCUE=( "$@" )
+fi
+
 
 set -e
 trap "cleanup" EXIT
