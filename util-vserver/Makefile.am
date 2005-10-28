@@ -53,7 +53,7 @@ sysconf_DATA =
 
 DIETPROGS =		$(LIBENSCVECTOR_DIET)
 
-BUILT_SOURCES =		pathconfig.h linuxvirtual.h \
+BUILT_SOURCES =		pathconfig.h \
 			.fixups
 
 man_MANS =
@@ -137,15 +137,6 @@ silent.%:		FORCE
 				     -e 'warning: #warning' <$$t/fifo & ) && \
 			exec 2>$$t/fifo && \
 			$(MAKE) '$*' -s >/dev/null
-
-
-linuxvirtual.h:
-if ENSC_ENABLE_INTERNAL_HEADERS
-			ln -sf '$(top_srcdir)/lib/virtual.h' '$@'
-else
-			ln -sf '$(kernelincludedir)/linux/virtual.h' '$@' && test -e '$@' || \
-			ln -sf '$(top_srcdir)/lib/virtual.h' '$@'
-endif
 
 pathsubst_RULES =	s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			s!@'LEGACYDIR'@!$(legacydir)!g; \

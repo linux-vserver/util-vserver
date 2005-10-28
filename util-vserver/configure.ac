@@ -173,7 +173,6 @@ dnl
 dnl ##########################
 
 
-ENSC_KERNEL_HEADERS(kernelincludedir)
 ENSC_UV_VROOTDIR(vserverdir)
 ENSC_CHANGELOG([trunk])
 
@@ -251,7 +250,7 @@ dnl
 dnl ##########################
 
 
-ENSC_SYSCALLNR(vserver,273)
+ENSC_SYSCALLNR(vserver,273,[lib/syscall-fallback.h])
 ENSC_SYSCALL
 ENSC_CHECK_EXT2FS_HEADER
 AC_CHECK_FUNCS([vserver])
@@ -347,7 +346,6 @@ Paths:
             cfg-Directory: $sysconfdir/vservers
          initrd-Directory: $initrddir
        pkgstate-Directory: $localstatedir/run/vservers
-            Kernelheaders: $kernelincludedir
           vserver-Rootdir: $vserverdir
 "
 			echo "$FEATURES_TXT" >FEATURES.txt

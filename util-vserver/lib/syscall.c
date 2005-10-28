@@ -25,7 +25,7 @@
 #include "internal.h"
 
 #define _LINUX_TYPES_H 1
-#include "linuxvirtual.h"
+#include "virtual.h"
 
 #if defined(VC_ENABLE_API_COMPAT) && defined(VC_ENABLE_API_LEGACY)
 #  define VC_MULTIVERSION_SYSCALL	1
