@@ -23,7 +23,7 @@
 static inline ALWAYSINLINE xid_t
 vc_ctx_create_v13(xid_t xid)
 {
-  xid_t		res = vserver(VCMD_ctx_create, CTX_USER2KERNEL(xid), 0);
+  xid_t		res = vserver(VCMD_ctx_create_v0, CTX_USER2KERNEL(xid), 0);
 
   return CTX_KERNEL2USER(res);
 }
