@@ -5,11 +5,7 @@
 #warning config options missing
 #endif
 
-#define XID_TAG_SB(sb)	(sb->s_flags & MS_TAGXID)
-
-#define XID_TAG(in)	(!(in) || \
-	(((struct inode *)in)->i_sb && \
-	XID_TAG_SB(((struct inode *)in)->i_sb)))
+#define XID_TAG(in)	(IS_TAGXID(in))
 
 
 #ifdef CONFIG_XID_TAG_NFSD
@@ -105,11 +101,17 @@
 #endif
 
 
-#ifdef CONFIG_INOXID_NONE
-#define vx_current_fsxid(sb)	(0)
-#else
+#ifndef CONFIG_INOXID_NONE
 #define vx_current_fsxid(sb)	\
-	(XID_TAG_SB(sb) ? current->xid : 0)
+	((sb)->s_flags & MS_TAGXID ? current->xid : 0)
+#else
+#define vx_current_fsxid(sb)	(0)
+#endif
+
+#ifndef CONFIG_INOXID_INTERN
+#define XIDINO_XID(tag, xid)	(0)
+#else
+#define XIDINO_XID(tag, xid)	((tag) ? (xid) : 0)
 #endif
 
 #define INOXID_UID(tag, uid, gid)	\
@@ -139,7 +141,16 @@ static inline gid_t vx_map_gid(gid_t gid)
 #define FIOC_SETXIDJ	_IOW('x', 3, long)
 #endif
 
+#ifdef	CONFIG_XID_PROPAGATE
+
 int vx_parse_xid(char *string, xid_t *xid, int remove);
-void vx_propagate_xid(struct nameidata *nd, struct inode *inode);
+
+void __vx_propagate_xid(struct nameidata *nd, struct inode *inode);
+
+#define vx_propagate_xid(n,i)	__vx_propagate_xid(n,i)
+
+#else
+#define vx_propagate_xid(n,i)	do { } while (0)
+#endif
 
 #endif /* _VX_XID_H */

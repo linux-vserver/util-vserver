@@ -35,4 +35,20 @@ struct _vx_sched {
 	struct _vx_ticks cpu[NR_CPUS];
 };
 
+
+#ifdef CONFIG_VSERVER_DEBUG
+
+static inline void __dump_vx_sched(struct _vx_sched *sched)
+{
+	printk("\t_vx_sched:\n");
+	printk("\t tokens: %4d, %4d, %4d, %4d, %4d\n",
+		atomic_read(&sched->tokens),
+		sched->fill_rate, sched->interval,
+		sched->tokens_min, sched->tokens_max);
+	printk("\t priority = %4d, %4d\n",
+		sched->priority_bias, sched->vavavoom);
+}
+
+#endif
+
 #endif	/* _VX_SCHED_DEF_H */

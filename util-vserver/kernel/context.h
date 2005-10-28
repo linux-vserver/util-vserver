@@ -36,7 +36,8 @@
 #define VXF_STATE_SETUP		(1ULL<<32)
 #define VXF_STATE_INIT		(1ULL<<33)
 
-#define VXF_STATE_HELPER	(1ULL<<36)
+#define VXF_SC_HELPER		(1ULL<<36)
+#define VXF_REBOOT_KILL		(1ULL<<37)
 
 #define VXF_FORK_RSS		(1ULL<<48)
 #define VXF_PROLIFIC		(1ULL<<49)
@@ -112,6 +113,11 @@ struct vx_info {
 	char vx_name[65];			/* vserver name */
 };
 
+struct vx_info_save {
+	struct vx_info *vxi;
+	xid_t xid;
+};
+
 
 /* status flags */
 
@@ -144,8 +150,8 @@ struct vx_info {
 extern void claim_vx_info(struct vx_info *, struct task_struct *);
 extern void release_vx_info(struct vx_info *, struct task_struct *);
 
-extern struct vx_info *locate_vx_info(int);
-extern struct vx_info *locate_or_create_vx_info(int);
+extern struct vx_info *lookup_vx_info(int);
+extern struct vx_info *lookup_or_create_vx_info(int);
 
 extern int get_xid_list(int, unsigned int *, int);
 extern int xid_is_hashed(xid_t);
