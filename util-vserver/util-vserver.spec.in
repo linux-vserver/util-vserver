@@ -238,8 +238,11 @@ function copy()
 	cp -a "$i" "$target"
     done
 }
+
 copy fedora /usr/share/doc/fedora-release-*/RPM-GPG-*
 copy fedora /etc/pki/rpm-gpg/RPM-GPG-*
+
+copy centos /usr/share/doc/centos-*/RPM-GPG-KEY-*
 
 
 %preun build
