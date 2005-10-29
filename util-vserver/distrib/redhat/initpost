@@ -40,6 +40,24 @@ function subst
     rm -f $tmp
 }
 
+vserver=$1
+
+## Do some magic to set the vserver into a defined state
+$_VSERVER "$vserver" stop  &>/dev/null || :
+$_VSERVER "$vserver" start --rescue bash -c '
+    exec  >/dev/null
+    exec 2>/dev/null
+
+    set -x
+    f=/tmp/startwait
+    trap "rm -f $f" EXIT
+    mkfifo $f
+    ( sleep 10; kill -s 9 -- -1 ) &
+    cat "$f" >/dev/null
+    kill -s 9 -- -1
+    wait
+'
+
 pushd "$vdir"/etc/init.d &>/dev/null ||
     pushd "$vdir"/etc/rc.d/init.d &>/dev/null || exit 1
 
@@ -49,7 +67,7 @@ pushd "$vdir"/etc/init.d &>/dev/null ||
 	    functions|halt|killall|single) ;;
 	    syslog) ;;
 	    *)
-		$_VSERVER ----insecure "$1" chkconfig "$i" off
+		$_VSERVER "$1" chkconfig "$i" off
 		;;
 	esac
     done
@@ -78,3 +96,6 @@ pushd "$vdir" &>/dev/null
     subst etc/inittab 's!^\([^#].*:respawn:.* tty\)!#\1!;
 		       s!si::sysinit:/etc/rc.d/rc.sysinit!si::sysinit:/etc/rc.d/rc.sysinit.vserver!'
 popd >/dev/null
+
+$_VSERVER "$vserver" exec bash -c ': >/tmp/startwait' &>/dev/null || :
+$_VSERVER "$vserver" stop &>/dev/null || :
