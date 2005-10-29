@@ -21,7 +21,7 @@
 #endif
 
 #include "vserver.h"
-#include "linuxvirtual.h"
+#include "virtual.h"
 
 #if defined(VC_ENABLE_API_OLDPROC) && defined(VC_ENABLE_API_V13)
 #  define VC_MULTIVERSION_SYSCALL	1

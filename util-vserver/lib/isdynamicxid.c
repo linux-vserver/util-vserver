@@ -21,7 +21,7 @@
 #endif
 
 #include "vserver.h"
-#include "linuxvirtual.h"
+#include "virtual.h"
 
 bool
 vc_is_dynamic_xid(xid_t xid)

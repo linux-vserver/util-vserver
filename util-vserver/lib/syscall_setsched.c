@@ -21,7 +21,7 @@
 #endif
 
 #include "vserver.h"
-#include "linuxvirtual.h"
+#include "virtual.h"
 
 #define VC_MULTIVERSION_SYSCALL	1
 #include "vserver-internal.h"

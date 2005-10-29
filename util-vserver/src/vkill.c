@@ -21,8 +21,9 @@
 #endif
 
 #include "vserver.h"
-#include "linuxvirtual.h"
 #include "util.h"
+
+#include "lib/virtual.h"
 
 #include <getopt.h>
 #include <signal.h>

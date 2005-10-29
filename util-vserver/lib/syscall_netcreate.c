@@ -22,7 +22,7 @@
 
 #include "vserver.h"
 #include "vserver-internal.h"
-#include "linuxvirtual.h"
+#include "virtual.h"
 
 #if defined(VC_ENABLE_API_NET)
 #  include "syscall_netcreate-net.hc"

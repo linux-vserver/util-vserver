@@ -23,7 +23,7 @@
 
 #include "vserver.h"
 #include "internal.h"
-#include "linuxvirtual.h"
+#include "virtual.h"
 
 
 #include "vserver-internal.h"

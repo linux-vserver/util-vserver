@@ -21,7 +21,7 @@
 #endif
 
 #include "vserver.h"
-#include "linuxvirtual.h"
+#include "virtual.h"
 #include "vserver-internal.h"
 
 #ifdef VC_ENABLE_API_NET

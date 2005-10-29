@@ -22,7 +22,7 @@
 
 #include "vserver.h"
 #include "vserver-internal.h"
-#include "linuxvirtual.h"
+#include "virtual.h"
 
 #if defined(VC_ENABLE_API_V13)
 #  include "syscall_getccaps-v13.hc"

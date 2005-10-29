@@ -24,7 +24,7 @@
 #endif
 
 #define _LINUX_TYPES_H 1
-#include "linuxvirtual.h"
+#include "virtual.h"
 
 static inline ALWAYSINLINE UNUSED int
 vc_get_version_internal(int cat)
