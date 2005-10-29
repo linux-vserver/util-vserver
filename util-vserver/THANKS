@@ -10,5 +10,8 @@ Sam Vilain,
 Olivier Poitrey
     for his work on the XML/XSD based documentation format
 
+Herbert Poetzl,
+    for providing the alternative syscall.h implementation
+
 
 all the other people, who contributed to the original 'vserver' package
