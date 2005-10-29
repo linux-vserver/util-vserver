@@ -156,8 +156,13 @@ processFile(char const *path)
   }
 
   if (S_ISDIR(st.st_mode) && !global_args->do_display_dir) {
+    int		cur_dir = Eopen(".", O_RDONLY, 0);
+    uint64_t	ret;
     Echdir(path);
-    return iterateFilesystem(path);
+    ret = iterateFilesystem(path);
+    Efchdir(cur_dir);
+    Eclose(cur_dir);
+    return ret;
   }
   else
     return handleFile(path, path) ? 0 : 1;
