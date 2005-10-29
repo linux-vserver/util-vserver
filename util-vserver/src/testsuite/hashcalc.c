@@ -25,7 +25,9 @@
 #  include "../vhashify.c"
 #undef main
 
-int main(int argc, char *argv[])
+#include "lib_internal/coreassert.h"
+
+int main(int UNUSED argc, char *argv[])
 {
   int		fd = open(argv[1], O_NOFOLLOW|O_NONBLOCK|O_RDONLY|O_NOCTTY);
   struct stat	st;
@@ -47,8 +49,8 @@ int main(int argc, char *argv[])
   
   assert(calculateHashFromFD(fd, d_path, &st));
 
-  write(1, d_path, strlen(d_path));
-  write(1, "\n", 1);
+  Vwrite(1, d_path, strlen(d_path));
+  Vwrite(1, "\n", 1);
   
   hashFunctionContextFree(&global_info.hash_context);
   
