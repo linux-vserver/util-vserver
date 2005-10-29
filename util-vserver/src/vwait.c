@@ -22,7 +22,6 @@
 
 #include "lib/vserver.h"
 #include "lib/internal.h"
-#include "linuxvirtual.h"
 #include "util.h"
 
 #include <getopt.h>
