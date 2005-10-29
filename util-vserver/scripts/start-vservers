@@ -52,7 +52,27 @@ the GNU General Public License.  This program has absolutely no warranty."
 
 function verifyVserver()
 {
-    true
+    local xtra="${2:+ mentioned in '$2'}"
+    case x$1 in
+	(x\#*|x)
+		return 1;;	# skip empty and comment lines
+	($__CONFDIR/*)
+		warning "This version of 'start-vservers' supports only short vserver names; try to remove the '$__CONFDIR' from '$1'$xtra"
+		return 1
+		;;
+	(/*)
+		warning "This version of 'start-vservers' supports only short vserver names; '$1'$xtra is not possible"
+		return 1
+		;;
+	(*)
+		$_VSERVER_INFO -q "$__CONFDIR/$1" VDIR || {
+			warning "Vserver '$1'$xtra does not exist; skipping it..."
+			return 1;
+		}
+		;;
+    esac
+
+    return 0
 }
 
 ###
@@ -137,6 +157,8 @@ EOF
 
     echo -ne "all:\t"
     for i in "${vservers[@]}"; do
+	verifyVserver "$i" || continue
+
 	echo -n ".$i.stamp "
     done
     echo
@@ -148,23 +170,24 @@ for i in "${vservers[@]}"; do
     test -e "$d"/depends || continue
     cat "$d"/depends
 done | sort -u | while read vserver; do
+    verifyVserver "$vserver" || continue
     d="$__CONFDIR/$vserver"/apps/init
 
     case "$OPTION_FLAVOR" in
-	start)
+	(start)
 	    if test -e "$d"/depends; then
 		echo -ne ".$vserver.stamp:\t"
 		cat "$d"/depends | while read dep; do
-		    verifyVserver "$dep"
+		    verifyVserver "$dep" "$d"/depends || continue
 		    echo -n ".$dep.stamp "
 		done
 		echo
 	    fi >>$makedir/Makefile
 	    ;;
-	stop)
+	(stop)
 	    if test -e "$d"/depends; then
 		cat "$d"/depends | while read dep; do
-		    verifyVserver "$dep"
+		    verifyVserver "$dep" "$d"/depends || continue
 		    echo -ne ".$dep.stamp:\t.$vserver.stamp"
 		done
 		echo
