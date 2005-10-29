@@ -188,7 +188,7 @@ done | sort -u | while read vserver; do
 	    if test -e "$d"/depends; then
 		cat "$d"/depends | while read dep; do
 		    verifyVserver "$dep" "$d"/depends || continue
-		    echo -ne ".$dep.stamp:\t.$vserver.stamp"
+		    echo -e ".$dep.stamp:\t.$vserver.stamp"
 		done
 		echo
 	    fi >>$makedir/Makefile
