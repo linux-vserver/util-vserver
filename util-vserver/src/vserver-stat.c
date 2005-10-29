@@ -501,6 +501,8 @@ fillName(void *obj_v, void UNUSED * a)
     default		: {
       char *		cfgpath;
 
+      obj->cfgstyle  = vcCFG_AUTO;
+
       if ((cfgpath   = vc_getVserverByCtx(obj->xid, &obj->cfgstyle, 0))==0 ||
 	  (obj->name = vc_getVserverName(cfgpath, obj->cfgstyle))==0) {
 	obj->name     = 0;
