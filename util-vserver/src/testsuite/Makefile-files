@@ -51,7 +51,8 @@ TESTS +=				$(src_testsuite_check_active_PRGS) \
 
 EXTRA_DIST +=				$(src_testsuite_check_src_SCRPTS) \
 					src/testsuite/vunify-test.sh \
-					src/testsuite/hashcalc.sh
+					src/testsuite/hashcalc.sh \
+					src/testsuite/vwait-test.sh
 
 src_testsuite_rpm_fake_test_SOURCES =	src/testsuite/rpm-fake-test.c
 
