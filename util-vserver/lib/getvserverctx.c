@@ -155,12 +155,18 @@ vc_getVserverCtx(char const *id, vcCfgStyle style, bool honor_static, bool *is_r
 	char			*cur_name;
 	struct vc_vx_info	info;
 
-	  // determine the vserver which is associated with the xid
-	  // resp. skip this step when the context does not exist
-	cur_name = (vc_get_vx_info(res, &info)!=-1 ?
-		    vc_getVserverByCtx_Internal(res, &style, 0, false) : 0);
+	  // determine the vserver which is associated with the xid resp. skip
+	  // this step when the context does not exist. When checking whether
+	  // the context exists, do not rely on the success of
+	  // vc_get_vx_info() alone but check 'errno' for ESRCH also. Else,
+	  // wrong results will be caused e.g. for xid 1 which will fail with
+	  // ENOSYS.
+	cur_name = (vc_get_vx_info(res, &info)!=-1 || errno!=ESRCH ?
+		    vc_getVserverByCtx_Internal(res, &style, 0, false) :
+		    0);
 
 	buf[idx] = '\0';	// cut off the '/run' from the vserver name
+	
 	res      = ((cur_name!=0 &&
 		     vc_compareVserverById(buf,      vcCFG_RECENT_FULL,
 					  cur_name, vcCFG_RECENT_FULL)==0)
@@ -178,7 +184,7 @@ vc_getVserverCtx(char const *id, vcCfgStyle style, bool honor_static, bool *is_r
 
 	res = getCtxFromFile(buf);
       }
-      
+
       return res;
     }
     default			:  return VC_NOCTX;
