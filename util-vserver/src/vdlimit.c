@@ -85,14 +85,24 @@ showVersion()
 static void
 setDlimit(char const *filename, xid_t xid, uint32_t flags, struct vc_ctx_dlimit const *limit)
 {
+  bool		was_added = false;
+
   if (vc_get_dlimit(filename, xid, flags, 0) == -1) {
     if (vc_add_dlimit(filename, xid, flags) == -1) {
       perror(ENSC_WRAPPERS_PREFIX "vc_add_dlimit()");
       exit(wrapper_exit_code);
     }
+
+    was_added = true;
   }
+
   if (vc_set_dlimit(filename, xid, flags, limit) == -1) {
     perror(ENSC_WRAPPERS_PREFIX "vc_set_dlimit()");
+
+    if (was_added &&
+	vc_rem_dlimit(filename, xid, flags)==-1)
+      perror(ENSC_WRAPPERS_PREFIX "vc_rem_dlimit()");
+
     exit(wrapper_exit_code);
   }
 }
@@ -200,6 +210,14 @@ setDLimitField(struct vc_ctx_dlimit *dst, char const *opt)
   return true;
 }
 
+bool
+isHigherLimit(uint_least32_t lhs, uint_least32_t rhs)
+{
+  if (lhs==VC_CDLIM_KEEP || rhs==VC_CDLIM_KEEP) return false;
+
+  return lhs > rhs;
+}
+
 int main(int argc, char *argv[])
 {
   bool		do_set       = false;
@@ -261,6 +279,10 @@ int main(int argc, char *argv[])
     WRITE_MSG(2, "No mount point specified; try '--help' for more information\n");
   else if (xid==VC_NOCTX)
     WRITE_MSG(2, "No xid specified; try '--help' for more information\n");
+  else if (isHigherLimit(limit.space_used, limit.space_total))
+    WRITE_MSG(2, "invalid parameters: 'space_used' is larger than 'space_total'\n");
+  else if (isHigherLimit(limit.inodes_used, limit.inodes_total))
+    WRITE_MSG(2, "invalid parameters: 'inodes_used' is larger than 'inodes_total'\n");
   else {
     for (; optind < argc; ++optind) {
       if      (do_set)     setDlimit(argv[optind], xid, flags, &limit);
