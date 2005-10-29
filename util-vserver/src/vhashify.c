@@ -292,11 +292,15 @@ addStatHash(hashFunctionContext *h_ctx, struct stat const * const st)
     SET_ATTR(mtime)
   };
 
+#undef SET_ATTR
+#undef DECL_ATTR
+
+  
   return hashFunctionContextUpdate(h_ctx, (void *)&tmp, sizeof tmp)!=-1;
 }
 #else
 static bool
-addStatHash(hashFunctionContext *h_ctx, struct stat const * const st)
+addStatHash(hashFunctionContext UNUSED *h_ctx, struct stat const UNUSED * const st)
 {
   return true;
 }
@@ -748,4 +752,6 @@ int main(int argc, char *argv[])
   freeHashList(&global_info.hash_dirs);
   hashFunctionContextFree(&global_info.hash_context);
 #endif
+
+  return EXIT_SUCCESS;
 }
