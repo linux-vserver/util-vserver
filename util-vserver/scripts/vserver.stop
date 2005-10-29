@@ -84,7 +84,7 @@ else
     "${INITCMD_STOP[@]}" || fail=1
 fi
 
-test -n "$fail" || waitForSync "$VSERVER_DIR" "$sync_fifo" "$vwait_statdir"
+waitForSync "$VSERVER_DIR" "$sync_fifo" "$vwait_statdir"
 
 vshelper.doDestroy "$VSERVER_DIR" "$S_CONTEXT"
 sendKillSequence   "$S_CONTEXT" "${INITKILL_SEQ[@]}"
