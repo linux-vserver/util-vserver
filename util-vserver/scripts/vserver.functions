@@ -808,27 +808,35 @@ function initWait
 	local _is_tmpdir
 	_is_tmpdir=$($_MKTEMPDIR /tmp/vwaitstat.XXXXXX)
 
-	$_NOHUP $_VWAIT --timeout "$VSHELPER_SYNC_TIMEOUT" \
-	    --status-fd 3 "$2"  \
-	    >>$_is_tmpdir/out 2>$_is_tmpdir/err 3>$_is_tmpdir/fifo &
+	(
+	    $_VWAIT --timeout "$VSHELPER_SYNC_TIMEOUT" \
+		--status-fd 3 "$2" \
+		>>$_is_tmpdir/out 2>$_is_tmpdir/err 3>$_is_tmpdir/fifo
 
+	    $_VPS axf | $_EGREP -e "^[^ \t]+[ \t]+$S_CONTEXT[ \t]+" >&4
+
+	    killContext "$S_CONTEXT" 9
+	) 4>$_is_tmpdir/procs &
+	    
 	echo "$!" >$_is_tmpdir/pid
 	eval "$3"=$_is_tmpdir
-    fi
+    fi </dev/null
 }
 
 
-## Usage: _waitForVWait <vserver> <fifo> <pid>
+## Usage: _waitForVWait <vserver> <fifo> <pid> <procs>
 function _waitForVWait
 {
     declare -a status
+    declare -r procs=$4
+
     wait "$3" || :
     getFileArray status "$2"
     set -- ${status[0]}
 
-    case "$2" in
+    case "$1" in
 	(ERROR)		warning $"\
-'vwait' exited with error '$3' which indicates that vserver could not
+'vwait' exited with error '$2' which indicates that vserver could not
 be stopped properly"
 			;;
 	(FINISHED)	;;
@@ -838,15 +846,13 @@ killed by sending a SIGKILL signal. Please investigate the reasons
 and/or increase the timeout in apps/vshelper/sync-timeout."
 			;;
 
-	(TIMEOUT)	local procs=$($_VPS axf | $_EGREP -e "^[^ \t]+[ \t]+$S_CONTEXT[ \t]+")
-			warning $"\
+	(TIMEOUT)	warning $"\
 A timeout occured while waiting for the vserver to finish and it will
 be killed by sending a SIGKILL signal. The following process list
 might be useful for finding out the reason of this behavior:
 
 $procs
 "
-		    	killContext "$S_CONTEXT" 9
 			;;
 
 	(\?\?\?|*)	warning $"\
@@ -867,7 +873,7 @@ function waitForSync
     local vwait_pid=$4
 
     if test -d "$vwait_statdir"; then
-	_waitForVWait "$cfgdir" "$vwait_statdir/fifo" "$( <$vwait_statdir/pid )"
+	_waitForVWait "$cfgdir" "$vwait_statdir/fifo" "$( <$vwait_statdir/pid )" "$( < $vwait_statdir/procs )"
     elif test -n "$_NEED_VSHELPER_SYNC"; then
 	$_VSHELPER_SYNC "$fifo" "$VSHELPER_SYNC_TIMEOUT" || \
 	    warning $"\
