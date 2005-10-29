@@ -72,7 +72,6 @@ pushd "$vdir"/etc/init.d &>/dev/null ||
 	esac
     done
 
-    relink /bin/true halt
 popd >/dev/null
 
 pushd "$vdir"/sbin &>/dev/null
@@ -88,6 +87,14 @@ pushd "$vdir" &>/dev/null
 popd >/dev/null
 
 pushd "$vdir" &>/dev/null
+    cat <<EOF | $_CHROOT_SH truncate /etc/init.d/halt
+#! /bin/bash
+
+exec /sbin/killall5 -15
+EOF
+    # TODO: remove race/symlink-attack
+    chmod +x etc/init.d/halt
+    
     : | $_CHROOT_SH truncate /etc/sysctl.conf
     echo "none    /       none    defaults" | $_CHROOT_SH truncate /etc/fstab
     cat "$__DISTRIBDIR"/redhat/rc.sysinit   | $_CHROOT_SH truncate /etc/rc.d/rc.sysinit.vserver
