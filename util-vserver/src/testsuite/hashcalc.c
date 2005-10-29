@@ -31,8 +31,20 @@ int main(int UNUSED argc, char *argv[])
 {
   int		fd = open(argv[1], O_NOFOLLOW|O_NONBLOCK|O_RDONLY|O_NOCTTY);
   struct stat	st;
-  HashPath 	d_path;
   off_t		size;
+  struct {
+      volatile unsigned int	canary0;
+      volatile unsigned int	canary1;
+      HashPath 			d;
+      volatile unsigned int	canary2;
+      volatile unsigned int	canary3;
+  } __attribute__((__packed__))	d_path;
+
+  d_path.canary0 = 0x12345678;
+  d_path.canary1 = 0x21436587;
+  d_path.canary2 = 0x89abcdef;
+  d_path.canary3 = 0x98badcfe;
+  memset(d_path.d, 0x66, sizeof d_path.d);
 
   global_info.hash_conf.method = hashFunctionFind(argv[2]);
   
@@ -47,9 +59,13 @@ int main(int UNUSED argc, char *argv[])
   memset(&st, 0, sizeof st);
   st.st_size = size;
   
-  assert(calculateHashFromFD(fd, d_path, &st));
+  assert(calculateHashFromFD(fd, d_path.d, &st));
+  assert(d_path.canary0 == 0x12345678);
+  assert(d_path.canary1 == 0x21436587);
+  assert(d_path.canary2 == 0x89abcdef);
+  assert(d_path.canary3 == 0x98badcfe);
 
-  Vwrite(1, d_path, strlen(d_path));
+  Vwrite(1, d_path.d, strlen(d_path.d));
   Vwrite(1, "\n", 1);
   
   hashFunctionContextFree(&global_info.hash_context);
