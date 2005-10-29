@@ -342,6 +342,9 @@ a running process consumes one token from the bucket, unless the
 bucket is empty. If the bucket is empty the process is put in the
 hold queue. When the bucket has been refilled to at least M tokens,
 all on hold processes are rescheduled.
+
+See the <ulink url="http://linux-vserver.org/Scheduler+Parameters">Linux
+VServer Wiki</ulink> for more information about this file.
       </description>
       <keys>
 	<key id="fill_rate" name="fill-rate">
@@ -414,6 +417,7 @@ Contains per line a flag. See <ulink
 url="http://savannah.nongnu.org/cgi-bin/viewcvs/util-vserver/util-vserver/lib/cflags-v13.c?rev=HEAD">lib/cflags-v13.c</ulink>
 for possible values.
       </description>
+      <!--
       <elements>
 	<element name="fakeinit">
 	  <description>
@@ -451,6 +455,7 @@ Apply the current ulimit to the whole context
           </description>
 	</element>
       </elements>
+      -->
     </list>
     <scalar name="context">
       <description>
