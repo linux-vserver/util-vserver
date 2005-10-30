@@ -199,7 +199,8 @@ lib_libvserver_la_LDFLAGS =	-version $(lib_VERSION)
 lib_libvserver_a_SOURCES =  	$(lib_SRCS)
 lib_libvserver_a_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS)
 
-DIETPROGS +=			lib/lib_libvserver_a-%
+DIETPROGS +=			lib/lib_libvserver_a-%		\
+				ensc_fmt/lib_libvserver_a-%
 
 CLEANFILES +=			lib/libvserver.la \
 				lib/libvserver.a
