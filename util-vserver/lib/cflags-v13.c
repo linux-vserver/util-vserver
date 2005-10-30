@@ -57,7 +57,10 @@ static struct Mapping_uint64 const VALUES[] = {
   DECL("fork_rss",	VC_VXF_FORK_RSS),
   DECL("prolific",	VC_VXF_PROLIFIC),
   DECL("igneg_nice",    VC_VXF_IGNEG_NICE),
-  
+
+    // Some pseudo flags
+  DECL("secure",        VC_VXF_HIDE_NETIF),
+  DECL("default",       VC_VXF_VIRT_UPTIME),
 };
 
 uint_least64_t
