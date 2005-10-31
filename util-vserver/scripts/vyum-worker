@@ -40,7 +40,7 @@ test -z "$_YUM" || {
 yum=${YUM:-yum}
 conf=yum.conf
 case $(yum --version) in
-    (2.[0123]*)
+    (2.[01234]*)
 	python -c 'import yum,sys; sys.exit(not hasattr(yum.config.yumconf, "getRootedPath"))' &>/dev/null || {
 	    warning "\
 You are using a version of yum which is insecure and broken in chroot
