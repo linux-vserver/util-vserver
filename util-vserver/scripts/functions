@@ -213,7 +213,7 @@ function colpanic
     if test -n "$_VS_ERRFILE"; then
 	echo "$@" >>"$_VS_ERRFILE"
     else
-	colorize echo -n "$@" >&2
+	colorize error echo -n "$@" >&2
     fi
     echo
 
