@@ -96,7 +96,7 @@ function isDirectoryEmpty
 	
 	for i in "$1"/*; do
 	    case "$i" in
-		(lost+found)
+		($1/lost+found)
 		    test "$ignore_lostfound" || exit 1
 		    ;;
 		(*)	echo "$i"; exit 1
