@@ -399,6 +399,27 @@ secureChdir(char const *dir, struct Options const *opt)
 }
 
 static bool
+canHandleInternal(struct MountInfo const *mnt)
+{
+  static char const *	FS[] = {
+    "tmpfs", "sysfs", "proc", "sockfs", "pipefs", "futexfs",
+    "inotifyfs", "devpts", "ext3", "ext2", "ramfs",
+    "hugetlbfs", "usbfs", "binfmt_misc",
+    0
+  };
+  char const **		i;
+  
+  if (mnt!=0)                                  return false;
+  else if ((mnt->flag & (MS_BIND|MS_MOVE))!=0) return true;
+  else if (mnt->type==0)                       return false;
+
+  for (i=FS+0; *i!=0; ++i)
+    if (strcmp(mnt->type, *i)==0) return true;
+
+  return false;
+}
+
+static bool
 mountSingle(struct MountInfo const *mnt, struct Options const *opt)
 {
   assert(mnt->dst!=0);
@@ -406,9 +427,9 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
   if (!secureChdir(mnt->dst, opt))
     return false;
 
-  if (mnt->flag & (MS_BIND|MS_MOVE)) {
+  if (canHandleInternal(mnt)) {
     unsigned long	flag = mnt->flag;
-    if ((flag & MS_NODEV)==0) flag |= MS_NODEV;
+    if ((flag & MS_NODEV)!=0) flag |= MS_NODEV;
     
     if (mount(mnt->src, ".",
 	      mnt->type ? mnt->type : "",
@@ -500,7 +521,10 @@ static enum {prDOIT, prFAIL, prIGNORE}
 
   if      (strcmp(info->type, "swap")  ==0) return prIGNORE;
   else if (strcmp(info->type, "none")  ==0) info->type  = 0;
-  else if (strcmp(info->type, "devpts")==0) info->mask |= MS_NODEV;
+  else if (strcmp(info->type, "devpts")==0) {
+    info->mask |=  MS_NODEV;
+    info->flag &= ~MS_NODEV;
+  }
 
   if (col) *col = err_col;
   if (!transformOptionList(info,col)) return prFAIL;
