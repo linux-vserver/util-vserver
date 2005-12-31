@@ -35,7 +35,7 @@
 #elif	defined(__ia64__)
 #define __NR_vserver	1269
 #elif	defined(__m32r__)
-#define __NR_vserver	*
+#define __NR_vserver	273
 #elif	defined(__mc68000__)
 #define __NR_vserver	278
 #elif	defined(__mips__) && (_MIPS_SIM == _MIPS_SIM_ABI32)
@@ -45,7 +45,7 @@
 #elif	defined(__mips__) && (_MIPS_SIM == _MIPS_SIM_NABI32)
 #define __NR_vserver	236
 #elif	defined(__hppa__)
-#define __NR_vserver	*
+#define __NR_vserver	263
 #elif	defined(__powerpc__)
 #define __NR_vserver	257
 #elif	defined(__s390__)
