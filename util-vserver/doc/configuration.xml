@@ -1073,6 +1073,13 @@ already. This can be used to assign primary interfaces which are
 created by the host or another vserver.
 	  </description>
 	</boolean>
+	<boolean name="novlandev">
+	  <description>
+When this file exists, the steps which setup and destroy a VLAN
+interface will be skipped. This flag should be set when a VLAN
+interface is used by multiple vservers or by the host.
+	  </description>
+	</boolean>
       </collection>
     </collection>
     
