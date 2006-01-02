@@ -134,8 +134,8 @@ function getDistribution
 	elif test -e /etc/gentoo-release; then
 	    set -- $(cat /etc/gentoo-release)
 	    DISTRIBUTION=gentoo$5
-	elif test -e /etc/slackware-release; then
-	    set -- $(cat /etc/slackware-release)
+	elif test -e /etc/slackware-version; then
+	    set -- $(cat /etc/slackware-version)
 	    DISTRIBUTION=slackware$2
 	elif test -n "$1"; then
 	    DISTRIBUTION=$1
