@@ -1,7 +1,7 @@
 #ifndef _VX_XID_H
 #define _VX_XID_H
 
-#ifndef	CONFIG_VSERVER
+#ifndef CONFIG_VSERVER
 #warning config options missing
 #endif
 
@@ -9,9 +9,9 @@
 
 
 #ifdef CONFIG_XID_TAG_NFSD
-#define	XID_TAG_NFSD	1
+#define XID_TAG_NFSD	1
 #else
-#define	XID_TAG_NFSD	0
+#define XID_TAG_NFSD	0
 #endif
 
 
@@ -141,16 +141,7 @@ static inline gid_t vx_map_gid(gid_t gid)
 #define FIOC_SETXIDJ	_IOW('x', 3, long)
 #endif
 
-#ifdef	CONFIG_XID_PROPAGATE
-
 int vx_parse_xid(char *string, xid_t *xid, int remove);
-
-void __vx_propagate_xid(struct nameidata *nd, struct inode *inode);
-
-#define vx_propagate_xid(n,i)	__vx_propagate_xid(n,i)
-
-#else
-#define vx_propagate_xid(n,i)	do { } while (0)
-#endif
+void vx_propagate_xid(struct nameidata *nd, struct inode *inode);
 
 #endif /* _VX_XID_H */

@@ -15,7 +15,7 @@
 
 #define NXF_STATE_SETUP		(1ULL<<32)
 
-#define NXF_SC_HELPER		(1ULL<<36)
+#define NXF_STATE_HELPER	(1ULL<<36)
 
 #define NXF_ONE_TIME		(0x0001ULL<<32)
 
@@ -24,12 +24,12 @@
 
 /* address types */
 
-#define	NXA_TYPE_IPV4		1
-#define	NXA_TYPE_IPV6		2
+#define NXA_TYPE_IPV4		1
+#define NXA_TYPE_IPV6		2
 
-#define	NXA_MOD_BCAST		(1<<8)
+#define NXA_MOD_BCAST		(1<<8)
 
-#define	NXA_TYPE_ANY		(~0)
+#define NXA_TYPE_ANY		(~0)
 
 
 #ifdef	__KERNEL__
@@ -70,7 +70,8 @@ struct nx_info {
 #define NXS_SHUTDOWN    0x0100
 #define NXS_RELEASED    0x8000
 
-extern struct nx_info *lookup_nx_info(int);
+extern struct nx_info *locate_nx_info(int);
+extern struct nx_info *locate_or_create_nx_info(int);
 
 extern int get_nid_list(int, unsigned int *, int);
 extern int nid_is_hashed(nid_t);

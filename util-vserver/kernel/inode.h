@@ -15,7 +15,7 @@
 
 #ifdef	__KERNEL__
 
-#ifndef	CONFIG_VSERVER
+#ifndef CONFIG_VSERVER
 #warning config options missing
 #endif
 
