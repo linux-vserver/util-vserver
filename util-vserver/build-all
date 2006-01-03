@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# Copyright (C) 2004,2005,2006 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 #  
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,13 +17,15 @@
 
 set -e
 
+J=-j8
+
 confflags="-C --enable-maintainer-mode --prefix=/usr --sysconfdir=/etc --localstatedir=/var"
 configure="`pwd`/configure $confflags"
-make=eval\ "${CLEAN:+make -j2 silent.clean;} \
+make=eval\ "${CLEAN:+make $J silent.clean;} \
 	    echo -e \"== executing 'make all'...\" && \
-	    make -j2 ${SILENT:+-s silent.}all && \
+	    make $J ${SILENT:+-s silent.}all && \
 	    echo -e \"\n== executing 'make check'...\" && \
-	    make -j2 ${SILENT:+-s silent.}check"
+	    make $J ${SILENT:+-s silent.}check"
 
 LANG=C
 CPPFLAGS='-D_FORTIFY_SOURCE=99'
@@ -48,7 +50,7 @@ function operate()
     mkdir -p $d && cd $d
 
     test -z "$CLEAN" || rm -f config.cache
-    test -e Makefile || $configure "$@"
+    test -e Makefile || CCACHE_DISABLE=1 $configure "$@"
     $make
     cd -
 }
