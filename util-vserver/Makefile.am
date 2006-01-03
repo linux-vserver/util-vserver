@@ -1,6 +1,6 @@
 ## $Id$
 
-# Copyright (C) 2003,2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# Copyright (C) 2003,2004,2005,2006 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 #  
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -68,7 +68,6 @@ kernel_HDRS =					\
 			kernel/debug_cmd.h	\
 			kernel/dlimit.h		\
 			kernel/dlimit_cmd.h	\
-			kernel/global.h		\
 			kernel/inode.h		\
 			kernel/inode_cmd.h	\
 			kernel/legacy.h		\
@@ -82,7 +81,6 @@ kernel_HDRS =					\
 			kernel/sched.h		\
 			kernel/sched_cmd.h	\
 			kernel/sched_def.h	\
-			kernel/signal.h		\
 			kernel/signal_cmd.h	\
 			kernel/switch.h		\
 			kernel/xid.h
