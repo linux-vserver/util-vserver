@@ -27,4 +27,4 @@
 /proc/swaps
 /proc/uptime
 -/proc/cmdline
--/proc/version
+/proc/version
