@@ -19,9 +19,9 @@
 #ifndef H_UTIL_VSERVER_LIB_INTERNAL_UTIL_UNIXSOCK_H
 #define H_UTIL_VSERVER_LIB_INTERNAL_UTIL_UNIXSOCK_H
 
-#define ENSC_INIT_UNIX_SOCK(ADDR, FILENAME)			\
-  (ADDR).sun_family = AF_UNIX;					\
-  strncpy((ADDR).sun_path, FILENAME, sizeof((ADDR).sun_path));	\
+#define ENSC_INIT_UNIX_SOCK(ADDR, FILENAME)				\
+  (ADDR).sun_family = AF_UNIX;						\
+  strncpy((ADDR).sun_path, FILENAME, sizeof((ADDR).sun_path)-1);	\
   (ADDR).sun_path[sizeof((ADDR).sun_path)-1] = '\0';
 
 #endif	//  H_UTIL_VSERVER_LIB_INTERNAL_UTIL_UNIXSOCK_H
