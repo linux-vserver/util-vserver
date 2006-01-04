@@ -44,5 +44,6 @@ vc_get_vhi_name_v13(xid_t xid, vc_uts_type type, char *val, size_t len)
 
   l = l>len ? len : l;
   strncpy(val, cmd.name, l);
+    /* DO NOT terminate 'val' with '\0' explicitly */
   return 0;
 }
