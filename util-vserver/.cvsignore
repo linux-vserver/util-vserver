@@ -24,6 +24,7 @@ config.status
 config.sub
 configure
 configure.scan
+cscope.out
 depcomp
 install-sh
 libtool
