@@ -397,13 +397,13 @@ extern "C" {
   nid_t		vc_get_task_nid(pid_t pid);
   int		vc_get_nx_info(nid_t nid, struct vc_nx_info *) VC_ATTR_NONNULL((2));
 
-  typedef enum { vcNET_IPV4, vcNET_IPV6, vcNET_IPV4R, vcNET_IPV6R }	vc_net_nx_type;
-  
+  typedef enum { vcNET_IPV4, vcNET_IPV6, vcNET_IPV4B, vcNET_IPV6B, vcNET_ANY }	vc_net_nx_type;
+
   struct vc_net_nx {
       vc_net_nx_type	type;
       size_t		count;
-      uint32_t		ip;
-      uint32_t		mask;
+      uint32_t		ip[4];
+      uint32_t		mask[4];
   };
 
   nid_t		vc_net_create(nid_t nid);
@@ -716,7 +716,8 @@ extern "C" {
   typedef enum { vcFEATURE_VKILL,  vcFEATURE_IATTR,   vcFEATURE_RLIMIT,
 		 vcFEATURE_COMPAT, vcFEATURE_MIGRATE, vcFEATURE_NAMESPACE,
 		 vcFEATURE_SCHED,  vcFEATURE_VINFO,   vcFEATURE_VHI,
-                 vcFEATURE_VSHELPER0, vcFEATURE_VSHELPER, vcFEATURE_VWAIT }
+                 vcFEATURE_VSHELPER0, vcFEATURE_VSHELPER, vcFEATURE_VWAIT,
+		 vcFEATURE_VNET }
     vcFeatureSet;
 
   bool		vc_isSupported(vcFeatureSet) VC_ATTR_CONST;
