@@ -24,9 +24,14 @@ static inline ALWAYSINLINE int
 vc_net_add_net(nid_t nid, struct vc_net_nx const *info)
 {
   struct vcmd_net_addr_v0		k_info;
+  size_t				i;
 
-  k_info.type  = NETTYPE_USER2KERNEL(info->type);
-  k_info.count = info->count;
+  k_info.type      = NETTYPE_USER2KERNEL(info->type);
+  k_info.count     = info->count;
+  for (i = 0; i < sizeof(k_info.ip) / sizeof(*k_info.ip); i++)
+    k_info.ip[i]   = info->ip[i];
+  for (i = 0; i < sizeof(k_info.mask) / sizeof(*k_info.mask); i++)
+    k_info.mask[i] = info->mask[i];
   
   return vserver(VCMD_net_add, NID_USER2KERNEL(nid), &k_info);
 }

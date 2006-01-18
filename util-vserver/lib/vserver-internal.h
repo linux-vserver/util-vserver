@@ -190,16 +190,16 @@ inline static ALWAYSINLINE void vc_noop0() {}
 #endif
 
 #if 1
-#  define NETTYPE_USER2KERNEL(X)	((X)==vcNET_IPV4   ? 0 : \
-					 (X)==vcNET_IPV6   ? 1 : \
-					 (X)==vcNET_IPV4R  ? 2 : \
-					 (X)==vcNET_IPV6R  ? 3 : \
+#  define NETTYPE_USER2KERNEL(X)	((X)==vcNET_IPV4   ? NXA_TYPE_IPV4     : \
+					 (X)==vcNET_IPV6   ? NXA_TYPE_IPV6     : \
+					 (X)==vcNET_IPV4B  ? (NXA_TYPE_IPV4 | NXA_MOD_BCAST) : \
+					 (X)==vcNET_ANY    ? NXA_TYPE_ANY      : \
 					 (X))
-#  define NETTYPE_KERNEL2USER(X)	((X)==0 ? vcNET_IPV4   ? : \
-					 (X)==1 ? vcNET_IPV6   ? : \
-					 (X)==2 ? vcNET_IPV4R  ? : \
-					 (X)==3 ? vcNET_IPV6R  ? : \
-					 (vc_net_nx_type)(X))
+#  define NETTYPE_KERNEL2USER(X)	((X)==NXA_TYPE_IPV4	? vcNET_IPV4   : \
+					 (X)==NXA_TYPE_IPV6	? vcNET_IPV6   : \
+					 (X)==(NXA_TYPE_IPV4|NXA_MOD_BCAST) ? vcNET_IPV4B : \
+					 (X)==NXA_TYPE_ANY      ? vcNET_ANY    : \
+					 (X))
 #else
 #  define NETTYPE_USER2KERNEL(X)	(X)
 #  define NETTYPE_KERNEL2USER(X)	(X)

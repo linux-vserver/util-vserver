@@ -28,7 +28,7 @@
 #  include "syscall_netremove-net.hc"
 #endif
 
-#if defined(VC_ENABLE_API_NET) && 0
+#if defined(VC_ENABLE_API_NET)
 int
 vc_net_remove(nid_t nid, struct vc_net_nx const *info)
 {

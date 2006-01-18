@@ -13,5 +13,8 @@ Olivier Poitrey
 Herbert Poetzl,
     for providing the alternative syscall.h implementation
 
+Daniel Hokka Zakrisson
+    for his patch which adds support for ngnet functionality
+
 
 all the other people, who contributed to the original 'vserver' package

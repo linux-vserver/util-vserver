@@ -77,13 +77,16 @@ function _generateChbindOptions
     local vdir="$1"
     local i
     local bcast=
+    local nid=
 
     test -n "$_HAVE_INTERFACE_OPTIONS" || _generateInterfaceOptions "$vdir"
 
     local f=$vdir/interfaces/bcast
     getFileValue bcast "$f"
+
+    getFileValue nid "$vdir/ncontext" "$vdir/context"
     
-    CHBIND_OPTS=( $SILENT_OPT ${bcast:+--bcast "$bcast"} )
+    CHBIND_OPTS=( $SILENT_OPT ${nid:+--nid "$nid"} ${bcast:+--bcast "$bcast"} )
 
     for i in "${INTERFACES[@]}"; do
 	CHBIND_OPTS=( "${CHBIND_OPTS[@]}" --ip "$i" )
