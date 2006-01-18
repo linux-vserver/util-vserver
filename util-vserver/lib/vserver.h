@@ -397,7 +397,9 @@ extern "C" {
   nid_t		vc_get_task_nid(pid_t pid);
   int		vc_get_nx_info(nid_t nid, struct vc_nx_info *) VC_ATTR_NONNULL((2));
 
-  typedef enum { vcNET_IPV4, vcNET_IPV6, vcNET_IPV4B, vcNET_IPV6B, vcNET_ANY }	vc_net_nx_type;
+  typedef enum { vcNET_IPV4=1,      vcNET_IPV6=2,
+		 vcNET_IPV4B=0x101, vcNET_IPV6B=0x102,
+		 vcNET_ANY=~0 }		vc_net_nx_type;
 
   struct vc_net_nx {
       vc_net_nx_type	type;
