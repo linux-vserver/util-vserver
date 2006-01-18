@@ -193,11 +193,13 @@ inline static ALWAYSINLINE void vc_noop0() {}
 #  define NETTYPE_USER2KERNEL(X)	((X)==vcNET_IPV4   ? NXA_TYPE_IPV4     : \
 					 (X)==vcNET_IPV6   ? NXA_TYPE_IPV6     : \
 					 (X)==vcNET_IPV4B  ? (NXA_TYPE_IPV4 | NXA_MOD_BCAST) : \
+					 (X)==vcNET_IPV6B  ? (NXA_TYPE_IPV6 | NXA_MOD_BCAST) : \
 					 (X)==vcNET_ANY    ? NXA_TYPE_ANY      : \
 					 (X))
 #  define NETTYPE_KERNEL2USER(X)	((X)==NXA_TYPE_IPV4	? vcNET_IPV4   : \
 					 (X)==NXA_TYPE_IPV6	? vcNET_IPV6   : \
 					 (X)==(NXA_TYPE_IPV4|NXA_MOD_BCAST) ? vcNET_IPV4B : \
+					 (X)==(NXA_TYPE_IPV6|NXA_MOD_BCAST) ? vcNET_IPV6B : \
 					 (X)==NXA_TYPE_ANY      ? vcNET_ANY    : \
 					 (X))
 #else
