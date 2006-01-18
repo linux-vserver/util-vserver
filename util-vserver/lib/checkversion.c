@@ -35,7 +35,7 @@ utilvserver_checkCompatVersion()
     v_errno = errno;
 #ifdef VC_ENABLE_API_LEGACY
     if (res==-1 && (errno==ENOSYS || errno==EINVAL)) res=0;
-#endif    
+#endif
   }
 
   errno = v_errno;
