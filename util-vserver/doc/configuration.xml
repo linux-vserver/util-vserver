@@ -1168,5 +1168,22 @@ tools and can *not* be modified.
 	<description>The NIS domainname of the vserver</description>
       </scalar>
     </collection>
+
+    <collection name="dlimits">
+      <collection name="dlimit" type="symbolic">
+        <scalar name="directory">
+          <description>The directory to which the limit should be applied</description>
+        </scalar>
+        <scalar name="inodes_total">
+          <description>The amount of inodes this vserver should be limited to</description>
+        </scalar>
+        <scalar name="space_total">
+          <description>The amount of space this vserver should be limited to (measured in blocks of 1024 bytes)</description>
+        </scalar>
+        <scalar name="reserved">
+          <description>How much space (percentage-wise) should be reserved for the root user</description>
+        </scalar>
+      </collection>
+    </collection>
   </collection>
   </database>

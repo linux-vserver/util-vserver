@@ -98,4 +98,6 @@ execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" post-stop
 umountVserver     "$VSERVER_DIR" || :
 disableInterfaces "$VSERVER_DIR"
 
+saveDiskLimits    "$VSERVER_DIR"
+
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" postpost-stop

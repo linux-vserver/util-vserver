@@ -980,3 +980,92 @@ WARNING: The 'only_ip' flag for interface '$iface' is deprecated; use
 procfs-security. Please read the FAQ for more details
 http://www.linux-vserver.org/index.php?page=Linux-Vserver+FAQ"
 }
+
+
+function _setSingleDiskLimit
+{
+    local vdir=$1
+    local dlimit=$2
+    local space_used=
+    local space_total=
+    local inodes_used=
+    local inodes_total=
+    local reserved=
+    local directory=
+    local ctx=
+
+    getFileValue ctx          "$vdir/context"
+    getFileValue directory    "$dlimit/directory"    || return 0
+    getFileValue space_total  "$dlimit/space_total"  || return 0
+    getFileValue inodes_total "$dlimit/inodes_total" || return 0
+    getFileValue reserved     "$dlimit/reserved"     || return 0
+
+    local cachename=`echo "$ctx$directory" | $_SED 's!/!_!g'`
+
+    test -e "$vdir/cache/$cachename" && . "$vdir/cache/$cachename"
+    # Remove the cache so if the machine goes down unexpectedly, we won't have a stale cache
+    $_RM -f "$vdir/cache/$cachename"
+
+    if test -z "$inodes_used" -o -z "$space_used"; then
+	space_used=` $_VDU --xid $ctx --space  --script "$directory"`
+	inodes_used=`$_VDU --xid $ctx --inodes --script "$directory"`
+    fi
+
+    $_VDLIMIT --xid $ctx \
+	--set space_used=$space_used \
+	--set space_total=$space_total \
+	--set inodes_used=$inodes_used \
+	--set inodes_total=$inodes_total \
+	--set reserved=$reserved \
+	"$directory"
+}
+
+
+function setDiskLimits
+{
+    local vdir=$1
+    local dlimit
+
+    # Disk Limits without a static context are useless
+    test -e "$vdir"/context || return 0
+
+    for dlimit in "$vdir/dlimits/"*; do
+	test   -d "$dlimit"          || continue
+	test ! -e "$dlimit/disabled" || continue
+
+	_setSingleDiskLimit "$vdir" "$dlimit"
+    done
+}
+
+
+function _saveSingleDiskLimit
+{
+    local vdir=$1
+    local dlimit=$2
+    local ctx=
+    local directory=
+
+    getFileValue ctx       "$vdir/context"
+    getFileValue directory "$dlimit/directory" || return 0
+
+    local cachename=`echo "$ctx$directory" | $_SED 's!/!_!g'`
+
+    $_VDLIMIT --xid $ctx "$directory" | \
+	$_GREP '_used=' > "$vdir/cache/$cachename"
+}
+
+
+function saveDiskLimits
+{
+    local vdir=$1
+    local dlimit
+
+    test -e "$vdir"/context || return 0
+
+    for dlimit in "$vdir/dlimits/"*; do
+	test   -d "$dlimit"          || continue
+	test ! -e "$dlimit/disabled" || continue
+
+	_saveSingleDiskLimit "$vdir" "$dlimit"
+    done
+}
