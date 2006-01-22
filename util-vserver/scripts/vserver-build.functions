@@ -20,6 +20,8 @@
 
 ROOTDIR=
 ROOTDIR_REL=
+CACHEDIR=
+CACHEDIR_REL=
 VSERVERDIRNAME=
 
 VDIR=
@@ -78,6 +80,23 @@ function _setRootDir
 
     test -d "$ROOTDIR" || {
 	echo "Root-directory '$ROOTDIR' does not exist or is invalid" >&2
+	exit 1
+    }
+}
+
+function _setCacheDir
+{
+    test -z "$CACHEDIR" || return 0
+    
+    for item in "\"$__CONFDIR/.defaults/cachebase\" 1" "$__PKGCACHEDIR"; do
+	eval set -- "$item"
+	CACHEDIR=$1
+	CACHEDIR_REL=$2
+	test ! -d "$CACHEDIR" || break
+    done
+
+    test -d "$CACHEDIR" || {
+	echo "Cache-directory '$CACHEDIR' does not exist or is invalid" >&2
 	exit 1
     }
 }
@@ -175,7 +194,8 @@ exist already; please try to use '--force', or remove them manually."
     mkdir -p -m755 "$SETUP_CONFDIR"/apps "$VDIR"/{dev/pts,etc}
     base._addGeneratedFile "$SETUP_CONFDIR"
     
-    ln -s "$VDIR"       "$SETUP_CONFDIR/vdir"
+    ln -s "$VDIR"                     "$SETUP_CONFDIR/vdir"
+    ln -s "$CACHEDIR/$VSERVERDIRNAME" "$SETUP_CONFDIR/cache"
 
     local spec
     while read spec; do
@@ -194,6 +214,7 @@ exist already; please try to use '--force', or remove them manually."
 function base._initVariables
 {
     _setRootDir
+    _setCacheDir
     _setVserverDir
     _setVdir
 
