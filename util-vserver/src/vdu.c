@@ -181,7 +181,7 @@ hash_insert(ino_t inode)
 }
 
 static void
-visitDirEntry(struct dirent const *ent, dev_t const dir_dev,
+visitDirEntry(char const *name, dev_t const dir_dev,
 	      struct TraversalParams *params);
 
 static void
@@ -198,7 +198,8 @@ visitDir(char const *name, struct stat const *expected_stat, struct TraversalPar
     struct dirent		*ent = Ereaddir(dir);
     if (ent==0) break;
 
-    visitDirEntry(ent, expected_stat->st_dev, params);
+    if (isDotfile(ent->d_name)) continue;
+    visitDirEntry(ent->d_name, expected_stat->st_dev, params);
   }
 
   Eclosedir(dir);
@@ -208,15 +209,12 @@ visitDir(char const *name, struct stat const *expected_stat, struct TraversalPar
 }
 
 static void
-visitDirEntry(struct dirent const *ent, dev_t const dir_dev,
+visitDirEntry(char const *name, dev_t const dir_dev,
 	      struct TraversalParams *params)
 {
   struct stat		st;
-  char const * const	name = ent->d_name;
   xid_t			xid;
   
-  if (isDotfile(name)) return;
-
   ElstatD(name, &st);
 
   xid = vc_getfilecontext(name);
@@ -239,7 +237,7 @@ visitDirStart(char const *name, struct TraversalParams *params)
   Estat(name, &st);
   Echdir(name);
 
-  visitDir(".", &st, params);
+  visitDirEntry(".", st.st_dev, params);
 
   Efchdir(fd);
   Eclose(fd);  
