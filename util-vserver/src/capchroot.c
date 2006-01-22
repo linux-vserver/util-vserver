@@ -66,6 +66,11 @@ static void
 showHelp(int fd, char const *cmd, int res)
 {
   VSERVER_DECLARE_CMD(cmd);
+
+#if !defined(VC_ENABLE_API_COMPAT) && !defined(VC_ENABLE_API_LEGACY)
+  WRITE_MSG(2, "ERROR: tools were built without legacy API support; capchroot will not work!\n\n");
+#endif
+  
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
@@ -92,7 +97,7 @@ showVersion()
   exit(0);
 }
 
-static void
+static UNUSED void
 setUser(char const *user)
 {
   struct passwd		*p = 0;
@@ -141,6 +146,7 @@ int main (int argc, char *argv[])
     }
   }
 
+#if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
   if (optind==argc)
     WRITE_MSG(2, "No directory specified; try '--help' for more information\n");
   else if (optind+1==argc)
@@ -159,6 +165,9 @@ int main (int argc, char *argv[])
     setUser(suid_user);
     EexecvpD(argv[optind+1], argv+optind+1);
   }
-
+#else
+  WRITE_MSG(2, "capchroot: tools were built without legacy API support; can not continue\n");
+#endif
+  
   return EXIT_FAILURE;
 }
