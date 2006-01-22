@@ -1,3 +1,25 @@
+version 0.30.210
+================
+
+	- LEGACY BREAKAGE: by default, only recent kernel APIs will be
+	supported so you have to make sure to use at least the vs2.0.1
+	kernel patch. With older kernels, you have to call 'configure'
+	with '--enable-apis=NOLEGACY'. Some programs will not work anymore
+	with the default settings; these ones are:
+
+	     + capchroot
+	     * chcontext-context
+	     * reducecap
+
+	- dlimit support was integrated into the standard vserver
+	operations. Thanks to Daniel Hokka Zakrisson for his patch.
+
+	- recent kernel API is now used for setting up the network
+	contexts. So it should be now possible to use a kernel compiled
+	without CONFIG_VSERVER_LEGACYNET. Thanks to Daniel Hokka Zakrisson
+	for his patch.  .
+
+
 version 0.30.209
 ================
 
