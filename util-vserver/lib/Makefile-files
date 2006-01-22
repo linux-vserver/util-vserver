@@ -92,6 +92,7 @@ lib_v13_SRCS =			lib/syscall_ctxcreate.c \
 				lib/syscall_setnflags-net.hc \
 				lib/syscall_setnflags.c \
 				lib/syscall_setsched-v13.hc \
+				lib/syscall_setsched-v13obs.hc \
 				lib/syscall_setsched.c \
 				lib/syscall_setvhiname-olduts.hc \
 				lib/syscall_setvhiname-v13.hc \

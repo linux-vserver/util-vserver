@@ -21,24 +21,23 @@
 #endif
 
 #include "vserver.h"
-#include "virtual.h"
+#include <lib_internal/util.h>
 
-#if defined(VC_ENABLE_API_V13OBS) && defined(VC_ENABLE_API_V13)
-#  define VC_MULTIVERSION_SYSCALL	1
-#endif
-#include "vserver-internal.h"
+#define VCGET(MASK,VAL)		((data->set_mask & (MASK)) ? (VAL) : SCHED_KEEP);
 
-#ifdef VC_ENABLE_API_V13
-#  include "syscall_setsched-v13.hc"
-#endif
-
-#ifdef VC_ENABLE_API_V13OBS
-#  include "syscall_setsched-v13obs.hc"
-#endif
-
-int
-vc_set_sched(xid_t xid, struct vc_set_sched const *data)
+static inline ALWAYSINLINE int
+vc_set_sched_v13obs(xid_t xid, struct vc_set_sched const *data)
 {
-  CALL_VC(CALL_VC_V13B  (vc_set_sched,xid,data),
-	  CALL_VC_V13OBS(vc_set_sched,xid,data));
+#warning vc_set_sched_v13() uses an obsolete interface; remove it in the final version
+  struct vcmd_set_sched_v2	k_data;
+
+  
+  k_data.cpu_mask    = 0;
+  k_data.fill_rate   = VCGET(VC_VXSM_FILL_RATE,  data->fill_rate);
+  k_data.interval    = VCGET(VC_VXSM_INTERVAL,   data->interval);
+  k_data.tokens      = VCGET(VC_VXSM_TOKENS,     data->tokens);
+  k_data.tokens_min  = VCGET(VC_VXSM_TOKENS_MIN, data->tokens_min);
+  k_data.tokens_max  = VCGET(VC_VXSM_TOKENS_MAX, data->tokens_max);
+
+  return vserver(VCMD_set_sched_v2, CTX_USER2KERNEL(xid), &k_data);
 }
