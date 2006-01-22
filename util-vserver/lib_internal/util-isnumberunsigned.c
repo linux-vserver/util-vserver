@@ -25,11 +25,11 @@
 #include <limits.h>
 
 static inline bool
-checkConstraints(signed long val, unsigned int fac)
+checkConstraints(unsigned long val, unsigned int fac)
 {
-  if (val>0 && (signed long)(LONG_MAX/fac) <= val) return false;
-  if (val<0 && (signed long)(LONG_MIN/fac) >= val) return false;
+  if ((long)(val)   <    0) return false;
+  if (ULONG_MAX/fac <= val) return false;
   return true;
 }
 
-ENSC_DECL_UTIL_ISNUMBER(isNumber, signed long, strtol)
+ENSC_DECL_UTIL_ISNUMBER(isNumberUnsigned, unsigned long, strtoul)

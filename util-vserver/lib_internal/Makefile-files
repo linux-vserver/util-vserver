@@ -96,7 +96,9 @@ lib_internal_libinternal_common_SRCS = \
 				lib_internal/unify-isiunlinkable.c \
 				lib_internal/util-canonify.c \
 				lib_internal/util-exitlikeprocess.c \
+				lib_internal/util-isnumber.hc \
 				lib_internal/util-isnumber.c \
+				lib_internal/util-isnumberunsigned.c \
 				lib_internal/util-lockfile.c \
 				lib_internal/util-safechdir.c \
 				$(command_SRCS) \
