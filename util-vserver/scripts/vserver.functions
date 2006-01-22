@@ -966,7 +966,15 @@ WARNING: The 'only_ip' flag for interface '$iface' is deprecated; use
   'nodev' instead of"
 	fi
     done
-    
+
+    test ! -d "$cfgdir"/dlimits -o -L "$cfgdir/cache" || \
+	warning $"\
+WARNING: There is no cachedirectory configured for this vserver;
+  please create '$cfgdir/cache' e.g. by executing
+
+  ln -s ../.defaults/cachebase/$VSERVER_NAME $cfgdir/cache
+"
+
     find "$cfgdir" -type f -exec "$_CHECK_UNIXFILE" '{}' ';'
 
     vshelper.doSanityCheck
@@ -1000,15 +1008,18 @@ function _setSingleDiskLimit
     getFileValue inodes_total "$dlimit/inodes_total" || return 0
     getFileValue reserved     "$dlimit/reserved"     || return 0
 
-    local cachename=`echo "$ctx$directory" | $_SED 's!/!_!g'`
+    local cachename=$ctx$directory
+    cachename=dlimits/${cachename//\//_}
 
     test -e "$vdir/cache/$cachename" && . "$vdir/cache/$cachename"
     # Remove the cache so if the machine goes down unexpectedly, we won't have a stale cache
     $_RM -f "$vdir/cache/$cachename"
 
     if test -z "$inodes_used" -o -z "$space_used"; then
-	space_used=` $_VDU --xid $ctx --space  --script "$directory"`
-	inodes_used=`$_VDU --xid $ctx --inodes --script "$directory"`
+	local tmpvdu
+	tmpvdu=`$_VDU --xid $ctx --space --inodes --script "$directory"`
+	inodes_used=${tmpvdu##* }
+	space_used=${tmpvdu%% *}
     fi
 
     $_VDLIMIT --xid $ctx \
@@ -1048,10 +1059,29 @@ function _saveSingleDiskLimit
     getFileValue ctx       "$vdir/context"
     getFileValue directory "$dlimit/directory" || return 0
 
-    local cachename=`echo "$ctx$directory" | $_SED 's!/!_!g'`
+    local cachename=$ctx$directory
+    cachename=${cachename//\//_}
+
+    # Things are getting ugly here... LFS says that /var/cache (where
+    # cachename is usually pointing to) can vanish and applications
+    # have to deal with it. So, we have to interprete the $vdir/cache
+    # symlink and have to create the needed directories manually.
+    if   test -d "$vdir/cache"; then
+	:	# ok, exists already
+    elif test -L "$vdir/cache"; then
+	# it's a dangling symlink
+	local link
+	link=$($_READLINK "$vdir/cache")
+	( cd $vdir && $_MKDIR -p "$link" )
+    else
+	return 0
+    fi
+
+    test -d "$vdir/cache"
+    $_MKDIR -p "$vdir"/cache/dlimits
 
     $_VDLIMIT --xid $ctx "$directory" | \
-	$_GREP '_used=' > "$vdir/cache/$cachename"
+	$_GREP '_used=' > "$vdir/cache/dlimits/$cachename"
 }
 
 
