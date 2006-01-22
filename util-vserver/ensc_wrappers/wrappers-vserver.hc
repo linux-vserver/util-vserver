@@ -20,6 +20,8 @@
 #  error wrappers_handler.hc can not be used in this way
 #endif
 
+#if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
+
 inline static WRAPPER_DECL xid_t
 Evc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags)
 {
@@ -27,6 +29,8 @@ Evc_new_s_context(xid_t ctx, unsigned int remove_cap, unsigned int flags)
   FatalErrnoError(res==VC_NOCTX, "vc_new_s_context()");
   return res;
 }
+
+#endif
 
 inline static WRAPPER_DECL xid_t
 Evc_get_task_xid(pid_t pid)
