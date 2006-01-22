@@ -107,6 +107,10 @@
 #  include "wrappers-socket.hc"
 #endif
 
+#ifdef ENSC_WRAPPERS_STAT
+#  include "wrappers-stat.hc"
+#endif
+
 #undef ENSC_DETAIL2
 #undef ENSC_DETAIL1
 #undef ENSC_DOQUOTE_COND

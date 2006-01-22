@@ -25,6 +25,7 @@ noinst_HEADERS +=		ensc_wrappers/wrappers-clone.hc \
 				ensc_wrappers/wrappers-pivot.hc \
 				ensc_wrappers/wrappers-resource.hc \
 				ensc_wrappers/wrappers-socket.hc \
+				ensc_wrappers/wrappers-stat.hc \
 				ensc_wrappers/wrappers-stdlib.hc \
 				ensc_wrappers/wrappers-string.hc \
 				ensc_wrappers/wrappers-unistd.hc \
