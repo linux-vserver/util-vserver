@@ -37,6 +37,7 @@
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_DIRENT	1
 #define ENSC_WRAPPERS_FCNTL	1
+#define ENSC_WRAPPERS_STAT	1
 #include <wrappers.h>
 
 #define CMD_HELP		0x1000
@@ -62,11 +63,21 @@ CMDLINE_OPTIONS[] = {
 };
 
 struct Arguments {
-    xid_t	xid;
-    bool	space;
-    bool	inodes;
-    bool	script;
-    uint32_t	blocksize;
+    xid_t		xid;
+    bool		space;
+    bool		inodes;
+    bool		script;
+    unsigned long	blocksize;
+};
+
+struct Result {
+    uint_least64_t	blocks;
+    uint_least64_t	inodes;
+};
+
+struct TraversalParams {
+    struct Arguments const * const	args;
+    struct Result * const		result;
 };
 
 static void
@@ -170,53 +181,68 @@ hash_insert(ino_t inode)
 }
 
 static void
-vdu_onedir(struct Arguments const *args, char const *path, uint64_t *size)
+visitDirEntry(struct dirent const *ent, dev_t const dir_dev,
+	      struct TraversalParams *params);
+
+static void
+visitDir(char const *name, struct stat const *expected_stat, struct TraversalParams *params)
 {
-  DIR *dir;
-  struct dirent *ent;
-  struct stat dirst, st;
-  char entpath[PATH_MAX];
+  int		fd = Eopen(".", O_RDONLY|O_DIRECTORY, 0);
+  DIR *		dir;
 
-  if (lstat(path, &dirst) == -1) {
-    WRITE_MSG(2, "lstat(");
-    WRITE_STR(2, path);
-    WRITE_MSG(2, ")");
-    perror("");
-    exit(EXIT_FAILURE);
+  EsafeChdir(name, expected_stat);
+
+  dir = Eopendir(".");
+
+  for (;;) {
+    struct dirent		*ent = Ereaddir(dir);
+    if (ent==0) break;
+
+    visitDirEntry(ent, expected_stat->st_dev, params);
   }
 
-  dir = Eopendir(path);
-  while ((ent = Ereaddir(dir)) != NULL) {
-    if (ent->d_name[0] == '.' && (ent->d_name[1] == '\0' || (ent->d_name[1] == '.' && ent->d_name[2] == '\0')))
-      continue;
-
-    strcpy(entpath, path);
-    strcat(entpath, "/");
-    strcat(entpath, ent->d_name);
-
-    if (lstat(entpath, &st) == -1) {
-      WRITE_MSG(2, "lstat(");
-      WRITE_STR(2, entpath);
-      WRITE_MSG(2, ")");
-      perror("");
-      exit(EXIT_FAILURE);
-    }
-
-    if (vc_getfilecontext(entpath) != args->xid)
-      continue;
-
-    if (st.st_nlink > 1 && hash_insert(st.st_ino) == -1)
-      continue;
-
-    if (args->space)
-      *size += st.st_blocks << 9; /* * 512 */
-    else
-      (*size)++;
-
-    if (S_ISDIR(st.st_mode) && dirst.st_dev == st.st_dev)
-      vdu_onedir(args, entpath, size);
-  }
   Eclosedir(dir);
+
+  Efchdir(fd);
+  Eclose(fd);
+}
+
+static void
+visitDirEntry(struct dirent const *ent, dev_t const dir_dev,
+	      struct TraversalParams *params)
+{
+  struct stat		st;
+  char const * const	name = ent->d_name;
+  xid_t			xid;
+  
+  if (isDotfile(name)) return;
+
+  ElstatD(name, &st);
+
+  xid = vc_getfilecontext(name);
+  if (xid == params->args->xid &&
+      (st.st_nlink == 1 || hash_insert(st.st_ino) != -1)) {
+    params->result->blocks += st.st_blocks;
+    params->result->inodes += 1;
+  }
+
+  if (S_ISDIR(st.st_mode) && dir_dev == st.st_dev)
+    visitDir(name, &st, params);
+}
+
+static void
+visitDirStart(char const *name, struct TraversalParams *params)
+{
+  struct stat	st;
+  int		fd = Eopen(".", O_RDONLY|O_DIRECTORY, 0);
+
+  Estat(name, &st);
+  Echdir(name);
+
+  visitDir(".", &st, params);
+
+  Efchdir(fd);
+  Eclose(fd);  
 }
 
 int main(int argc, char *argv[])
@@ -237,21 +263,17 @@ int main(int argc, char *argv[])
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
       case CMD_XID	:  args.xid = Evc_xidopt2xid(optarg,true); break;
-      case CMD_SPACE	:  args.space = true;                      break;
+      case CMD_SPACE	:  args.space  = true;                     break;
       case CMD_INODES	:  args.inodes = true;                     break;
       case CMD_SCRIPT	:  args.script = true;                     break;
       case CMD_BLOCKSIZE:
-	{
-	  char *endptr;
-	  args.blocksize = strtol(optarg, &endptr, 0);
-	  if ((args.blocksize == 0 && errno != 0) || *endptr != '\0') {
-	    WRITE_MSG(2, "Invalid block size argument: '");
-	    WRITE_STR(2, optarg);
-	    WRITE_MSG(2, "'; try '--help' for more information\n");
-	    return EXIT_FAILURE;
-	  }
-          break;
+	if (!isNumberUnsigned(optarg, &args.blocksize, false)) {
+	  WRITE_MSG(2, "Invalid block size argument: '");
+	  WRITE_STR(2, optarg);
+	  WRITE_MSG(2, "'; try '--help' for more information\n");
+	  return EXIT_FAILURE;
 	}
+	break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -265,31 +287,46 @@ int main(int argc, char *argv[])
     WRITE_MSG(2, "No xid specified; try '--help' for more information\n");
   else if (!args.space && !args.inodes)
     WRITE_MSG(2, "Must specify --space or --inodes; try '--help' for more information\n");
-  else if (args.space && args.inodes)
-    WRITE_MSG(2, "Can only do one thing at a time; try '--help' for more information\n");
   else if (optind==argc)
     WRITE_MSG(2, "No directory specified; try '--help' for more information\n");
   else {
     int		i;
-    uint64_t	size;
-    char	buf[sizeof(size)*3 + 2];
     size_t	len;
+    struct Result		result;
+    struct TraversalParams	params   = {
+      .args   = &args,
+      .result = &result
+    };
 
     for (i = optind; i < argc; i++) {
-      size = 0;
+      uint_least64_t		size;
+      char			buf[sizeof(size)*3 + 3];
+      char const *		delim = "";
+      
+      result.blocks = 0;
+      result.inodes = 0;
 
       hash_init();
-      vdu_onedir(&args, argv[i], &size);
+      visitDirStart(argv[i], &params);
       hash_free();
 
       if (!args.script) {
 	WRITE_STR(1, argv[i]);
 	WRITE_MSG(1, " ");
       }
-      if (args.space)
-        size /= args.blocksize;
-      len = utilvserver_fmt_uint64(buf, size);
-      Vwrite(1, buf, len);
+
+      if (args.space) {
+	len = utilvserver_fmt_uint64(buf, result.blocks*512 / args.blocksize);
+	if (*delim) WRITE_STR(1, delim);
+	Vwrite(1, buf, len);
+	delim = " ";
+      }
+      if (args.inodes) {
+	len = utilvserver_fmt_uint64(buf, result.inodes);
+	if (*delim) WRITE_STR(1, delim);
+	Vwrite(1, buf, len);
+	delim = " ";
+      }	
       WRITE_MSG(1, "\n");
     }
     return EXIT_SUCCESS;
