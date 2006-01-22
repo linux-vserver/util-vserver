@@ -14,7 +14,8 @@ Herbert Poetzl,
     for providing the alternative syscall.h implementation
 
 Daniel Hokka Zakrisson
-    for his patch which adds support for ngnet functionality
+    for his patches which add support for non-legacy network functionality
+    and much better dlimit support
 
 
 all the other people, who contributed to the original 'vserver' package
