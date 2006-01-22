@@ -144,7 +144,7 @@ static void
 showHelp(int fd, char const *cmd, int res)
 {
 #if !defined(VC_ENABLE_API_COMPAT) && !defined(VC_ENABLE_API_LEGACY)
-  WRITE_MSG(2, "ERROR: tools were built without legacy API support; reducecap will not work!\n\n");
+  WRITE_MSG(1, "ERROR: tools were built without legacy API support; reducecap will not work!\n\n");
 #endif
   
   WRITE_MSG(fd, "Usage:\n  ");

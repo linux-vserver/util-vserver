@@ -97,7 +97,7 @@ showHelp(int fd, char const *cmd, int res)
   VSERVER_DECLARE_CMD(cmd);
 
 #if !defined(VC_ENABLE_API_COMPAT) && !defined(VC_ENABLE_API_LEGACY)
-  WRITE_MSG(2, "ERROR: tools were built without legacy API support; chcontext will not work!\n\n");
+  WRITE_MSG(1, "ERROR: tools were built without legacy API support; chcontext will not work!\n\n");
 #endif
   
   WRITE_MSG(fd, "Usage: ");
