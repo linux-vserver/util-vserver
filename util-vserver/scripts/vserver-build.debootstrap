@@ -48,9 +48,11 @@ function initFilesystem
 
 function findDebootstrap
 {
+    test ! -x "$DEBOOTSTRAP" || return 0
+
     pushd . &>/dev/null
     DEBOOTSTRAP=$(which debootstrap 2>/dev/null) || {
-        dir=$($_MKTEMPDIR /var/tmp/debootstrap.XXXXXX)
+        dir=$($_MKTEMPDIR -p /var/tmp debootstrap.XXXXXX)
         workdir=$dir
         dst=$dir/debootstrap.deb
         
