@@ -210,7 +210,7 @@ src_save_ctxinfo_LDADD		=  $(VSERVER_LDADDS)
 src_save_ctxinfo_LDFLAGS	=  $(VSERVER_LDFLGS)
 
 src_vdu_SOURCES 		=  src/vdu.c
-src_vdu_LDADD			=  $(VSERVER_LDADDS)
+src_vdu_LDADD			=  $(VSERVER_LDADDS) $(LIBINTERNAL)
 src_vdu_LDFLAGS			=  $(VSERVER_LDFLGS)
 
 src_vreboot_SOURCES =		src/vreboot.c
