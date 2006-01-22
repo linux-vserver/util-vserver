@@ -146,6 +146,7 @@ pathsubst_RULES =	s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			s!@'CONFDIR'@!$(confdir)!g; \
 			s!@'SYSCONFDIR'@!$(sysconfdir)!g; \
 			s!@'PKGSTATEDIR'@!$(pkgstatedir)!g; \
+			s!@'PKGCACHEDIR'@!$(pkgcachedir)!g; \
 			s!@'PKGSTATEREVDIR'@!$(pkgstaterevdir)!g; \
 			s!@'VSERVERDIR'@!$(vserverdir)!g; \
 			s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
@@ -182,6 +183,7 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@chmod a-w '$*'
 			@touch '$@'
 
+pkgcachedir =		$(localstatedir)/cache/vservers
 pkgstatedir =		$(localstatedir)/run/vservers
 pkgstaterevdir =	$(confdefaultsdir)/run.rev
 vserverpkgdir =		$(vserverdir)/.pkg
@@ -198,10 +200,12 @@ update-doc:		doc
 install-data-hook:	install-fix-script-paths install-create-dirs
 
 install-create-dirs:
-			$(mkinstalldirs) -m 755 $(DESTDIR)$(pkgstatedir) $(DESTDIR)$(pkgstatedir).rev $(DESTDIR)$(vshelperstatedir)
-			$(mkinstalldirs) -m 755 $(DESTDIR)$(confdefaultsdir)
-			f=$(DESTDIR)$(confdefaultsdir)/vdirbase; test -e "$$f" || ln -sf '$(vserverdir)'      "$$f"
-			f=$(DESTDIR)$(pkgstaterevdir);           test -e "$$f" || ln -sf '$(pkgstatedir).rev' "$$f"
+			$(mkinstalldirs) -m 0755 $(DESTDIR)$(pkgstatedir) $(DESTDIR)$(pkgstatedir).rev $(DESTDIR)$(vshelperstatedir)
+			$(mkinstalldirs) -m 0700 $(DESTDIR)$(pkgcachedir)
+			$(mkinstalldirs) -m 0755 $(DESTDIR)$(confdefaultsdir)
+			f=$(DESTDIR)$(confdefaultsdir)/vdirbase;  test -e "$$f" || ln -sf '$(vserverdir)'      "$$f"
+			f=$(DESTDIR)$(confdefaultsdir)/cachebase; test -e "$$f" || ln -sf '$(pkgcachedir)'     "$$f"
+			f=$(DESTDIR)$(pkgstaterevdir);            test -e "$$f" || ln -sf '$(pkgstatedir).rev' "$$f"
 
 install-fix-script-paths:
 			test "/usr/lib/util-vserver" = "$(pkglibdir)" || \
