@@ -61,4 +61,6 @@ vc_set_ipv4root(uint32_t  bcast, size_t nb, struct vc_ip_mask_pair const *ips)
 }
 
 LINK_WARNING("vc_new_s_context", "warning: vc_new_s_context() is obsoleted; use vc_create_context() instead of");
+LINK_WARNING("vc_set_ipv4root",  "warning: vc_set_ipv4root() is obsoleted; use vc_net_create() instead of");
+
 #endif
