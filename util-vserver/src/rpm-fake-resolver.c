@@ -250,7 +250,7 @@ daemonize(struct ArgInfo const UNUSED * args, int pid_fd)
 
 static void
 activateContext(xid_t xid, bool in_ctx,
-		uint32_t xid_caps, int xid_flags)
+		uint32_t UNUSED xid_caps, int UNUSED xid_flags)
 {
   if (in_ctx) {
     struct vc_ctx_flags		flags = {

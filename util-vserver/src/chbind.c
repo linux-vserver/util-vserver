@@ -342,17 +342,27 @@ int main (int argc, char *argv[])
     exit(wrapper_exit_code);
   }
   
-
+#if !defined(VC_ENABLE_API_NET) && !defined(VC_ENABLE_API_COMPAT) && !defined(VC_ENABLE_API_LEGACY)
+#  error can not build 'chbind' without network virtualization API
+#endif
+  
 #if defined(VC_ENABLE_API_NET)
   if (vc_isSupported(vcFEATURE_VNET)) {
     make_nx(nid, bcast, nbaddrs, ips);
   }
   else
 #endif
+#if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
   if (vc_set_ipv4root(bcast,nbaddrs,ips)!=0) {
     perror("chbind: vc_set_ipv4root()");
     exit(wrapper_exit_code);
   }
+#else
+  {
+    WRITE_MSG(2, "chbind: kernel does not provide network virtualization\n");
+    exit(wrapper_exit_code);
+  }
+#endif
 
   if (!is_silent) {
     size_t		i;

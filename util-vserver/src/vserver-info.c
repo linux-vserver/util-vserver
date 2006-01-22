@@ -320,6 +320,13 @@ getInitPid_emulated(char *buf, xid_t xid)
 
   return 0;
 }
+#else // VC_ENABLE_API_COMPAT
+static char *
+getInitPid_emulated(char UNUSED *buf, xid_t UNUSED xid)
+{
+  WRITE_MSG(2, "tools were built without compat API, getInitPid() not available\n");
+  return 0;
+}
 #endif // VC_ENABLE_API_COMPAT
 
 static char *
