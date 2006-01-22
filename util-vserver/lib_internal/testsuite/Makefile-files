@@ -20,9 +20,11 @@ check_PROGRAMS +=		lib_internal/testsuite/command
 if ENSC_HAVE_C99_COMPILER
 check_PROGRAMS +=		lib_internal/testsuite/filecfg-ml \
 				lib_internal/testsuite/copy \
+				lib_internal/testsuite/isnumber \
 				lib_internal/testsuite/sigbus
 TESTS +=			lib_internal/testsuite/filecfg-ml \
 				lib_internal/testsuite/copy-check \
+				lib_internal/testsuite/isnumber \
 				lib_internal/testsuite/sigbus
 endif
 
@@ -40,5 +42,8 @@ lib_internal_testsuite_filecfg_ml_LDADD =	$(LIBINTERNAL_GLIBC)
 
 lib_internal_testsuite_copy_SOURCES =		lib_internal/testsuite/copy.c
 lib_internal_testsuite_copy_LDADD =		$(LIBINTERNAL_GLIBC)
+
+lib_internal_testsuite_isnumber_SOURCES =	lib_internal/testsuite/isnumber.c
+lib_internal_testsuite_isnumber_LDADD =		$(LIBINTERNAL_GLIBC)
 
 lib_internal_testsuite_sigbus_SOURCES =		lib_internal/testsuite/sigbus.c
