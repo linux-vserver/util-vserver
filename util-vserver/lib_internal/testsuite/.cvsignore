@@ -6,4 +6,7 @@
 command
 copy
 filecfg-ml
+isnumber
+isnumber-gnu
 sigbus
+sigbus-gnu
