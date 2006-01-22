@@ -18,6 +18,13 @@
       <description>A link to the default vserver rootdirectory.</description>
     </link>
 
+    <link name="cachebase">
+      <default>/var/cache/vservers</default>
+      <description>
+A link to the directory which will hold cached information about
+vservers.
+      </description>
+    </link>
 
     <boolean id="global-nonamespace" name="nonamespace">
       <description>
@@ -283,8 +290,16 @@ this distribution.
     <description>
 The configuration directory for the vserver vserver-name.
     </description>
+
+    <link name="cache">
+      <default>../.defaults/cachebase/VSERVERNAME</default>
+      <description>
+Path of the storage area for cached information about this vserver.
+      </description>
+    </link>
     
     <link name="vdir">
+      <default>../.defaults/vdirbase/VSERVERNAME</default>
       <description>
 Path of the vserver root directory
       </description>
