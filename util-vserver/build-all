@@ -91,4 +91,6 @@ operate Build/diet-opt     --enable-release                    CPPFLAGS=$CPPFLAG
 operate Build/nodiet-noopt --disable-dietlibc                  CPPFLAGS=$CPPFLAGS CFLAGS='-O0 -g3' CXXFLAGS='-O0 -g3' 
 operate Build/nodiet-opt   --enable-release --disable-dietlibc CPPFLAGS=$CPPFLAGS
 operate Build/gcc32-opt    --enable-release --disable-dietlibc CPPFLAGS=$CPPFLAGS CC='ccache gcc32'  CXX='ccache g++'
-#operate Build/gcc33-opt    --enable-release --disable-dietlibc CPPFLAGS=$CPPFLAGS CC='ccache gcc33'  CXX='ccache g++33'
+
+operate Build/diet-opt-api   --enable-release --enable-apis=NOLEGACY                    CPPFLAGS=$CPPFLAGS
+operate Build/nodiet-opt-api --enable-release --enable-apis=NOLEGACY --disable-dietlibc CPPFLAGS=$CPPFLAGS
