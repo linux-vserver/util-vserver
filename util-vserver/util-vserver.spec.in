@@ -2,12 +2,11 @@
 
 ## This package understands the following switches:
 ## --without dietlibc        ...   disable usage of dietlibc
-## --without xalan           ...   do not require/use the xalan xslt processor
+## --with xalan              ...   require/use the xalan xslt processor
 
 %global confdir		%_sysconfdir/vservers
 %global confdefaultdir	%confdir/.defaults
 %global pkglibdir	%_libdir/%name
-%global __chattr	/usr/bin/chattr
 %global chkconfig	/sbin/chkconfig
 
 %global _localstatedir	%_var
@@ -18,7 +17,7 @@
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
 Version:	@VERSION@
-Release:	%release_func 0
+Release:	%release_func 0.5
 License:	GPL
 Group:		System Environment/Base
 URL:		http://savannah.nongnu.org/projects/util-vserver/
@@ -35,11 +34,11 @@ BuildRequires:	mount vconfig gawk iproute iptables
 BuildRequires:	gcc-c++ wget which diffutils
 BuildRequires:	e2fsprogs-devel beecrypt-devel
 BuildRequires:	doxygen tetex-latex
-Requires(post):		%__chattr
+Requires(post):		%name-core
 Requires(pre):		%pkglibdir
 Requires(postun):	%pkglibdir
 %{!?_without_dietlibc:BuildRequires:	dietlibc >= 0:0.25}
-%{!?_without_xalan:BuildRequires:	xalan-j}
+%{?_with_xalan:BuildRequires:	xalan-j}
 
 %package lib
 Summary:		Dynamic libraries for util-vserver
@@ -57,10 +56,7 @@ Requires:		rpm wget binutils tar e2fsprogs
 Requires:		%name = %version-%release
 Requires(pre):		%confdir
 Requires(postun):	%confdir
-
-%ifarch %ix86
-Requires:		apt
-%endif
+Requires(post):		%name-core
 
 %package sysv
 Summary:		SysV-initscripts for vserver
@@ -198,10 +194,15 @@ rm -rf $RPM_BUILD_ROOT
 test -d /vservers      || mkdir -m0000 /vservers
 test -d /vservers/.pkg || mkdir -m0755 /vservers/.pkg
 
-f="%confdefaultdir/vdirbase"; test -L "$f" -o -e "$f" || ln -s /vservers                        "$f"
-f="%confdefaultdir/run.rev";  test -L "$f" -o -e "$f" || ln -s %_localstatedir/run/vservers.rev "$f"
+f="%confdefaultdir/vdirbase";  test -L "$f" -o -e "$f" || ln -s /vservers                        "$f"
+f="%confdefaultdir/run.rev";   test -L "$f" -o -e "$f" || ln -s %_localstatedir/run/vservers.rev "$f"
+f="%confdefaultdir/cachebase"; test -L "$f" -o -e "$f" || ln -s %_localstatedir/cache/vservers   "$f"
 
-%_sbindir/setattr --barrier /vservers || :
+%_sbindir/setattr --barrier /vservers /vservers/.pkg || :
+
+
+%preun
+test "$1" != 0 || rm -rf %_localstatedir/cache/vservers/* 2>/dev/null || :
 
 
 %post   lib -p /sbin/ldconfig
@@ -225,7 +226,7 @@ test "$1" != 0 || %chkconfig --del vservers-default
 test "$1" = 0  || %_initrddir/vprocunhide condrestart >/dev/null || :
 
 
-%triggerin build -- fedora-release
+%triggerin build -- fedora-release, centos-release
 function copy()
 {
     base=$1
@@ -238,11 +239,18 @@ function copy()
 	cp -a "$i" "$target"
     done
 }
-
 copy fedora /usr/share/doc/fedora-release-*/RPM-GPG-*
 copy fedora /etc/pki/rpm-gpg/RPM-GPG-*
-
 copy centos /usr/share/doc/centos-*/RPM-GPG-KEY-*
+
+
+%post build
+test -d /vservers/.hash || mkdir -m0700 /vservers/.hash
+
+f="%confdefaultdir/apps/vunify/hash"; test -e "$f"/method -o -e "$f"/00 || \
+	ln -s /vservers/.hash "$f"/00
+
+%_sbindir/setattr --barrier /vservers/.hash || :
 
 
 %preun build
@@ -293,9 +301,11 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 %dir %confdefaultdir/apps
 %dir %confdefaultdir/files
 %dir %pkglibdir/defaults
+%ghost %confdefaultdir/cachebase
 %ghost %confdefaultdir/vdirbase
 %ghost %confdefaultdir/run.rev
 
+%dir %_localstatedir/cache/vservers
 %dir %_localstatedir/run/vservers
 %dir %_localstatedir/run/vservers.rev
 %dir %_localstatedir/run/vshelper
@@ -334,6 +344,21 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 
 
 %changelog
+* Sun Jan 22 2006 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0.30.210-0
+- do not require 'xalan' anymore by default
+- removed 'Requires: apt'; apt-rpm is not maintained upstream anymore
+- removed 'chattr' leftovers
+- create the '/etc/vservers/.defaults/cachebase' symlink
+- added /var/cache/vservers and the needed support
+- set barrier attribute on /vservers/.pkg and /vservers/.hash
+- added 'centos-release' to the list of packages in the copy-the-keys
+  trigger script
+- create '/vservers/.hash' and add initial configuration for it
+
+* Sun Oct 30 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.30.209-0
+- version 0.30.209
+- copy centos keys
+
 * Sat Jul 16 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de> - 0:0.30.208-2
 - updated URLs
 
