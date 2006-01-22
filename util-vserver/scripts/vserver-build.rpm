@@ -85,8 +85,8 @@ setup_writeInitialFstab
 # when basedir is a non-local location, rpm will download it into the
 # current directory. Therefore, create and go into a temporay directory
 # before doing the operations.
-tmpdir=$($_MKTEMPDIR /var/tmp/vserver-build.rpm.XXXXXX)
-manifest=$($_MKTEMP /tmp/vserver-build.rpm.manifest.XXXXXX)
+tmpdir=$($_MKTEMPDIR -p /var/tmp vserver-build.rpm.XXXXXX)
+manifest=$($_MKTEMP vserver-build.rpm.manifest.XXXXXX)
 trap "rm -rf $tmpdir $manifest" EXIT
 cd "$tmpdir"			
 

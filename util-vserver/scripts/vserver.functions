@@ -809,7 +809,7 @@ function initWait
 {
     if $_VSERVER_INFO - FEATURE vwait; then
 	local _is_tmpdir
-	_is_tmpdir=$($_MKTEMPDIR /tmp/vwaitstat.XXXXXX)
+	_is_tmpdir=$($_MKTEMPDIR vwaitstat.XXXXXX)
 
 	(
 	    $_VWAIT --timeout "$VSHELPER_SYNC_TIMEOUT" \

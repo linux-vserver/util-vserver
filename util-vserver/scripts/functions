@@ -242,7 +242,7 @@ _VS_LOCKS=''
 ## Usage: lock <lockfile> [<timeout>]
 function lock
 {
-    local tmp=$($_MKTEMP /tmp/vserver-lock.XXXXXX)
+    local tmp=$($_MKTEMP vserver-lock.XXXXXX)
     $_RM -f $tmp
     $_MKFIFO -m600 $tmp
 
@@ -969,7 +969,7 @@ function vshelper.doDestroy
 function vshelper.initSync
 {
     local _vis_tmpdir
-    _vis_tmpdir=$($_MKTEMPDIR /tmp/vserver-stop.XXXXXX) || {
+    _vis_tmpdir=$($_MKTEMPDIR vserver-stop.XXXXXX) || {
 	warning $"Failed to generate temporary directory for vshelper sync"
 	return 1
     }

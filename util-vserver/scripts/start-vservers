@@ -134,9 +134,9 @@ while test $i -gt 0; do
     unset vservers[$i]
 done
 
-makedir=$($_MKTEMPDIR /tmp/vserver-init.XXXXXX)
-okfile=$($_MKTEMP     /tmp/vserver-init.XXXXXX)
-passedfile=$($_MKTEMP /tmp/vserver-init.XXXXXX)
+makedir=$($_MKTEMPDIR vserver-init.XXXXXX)
+okfile=$($_MKTEMP     vserver-init.XXXXXX)
+passedfile=$($_MKTEMP vserver-init.XXXXXX)
 trap "$_RM -rf $makedir $resultfile $passedfile" EXIT
 
 test_cmd=false

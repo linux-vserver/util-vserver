@@ -141,7 +141,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
     "${INITCMD_START[@]}"
 else
     if test -n "$_IS_FAKEINIT"; then
-	startsync_pipe=$($_MKTEMP /tmp/vserver-start.XXXXXX)
+	startsync_pipe=$($_MKTEMP vserver-start.XXXXXX)
 	$_RM -f "$startsync_pipe"
 	$_MKFIFO -m600 "$startsync_pipe"	## safe, since mkfifo does not follow symlinks
     fi
