@@ -202,45 +202,59 @@ dnl ##########################
 dnl
 dnl {Check for the APIs to be used
 dnl
+AH_TEMPLATE(VC_ENABLE_API_COMPAT,   [Enable support for compatibility syscall API])
+AH_TEMPLATE(VC_ENABLE_API_LEGACY,   [Enable support for old, /proc parsing API])
+AH_TEMPLATE(VC_ENABLE_API_V11,      [Enable support for API of vserver 1.1.x])
+AH_TEMPLATE(VC_ENABLE_API_FSCOMPAT, [Enable support for filesystem compatibility API])
+AH_TEMPLATE(VC_ENABLE_API_V13OBS,   [Enable support for some obsoleted API of vserver 1.3.x])
+AH_TEMPLATE(VC_ENABLE_API_V13,      [Enable support for API of vserver 1.3.x])
+AH_TEMPLATE(VC_ENABLE_API_NET,      [Enable support for network context API])
+AH_TEMPLATE(VC_ENABLE_API_OLDPROC,  [Enable API for a backward compatible /proc parsing])
+AH_TEMPLATE(VC_ENABLE_API_OLDUTS,   [Enable API for a backward compatible uts handling])
+
 AC_MSG_CHECKING([for supported APIs])
 AC_ARG_ENABLE([apis],
 	      [AC_HELP_STRING([--enable-apis=APIS],
-			      [enable support for the given apis; possible values are: legacy,compat,v11,v13,fscompat,net,ALL (default: all except 'legacy')])],
+			      [enable support for the given apis; possible values are: legacy,compat,v11,fscompat,v13obs,v13,net, ALL,NOLEGACY (default: v13,net)])],
               [],
-	      [enable_apis=compat,v11,v13,fscompat,net])
+	      [enable_apis=v13,net])
 
-test x"$enable_apis" != xALL || enable_apis='legacy,compat,v11,v13,fscompat,net'
+test x"$enable_apis" != xALL      || enable_apis='legacy,compat,v11,fscompat,v13obs,v13,net'
+test x"$enable_apis" != xNOLEGACY || enable_apis='compat,v11,fscompat,v13,net'
 enable_api_oldproc=
 enable_api_olduts=
 old_IFS=$IFS
 IFS=,;
+
 for i in $enable_apis; do
 	case "$i" in
-		(compat)	AC_DEFINE(VC_ENABLE_API_COMPAT,   1, [Enable support for compatibility syscall API])
+		(compat)	AC_DEFINE(VC_ENABLE_API_COMPAT,   1)
 				enable_api_oldproc=1
 				enable_api_olduts=1
 				;;
-		(legacy) 	AC_DEFINE(VC_ENABLE_API_LEGACY,   1, [Enable support for old, /proc parsing API])
+		(legacy) 	AC_DEFINE(VC_ENABLE_API_LEGACY,   1)
 				enable_api_old_proc=1
 				enable_api_olduts=1
 				;;
-		(v11)    	AC_DEFINE(VC_ENABLE_API_V11,      1, [Enable support for API of vserver 1.1.x])
+		(v11)    	AC_DEFINE(VC_ENABLE_API_V11,      1)
 				enable_api_oldproc=1
 				enable_api_olduts=1
 				;;
-		(v13)    	AC_DEFINE(VC_ENABLE_API_V13,      1, [Enable support for API of vserver 1.3.x]);;
-		(net)		AC_DEFINE(VC_ENABLE_API_NET,      1, [Enable support for network context API]);;
-		(fscompat)	AC_DEFINE(VC_ENABLE_API_FSCOMPAT, 1, [Enable support for filesystem compatibility API]);;
+		(fscompat)	AC_DEFINE(VC_ENABLE_API_FSCOMPAT, 1);;
+		(v13obs)    	AC_DEFINE(VC_ENABLE_API_V13OBS,   1)
+				AC_DEFINE(VC_ENABLE_API_V13,      1);;
+		(v13)    	AC_DEFINE(VC_ENABLE_API_V13,      1);;
+		(net)		AC_DEFINE(VC_ENABLE_API_NET,      1);;
 		(*)		AC_MSG_ERROR(['$i' is not a supported API]);;
 	esac
 done
 IFS=$old_IFS
 if test x"$enable_api_oldproc" != x; then
-	AC_DEFINE(VC_ENABLE_API_OLDPROC, 1, [Enable API for a backward compatible /proc parsing])
+	AC_DEFINE(VC_ENABLE_API_OLDPROC, 1)
 	enable_apis="$enable_apis,oldproc"
 fi
 if test x"$enable_api_olduts" != x; then
-	AC_DEFINE(VC_ENABLE_API_OLDUTS, 1, [Enable API for a backward compatible uts handling])
+	AC_DEFINE(VC_ENABLE_API_OLDUTS, 1)
 	enable_apis="$enable_apis,olduts"
 fi
 AC_MSG_RESULT([$enable_apis])
