@@ -1,0 +1,189 @@
+--- yum-2.6.0/docs/yum.conf.5.chroot	2006-03-07 04:40:08.000000000 +0100
++++ yum-2.6.0/docs/yum.conf.5	2006-03-26 13:21:35.000000000 +0200
+@@ -23,8 +23,10 @@
+ following options:
+ 
+ .IP \fBcachedir\fR
+-Directory where yum should store its cache and db files. The default is
+-`/var/cache/yum'.
++Directory where yum should store its cache and db files. The default
++is `/var/cache/yum'. Unless the prefixes `hostfs://' or `chrootfs://'
++are used, some magic will be applied to determine the real path in
++combination with `--installroot'.
+ 
+ .IP \fBkeepcache\fR
+ Either `1' or `0'. Determines whether or not yum keeps the cache
+@@ -40,6 +42,10 @@
+ repositories defined in /etc/yum.conf to form the complete set of repositories
+ that yum will use.
+ 
++Unless the prefixes `hostfs://' or `chrootfs://' are used, some magic
++will be applied to determine the real path in combination with
++`--installroot'.
++
+ .IP \fBdebuglevel\fR
+ Debug message output level. Practical range is 0\-10. Default is `2'.
+ 
+@@ -47,7 +53,10 @@
+ Error message output level. Practical range is 0\-10. Default is `2'.
+ 
+ .IP \fBlogfile\fR
+-Full directory and file name for where yum should write its log file.
++Full directory and file name for where yum should write its log
++file. Unless the prefixes `hostfs://' or `chrootfs://' are used,
++some magic will be applied to determine the real path in combination
++with `--installroot'.
+ 
+ .IP \fBgpgcheck\fR
+ Either `1' or `0'. This tells yum whether or not it should perform a GPG
+--- yum-2.6.0/yum/__init__.py.chroot	2006-03-07 05:38:00.000000000 +0100
++++ yum-2.6.0/yum/__init__.py	2006-03-26 13:21:35.000000000 +0200
+@@ -125,8 +125,7 @@
+         # (typically /etc/yum.repos.d and /etc/yum/repos.d)
+         parser = config.IncludedDirConfigParser(vars=self.yumvar)
+         for reposdir in self.conf.reposdir:
+-            if os.path.exists(self.conf.installroot+'/'+reposdir):
+-                reposdir = self.conf.installroot + '/' + reposdir
++            reposdir  = self.conf.getRootedPath(reposdir)
+ 
+             if os.path.isdir(reposdir):
+                 #XXX: why can't we just pass the list of files?
+@@ -482,16 +481,20 @@
+             
+         self.log(2, 'Finished')
+         
+-    def doLock(self, lockfile):
++    def __getLockfileName(self):
++        lockfile = self.conf.lockfile
++        return self.conf.getRootedPath(lockfile,
++                                       enforce_default  = True,
++                                       defaults_to_host = False)
++        
++    def doLock(self):
+         """perform the yum locking, raise yum-based exceptions, not OSErrors"""
+         
+         # if we're not root then we don't lock - just return nicely
+         if self.conf.uid != 0:
+             return
+             
+-        root = self.conf.installroot
+-        lockfile = root + '/' + lockfile # lock in the chroot
+-        lockfile = os.path.normpath(lockfile) # get rid of silly preceding extra /
++        lockfile = self.__getLockfileName()
+         
+         mypid=str(os.getpid())    
+         while not self._lock(lockfile, mypid, 0644):
+@@ -515,15 +518,14 @@
+                     msg = 'Existing lock %s: another copy is running. Aborting.' % lockfile
+                     raise Errors.LockError(0, msg)
+     
+-    def doUnlock(self, lockfile):
++    def doUnlock(self):
+         """do the unlock for yum"""
+         
+         # if we're not root then we don't lock - just return nicely
+         if self.conf.uid != 0:
+             return
+         
+-        root = self.conf.installroot
+-        lockfile = root + '/' + lockfile # lock in the chroot
++        lockfile=self.__getLockfileName()
+         
+         self._unlock(lockfile)
+         
+--- yum-2.6.0/yum/config.py.chroot	2006-03-07 04:40:08.000000000 +0100
++++ yum-2.6.0/yum/config.py	2006-03-26 13:22:41.000000000 +0200
+@@ -450,6 +450,27 @@
+         else:
+             raise Errors.ConfigError, 'No such option %s' % option
+ 
++    def getRootedPath(self, path, enforce_default=False, defaults_to_host=False):
++	instroot = getattr(self, 'installroot', None)
++        if instroot==None:
++            return path
++
++        if   path.startswith('hostfs://'):   res = path[9:]
++        elif path.startswith('chrootfs://'): res = instroot + '/' + path[11:]
++        else:
++	    tmp = instroot + '/' +path
++
++            if enforce_default:
++                if defaults_to_host:    res = path
++                else:                   res = tmp
++            else:
++                if os.path.exists(tmp): res = tmp
++                elif defaults_to_host:  res = path
++                else:                   res = tmp
++
++	return res
++ 
++ 
+ class EarlyConf(BaseConfig):
+     '''
+     Configuration option definitions for yum.conf's [main] section that are
+@@ -474,6 +495,7 @@
+     cachedir = Option('/var/cache/yum')
+     keepcache = BoolOption(True)
+     logfile = Option('/var/log/yum.log')
++    lockfile = Option('/var/run/yum.pid')
+     reposdir = ListOption(['/etc/yum/repos.d', '/etc/yum.repos.d'])
+     syslog_ident = Option()
+     syslog_facility = Option('LOG_DAEMON')
+@@ -580,9 +602,9 @@
+     yumconf.populate(confparser, 'main')
+ 
+     # Apply the installroot to directory options
+-    for option in ('cachedir', 'logfile'):
++    for option in ('cachedir', 'logfile', 'lockfile'):
+         path = getattr(yumconf, option)
+-        setattr(yumconf, option, yumconf.installroot + path)
++        setattr(yumconf, option, yumconf.getRootedPath(path))
+     
+     # Check that plugin paths are all absolute
+     for path in yumconf.pluginpath:
+--- yum-2.6.0/cli.py.chroot	2006-02-22 22:16:13.000000000 +0100
++++ yum-2.6.0/cli.py	2006-03-26 13:21:35.000000000 +0200
+@@ -112,7 +112,7 @@
+                 action="store_true", default=False, 
+                 help="run entirely from cache, don't update cache")
+         self.optparser.add_option("-c", "", dest="conffile", action="store", 
+-                default='/etc/yum.conf', help="config file location", 
++                default=None, help="config file location", 
+                 metavar=' [config file]')
+         self.optparser.add_option("-R", "", dest="sleeptime", action="store", 
+                 type='int', default=None, help="maximum command wait time",
+@@ -165,9 +165,12 @@
+         try: 
+             # If the conf file is inside the  installroot - use that.
+             # otherwise look for it in the normal root
+-            if opts.installroot:
+-                if os.access(opts.installroot+'/'+opts.conffile, os.R_OK):
++            if opts.conffile==None:
++                opts.conffile = '/etc/yum.conf'
++                if opts.installroot and os.access(opts.installroot+'/'+opts.conffile, os.R_OK):
+                     opts.conffile = opts.installroot+'/'+opts.conffile
++
++            if opts.installroot:
+                 root=opts.installroot
+             else:
+                 root = '/'
+--- yum-2.6.0/yummain.py.chroot	2005-12-13 09:35:41.000000000 +0100
++++ yum-2.6.0/yummain.py	2006-03-26 13:21:35.000000000 +0200
+@@ -60,7 +60,7 @@
+     def unlock():
+         try:
+             base.closeRpmDB()
+-            base.doUnlock(YUM_PID_FILE)
++            base.doUnlock()
+         except Errors.LockError, e:
+             sys.exit(200)
+ 
+@@ -83,7 +83,7 @@
+     except Errors.YumBaseError, e:
+         exFatal(e)
+     try:
+-        base.doLock(YUM_PID_FILE)
++        base.doLock()
+     except Errors.LockError, e:
+         base.errorlog(0,'%s' % e.msg)
+         sys.exit(200)
