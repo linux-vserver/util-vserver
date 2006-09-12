@@ -121,7 +121,7 @@ function fixupDebian
 ###   main starts here <---
 
 
-tmp=$(getopt -o '+d:m:' --long debug -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o '+d:m:s:' --long debug -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 init
@@ -130,6 +130,7 @@ while true; do
     case "$1" in
 	(-d)		DISTRIBUTION=$2; shift;;
 	(-m)		mirror=$2;       shift;;
+	(-s)            script=$2;       shift;;
 	(--debug)	set -x;;
 	(--)		shift; break ;;
 	(*)		echo "vserver-build.debootstrap: internal error: unrecognized option '$1'" >&2
@@ -151,7 +152,7 @@ findDebootstrap
 
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
 mv "$VDIR"/dev "$VDIR"/dev.X
-"$DEBOOTSTRAP" "$@" "$DISTRIBUTION" "$VDIR" "$mirror" || :	## HACK: ignore all errors...
+"$DEBOOTSTRAP" "$@" "$DISTRIBUTION" "$VDIR" "$mirror" "$script" || :   ## HACK: ignore all errors...
 fixupDebian "$VDIR"
 test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
 

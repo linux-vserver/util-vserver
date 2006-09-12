@@ -64,7 +64,7 @@ Possible methods are:
     skeleton ... -- [<cmd> <args>*]
                 ...  installs a minimal skeleton filesystem, creates the
 		     configuration file and calls an optional command then
-    debootstrap ... -- -d <distribution> [-m <mirror>] [-- <debootstrap-options>*]
+    debootstrap ... -- -d <distribution> [-m <mirror>] [-s <script> ] [-- <debootstrap-options>*]
                      bootstraps the vserver with Debian's 'debootstrap' package
 
 Please report bugs to $PACKAGE_BUGREPORT"
