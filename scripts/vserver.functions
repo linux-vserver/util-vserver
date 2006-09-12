@@ -42,6 +42,7 @@ declare -a OPTS_VCONTEXT_MIGRATE=()
 declare -a OPTS_VCONTEXT_ENTER=()
 declare -a OPTS_VATTRIBUTE=( --flag fakeinit )
 declare -a OPTS_VSCHED=()
+declare -a OPTS_ENV=()
 
 declare -a STOPCMD_PREPARE=()
 
@@ -251,6 +252,11 @@ function _generateInitOptions
     getFileValue RUNLEVEL_START "$cfgdir"/runlevel.start
     getFileValue RUNLEVEL_STOP  "$cfgdir"/runlevel.stop
     getFileArray INITKILL_SEQ	"$cfgdir"/killseq || :
+
+    findFile _gio_env		"$cfgdir"/environment \
+	"$__CONFDIR"/.defaults/apps/init/environment \
+	"$__PKGLIBDEFAULTDIR"/environment
+    getFileArray OPTS_ENV	"$_gio_env" || :
 
     case x"$INITSTYLE" in
 	(xrescue)

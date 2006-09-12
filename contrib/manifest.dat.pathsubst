@@ -37,6 +37,7 @@ legacy @LEGACYDIR@/vreboot
 core   @PKGLIBDIR@/FEATURES.txt
 base   @PKGLIBDIR@/defaults/mtab
 base   @PKGLIBDIR@/defaults/vprocunhide-files
+base   @PKGLIBDIR@/defaults/environment
 build  @PKGLIBDIR@/defaults/fstab
 build  @PKGLIBDIR@/defaults/debootstrap.uri
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/defaults/vunify-exclude

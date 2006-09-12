@@ -140,6 +140,13 @@ A symlink to the TTY device where input/output will be redirected from/to
 at startup via initscript.
           </description>
 	</link>
+
+	<list id="global-environment" name="environment">
+	  <description>
+The environment to set when starting guests. Contains one VAR=VAL
+pair per line.
+	  </description>
+	</list>
       </collection>
       
       <collection name="vunify">
@@ -621,6 +628,13 @@ the current vserver can be started. At shutdown, the current vserver
 will be stopped before its dependencies. Content of this file are
 vserver ids (one name per line).
           </description>
+	</list>
+
+	<list name="environment">
+	  <description>
+The environment to set when starting the guest. Contains one VAR=VAL
+pair per line.
+	  </description>
 	</list>
       </collection>
       
