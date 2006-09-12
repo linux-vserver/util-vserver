@@ -1200,5 +1200,26 @@ tools and can *not* be modified.
         </scalar>
       </collection>
     </collection>
+
+    <collection name="cpuset">
+      <scalar name="name">
+        <description>The name of the cpuset for this vserver</description>
+      </scalar>
+      <scalar name="cpus">
+        <description>The list of CPUs in this cpuset</description>
+      </scalar>
+      <scalar name="mems">
+        <description>The list of Memory Nodes in this cpuset</description>
+      </scalar>
+      <scalar name="cpu_exclusive">
+        <description>Is the CPU assignment exclusive?</description>
+      </scalar>
+      <scalar name="mems_exclusive">
+        <description>Is the memory node assignment exclusive?</description>
+      </scalar>
+      <scalar name="nocreate">
+        <description>When this file exists, the cpuset will be assumed to exist already</description>
+      </scalar>
+    </collection>
   </collection>
   </database>

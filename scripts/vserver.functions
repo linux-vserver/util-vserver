@@ -689,6 +689,54 @@ function generateOptions
     fi
 }
 
+function addtoCPUSET
+{
+    local vdir=$1
+    local cpuset
+    local f="$vdir"/cpuset
+    local i
+    local configured=0
+
+    test -d "$f" || return 0
+    test -e "$f"/name || return 0
+
+    read cpuset < "$f"/name
+    test -e "$f"/nocreate || {
+       test -d /dev/cpuset/"$cpuset" || mkdir /dev/cpuset/"$cpuset" || configured=1
+       for i in cpus mems cpu_exclusive mem_exclusive virtualized; do
+           if test -e "$f"/"$i"; then
+               cat "$f"/"$i" >/dev/cpuset/"$cpuset"/"$i" 2>/dev/null || {
+                   configured=1
+                   break
+               }
+           fi
+       done
+    }
+
+    echo $$ >/dev/cpuset/"$cpuset"/tasks || configured=1
+    if [ "$configured" -ne 0 ]; then
+       warning $"\
+WARNING: Failed to create or CPUSET \"$cpuset\" does not exist! Not using it!" >&2
+       rmdir /dev/cpuset/"$cpuset" 2>/dev/null || :
+       return 0
+    fi
+}
+
+function removeCPUSET
+{
+    local vdir=$1
+    local cpuset
+    local f="$vdir"/cpuset
+
+    test -d "$f" || return 0
+    test -e "$f"/name || return 0
+
+    read cpuset < "$f"/name
+    test -e "$f"/nocreate || {
+       rmdir /dev/cpuset/"$cpuset" 2>/dev/null || :
+    }
+}
+
 function _mountVserverInternal
 {
     local fstab="$1"

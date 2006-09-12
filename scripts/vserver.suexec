@@ -22,6 +22,7 @@ test -z "$is_stopped" -o "$OPTION_INSECURE" || {
     exit 1
 }
 generateOptions  "$VSERVER_DIR"
+addtoCPUSET  "$VSERVER_DIR"
 
 user=$1
 shift

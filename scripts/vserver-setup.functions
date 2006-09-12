@@ -24,11 +24,15 @@ SETUP_LOCKFILE=
 SETUP_CONFDIR=
 SETUP_CONTEXT=
 SETUP_INITSTYLE=
+SETUP_CPUSET=
+SETUP_CPUSETCPUS=
+SETUP_CPUSETMEMS=
+SETUP_CPUSETVIRT=
 
 declare -a SETUP_INTERFACES=()
 declare -a SETUP_FLAGS=()
 
-declare -r SETUP_OPTIONS="confdir:,lockfile:,hostname:,netdev:,netmask:,netprefix:,netbcast:,interface:,flags:,context:,initstyle:"
+declare -r SETUP_OPTIONS="confdir:,lockfile:,hostname:,netdev:,netmask:,netprefix:,netbcast:,interface:,flags:,context:,initstyle:,cpuset:,cpusetcpus:,cpusetmems:,cpusetvirt"
 declare -r SETUP_HELPMSG=$"
     --context   ...  the static context of the vserver [default: none; a dynamic
                      context will be assumed]
@@ -55,6 +59,19 @@ declare -r SETUP_HELPMSG=$"
 			    this becomes a per vserver limit)
 		     private: No other process can join this security context.
 		            Even root
+    --cpuset <name>
+                ...  declares the CPUSET this vserver will run in [default: none]
+    --cpusetcpus <number[-number][:<exclusive>]>
+                ...  sets which cpus belong to the CPUSET,
+                     exclusive is a flag (0|1) prohibiting any other cpuset from
+                     using those cpus
+    --cpusetmems <number[-number][:<exclusive>]>
+                ...  sets which memory pools belong to the CPUSET,
+                     exclusive is a flag (0|1) prohibiting any other cpuset from
+                     using those memory pools
+    --cpusetvirt
+                ...  virtualize cpuset (guest will see only CPUs defined in cpuset)
+                     Requires kernel patch from http://www.bullopensource.org/cpuset/
     --initstyle <style>
                 ...  configures the initstyle (e.g. minit,sysv,plain)
 "
@@ -71,7 +88,23 @@ function setup_setOption2
 	(--netprefix)	SETUP_NETPREFIX=$2;;
 	(--netbcast)	SETUP_NETBCAST=$2;;
 	(--interface)	SETUP_INTERFACES=( "${SETUP_INTERFACES[@]}" "$2" );;
-	(--initstyle)   SETUP_INITSTYLE=$2;;
+	(--initstyle)	SETUP_INITSTYLE=$2;;
+	(--cpuset)	SETUP_CPUSET=$2;;
+	(--cpusetcpus)	old_IFS=$IFS
+			IFS=:
+			set -- $2
+			SETUP_CPUSETCPUS=$1
+			SETUP_CPUSETCPUSEXCL=$2
+			IFS=$old_IFS
+			;;
+	(--cpusetmems)	old_IFS=$IFS
+			IFS=:
+			set -- $2
+			SETUP_CPUSETMEMS=$1
+			SETUP_CPUSETMEMSEXCL=$2
+			IFS=$old_IFS
+			;;
+	(--cpusetvirt)  SETUP_CPUSETVIRT=1;;
 	(--flags)	old_IFS=$IFS
 			IFS=,
 			set -- $2
@@ -140,7 +173,7 @@ function setup_writeOption
     local cfgdir=${SETUP_CONFDIR:?}
     local i
 
-    mkdir -p "$cfgdir"/interfaces "$cfgdir"/apps/init "$cfgdir"/uts
+    mkdir -p "$cfgdir"/interfaces "$cfgdir"/apps/init "$cfgdir"/uts "$cfgdir"/cpuset
 
     _setup_writeSingleOption "$name"            "$cfgdir"/name
     _setup_writeSingleOption "$SETUP_CONTEXT"   "$cfgdir"/context
@@ -150,6 +183,12 @@ function setup_writeOption
     _setup_writeSingleOption "$SETUP_NETPREFIX" "$cfgdir"/interfaces/prefix
     _setup_writeSingleOption "$SETUP_NETBCAST"  "$cfgdir"/interfaces/bcast
     _setup_writeSingleOption "$SETUP_INITSTYLE" "$cfgdir"/apps/init/style
+    _setup_writeSingleOption "$SETUP_CPUSET"    "$cfgdir"/cpuset/name
+    _setup_writeSingleOption "$SETUP_CPUSETCPUS"     "$cfgdir"/cpuset/cpus
+    _setup_writeSingleOption "$SETUP_CPUSETCPUSEXCL" "$cfgdir"/cpuset/cpus_exclusive
+    _setup_writeSingleOption "$SETUP_CPUSETMEMS"     "$cfgdir"/cpuset/mems
+    _setup_writeSingleOption "$SETUP_CPUSETMEMSEXCL" "$cfgdir"/cpuset/mem_exclusive
+    _setup_writeSingleOption "$SETUP_CPUSETVIRT"     "$cfgdir"/cpuset/virtualized
 
     local idx=0
     for i in "${SETUP_INTERFACES[@]}"; do

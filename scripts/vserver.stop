@@ -101,3 +101,4 @@ disableInterfaces "$VSERVER_DIR"
 saveDiskLimits    "$VSERVER_DIR"
 
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" postpost-stop
+removeCPUSET      "$VSERVER_DIR"
