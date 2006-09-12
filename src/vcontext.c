@@ -62,6 +62,7 @@
 #define CMD_NAMESPACE		0x400d
 #define CMD_PERSTYPE		0x400e
 #define CMD_PERSFLAG		0x400f
+#define CMD_VLOGIN		0x4010
 
 
 struct option const
@@ -85,6 +86,7 @@ CMDLINE_OPTIONS[] = {
   { "syncmsg",      required_argument, 	0, CMD_SYNCMSG },
   { "personality-type",  required_argument, 0, CMD_PERSTYPE },
   { "personality-flags", required_argument, 0, CMD_PERSFLAG },
+  { "vlogin",       no_argument,        0, CMD_VLOGIN },
 #if 1  
   { "fakeinit",     no_argument,       	0, CMD_INITPID },	// compatibility
 #endif  
@@ -100,6 +102,7 @@ struct Arguments {
     bool		is_initpid;
     bool		is_silentexist;
     bool		set_namespace;
+    bool		do_vlogin;
     uint_least32_t	personality_flags;
     uint_least32_t	personality_type;
     int			verbosity;
@@ -111,6 +114,8 @@ struct Arguments {
 };
 
 int		wrapper_exit_code = 255;
+
+void do_vlogin(int argc, char *argv[], int ind);
 
 static void
 showHelp(int fd, char const *cmd, int res)
@@ -145,6 +150,7 @@ showHelp(int fd, char const *cmd, int res)
 	    "    --syncmsg <message>\n"
 	    "                    ...  use <message> as synchronization message; by\n"
 	    "                         default, 'ok' will be used\n"
+	    "    --vlogin        ...  enable terminal proxy\n"
 	    "\n"
 	    "'vcontext --create' exits with code 254 iff the context exists already.\n"
 	    "\n"
@@ -233,7 +239,7 @@ doExternalSync(int fd, char const *msg)
 }
 
 static inline ALWAYSINLINE int
-doit(struct Arguments const *args, char *argv[])
+doit(struct Arguments const *args, int argc, char *argv[])
 {
   int			p[2][2];
   pid_t			pid = initSync(p, args->do_disconnect);
@@ -287,12 +293,15 @@ doit(struct Arguments const *args, char *argv[])
 	sys_personality(args->personality_type | args->personality_flags)==-1) {
       perror(ENSC_WRAPPERS_PREFIX "personality()");
       exit(wrapper_exit_code);
-    }  
+    }
 
     doExternalSync(ext_sync_fd, args->sync_msg);
     doSyncStage1(p, args->do_disconnect);
     DPRINTF("doit: pid=%u, ppid=%u\n", getpid(), getppid());
-    execvp (argv[optind],argv+optind);
+    if (!args->do_vlogin)
+      execvp (argv[optind],argv+optind);
+    else
+      do_vlogin(argc, argv, optind);
     doSyncStage2(p, args->do_disconnect);
 
     PERROR_Q(ENSC_WRAPPERS_PREFIX "execvp", argv[optind]);
@@ -341,6 +350,7 @@ int main (int argc, char *argv[])
     .do_migrateself    = false,
     .do_disconnect     = false,
     .do_endsetup       = false,
+    .do_vlogin         = false,
     .is_initpid        = false,
     .is_silentexist    = false,
     .set_namespace     = false,
@@ -363,6 +373,7 @@ int main (int argc, char *argv[])
       case CMD_MIGRATE		:  args.do_migrate     = true;   break;
       case CMD_DISCONNECT	:  args.do_disconnect  = true;   break;
       case CMD_ENDSETUP		:  args.do_endsetup    = true;   break;
+      case CMD_VLOGIN		:  args.do_vlogin      = true;   break;
       case CMD_INITPID		:  args.is_initpid     = true;   break;
       case CMD_CHROOT		:  args.do_chroot      = true;   break;
       case CMD_NAMESPACE	:  args.set_namespace  = true;   break;
@@ -408,7 +419,7 @@ int main (int argc, char *argv[])
   else if (optind>=argc)
     WRITE_MSG(2, "No command given; use '--help' for more information.\n");
   else
-    return doit(&args, argv);
+    return doit(&args, argc, argv);
 
   return wrapper_exit_code;
 }

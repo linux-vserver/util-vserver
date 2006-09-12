@@ -111,6 +111,10 @@
 #  include "wrappers-stat.hc"
 #endif
 
+#ifdef ENSC_WRAPPERS_TERMIOS
+#  include "wrappers-termios.hc"
+#endif
+
 #undef ENSC_DETAIL2
 #undef ENSC_DETAIL1
 #undef ENSC_DOQUOTE_COND

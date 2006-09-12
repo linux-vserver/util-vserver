@@ -220,6 +220,7 @@ case "$2" in
 	suexec root chkconfig "$@"
 	;;
     (enter)
+	OPTS_VCONTEXT_ENTER=( "${OPTS_VCONTEXT_ENTER[@]}" --vlogin )
 	getEnterShell "$VSERVER_DIR"
 	suexec root "${ENTER_SHELL[@]}"
 	;;

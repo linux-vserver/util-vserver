@@ -141,6 +141,7 @@ dnl
 case $host_cpu in
 	(i*86|athlon)	min_diet_ver=0.25;;
 	(ia64|hppa*)	min_diet_ver=0.29;;
+	(sparc*)	min_diet_ver=0.30;;
 	(*)		min_diet_ver=0.28;;
 esac
 
@@ -280,6 +281,14 @@ AC_CHECK_TYPES(xid_t,,,[#include <sys/types.h>])
 AC_CHECK_TYPES(nid_t,,,[#include <sys/types.h>])
 
 AC_CHECK_HEADERS([sys/capability.h])
+
+dnl vlogin might need -lutil
+if test x"$ensc_have_dietlibc" = xno; then
+	AC_CHECK_FUNC([openpty],, [AC_CHECK_LIB([util], [openpty],, [AC_MSG_ERROR([
+****
+**** openpty could not be found
+****])])])
+fi
 
 
 dnl ########################
