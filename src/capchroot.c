@@ -101,7 +101,7 @@ static UNUSED void
 setUser(char const *user)
 {
   struct passwd		*p = 0;
-  if (user!=0 && strcmp(user, "root")!=0) {
+  if (user!=0 && strcmp(user, "root")!=0 && strcmp(user, "0")!=0) {
     errno = 0;
     p     = getpwnam(user);
     if (p==0) {

@@ -156,6 +156,12 @@ Esetgroups(size_t size, const gid_t *list)
 {
   FatalErrnoError(setgroups(size, list)==-1, "setgroups()");
 }
+
+inline static void
+Einitgroups(const char *user, gid_t group)
+{
+  FatalErrnoError(initgroups(user, group)==-1, "initgroups()");
+}
 #endif
 
 inline static WRAPPER_DECL int

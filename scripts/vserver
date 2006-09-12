@@ -213,16 +213,16 @@ case "$2" in
 	;;
     (exec)
 	shift 2
-	suexec root "$@"
+	suexec 0 "$@"
 	;;
     (chkconfig)
 	shift 2
-	suexec root chkconfig "$@"
+	suexec 0 chkconfig "$@"
 	;;
     (enter)
 	OPTS_VCONTEXT_ENTER=( "${OPTS_VCONTEXT_ENTER[@]}" --vlogin )
 	getEnterShell "$VSERVER_DIR"
-	suexec root "${ENTER_SHELL[@]}"
+	suexec 0 "${ENTER_SHELL[@]}"
 	;;
     (running)
 	isVserverRunning "$VSERVER_DIR"

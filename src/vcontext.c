@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2004-2006 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,6 +33,9 @@
 #include <sys/un.h>
 #include <assert.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include <linux/personality.h>
 
@@ -107,7 +110,7 @@ struct Arguments {
     uint_least32_t	personality_type;
     int			verbosity;
     bool		do_chroot;
-    uid_t		uid;
+    char const *	uid;
     xid_t		xid;
     char const *	sync_sock;
     char const *	sync_msg;
@@ -165,7 +168,7 @@ showVersion()
   WRITE_MSG(1,
 	    "vcontext " VERSION " -- manages the creation of security contexts\n"
 	    "This program is part of " PACKAGE_STRING "\n\n"
-	    "Copyright (C) 2004 Enrico Scholz\n"
+	    "Copyright (C) 2004-2006 Enrico Scholz\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
   exit(0);
 }
@@ -281,9 +284,35 @@ doit(struct Arguments const *args, int argc, char *argv[])
     if (args->do_migrate && !args->do_migrateself)
       Evc_ctx_migrate(xid);
 
-    if (args->uid!=(uid_t)(-1) && getuid()!=args->uid) {
-      Esetuid(args->uid);
-      if (getuid()!=args->uid) {
+    if (args->uid != NULL) {
+      uid_t uid = 0;
+      unsigned long tmp;
+
+      if (!isNumberUnsigned(args->uid, &tmp, false)) {
+#ifdef __dietlibc__
+	struct passwd *pw;
+	pw = getpwnam(args->uid);
+	if (pw == NULL) {
+	  WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "Username '");
+	  WRITE_STR(2, args->uid);
+	  WRITE_MSG(2, "' does not exist\n");
+	  return wrapper_exit_code;
+	}
+	uid = pw->pw_uid;
+	Einitgroups(args->uid, pw->pw_gid);
+	Esetgid(pw->pw_gid);
+#else
+	WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "Uid '");
+	WRITE_STR(2, args->uid);
+	WRITE_MSG(2, "' is not a number\n");
+	return wrapper_exit_code;
+#endif
+      }
+      else
+	uid = (uid_t) tmp;
+
+      Esetuid((uid_t) uid);
+      if (getuid()!=uid) {
 	WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "Something went wrong while changing the UID\n");
 	exit(wrapper_exit_code);
       }
@@ -355,7 +384,7 @@ int main (int argc, char *argv[])
     .is_silentexist    = false,
     .set_namespace     = false,
     .verbosity         = 1,
-    .uid               = -1,
+    .uid               = NULL,
     .xid               = VC_DYNAMIC_XID,
     .personality_type  = VC_BAD_PERSONALITY,
     .personality_flags = 0,
@@ -380,7 +409,7 @@ int main (int argc, char *argv[])
       case CMD_SILENTEXIST	:  args.is_silentexist = true;   break;
       case CMD_SYNCSOCK		:  args.sync_sock      = optarg; break;
       case CMD_SYNCMSG		:  args.sync_msg       = optarg; break;
-      case CMD_UID		:  args.uid = atol(optarg);      break;
+      case CMD_UID		:  args.uid            = optarg; break;
       case CMD_XID		:  args.xid = Evc_xidopt2xid(optarg,true); break;
       case CMD_SILENT		:  --args.verbosity; break;
       case CMD_PERSTYPE		:
