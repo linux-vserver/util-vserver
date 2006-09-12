@@ -790,12 +790,12 @@ function mountVserver
 
     test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$cfgdir"
 
-    test -z "$NAMESPACE_CLEANUP" || isAvoidNamespace "$cfgdir" || \
-	$_VNAMESPACE --cleanup
-
     _mountVserverInternal "$cfgdir"/fstab
     _mountVserverInternal "$cfgdir"/fstab.local
     _mountVserverInternal "$cfgdir"/fstab.remote $_CHBIND "${CHBIND_OPTS[@]}"
+
+    isNamespaceCleanup "$cfgdir" && \
+        _namespaceCleanup
 
     isAvoidNamespace "$cfgdir" || \
 	$_SECURE_MOUNT --rbind -n "$vdir" "/"
@@ -1148,3 +1148,29 @@ function saveDiskLimits
 	_saveSingleDiskLimit "$vdir" "$dlimit"
     done
 }
+
+function _namespaceCleanup
+{
+    local root=$(readlink -f "$vdir")
+    local tmp="$root"
+    local -a list
+    while [ "$tmp" ]; do
+	list=( "${list[@]}" "$tmp" )
+	tmp="${tmp%/*}"
+    done
+    local -a list_umount
+    while read dev path opts; do
+        [ "$path" ] || continue
+        for i in "$root" /dev /proc; do
+            [ "${path#$i}" != "$path" ] && continue 2
+        done
+        for i in "${list[@]}" /; do
+            [ "$path" = "$i" ] && continue 2
+        done
+        list_umount=( "${list_umount[@]}" "$path" )
+    done < /proc/mounts
+    for i in "${list_umount[@]}"; do
+        umount -l -n "$i"
+    done
+}
+

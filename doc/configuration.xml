@@ -37,6 +37,14 @@ the 'barrier' attribute. Else, common chroot(2) exploits are possible.
       </description>
     </boolean>
 
+    <boolean id="global-namespace-cleanup" name="namespace-cleanup">
+      <description>
+Enable namespace cleanup globally. It can be overridden for a single vserver
+by setting the <optionref ref="global-nonamespace-cleanup">nonamespace-cleanup</optionref> flag
+there.
+      </description>
+    </boolean>
+
     <link name="run.rev">
       <description>
 Path of the vserver run reverse directory. This directory contains
@@ -341,6 +349,19 @@ Disables namespace usage for the current vserver.
 
 In this mode the <directory>/vservers</directory> directory must have
 the 'barrier' attribute. Else, common chroot(2) exploits are possible.
+      </description>
+    </boolean>
+
+    <boolean id="global-nonamespace-cleanup" name="nonamespace-cleanup">
+      <description>
+Overrides the global <optionref ref="global-namespace-cleanup">namespace-cleanup</optionref> flag and disables
+namespace cleanup for the current vserver.
+      </description>
+    </boolean>
+
+    <boolean name="namespace-cleanup">
+      <description>
+Enable namespace cleanup for the current vserver.
       </description>
     </boolean>
 

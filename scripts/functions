@@ -480,6 +480,18 @@ function isAvoidNamespace
          -e "$cfgdir"/nonamespace
 }
 
+function isNamespaceCleanup
+{
+    local cfgdir
+
+    $_VSERVER_INFO - FEATURE namespace   || return 1
+    cfgdir=$($_VSERVER_INFO "$1" CFGDIR) || return 1
+    test -e "$cfgdir"/nonamespace-cleanup && return 1
+    test -e "$__CONFDIR"/.defaults/namespace-cleanup -o \
+         -e "$cfgdir"/namespace-cleanup && return 0
+    return 1
+}
+
 ## Usage: getAllVservers <var> [<KIND>*]
 function getAllVservers
 {
