@@ -1,9 +1,9 @@
-  // from http://vserver.13thfloor.at/Experimental/SYSCALL/syscall_shiny7.h
+ // from http://vserver.13thfloor.at/Experimental/SYSCALL/syscall_shiny10.h
 
 #ifndef	__SYSCALL_NEW_H
 #define	__SYSCALL_NEW_H
 
-/*	Copyright (C) 2005 Herbert Pötzl
+/*	Copyright (C) 2005-2006 Herbert Pötzl
 
 		global config options
 
@@ -39,12 +39,13 @@
 	__sysc_rcon(n)		... syscall register constraint
 	__sysc_regs		... list of input regs for clobber
 	__sysc_type		... register type
+	__sysc_aout		... asm code output constraint
 
 		if all else fails
 
 	__sc_asmload(n,N,...)	... asm code to prepare arguments
 	__sc_asmsysc(n,N)	... asm code to execute syscall
-	__sc_asmsave(n,r,e)	... asm code to store results
+	__sc_asmsave(n)		... asm code to store results
 
 */
 
@@ -243,7 +244,8 @@
 	sret:	r0(r28)
 	serr:	(sret >= (unsigned)-EMAXERRNO)
 	call:	ble  0x100(%%sr2, %%r0)
-	clob:	r1, r2, r4, r20, r29, r31, memory
+	clob:	r1, r2, (r4), r20, r29, r31, memory
+	picr:	pr(r19)
 */
 
 #define	__sysc_max_err	4095
@@ -253,13 +255,21 @@
 	("r26", "r25", "r24", "r23", "r22", "r21")
 
 #define	__sysc_cmd_sys	"ble 0x100(%%sr2,%%r0)"
-#define	__sysc_cmd_fin	"ldi %0,%%r20"
 
+#define	__sysc_pre(n)							\
+	__pasm(n,1,1,	"copy %%r19, %%r4"	,			)
+
+#define	__sysc_fin(n)							\
+	__casm(n,1,1,	"ldi %0,%%r20"		,			)\
+	__pasm(n,1,1,	"copy %%r4, %%r19"	,			)
+
+#ifndef	__PIC__
+#define	__sysc_clobber	__sysc_regs,					\
+	"r1", "r2", "r20", "r29", "r31", "memory"
+#else
 #define	__sysc_clobber	__sysc_regs,					\
 	"r1", "r2", "r4", "r20", "r29", "r31", "memory"
-
-#warning syscall arch hppa not tested yet
-
+#endif
 
 
 /*	*****************************************
@@ -277,6 +287,7 @@
 	sret:	r0(eax)
 	serr:	(sret >= (unsigned)-EMAXERRNO)
 	call:	int 0x80
+	picr:	pr(ebx)
 	clob:	memory
 */
 
@@ -301,15 +312,18 @@
 	__casm(n,6,1,	"pushl	%%ebp"		,			)\
 	""::__sc_iregs(n,__VA_ARGS__):__sysc_clobber)
 
+#define	__sc_asmsave(n)
+
 #define	__sysc_pre(n)							\
 	__casm(n,6,1,	"movl	%%eax,%%ebp"	,			)\
-	__casm(n,0,1,	"movl	%0,%%eax"	,			)\
+	__casm(n,0,1,	"movl	%1,%%eax"	,			)\
 
 #define	__sysc_fin(n)							\
 	__casm(n,6,1,	"popl	%%ebp"		,			)\
 	__pasm(n,1,1,	"popl	%%ebx"		,			)\
 
-#define	__sysc_clobber	__sysc_regs, "eax", "memory"
+#define	__sysc_aout 	"=a"(__res)
+#define	__sysc_clobber	__sysc_regs, "memory"
 
 
 /*	*****************************************
@@ -399,8 +413,43 @@
 
 #elif	defined(__mips__)
 
-#error syscall arch mips not implemented yet
+/*	The ABIO32 calling convention uses a0-a3  to pass the first
+	four arguments, the rest is passed on the userspace stack.  The 5th arg
+	starts at 16($sp).
 
+	ABIN32 and ABI64 pass 6 args in a0-a3, t0-t1.
+
+	scnr:	id(v0)
+	args:	a1(a0), a2(a1), a3(a2), a4(a3), a5(16($sp)), a6(20($sp))
+	sret:	r0(v0)
+	serr:	e0(a3)
+	call:	syscall
+	clob:	at, v0, t0-t7, t8-t9
+*/
+
+#define	__sysc_reg_cid	"v0"
+#define	__sysc_reg_ret	"v0"
+#define	__sysc_reg_err	"a3"
+#define	__sysc_cmd_sys	"syscall"
+
+#define	__sysc_reg(n) __arg_##n\
+	("a0","a1","a2","a3", "t0", "t1")
+
+#define	__sysc_clobber "$1", "$3", "$8", "$9", "$10", "$11", "$12",	\
+	"$13", "$14", "$15", "$24", "$25", "memory"
+
+#if _MIPS_SIM == _ABIO32
+#define	__sysc_pre(n) 							\
+	__casm(n,5,1,"addiu $sp,$sp,-32",)				\
+	__casm(n,6,1,"sw $9,20($sp)",)					\
+	__casm(n,5,1,"sw $8, 16($sp)",)
+#define	__sysc_fin(n) 							\
+	__casm(n,5,1,"addiu $sp,$sp,32",)
+#elif (_MIPS_SIM == _ABIN32) || (_MIPS_SIM == _ABI64)
+#warning syscall arch mips with ABI N32 and 64 not tested yet
+#else
+#error unknown mips ABI version
+#endif
 
 
 /*	*****************************************
@@ -651,6 +700,7 @@
 #define	__sysc_clobber	__sysc_regs,					\
 	"cc", "r11", "rcx", "memory"
 
+#define	__sysc_aout 	"=a"(__res)
 
 #else
 #error unknown kernel arch
@@ -834,7 +884,7 @@
 #define	__sc_inp_def(n,value)
 #endif
 
-#ifndef	__sysc_save
+#if	!defined(__sysc_save) && !defined(__sysc_aout)
 #define	__sc_res_def(n,r)	__sc_asm_reg(n, r);
 #else
 #define	__sc_res_def(n,r)	__sc_reg(n);
@@ -863,7 +913,6 @@
 #ifndef	__sysc_rcon
 #define	__sysc_rcon(n)		"g"
 #endif
-
 
 
 #ifdef	__sc_complex	/* complex result */
@@ -918,6 +967,7 @@
 	return (type)(res)
 #endif
 
+
 #define	__sc_results							\
 	__sc_res_def(__res, __sysc_reg_res)
 
@@ -939,8 +989,13 @@
 	__casm(n,3,0,"%3 ",) __casm(n,4,0,"%4 ",) __casm(n,5,0,"%5 ",)	\
 	__casm(n,6,0,"%6 ",) "*/"
 
+#ifdef	__sysc_aout
+#define	__sc_dummy_save(n)
+#define __sc_asmsave(n)
+#else
 #define	__sc_dummy_save(n)	"/* gcc dummy save " 			\
 	__casm(n,0,0,"%0 ",) __casm(n,1,0,"%1 ",) "*/"
+#endif
 
 #define	__comment(name)		"\t/* kernel sys_" 			\
 	#name "[" __stringify(__sc_id(name)) "] */"
@@ -1006,10 +1061,14 @@
 #endif
 #endif
 
+#ifndef	__sysc_aout
+#define	__sysc_aout
+#endif
+
 #ifndef	__sc_asmsysc
 #define	__sc_asmsysc(n,N)	__sc_asm_vol(				\
 	__casm(n,0,0,	__sc_cmds(n,N)		,			)\
-	::"i"(__sc_id(N)) : __sysc_clobber)
+	:__sysc_aout:"i"(__sc_id(N)) : __sysc_clobber)
 #endif
 
 #ifndef	__sc_asmsave
@@ -1031,33 +1090,33 @@
 
 
 
-#define _syscall0(type, name)						\
+#define	_syscall0(type, name)						\
 type name(void)								\
 __sc_body(0, type, name, *)
 
-#define _syscall1(type, name, type1, arg1)				\
+#define	_syscall1(type, name, type1, arg1)				\
 type name(type1 arg1)							\
 __sc_body(1, type, name, arg1)
 
-#define _syscall2(type, name, type1, arg1, type2, arg2)			\
+#define	_syscall2(type, name, type1, arg1, type2, arg2)			\
 type name(type1 arg1, type2 arg2)					\
 __sc_body(2, type, name, arg1, arg2)
 
-#define _syscall3(type, name, type1, arg1, type2, arg2, type3, arg3)	\
+#define	_syscall3(type, name, type1, arg1, type2, arg2, type3, arg3)	\
 type name(type1 arg1, type2 arg2, type3 arg3)				\
 __sc_body(3, type, name, arg1, arg2, arg3)
 
-#define _syscall4(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+#define	_syscall4(type, name, type1, arg1, type2, arg2, type3, arg3,	\
 			      type4, arg4)				\
 type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4)		\
 __sc_body(4, type, name, arg1, arg2, arg3, arg4)
 
-#define _syscall5(type, name, type1, arg1, type2, arg2, type3, arg3,	\
-    			      type4, arg4, type5, arg5)			\
+#define	_syscall5(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+			      type4, arg4, type5, arg5)			\
 type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)	\
 __sc_body(5, type, name, arg1, arg2, arg3, arg4, arg5)
 
-#define _syscall6(type, name, type1, arg1, type2, arg2, type3, arg3,	\
+#define	_syscall6(type, name, type1, arg1, type2, arg2, type3, arg3,	\
 			type4, arg4, type5, arg5, type6, arg6)		\
 type name(type1 arg1, type2 arg2, type3 arg3,				\
 	  type4 arg4, type5 arg5, type6 arg6)				\
