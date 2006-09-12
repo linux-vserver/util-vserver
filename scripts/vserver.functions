@@ -292,9 +292,7 @@ function _generateInitOptions
 	    ;;
 
 	(xgentoo)
-	    INITCMD_START=( /sbin/rc default  )
-	    INITCMD_STOP=(  /sbin/rc shutdown )
-	    ;;
+	    panic "init-style '$INITSTYLE' is no longer supported; please use plain instead; aborting";;
 
 	(x) ;;
 	(*) panic "Unknown init-style '$INITSTYLE'; aborting";;
