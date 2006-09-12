@@ -160,8 +160,9 @@ function _mountFilesystems()
     }
     test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1"
     
-    _mountFilesystemsInternal "$cfgdir"/fstab       $_CHBIND "${CHBIND_OPTS[@]}" || return 1
-    _mountFilesystemsInternal "$cfgdir"/fstab.local $_CHBIND "${CHBIND_OPTS[@]}" || return 1
+    _mountFilesystemsInternal "$cfgdir"/fstab                                     || return 1
+    _mountFilesystemsInternal "$cfgdir"/fstab.local                               || return 1
+    _mountFilesystemsInternal "$cfgdir"/fstab.remote $_CHBIND "${CHBIND_OPTS[@]}" || return 1
 }
 
 function _umountFilesystems()
@@ -176,8 +177,9 @@ function _umountFilesystems()
     test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1"
 
     pushd "$vdir/" >/dev/null || return 1
-	_umountVserverInternal  "$cfgdir"/fstab.local                              || is_ok=
-	_umountVserverInternal  "$cfgdir"/fstab       $_CHBIND "${CHBIND_OPTS[@]}" || is_ok=
+	_umountVserverInternal  "$cfgdir"/fstab.remote $_CHBIND "${CHBIND_OPTS[@]}" || is_ok=
+	_umountVserverInternal  "$cfgdir"/fstab.local                               || is_ok=
+	_umountVserverInternal  "$cfgdir"/fstab                                     || is_ok=
     popd >/dev/null           || return 1
     
     test -n "$is_ok"

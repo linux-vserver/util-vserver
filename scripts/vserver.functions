@@ -783,12 +783,14 @@ function umountVserver
 
     isAvoidNamespace "$cfgdir"    || return 0
     test -e "$cfgdir"/fstab -o \
-         -e "$cfgdir"/fstab.local || return 0
+         -e "$cfgdir"/fstab.local -o \
+         -e "$cfgdir"/fstab.remote || return 0
     test -n "$_HAVE_CHBIND_OPTIONS"  || _generateChbindOptions "$cfgdir"
     
     pushd "$vdir/" >/dev/null || return 1
-	_umountVserverInternal  "$cfgdir"/fstab.local                              || is_ok=
-	_umountVserverInternal  "$cfgdir"/fstab       $_CHBIND "${CHBIND_OPTS[@]}" || is_ok=
+	_umountVserverInternal  "$cfgdir"/fstab.remote $_CHBIND "${CHBIND_OPTS[@]}" || is_ok=
+	_umountVserverInternal  "$cfgdir"/fstab.local                               || is_ok=
+	_umountVserverInternal  "$cfgdir"/fstab                                     || is_ok=
     popd >/dev/null           || return 1
 
     test -n "$is_ok"
