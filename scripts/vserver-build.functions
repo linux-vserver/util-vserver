@@ -188,7 +188,7 @@ vserver-topdirectory '$VDIR' and/or configuration at '$SETUP_CONFDIR'
 exist already; please try to use '--force', or remove them manually."
 
     mkdir -p -m755 "$VDIR"
-    chattr -t "$VDIR"
+    $_SETATTR --~barrier "$VDIR"
     base._addGeneratedFile "$VDIR"
     
     mkdir -p -m755 "$SETUP_CONFDIR"/apps "$VDIR"/{dev/pts,etc}
