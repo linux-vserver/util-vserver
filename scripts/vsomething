@@ -23,6 +23,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 . "$_LIB_FUNCTIONS"
+. "$__PKGLIBDIR/vserver.functions"
 
 
 function showHelp()
@@ -105,8 +106,14 @@ for i in "${vservers[@]}"; do
 	if pkgmgmt.isInternal "$i"; then
 	    $_VSERVER "$i" exec "$cmd" "$@"
 	else
-	    callInNamespace "$i" \
-		"$_VNAMESPACE" --new -- "$VSOMETHING_WORKER" "$i" "$@"
+	    _getVserverDir "$i"
+	    ( _generateChbindOptions "$VSERVER_DIR"
+	      $_VSERVER "$i" status &> /dev/null && \
+		CHBIND_CMD=( "$_CHBIND" "${CHBIND_OPTS[@]}" -- )
+	      callInNamespace "$i" \
+		"$_VNAMESPACE" --new -- \
+		"${CHBIND_CMD[@]}" \
+		"$VSOMETHING_WORKER" "$i" "$@" )
 	fi
     else
 	"$cmd" "$i" "$@"

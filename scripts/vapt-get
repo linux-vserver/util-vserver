@@ -31,7 +31,7 @@ function showHelp()
 $"Usage: $0 <vserver-name>* [--all] -- <params>+
 
 Report bugs to <$PACKAGE_BUGREPORT>."
-    exit $1
+    exit 0
 }
 
 function showVersion()
@@ -40,60 +40,35 @@ function showVersion()
 $"vapt-get $PACKAGE_VERSION -- apt-get for vservers
 This program is part of $PACKAGE_STRING
 
-Copyright (C) 2003 Enrico Scholz
+Copyright (C) 2006 Enrico Scholz
 This program is free software; you may redistribute it under the terms of
 the GNU General Public License.  This program has absolutely no warranty."
-    exit $1
+    exit 0
 }
 
-is_quiet=
-declare -a vservers=()
+tmp=$(getopt -o +q --long help,version,debug,quiet,all -n "$0" -- "$@") || exit 1
+eval set -- "$tmp"
 
-while test "$#" -ge 1; do
+declare -a send_through vsomething_opts
+
+while true; do
     case "$1" in
-	--)		shift; break;;
-	--help)		showHelp 0;;
-	--quiet|-q)	is_quiet=1 ;;
-	--all)
-	    getAllVservers tmp
-	    vservers=( "${vservers[@]}" "${tmp[@]}" )
-	    ;;
-	--version)
-	    showVersion 0;;
-	*)  vservers=( "${vservers[@]}" "$1" )
-     esac
-     shift
+	(--help)    	showHelp $0 ;;
+	(--version) 	showVersion ;;
+	(--debug)	send_through=( "${send_through[@]}" "$1" ); set -x;;
+	(--quiet|-q)	send_through=( "${send_through[@]}" "$1" );;
+	(--all)         vsomething_opts=( "${vsomething_opts[@]}" "$1" );;
+	(--)		shift; break;;
+	(*)	   	echo $"vapt-get: internal error; arg=='$1'" >&2; exit 1;;
+    esac
+    shift
 done
 
-test "$#" -ge 1 || showHelp 1 >&2
-test "${#vservers[@]}" -ne 1 || is_quiet=1
+VSOMETHING_TITLE=vapt-get
+VSOMETHING_WORKER=$_VAPT_GET_WORKER
+VSOMETHING_PKGMGMT=1
 
-cnt=0
-res=255
-for i in "${vservers[@]}"; do
-    cnt=$[ cnt + 1 ]
+export VSOMETHING_TITLE VSOMETHING_WORKER VSOMETHING_PKGMGMT
 
-    test -n "$is_quiet" || {
-	colorize bold echo -n "vaptget: operating on vserver "
-	colorize bold colorize emph echo "$i"
-	xtermTitle "vaptget: operating on vserver '$i'  [$cnt/${#vservers[@]}]"
-    }
-    
-    if pkgmgmt.isInternal "$i"; then
-	$_VSERVER "$i" exec apt-get "$@"
-    else
-	callInNamespace "$i" \
-	    "$_VNAMESPACE" --new -- "$_VAPT_GET_WORKER" "$i" "$@"
-    fi
-    res=$?
-
-    test $res -eq 0 -o -n "$is_quiet" || {
-	colorize error echo -n $"vapt-get failed on vserver '$i' with errorcode $res"
-	echo
-    }
-	
-    test -n "$is_quiet" || echo
-done
-
-test "$cnt" -ge 0 || echo "No vservers specified" >&2
-exit $res
+test ${#vsomething_opts[@]} -eq 0 || vsomething_opts=( "${vsomething_opts[@]}" -- )
+exec $_VSOMETHING "${send_through[@]}" apt-get "${vsomething_opts[@]}" "$@"

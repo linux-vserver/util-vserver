@@ -268,6 +268,16 @@ function unlock
     _VS_LOCKS="$@"
 }
 
+function _getVserverDir
+{
+    local vserver="$1"
+    case "$vserver" in
+	./*) VSERVER_DIR=`pwd`/$vserver     ;;
+	/*)  VSERVER_DIR=$vserver           ;;
+	*)   VSERVER_DIR=$__CONFDIR/$vserver;;
+    esac
+}
+
 function _pkgMountBindDir()
 {
     test "$1" != "$2" || return 0
