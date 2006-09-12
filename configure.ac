@@ -229,33 +229,35 @@ IFS=,;
 for i in $enable_apis; do
 	case "$i" in
 		(compat)	AC_DEFINE(VC_ENABLE_API_COMPAT,   1)
-				enable_api_oldproc=1
-				enable_api_olduts=1
+				enable_api_oldproc=${enable_api_oldproc:-1}
+				enable_api_olduts=${enable_api_olduts:-1}
 				;;
 		(legacy) 	AC_DEFINE(VC_ENABLE_API_LEGACY,   1)
-				enable_api_old_proc=1
-				enable_api_olduts=1
+				enable_api_oldproc=${enable_api_oldproc:-1}
+				enable_api_olduts=${enable_api_olduts:-1}
 				;;
 		(v11)    	AC_DEFINE(VC_ENABLE_API_V11,      1)
-				enable_api_oldproc=1
-				enable_api_olduts=1
+				enable_api_oldproc=${enable_api_oldproc:-1}
+				enable_api_olduts=${enable_api_olduts:-1}
 				;;
 		(fscompat)	AC_DEFINE(VC_ENABLE_API_FSCOMPAT, 1);;
 		(v13obs)    	AC_DEFINE(VC_ENABLE_API_V13OBS,   1)
 				AC_DEFINE(VC_ENABLE_API_V13,      1);;
 		(v13)    	AC_DEFINE(VC_ENABLE_API_V13,      1);;
 		(net)		AC_DEFINE(VC_ENABLE_API_NET,      1);;
+		(oldproc)	enable_api_oldproc=2;;
+		(olduts)	enable_api_olduts=2;;
 		(*)		AC_MSG_ERROR(['$i' is not a supported API]);;
 	esac
 done
 IFS=$old_IFS
 if test x"$enable_api_oldproc" != x; then
 	AC_DEFINE(VC_ENABLE_API_OLDPROC, 1)
-	enable_apis="$enable_apis,oldproc"
+	test x"$enable_api_oldproc" != x2 && enable_apis="$enable_apis,oldproc"
 fi
 if test x"$enable_api_olduts" != x; then
 	AC_DEFINE(VC_ENABLE_API_OLDUTS, 1)
-	enable_apis="$enable_apis,olduts"
+	test x"$enable_api_olduts" != x2 && enable_apis="$enable_apis,olduts"
 fi
 AC_MSG_RESULT([$enable_apis])
 dnl
