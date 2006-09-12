@@ -271,7 +271,7 @@ case "$2" in
 	fi
 	;;
     (*)
-	echo $"Usage: $0 {start|stop|suexec|restart|condrestart|exec|enter|chkconfig|running|status}" >&2
+	echo $"Usage: $0 <vserver> {start|stop|suexec|restart|condrestart|exec|enter|chkconfig|running|status}" >&2
 	exit 2
 	;;
 esac
