@@ -69,7 +69,10 @@ ENSC_PATHPROG(XSLTPROC,  xsltproc, [:])
 
 AM_CONDITIONAL(HAVE_XSLTP,    test "$XSLTP"    != ':')
 AM_CONDITIONAL(HAVE_XSLTPROC, test "$XSLTPROC" != ':')
-	
+
+if test x"$prefix" = x/; then
+	prefix=
+fi	
 
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
 ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
