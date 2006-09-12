@@ -57,6 +57,7 @@ Possible commands are:
 
     build <buildopts>*
                 ... builds a new vserver from scratch
+    delete      ... remove a vserver
 
     unify [-R]
 		... (de)unify vserver
@@ -199,7 +200,7 @@ test "$2" != start -o -n "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR
 
 . $__PKGLIBDIR/vserver.functions
 case "$2" in
-    (start|stop)
+    (start|stop|delete)
 	shift 2
 	. $__PKGLIBDIR/vserver.$cmd
 	;;
@@ -271,7 +272,7 @@ case "$2" in
 	fi
 	;;
     (*)
-	echo $"Usage: $0 <vserver> {start|stop|suexec|restart|condrestart|exec|enter|chkconfig|running|status}" >&2
+	echo $"Usage: $0 <vserver> {start|stop|suexec|restart|condrestart|exec|enter|chkconfig|running|status|delete}" >&2
 	exit 2
 	;;
 esac

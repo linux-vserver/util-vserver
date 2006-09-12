@@ -18,6 +18,7 @@ base   @PKGLIBDIR@/vserver.start
 @ENSC_HAVE_C99_COMPILER_TRUE@base   @PKGLIBDIR@/vserver.start.bin
 base   @PKGLIBDIR@/vserver.stop
 base   @PKGLIBDIR@/vserver.suexec
+base   @PKGLIBDIR@/vserver.delete
 core   @PKGLIBDIR@/util-vserver-vars
 build  @PKGLIBDIR@/rpm-fake.so
 legacy @LEGACYDIR@/save_s_context
