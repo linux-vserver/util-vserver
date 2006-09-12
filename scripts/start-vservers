@@ -88,6 +88,7 @@ eval set -- "$tmp"
 declare -a tmp_vservers=()
 declare -r TAB=$(echo -en "\t")
 OPTION_MARK=
+OPTION_MARK_ANY=1
 OPTION_PARALLEL=99
 OPTION_DEBUG=
 NOOPTION_DEBUG=1
@@ -104,7 +105,7 @@ while true; do
 	(--help)    	showHelp    $0 ;;
 	(--version) 	showVersion $0 ;;
 	(-c)		CONFDIR=$2;     shift;;
-	(-m)		OPTION_MARK=$2; shift;;
+	(-m)		OPTION_MARK=$2; OPTION_MARK_ANY=; shift;;
 	(-j)		OPTION_PARALLEL=$2; shift;;
 	(--start)	OPTION_FLAVOR=start;;
 	(--stop)	OPTION_FLAVOR=stop;;
@@ -129,6 +130,7 @@ while test $i -gt 0; do
     let --i
     d=$__CONFDIR/${vservers[$i]}/apps/init
     f=$d/mark
+    { test -n "$OPTION_MARK_ANY"; } || \
     { test -n "$OPTION_MARK" -a -r "$f" && grep -qx "$OPTION_MARK" "$f"; } || \
     { test -z "$OPTION_MARK" && test ! -e "$f"; } || \
     unset vservers[$i]
@@ -137,7 +139,7 @@ done
 makedir=$($_MKTEMPDIR vserver-init.XXXXXX)
 okfile=$($_MKTEMP     vserver-init.XXXXXX)
 passedfile=$($_MKTEMP vserver-init.XXXXXX)
-trap "$_RM -rf $makedir $resultfile $passedfile" EXIT
+trap "$_RM -rf $makedir $okfile $passedfile" EXIT
 
 test_cmd=false
 case "$OPTION_FLAVOR" in
