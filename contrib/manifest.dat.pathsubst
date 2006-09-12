@@ -7,6 +7,7 @@ build  @PKGLIBDIR@/vserver-build.skeleton
 build  @PKGLIBDIR@/vserver-build.debootstrap
 build  @PKGLIBDIR@/vserver-build.yum
 build  @PKGLIBDIR@/vserver-build.rpm
+build  @PKGLIBDIR@/vserver-build.template
 build  @PKGLIBDIR@/vserver-build.functions
 build  @PKGLIBDIR@/vserver-build.functions.apt
 build  @PKGLIBDIR@/vserver-build.functions.rpm

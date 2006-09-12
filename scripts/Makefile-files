@@ -38,11 +38,13 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 
 
 scripts_pkglib_src_DTA =	scripts/functions \
+				scripts/magic.mime \
 				scripts/vserver-build.apt-rpm \
 				scripts/vserver-build.skeleton \
 				scripts/vserver-build.debootstrap \
 				scripts/vserver-build.rpm \
 				scripts/vserver-build.yum \
+				scripts/vserver-build.template \
 				scripts/vserver-build.functions \
 				scripts/vserver-build.functions.apt \
 				scripts/vserver-build.functions.rpm \

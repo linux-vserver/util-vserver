@@ -1,0 +1,19 @@
+# Borrowed from file(1)
+# gzip (GNU zip, not to be confused with [Info-ZIP/PKWARE] zip archiver)
+0	string		\037\213		application/x-gzip
+# tar posix
+257	string		ustar\0			application/x-tar
+# tar gnu
+257	string		ustar\040\040\0		application/x-tar
+# cpio
+0	short		070707			application/x-cpio
+# cpio swapped
+0	short		0143561			application/x-cpio
+# bzip2
+0	string		BZh			application/x-bzip2
+# dump/restore new-fs big and little endian
+24	belong		60012			application/x-dump
+24	lelong		60012			application/x-dump
+# dump/restore old-fs big and little endian
+24	belong		60011			application/x-dump
+24	lelong		60011			application/x-dump
