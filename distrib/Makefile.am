@@ -40,13 +40,16 @@ nobase_distrib_DATA	=  defaults/devs \
 			   fc1/apt/rpmpriorities    fc1/pkgs/01    fc1/pkgs/02 \
 			   fc2/apt/rpmpriorities    fc2/pkgs/01    fc2/pkgs/02 \
 			   fc3/apt/rpmpriorities    fc3/pkgs/01    fc3/pkgs/02    fc3/pkgs/03 \
-			   fc3/yum/yum.conf $(wildcard fc3/yum.repos.d/fedora*.repo) \
+			   fc3/yum/yum.conf $(wildcard fc3/yum.repos.d/*.repo) \
 			   $(wildcard fc3/rpmlist.d/*.lst) $(wildcard fc3/rpmlist.d/*.opt) \
 			   fc4/apt/rpmpriorities    fc4/pkgs/01    fc4/pkgs/02    fc4/pkgs/03 \
-			   fc4/yum/yum.conf $(wildcard fc4/yum.repos.d/fedora*.repo) \
+			   fc4/yum/yum.conf $(wildcard fc4/yum.repos.d/*.repo) \
 			   $(wildcard fc4/rpmlist.d/*.lst) $(wildcard fc4/rpmlist.d/*.opt) \
+			   fc5/apt/rpmpriorities    fc5/pkgs/01    fc5/pkgs/02    fc5/pkgs/03 \
+			   fc5/yum/yum.conf $(wildcard fc5/yum.repos.d/*.repo) \
+			   $(wildcard fc5/rpmlist.d/*.lst) $(wildcard fc5/rpmlist.d/*.opt) \
 			   centos42/pkgs/01 centos42/pkgs/02 centos42/pkgs/03 \
-			   centos42/yum/yum.conf $(wildcard centos42/yum.repos.d/CentOS*.repo) \
+			   centos42/yum/yum.conf $(wildcard centos42/yum.repos.d/*.repo) \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros
 
@@ -65,7 +68,7 @@ EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(nobase_confdistrib_DATA) \
 			   $(defaults_DATA)
 
-redhat_style		=  rh9 fc1 fc2 fc3 fc4 centos42
+redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 centos42
 
 install-exec-hook:	install-notify-xtra
 install-data-hook:	install-data-xtras

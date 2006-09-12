@@ -52,7 +52,7 @@ $_VSERVER "$vserver" start --rescue bash -c '
     f=/tmp/startwait
     trap "rm -f $f" EXIT
     mkfifo $f
-    ( sleep 10; kill -s 9 -- -1 ) &
+    ( sleep 15; kill -s 9 -- -1 ) &
     cat "$f" >/dev/null
     kill -s 9 -- -1
     wait

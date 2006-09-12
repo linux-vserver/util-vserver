@@ -1,0 +1,21 @@
+[extras]
+name=Fedora Extras 5 - $basearch
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/5/$basearch/
+mirrorlist=http://fedora.redhat.com/download/mirrors/fedora-extras-5
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgcheck=1
+
+[extras-debuginfo]
+name=Fedora Extras 5 - $basearch - Debug
+baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/5/$basearch/debug/
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgcheck=1
+
+[extras-source]
+name=Fedora Extras 5 - Source
+baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/5/SRPMS/
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgcheck=1

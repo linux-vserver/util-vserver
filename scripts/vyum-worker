@@ -37,12 +37,9 @@ test -z "$_YUM" || {
     ${YUM:=$_YUM}
 }
 
-yum=${YUM:-yum}
-conf=yum.conf
-case $(yum --version) in
-    (2.[01234]*)
-	python -c 'import yum,sys; sys.exit(not hasattr(yum.config.yumconf, "getRootedPath"))' &>/dev/null || {
-	    warning "\
+function check(){
+    python -c "$1" &>/dev/null || {
+	warning "\
 You are using a version of yum which is insecure and broken in chroot
 related operations; either apply the patches shipped in the 'contrib/'
 directory of util-vserver, or ask the author of yum to apply them
@@ -52,9 +49,19 @@ In the meantime, 'vyum' will continue with dirty hacks which might not
 work when the vserver is running and local DOS attacks are possible.
 
 Execution will continue in 5 seconds..."
-	    sleep 5
-	    conf=yum-hack.conf
-	}
+	sleep 5
+	conf=yum-hack.conf
+    }
+}
+
+yum=${YUM:-yum}
+conf=yum.conf
+case $($yum --version|tail -n 1) in
+    (2.[012345]*)
+	check 'import yum,sys; sys.exit(not hasattr(yum.config.yumconf, "getRootedPath"))'
+	;;
+    (2.6*)
+	check 'import yum,sys; sys.exit(not hasattr(yum.config.YumConf, "getRootedPath"))'
 	;;
 esac
 

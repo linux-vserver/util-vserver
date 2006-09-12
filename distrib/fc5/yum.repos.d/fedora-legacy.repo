@@ -1,0 +1,13 @@
+[legacy-updates]
+name=Fedora Legacy 5 - $basearch - Updates
+mirrorlist=http://fedora.redhat.com/download/mirrors/legacy-updates-released-fc5
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-legacy
+
+[legacy-testing]
+name=Fedora Legacy 5 - $basearch - Updates Testing
+mirrorlist=http://fedora.redhat.com/download/mirrors/legacy-updates-testing-fc5
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-legacy

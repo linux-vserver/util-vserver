@@ -1,0 +1,21 @@
+[updates-testing]
+name=Fedora Core 5 - $basearch - Test Updates
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/updates/testing/5/$basearch/
+mirrorlist=http://fedora.redhat.com/download/mirrors/updates-testing-fc5
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-test
+
+[updates-testing-debuginfo]
+name=Fedora Core 5 - $basearch - Test Updates Debug
+baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/updates/testing/5/$basearch/debug/
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-test
+
+[updates-testing-source]
+name=Fedora Core 5 - Test Updates Source
+baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/updates/testing/5/SRPMS/
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-test

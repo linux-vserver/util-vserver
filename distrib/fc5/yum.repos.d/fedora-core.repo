@@ -1,0 +1,21 @@
+[core]
+name=Fedora Core 5 - $basearch
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/5/$basearch/os/
+mirrorlist=http://fedora.redhat.com/download/mirrors/fedora-core-5
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora file:///etc/pki/rpm-gpg/RPM-GPG-KEY
+
+[core-debuginfo]
+name=Fedora Core 5 - $basearch - Debug
+baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/5/$basearch/debug/
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora file:///etc/pki/rpm-gpg/RPM-GPG-KEY
+
+[core-source]
+name=Fedora Core 5 - Source
+baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/5/source/SRPMS/
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora file:///etc/pki/rpm-gpg/RPM-GPG-KEY
