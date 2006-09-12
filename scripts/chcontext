@@ -153,9 +153,9 @@ test -z "$OPT_DOMAINNAME$OPT_HOSTNAME" || \
 chain_cmd=( "${chain_cmd[@]}"
 		--
 		$_VATTRIBUTE --set
+		${OPT_SECURE:+--secure}
 		${OPT_CAPS:+--bcap "${OPT_CAPS[*]}"}
-		${OPT_FLAGS:+--flag "${OPT_FLAGS[*]}"}
-		${OPT_SECURE:+--secure} )
+		${OPT_FLAGS:+--flag "${OPT_FLAGS[*]}"} )
 		
 migrate_cmd=( $_VCONTEXT
 	      ${OPT_SILENT:+--silent}
