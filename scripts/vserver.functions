@@ -98,12 +98,13 @@ function _generateChbindOptions
 function _generateNiceCommand
 {
     local vdir=$1
-    local nice
+    local nice=0
+    local current_nice=`$_NICE`
 
-    test -r "$vdir/nice" || return 0;
-    read nice <"$vdir"/nice
+    test -r "$vdir/nice" && read nice <"$vdir"/nice
 
-    NICE_CMD=( $_NICE -$nice )
+    let nice=$nice-$current_nice || :
+    NICE_CMD=( $_NICE -n $nice )
 }
 
 

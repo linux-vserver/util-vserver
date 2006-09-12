@@ -514,7 +514,7 @@ elif [ "$2" = "start" ] ; then
 			DOMAINOPT="--domainname $S_DOMAINNAME"
 		fi
 		if [ "$S_NICE" != "" ] ; then
-			NICECMD="nice -$S_NICE"
+			NICECMD="nice -n $S_NICE"
 		fi
 		mkdir -p $__PKGSTATEDIR
 		chmod 700 $__PKGSTATEDIR
