@@ -100,6 +100,10 @@ trap "cleanup" EXIT
 
 sanityCheck      "$VSERVER_DIR"
 
+pushd "$VSERVER_DIR" >/dev/null
+execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" initialize
+popd >/dev/null
+
 mountRootFS      "$VSERVER_DIR"
 generateOptions  "$VSERVER_DIR"
 

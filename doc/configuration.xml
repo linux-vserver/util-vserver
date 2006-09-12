@@ -770,6 +770,57 @@ environment variable must be set by one of the in-shellcontext scripts
 (the non-executable ones).
       </description>
       
+      <program name="initialize">
+	<description>
+The scriptlet which will be executed before the root filesystem is mounted and
+the configuration has been loaded. Before executing the script, the
+configuration directory will be made the working directory.
+        </description>
+	<parameterList>
+	  <parameter name="vserver-dir">
+	    <description>
+The configuration directory of the current vserver.
+            </description>
+	  </parameter>
+	  <parameter name="vserver-name">
+	    <description>
+The name of the current vserver.
+            </description>
+	  </parameter>
+	  <parameter name="action">
+	    <description>
+The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
+            </description>
+	  </parameter>
+	</parameterList>
+      </program>
+      <collection name="initialize.d">
+	<description>
+Repository of initialize like scripts.  Before executing the script,
+the configuration directory will be made the working directory.
+        </description>                                                                                                                 
+	<program name="script" type="symbolic">
+	  <description>See initialize.</description>
+	  <parameterList>
+	    <parameter name="vserver-dir">
+	      <description>
+The configuration directory of the current vserver.
+              </description>
+	    </parameter>
+	    <parameter name="vserver-name">
+	      <description>
+The name of the current vserver.
+              </description>
+	    </parameter>
+	    <parameter name="action">
+	      <description>
+The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
+              </description>
+	    </parameter>
+	  </parameterList>
+	</program>
+      </collection>
+      
       <program name="prepre-start">
 	<description>
 The scriptlet which will be executed before the network-interfaces are
