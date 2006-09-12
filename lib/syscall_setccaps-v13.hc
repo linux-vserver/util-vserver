@@ -25,7 +25,7 @@ vc_set_ccaps_v13(xid_t xid, struct vc_ctx_caps const *caps)
 {
   struct vcmd_ctx_caps_v0	k_caps;
 
-  k_caps.bcaps = caps->bcaps & caps->bmask;
+  k_caps.bcaps = (caps->bcaps & caps->bmask) | ~caps->bmask;
   k_caps.ccaps = caps->ccaps;
   k_caps.cmask = caps->cmask;
   
