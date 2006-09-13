@@ -52,6 +52,7 @@ function rpm.initFilesystem
 {
     test -z "$WORKAROUND_106057" || mkdir -p "$RPMDB_PATH"
     mkdir -p "$VDIR$RPMDB_PATH"
+    mkdir -p "$VDIR/var/lock/rpm"
 
     test -z "$WORKAROUND_APT_DBPATH" || {
 	mkdir -p "$VDIR/var/lib"
