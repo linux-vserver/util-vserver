@@ -1,0 +1,35 @@
+#!/bin/bash
+
+proj="util-vserver"
+svnroot="http://svn.linux-vserver.org/svn/${proj}"
+
+usage() {
+	echo "Usage: mkrelease"
+}
+
+die() {
+	echo $1
+	exit ${2:-1}
+}
+
+ver=`grep AC_INIT configure.ac | awk '{ print $2 }'`
+ver=${ver/,}
+
+echo ">>> create release tag"
+
+#svn copy ${svnroot}/trunk ${svnroot}/tags/release-${ver} \
+#	-m "Tagging the ${ver} release of the ${proj} project" || die "svn copy failed"
+
+
+echo ">>> bootstrap sources"
+
+make -f Makefile.svn || die "make failed"
+
+echo ">>> create release tarball"
+
+./configure || die "configure failed"
+make dist || die "make dist failed"
+
+for i in *.tar.bz2 *.tar.gz; do
+	md5sum $i > $i.md5
+done

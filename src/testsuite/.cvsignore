@@ -1,9 +1,0 @@
-.deps
-.dirstamp
-.libs
-chbind-test
-chcontext-test
-hashcalc
-hashcalc-plain
-rpm-fake-test
-vunify-functest

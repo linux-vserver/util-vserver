@@ -1,0 +1,10 @@
+default: all
+
+all:
+	aclocal -I m4
+	autoheader
+	libtoolize --force --copy --automake
+	automake -afc
+	autoconf
+	rm -rf autom4te.cache/
+

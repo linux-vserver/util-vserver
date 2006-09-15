@@ -183,7 +183,7 @@ dnl ##########################
 
 
 ENSC_UV_VROOTDIR(vserverdir)
-ENSC_CHANGELOG([trunk])
+ENSC_CHANGELOG
 
 
 dnl ##########################
