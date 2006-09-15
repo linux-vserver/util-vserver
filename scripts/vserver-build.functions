@@ -50,6 +50,17 @@ function makeDevEntry
     esac
 }
 
+function populateDev
+{
+    local spec
+
+    mkdir -p -m755 "$VDIR"/dev/pts
+
+    while read spec; do
+	makeDevEntry "$VDIR"/dev $spec
+    done <$_DEV_FILE
+}
+
 function populateDirectory
 {
     local dst=$1
@@ -191,16 +202,13 @@ exist already; please try to use '--force', or remove them manually."
     $_SETATTR --~barrier "$VDIR"
     base._addGeneratedFile "$VDIR"
     
-    mkdir -p -m755 "$SETUP_CONFDIR"/apps "$VDIR"/{dev/pts,etc}
+    mkdir -p -m755 "$SETUP_CONFDIR"/apps "$VDIR"/etc
     base._addGeneratedFile "$SETUP_CONFDIR"
     
     ln -s "$VDIR"                     "$SETUP_CONFDIR/vdir"
     ln -s "$CACHEDIR/$VSERVERDIRNAME" "$SETUP_CONFDIR/cache"
 
-    local spec
-    while read spec; do
-	makeDevEntry "$VDIR"/dev $spec
-    done <$_DEV_FILE
+    populateDev
 
     mkdir -p "$VDIR"/proc
     findAndCopy "$VDIR"/etc/hosts         "$__CONFDIR"/.defaults/files/hosts "$__CONFDIR/.distributions/$DISTRIBUTION"/files/hosts \

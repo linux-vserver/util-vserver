@@ -30,7 +30,8 @@ defaults_DATA =		misc/debootstrap.uri \
 
 nobase_distrib_SCRIPTS	=  redhat/initpost \
 			   redhat/initpre \
-			   redhat/rc.sysinit
+			   redhat/rc.sysinit \
+			   gentoo/initpost
 
 nobase_distrib_DATA	=  defaults/devs \
 			   defaults/apt.conf \
