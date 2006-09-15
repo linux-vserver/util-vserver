@@ -140,7 +140,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
     $_VUNAME     --xid self --set -t context="$VSERVER_DIR" -- \
     $_VATTRIBUTE --set "${OPTS_VATTRIBUTE[@]}" -- \
     $_SAVE_CTXINFO "$VSERVER_DIR" \
-    $_ENV -i "${OPTS_ENV[@]}" -- \
+    $_ENV -i "${OPTS_ENV[@]}" \
     $_VCONTEXT   --migrate-self --endsetup --chroot $SILENT_OPT \
     "${OPTS_VCONTEXT_MIGRATE[@]}" "${OPTS_VCONTEXT_ENTER[@]}" -- \
     "${INITCMD_START[@]}"
@@ -156,7 +156,7 @@ else
     $_EXEC_ULIMIT      "$VSERVER_DIR/ulimits" \
     $_CHCONTEXT_COMPAT "${CHCONTEXT_OPTS[@]}" "${CHCONTEXT_INIT_OPTS[@]}" \
     $_SAVE_CTXINFO     "$VSERVER_DIR" \
-    $_ENV -i "${OPTS_ENV[@]}" -- \
+    $_ENV -i "${OPTS_ENV[@]}" \
     $_CHAINECHO "${_IS_FAKEINIT:+$startsync_pipe}" "" \
     $_CAPCHROOT        "${CAPCHROOT_OPTS[@]}" . \
     "${INITCMD_START[@]}"
