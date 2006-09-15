@@ -29,14 +29,22 @@ test -n "$MARK" || MARK=default
 
 if test -e /etc/init.d/functions; then
     . /etc/init.d/functions
+    _beginResult() { echo -n "$@"; }
     lockfile=/var/lock/subsys/$LOCKFILE
+elif test -e /etc/gentoo-release; then
+    . /sbin/functions.sh
+    _beginResult() { ebegin "$@"; }
+    success() { eend "$@"; }
+    passed()  { eend "$@"; }
+    failure() { eend "$@"; }
+    lockfile=/var/lock/vservers/$LOCKFILE
 else
+    _beginResult() { echo -n "$@"; }
     success() { echo .; }
     passed()  { echo .; }
     failure() { echo ERROR; }
     lockfile=/var/run/$LOCKFILE
 fi
-
 
 function _tellResult()
 {
@@ -52,7 +60,7 @@ function _tellResult()
 
 function start()
 {
-    echo -n $"Starting vservers of type '$MARK'..."
+    _beginResult $"Starting vservers of type '$MARK'..."
     $_START_VSERVERS -m "$MARK" -j "$NUMPARALLEL" --all --start
     _tellResult $?
     local rc=$?
@@ -62,7 +70,7 @@ function start()
 
 function stop()
 {
-    echo -n $"Stopping vservers of type '$MARK'..."
+    _beginResult $"Stopping vservers of type '$MARK'..."
     $_START_VSERVERS -m "$MARK" -j "$NUMPARALLEL" --all --stop
     _tellResult $?
     local rc=$?
