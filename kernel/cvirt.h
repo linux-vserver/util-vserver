@@ -1,6 +1,7 @@
 #ifndef _VX_CVIRT_H
 #define _VX_CVIRT_H
 
+
 #ifdef	__KERNEL__
 
 struct timespec;

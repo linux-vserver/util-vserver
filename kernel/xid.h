@@ -1,9 +1,8 @@
 #ifndef _VX_XID_H
 #define _VX_XID_H
 
-#ifndef CONFIG_VSERVER
-#warning config options missing
-#endif
+#include <linux/config.h>
+
 
 #define XID_TAG(in)	(IS_TAGXID(in))
 

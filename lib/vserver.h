@@ -181,6 +181,10 @@
 #define	VC_VXF_STATE_SETUP		(1ULL<<32)
 #define	VC_VXF_STATE_INIT		(1ULL<<33)
 
+#define VC_VXF_SC_HELPER		(1ULL<<36)
+#define VC_VXF_REBOOT_KILL		(1ULL<<37)
+#define VC_VXF_PERSISTENT		(1ULL<<38)
+
 #define VC_VXF_FORK_RSS			(1ULL<<48)
 #define VC_VXF_PROLIFIC			(1ULL<<49)
 

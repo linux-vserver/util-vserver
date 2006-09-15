@@ -1,6 +1,7 @@
 #ifndef _VX_SIGNAL_CMD_H
 #define _VX_SIGNAL_CMD_H
 
+
 /*  signalling vserver commands */
 
 #define VCMD_ctx_kill		VC_CMD(PROCTRL, 1, 0)
@@ -12,8 +13,8 @@ struct	vcmd_ctx_kill_v0 {
 };
 
 struct	vcmd_wait_exit_v0 {
-	int32_t a;
-	int32_t b;
+	int32_t reboot_cmd;
+	int32_t exit_code;
 };
 
 #ifdef	__KERNEL__

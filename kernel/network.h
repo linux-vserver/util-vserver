@@ -15,7 +15,8 @@
 
 #define NXF_STATE_SETUP		(1ULL<<32)
 
-#define NXF_STATE_HELPER	(1ULL<<36)
+#define NXF_SC_HELPER		(1ULL<<36)
+#define NXF_PERSISTENT		(1ULL<<38)
 
 #define NXF_ONE_TIME		(0x0001ULL<<32)
 
@@ -29,7 +30,7 @@
 
 #define NXA_MOD_BCAST		(1<<8)
 
-#define NXA_TYPE_ANY		(~0)
+#define NXA_TYPE_ANY		((uint16_t)-1)
 
 
 #ifdef	__KERNEL__
@@ -70,8 +71,7 @@ struct nx_info {
 #define NXS_SHUTDOWN    0x0100
 #define NXS_RELEASED    0x8000
 
-extern struct nx_info *locate_nx_info(int);
-extern struct nx_info *locate_or_create_nx_info(int);
+extern struct nx_info *lookup_nx_info(int);
 
 extern int get_nid_list(int, unsigned int *, int);
 extern int nid_is_hashed(nid_t);
@@ -83,12 +83,35 @@ extern long vs_net_change(struct nx_info *, unsigned int);
 struct in_ifaddr;
 struct net_device;
 
+#ifdef CONFIG_INET
 int ifa_in_nx_info(struct in_ifaddr *, struct nx_info *);
 int dev_in_nx_info(struct net_device *, struct nx_info *);
 
+#else /* CONFIG_INET */
+static inline
+int ifa_in_nx_info(struct in_ifaddr *a, struct nx_info *n)
+{
+	return 1;
+}
+
+static inline
+int dev_in_nx_info(struct net_device *d, struct nx_info *n)
+{
+	return 1;
+}
+#endif /* CONFIG_INET */
+
 struct sock;
 
+#ifdef CONFIG_INET
 int nx_addr_conflict(struct nx_info *, uint32_t, struct sock *);
+#else /* CONFIG_INET */
+static inline
+int nx_addr_conflict(struct nx_info *n, uint32_t a, struct sock *s)
+{
+	return 1;
+}
+#endif /* CONFIG_INET */
 
 #endif	/* __KERNEL__ */
 #else	/* _VX_NETWORK_H */

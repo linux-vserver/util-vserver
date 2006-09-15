@@ -1,6 +1,7 @@
 #ifndef _VX_LIMIT_CMD_H
 #define _VX_LIMIT_CMD_H
 
+
 /*  rlimit vserver commands */
 
 #define VCMD_get_rlimit		VC_CMD(RLIMIT, 1, 0)
@@ -26,11 +27,29 @@ struct	vcmd_ctx_rlimit_mask_v0 {
 
 #ifdef	__KERNEL__
 
+#ifdef	CONFIG_IA32_EMULATION
+
+struct	vcmd_ctx_rlimit_v0_x32 {
+	uint32_t id;
+	uint64_t minimum;
+	uint64_t softlimit;
+	uint64_t maximum;
+} __attribute__ ((aligned (4)));
+
+#endif	/* CONFIG_IA32_EMULATION */
+
 #include <linux/compiler.h>
 
 extern int vc_get_rlimit(uint32_t, void __user *);
 extern int vc_set_rlimit(uint32_t, void __user *);
 extern int vc_get_rlimit_mask(uint32_t, void __user *);
+
+#ifdef	CONFIG_IA32_EMULATION
+
+extern int vc_get_rlimit_x32(uint32_t, void __user *);
+extern int vc_set_rlimit_x32(uint32_t, void __user *);
+
+#endif	/* CONFIG_IA32_EMULATION */
 
 #endif	/* __KERNEL__ */
 #endif	/* _VX_LIMIT_CMD_H */

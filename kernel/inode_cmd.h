@@ -1,6 +1,7 @@
 #ifndef _VX_INODE_CMD_H
 #define _VX_INODE_CMD_H
 
+
 /*  inode vserver commands */
 
 #define VCMD_get_iattr_v0	VC_CMD(INODE, 1, 0)
@@ -26,6 +27,7 @@ struct	vcmd_ctx_iattr_v1 {
 
 
 #ifdef	__KERNEL__
+
 
 #ifdef	CONFIG_COMPAT
 

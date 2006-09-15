@@ -34,7 +34,12 @@ struct	vcmd_ctx_create {
 	uint64_t flagword;
 };
 
-#define VCMD_ctx_migrate	VC_CMD(PROCMIG, 1, 0)
+#define VCMD_ctx_migrate_v0	VC_CMD(PROCMIG, 1, 0)
+#define VCMD_ctx_migrate	VC_CMD(PROCMIG, 1, 1)
+
+struct	vcmd_ctx_migrate {
+	uint64_t flagword;
+};
 
 #ifdef	__KERNEL__
 extern int vc_ctx_create(uint32_t, void __user *);

@@ -1,6 +1,7 @@
 #ifndef _VX_CVIRT_CMD_H
 #define _VX_CVIRT_CMD_H
 
+
 /* virtual host info name commands */
 
 #define VCMD_set_vhi_name	VC_CMD(VHOST, 1, 0)

@@ -54,6 +54,10 @@ static struct Mapping_uint64 const VALUES[] = {
   DECL("state_setup",   VC_VXF_STATE_SETUP),
   DECL("state_init",    VC_VXF_STATE_INIT),
 
+  DECL("sc_helper",	VC_VXF_SC_HELPER),
+  DECL("persistent",	VC_VXF_PERSISTENT),
+  DECL("reboot_kill",	VC_VXF_REBOOT_KILL),
+
   DECL("fork_rss",	VC_VXF_FORK_RSS),
   DECL("prolific",	VC_VXF_PROLIFIC),
   DECL("igneg_nice",    VC_VXF_IGNEG_NICE),

@@ -23,7 +23,7 @@
 static inline ALWAYSINLINE int
 vc_wait_exit_v13b(xid_t ctx)
 {
-  struct vcmd_wait_exit_v0	param = { .a = 0, .b = 0 };
+  struct vcmd_wait_exit_v0	param = { .reboot_cmd = 0, .exit_code = 0 };
 
   return vserver(VCMD_wait_exit, CTX_USER2KERNEL(ctx), &param);
 }

@@ -1,6 +1,7 @@
 #ifndef _VX_SCHED_CMD_H
 #define _VX_SCHED_CMD_H
 
+
 /*  sched vserver commands */
 
 #define VCMD_set_sched_v2	VC_CMD(SCHED, 1, 2)
