@@ -84,6 +84,8 @@ else
     "${INITCMD_STOP[@]}" || fail=1
 fi
 
+vshelper.doStopSync
+
 waitForSync "$VSERVER_DIR" "$sync_fifo" "$vwait_statdir"
 
 vshelper.doDestroy "$VSERVER_DIR" "$S_CONTEXT"

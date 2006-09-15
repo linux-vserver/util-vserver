@@ -1014,6 +1014,30 @@ function vshelper.getSyncTimeout
     eval $2=\$_vgst_tmp
 }
 
+function vshelper.initStopSync
+{
+	local _iss_sync_dir=$($_MKTEMPDIR vshelper-stop-sync.XXXXXX) || {
+		warning $"Failed to generate directory for vshelper sync"
+		exit 1
+	}
+	$_MKFIFO -m700 "$_iss_sync_dir/pipe"
+
+	eval "$1"=\$_iss_sync_dir
+	VSHELPER_STOP_SYNC="$_iss_sync_dir/pipe"
+	export VSHELPER_STOP_SYNC
+}
+
+function vshelper.waitForStopSync
+{
+	local sync_dir=$1
+	cat "$sync_dir/pipe" &> /dev/null
+	rm -fr "$sync_dir"
+}
+
+function vshelper.doStopSync
+{
+	test ! -p "$VSHELPER_STOP_SYNC" || echo stopped > "$VSHELPER_STOP_SYNC"
+}
 
 function _rpmFake.getCapFlags
 {
