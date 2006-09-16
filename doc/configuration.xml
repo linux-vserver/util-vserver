@@ -191,6 +191,15 @@ operation will fail. Most tools assume 'on' as the default value.
 
       </collection>
     </collection>
+
+    <collection name="interfaces" use="optional">
+      <boolean id="global-vlandev" name="vlandev">
+	<description>
+When this file exists, the steps which setup and destroy a VLAN
+interface will be executed.
+	</description>
+      </boolean>
+    </collection>
   </collection>
     
   <collection name=".distributions" use="optional">
@@ -1128,6 +1137,20 @@ The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
       <scalar name="scope">
 	<description>The default scope of the network interfaces.</description>
       </scalar>
+      <boolean id="local-vlandev" name="vlandev">
+	<description>
+When this file exists, the steps which setup and destroy a VLAN
+interface will be executed for all interfaces of this vserver.
+	</description>
+      </boolean>
+      <boolean id="local-novlandev" name="novlandev">
+	<description>
+When this file exists, the steps which setup and destroy a VLAN
+interface will be skipped. This overrides the global
+<optionref ref="global-vlandev">vlandev</optionref> setting for
+this vserver.
+	</description>
+      </boolean>
       
       <collection name="iface" type="symbolic">
 	<description>
@@ -1177,8 +1200,15 @@ created by the host or another vserver.
 	<boolean name="novlandev">
 	  <description>
 When this file exists, the steps which setup and destroy a VLAN
-interface will be skipped. This flag should be set when a VLAN
-interface is used by multiple vservers or by the host.
+interface will be skipped. This will override the global
+<optionref ref="global-vlandev">vlandev</optionref> and the per-guest
+<optionref ref="local-vlandev">vlandev</optionref>.
+	  </description>
+	</boolean>
+	<boolean name="vlandev">
+	  <description>
+When this file exists, the steps which setup and destroy a VLAN
+interface will be executed.
 	  </description>
 	</boolean>
       </collection>

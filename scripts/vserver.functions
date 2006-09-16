@@ -533,7 +533,11 @@ function _processSingleInterface
 		echo -e $"VLAN device-name used, but vlan subsystem not enabled.\nTry to execute 'modprobe 8021q' before starting the vservers"  >&2
 		return 1
 	    }
-	    test -f /proc/net/vlan -o -e "$iface"/novlandev || {
+	    test -e "$iface/vlandev" \
+		 -o \( -e "$iface/../vlandev" -a ! -e "$iface/novlandev" \) \
+		 -o \( -e "$__CONFDIR/.defaults/interfaces/vlandev" \
+		       -a ! -e "$iface/novlandev" \
+		       -a ! -e "$iface/../novlandev" \) && {
 		_addInterfaceCmd VCONFIG $vlan_info
 	    }
 	fi
