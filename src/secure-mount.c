@@ -409,9 +409,9 @@ canHandleInternal(struct MountInfo const *mnt)
   };
   char const **		i;
   
-  if (mnt!=0)                                  return false;
-  else if ((mnt->flag & (MS_BIND|MS_MOVE))!=0) return true;
-  else if (mnt->type==0)                       return false;
+  if (!mnt)                                 return false;
+  else if ((mnt->flag & (MS_BIND|MS_MOVE))) return true;
+  else if (mnt->type==0)                    return false;
 
   for (i=FS+0; *i!=0; ++i)
     if (strcmp(mnt->type, *i)==0) return true;
@@ -429,7 +429,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
 
   if (canHandleInternal(mnt)) {
     unsigned long	flag = mnt->flag;
-    if ((flag & MS_NODEV)!=0) flag |= MS_NODEV;
+    if (!(flag & MS_NODEV)) flag |= MS_NODEV;
     
     if (mount(mnt->src, ".",
 	      mnt->type ? mnt->type : "",
