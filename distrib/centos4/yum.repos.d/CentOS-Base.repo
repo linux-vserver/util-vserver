@@ -1,50 +1,50 @@
 [base]
-name=CentOS-4.2 - Base
-baseurl=http://mirror.centos.org/centos/4.2/os/$basearch/
+name=CentOS-4 - Base
+baseurl=http://mirror.centos.org/centos/4/os/$basearch/
 gpgcheck=1
 gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-centos4
 
 #released updates 
 [update]
-name=CentOS-4.2 - Updates
-baseurl=http://mirror.centos.org/centos/4.2/updates/$basearch/
+name=CentOS-4 - Updates
+baseurl=http://mirror.centos.org/centos/4/updates/$basearch/
 gpgcheck=1
 gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-centos4
 
 #packages used/produced in the build but not released
 [addons]
-name=CentOS-4.2 - Addons
-baseurl=http://mirror.centos.org/centos/4.2/addons/$basearch/
+name=CentOS-4 - Addons
+baseurl=http://mirror.centos.org/centos/4/addons/$basearch/
 gpgcheck=1
 gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-centos4
 
 #additional packages that may be useful
 [extras]
-name=CentOS-4.2 - Extras
-baseurl=http://mirror.centos.org/centos/4.2/extras/$basearch/
+name=CentOS-4 - Extras
+baseurl=http://mirror.centos.org/centos/4/extras/$basearch/
 gpgcheck=1
 gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-centos4
 
 #additional packages that extend functionality of existing packages
 [centosplus]
-name=CentOS-4.2 - Plus
-baseurl=http://mirror.centos.org/centos/4.2/centosplus/$basearch/
+name=CentOS-4 - Plus
+baseurl=http://mirror.centos.org/centos/4/centosplus/$basearch/
 gpgcheck=1
 enabled=0
 gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-centos4
 
 #contrib - packages by Centos Users
 [contrib]
-name=CentOS-4.2 - Contrib
-baseurl=http://mirror.centos.org/centos/4.2/contrib/$basearch/
+name=CentOS-4 - Contrib
+baseurl=http://mirror.centos.org/centos/4/contrib/$basearch/
 gpgcheck=1
 enabled=0
 gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-centos4
 
 #packages in testing
 [testing]
-name=CentOS-4.2 - Testing
-baseurl=http://mirror.centos.org/centos/4.2/testing/$basearch/
+name=CentOS-4 - Testing
+baseurl=http://mirror.centos.org/centos/4/testing/$basearch/
 gpgcheck=1
 enabled=0
 gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-centos4
