@@ -14,6 +14,7 @@ build  @PKGLIBDIR@/vserver-build.functions.rpm
 build  @PKGLIBDIR@/vserver-build.functions.yum
 build  @PKGLIBDIR@/vserver-build.functions.pkgmgmt
 build  @PKGLIBDIR@/vserver-setup.functions
+build  @PKGLIBDIR@/magic.mime
 base   @PKGLIBDIR@/vserver.functions
 base   @PKGLIBDIR@/vserver.start
 @ENSC_HAVE_C99_COMPILER_TRUE@base   @PKGLIBDIR@/vserver.start.bin

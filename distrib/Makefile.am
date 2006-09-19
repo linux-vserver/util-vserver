@@ -50,8 +50,8 @@ nobase_distrib_DATA	=  defaults/devs \
 			   fc5/apt/rpmpriorities    fc5/pkgs/01    fc5/pkgs/02    fc5/pkgs/03 \
 			   fc5/yum/yum.conf $(wildcard fc5/yum.repos.d/*.repo) \
 			   $(wildcard fc5/rpmlist.d/*.lst) $(wildcard fc5/rpmlist.d/*.opt) \
-			   centos42/pkgs/01 centos42/pkgs/02 centos42/pkgs/03 \
-			   centos42/yum/yum.conf $(wildcard centos42/yum.repos.d/*.repo) \
+			   centos4/pkgs/01 centos4/pkgs/02 centos4/pkgs/03 \
+			   centos4/yum/yum.conf $(wildcard centos4/yum.repos.d/*.repo) \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros
 
@@ -60,6 +60,7 @@ nobase_confdistrib_DATA	=  rh9/apt/sources.list \
 			   fc2/apt/sources.list \
 			   fc3/apt/sources.list \
 			   fc4/apt/sources.list \
+			   fc5/apt/sources.list \
 			   suse91/apt/sources.list
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT \
@@ -70,7 +71,7 @@ EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(nobase_confdistrib_DATA) \
 			   $(defaults_DATA)
 
-redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 centos42
+redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 centos4
 
 install-exec-hook:	install-notify-xtra
 install-data-hook:	install-data-xtras
