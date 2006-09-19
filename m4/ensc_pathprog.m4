@@ -75,7 +75,10 @@ AC_DEFUN([ENSC_PATHPROG_STANDARD_TOOLS],
 	ENSC_PATHPROG(CP,        cp)
 	ENSC_PATHPROG(DIRNAME,   dirname)
 	ENSC_PATHPROG(EGREP,     egrep)
+	env_old_searchpath="${ensc_searchpath}"
+	ensc_searchpath="/bin:${ensc_searchpath:-$PATH}"
 	ENSC_PATHPROG(ENV,       env)
+	ensc_searchpath="${env_old_searchpath}"
 	ENSC_PATHPROG(GREP,      grep)
 	ENSC_PATHPROG(LN,        ln)
 	ENSC_PATHPROG(MKDIR,     mkdir)
