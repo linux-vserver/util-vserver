@@ -209,6 +209,9 @@ void do_vlogin(int argc, char *argv[], int ind)
   /* set terminal to raw mode */
   terminal_raw();
 
+  /* reset terminal to its original mode */
+  atexit(terminal_reset);
+
   /* fork new pseudo terminal */
   if (openpty(&t.fd, &slave, NULL, NULL, NULL) == -1) {
     perror(ENSC_WRAPPERS_PREFIX "openpty()");
@@ -253,9 +256,6 @@ void do_vlogin(int argc, char *argv[], int ind)
     memset(argv[i], '\0', strlen(argv[i]));
 
   strncpy(argv[0], "login", n);
-
-  /* reset terminal to its original mode */
-  atexit(terminal_reset);
 
   /* we want a redraw */
   terminal_redraw();
