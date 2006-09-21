@@ -22,7 +22,7 @@ ChangeLog.sed:
 if HAVE_SVN2CL
 ChangeLog:			Makefile
 				if test "$(srcdir)" = "." -a -d .svn; then	\
-					$(SVN2CL) -o $@;	\
+					$(SVN2CL) --authors="$(srcdir)/svnusers.map" -o $@;	\
 				fi
 endif
 
