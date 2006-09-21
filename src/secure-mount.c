@@ -428,12 +428,9 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
     return false;
 
   if (canHandleInternal(mnt)) {
-    unsigned long	flag = mnt->flag;
-    if (!(flag & MS_NODEV)) flag |= MS_NODEV;
-    
     if (mount(mnt->src, ".",
 	      mnt->type ? mnt->type : "",
-	      flag,  mnt->data)==-1) {
+	      mnt->flag,  mnt->data)==-1) {
       perror("secure-mount: mount()");
       return false;
     }
@@ -648,7 +645,7 @@ int main(int argc, char *argv[])
     .src         = 0,
     .dst         = 0,
     .type        = 0,
-    .flag        = 0,
+    .flag        = MS_NODEV,
     .xflag	 = 0,
     .data        = 0,
   };
