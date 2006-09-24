@@ -200,7 +200,7 @@ test "$2" != start -o -n "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR
     exec $_VNAMESPACE --new -- $_VSERVER ----nonamespace "${OPTIONS_ORIG[@]}"
 
 # Enter the namespace early so we can test for files inside the guest
-test "$2" != enter -a "$2" != stop -a "$2" != restart -a "$2" != condrestart || \
+test "$2" != enter -a "$2" != stop || \
     test -n "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" || \
     ! isVserverRunning "$VSERVER_DIR" || \
     exec $_VNAMESPACE --enter "$VSERVER_DIR" -- $_VSERVER ----nonamespace "${OPTIONS_ORIG[@]}"
