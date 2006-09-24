@@ -28,7 +28,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#define ENSC_WRAPPERS_PREFIX	"chroot-sh"
+#define ENSC_WRAPPERS_PREFIX	"chroot-sh: "
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_IO	1
 #define ENSC_WRAPPERS_FCNTL	1
