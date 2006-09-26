@@ -51,8 +51,6 @@ Possible methods are:
     legacy      ...  the \"old\" copy-all-from-host method, which requires the
                      old legacy  vserver-legacy script;  with  this method the
 		     cfg-options will be ignored
-    copy        ...  the copy-all-from-host method which uses the recent
-                     configuration scheme
     apt-rpm ... -- -d <distribution>
                 ...  installs the base-packages of the given distribution with
 		     help of 'vapt-get'
@@ -66,7 +64,7 @@ Possible methods are:
 		     configuration file and calls an optional command then
     debootstrap ... -- -d <distribution> [-m <mirror>] [-s <script> ] [-- <debootstrap-options>*]
                      bootstraps the vserver with Debian's 'debootstrap' package
-    template ... -- (-t <tarball>)+
+    template ... -- (-t <tarball>)+ [-d <distribution>]
                 ...  installs a guest using tarball(s)
 
 Please report bugs to $PACKAGE_BUGREPORT"
