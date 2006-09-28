@@ -31,6 +31,7 @@ EXTRA_DIST +=				$(contrib_subst_SRCS) \
 					contrib/yum-2.3.2-chroot.patch \
 					contrib/yum-2.3.3-chroot.patch \
 					contrib/yum-2.3.4-chroot.patch \
-					contrib/yum-2.6.0-chroot.patch
+					contrib/yum-2.6.0-chroot.patch \
+					contrib/yum-2.9.6-chroot.patch
 
 contrib/manifest.dat:			contrib/.manifest.dat.pathsubst.stamp

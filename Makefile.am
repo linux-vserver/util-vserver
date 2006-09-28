@@ -74,6 +74,7 @@ kernel_HDRS =					\
 			kernel/limit.h		\
 			kernel/limit_cmd.h	\
 			kernel/limit_def.h	\
+			kernel/limit_int.h	\
 			kernel/namespace.h	\
 			kernel/namespace_cmd.h	\
 			kernel/network.h	\
@@ -81,6 +82,7 @@ kernel_HDRS =					\
 			kernel/sched.h		\
 			kernel/sched_cmd.h	\
 			kernel/sched_def.h	\
+			kernel/signal.h		\
 			kernel/signal_cmd.h	\
 			kernel/switch.h		\
 			kernel/xid.h
