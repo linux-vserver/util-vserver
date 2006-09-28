@@ -29,7 +29,8 @@ doc_configuration_SRCS =	doc/configuration.xml \
 				doc/configuration.xsd \
 				doc/configuration.dtd \
 				doc/configuration.css \
-				doc/configuration-xhtml.xsl
+				doc/configuration-xhtml.xsl \
+				doc/configuration-wiki.xsl
 
 doc_compatibility_SRCS =	doc/compatibility.xml \
 				doc/compatibility.dtd \
