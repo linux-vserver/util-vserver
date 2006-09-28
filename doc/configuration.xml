@@ -339,7 +339,7 @@ the vserver is stopped, this can be a dangling symlink.
     <list id="bcapabilities" name="bcapabilities">
       <description>
 [experimental; name is subject of possible change] Contains the system capabilities. See
-<ulink url="http://savannah.nongnu.org/cgi-bin/viewcvs/util-vserver/util-vserver/lib/bcaps-v13.c?rev=HEAD">lib/bcaps-v13.c</ulink>
+<ulink url="http://svn.linux-vserver.org/svn/util-vserver/trunk/lib/bcaps-v13.c">lib/bcaps-v13.c</ulink>
 for possible values.
       </description>
     </list>
@@ -347,7 +347,7 @@ for possible values.
       <description>
 [experimental; name is subject of possible change] Contains the
 context capabilities. See <ulink
-url="http://savannah.nongnu.org/cgi-bin/viewcvs/util-vserver/util-vserver/lib/ccaps-v13.c?rev=HEAD">lib/ccaps-v13.c</ulink>
+url="http://svn.linux-vserver.org/svn/util-vserver/trunk/lib/ccaps-v13.c">lib/ccaps-v13.c</ulink>
 for possible values.
       </description>
     </list>
@@ -466,7 +466,7 @@ values.
     <list name="flags">
       <description>
 Contains per line a flag. See <ulink
-url="http://savannah.nongnu.org/cgi-bin/viewcvs/util-vserver/util-vserver/lib/cflags-v13.c?rev=HEAD">lib/cflags-v13.c</ulink>
+url="http://svn.liunx-vserver.org/svn/util-vserver/trunk/lib/cflags-v13.c">lib/cflags-v13.c</ulink>
 for possible values.
       </description>
       <!--
