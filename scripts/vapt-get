@@ -71,4 +71,4 @@ VSOMETHING_PKGMGMT=1
 export VSOMETHING_TITLE VSOMETHING_WORKER VSOMETHING_PKGMGMT
 
 test ${#vsomething_opts[@]} -eq 0 || vsomething_opts=( "${vsomething_opts[@]}" -- )
-exec $_VSOMETHING "${send_through[@]}" apt-get "${vsomething_opts[@]}" "$@"
+exec $_VSOMETHING "${send_through[@]}" ${APT_GET:-apt-get} "${vsomething_opts[@]}" "$@"

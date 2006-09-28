@@ -257,12 +257,14 @@ case "$2" in
 	;;
 
     (apt-get|apt-config|apt-cache)
-	export _APT_GET=$2
+	export APT_GET=$2
 	shift 2
-	exec $_VAPT_GET -- "$@"
+	exec $_VAPT_GET "$VSERVER_DIR" -- "$@"
 	;;
+
     (rpm)
-	exec $_VRPM -- "$@"
+	shift 2
+	exec $_VRPM "$VSERVER_DIR" -- "$@"
 	;;
 	
     (status)
