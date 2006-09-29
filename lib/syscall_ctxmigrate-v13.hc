@@ -23,5 +23,5 @@
 static inline ALWAYSINLINE int
 vc_ctx_migrate_v13(xid_t xid)
 {
-  return vserver(VCMD_ctx_migrate, CTX_USER2KERNEL(xid), NULL);
+  return vserver(VCMD_ctx_migrate_v0, CTX_USER2KERNEL(xid), NULL);
 }

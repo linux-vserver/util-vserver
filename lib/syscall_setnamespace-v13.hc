@@ -25,5 +25,5 @@
 static inline ALWAYSINLINE int
 vc_set_namespace_v13(int UNUSED tmp)
 {
-  return vserver(VCMD_set_namespace, -1, 0);
+  return vserver(VCMD_set_namespace_v0, -1, 0);
 }
