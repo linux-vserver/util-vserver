@@ -125,7 +125,7 @@ skipped.
       <collection name="vprocunhide">
 	<list name="files">
 	  <description>
-A list of files which will be made visibly by vprocunhide. Wildcards are
+A list of files which will be made visible by vprocunhide. Wildcards are
 allowed and anything ending in '/' will be processed recursively. When this file exists,
 it overrides the defaults in SYSDEFAULTDIR/vprocunhide-files. The entries there must be
 absolute filenames inclusive the leading '/proc'.
@@ -141,12 +141,12 @@ at startup via initscript.
           </description>
 	</link>
 
-	<list id="global-environment" name="environment">
+	<hash id="global-environment" name="environment">
 	  <description>
 The environment to set when starting guests. Contains one VAR=VAL
 pair per line.
 	  </description>
-	</list>
+	</hash>
       </collection>
       
       <collection name="vunify">
@@ -239,9 +239,9 @@ Script which will be executed before packages will be installed.
 The configuration directory of the vserver which is going to be set up.
             </description>
 	  </parameter>
-	  <parameter name="vserver">
+	  <parameter name="util-vserver-vars">
 	    <description>
-The pathname of the vserver binary.
+The pathname of the util-vserver-vars file.
             </description>
 	  </parameter>
 	</parameterList>
@@ -258,7 +258,7 @@ The configuration directory of the vserver which is going to be set up.
 	  </parameter>
 	  <parameter name="vserver">
 	    <description>
-The pathname of the vserver binary.
+The pathname of the util-vserver-vars file.
             </description>
 	  </parameter>
 	</parameterList>
@@ -325,7 +325,7 @@ Path of the storage area for cached information about this vserver.
     <link name="vdir">
       <default>../.defaults/vdirbase/VSERVERNAME</default>
       <description>
-Path of the vserver root directory
+Path of the vserver root directory.
       </description>
     </link>
 
@@ -548,7 +548,6 @@ Contains the init-style.
 	    <enumeration value="sysv"/>
 	    <enumeration value="plain"/>
 	    <enumeration value="minit"/>
-	    <enumeration value="gento"/>
 	  </restriction>
 	</scalar>
 	
@@ -639,12 +638,12 @@ vserver ids (one name per line).
           </description>
 	</list>
 
-	<list name="environment">
+	<hash name="environment">
 	  <description>
 The environment to set when starting the guest. Contains one VAR=VAL
 pair per line.
 	  </description>
-	</list>
+	</hash>
       </collection>
       
       <collection name="vshelper">
@@ -652,7 +651,7 @@ pair per line.
 	  <default>30</default>
 	  <description>
 The timeout in seconds which is used when synchronising vserver
-startup/shutdown with the vshelper. When no set, 30 seconds will be
+startup/shutdown with the vshelper. When not set, 30 seconds will be
 assumed.
 	  </description>
 	</scalar>
@@ -800,19 +799,14 @@ the configuration has been loaded. Before executing the script, the
 configuration directory will be made the working directory.
         </description>
 	<parameterList>
-	  <parameter name="vserver-dir">
+	  <parameter name="action">
 	    <description>
-The configuration directory of the current vserver.
+The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
             </description>
 	  </parameter>
 	  <parameter name="vserver-name">
 	    <description>
 The name of the current vserver.
-            </description>
-	  </parameter>
-	  <parameter name="action">
-	    <description>
-The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
             </description>
 	  </parameter>
 	</parameterList>
@@ -825,19 +819,14 @@ the configuration directory will be made the working directory.
 	<program name="script" type="symbolic">
 	  <description>See initialize.</description>
 	  <parameterList>
-	    <parameter name="vserver-dir">
+	    <parameter name="action">
 	      <description>
-The configuration directory of the current vserver.
+The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
               </description>
 	    </parameter>
 	    <parameter name="vserver-name">
 	      <description>
 The name of the current vserver.
-              </description>
-	    </parameter>
-	    <parameter name="action">
-	      <description>
-The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
               </description>
 	    </parameter>
 	  </parameterList>
@@ -851,19 +840,14 @@ enabled and the directories are mounted. Before executing the script,
 the configuration directory will be made the working directory.
         </description>
 	<parameterList>
-	  <parameter name="vserver-dir">
+	  <parameter name="action">
 	    <description>
-The configuration directory of the current vserver.
+The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
             </description>
 	  </parameter>
 	  <parameter name="vserver-name">
 	    <description>
 The name of the current vserver.
-            </description>
-	  </parameter>
-	  <parameter name="action">
-	    <description>
-The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
             </description>
 	  </parameter>
 	</parameterList>
@@ -876,19 +860,14 @@ the configuration directory will be made the working directory.
 	<program name="script" type="symbolic">
 	  <description>See prepre-start.</description>
 	  <parameterList>
-	    <parameter name="vserver-dir">
+	    <parameter name="action">
 	      <description>
-The configuration directory of the current vserver.
+The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
               </description>
 	    </parameter>
 	    <parameter name="vserver-name">
 	      <description>
 The name of the current vserver.
-              </description>
-	    </parameter>
-	    <parameter name="action">
-	      <description>
-The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
               </description>
 	    </parameter>
 	  </parameterList>
@@ -903,19 +882,14 @@ been started.  Before executing the script, the vserver root directory
 will be made the working directory.
         </description>
 	<parameterList>
-	  <parameter name="vserver-dir">
+	  <parameter name="action">
 	    <description>
-The configuration directory of the current vserver.
+The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
             </description>
 	  </parameter>
 	  <parameter name="vserver-name">
 	    <description>
 The name of the current vserver.
-            </description>
-	  </parameter>
-	  <parameter name="action">
-	    <description>
-The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
             </description>
 	  </parameter>
 	</parameterList>
@@ -928,17 +902,14 @@ the vserver root directory will be made the working directory.
 	<program name="script" type="symbolic">
 	  <description>See pre-start.</description>
 	  <parameterList>
-	    <parameter name="vserver-dir">
-	      <description>
-The configuration directory of the current vserver.
-              </description>
-	    </parameter>
-	    <parameter name="vserver-name">
-	      <description>The name of the current vserver.</description>
-	    </parameter>
 	    <parameter name="action">
 	      <description>
 The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
+              </description>
+	    </parameter>
+	    <parameter name="vserver-name">
+	      <description>
+The name of the current vserver.
               </description>
 	    </parameter>
 	  </parameterList>
@@ -953,15 +924,14 @@ started. Before executing the script, the vserver root directory
 will be made the working directory.
         </description>
 	<parameterList>
-	  <parameter name="vserver-dir">
-	    <description>The configuration directory of the current vserver.</description>
-	  </parameter>
-	  <parameter name="vserver-name">
-	    <description>The name of the current vserver.</description>
-	  </parameter>
 	  <parameter name="action">
 	    <description>
 The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
+            </description>
+	  </parameter>
+	  <parameter name="vserver-name">
+	    <description>
+The name of the current vserver.
             </description>
 	  </parameter>
 	</parameterList>
@@ -974,15 +944,14 @@ the vserver root directory will be made the working directory.
 	<program name="script" type="symbolic">
 	  <description>See post-start.</description>
 	  <parameterList>
-	    <parameter name="vserver-dir">
-	      <description>The configuration directory of the current vserver.</description>
-	    </parameter>
-	    <parameter name="vserver-name">
-	      <description>The name of the current vserver.</description>
-	    </parameter>
 	    <parameter name="action">
 	      <description>
 The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
+              </description>
+	    </parameter>
+	    <parameter name="vserver-name">
+	      <description>
+The name of the current vserver.
               </description>
 	    </parameter>
 	  </parameterList>
@@ -997,15 +966,14 @@ stopped. Before executing the script, the vserver root directory
 will be made the working directory.
         </description>
 	<parameterList>
-	  <parameter name="vserver-dir">
-	    <description>The configuration directory of the current vserver.</description>
-	  </parameter>
-	  <parameter name="vserver-name">
-	    <description>The name of the current vserver.</description>
-	  </parameter>
 	  <parameter name="action">
 	    <description>
 The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
+            </description>
+	  </parameter>
+	  <parameter name="vserver-name">
+	    <description>
+The name of the current vserver.
             </description>
 	  </parameter>
 	</parameterList>
@@ -1018,15 +986,14 @@ vserver root directory will be made the working directory.
 	<program name="script" type="symbolic">
 	  <description>See pre-stop.</description>
 	  <parameterList>
-	    <parameter name="vserver-dir">
-	      <description>The configuration directory of the current vserver.</description>
-	    </parameter>
-	    <parameter name="vserver-name">
-	      <description>The name of the current vserver.</description>
-	    </parameter>
 	    <parameter name="action">
 	      <description>
 The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
+              </description>
+	    </parameter>
+	    <parameter name="vserver-name">
+	      <description>
+The name of the current vserver.
               </description>
 	    </parameter>
 	  </parameterList>
@@ -1041,15 +1008,14 @@ interfaces disabled. Before executing the script, the vserver root
 directory will be made the working directory.
         </description>
 	<parameterList>
-	  <parameter name="vserver-dir">
-	    <description>The configuration directory of the current vserver.</description>
-	  </parameter>
-	  <parameter name="vserver-name">
-	    <description>The name of the current vserver.</description>
-	  </parameter>
 	  <parameter name="action">
 	    <description>
 The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
+            </description>
+	  </parameter>
+	  <parameter name="vserver-name">
+	    <description>
+The name of the current vserver.
             </description>
 	  </parameter>
 	</parameterList>
@@ -1062,15 +1028,14 @@ vserver root directory will be made the working directory.
 	<program name="script" type="symbolic">
 	  <description>See post-stop.</description>
 	  <parameterList>
-	    <parameter name="vserver-dir">
-	      <description>The configuration directory of the current vserver.</description>
-	    </parameter>
-	    <parameter name="vserver-name">
-	      <description>The name of the current vserver.</description>
-	    </parameter>
 	    <parameter name="action">
 	      <description>
 The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
+              </description>
+	    </parameter>
+	    <parameter name="vserver-name">
+	      <description>
+The name of the current vserver.
               </description>
 	    </parameter>
 	  </parameterList>
@@ -1084,15 +1049,14 @@ completely. Before executing the script, the vserver root directory
 will be made the working directory.
         </description>
 	<parameterList>
-	  <parameter name="vserver-dir">
-	    <description>The configuration directory of the current vserver.</description>
-	  </parameter>
-	  <parameter name="vserver-name">
-	    <description>The name of the current vserver.</description>
-	  </parameter>
 	  <parameter name="action">
 	    <description>
 The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
+            </description>
+	  </parameter>
+	  <parameter name="vserver-name">
+	    <description>
+The name of the current vserver.
             </description>
 	  </parameter>
 	</parameterList>
@@ -1105,15 +1069,14 @@ the vserver root directory will be made the working directory.
 	<program name="script" type="symbolic">
 	  <description>See postpost-stop.</description>
 	  <parameterList>
-	    <parameter name="vserver-dir">
-	      <description>The configuration directory of the current vserver.</description>
-	    </parameter>
-	    <parameter name="vserver-name">
-	      <description>The name of the current vserver.</description>
-	    </parameter>
 	    <parameter name="action">
 	      <description>
 The fixed value of the current action (e.g. 'prepre-start', 'post-stop'...).
+              </description>
+	    </parameter>
+	    <parameter name="vserver-name">
+	      <description>
+The name of the current vserver.
               </description>
 	    </parameter>
 	  </parameterList>
