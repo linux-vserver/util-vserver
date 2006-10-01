@@ -66,6 +66,12 @@ Possible methods are:
                 ...  bootstraps the vserver with Debian's 'debootstrap' package
     template    ... -- (-t <tarball>)+ [-d <distribution>]
                 ...  installs a guest using tarball(s)
+    fai         ... -- [ -f <fai_vserver> ] [-n <nfsroot>] [-d <fai_dir> ] [ -a ]
+                     bootstraps the vserver with Debian Fully Automatic Installation
+                     -f means use the nfsroot and profile in the vserver <fai_vserver>
+                     -n <nfsroot> specifies the 'NFS' root explicitly
+                     -d <fai_dir> specifies the location of the FAI profile
+                     the -f option implies -n and -d are relative to the <fai_vserver>
 
 Please report bugs to $PACKAGE_BUGREPORT"
     exit 0
@@ -126,7 +132,7 @@ setup_setDefaults "$VSERVER_NAME"
 
 case x"$method" in
     (xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
-    (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum|xrpm|xtemplate)
+    (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum|xrpm|xtemplate|xfai)
 		. $__PKGLIBDIR/vserver-build.$method
 		;;
     (x)		panic $"No build-method specified";;

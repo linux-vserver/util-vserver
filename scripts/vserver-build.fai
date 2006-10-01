@@ -1,0 +1,156 @@
+#
+# Copyright (C) 2006 Sam Vilain <sam.vilain@catalyst.net.nz>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+tmp=$(getopt -o '+d:f:n:a' --long debug,pkgmgmt -n "$0" -- "$@") || exit 1
+eval set -- "$tmp"
+
+. "$_LIB_VSERVER_BUILD_FUNCTIONS_PKGMGMT"
+. "$__PKGLIBDIR/vserver.functions"
+
+DISTRIBUTION=:
+
+FAI_VSERVER=
+FAI_NFSROOT=/usr/lib/fai/nfsroot
+FAI_DIR=/usr/local/share/fai
+
+use_pkgmgmt=
+while true; do
+    case "$1" in
+	-f)		FAI_VSERVER=$2; shift; ;;
+	-n)		FAI_NFSROOT=$2; shift; ;;
+	-d)		FAI_DIR=$2; shift; ;;
+	-a)		AUTO=1; ;;
+	--debug)	DEBUG=1; SH_DEBUG=-x; set -x;;
+	--)		shift; break ;;
+	*)		echo "vserver-build.fai: internal error: unrecognized option '$1'" >&2
+			exit 1
+			;;
+    esac
+    shift
+done
+
+getDistribution '' 1
+
+base.init
+base.initFilesystem "$OPTION_FORCE"
+
+setup_writeOption "$VSERVER_NAME"
+setup_writeInitialFstab
+
+test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
+
+# if they specified a vserver where FAI is installed, then prefix its
+# root to the FAI_NFSROOT etc (unless they have already specified a
+# $ROOTDIR-relative path)
+REAL_ROOTDIR=`getPhysicalDir "$ROOTDIR"`
+REAL_VDIR=`getPhysicalDir "$VDIR"`
+echo "ROOTDIR is $REAL_ROOTDIR"
+echo "VDIR    is $REAL_VDIR"
+if [ -n "$FAI_VSERVER" ]
+then
+    echo "FAI_VSERVER is $FAI_VSERVER"
+    if [ `expr "$FAI_NFSROOT" : "$REAL_ROOTDIR"` -eq 0 ]
+    then
+        FAI_NFSROOT="$REAL_ROOTDIR/$FAI_VSERVER$FAI_NFSROOT"
+    fi
+    if [ `expr "$FAI_DIR" : "$REAL_ROOTDIR"` -eq 0 ]
+    then
+        FAI_DIR="$REAL_ROOTDIR/$FAI_VSERVER$FAI_DIR"
+    fi
+fi
+echo "FAI_NFSROOT is $FAI_NFSROOT"
+echo "FAI_DIR     is $FAI_DIR"
+FAI_ROOT=/tmp/target
+
+if [ ! -e "$FAI_NFSROOT/usr/sbin/fai" ]
+then
+    colpanic "NFSROOT not found - did you run fai-setup?"
+    exit 1
+fi
+
+if ! grep -qw VIRTUAL "$FAI_NFSROOT/usr/sbin/fai"
+then
+    echo "*** Looks like you don't have the patched FAI."
+    echo "*** get it from svn://svn.debian.org/svn/fai/people/mugwump/vserver"
+    exit 1
+fi
+
+# setup a new filesystem namespace
+set -e
+#[ -d $FAI_NFSROOT/var/log/fai ] || mkdir $FAI_NFSROOT/var/log/fai
+
+# suppresses color logo, as it does not leave the terminal in a nice
+# state.
+console=dummy
+
+# set up interfaces, so that the vserver can be built with restricted
+# network access.
+generateOptions "$SETUP_CONFDIR"
+enableInterfaces "$SETUP_CONFDIR"
+
+# last chance to abort!
+if [ -z "$AUTO" ]
+then
+    echo -n "Press ENTER to begin, or Ctrl+C to cancel: "
+    read junk
+fi
+
+killprocs() {
+	base.__cleanup
+	if [ -e "/proc/virtual/$SETUP_CONTEXT" ]
+	then
+		$_VKILL -c "$SETUP_CONTEXT" -s 15
+		sleep 2
+		$_VKILL -c "$SETUP_CONTEXT" -s 9
+	fi
+	set -x
+	disableInterfaces "$SETUP_CONFDIR"
+}
+
+trap killprocs INT EXIT
+
+rwpaths="/var/lock /var/log /dev /var/run /etc/sysconfig"
+[ -d "$FAI_NFSROOT/etc/network/run" ] && rwpaths="$rwpaths /etc/network/run"
+
+export VDIR ROOTDIR FAI_VSERVER FAI_DIR FAI_NFSROOT FAI_ROOT console
+
+[ -z "$AUTO" ] && FINAL_SHELL="exec /bin/sh -i"
+
+mount -n -o ro --bind "$FAI_NFSROOT" /mnt
+mount -n -t tmpfs -o size=64m,mode=1777 vm /mnt/tmp
+mkdir -p /mnt/tmp/target
+mount -n --bind "$VDIR" /mnt/tmp/target
+mkdir -p /mnt/tmp/target/proc
+mount -n -t proc proc /mnt/tmp/target/proc
+for x in $rwpaths
+do
+    /mnt/usr/lib/fai/mkrw -n "/mnt$x"
+done
+mount -n -o ro --bind "$FAI_DIR" /mnt/fai
+mount -n -t proc proc /mnt/proc
+
+cd /mnt
+$_CHBIND "${CHBIND_OPTS[@]}" \
+    $_VCONTEXT --create "${OPTS_VCONTEXT_CREATE[@]}" -- \
+    $_VUNAME --xid self --set -t nodename="$SETUP_HOSTNAME" -- \
+    $_VATTRIBUTE --set --xid self "${OPTS_VATTRIBUTE[@]}" --ccap secure_mount \
+    $_VCONTEXT --migrate-self --endsetup --chroot $SILENT_OPT \
+	"${OPTS_VCONTEXT_MIGRATE[@]}" "${OPTS_VCONTEXT_ENTER[@]}" -- \
+    /bin/sh -c "/bin/sh $SH_DEBUG /etc/init.d/rcS -N vschild_build; $FINAL_SHELL"
+
+test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
+
+base.setSuccess
