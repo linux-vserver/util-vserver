@@ -141,7 +141,7 @@ at startup via initscript.
           </description>
 	</link>
 
-	<hash id="global-environment" name="environment">
+	<hash id="global-environment" name="environment" since="0.30.211">
 	  <description>
 The environment to set when starting guests. Contains one VAR=VAL
 pair per line.
@@ -193,7 +193,7 @@ operation will fail. Most tools assume 'on' as the default value.
     </collection>
 
     <collection name="interfaces" use="optional">
-      <boolean id="global-vlandev" name="vlandev">
+      <boolean id="global-vlandev" name="vlandev" since="0.30.211">
 	<description>
 When this file exists, the steps which setup and destroy a VLAN
 interface will be executed.
@@ -638,7 +638,7 @@ vserver ids (one name per line).
           </description>
 	</list>
 
-	<hash name="environment">
+	<hash name="environment" since="0.30.211">
 	  <description>
 The environment to set when starting the guest. Contains one VAR=VAL
 pair per line.
@@ -792,7 +792,7 @@ environment variable must be set by one of the in-shellcontext scripts
 (the non-executable ones).
       </description>
       
-      <program name="initialize">
+      <program name="initialize" since="0.30.211">
 	<description>
 The scriptlet which will be executed before the root filesystem is mounted and
 the configuration has been loaded. Before executing the script, the
@@ -811,7 +811,7 @@ The name of the current vserver.
 	  </parameter>
 	</parameterList>
       </program>
-      <collection name="initialize.d">
+      <collection name="initialize.d" since="0.30.211">
 	<description>
 Repository of initialize like scripts.  Before executing the script,
 the configuration directory will be made the working directory.
@@ -1100,7 +1100,7 @@ The name of the current vserver.
       <scalar name="scope">
 	<description>The default scope of the network interfaces.</description>
       </scalar>
-      <boolean id="local-vlandev" name="vlandev">
+      <boolean id="local-vlandev" name="vlandev" since="0.30.211">
 	<description>
 When this file exists, the steps which setup and destroy a VLAN
 interface will be executed for all interfaces of this vserver.
@@ -1168,7 +1168,7 @@ interface will be skipped. This will override the global
 <optionref ref="local-vlandev">vlandev</optionref>.
 	  </description>
 	</boolean>
-	<boolean name="vlandev">
+	<boolean name="vlandev" since="0.30.211">
 	  <description>
 When this file exists, the steps which setup and destroy a VLAN
 interface will be executed.
@@ -1263,7 +1263,7 @@ tools and can *not* be modified.
       </scalar>
     </collection>
 
-    <collection name="dlimits">
+    <collection name="dlimits" since="0.30.210">
       <collection name="dlimit" type="symbolic">
         <scalar name="directory">
           <description>The directory to which the limit should be applied</description>
@@ -1280,7 +1280,7 @@ tools and can *not* be modified.
       </collection>
     </collection>
 
-    <collection name="cpuset">
+    <collection name="cpuset" since="0.30.211">
       <scalar name="name">
         <description>The name of the cpuset for this vserver</description>
       </scalar>
