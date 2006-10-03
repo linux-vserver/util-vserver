@@ -1,0 +1,34 @@
+# These packages are untested and still under development. This
+# repository is used for updates to test releases, and for
+# development of new releases.
+#
+# This repository can see significant daily turnover and major
+# functionality changes which cause unexpected problems with other
+# development packages. Please use these packages if you want to work
+# with the Fedora developers by testing these new development packages.
+#
+# More information is available at http://fedoraproject.org/wiki/Testing
+
+[extras-development]
+name=Fedora Extras - Development Tree
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/development/$basearch/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=extras-devel&arch=$basearch
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgcheck=1
+
+[extras-development-debuginfo]
+name=Fedora Extras - Development - Debug
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/development/$basearch/debug/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=extras-devel-debug&arch=$basearch
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgcheck=1
+
+[extras-development-source]
+name=Fedora Extras - Development - Source
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/development/SRPMS/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=extras-devel-source&arch=$basearch
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgcheck=1

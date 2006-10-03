@@ -1,0 +1,23 @@
+[extras]
+name=Fedora Extras 6 - $basearch
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/6/$basearch/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=extras-6&arch=$basearch
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgcheck=1
+
+[extras-debuginfo]
+name=Fedora Extras 6 - $basearch - Debug
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/6/$basearch/debug/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=extras-debug-6&arch=$basearch
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgcheck=1
+
+[extras-source]
+name=Fedora Extras 6 - Source
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/6/SRPMS/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=extras-source-6&arch=$basearch
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgcheck=1

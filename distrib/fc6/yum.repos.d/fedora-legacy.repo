@@ -1,0 +1,13 @@
+[legacy-updates]
+name=Fedora Legacy 6 - $basearch - Updates
+mirrorlist=http://fedora.redhat.com/Download/mirrors/legacy-updates-released-fc6
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-legacy
+
+[legacy-testing]
+name=Fedora Legacy 6 - $basearch - Updates Testing
+mirrorlist=http://fedora.redhat.com/Download/mirrors/legacy-updates-testing-fc6
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-legacy
