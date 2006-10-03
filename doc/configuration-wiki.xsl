@@ -7,6 +7,7 @@
 
 	<xsl:template match="/database">
 		<h1>The contents of the <xsl:value-of select="$confdir"/> directory</h1>
+		This page is automatically created by XSL transformation of configuration.xml. Additions, corrections, etc. should be made in that file, not in the Wiki page.
 		<xsl:choose>
 			<xsl:when test="$printstylename = 'true'">
 				Directory names are written in <b>bold</b> letters.
@@ -45,7 +46,6 @@
 		<xsl:call-template name="collection">
 			<xsl:with-param name="thisdir"><xsl:value-of select="$confdir"/></xsl:with-param>
 		</xsl:call-template>
-		This page is automatically created by XSL transformation of configuration.xml. Additions, corrections, etc. should be made in that file, not in the Wiki page.
 	</xsl:template>
 
   <xsl:template name="collection">
