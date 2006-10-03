@@ -645,7 +645,7 @@ int main(int argc, char *argv[])
     .src         = 0,
     .dst         = 0,
     .type        = 0,
-    .flag        = MS_NODEV,
+    .flag        = 0,
     .xflag	 = 0,
     .data        = 0,
   };
