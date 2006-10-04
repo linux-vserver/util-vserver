@@ -5,6 +5,7 @@ base   @PKGLIBDIR@/functions
 build  @PKGLIBDIR@/vserver-build.apt-rpm
 build  @PKGLIBDIR@/vserver-build.skeleton
 build  @PKGLIBDIR@/vserver-build.debootstrap
+build  @PKGLIBDIR@/vserver-build.fai
 build  @PKGLIBDIR@/vserver-build.yum
 build  @PKGLIBDIR@/vserver-build.rpm
 build  @PKGLIBDIR@/vserver-build.template
