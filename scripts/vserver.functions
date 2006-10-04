@@ -715,7 +715,7 @@ function addtoCPUSET
        test -d /dev/cpuset/"$cpuset" || mkdir /dev/cpuset/"$cpuset" || configured=1
        for i in cpus mems cpu_exclusive mem_exclusive virtualized; do
            if test -e "$f"/"$i"; then
-               cat "$f"/"$i" >/dev/cpuset/"$cpuset"/"$i" 2>/dev/null || {
+               cat "$f"/"$i" >/dev/cpuset/"$cpuset"/"$i" || {
                    configured=1
                    break
                }
