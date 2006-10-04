@@ -134,6 +134,7 @@ export VDIR ROOTDIR FAI_VSERVER FAI_DIR FAI_NFSROOT FAI_ROOT console
 
 [ -z "$AUTO" ] && FINAL_SHELL="exec /bin/sh -i"
 
+# set up /mnt with all the mounts required
 $_SECURE_MOUNT -n -o ro --bind "$FAI_NFSROOT" /mnt
 $_SECURE_MOUNT -n -t tmpfs -o size=64m,mode=1777 vm /mnt/tmp
 $_MKDIR -p /mnt/tmp/target
@@ -150,7 +151,8 @@ $_SECURE_MOUNT -n -t proc proc /mnt/proc
 cd /mnt
 $_CHBIND "${CHBIND_OPTS[@]}" \
     $_VCONTEXT --create "${OPTS_VCONTEXT_CREATE[@]}" -- \
-    $_VUNAME --xid self --set -t nodename="${SETUP_HOSTNAME:-fai-build}" -- \
+    $_VUNAME --xid self --set -t nodename="${SETUP_HOSTNAME:-fai-build}" \
+	-t context="$SETUP_CONFDIR" -- \
     $_VATTRIBUTE --set --xid self "${OPTS_VATTRIBUTE[@]}" --ccap secure_mount \
     $_SAVE_CTXINFO "$SETUP_CONFDIR" \
     $_VCONTEXT --migrate-self --endsetup --chroot $SILENT_OPT \
