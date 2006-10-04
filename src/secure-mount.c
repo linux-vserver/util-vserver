@@ -52,6 +52,7 @@
 #include <sys/wait.h>
 #include <libgen.h>
 #include <signal.h>
+#include <stdlib.h>
 
 #define ENSC_WRAPPERS_FCNTL	1
 #define ENSC_WRAPPERS_UNISTD	1
@@ -461,6 +462,8 @@ static bool
 transformOptionList(struct MountInfo *info, size_t UNUSED *col)
 {
   char const *			ptr = info->data;
+  char *			data = malloc(strlen(info->data));
+  char *			dst = data;
 
   do {
     char const *		pos = strchr(ptr, ',');
@@ -475,6 +478,13 @@ transformOptionList(struct MountInfo *info, size_t UNUSED *col)
       info->mask  |=  opt->mask;
       info->xflag |=  opt->xflag;
     }
+    else {
+      if (dst != data)
+        *(dst++) = ',';
+      strncpy(dst, ptr, pos-ptr);
+      dst += pos - ptr;
+      *dst = '\0';
+    }
 
     if (*pos!='\0')
       ptr = pos+1;
@@ -483,6 +493,7 @@ transformOptionList(struct MountInfo *info, size_t UNUSED *col)
 
   } while (*ptr!='\0');
 
+  info->data = data;
   return true;
 }
 
@@ -645,7 +656,7 @@ int main(int argc, char *argv[])
     .src         = 0,
     .dst         = 0,
     .type        = 0,
-    .flag        = 0,
+    .flag        = MS_NODEV,
     .xflag	 = 0,
     .data        = 0,
   };
