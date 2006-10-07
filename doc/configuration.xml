@@ -466,7 +466,7 @@ values.
     <list name="flags">
       <description>
 Contains per line a flag. See <ulink
-url="http://svn.liunx-vserver.org/svn/util-vserver/trunk/lib/cflags-v13.c">lib/cflags-v13.c</ulink>
+url="http://svn.linux-vserver.org/svn/util-vserver/trunk/lib/cflags-v13.c">lib/cflags-v13.c</ulink>
 for possible values.
       </description>
       <!--
