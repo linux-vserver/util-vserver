@@ -17,8 +17,8 @@ ver=${ver/,}
 
 echo ">>> create release tag"
 
-#svn copy ${svnroot}/trunk ${svnroot}/tags/release-${ver} \
-#	-m "Tagging the ${ver} release of the ${proj} project" || die "svn copy failed"
+svn copy ${svnroot}/trunk ${svnroot}/tags/release-${ver} \
+	-m "Tagging the ${ver} release of the ${proj} project" || die "svn copy failed"
 
 
 echo ">>> bootstrap sources"
@@ -27,7 +27,7 @@ make -f Makefile.svn || die "make failed"
 
 echo ">>> create release tarball"
 
-./configure || die "configure failed"
+./configure --sysconfdir=/etc --prefix=/usr || die "configure failed"
 make dist || die "make dist failed"
 
 for i in *.tar.bz2 *.tar.gz; do

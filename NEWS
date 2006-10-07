@@ -1,3 +1,19 @@
+version 0.30.211
+================
+
+	- novlandev is now the default. To reenable the old behaviour of
+	creating VLAN interfaces where used, touch
+	${sysconfdir}/vservers/.defaults/interfaces/vlandev.
+
+	- vshelper now works correctly with the kernel legacy support turned
+	off.
+
+	- vlogin provides a terminal proxy which allocates a new psuedo-tty
+	on the inside when you enter a guest.
+
+	- and lots of other features/fixes, see ChangeLog.
+
+
 version 0.30.210
 ================
 
