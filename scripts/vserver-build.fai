@@ -25,6 +25,7 @@ DISTRIBUTION=:
 FAI_VSERVER=
 FAI_NFSROOT=/usr/lib/fai/nfsroot
 FAI_DIR=/usr/local/share/fai
+AUTO=1
 
 use_pkgmgmt=
 while true; do
@@ -32,7 +33,7 @@ while true; do
 	-f)		FAI_VSERVER=$2; shift; ;;
 	-n)		FAI_NFSROOT=$2; shift; ;;
 	-d)		FAI_DIR=$2; shift; ;;
-	-a)		AUTO=1; ;;
+	-a)		AUTO=;;
 	--debug)	DEBUG=1; SH_DEBUG=-x; set -x;;
 	--)		shift; break ;;
 	*)		echo "vserver-build.fai: internal error: unrecognized option '$1'" >&2
@@ -90,8 +91,9 @@ fi
 if ! grep -qw VIRTUAL "$FAI_NFSROOT/usr/sbin/fai"
 then
     panic $"\
-*** Looks like you don't have the patched FAI.
-*** get it from svn://svn.debian.org/svn/fai/people/mugwump/vserver"
+ERROR: Looks like you don't have the patched FAI.
+See http://faiwiki.informatik.uni-koeln.de/index.php/Using_FAI_as_a_vserver_build_method
+for information on where to get it."
 fi
 
 set -e
@@ -100,10 +102,24 @@ set -e
 # state.
 console=dummy
 
-# set up interfaces, so that the vserver can be built with restricted
-# network access.
-generateOptions "$SETUP_CONFDIR"
-enableInterfaces "$SETUP_CONFDIR"
+killprocs() {
+    set +e
+    S_CONTEXT=
+    if isVserverRunning "$SETUP_CONFDIR" S_CONTEXT
+    then
+	$_VKILL -c "$S_CONTEXT" -s 15
+	sleep 2
+	$_VKILL -c "$S_CONTEXT" -s 9
+	sleep 2
+	isVserverRunning "$SETUP_CONFDIR" && warning $"\
+Vserver '$VSERVER_NAME' still running unexpectedly; please investigate it
+manually."
+    fi
+    [ -n "$HAVE_INTERFACES" ] && disableInterfaces "$SETUP_CONFDIR"
+    base.__cleanup
+}
+
+trap killprocs INT EXIT
 
 # last chance to abort!
 if [ -z "$AUTO" ]
@@ -112,20 +128,11 @@ then
     read junk
 fi
 
-killprocs() {
-    base.__cleanup
-    S_CONTEXT=$($_CAT "$SETUP_CONFDIR"/run 2>/dev/null)
-    if [ $? -eq 0 -a -d "/proc/virtual/$S_CONTEXT" ]
-    then
-	$_VKILL -c "$S_CONTEXT" -s 15
-	sleep 2
-	$_VKILL -c "$S_CONTEXT" -s 9
-    fi
-    set -x
-    disableInterfaces "$SETUP_CONFDIR"
-}
-
-trap killprocs INT EXIT
+# set up interfaces, so that the vserver can be built with restricted
+# network access.
+generateOptions "$SETUP_CONFDIR"
+enableInterfaces "$SETUP_CONFDIR"
+HAVE_INTERFACES=1
 
 rwpaths="/var/lock /var/log /dev /var/run /etc/sysconfig"
 [ -d "$FAI_NFSROOT/etc/network/run" ] && rwpaths="$rwpaths /etc/network/run"
@@ -135,10 +142,10 @@ export VDIR ROOTDIR FAI_VSERVER FAI_DIR FAI_NFSROOT FAI_ROOT console
 [ -z "$AUTO" ] && FINAL_SHELL="exec /bin/sh -i"
 
 # set up /mnt with all the mounts required
-$_SECURE_MOUNT -n -o ro --bind "$FAI_NFSROOT" /mnt
+$_SECURE_MOUNT -n -o ro,dev --bind "$FAI_NFSROOT" /mnt
 $_SECURE_MOUNT -n -t tmpfs -o size=64m,mode=1777 vm /mnt/tmp
 $_MKDIR -p /mnt/tmp/target
-$_SECURE_MOUNT -n --bind "$VDIR" /mnt/tmp/target
+$_SECURE_MOUNT -n -o rw,dev --bind "$VDIR" /mnt/tmp/target
 $_MKDIR -p /mnt/tmp/target/proc
 $_SECURE_MOUNT -n -t proc proc /mnt/tmp/target/proc
 for x in $rwpaths
