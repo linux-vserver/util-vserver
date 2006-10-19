@@ -805,7 +805,7 @@ function mountVserver
     _mountVserverInternal "$cfgdir"/fstab.remote $_CHBIND "${CHBIND_OPTS[@]}"
 
     isNamespaceCleanup "$cfgdir" && \
-        _namespaceCleanup
+        _namespaceCleanup "$cfgdir"
 
     isAvoidNamespace "$cfgdir" || \
 	$_SECURE_MOUNT --rbind -n "$vdir" "/"
@@ -1161,26 +1161,39 @@ function saveDiskLimits
 
 function _namespaceCleanup
 {
-    local root=$(readlink -f "$vdir")
-    local tmp="$root"
+    local vdir="$1"
+    local root=$($_VSERVER_INFO "$1" VDIR 1)
     local -a list
-    while [ "$tmp" ]; do
-	list=( "${list[@]}" "$tmp" )
-	tmp="${tmp%/*}"
+    local -a skip
+    local tmp
+
+    getFileArray skip "$vdir"/namespace-cleanup-skip \
+	"$__CONFDIR"/.defaults/namespace-cleanup-skip || :
+
+    # these are things that have to be accessible post-cleanup
+    for tmp in "$root" "$__SBINDIR" "$__PKGLIBDIR" "$vdir" \
+	"$__PKGSTATEDIR" "${skip[@]}"; do
+	while test -n "$tmp"; do
+	    list=( "${list[@]}" "$tmp" )
+	    tmp="${tmp%/*}"
+	done
     done
+
     local -a list_umount
     while read dev path opts; do
-        [ "$path" ] || continue
-        for i in "$root" /dev /proc; do
-            [ "${path#$i}" != "$path" ] && continue 2
-        done
-        for i in "${list[@]}" /; do
-            [ "$path" = "$i" ] && continue 2
-        done
-        list_umount=( "${list_umount[@]}" "$path" )
+	test -n "$path" || continue
+	for i in "$root" /dev /proc; do
+	    test "${path#$i}" != "$path" && continue 2
+	done
+	for i in "${list[@]}" /; do
+	    test "$path" = "$i" && continue 2
+	done
+	# unmount them in reverse order so mounts further down the tree get unmounted first
+	list_umount=( "$path" "${list_umount[@]}" )
     done < /proc/mounts
+    # separate loop to avoid races while reading /proc/mounts
     for i in "${list_umount[@]}"; do
-        umount -l -n "$i"
+	$_UMOUNT -l -n "$i"
     done
 }
 

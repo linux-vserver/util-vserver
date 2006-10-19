@@ -45,6 +45,12 @@ there.
       </description>
     </boolean>
 
+    <list id="global-namespace-cleanup-skip" name="namespace-cleanup-skip">
+      <description>
+List of paths to skip during namespace cleanup.
+      </description>
+    </list>
+
     <link name="run.rev">
       <description>
 Path of the vserver run reverse directory. This directory contains
@@ -380,6 +386,14 @@ namespace cleanup for the current vserver.
 Enable namespace cleanup for the current vserver.
       </description>
     </boolean>
+
+    <list name="namespace-cleanup-skip">
+      <description>
+List of paths to skip during namespace cleanup. This overrides the 
+<optionref ref="global-namespace-cleanup-skip">global namespace-cleanup-skip</optionref>
+file.
+      </description>
+    </list>
 
     <hash name="schedule">
       <description>
