@@ -64,7 +64,7 @@ case $($yum --version|tail -n 1) in
 	check 'import yum,sys; sys.exit(not hasattr(yum.config.YumConf, "getRootedPath"))'
 	;;
     (*)
-	warning"\
+	warning "\
 You are using a version of yum which current status is unknown to vyum.
 
 Just to be sure, 'vyum' will use dirty hacks which might not work when
