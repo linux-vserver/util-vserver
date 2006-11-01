@@ -1,6 +1,6 @@
-#! /bin/bash
+#!/bin/bash
 
-# Copyright (C) 2005 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# Copyright (C) 2006 Benedikt Boehm <hollow@gentoo.org>
 #  
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,12 +17,87 @@
 
 ## Called as: initpost <cfgdir> <path of util-vserver-vars>
 
+vdir="$1"/vdir
 . "$2"
 
-$_MKDIR -p "$1"/vdir/usr/portage
+# portage stuff
+pushd "$vdir" &>/dev/null
+$_CHROOT_SH mkdir /usr         2>/dev/null || :
+$_CHROOT_SH mkdir /usr/portage 2>/dev/null || :
+popd &>/dev/null
 
-$_CAT <<EOF >> "$1"/fstab
-# shared portage tree
-/usr/portage           /usr/portage           none bind,ro 0 0
-/usr/portage/distfiles /usr/portage/distfiles none bind,rw 0 0
-EOF
+
+# check for baselayout >= 1.13
+pushd "$vdir" &>/dev/null
+basever=$($_CHROOT_SH cat /etc/gentoo-release | $_AWK '{print $5}')
+popd &>/dev/null
+
+echo ">>> Found baselayout-$basever"
+
+basemaj=${basever/.*}
+basemin=${basever#*.}
+basemin=${basemin/.*}
+
+if test "$basemaj" -lt 1 -o "$basemin" -lt 13; then
+	echo "!!! Will not do automagic changes to baselayout < 1.13"
+	echo "!!! You have to take care for yourself ..."
+	exit 0
+fi
+
+
+# fix gettys in inittab
+pushd "$vdir" &>/dev/null
+
+if $_CHROOT_SH testfile /etc/inittab; then
+	echo ">>> Fixing inittab ... "
+	inittabtmp=$($_MKTEMP inittab.XXXXXX)
+
+	$_CHROOT_SH cat /etc/inittab | \
+	$_SED 's/\(^[^#].*getty.*$\)/#\1/' > $inittabtmp
+	$_CHROOT_SH truncate /etc/inittab  < $inittabtmp
+
+	$_RM -f $inittabtmp
+fi
+
+popd &>/dev/null
+
+
+# unneeded runlevel scripts
+pushd "$vdir" &>/dev/null
+echo ">>> Fixing default runlevel scripts ... "
+$_CHROOT_SH rm /etc/runlevels/boot/{clock,consolefont,keymaps,modules,net.lo} 2>/dev/null || :
+$_CHROOT_SH rm /etc/runlevels/default/{hdparm,netmount} 2>/dev/null || :
+popd &>/dev/null
+
+
+# fix fstab for checkfs/localmount
+pushd "$vdir" &>/dev/null
+echo ">>> Fixing fstab ... "
+echo "/dev/hdv1 / ufs 0 0" | $_CHROOT_SH truncate /etc/fstab
+popd &>/dev/null
+
+
+# gentoo initstyle magic
+initstyle=sysv
+test -e "$1"/apps/init/style && initstyle=$(<"$1"/apps/init/style)
+
+if test "$initstyle" == "gentoo"; then
+	pushd "$vdir" &>/dev/null
+
+	echo ">>> Installing special init-style magic ... "
+
+	$_CAT "$__DISTRIBDIR"/gentoo/init-vserver.sh | \
+	$_CHROOT_SH truncate   /lib/rcscripts/sh/init-vserver.sh
+	$_CHROOT_SH chmod 0755 /lib/rcscripts/sh/init-vserver.sh
+
+	popd &>/dev/null
+
+	echo "!!!"
+	echo "!!! You have to install a service (e.g. syslog-ng) and add it to the"
+	echo "!!! default runlevel before you start the guest the first time!"
+	echo "!!! Otherwise the guest will die as soon as it has finished booting."
+	echo "!!!"
+	echo "!!! Consult the Gentoo Handbook on how to chroot and install"
+	echo "!!! packages into the guest environment."
+	echo "!!!"
+fi

@@ -299,7 +299,24 @@ function _generateInitOptions
 	    ;;
 
 	(xgentoo)
-	    panic "init-style '$INITSTYLE' is no longer supported; please use plain instead; aborting";;
+	    INITCMD_START=( /lib/rcscripts/sh/init-vserver.sh )
+	    INITCMD_STOP=( /sbin/rc shutdown )
+
+	    pushd "$vdir"/vdir &>/dev/null
+	    basever=$($_CHROOT_SH cat /etc/gentoo-release | $_AWK '{print $5}')
+	    popd &>/dev/null
+
+	    basemaj=${basever/.*}
+	    basemin=${basever#*.}
+	    basemin=${basemin/.*}
+
+	    test "$basemaj" -lt 1 -o "$basemin" -lt 13 && \
+	    panic "\
+Using init-style 'gentoo' requires >=baselayout-1.13 inside the vserver!
+
+Your vserver ($(basename "$vdir")) seems to have baselayout-$basever,
+please use 'plain' init-style instead!"
+	    ;;
 
 	(x) ;;
 	(*) panic "Unknown init-style '$INITSTYLE'; aborting";;
