@@ -181,6 +181,7 @@ src_filetime_LDFLAGS		=  $(VSERVER_LDFLGS)
 
 src_chain_echo_SOURCES		=  src/chain-echo.c
 src_chroot_sh_SOURCES		=  src/chroot-sh.c
+src_chroot_sh_LDADD		=  $(LIBINTERNAL)
 src_exec_cd_SOURCES		=  src/exec-cd.c
 src_fakerunlevel_SOURCES	=  src/fakerunlevel.c
 src_ifspec_SOURCES		=  src/ifspec.c
