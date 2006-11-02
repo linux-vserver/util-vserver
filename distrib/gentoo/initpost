@@ -73,7 +73,7 @@ popd &>/dev/null
 # fix fstab for checkfs/localmount
 pushd "$vdir" &>/dev/null
 echo ">>> Fixing fstab ... "
-echo "/dev/hdv1 / ufs 0 0" | $_CHROOT_SH truncate /etc/fstab
+echo "/dev/hdv1 / ufs defaults 0 0" | $_CHROOT_SH truncate /etc/fstab
 popd &>/dev/null
 
 
