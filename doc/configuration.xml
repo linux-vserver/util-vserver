@@ -67,7 +67,7 @@ a vserver specific setting.
       <collection name="pkgmgmt">
 	<link name="base">
 	  <default>/vservers/.pkg</default>
-	</link> 
+	</link>
 	<data name="apt.conf">
 	  <description>The default apt.conf which is going to be used. It is overridden by
 distribution specific configuration file.
@@ -344,15 +344,14 @@ the vserver is stopped, this can be a dangling symlink.
 
     <list id="bcapabilities" name="bcapabilities">
       <description>
-[experimental; name is subject of possible change] Contains the system capabilities. See
+Contains the system capabilities. See
 <ulink url="http://svn.linux-vserver.org/svn/util-vserver/trunk/lib/bcaps-v13.c">lib/bcaps-v13.c</ulink>
 for possible values.
       </description>
     </list>
     <list name="ccapabilities">
       <description>
-[experimental; name is subject of possible change] Contains the
-context capabilities. See <ulink
+Contains the context capabilities. See <ulink
 url="http://svn.linux-vserver.org/svn/util-vserver/trunk/lib/ccaps-v13.c">lib/ccaps-v13.c</ulink>
 for possible values.
       </description>
@@ -507,7 +506,7 @@ The new process and its children will share a common
 	  <description>
 Limit the number of process in the vserver according to
 ulimit setting. Normally, ulimit is a per user thing.
-With this flag, it becomes a per vserver thing.  
+With this flag, it becomes a per vserver thing.
           </description>
 	</element>
 	<element name="private">
@@ -829,7 +828,7 @@ The name of the current vserver.
 	<description>
 Repository of initialize like scripts.  Before executing the script,
 the configuration directory will be made the working directory.
-        </description>                                                                                                                 
+        </description>
 	<program name="script" type="symbolic">
 	  <description>See initialize.</description>
 	  <parameterList>
@@ -870,7 +869,7 @@ The name of the current vserver.
 	<description>
 Repository of prepre-start like scripts.  Before executing the script,
 the configuration directory will be made the working directory.
-        </description>                                                                                                                 
+        </description>
 	<program name="script" type="symbolic">
 	  <description>See prepre-start.</description>
 	  <parameterList>
@@ -912,7 +911,7 @@ The name of the current vserver.
 	<description>
 Repository of pre-start like scripts. Before executing these scripts,
 the vserver root directory will be made the working directory.
-        </description>                                                                                                                 
+        </description>
 	<program name="script" type="symbolic">
 	  <description>See pre-start.</description>
 	  <parameterList>
@@ -996,7 +995,7 @@ The name of the current vserver.
 	<description>
 Repository of pre-stop like scripts. Before executing the script, the
 vserver root directory will be made the working directory.
-        </description>                                                                                                                 
+        </description>
 	<program name="script" type="symbolic">
 	  <description>See pre-stop.</description>
 	  <parameterList>
@@ -1194,21 +1193,20 @@ interface will be executed.
     <collection name="ulimits">
       <description>
 A directory with ulimits. Possible resources are cpu, data, fsize,
-locks, memlock, nofile, nproc, rss and/or stack. This configuration
-will be honored for kernel 2.4 only.
-      </description>                                                                                                                 
+locks, memlock, nofile, nproc, rss and/or stack.
+      </description>
       <scalar name="resource" type="symbolic">
 	<description>
 A file which contains the hard- and soft-limit of the given resource
 in the first line. The special keyword 'inf' is recognized.
 	</description>
-      </scalar>                                                                            
+      </scalar>
       <scalar name="resource.hard" type="symbolic">
 	<description>
 A file which contains the hard- of the given resource in the first
 line. The special keyword 'inf' is recognized.
 	</description>
-      </scalar>                                                                                             
+      </scalar>
       <scalar name="resource.soft" type="symbolic">
 	<description>
 A file which contains the soft- of the given resource in the first
@@ -1222,19 +1220,19 @@ line. The special keyword 'inf' is recognized.
 A directory with resource limits. Possible resources are cpu, fsize,
 data, stack, core, rss, nproc, nofile, memlock, as and locks. This
 configuration will be honored for kernel 2.6 only.
-      </description>                                                                                                                 
+      </description>
       <scalar name="resource" type="symbolic">
 	<description>
 A file which contains the hard- and soft-limit of the given resource
 in the first line. The special keyword 'inf' is recognized.
 	</description>
-      </scalar>                                                                            
+      </scalar>
       <scalar name="resource.hard" type="symbolic">
 	<description>
 A file which contains the hard- of the given resource in the first
 line. The special keyword 'inf' is recognized.
 	</description>
-      </scalar>                                                                                             
+      </scalar>
       <scalar name="resource.soft" type="symbolic">
 	<description>
 A file which contains the soft- of the given resource in the first
