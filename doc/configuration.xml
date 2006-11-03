@@ -196,6 +196,14 @@ operation will fail. Most tools assume 'on' as the default value.
 	</boolean>
 
       </collection>
+
+      <collection name="vlogin">
+	<boolean id="vlogin-disable" name="disable" since="0.30.212">
+	  <description>
+When this file exists, vlogin isn't used on vserver &lt;guest&gt; enter.
+	  </description>
+	</boolean>
+      </collection>
     </collection>
 
     <collection name="interfaces" use="optional">

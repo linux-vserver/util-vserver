@@ -711,6 +711,11 @@ function killContext
     #$_VKILL -s CONT   --xid "$1" 1 &>/dev/null || :
 }
 
+function useVlogin
+{
+    test ! -e "$__CONFDIR/.defaults/apps/vlogin/disable"
+}
+
 ## Usage: pkgmgmt.guessStyle <vserver> <resultvar>
 function pkgmgmt.guessStyle()
 {
