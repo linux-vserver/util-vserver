@@ -27,6 +27,32 @@ $_CHROOT_SH mkdir /usr/portage 2>/dev/null || :
 popd &>/dev/null
 
 
+# gentoo initstyle magic
+initstyle=sysv
+test -e "$1"/apps/init/style && initstyle=$(<"$1"/apps/init/style)
+
+if test "$initstyle" == "gentoo"; then
+	pushd "$vdir" &>/dev/null
+
+	echo ">>> Installing special init-style magic ... "
+
+	$_CAT "$__DISTRIBDIR"/gentoo/init-vserver.sh | \
+	$_CHROOT_SH truncate   /lib/rcscripts/sh/init-vserver.sh
+	$_CHROOT_SH chmod 0755 /lib/rcscripts/sh/init-vserver.sh
+
+	popd &>/dev/null
+
+	echo "!!!"
+	echo "!!! You have to install a service (e.g. syslog-ng) and add it to the"
+	echo "!!! default runlevel before you start the guest the first time!"
+	echo "!!! Otherwise the guest will die as soon as it has finished booting."
+	echo "!!!"
+	echo "!!! Consult the Gentoo Handbook on how to chroot and install"
+	echo "!!! packages into the guest environment."
+	echo "!!!"
+fi
+
+
 # check for baselayout >= 1.13
 pushd "$vdir" &>/dev/null
 basever=$($_CHROOT_SH cat /etc/gentoo-release | $_AWK '{print $5}')
@@ -75,29 +101,3 @@ pushd "$vdir" &>/dev/null
 echo ">>> Fixing fstab ... "
 echo "/dev/hdv1 / ufs defaults 0 0" | $_CHROOT_SH truncate /etc/fstab
 popd &>/dev/null
-
-
-# gentoo initstyle magic
-initstyle=sysv
-test -e "$1"/apps/init/style && initstyle=$(<"$1"/apps/init/style)
-
-if test "$initstyle" == "gentoo"; then
-	pushd "$vdir" &>/dev/null
-
-	echo ">>> Installing special init-style magic ... "
-
-	$_CAT "$__DISTRIBDIR"/gentoo/init-vserver.sh | \
-	$_CHROOT_SH truncate   /lib/rcscripts/sh/init-vserver.sh
-	$_CHROOT_SH chmod 0755 /lib/rcscripts/sh/init-vserver.sh
-
-	popd &>/dev/null
-
-	echo "!!!"
-	echo "!!! You have to install a service (e.g. syslog-ng) and add it to the"
-	echo "!!! default runlevel before you start the guest the first time!"
-	echo "!!! Otherwise the guest will die as soon as it has finished booting."
-	echo "!!!"
-	echo "!!! Consult the Gentoo Handbook on how to chroot and install"
-	echo "!!! packages into the guest environment."
-	echo "!!!"
-fi
