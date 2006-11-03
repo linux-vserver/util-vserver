@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2006 Daniel Hokka Zakrisson <daniel@hozac.com>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,27 +21,21 @@
 #endif
 
 #include "vserver.h"
-#include "virtual.h"
 
-#define VC_MULTIVERSION_SYSCALL	1
-#include "vserver-internal.h"
-
-#ifdef VC_ENABLE_API_V13
-#  include "syscall_setsched-v13.hc"
-#endif
-
-#ifdef VC_ENABLE_API_V13OBS
-#  include "syscall_setsched-v13obs.hc"
-#endif
-
-#ifdef VC_ENABLE_API_V21
-#  include "syscall_setsched-v21.hc"
-#endif
-
-int
-vc_set_sched(xid_t xid, struct vc_set_sched const *data)
+static inline ALWAYSINLINE int
+vc_set_sched_v21(xid_t xid, struct vc_set_sched const *data)
 {
-  CALL_VC(CALL_VC_V21   (vc_set_sched,xid,data),
-	  CALL_VC_V13B  (vc_set_sched,xid,data),
-	  CALL_VC_V13OBS(vc_set_sched,xid,data));
+  struct vcmd_set_sched_v4	k_data;
+
+  k_data.set_mask   = data->set_mask;
+  k_data.fill_rate  = data->fill_rate;
+  k_data.interval   = data->interval;
+  k_data.tokens     = data->tokens;
+  k_data.tokens_min = data->tokens_min;
+  k_data.tokens_max = data->tokens_max;
+  k_data.prio_bias  = data->priority_bias;
+  k_data.cpu_id	    = data->cpu_id;
+  k_data.bucket_id  = data->bucked_it;
+
+  return vserver(VCMD_set_sched, CTX_USER2KERNEL(xid), &k_data);
 }

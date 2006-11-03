@@ -25,10 +25,15 @@ struct	vcmd_ctx_dlimit_v0 {
 	uint32_t flags;
 };
 
+#define CDLIM_UNSET		((uint32_t)0UL)
+#define CDLIM_INFINITY		((uint32_t)~0UL)
+#define CDLIM_KEEP		((uint32_t)~1UL)
 
 #ifdef	__KERNEL__
 
 #ifdef	CONFIG_COMPAT
+
+#include <asm/compat.h>
 
 struct	vcmd_ctx_dlimit_base_v0_x32 {
 	compat_uptr_t name_ptr;

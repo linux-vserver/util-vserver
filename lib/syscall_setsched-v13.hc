@@ -30,21 +30,13 @@ vc_set_sched_v13b(xid_t xid, struct vc_set_sched const *data)
 {
   struct vcmd_set_sched_v3	k_data;
 
-    // This expression will be evaluated at compile-time
-  if (sizeof(struct vcmd_set_sched_v3)==sizeof(struct vc_set_sched) &&
-      X(set_mask)   && X(fill_rate)  && X(interval)   && X(tokens) &&
-      X(tokens_min) && X(tokens_max) && X(priority_bias))
-    return vserver(VCMD_set_sched, CTX_USER2KERNEL(xid),
-		   const_cast(struct vc_set_sched *)(data));
-  else {
-    k_data.set_mask      = data->set_mask;
-    k_data.fill_rate     = data->fill_rate;
-    k_data.interval      = data->interval;
-    k_data.tokens        = data->tokens;
-    k_data.tokens_min    = data->tokens_min;
-    k_data.tokens_max	 = data->tokens_max;
-    k_data.priority_bias = data->priority_bias;
+  k_data.set_mask      = data->set_mask & VC_VXSM_V3_MASK;
+  k_data.fill_rate     = data->fill_rate;
+  k_data.interval      = data->interval;
+  k_data.tokens        = data->tokens;
+  k_data.tokens_min    = data->tokens_min;
+  k_data.tokens_max    = data->tokens_max;
+  k_data.priority_bias = data->priority_bias;
 
-    return vserver(VCMD_set_sched, CTX_USER2KERNEL(xid), &k_data);
-  }
+  return vserver(VCMD_set_sched_v3, CTX_USER2KERNEL(xid), &k_data);
 }

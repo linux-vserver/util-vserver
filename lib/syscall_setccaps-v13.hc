@@ -29,5 +29,5 @@ vc_set_ccaps_v13(xid_t xid, struct vc_ctx_caps const *caps)
   k_caps.ccaps = caps->ccaps;
   k_caps.cmask = caps->cmask;
   
-  return vserver(VCMD_set_ccaps, CTX_USER2KERNEL(xid), &k_caps);
+  return vserver(VCMD_set_ccaps_v0, CTX_USER2KERNEL(xid), &k_caps);
 }

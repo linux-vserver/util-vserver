@@ -38,6 +38,8 @@ static struct Mapping_uint64 const VALUES[] = {
   DECL("secure_remount",  VC_VXC_SECURE_REMOUNT),
   DECL("binary_mount",    VC_VXC_BINARY_MOUNT),
   DECL("quota_ctl",       VC_VXC_QUOTA_CTL),
+  DECL("admin_mapper",    VC_VXC_ADMIN_MAPPER),
+  DECL("admin_cloop",     VC_VXC_ADMIN_CLOOP),
     // some deprecated values...
   DECL("mount",           VC_VXC_SECURE_MOUNT),
   DECL("remount",         VC_VXC_SECURE_REMOUNT),

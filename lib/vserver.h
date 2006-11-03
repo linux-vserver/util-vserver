@@ -174,12 +174,15 @@
 #define VC_VXF_VIRT_UPTIME		0x00020000ull
 #define VC_VXF_VIRT_CPU			0x00040000ull
 #define VC_VXF_VIRT_LOAD		0x00080000ull
+#define VC_VXF_VIRT_TIME		0x00100000ull
 
 #define VC_VXF_HIDE_MOUNT		0x01000000ull
 #define VC_VXF_HIDE_NETIF		0x02000000ull
+#define VC_VXF_HIDE_VINFO		0x04000000ull
 
 #define	VC_VXF_STATE_SETUP		(1ULL<<32)
 #define	VC_VXF_STATE_INIT		(1ULL<<33)
+#define VC_VXF_STATE_ADMIN		(1ULL<<34)
 
 #define VC_VXF_SC_HELPER		(1ULL<<36)
 #define VC_VXF_REBOOT_KILL		(1ULL<<37)
@@ -203,14 +206,37 @@
 #define VC_VXC_BINARY_MOUNT		0x00040000ull
 
 #define VC_VXC_QUOTA_CTL		0x00100000ull
+#define VC_VXC_ADMIN_MAPPER		0x00200000ull
+#define VC_VXC_ADMIN_LOOP		0x00400000ull
 
 
-#define VC_VXSM_FILL_RATE          	0x0001
-#define VC_VXSM_INTERVAL           	0x0002
-#define VC_VXSM_TOKENS             	0x0010
-#define VC_VXSM_TOKENS_MIN         	0x0020
-#define VC_VXSM_TOKENS_MAX         	0x0040
-#define VC_VXSM_PRIO_BIAS          	0x0100
+// the scheduler flags
+#define VC_VXSM_FILL_RATE		0x0001
+#define VC_VXSM_INTERVAL		0x0002
+#define VC_VXSM_FILL_RATE2		0x0004
+#define VC_VXSM_INTERVAL2		0x0008
+#define VC_VXSM_TOKENS			0x0010
+#define VC_VXSM_TOKENS_MIN		0x0020
+#define VC_VXSM_TOKENS_MAX		0x0040
+#define VC_VXSM_PRIO_BIAS		0x0100
+#define VC_VXSM_CPU_ID			0x1000
+#define VC_VXSM_BUCKET_ID		0x2000
+
+#define VC_VXSM_IDLE_TIME		0x0200
+#define VC_VXSM_FORCE			0x0400
+
+#define VC_VXSM_V3_MASK			0x0173
+
+
+// the network flags
+#define VC_NXF_INFO_LOCK		0x00000001ull
+
+#define VC_NXF_STATE_SETUP		(1ULL<<32)
+#define VC_NXF_STATE_ADMIN		(1ULL<<34)
+
+#define VC_NXF_SC_HELPER		(1ULL<<36)
+#define VC_NXF_PERSISTENT		(1ULL<<38)
+
 
 
 #define VC_BAD_PERSONALITY		((uint_least32_t)(-1))
@@ -684,6 +710,8 @@ extern "C" {
       int_least32_t	tokens_min;
       int_least32_t	tokens_max;
       int_least32_t	priority_bias;
+      int_least32_t	cpu_id;
+      int_least32_t	bucket_id;
   };
 
   int		vc_set_sched(xid_t xid, struct vc_set_sched const *);

@@ -31,6 +31,8 @@ struct	vcmd_ctx_iattr_v1 {
 
 #ifdef	CONFIG_COMPAT
 
+#include <asm/compat.h>
+
 struct	vcmd_ctx_iattr_v1_x32 {
 	compat_uptr_t name_ptr;
 	uint32_t xid;

@@ -30,8 +30,13 @@
 #define DECL(STR, VAL) { STR, sizeof(STR)-1, VAL }
 
 static struct Mapping_uint64 const VALUES[] = {
-#warning Add the 'nflags' values here
-  DECL("", 0)
+  DECL("lock",		VC_NXF_INFO_LOCK),
+
+  DECL("state_setup",	VC_NXF_STATE_SETUP),
+  DECL("state_admin",	VC_NXF_STATE_ADMIN),
+
+  DECL("sc_helper",	VC_NXF_SC_HELPER),
+  DECL("persistent",	VC_NXF_PERSISTENT),
 };
 
 uint_least64_t

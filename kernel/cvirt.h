@@ -21,6 +21,4 @@ int vx_uts_virt_handler(struct ctl_table *ctl, int write, xid_t xid,
 int vx_do_syslog(int, char __user *, int);
 
 #endif	/* __KERNEL__ */
-#else	/* _VX_CVIRT_H */
-#warning duplicate inclusion
 #endif	/* _VX_CVIRT_H */

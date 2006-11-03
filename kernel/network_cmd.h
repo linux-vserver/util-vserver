@@ -19,7 +19,7 @@ struct	vcmd_nx_info_v0 {
 };
 
 #ifdef	__KERNEL__
-extern int vc_nx_info(uint32_t, void __user *);
+extern int vc_nx_info(struct nx_info *, void __user *);
 
 #endif	/* __KERNEL__ */
 
@@ -46,10 +46,10 @@ struct	vcmd_net_addr_v0 {
 
 #ifdef	__KERNEL__
 extern int vc_net_create(uint32_t, void __user *);
-extern int vc_net_migrate(uint32_t, void __user *);
+extern int vc_net_migrate(struct nx_info *, void __user *);
 
-extern int vc_net_add(uint32_t, void __user *);
-extern int vc_net_remove(uint32_t, void __user *);
+extern int vc_net_add(struct nx_info *, void __user *);
+extern int vc_net_remove(struct nx_info *, void __user *);
 
 #endif	/* __KERNEL__ */
 
@@ -65,8 +65,8 @@ struct	vcmd_net_flags_v0 {
 };
 
 #ifdef	__KERNEL__
-extern int vc_get_nflags(uint32_t, void __user *);
-extern int vc_set_nflags(uint32_t, void __user *);
+extern int vc_get_nflags(struct nx_info *, void __user *);
+extern int vc_set_nflags(struct nx_info *, void __user *);
 
 #endif	/* __KERNEL__ */
 
@@ -82,8 +82,8 @@ struct	vcmd_net_caps_v0 {
 };
 
 #ifdef	__KERNEL__
-extern int vc_get_ncaps(uint32_t, void __user *);
-extern int vc_set_ncaps(uint32_t, void __user *);
+extern int vc_get_ncaps(struct nx_info *, void __user *);
+extern int vc_set_ncaps(struct nx_info *, void __user *);
 
 #endif	/* __KERNEL__ */
 #endif	/* _VX_CONTEXT_CMD_H */

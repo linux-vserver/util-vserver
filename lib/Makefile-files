@@ -109,6 +109,8 @@ lib_v13_SRCS =			lib/syscall_ctxcreate.c \
 				lib/ncaps_list-net.c \
 				lib/nflags-net.c \
 				lib/nflags_list-net.c
+lib_v21_SRCS =			lib/syscall_setccaps-v21.hc \
+				lib/syscall_setsched-v21.hc
 
 if ENSC_HAVE_C99_COMPILER
 lib_v13_SRCS +=			lib/syscall_adddlimit-v13.hc \
@@ -153,6 +155,7 @@ lib_SRCS =  			lib/syscall.c \
 				$(lib_management_SRCS) \
 				$(lib_v11_SRCS) \
 				$(lib_v13_SRCS) \
+				$(lib_v21_SRCS) \
 				$(ensc_fmt_SRCS)
 
 include_HEADERS +=		lib/vserver.h

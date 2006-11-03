@@ -14,11 +14,11 @@ struct vx_info;
 void vx_update_load(struct vx_info *);
 
 
-struct task_struct;
+int vx_tokens_recalc(struct _vx_sched_pc *,
+	unsigned long *, unsigned long *, int [2]);
 
-int vx_effective_vavavoom(struct vx_info *, int);
-
-int vx_tokens_recalc(struct vx_info *);
+void vx_update_sched_param(struct _vx_sched *sched,
+	struct _vx_sched_pc *sched_pc);
 
 #endif	/* __KERNEL__ */
 #else	/* _VX_SCHED_H */

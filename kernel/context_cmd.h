@@ -20,10 +20,22 @@ struct	vcmd_vx_info_v0 {
 };
 
 #ifdef	__KERNEL__
-extern int vc_vx_info(uint32_t, void __user *);
+extern int vc_vx_info(struct vx_info *, void __user *);
 
 #endif	/* __KERNEL__ */
 
+#define VCMD_ctx_stat		VC_CMD(VSTAT, 0, 0)
+
+struct	vcmd_ctx_stat_v0 {
+	uint32_t usecnt;
+	uint32_t tasks;
+	/* more to come */
+};
+
+#ifdef	__KERNEL__
+extern int vc_ctx_stat(struct vx_info *, void __user *);
+
+#endif	/* __KERNEL__ */
 
 /* context commands */
 
@@ -43,7 +55,7 @@ struct	vcmd_ctx_migrate {
 
 #ifdef	__KERNEL__
 extern int vc_ctx_create(uint32_t, void __user *);
-extern int vc_ctx_migrate(uint32_t, void __user *);
+extern int vc_ctx_migrate(struct vx_info *, void __user *);
 
 #endif	/* __KERNEL__ */
 
@@ -59,16 +71,16 @@ struct	vcmd_ctx_flags_v0 {
 };
 
 #ifdef	__KERNEL__
-extern int vc_get_cflags(uint32_t, void __user *);
-extern int vc_set_cflags(uint32_t, void __user *);
+extern int vc_get_cflags(struct vx_info *, void __user *);
+extern int vc_set_cflags(struct vx_info *, void __user *);
 
 #endif	/* __KERNEL__ */
 
 
 /* context caps commands */
 
-#define VCMD_get_ccaps		VC_CMD(FLAGS, 3, 0)
-#define VCMD_set_ccaps		VC_CMD(FLAGS, 4, 0)
+#define VCMD_get_ccaps_v0	VC_CMD(FLAGS, 3, 0)
+#define VCMD_set_ccaps_v0	VC_CMD(FLAGS, 4, 0)
 
 struct	vcmd_ctx_caps_v0 {
 	uint64_t bcaps;
@@ -76,9 +88,36 @@ struct	vcmd_ctx_caps_v0 {
 	uint64_t cmask;
 };
 
+#define VCMD_get_ccaps		VC_CMD(FLAGS, 3, 1)
+#define VCMD_set_ccaps		VC_CMD(FLAGS, 4, 1)
+
+struct	vcmd_ctx_caps_v1 {
+	uint64_t ccaps;
+	uint64_t cmask;
+};
+
 #ifdef	__KERNEL__
-extern int vc_get_ccaps(uint32_t, void __user *);
-extern int vc_set_ccaps(uint32_t, void __user *);
+extern int vc_get_ccaps_v0(struct vx_info *, void __user *);
+extern int vc_set_ccaps_v0(struct vx_info *, void __user *);
+extern int vc_get_ccaps(struct vx_info *, void __user *);
+extern int vc_set_ccaps(struct vx_info *, void __user *);
+
+#endif	/* __KERNEL__ */
+
+
+/* bcaps commands */
+
+#define VCMD_get_bcaps		VC_CMD(FLAGS, 9, 0)
+#define VCMD_set_bcaps		VC_CMD(FLAGS,10, 0)
+
+struct	vcmd_bcaps {
+	uint64_t bcaps;
+	uint64_t bmask;
+};
+
+#ifdef	__KERNEL__
+extern int vc_get_bcaps(struct vx_info *, void __user *);
+extern int vc_set_bcaps(struct vx_info *, void __user *);
 
 #endif	/* __KERNEL__ */
 #endif	/* _VX_CONTEXT_CMD_H */
