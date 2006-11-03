@@ -299,8 +299,11 @@ function _generateInitOptions
 	    ;;
 
 	(xgentoo)
-	    INITCMD_START=( /lib/rcscripts/sh/init-vserver.sh )
+	    test -n "$RUNLEVEL_START" || RUNLEVEL_START="default"
+
+	    INITCMD_START=( /lib/rcscripts/sh/init-vserver.sh "$RUNLEVEL_START" )
 	    INITCMD_STOP=( /sbin/rc shutdown )
+	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL 3 /var/run/utmp )
 
 	    pushd "$vdir"/vdir &>/dev/null
 	    basever=$($_CHROOT_SH cat /etc/gentoo-release | $_AWK '{print $5}')

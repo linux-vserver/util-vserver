@@ -26,4 +26,4 @@
 
 RUNLEVEL=1 /sbin/rc sysinit
 /sbin/rc boot
-/sbin/rc default
+/sbin/rc ${1:-default}
