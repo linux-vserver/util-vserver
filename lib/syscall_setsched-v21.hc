@@ -35,7 +35,7 @@ vc_set_sched_v21(xid_t xid, struct vc_set_sched const *data)
   k_data.tokens_max = data->tokens_max;
   k_data.prio_bias  = data->priority_bias;
   k_data.cpu_id	    = data->cpu_id;
-  k_data.bucket_id  = data->bucked_it;
+  k_data.bucket_id  = data->bucket_id;
 
   return vserver(VCMD_set_sched, CTX_USER2KERNEL(xid), &k_data);
 }

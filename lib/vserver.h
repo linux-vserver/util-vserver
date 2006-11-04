@@ -207,7 +207,7 @@
 
 #define VC_VXC_QUOTA_CTL		0x00100000ull
 #define VC_VXC_ADMIN_MAPPER		0x00200000ull
-#define VC_VXC_ADMIN_LOOP		0x00400000ull
+#define VC_VXC_ADMIN_CLOOP		0x00400000ull
 
 
 // the scheduler flags
