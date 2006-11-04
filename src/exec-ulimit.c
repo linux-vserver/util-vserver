@@ -177,6 +177,10 @@ int main(int argc, char *argv[])
       Egetrlimit(LIMITS[i].code, &limit);
       if (readSingleLimit(&limit, LIMITS[i].fname))
 	Esetrlimit(LIMITS[i].code, &limit);
+      else {
+	limit.rlim_cur = limit.rlim_max = RLIM_INFINITY;
+	Esetrlimit(LIMITS[i].code, &limit);
+      }
     }
     Efchdir(cur_fd);
   }
