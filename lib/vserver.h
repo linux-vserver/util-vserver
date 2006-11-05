@@ -706,6 +706,8 @@ extern "C" {
       uint_least32_t	set_mask;
       int_least32_t	fill_rate;
       int_least32_t	interval;
+      int_least32_t	fill_rate2;
+      int_least32_t	interval2;
       int_least32_t	tokens;
       int_least32_t	tokens_min;
       int_least32_t	tokens_max;
