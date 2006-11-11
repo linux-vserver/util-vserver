@@ -410,6 +410,11 @@ function _generateChcontextOptions
 function _generateScheduleOptions
 {
     local vdir=$1
+    if test -d "$vdir"/sched; then
+      OPTS_VSCHED=( --dir "$vdir"/sched --missingok )
+      return 0
+    fi
+
     local f="$vdir"/schedule
     test -e "$f" || return 0
 

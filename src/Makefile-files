@@ -172,7 +172,7 @@ src_vcontext_LDADD		=  $(VSERVER_LDADDS) $(LIBINTERNAL)
 src_vcontext_LDFLAGS		=  $(VSERVER_LDFLGS)
 
 src_vsched_SOURCES		=  src/vsched.c
-src_vsched_LDADD		=  $(VSERVER_LDADDS)
+src_vsched_LDADD		=  $(VSERVER_LDADDS) $(LIBINTERNAL)
 src_vsched_LDFLAGS		=  $(VSERVER_LDFLGS)
 
 src_filetime_SOURCES		=  src/filetime.c
