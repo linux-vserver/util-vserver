@@ -238,6 +238,16 @@
 #define VC_NXF_PERSISTENT		(1ULL<<38)
 
 
+// the vserver specific limits
+#define VC_VLIMIT_NSOCK			16
+#define VC_VLIMIT_OPENFD		17
+#define VC_VLIMIT_ANON			18
+#define VC_VLIMIT_SHMEM			19
+#define VC_VLIMIT_SEMARY		20
+#define VC_VLIMIT_NSEMS			21
+#define VC_VLIMIT_DENTRY		22
+
+
 
 #define VC_BAD_PERSONALITY		((uint_least32_t)(-1))
 

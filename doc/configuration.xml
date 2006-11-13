@@ -1226,7 +1226,8 @@ line. The special keyword 'inf' is recognized.
     <collection name="rlimits">
       <description>
 A directory with resource limits. Possible resources are cpu, fsize,
-data, stack, core, rss, nproc, nofile, memlock, as and locks. This
+data, stack, core, rss, nproc, nofile, memlock, as, locks, msgqueue,
+nsock, openfd, anon, shmem, semary, nsems and dentry. This
 configuration will be honored for kernel 2.6 only.
       </description>
       <scalar name="resource" type="symbolic">
