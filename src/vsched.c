@@ -1,6 +1,7 @@
 // $Id$    --*- c -*--
 
 // Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2006 Daniel Hokka Zakrisson <daniel@hozac.com>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -96,13 +97,13 @@ struct sched_opt {
 };
 #define FOPT(NAME,MASK,FIELD)	{ #NAME, MASK, offsetof(struct vc_set_sched, FIELD) }
 static struct sched_opt FILE_OPTIONS[] = {
-  FOPT(fill-rate,	VC_VXSM_FILL_RATE,		fill_rate),
-  FOPT(interval,	VC_VXSM_INTERVAL,		interval),
-  FOPT(tokens,		VC_VXSM_TOKENS,			tokens),
-  FOPT(tokens-min,	VC_VXSM_TOKENS_MIN,		tokens_min),
-  FOPT(tokens-max,	VC_VXSM_TOKENS_MAX,		tokens_max),
-  FOPT(prio-bias,	VC_VXSM_PRIO_BIAS,		priority_bias),
-  FOPT(priority-bias,	VC_VXSM_PRIO_BIAS,		priority_bias),
+  FOPT(fill-rate,	VC_VXSM_FILL_RATE,			fill_rate),
+  FOPT(interval,	VC_VXSM_INTERVAL,			interval),
+  FOPT(tokens,		VC_VXSM_TOKENS,				tokens),
+  FOPT(tokens-min,	VC_VXSM_TOKENS_MIN,			tokens_min),
+  FOPT(tokens-max,	VC_VXSM_TOKENS_MAX,			tokens_max),
+  FOPT(prio-bias,	VC_VXSM_PRIO_BIAS,			priority_bias),
+  FOPT(priority-bias,	VC_VXSM_PRIO_BIAS,			priority_bias),
   FOPT(fill-rate2,	VC_VXSM_FILL_RATE2|VC_VXSM_IDLE_TIME,	fill_rate2),
   FOPT(interval2,	VC_VXSM_INTERVAL2|VC_VXSM_IDLE_TIME,	interval2),
   FOPT(cpu-id,		VC_VXSM_CPU_ID,				cpu_id),
@@ -119,9 +120,25 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:\n  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [--xid <xid>] [--fill-rate <rate>] [--interval <interval>] [--tokens <tokens>] [--tokens-min <tokens>] [--tokens-max <tokens>] [--prio-bias <bias>] [--] [<command> <args>*]\n"
+	    " [--xid <xid>] <sched options>* [--dir <dir>] [--] [<command> <args>*]\n"
 	    "\n"
-	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
+	    "Options:\n"
+	    "    --fill-rate <rate>\n"
+	    "    --interval <interval>\n"
+	    "    --tokens <tokens>\n"
+	    "    --tokens-min <tokens>\n"
+	    "    --tokens-max <tokens>\n"
+	    "    --prio-bias <bias>\n"
+	    "    --fill-rate2 <rate>\n"
+	    "    --interval2 <interval>\n"
+	    "    --cpu-id <CPU id>\n"
+	    "    --bucket-id <bucket id>\n"
+	    "    --idle-time    ...  set the idle time flag; this is required for\n"
+	    "                        all updates to the scheduler to keep it enabled\n"
+	    "    --force        ...  force update of all per-CPU schedulers now\n"
+	    "    --dir <dir>    ...  read settings from <dir>\n"
+	    "    --missingok    ...  do not fail when <dir> does not exist\n"
+	    "\nPlease report bugs to " PACKAGE_BUGREPORT "\n");
 
   exit(res);
 }
@@ -133,6 +150,7 @@ showVersion()
 	    "vsched " VERSION " -- modifies scheduling parameters\n"
 	    "This program is part of " PACKAGE_STRING "\n\n"
 	    "Copyright (C) 2003,2004 Enrico Scholz\n"
+	    "Copyright (C) 2006 Daniel Hokka Zakrisson\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
   exit(0);
 }

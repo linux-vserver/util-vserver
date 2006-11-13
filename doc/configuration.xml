@@ -1320,5 +1320,71 @@ tools and can *not* be modified.
         <description>When this file exists, the cpuset will be assumed to exist already</description>
       </scalar>
     </collection>
+
+    <collection name="sched" since="0.30.212">
+      <scalar id="global-tokens" name="tokens">
+        <description>The initial amount of tokens to put in the bucket</description>
+      </scalar>
+      <scalar id="global-tokens-min" name="tokens-min">
+        <description>The minimum amount of tokens required to unhold the context</description>
+      </scalar>
+      <scalar id="global-tokens-max" name="tokens-max">
+        <description>The bucket's size</description>
+      </scalar>
+      <scalar id="global-fill-rate" name="fill-rate">
+        <description>Amount of tokens to add each <optionref ref="global-interval">interval</optionref></description>
+      </scalar>
+      <scalar id="global-interval" name="interval">
+        <description>The interval between refills of the bucket</description>
+      </scalar>
+      <scalar id="global-priority-bias" name="priority-bias">
+        <description>Bias added to priorities calculated within the guest (result is clamped to -20/+19)</description>
+      </scalar>
+      <scalar id="global-fill-rate2" name="fill-rate2">
+        <description>Amount of tokens to add each <optionref ref="global-interval2">interval2</optionref> when advancing idle time</description>
+      </scalar>
+      <scalar id="global-interval2" name="interval2">
+        <description>The interval between refills of the bucket when advancing idle time</description>
+      </scalar>
+      <boolean id="global-idle-time" name="idle-time">
+        <description>When this file exists, advancing idle time is activated</description>
+      </boolean>
+      <collection name="cpu-id" type="symbolic">
+        <description>This directory contains per-CPU and/or per-bucket specific settings. Remember to set the <optionref ref="cpu-id">cpu-id</optionref> file. All CPUs inherit the global settings.</description>
+        <scalar name="tokens">
+          <description>The initial amount of tokens to put in the bucket</description>
+        </scalar>
+        <scalar name="tokens-min">
+          <description>The minimum amount of tokens required to unhold the context</description>
+        </scalar>
+        <scalar name="tokens-max">
+          <description>The bucket's size</description>
+        </scalar>
+        <scalar name="fill-rate">
+          <description>Amount of tokens to add each <optionref ref="interval">interval</optionref></description>
+        </scalar>
+        <scalar name="interval">
+          <description>The interval between refills of the bucket</description>
+        </scalar>
+        <scalar name="priority-bias">
+          <description>Bias added to priorities calculated within the guest (result is clamped to -20/+19)</description>
+        </scalar>
+        <scalar name="fill-rate2">
+          <description>Amount of tokens to add each <optionref ref="interval2">interval2</optionref> when advancing idle time</description>
+        </scalar>
+        <scalar name="interval2">
+          <description>The interval between refills of the bucket when advancing idle time</description>
+        </scalar>
+        <boolean name="idle-time">
+          <description>When this file exists, advancing idle time is activated</description>
+        </boolean>
+        <scalar name="cpu-id">
+          <description>The CPU to apply these settings to</description>
+        </scalar>
+        <scalar name="bucket-id">
+          <description>The bucket to apply these settings to</description>
+        </scalar>
+      </collection>
+    </collection>
   </collection>
   </database>
