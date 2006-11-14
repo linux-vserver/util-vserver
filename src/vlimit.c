@@ -181,7 +181,7 @@ appendLimit(char *ptr, bool do_it, vc_limit_t lim)
   ptr += 2;
   if (do_it) {
     if (lim==VC_LIM_INFINITY) {
-      strcpy(ptr, "inf");
+      memcpy(ptr, "inf", 3);
       ptr += 3;
     }
     else {
