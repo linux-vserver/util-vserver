@@ -37,10 +37,10 @@ the 'barrier' attribute. Else, common chroot(2) exploits are possible.
       </description>
     </boolean>
 
-    <boolean id="global-namespace-cleanup" name="namespace-cleanup">
+    <boolean id="global-nonamespace-cleanup" name="nonamespace-cleanup">
       <description>
-Enable namespace cleanup globally. It can be overridden for a single vserver
-by setting the <optionref ref="global-nonamespace-cleanup">nonamespace-cleanup</optionref> flag
+Disable namespace cleanup globally. It can be overridden for a single vserver
+by setting the <optionref ref="namespace-cleanup">namespace-cleanup</optionref> flag
 there.
       </description>
     </boolean>
@@ -381,30 +381,24 @@ the 'barrier' attribute. Else, common chroot(2) exploits are possible.
       </description>
     </boolean>
 
-    <boolean id="global-nonamespace-cleanup" name="nonamespace-cleanup">
+    <boolean id="namespace-cleanup" name="namespace-cleanup">
       <description>
-Overrides the global <optionref ref="global-namespace-cleanup">namespace-cleanup</optionref> flag and disables
+Overrides the global <optionref ref="global-nonamespace-cleanup">nonamespace-cleanup</optionref> flag and enables
 namespace cleanup for the current vserver.
-      </description>
-    </boolean>
-
-    <boolean name="namespace-cleanup">
-      <description>
-Enable namespace cleanup for the current vserver.
       </description>
     </boolean>
 
     <list name="namespace-cleanup-skip">
       <description>
-List of paths to skip during namespace cleanup. This overrides the 
-<optionref ref="global-namespace-cleanup-skip">global namespace-cleanup-skip</optionref>
+List of paths to skip during namespace cleanup. This overrides the global
+<optionref ref="global-namespace-cleanup-skip">namespace-cleanup-skip</optionref>
 file.
       </description>
     </list>
 
     <hash name="schedule">
       <description>
-[experimental; name is subject of possible change] Contains the
+[deprecated; use <optionref ref="sched">sched</optionref> instead] Contains the
 scheduler parameters, one per line.
 
 The Hard CPU limit uses a mechanism called a Token Bucket.  the
@@ -1322,7 +1316,7 @@ tools and can *not* be modified.
       </scalar>
     </collection>
 
-    <collection name="sched" since="0.30.212">
+    <collection id="sched" name="sched" since="0.30.212">
       <scalar id="global-tokens" name="tokens">
         <description>The initial amount of tokens to put in the bucket</description>
       </scalar>
@@ -1362,24 +1356,24 @@ tools and can *not* be modified.
           <description>The bucket's size</description>
         </scalar>
         <scalar name="fill-rate">
-          <description>Amount of tokens to add each <optionref ref="interval">interval</optionref></description>
+          <description>Amount of tokens to add each <optionref ref="local-interval">interval</optionref></description>
         </scalar>
-        <scalar name="interval">
+        <scalar id="local-interval" name="interval">
           <description>The interval between refills of the bucket</description>
         </scalar>
         <scalar name="priority-bias">
           <description>Bias added to priorities calculated within the guest (result is clamped to -20/+19)</description>
         </scalar>
         <scalar name="fill-rate2">
-          <description>Amount of tokens to add each <optionref ref="interval2">interval2</optionref> when advancing idle time</description>
+          <description>Amount of tokens to add each <optionref ref="local-interval2">interval2</optionref> when advancing idle time</description>
         </scalar>
-        <scalar name="interval2">
+        <scalar id="local-interval2" name="interval2">
           <description>The interval between refills of the bucket when advancing idle time</description>
         </scalar>
         <boolean name="idle-time">
           <description>When this file exists, advancing idle time is activated</description>
         </boolean>
-        <scalar name="cpu-id">
+        <scalar id="cpu-id" name="cpu-id">
           <description>The CPU to apply these settings to</description>
         </scalar>
         <scalar name="bucket-id">
