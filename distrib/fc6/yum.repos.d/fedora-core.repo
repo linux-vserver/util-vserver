@@ -4,7 +4,7 @@ name=Fedora Core 6 - $basearch
 mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=core-6&arch=$basearch
 enabled=1
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora file:///etc/pki/rpm-gpg/RPM-GPG-KEY
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/core/6/$basearch/os/RPM-GPG-KEY-fedora http://redhat.download.fedoraproject.org/pub/fedora/linux/core/6/$basearch/os/RPM-GPG-KEY
 
 [core-debuginfo]
 name=Fedora Core 6 - $basearch - Debug
@@ -12,7 +12,7 @@ name=Fedora Core 6 - $basearch - Debug
 mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=core-debug-6&arch=$basearch
 enabled=0
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora file:///etc/pki/rpm-gpg/RPM-GPG-KEY
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/core/6/$basearch/os/RPM-GPG-KEY-fedora http://redhat.download.fedoraproject.org/pub/fedora/linux/core/6/$basearch/os/RPM-GPG-KEY
 
 [core-source]
 name=Fedora Core 6 - Source
@@ -20,4 +20,4 @@ name=Fedora Core 6 - Source
 mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=core-source-6&arch=$basearch
 enabled=0
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora file:///etc/pki/rpm-gpg/RPM-GPG-KEY
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/core/6/$basearch/os/RPM-GPG-KEY-fedora http://redhat.download.fedoraproject.org/pub/fedora/linux/core/6/$basearch/os/RPM-GPG-KEY

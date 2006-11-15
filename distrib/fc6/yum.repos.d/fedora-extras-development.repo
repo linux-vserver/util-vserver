@@ -14,7 +14,7 @@ name=Fedora Extras - Development Tree
 #baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/development/$basearch/
 mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=extras-devel&arch=$basearch
 enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/core/6/$basearch/os/RPM-GPG-KEY-fedora-extras
 gpgcheck=1
 
 [extras-development-debuginfo]
@@ -22,7 +22,7 @@ name=Fedora Extras - Development - Debug
 #baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/development/$basearch/debug/
 mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=extras-devel-debug&arch=$basearch
 enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/core/6/$basearch/os/RPM-GPG-KEY-fedora-extras
 gpgcheck=1
 
 [extras-development-source]
@@ -30,5 +30,5 @@ name=Fedora Extras - Development - Source
 #baseurl=http://download.fedora.redhat.com/pub/fedora/linux/extras/development/SRPMS/
 mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=extras-devel-source&arch=$basearch
 enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-extras
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/core/6/$basearch/os/RPM-GPG-KEY-fedora-extras
 gpgcheck=1
