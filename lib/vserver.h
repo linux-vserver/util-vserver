@@ -294,6 +294,12 @@ extern "C" {
      *	\returns The versionnumber of the kernel API
      */
   int	vc_get_version();
+
+    /** \brief   Returns the kernel configuration bits
+     *  \ingroup syscalls
+     *  \returns The kernel configuration bits
+     */
+  int   vc_get_vci();
   
     /** \brief   Moves current process into a context
      *  \ingroup syscalls
@@ -347,6 +353,42 @@ extern "C" {
      *  \param   xid  The new context
      *  \returns 0 on success, -1 on errors */
   int	vc_ctx_migrate(xid_t xid);
+
+    /** \brief   Statistics about a context */
+  struct vc_ctx_stat {
+      uint_least32_t	usecnt;	///< number of uses
+      uint_least32_t	tasks;	///< number of tasks
+  };
+
+    /** \brief   Get some statistics about a context.
+     *  \ingroup syscalls
+     *
+     *  \param   xid   The context to get stats about
+     *  \param   stat  Where to store the result
+     *
+     *  \returns 0 on success, -1 on errors. */
+  int   vc_ctx_stat(xid_t xid, struct vc_ctx_stat /*@out@*/ *stat) VC_ATTR_NONNULL((2));
+
+    /** \brief   Contains further statistics about a context. */
+  struct vc_virt_stat {
+      uint_least64_t	offset;
+      uint_least32_t	uptime;
+      uint_least32_t	nr_threads;
+      uint_least32_t	nr_running;
+      uint_least32_t	nr_uninterruptible;
+      uint_least32_t	nr_onhold;
+      uint_least32_t	nr_forks;
+      uint_least32_t	load[3];
+  };
+
+    /** \brief   Get more statistics about a context.
+     *  \ingroup syscalls
+     *
+     *  \param xid   The context to get stats about
+     *  \param stat  Where to store the result
+     *
+     *  \returns 0 on success, -1 on errors. */
+  int   vc_virt_stat(xid_t xid, struct vc_virt_stat /*@out@*/ *stat) VC_ATTR_NONNULL((2));
   
     /* rlimit related functions */
   
@@ -377,6 +419,14 @@ extern "C" {
       uint_least32_t	hard;	///< masks the resources supporting a hard limit
   };
 
+    /** \brief Statistics for a resource limit. */
+  struct  vc_rlimit_stat {
+      uint_least32_t	hits;	 ///< number of hits on the limit
+      uint_least64_t	value;	 ///< current value
+      uint_least64_t	minimum; ///< minimum value observed
+      uint_least64_t	maximum; ///< maximum value observed
+  };
+
     /** \brief   Returns the limits of \a resource.
      *  \ingroup syscalls
      *
@@ -399,6 +449,23 @@ extern "C" {
 		      struct vc_rlimit const /*@in@*/  *lim) VC_ATTR_NONNULL((3));
   int	vc_get_rlimit_mask(xid_t xid,
 			   struct vc_rlimit_mask *lim)       VC_ATTR_NONNULL((2));
+    /** \brief   Returns the current stats of \a resource.
+     *  \ingroup syscalls
+     *
+     *  \param  xid       The id of the context
+     *  \param  resource  The resource which will be queried
+     *  \param  stat      The result which will be filled with the stats
+     *
+     *  \returns 0 on success, and -1 on errors. */
+  int   vc_rlimit_stat(xid_t xid, int resource,
+		       struct vc_rlimit_stat /*@out@*/ *stat) VC_ATTR_NONNULL((3));
+    /** \brief   Resets the minimum and maximum observed values for all resources.
+     *  \ingroup syscalls
+     *
+     *  \param xid  The id of the context
+     *
+     *  \returns 0 on success, and -1 on errors. */
+  int   vc_reset_minmax(xid_t xid);
     /** \brief   Parses a string describing a limit
      *  \ingroup helper
      *
