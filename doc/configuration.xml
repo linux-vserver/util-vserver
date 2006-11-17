@@ -1205,13 +1205,13 @@ in the first line. The special keyword 'inf' is recognized.
       </scalar>
       <scalar name="resource.hard" type="symbolic">
 	<description>
-A file which contains the hard- of the given resource in the first
+A file which contains the hard-limit of the given resource in the first
 line. The special keyword 'inf' is recognized.
 	</description>
       </scalar>
       <scalar name="resource.soft" type="symbolic">
 	<description>
-A file which contains the soft- of the given resource in the first
+A file which contains the soft-limit of the given resource in the first
 line. The special keyword 'inf' is recognized.
 	</description>
       </scalar>
@@ -1232,19 +1232,19 @@ in the first line. The special keyword 'inf' is recognized.
       </scalar>
       <scalar name="resource.hard" type="symbolic">
 	<description>
-A file which contains the hard- of the given resource in the first
+A file which contains the hard-limit of the given resource in the first
 line. The special keyword 'inf' is recognized.
 	</description>
       </scalar>
       <scalar name="resource.soft" type="symbolic">
 	<description>
-A file which contains the soft- of the given resource in the first
+A file which contains the soft-limit of the given resource in the first
 line. The special keyword 'inf' is recognized.
 	</description>
       </scalar>
       <scalar name="resource.min" type="symbolic">
 	<description>
-A file which contains the guaranted minimum of the given resource in
+A file which contains the guaranteed minimum of the given resource in
 the first line. The special keyword 'inf' is recognized.
         </description>
       </scalar>
