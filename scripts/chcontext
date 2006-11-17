@@ -27,7 +27,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 function showHelp()
 {
     echo \
-$"Usage: /usr/sbin/chcontext [--cap [!]<cap_name>] [--secure] [--xid <num>] [--disconnect]
+$"Usage: $1 [--cap [!]<cap_name>] [--secure] [--xid <num>] [--disconnect]
        [--domainname <name>] [--hostname <name>] [--flag <flags>+]
        [--silent] [--] command arguments ...
 
@@ -84,7 +84,7 @@ By default, a new/unused context is allocated
     Do not print the allocated context number.
 
 Report bugs to <$PACKAGE_BUGREPORT>."
-    exit $1
+    exit $2
 }
 
 function showVersion()
@@ -114,8 +114,8 @@ OPT_INITPID=
 
 while true; do
     case "$1" in
-	--help)    	showHelp $0 ;;
-	--version) 	showVersion ;;
+	--help)    	showHelp $0 0;;
+	--version) 	showVersion 0;;
 	--cap)		OPT_CAPS=( "${OPT_CAPS[@]}" "$2" ); shift;;
 	--ctx|--xid)	OPT_CTX=$2; shift;;
 	--disconnect)	OPT_DISCONNECT=1;;
