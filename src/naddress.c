@@ -1,6 +1,7 @@
 // $Id$
 
 // Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2006 Daniel Hokka Zakrisson <daniel@hozac.com>
 // based on chbind.cc by Jacques Gelinas
 //  
 // This program is free software; you can redistribute it and/or modify
@@ -40,7 +41,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define ENSC_WRAPPERS_PREFIX	"chbind: "
+#define ENSC_WRAPPERS_PREFIX	"naddress: "
 #define ENSC_WRAPPERS_IO	1
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_VSERVER	1
@@ -50,9 +51,11 @@
 #define CMD_VERSION	0x1001
 
 #define CMD_SILENT	0x2000
-#define CMD_IP		0x2001
-#define CMD_BCAST	0x2002
-#define CMD_NID		0x2003
+#define CMD_NID		0x2001
+#define CMD_ADD		0x2002
+#define CMD_REMOVE	0x2003
+#define CMD_IP		0x2010
+#define CMD_BCAST	0x2011
 
 int wrapper_exit_code = 255;
 
@@ -62,10 +65,25 @@ CMDLINE_OPTIONS[] = {
   { "help",     no_argument,  0, CMD_HELP },
   { "version",  no_argument,  0, CMD_VERSION },
   { "silent",   no_argument,  0, CMD_SILENT },
+  { "add",      no_argument,  0, CMD_ADD },
+  { "remove",   no_argument,  0, CMD_REMOVE },
+  { "nid",      required_argument, 0, CMD_NID },
   { "ip",       required_argument, 0, CMD_IP },
   { "bcast",    required_argument, 0, CMD_BCAST },
-  { "nid",	required_argument, 0, CMD_NID },
   { 0,0,0,0 }
+};
+
+struct vc_ips {
+  struct vc_net_nx a;
+  struct vc_ips *next;
+};
+
+struct Arguments {
+  nid_t		nid;
+  struct vc_ips	head;
+  bool		is_silent;
+  bool		do_add;
+  bool		do_remove;
 };
 
 static void
@@ -84,9 +102,10 @@ static void
 showVersion()
 {
   WRITE_MSG(1,
-	    "chbind " VERSION " -- bind to an ip and execute a program\n"
+	    "naddress " VERSION " -- bind to an ip and execute a program\n"
 	    "This program is part of " PACKAGE_STRING "\n\n"
 	    "Copyright (C) 2003,2004 Enrico Scholz\n"
+	    "Copyright (C) 2006 Daniel Hokka Zakrisson\n"
 	    VERSION_COPYRIGHT_DISCLAIMER);
   exit(0);
 }
@@ -133,7 +152,7 @@ static int ifconfig_ioctl(
 	struct ifreq *ifr)
 {
 	strcpy(ifr->ifr_name, ifname);
-	return ioctl(fd, cmd,ifr);
+	return ioctl(fd, cmd, ifr);
 }
 
 /*
@@ -150,21 +169,19 @@ int ifconfig_getaddr (
 	int ret = -1;
 	if (existsDevice(ifname)){
 		int skfd = socket(AF_INET, SOCK_DGRAM, 0);
-		*addr = 0;
-		*bcast = 0xffffffff;
 		if (skfd != -1){
 			struct ifreq ifr;
-			if (ifconfig_ioctl(skfd,ifname,SIOCGIFADDR, &ifr) >= 0){
+			if (addr != NULL && ifconfig_ioctl(skfd,ifname,SIOCGIFADDR, &ifr) >= 0){
 				struct sockaddr_in *sin = (struct sockaddr_in*)&ifr.ifr_addr;
 				*addr = sin->sin_addr.s_addr;
 				ret = 0;
 			}
-			if (ifconfig_ioctl(skfd,ifname,SIOCGIFNETMASK, &ifr) >= 0){
+			if (mask != NULL && ifconfig_ioctl(skfd,ifname,SIOCGIFNETMASK, &ifr) >= 0){
 				struct sockaddr_in *sin = (struct sockaddr_in*)&ifr.ifr_addr;
 				*mask = sin->sin_addr.s_addr;
 				ret = 0;
 			}
-			if (ifconfig_ioctl(skfd,ifname,SIOCGIFBRDADDR, &ifr) >= 0){
+			if (bcast != NULL && ifconfig_ioctl(skfd,ifname,SIOCGIFBRDADDR, &ifr) >= 0){
 				struct sockaddr_in *sin = (struct sockaddr_in*)&ifr.ifr_addr;
 				*bcast = sin->sin_addr.s_addr;
 				ret = 0;
@@ -175,136 +192,158 @@ int ifconfig_getaddr (
 	return ret;
 }
 
-static void
-readIP(char const *str, struct vc_ip_mask_pair *ip, uint32_t *bcast)
+static int
+convertAddress(const char *str, vc_net_nx_type *type, void *dst)
 {
-  if (ifconfig_getaddr(str, &ip->ip, &ip->mask, bcast)==-1) {
+  int	ret;
+  if (type) *type = vcNET_IPV4;
+  ret = inet_pton(AF_INET, str, dst);
+  if (ret==0) {
+    if (type) *type = vcNET_IPV6;
+    ret = inet_pton(AF_INET6, str, dst);
+  }
+  return ret > 0 ? 0 : -1;
+}
+
+static void
+readIP(char const *str, struct vc_ips **ips)
+{
+  if (ifconfig_getaddr(str, &(*ips)->a.ip[0], &(*ips)->a.mask[0], NULL)==-1) {
     char		*pt;
     char		tmpopt[strlen(str)+1];
-    struct hostent	*h;
+    uint32_t		*mask = (*ips)->a.mask;
 
     strcpy(tmpopt,str);
     pt = strchr(tmpopt,'/');
-    
-    if (pt==0)
-      ip->mask = ntohl(0xffffff00);
-    else {
+    if (pt)
       *pt++ = '\0';
 
-      // Ok, we have a network size, not a netmask
-      if (strchr(pt,'.')==0) {
-	int		sz = atoi(pt);
-	;
-	for (ip->mask = 0; sz>0; --sz) {
-	  ip->mask >>= 1;
-	  ip->mask  |= 0x80000000;
-	}
-	ip->mask = ntohl(ip->mask);
-      }
-      else { 
-	struct hostent *h = gethostbyname (pt);
-	if (h==0) {
-	  WRITE_MSG(2, "Invalid netmask '");
-	  WRITE_STR(2, pt);
-	  WRITE_MSG(2, "'\n");
-	  exit(wrapper_exit_code);
-	}
-
-	memcpy (&ip->mask, h->h_addr, sizeof(ip->mask));
-      }
-    }
-
-    h = gethostbyname (tmpopt);
-    if (h==0) {
-      WRITE_MSG(2, "Invalid IP number or host name '");
+    if (convertAddress(tmpopt, &(*ips)->a.type, (*ips)->a.ip) == -1) {
+      WRITE_MSG(2, "Invalid IP number '");
       WRITE_STR(2, tmpopt);
       WRITE_MSG(2, "'\n");
       exit(wrapper_exit_code);
     }
 
-    memcpy (&ip->ip, h->h_addr,sizeof(ip->ip));
+    if (pt==0) {
+      switch ((*ips)->a.type) {
+	case vcNET_IPV4:
+	  mask[0] = htonl(0xffffff00);
+	  break;
+	case vcNET_IPV6:
+	  mask[0] = 64;
+	  break;
+	default: break;
+      }
+    }
+    else {
+      // Ok, we have a network size, not a netmask
+      if (strchr(pt,'.')==0 && strchr(pt,':')==0) {
+	int		sz = atoi(pt);
+	switch ((*ips)->a.type) {
+	  case vcNET_IPV4:
+	    mask[0] = htonl((1 << sz) - 1);
+	    break;
+	  case vcNET_IPV6:
+	    mask[0] = sz;
+	    break;
+	  default: break;
+	}
+      }
+      else { 
+	if (convertAddress(pt, NULL, &(*ips)->a.mask) == -1) {
+	  WRITE_MSG(2, "Invalid netmask '");
+	  WRITE_STR(2, pt);
+	  WRITE_MSG(2, "'\n");
+	  exit(wrapper_exit_code);
+	}
+      }
+    }
   }
+  else
+    (*ips)->a.type = vcNET_IPV4;
+
+  (*ips)->a.count = 1;
+  (*ips)->next = calloc(1, sizeof(struct vc_ips));
+  *ips = (*ips)->next;
 }
 
 static void
-readBcast(char const *str, uint32_t *bcast)
+readBcast(char const *str, struct vc_ips **ips)
 {
-  uint32_t	tmp;
-  if (ifconfig_getaddr(str, &tmp, &tmp, bcast)==-1){
-    struct hostent *h = gethostbyname (str);
-    if (h==0){
+  uint32_t bcast;
+  if (ifconfig_getaddr(str, NULL, NULL, &bcast)==-1){
+    if (convertAddress(str, NULL, &bcast) == -1) {
       WRITE_MSG(2, "Invalid broadcast number '");
       WRITE_STR(2, optarg);
       WRITE_MSG(2, "'\n");
       exit(wrapper_exit_code);
     }
-    memcpy (bcast, h->h_addr,sizeof(*bcast));
   }
+  (*ips)->a.ip[0] = bcast;
+  (*ips)->a.count = 1;
+  (*ips)->a.type = vcNET_IPV4B;
+  (*ips)->next = calloc(1, sizeof(struct vc_ips));
+  *ips = (*ips)->next;
 }
 
-#if defined(VC_ENABLE_API_NET)
 static void
-make_nx(nid_t nid, uint32_t bcast, size_t nbaddrs, struct vc_ip_mask_pair *ips)
+tellAddress(struct vc_net_nx *addr, bool silent)
 {
-  size_t i;
-  struct vc_net_nx addr;
-
-  if (nid == VC_DYNAMIC_NID) {
-    nid = vc_net_create(VC_DYNAMIC_NID);
-    if (nid == (nid_t) -1) {
-      perror("chbind: vc_net_create()");
-      exit(wrapper_exit_code);
-    }
+  char buf[41];
+  if (silent)
+    return;
+  if (inet_ntop(addr->type == vcNET_IPV6 ? AF_INET6 : AF_INET,
+		&addr->ip, buf, sizeof(buf)) == NULL) {
+    WRITE_MSG(1, " <conversion failed>");
+    return;
   }
-  else {
-    if (vc_net_create(nid) == (nid_t) -1) {
-      if (errno == EEXIST) {
-        if (vc_net_migrate(nid) != 0) {
-          perror("chbind: vc_net_migrate()");
-          exit(wrapper_exit_code);
-        }
-        else
-          return;
+  WRITE_MSG(1, " ");
+  WRITE_STR(1, buf);
+}
+
+static inline void
+doit(struct Arguments *args)
+{
+  struct vc_ips *ips;
+  if (args->do_add) {
+    if (!args->is_silent)
+      WRITE_MSG(1, "Adding");
+    for (ips = &args->head; ips->next; ips = ips->next) {
+      tellAddress(&ips->a, args->is_silent);
+      if (vc_net_add(args->nid, &ips->a) != (int)ips->a.count) {
+	perror(ENSC_WRAPPERS_PREFIX "vc_net_add()");
+	exit(wrapper_exit_code);
       }
-      else {
-        perror("chbind: vc_net_create()");
-        exit(wrapper_exit_code);
+    }
+    if (!args->is_silent)
+      WRITE_MSG(1, "\n");
+  }
+  else if (args->do_remove) {
+    if (!args->is_silent)
+      WRITE_MSG(1, "Removing");
+    for (ips = &args->head; ips->next; ips = ips->next) {
+      tellAddress(&ips->a, args->is_silent);
+      if (vc_net_remove(args->nid, &ips->a) != (int)ips->a.count) {
+	perror(ENSC_WRAPPERS_PREFIX "vc_net_remove()");
+	exit(wrapper_exit_code);
       }
     }
-  }
-
-  addr.type = vcNET_IPV4B;
-  addr.count = 1;
-  addr.ip[0] = bcast;
-  addr.mask[0] = 0;
-
-  if (vc_net_add(nid, &addr) != 1) {
-    perror("chbind: vc_net_add()");
-    exit(wrapper_exit_code);
-  }
-
-  for (i = 0; i < nbaddrs; i++) {
-    addr.type = vcNET_IPV4;
-    addr.count = 1;
-    addr.ip[0] = ips[i].ip;
-    addr.mask[0] = ips[i].mask;
-
-    if (vc_net_add(nid, &addr) != 1) {
-      perror("chbind: vc_net_add()");
-      exit(wrapper_exit_code);
-    }
+    if (!args->is_silent)
+      WRITE_MSG(1, "\n");
   }
 }
-#endif
 
 int main (int argc, char *argv[])
 {
-  size_t const			nb_ipv4root = vc_get_nb_ipv4root();
-  bool				is_silent   = false;
-  struct vc_ip_mask_pair	ips[nb_ipv4root];
-  size_t			nbaddrs = 0;
-  uint32_t			bcast   = 0xffffffff;
-  nid_t				nid	= VC_DYNAMIC_NID;
+  struct Arguments args = {
+    .nid	= VC_NOCTX,
+    .is_silent	= false,
+    .do_add	= false,
+    .do_remove	= false,
+    .head	= { .next = NULL },
+  };
+  struct vc_ips *ips = &args.head;
   
   while (1) {
     int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
@@ -313,21 +352,12 @@ int main (int argc, char *argv[])
     switch (c) {
       case CMD_HELP		:  showHelp(1, argv[0], 0);
       case CMD_VERSION		:  showVersion();
-      case CMD_SILENT		:  is_silent = true; break;
-      case CMD_BCAST		:  readBcast(optarg, &bcast); break;
-#if defined(VC_ENABLE_API_NET)
-      case CMD_NID		:  nid = Evc_nidopt2nid(optarg,true); break;
-#else
-      case CMD_NID		:  WRITE_MSG(2, "WARNING: --nid is not supported by this version\n"); break;
-#endif
-      case CMD_IP		:
-	if (nbaddrs>=nb_ipv4root) {
-	  WRITE_MSG(2, "Too many IP numbers, max 16\n");
-	  exit(wrapper_exit_code);
-	}
-	readIP(optarg, ips+nbaddrs, &bcast);
-	++nbaddrs;
-	break;
+      case CMD_SILENT		:  args.is_silent = true; break;
+      case CMD_BCAST		:  readBcast(optarg, &ips); break;
+      case CMD_NID		:  args.nid = Evc_nidopt2nid(optarg,true); break;
+      case CMD_ADD		:  args.do_add = true; break;
+      case CMD_REMOVE		:  args.do_remove = true; break;
+      case CMD_IP		:  readIP(optarg, &ips); break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -337,45 +367,21 @@ int main (int argc, char *argv[])
     }
   }
 
-  if (optind==argc) {
-    WRITE_MSG(2, "No command given; try '--help' for more information\n");
-    exit(wrapper_exit_code);
-  }
-  
-#if !defined(VC_ENABLE_API_NET) && !defined(VC_ENABLE_API_COMPAT) && !defined(VC_ENABLE_API_LEGACY)
-#  error can not build 'chbind' without network virtualization API
-#endif
-  
-#if defined(VC_ENABLE_API_NET)
-  if (vc_isSupported(vcFEATURE_VNET)) {
-    make_nx(nid, bcast, nbaddrs, ips);
-  }
-  else
-#endif
-#if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
-  if (vc_set_ipv4root(bcast,nbaddrs,ips)!=0) {
-    perror("chbind: vc_set_ipv4root()");
-    exit(wrapper_exit_code);
-  }
-#else
-  {
-    WRITE_MSG(2, "chbind: kernel does not provide network virtualization\n");
-    exit(wrapper_exit_code);
-  }
-#endif
+  if (args.nid == VC_NOCTX) args.nid = Evc_get_task_nid(0);
 
-  if (!is_silent) {
-    size_t		i;
-    
-    WRITE_MSG(1, "ipv4root is now");
-    for (i=0; i<nbaddrs; ++i) {
-      WRITE_MSG(1, " ");
-      WRITE_STR(1, inet_ntoa(*reinterpret_cast(struct in_addr *)(&ips[i].ip)));
-    }
-    WRITE_MSG(1, "\n");
+  if (!args.do_add && !args.do_remove) {
+    WRITE_MSG(2, "No operation specified; try '--help' for more information\n");
+    exit(wrapper_exit_code);
+  }
+  else if (args.do_add && args.do_remove) {
+    WRITE_MSG(2, "Multiple operations specified; try '--help' for more information\n");
+    exit(wrapper_exit_code);
   }
 
-  Eexecvp (argv[optind],argv+optind);
+  doit(&args);
+
+  if (optind != argc)
+    Eexecvp (argv[optind],argv+optind);
   return EXIT_SUCCESS;
 }
 

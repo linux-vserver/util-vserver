@@ -1,0 +1,130 @@
+#! /bin/bash
+# $Id$
+
+# Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# Copyright (C) 2006 Daniel Hokka Zakrisson
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo $"Can not find util-vserver installation (the file '$UTIL_VSERVER_VARS' would be expected); aborting..." >&2
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+. "$_LIB_FUNCTIONS"
+
+function showHelp()
+{
+    echo \
+$"Usage: $1  [--silent] [--nid <nid>] [--ip <ip_num>[/<mask>]]
+             [--bcast <broadcast>] [--] <commands> <args>*
+
+--silent
+    Do not print the addresses assigned.
+--nid <nid>
+    Network context id to use.
+--ip <ip_num>[/<mask>]
+    IP address to bind to.
+--bcast <broadcast>
+    Broadcast address for the network context.
+
+Report bugs to <$PACKAGE_BUGREPORT>."
+    exit $2
+}
+
+function showVersion()
+{
+    echo \
+$"chbind $PACKAGE_VERSION -- bind to IP addresses and execute a program
+This program is part of $PACKAGE_STRING
+
+Copyright (C) 2004 Enrico Scholz
+Copyright (C) 2006 Daniel Hokka Zakrisson
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License.  This program has absolutely no warranty."
+    exit $1
+}
+
+$_VSERVER_INFO - FEATURE vnet || exec $_CHBIND_COMPAT "$@"
+
+tmp=$(getopt -o + --long ncap:,nid:,ip:,bcast:,disconnect,flag:,secure,silent,help,version -n "$0" -- "$@") || exit 1
+eval set -- "$tmp"
+
+OPT_CAPS=()
+OPT_NID=
+OPT_DISCONNECT=
+OPT_FLAGS=()
+OPT_SECURE=
+OPT_SILENT=
+OPT_BCAST=
+OPT_IPS=()
+
+while true; do
+    case "$1" in
+	--help)    	showHelp $0 0;;
+	--version) 	showVersion 0;;
+	--ncap)		OPT_CAPS=( "${OPT_CAPS[@]}" "$2" ); shift;;
+	--nid)		OPT_NID=$2; shift;;
+	--disconnect)	OPT_DISCONNECT=1;;
+	--flag)		OPT_FLAGS=( "${OPT_FLAGS[@]}" "$2" ); shift;;
+	--secure)	OPT_SECURE=1;;
+	--silent)	OPT_SILENT=1;;
+	--ip)		OPT_IPS=( "${OPT_IPS[@]}" "$2" ); shift;;
+	--bcast)	OPT_BCAST=$2; shift;;
+	--)		shift; break;;
+	*)		echo $"chbind: internal error; arg=='$1'" >&2; exit 1;;
+    esac
+    shift
+done
+
+create_cmd=( $_NCONTEXT --create --silentexist
+	     ${OPT_SILENT:+--silent}
+	     ${OPT_NID:+--nid "$OPT_NID"} )
+
+chain_cmd=()
+
+old_IFS=$IFS
+IFS=,$IFS
+
+chain_cmd=( "${chain_cmd[@]}"
+		--
+		$_NATTRIBUTE --set
+		${OPT_SECURE:+--secure}
+		${OPT_CAPS:+--ncap "${OPT_CAPS[*]}"}
+		${OPT_FLAGS:+--flag "${OPT_FLAGS[*]}"}
+		--
+		$_NADDRESS --add
+		${OPT_SILENT:+--silent}
+		${OPT_BCAST:+--bcast "$OPT_BCAST"} )
+
+for ip in "${OPT_IPS[@]}"; do
+    chain_cmd=( "${chain_cmd[@]}" --ip "$ip" )
+done
+		
+migrate_cmd=( $_NCONTEXT
+	      ${OPT_SILENT:+--silent}
+	      ${OPT_DISCONNECT:+--disconnect} )
+
+IFS=$old_IFS
+
+if test -z "$OPT_NID" || $_VSERVER_INFO -q "$OPT_NID" XIDTYPE static; then
+    "${create_cmd[@]}" "${chain_cmd[@]}" -- "$@"
+    rc=$?
+else
+    rc=254
+fi
+
+test "$rc" -ne 254 || exec "${migrate_cmd[@]}" --nid "$OPT_NID" --migrate -- "$@"
+exit $rc

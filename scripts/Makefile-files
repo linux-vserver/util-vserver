@@ -82,7 +82,8 @@ scripts_legacy_src_SCRPTS =	scripts/legacy/save_s_context \
 scripts_legacy_gen_SCRPTS =	scripts/legacy/vps
 scripts_legacy_src_PRGS =	scripts/legacy/vserver-copy
 
-scripts_sbin_src_PRGS =		scripts/chcontext \
+scripts_sbin_src_PRGS =		scripts/chbind \
+				scripts/chcontext \
 				scripts/vapt-get \
 				scripts/vdispatch-conf \
 				scripts/vemerge \

@@ -46,6 +46,7 @@ build  @PKGLIBDIR@/defaults/debootstrap.uri
 base   @PKGLIBDIR@/capchroot
 base   @PKGLIBDIR@/chain-echo
 core   @PKGLIBDIR@/chcontext-compat
+core   @PKGLIBDIR@/chbind-compat
 base   @PKGLIBDIR@/check-unixfile
 base   @PKGLIBDIR@/chroot-sh
 base   @PKGLIBDIR@/exec-ulimit
@@ -83,6 +84,9 @@ core   @SBINDIR@/chcontext
 core   @SBINDIR@/chxid
 base   @SBINDIR@/exec-cd
 core   @SBINDIR@/lsxid
+core   @SBINDIR@/naddress
+core   @SBINDIR@/nattribute
+core   @SBINDIR@/ncontext
 core   @SBINDIR@/reducecap
 core   @SBINDIR@/setattr
 core   @SBINDIR@/showattr

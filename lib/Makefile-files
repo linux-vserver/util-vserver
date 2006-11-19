@@ -33,7 +33,8 @@ lib_management_SRCS =		lib/comparevserverbyid.c \
 				lib/getvserverctx.c \
 				lib/getvservername.c \
 				lib/getvservervdir.c \
-				lib/xidopt2xid.c
+				lib/xidopt2xid.c \
+				lib/nidopt2nid.c
 lib_v11_SRCS =			lib/syscall_rlimit.c \
 				lib/syscall_rlimit-v11.hc \
 				lib/syscall_kill.c  \

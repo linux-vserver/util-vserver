@@ -855,6 +855,8 @@ extern "C" {
 
   /** Maps an xid given at '--xid' options to an xid_t */
   xid_t		vc_xidopt2xid(char const *, bool honor_static, char const **err_info);
+  /** Maps a  nid given at '--nid' options to a  nid_t */
+  nid_t		vc_nidopt2nid(char const *, bool honor_static, char const **err_info);
 
   vcCfgStyle	vc_getVserverCfgStyle(char const *id);
   

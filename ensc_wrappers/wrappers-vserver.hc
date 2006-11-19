@@ -40,6 +40,14 @@ Evc_get_task_xid(pid_t pid)
   return res;
 }
 
+inline static WRAPPER_DECL nid_t
+Evc_get_task_nid(pid_t pid)
+{
+  register nid_t	res = vc_get_task_nid(pid);
+  FatalErrnoError(res==VC_NOCTX, "vc_get_task_nid()");
+  return res;
+}
+
 inline static WRAPPER_DECL xid_t
 Evc_ctx_create(xid_t xid)
 {
@@ -48,10 +56,24 @@ Evc_ctx_create(xid_t xid)
   return res;
 }
 
+inline static WRAPPER_DECL nid_t
+Evc_net_create(nid_t nid)
+{
+  register nid_t	res = vc_net_create(nid);
+  FatalErrnoError(res==VC_NOCTX, "vc_net_create()");
+  return res;
+}
+
 inline static WRAPPER_DECL void
 Evc_ctx_migrate(xid_t xid)
 {
   FatalErrnoError(vc_ctx_migrate(xid)==-1, "vc_ctx_migrate()");
+}
+
+inline static WRAPPER_DECL void
+Evc_net_migrate(nid_t nid)
+{
+  FatalErrnoError(vc_net_migrate(nid)==-1, "vc_net_migrate()");
 }
 
 inline static WRAPPER_DECL void
@@ -64,6 +86,18 @@ inline static WRAPPER_DECL void
 Evc_set_cflags(xid_t xid, struct vc_ctx_flags const *flags)
 {
   FatalErrnoError(vc_set_cflags(xid, flags)==-1, "vc_set_cflags()");
+}
+
+inline static WRAPPER_DECL void
+Evc_get_nflags(nid_t nid, struct vc_net_flags *flags)
+{
+  FatalErrnoError(vc_get_nflags(nid, flags)==-1, "vc_get_nflags()");
+}
+
+inline static WRAPPER_DECL void
+Evc_set_nflags(nid_t nid, struct vc_net_flags const *flags)
+{
+  FatalErrnoError(vc_set_nflags(nid, flags)==-1, "vc_set_nflags()");
 }
 
 inline static WRAPPER_DECL void
@@ -83,6 +117,18 @@ inline static WRAPPER_DECL void
 Evc_set_ccaps(xid_t xid, struct vc_ctx_caps const *caps)
 {
   FatalErrnoError(vc_set_ccaps(xid, caps)==-1, "vc_set_ccaps()");
+}
+
+inline static WRAPPER_DECL void
+Evc_get_ncaps(nid_t nid, struct vc_net_caps *caps)
+{
+  FatalErrnoError(vc_get_ncaps(nid, caps)==-1, "vc_get_ncaps()");
+}
+
+inline static WRAPPER_DECL void
+Evc_set_ncaps(nid_t nid, struct vc_net_caps const *caps)
+{
+  FatalErrnoError(vc_set_ncaps(nid, caps)==-1, "vc_set_ncaps()");
 }
 
 inline static WRAPPER_DECL void
@@ -120,5 +166,17 @@ Evc_xidopt2xid(char const *id, bool honor_static)
 #endif    
   }
 
+  return rc;
+}
+
+inline static WRAPPER_DECL nid_t
+Evc_nidopt2nid(char const *id, bool honor_static)
+{
+  char const *	err;
+  nid_t		rc = vc_nidopt2nid(id, honor_static, &err);
+  if (__builtin_expect(rc==VC_NOCTX,0)) {
+    ENSC_DETAIL1(msg, "vc_nidopt2nid", id, 1);
+    FatalErrnoErrorFail(msg);
+  }
   return rc;
 }

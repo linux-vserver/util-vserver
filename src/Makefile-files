@@ -46,7 +46,7 @@ DIETPROGS +=		src/chcontext-compat \
 	     		src/secure-mount \
 	     		src/save_ctxinfo \
 	     		src/mask2prefix \
-			src/chbind \
+			src/chbind-compat \
 			src/exec-cd \
 	     		src/fakerunlevel \
 			src/keep-ctx-alive \
@@ -74,7 +74,10 @@ DIETPROGS +=		src/chcontext-compat \
 			src/vserver-info \
 			src/vdlimit \
 			src/vdu \
-			src/vwait
+			src/vwait \
+			src/ncontext \
+			src/nattribute \
+			src/naddress
 
 if ENSC_CAN_BEECRYPT_WITH_DIETLIBC
 DIETPROGS +=		src/vhashify
@@ -110,6 +113,7 @@ pkglib_PROGRAMS +=	src/capchroot \
 			src/rpm-fake-resolver \
 			src/vshelper-sync \
 			src/sigexec \
+			src/chbind-compat \
 			$(src_pkglib_C99_X_PROGS) \
 			$(src_pkglib_CXX_X_PROGS)
 
@@ -128,8 +132,7 @@ legacy_PROGRAMS +=	src/ifspec \
 
 pkglib_LTLIBRARIES +=	src/rpm-fake.la
 
-sbin_PROGRAMS +=	src/chbind \
-			src/exec-cd \
+sbin_PROGRAMS +=	src/exec-cd \
 			src/lsxid \
 			src/chxid \
 			src/vps \
@@ -148,6 +151,9 @@ sbin_PROGRAMS +=	src/chbind \
 			src/vserver-info \
 			src/vuname \
 			src/vwait \
+			src/ncontext \
+			src/nattribute \
+			src/naddress \
 			$(src_sbin_CXX_X_PROGS)
 
 if ENSC_HAVE_C99_COMPILER
@@ -159,9 +165,9 @@ src_capchroot_SOURCES =		src/capchroot.c
 src_capchroot_LDADD =		$(VSERVER_LDADDS)
 src_capchroot_LDFLAGS =		$(VSERVER_LDFLGS)
 
-src_chbind_SOURCES =		src/chbind.c
-src_chbind_LDADD =		$(VSERVER_LDADDS)
-src_chbind_LDFLAGS =		$(VSERVER_LDFLGS)
+src_chbind_compat_SOURCES =	src/chbind.c
+src_chbind_compat_LDADD =	$(VSERVER_LDADDS)
+src_chbind_compat_LDFLAGS =	$(VSERVER_LDFLGS)
 
 src_chcontext_compat_SOURCES =	src/chcontext.c
 src_chcontext_compat_LDADD =	$(VSERVER_LDADDS) $(LIBINTERNAL)
@@ -300,6 +306,18 @@ src_vdlimit_LDFLAGS		= $(VSERVER_LDFLGS)
 src_vwait_SOURCES		= src/vwait.c
 src_vwait_LDADD			= $(VSERVER_LDADDS)
 src_vwait_LDFLAGS		= $(VSERVER_LDFLGS)
+
+src_ncontext_SOURCES		= src/ncontext.c
+src_ncontext_LDADD		= $(VSERVER_LDADDS) $(LIBINTERNAL)
+src_ncontext_LDFLAGS		= $(VSERVER_LDFLGS)
+
+src_nattribute_SOURCES		= src/nattribute.c
+src_nattribute_LDADD		= $(VSERVER_LDADDS)
+src_nattribute_LDFLAGS		= $(VSERVER_LDFLGS)
+
+src_naddress_SOURCES		= src/naddress.c
+src_naddress_LDADD		= $(VSERVER_LDADDS)
+src_naddress_LDFLAGS		= $(VSERVER_LDFLGS)
 
 EXTRA_PROGRAMS +=		$(src_sbin_CXX_PROGS) $(src_pkglib_CXX_PROGS)
 
