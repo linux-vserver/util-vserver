@@ -247,7 +247,8 @@ function _generateInitOptions
     CHCONTEXT_INIT_OPTS=()
 
 
-    getFileValue INITSTYLE      "$cfgdir"/style
+    test -n "$INITSTYLE" || \
+      getFileValue INITSTYLE    "$cfgdir"/style
     getFileValue RUNLEVEL_START "$cfgdir"/runlevel
     getFileValue RUNLEVEL_START "$cfgdir"/runlevel.start
     getFileValue RUNLEVEL_STOP  "$cfgdir"/runlevel.stop
@@ -262,7 +263,7 @@ function _generateInitOptions
 	(xrescue)
 	    INITCMD_START=( "${INITCMD_RESCUE[@]}" )
 	    INITCMD_STOP=( /sbin/killall5 )
-	    _IS_FAKEINIT=1
+	    _IS_FAKEINIT=
 	    _NEED_VSHELPER_SYNC=
 	    ;;
 	    
