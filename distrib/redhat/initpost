@@ -44,7 +44,7 @@ vserver=$1
 
 ## Do some magic to set the vserver into a defined state
 $_VSERVER "$vserver" stop  &>/dev/null || :
-$_VSERVER "$vserver" start --rescue bash -c '
+$_VSERVER "$vserver" start --rescue --rescue-init bash -c '
     exec  >/dev/null
     exec 2>/dev/null
 
