@@ -54,6 +54,7 @@
 #define CMD_NID		0x2001
 #define CMD_ADD		0x2002
 #define CMD_REMOVE	0x2003
+#define CMD_SET		0x2004
 #define CMD_IP		0x2010
 #define CMD_BCAST	0x2011
 
@@ -67,6 +68,7 @@ CMDLINE_OPTIONS[] = {
   { "silent",   no_argument,  0, CMD_SILENT },
   { "add",      no_argument,  0, CMD_ADD },
   { "remove",   no_argument,  0, CMD_REMOVE },
+  { "set",      no_argument,  0, CMD_SET },
   { "nid",      required_argument, 0, CMD_NID },
   { "ip",       required_argument, 0, CMD_IP },
   { "bcast",    required_argument, 0, CMD_BCAST },
@@ -84,6 +86,7 @@ struct Arguments {
   bool		is_silent;
   bool		do_add;
   bool		do_remove;
+  bool		do_set;
 };
 
 static void
@@ -92,7 +95,8 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:\n  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [--silent] [--nid <nid>] [--ip <ip_num>[/<mask>]] [--bcast <broadcast>] [--] <commands> <args>*\n\n"
+	    " (--add|--remove|--set) [--silent] [--nid <nid>]\n"
+	    "    [--ip <ip_num>[/<mask>]] [--bcast <broadcast>] [--] <commands> <args>*\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
   exit(res);
@@ -239,10 +243,24 @@ readIP(char const *str, struct vc_ips **ips)
     else {
       // Ok, we have a network size, not a netmask
       if (strchr(pt,'.')==0 && strchr(pt,':')==0) {
-	int		sz = atoi(pt);
+	unsigned long	sz, limit = 0;
+
+	switch ((*ips)->a.type) {
+	  case vcNET_IPV4: limit =  32; break;
+	  case vcNET_IPV6: limit = 128; break;
+	  default:			break;
+	}
+
+	if (!isNumberUnsigned(pt, &sz, true) || sz > limit) {
+	  WRITE_MSG(2, "Invalid prefix '");
+	  WRITE_STR(2, pt);
+	  WRITE_MSG(2, "'\n");
+	  exit(wrapper_exit_code);
+	}
+
 	switch ((*ips)->a.type) {
 	  case vcNET_IPV4:
-	    mask[0] = htonl((1 << sz) - 1);
+	    mask[0] = htonl(~((1 << (32 - sz)) - 1));
 	    break;
 	  case vcNET_IPV6:
 	    mask[0] = sz;
@@ -294,7 +312,7 @@ tellAddress(struct vc_net_nx *addr, bool silent)
   if (silent)
     return;
   if (inet_ntop(addr->type == vcNET_IPV6 ? AF_INET6 : AF_INET,
-		&addr->ip, buf, sizeof(buf)) == NULL) {
+		addr->ip, buf, sizeof(buf)) == NULL) {
     WRITE_MSG(1, " <conversion failed>");
     return;
   }
@@ -306,7 +324,16 @@ static inline void
 doit(struct Arguments *args)
 {
   struct vc_ips *ips;
-  if (args->do_add) {
+
+  if (args->do_set) {
+    struct vc_net_nx remove = { .type = vcNET_ANY };
+    if (vc_net_remove(args->nid, &remove) == -1) {
+      perror(ENSC_WRAPPERS_PREFIX "vc_net_remove()");
+      exit(wrapper_exit_code);
+    }
+  }
+
+  if (args->do_add || args->do_set) {
     if (!args->is_silent)
       WRITE_MSG(1, "Adding");
     for (ips = &args->head; ips->next; ips = ips->next) {
@@ -357,6 +384,7 @@ int main (int argc, char *argv[])
       case CMD_NID		:  args.nid = Evc_nidopt2nid(optarg,true); break;
       case CMD_ADD		:  args.do_add = true; break;
       case CMD_REMOVE		:  args.do_remove = true; break;
+      case CMD_SET		:  args.do_set = true; break;
       case CMD_IP		:  readIP(optarg, &ips); break;
       default		:
 	WRITE_MSG(2, "Try '");
@@ -369,11 +397,11 @@ int main (int argc, char *argv[])
 
   if (args.nid == VC_NOCTX) args.nid = Evc_get_task_nid(0);
 
-  if (!args.do_add && !args.do_remove) {
+  if (!args.do_add && !args.do_remove && !args.do_set) {
     WRITE_MSG(2, "No operation specified; try '--help' for more information\n");
     exit(wrapper_exit_code);
   }
-  else if (args.do_add && args.do_remove) {
+  else if (((args.do_add ? 1 : 0) + (args.do_remove ? 1 : 0) + (args.do_set ? 1 : 0)) > 1) {
     WRITE_MSG(2, "Multiple operations specified; try '--help' for more information\n");
     exit(wrapper_exit_code);
   }
