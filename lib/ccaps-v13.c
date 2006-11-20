@@ -30,7 +30,7 @@
 #define DECL(STR, VAL) { STR, sizeof(STR)-1, VAL }
 
 static struct Mapping_uint64 const VALUES[] = {
-  DECL("utsname",         VC_VXC_SET_UTSNAME),
+  DECL("set_utsname",     VC_VXC_SET_UTSNAME),
   DECL("rlimit",          VC_VXC_SET_RLIMIT),
   DECL("raw_icmp",        VC_VXC_RAW_ICMP),
   DECL("syslog",          VC_VXC_SYSLOG),
@@ -45,6 +45,7 @@ static struct Mapping_uint64 const VALUES[] = {
   DECL("remount",         VC_VXC_SECURE_REMOUNT),
   DECL("icmp",            VC_VXC_RAW_ICMP),
   DECL("ping",            VC_VXC_RAW_ICMP),
+  DECL("utsname",         VC_VXC_SET_UTSNAME),
 };
 
 uint_least64_t
