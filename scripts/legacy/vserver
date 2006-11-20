@@ -529,7 +529,7 @@ elif [ "$2" = "start" ] ; then
 		cd $__DEFAULT_VSERVERDIR/$1
 		IPOPT=`setipopt $IPROOT`
 		export PATH=$DEFAULTPATH
-		$NICECMD $_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
+		$NICECMD $_CHBIND_COMPAT $SILENT $IPOPT --bcast $IPROOTBCAST \
 			$_CHCONTEXT_COMPAT $SILENT $DISCONNECT $CAPS $FLAGS $CTXOPT $HOSTOPT $DOMAINOPT --secure \
 			$_SAVE_S_CONTEXT $__PKGSTATEDIR/$1.ctx \
 			$_CAPCHROOT $CHROOTOPT . $STARTCMD
@@ -611,7 +611,7 @@ elif [ "$2" = "stop" ] ; then
 		cd $__DEFAULT_VSERVERDIR/$1
 		IPOPT=`setipopt $IPROOT`
 		export PATH=$DEFAULTPATH
-		$_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
+		$_CHBIND_COMPAT $SILENT $IPOPT --bcast $IPROOTBCAST \
 			$_CHCONTEXT_COMPAT $SILENT $CAPS --secure --ctx $S_CONTEXT \
 			$_CAPCHROOT . $STOPCMD
 
@@ -625,7 +625,7 @@ elif [ "$2" = "stop" ] ; then
 		fi
 
 		echo Killing all processes
-		$_CHBIND --silent $IPOPT --bcast $IPROOTBCAST \
+		$_CHBIND_COMPAT --silent $IPOPT --bcast $IPROOTBCAST \
 			$_CHCONTEXT_COMPAT $CAPS --secure --silent --ctx $S_CONTEXT \
 			$_VSERVERKILLALL
 	fi
@@ -704,7 +704,7 @@ elif [ "$2" = "suexec" ] ; then
 			cd $__DEFAULT_VSERVERDIR/$VSERVER
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
-			exec $_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
+			exec $_CHBIND_COMPAT $SILENT $IPOPT --bcast $IPROOTBCAST \
 				$_CHCONTEXT_COMPAT $SILENT $FLAGS $CAPS --secure --ctx $S_CONTEXT \
 				$_CAPCHROOT --suid $USERID . "$@"
 		else
@@ -726,7 +726,7 @@ elif [ "$2" = "suexec" ] ; then
 			cd $__DEFAULT_VSERVERDIR/$VSERVER
 			IPOPT=`setipopt $IPROOT`
 			export PATH=$DEFAULTPATH
-			exec $_CHBIND $SILENT $IPOPT --bcast $IPROOTBCAST \
+			exec $_CHBIND_COMPAT $SILENT $IPOPT --bcast $IPROOTBCAST \
 				$_CHCONTEXT_COMPAT $SILENT $FLAGS $CAPS --secure $CTXOPT $HOSTOPT $DOMAINOPT \
 				$_SAVE_S_CONTEXT $__PKGSTATEDIR/$VSERVER.ctx \
 				$_CAPCHROOT --suid $USERID $CHROOTOPT . "$@"
