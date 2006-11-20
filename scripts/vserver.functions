@@ -263,8 +263,6 @@ function _generateInitOptions
 	(xrescue)
 	    INITCMD_START=( "${INITCMD_RESCUE[@]}" )
 	    INITCMD_STOP=( /sbin/killall5 )
-	    _IS_FAKEINIT=
-	    _NEED_VSHELPER_SYNC=
 	    ;;
 	    
 	(xsysv)

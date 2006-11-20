@@ -83,6 +83,7 @@ inclusive its arguments to the cmdline."
 	    INITCMD_RESCUE=( $2 );
 	    have_initcmd=1
 	    shift;;
+	(--rescue-init)	_IS_FAKEINIT=1;;
 	(--)		shift; break;;
 	(-*)		panic $"vserver ... start: unknown option '$1'";;
 	(*)		break;
