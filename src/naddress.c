@@ -368,6 +368,7 @@ int main (int argc, char *argv[])
     .is_silent	= false,
     .do_add	= false,
     .do_remove	= false,
+    .do_set	= false,
     .head	= { .next = NULL },
   };
   struct vc_ips *ips = &args.head;
@@ -377,19 +378,19 @@ int main (int argc, char *argv[])
     if (c==-1) break;
 
     switch (c) {
-      case CMD_HELP		:  showHelp(1, argv[0], 0);
-      case CMD_VERSION		:  showVersion();
-      case CMD_SILENT		:  args.is_silent = true; break;
-      case CMD_BCAST		:  readBcast(optarg, &ips); break;
-      case CMD_NID		:  args.nid = Evc_nidopt2nid(optarg,true); break;
-      case CMD_ADD		:  args.do_add = true; break;
-      case CMD_REMOVE		:  args.do_remove = true; break;
-      case CMD_SET		:  args.do_set = true; break;
-      case CMD_IP		:  readIP(optarg, &ips); break;
+      case CMD_HELP	:  showHelp(1, argv[0], 0);
+      case CMD_VERSION	:  showVersion();
+      case CMD_SILENT	:  args.is_silent = true; break;
+      case CMD_NID	:  args.nid       = Evc_nidopt2nid(optarg,true); break;
+      case CMD_ADD	:  args.do_add    = true; break;
+      case CMD_REMOVE	:  args.do_remove = true; break;
+      case CMD_SET	:  args.do_set    = true; break;
+      case CMD_IP	:  readIP(optarg, &ips); break;
+      case CMD_BCAST	:  readBcast(optarg, &ips); break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
-	WRITE_MSG(2, " --help\" for more information.\n");
+	WRITE_MSG(2, " --help' for more information.\n");
 	exit(wrapper_exit_code);
 	break;
     }
