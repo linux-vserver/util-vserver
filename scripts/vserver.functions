@@ -1072,7 +1072,7 @@ WARNING: There is no cachedirectory configured for this vserver;
 	panic $"\
 /proc/uptime can not be accessed. Usually, this is caused by
 procfs-security. Please read the FAQ for more details
-http://www.linux-vserver.org/index.php?page=Linux-Vserver+FAQ"
+http://linux-vserver.org/Proc-Security"
 }
 
 

@@ -568,7 +568,7 @@ int main(int argc, char **argv)
     WRITE_MSG(2,
 	      "WARNING: can not access /proc/uptime. Usually, this is caused by\n"
 	      "         procfs-security. Please read the FAQ for more details\n"
-	      "         http://www.linux-vserver.org/index.php?page=Linux-Vserver+FAQ\n");
+	      "         http://linux-vserver.org/Proc-Security\n");
 
   Vector_init(&xid_data, sizeof(struct XidData));
 
