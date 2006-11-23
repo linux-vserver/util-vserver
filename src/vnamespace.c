@@ -36,6 +36,13 @@
 #define ENSC_WRAPPERS_VSERVER	1
 #include <wrappers.h>
 
+#ifndef CLONE_NEWUTS
+#  define CLONE_NEWUTS		0x04000000
+#endif
+#ifndef CLONE_NEWIPC
+#  define CLONE_NEWIPC		0x08000000
+#endif
+
 #define CMD_HELP		0x1000
 #define CMD_VERSION		0x1001
 
@@ -95,9 +102,9 @@ newNamespace(char const *cmd)
   signal(SIGCHLD, SIG_DFL);
   
 #ifdef NDEBUG    
-  pid = sys_clone(CLONE_NEWNS|CLONE_VFORK|SIGCHLD, 0);
+  pid = sys_clone(CLONE_NEWNS|CLONE_NEWUTS|CLONE_NEWIPC|CLONE_VFORK|SIGCHLD, 0);
 #else
-  pid = sys_clone(CLONE_NEWNS|SIGCHLD, 0);
+  pid = sys_clone(CLONE_NEWNS|CLONE_NEWUTS|CLONE_NEWIPC|SIGCHLD, 0);
 #endif
 
   switch (pid) {
