@@ -25,6 +25,7 @@
 #include <lib_internal/util-dimof.h>
 
 #include <string.h>
+#include <strings.h>
 #include <assert.h>
 
 #define DECL(STR, VAL) { STR, sizeof(STR)-1, VAL }
@@ -34,10 +35,23 @@ static struct Mapping_uint64 const VALUES[] = {
   DECL("", 0)
 };
 
+inline static char const *
+removePrefix(char const *str, size_t *len)
+{
+  if ((len==0 || *len==0 || *len>4) &&
+      strncasecmp("nxc_", str, 4)==0) {
+    if (len && *len>4) *len -= 4;
+    return str+4;
+  }
+  else
+    return str;
+}
+
 uint_least64_t
 vc_text2ncap(char const *str, size_t len)
 {
-  ssize_t	idx = utilvserver_value2text_uint64(str, len,
+  char const *	tmp = removePrefix(str, &len);
+  ssize_t	idx = utilvserver_value2text_uint64(tmp, len,
 						    VALUES, DIM_OF(VALUES));
   if (idx==-1) return 0;
   else         return VALUES[idx].val;

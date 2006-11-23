@@ -25,24 +25,45 @@
 #include <lib_internal/util-dimof.h>
 
 #include <string.h>
+#include <strings.h>
 #include <assert.h>
 
 #define DECL(STR, VAL) { STR, sizeof(STR)-1, VAL }
 
 static struct Mapping_uint64 const VALUES[] = {
   DECL("lock",		VC_NXF_INFO_LOCK),
+  DECL("private",	VC_NXF_INFO_PRIVATE),
+
+  DECL("hide_netif",	VC_NXF_HIDE_NETIF),
 
   DECL("state_setup",	VC_NXF_STATE_SETUP),
   DECL("state_admin",	VC_NXF_STATE_ADMIN),
 
   DECL("sc_helper",	VC_NXF_SC_HELPER),
   DECL("persistent",	VC_NXF_PERSISTENT),
+
+    // Aliases for the legacy flags
+  DECL("info_lock",	VC_NXF_INFO_LOCK),
+  DECL("info_private",	VC_NXF_INFO_PRIVATE),
 };
+
+inline static char const *
+removePrefix(char const *str, size_t *len)
+{
+  if ((len==0 || *len==0 || *len>4) &&
+      strncasecmp("nxf_", str, 4)==0) {
+    if (len && *len>4) *len -= 4;
+    return str+4;
+  }
+  else
+    return str;
+}
 
 uint_least64_t
 vc_text2nflag(char const *str, size_t len)
 {
-  ssize_t	idx = utilvserver_value2text_uint64(str, len,
+  char const *	tmp = removePrefix(str, &len);
+  ssize_t	idx = utilvserver_value2text_uint64(tmp, len,
 						    VALUES, DIM_OF(VALUES));
   if (idx==-1) return 0;
   else         return VALUES[idx].val;

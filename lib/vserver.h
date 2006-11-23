@@ -230,6 +230,9 @@
 
 // the network flags
 #define VC_NXF_INFO_LOCK		0x00000001ull
+#define VC_NXF_INFO_PRIVATE		0x00000008ull
+
+#define VC_NXF_HIDE_NETIF		0x02000000ull
 
 #define VC_NXF_STATE_SETUP		(1ULL<<32)
 #define VC_NXF_STATE_ADMIN		(1ULL<<34)
