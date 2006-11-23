@@ -73,6 +73,22 @@ else
     SILENT_OPT='--silent'
 fi
 
+function _readFileToArray
+{
+    local _rfta_f="$1"
+    local _rfta_a="$2"
+    local _rfta_p="$3"
+    local _rfta_v
+
+    test -e "$_rfta_f" || return 0
+    while read _rfta_v; do
+	case x"$_rfta_v" in
+	    (x|x\#*)	;;
+	    (*)		eval "$_rfta_a=( \"\${$_rfta_a[@]}\" $_rfta_p \"$_rfta_v\" )";;
+	esac
+    done <"$_rfta_f"
+}
+
 function _generateChbindOptions
 {
     local vdir="$1"
@@ -92,6 +108,9 @@ function _generateChbindOptions
     for i in "${INTERFACES[@]}"; do
 	CHBIND_OPTS=( "${CHBIND_OPTS[@]}" --ip "$i" )
     done
+
+    _readFileToArray "$vdir"/nflags        CHBIND_OPTS --flag
+    _readFileToArray "$vdir"/ncapabilities CHBIND_OPTS --ncap
 
     _HAVE_CHBIND_OPTIONS=1
 }
@@ -139,31 +158,15 @@ function _generatePersonalityOptions
 function _generateCCapabilityOptions
 {
     local vdir=$1
-    local cap
-    local f="$vdir"/ccapabilities
-    
-    test -e "$f" || return 0
-    while read cap; do
-	case x"$cap" in
-	    (x|x\#*)	;;
-	    (*)		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --ccap "$cap" );;
-	esac
-    done <"$f"
+
+    _readFileToArray "$vdir"/ccapabilities OPTS_VATTRIBUTE --ccap
 }
 
 function _generateBCapabilityOptions
 {
     local vdir=$1
-    local cap
-    local f="$vdir"/bcapabilities
-    
-    test -e "$f" || return 0
-    while read cap; do
-	case x"$cap" in
-	    (x|x\#*)	;;
-	    (*)		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --bcap "$cap" );;
-	esac
-    done <"$f"
+
+    _readFileToArray "$vdir"/bcapabilities OPTS_VATTRIBUTE --bcap
 }
 
 function _generateCapabilityOptions

@@ -57,8 +57,6 @@ the GNU General Public License.  This program has absolutely no warranty."
     exit $1
 }
 
-$_VSERVER_INFO - FEATURE vnet || exec $_CHBIND_COMPAT "$@"
-
 tmp=$(getopt -o + --long ncap:,nid:,ip:,bcast:,disconnect,flag:,secure,silent,help,version -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
@@ -81,13 +79,20 @@ while true; do
 	--flag)		OPT_FLAGS=( "${OPT_FLAGS[@]}" "$2" ); shift;;
 	--secure)	OPT_SECURE=1;;
 	--silent)	OPT_SILENT=1;;
-	--ip)		OPT_IPS=( "${OPT_IPS[@]}" "$2" ); shift;;
+	--ip)		OPT_IPS=( "${OPT_IPS[@]}" --ip "$2" ); shift;;
 	--bcast)	OPT_BCAST=$2; shift;;
 	--)		shift; break;;
 	*)		echo $"chbind: internal error; arg=='$1'" >&2; exit 1;;
     esac
     shift
 done
+
+$_VSERVER_INFO - FEATURE vnet || exec $_CHBIND_COMPAT \
+	${OPT_NID:+--nid "$OPT_NID"} \
+	${OPT_SILENT:+--silent} \
+	${OPT_BCAST:+--bcast "$OPT_BCAST"} \
+	"${OPT_IPS[@]}" \
+	-- "$@"
 
 create_cmd=( $_NCONTEXT --create --silentexist
 	     ${OPT_SILENT:+--silent}
@@ -107,12 +112,9 @@ chain_cmd=( "${chain_cmd[@]}"
 		--
 		$_NADDRESS --add
 		${OPT_SILENT:+--silent}
-		${OPT_BCAST:+--bcast "$OPT_BCAST"} )
+		${OPT_BCAST:+--bcast "$OPT_BCAST"}
+		"${OPT_IPS[@]}" )
 
-for ip in "${OPT_IPS[@]}"; do
-    chain_cmd=( "${chain_cmd[@]}" --ip "$ip" )
-done
-		
 migrate_cmd=( $_NCONTEXT
 	      ${OPT_SILENT:+--silent}
 	      ${OPT_DISCONNECT:+--disconnect} )
