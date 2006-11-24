@@ -279,7 +279,7 @@ int main (int argc, char *argv[])
     args.nid = Evc_get_task_nid(0);
   
   if (!args.do_create && !args.do_migrate)
-    WRITE_MSG(2, "Neither '--create' nor '--migrate specified; try '--help' for more information\n");
+    WRITE_MSG(2, "Neither '--create' nor '--migrate' specified; try '--help' for more information\n");
   else if (args.do_create && args.do_migrate)
     WRITE_MSG(2, "Can not specify '--create' and '--migrate' at the same time; try '--help' for more information\n");
   else if (!args.do_create && args.nid==VC_DYNAMIC_XID)

@@ -426,7 +426,7 @@ int main (int argc, char *argv[])
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
-	WRITE_MSG(2, " --help\" for more information.\n");
+	WRITE_MSG(2, " --help' for more information.\n");
 	return wrapper_exit_code;
 	break;
     }
@@ -438,7 +438,7 @@ int main (int argc, char *argv[])
     args.xid = Evc_get_task_xid(0);
   
   if (!args.do_create && !args.do_migrate)
-    WRITE_MSG(2, "Neither '--create' nor '--migrate specified; try '--help' for more information\n");
+    WRITE_MSG(2, "Neither '--create' nor '--migrate' specified; try '--help' for more information\n");
   else if (args.do_create  &&  args.do_migrate)
     WRITE_MSG(2, "Can not specify '--create' and '--migrate' at the same time; try '--help' for more information\n");
   else if (!args.do_migrate && args.is_initpid)
