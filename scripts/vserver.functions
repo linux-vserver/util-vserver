@@ -103,7 +103,7 @@ function _generateChbindOptions
 
     getFileValue nid "$vdir/ncontext" "$vdir/context"
     
-    CHBIND_OPTS=( $SILENT_OPT ${nid:+--nid "$nid"} ${bcast:+--bcast "$bcast"} )
+    CHBIND_OPTS=( $SILENT_OPT --secure ${nid:+--nid "$nid"} ${bcast:+--bcast "$bcast"} )
 
     for i in "${INTERFACES[@]}"; do
 	CHBIND_OPTS=( "${CHBIND_OPTS[@]}" --ip "$i" )

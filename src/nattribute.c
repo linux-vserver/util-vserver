@@ -129,8 +129,8 @@ parseSecure(struct vc_net_flags * flags,
   caps->ncaps = 0ull;
   caps->cmask = 0ull;
 
-  flags->flagword = 0ull;
-  flags->mask     = 0ull;
+  flags->flagword = VC_NXF_HIDE_NETIF;
+  flags->mask     = VC_NXF_HIDE_NETIF;
 }
 
 int main(int argc, char *argv[])
