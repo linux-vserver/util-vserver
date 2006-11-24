@@ -364,7 +364,7 @@ url="http://svn.linux-vserver.org/svn/util-vserver/trunk/lib/ccaps-v13.c">lib/cc
 for possible values.
       </description>
     </list>
-    <list name="ncapabilities">
+    <list name="ncapabilities" since="0.30.212">
       <description>
 Contains the network capabilities. See <ulink
 url="http://svn.linux-vserver.org/svn/util-vserver/trunk/lib/ncaps-net.c">lib/ncaps-net.c</ulink>
@@ -531,7 +531,7 @@ Apply the current ulimit to the whole context
       </elements>
       -->
     </list>
-    <list name="nflags">
+    <list name="nflags" since="0.30.212">
       <description>
 Contains a network flag per line. See <ulink
 url="http://svn.linux-vserver.org/svn/util-vserver/trunk/lib/nflags-net.c">lib/nflags-net.c</ulink>
