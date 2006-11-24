@@ -295,7 +295,7 @@ fi
 
 info "Syncing directories"
 # trailing slashes very important in the rsync!
-if ! rsync -avxz $rsflag $shcmd $vroot/ $dhost$colon$target/; then
+if ! rsync -Havxz --numeric-ids $rsflag $shcmd $vroot/ $dhost$colon$target/; then
 	error 1 "rsync failed"
 fi
 
