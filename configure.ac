@@ -61,6 +61,7 @@ ENSC_PATHPROG(GZIP,      gzip,    [gzip])
 ENSC_PATHPROG(BZIP2,     bzip2,   [bzip2])
 ENSC_PATHPROG(CPIO,      cpio,    [cpio])
 ENSC_PATHPROG(RESTORE,   restore, [restore])
+ENSC_PATHPROG(RSYNC,     rsync,   [rsync])
 
 ENSC_PATHPROG(DOXYGEN,   doxygen,  [:])
 ENSC_PATHPROG(XSLTP,     xsltp,    [:])

@@ -72,6 +72,8 @@ Possible methods are:
                      -n <nfsroot> specifies the 'NFS' root explicitly
                      -d <fai_dir> specifies the location of the FAI profile
                      the -f option implies -n and -d are relative to the <fai_vserver>
+    rsync       ... -- [-d <distribution>] --source <source> [-o <rsync option>]*
+                ...  installs a guest by rsyncing from <source> to the guest root
 
 Please report bugs to $PACKAGE_BUGREPORT"
     exit 0
@@ -132,7 +134,7 @@ setup_setDefaults "$VSERVER_NAME"
 
 case x"$method" in
     (xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
-    (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum|xrpm|xtemplate|xfai)
+    (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum|xrpm|xtemplate|xfai|xrsync)
 		. $__PKGLIBDIR/vserver-build.$method
 		;;
     (x)		panic $"No build-method specified";;

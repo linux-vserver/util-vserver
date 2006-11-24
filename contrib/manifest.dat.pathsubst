@@ -9,6 +9,7 @@ build  @PKGLIBDIR@/vserver-build.fai
 build  @PKGLIBDIR@/vserver-build.yum
 build  @PKGLIBDIR@/vserver-build.rpm
 build  @PKGLIBDIR@/vserver-build.template
+build  @PKGLIBDIR@/vserver-build.rsync
 build  @PKGLIBDIR@/vserver-build.functions
 build  @PKGLIBDIR@/vserver-build.functions.apt
 build  @PKGLIBDIR@/vserver-build.functions.rpm
