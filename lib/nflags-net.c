@@ -34,6 +34,8 @@ static struct Mapping_uint64 const VALUES[] = {
   DECL("lock",		VC_NXF_INFO_LOCK),
   DECL("private",	VC_NXF_INFO_PRIVATE),
 
+  DECL("single_ip",	VC_NXF_SINGLE_IP),
+
   DECL("hide_netif",	VC_NXF_HIDE_NETIF),
 
   DECL("state_setup",	VC_NXF_STATE_SETUP),
