@@ -178,6 +178,7 @@ execChmod(int argc, char *argv[])
   if (!isNumberUnsigned(argv[1], &mode, 1)) {
     WRITE_MSG(2, "Invalid mode: '");
     WRITE_STR(2, argv[1]);
+    WRITE_MSG(2, "'\n");
     return EXIT_FAILURE;
   }
 
