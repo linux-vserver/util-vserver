@@ -92,14 +92,12 @@ pushd "$vdir" &>/dev/null
 
 exec /sbin/killall5 -15
 EOF
-    # TODO: remove race/symlink-attack
-    chmod +x etc/init.d/halt
+    $_CHROOT_SH chmod 0755 /etc/init.d/halt
     
     : | $_CHROOT_SH truncate /etc/sysctl.conf
     echo "none    /       none    defaults" | $_CHROOT_SH truncate /etc/fstab
     cat "$__DISTRIBDIR"/redhat/rc.sysinit   | $_CHROOT_SH truncate /etc/rc.d/rc.sysinit.vserver
-    # TODO: remove race/symlink-attack
-    chmod +x etc/rc.d/rc.sysinit.vserver
+    $_CHROOT_SH chmod 0755 /etc/rc.d/rc.sysinit.vserver
     subst etc/inittab 's!^\([^#].*:respawn:.* tty\)!#\1!;
 		       s!si::sysinit:/etc/rc.d/rc.sysinit!si::sysinit:/etc/rc.d/rc.sysinit.vserver!'
 popd >/dev/null
