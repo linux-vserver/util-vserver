@@ -31,6 +31,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <stddef.h>
 
 #define ENSC_WRAPPERS_PREFIX	"vsched: "
 #define ENSC_WRAPPERS_VSERVER	1
