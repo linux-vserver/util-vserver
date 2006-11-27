@@ -251,6 +251,7 @@
 #define VC_VLIMIT_SEMARY		20
 #define VC_VLIMIT_NSEMS			21
 #define VC_VLIMIT_DENTRY		22
+#define VC_VLIMIT_MAPPED		23
 
 
 
