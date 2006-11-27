@@ -169,6 +169,8 @@ static void do_dir_entry(struct vc_set_sched *sched, const char *name)
     if (strcmp(name, opt->name) == 0)
       break;
   }
+  if (opt->name == 0)
+    return;
 
   fd = Eopen(name, O_RDONLY, 0);
   len = Eread(fd, buf, sizeof(buf)-1);
