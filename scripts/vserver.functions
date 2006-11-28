@@ -250,7 +250,7 @@ function _generateInitOptions
     CHCONTEXT_INIT_OPTS=()
 
 
-    test -n "$INITSTYLE" || \
+    test x"$INITSTYLE" = xrescue || \
       getFileValue INITSTYLE    "$cfgdir"/style
     getFileValue RUNLEVEL_START "$cfgdir"/runlevel
     getFileValue RUNLEVEL_START "$cfgdir"/runlevel.start
