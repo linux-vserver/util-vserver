@@ -48,7 +48,7 @@ the following reasons:
 * kernel headers are broken (e.g. these of linux 2.6 are known to be)
   and you do not have e2fsprogs headers installed; please try to install
   - e2fsprogs-devel (for Red Hat), or
-  - libext2fs2-devel (for Mandrake), or
+  - lib*ext2fs2-devel (for Mandriva), or
   - e2fslibs-dev (for Debian)
   in this case.
 
