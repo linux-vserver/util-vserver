@@ -24,11 +24,12 @@
 static inline ALWAYSINLINE int
 vc_ctx_migrate_spaces(xid_t xid)
 {
-  int ret;
-
-  ret = vc_enter_namespace(xid, vc_get_space_mask() & ~(CLONE_NEWNS|CLONE_FS));
-  if (ret)
-    return ret;
+  int ret = vc_getXIDType(xid);
+  if (ret == vcTYPE_STATIC || ret == vcTYPE_DYNAMIC) {
+    ret = vc_enter_namespace(xid, vc_get_space_mask() & ~(CLONE_NEWNS|CLONE_FS));
+    if (ret)
+      return ret;
+  }
 
   return vserver(VCMD_ctx_migrate_v0, CTX_USER2KERNEL(xid), NULL);
 }
