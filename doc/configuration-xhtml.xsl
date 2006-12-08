@@ -19,11 +19,11 @@
   <xsl:template match="database">
     <head>
       <title>The <xsl:value-of select="$confdir"/> directory</title>
-      <link rel="stylesheet"           title="gras"     type="text/css" href="css/configuration-lsd.css" />
+      <link rel="alternate stylesheet" title="gras"     type="text/css" href="css/configuration-lsd.css" />
       <link rel="alternate stylesheet" title="gras1"    type="text/css" href="css/configuration-lsd1.css" />
       <link rel="alternate stylesheet" title="flower"   type="text/css" href="css/configuration-flower.css" />
       <link rel="alternate stylesheet" title="boring"   type="text/css" href="configuration.css" />
-      <link rel="alternate stylesheet" title="weedpage" type="text/css" href="css/WeedPageStyle.css" />
+      <link rel="stylesheet"           title="weedpage" type="text/css" href="css/WeedPageStyle.css" />
     </head>
     <body>
       <h1>The content of the <xsl:value-of select="$confdir"/> directory</h1>
