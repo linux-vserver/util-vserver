@@ -13,11 +13,4 @@ struct	vcmd_sock_stat_v0 {
 };
 
 
-#ifdef	__KERNEL__
-
-#include <linux/compiler.h>
-
-extern int vc_sock_stat(struct vx_info *, void __user *);
-
-#endif	/* __KERNEL__ */
 #endif	/* _VX_CACCT_CMD_H */

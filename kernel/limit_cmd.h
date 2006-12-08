@@ -36,34 +36,4 @@ struct	vcmd_rlimit_stat_v0 {
 #define CRLIM_INFINITY		(~0ULL)
 #define CRLIM_KEEP		(~1ULL)
 
-#ifdef	__KERNEL__
-
-#ifdef	CONFIG_IA32_EMULATION
-
-struct	vcmd_ctx_rlimit_v0_x32 {
-	uint32_t id;
-	uint64_t minimum;
-	uint64_t softlimit;
-	uint64_t maximum;
-} __attribute__ ((aligned (4)));
-
-#endif	/* CONFIG_IA32_EMULATION */
-
-#include <linux/compiler.h>
-
-extern int vc_get_rlimit_mask(uint32_t, void __user *);
-extern int vc_get_rlimit(struct vx_info *, void __user *);
-extern int vc_set_rlimit(struct vx_info *, void __user *);
-extern int vc_reset_minmax(struct vx_info *, void __user *);
-
-extern int vc_rlimit_stat(struct vx_info *, void __user *);
-
-#ifdef	CONFIG_IA32_EMULATION
-
-extern int vc_get_rlimit_x32(struct vx_info *, void __user *);
-extern int vc_set_rlimit_x32(struct vx_info *, void __user *);
-
-#endif	/* CONFIG_IA32_EMULATION */
-
-#endif	/* __KERNEL__ */
 #endif	/* _VX_LIMIT_CMD_H */
