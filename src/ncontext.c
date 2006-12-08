@@ -183,7 +183,7 @@ doExternalSync(int fd, char const *msg)
 }
 
 static inline ALWAYSINLINE int
-doit(struct Arguments const *args, int argc, char *argv[])
+doit(struct Arguments const *args, char *argv[])
 {
   int			p[2][2];
   pid_t			pid = initSync(p, args->do_disconnect);
@@ -287,7 +287,7 @@ int main (int argc, char *argv[])
   else if (optind>=argc)
     WRITE_MSG(2, "No command given; use '--help' for more information.\n");
   else
-    return doit(&args, argc, argv);
+    return doit(&args, argv);
 
   return wrapper_exit_code;
 }
