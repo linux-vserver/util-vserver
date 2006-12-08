@@ -41,12 +41,16 @@ inline static ALWAYSINLINE void vc_noop0() {}
 #define CALL_VC_NOOP	vc_noop0()
 #define CALL_VC_GENERAL(ID, SUFFIX, FUNC, ...)				\
   VC_PREFIX; VC_SELECT(ID) return FUNC ## _ ## SUFFIX(__VA_ARGS__); VC_SUFFIX
+#define CALL_VC_GENERAL_CONFIG(BIT, SUFFIX, FUNC, ...)			\
+  VC_PREFIX; VC_CBIT(BIT)  return FUNC ## _ ## SUFFIX(__VA_ARGS__); VC_SUFFIX
 
 #ifdef VC_MULTIVERSION_SYSCALL
 #  define VC_SELECT(ID)	if (ver>=(ID))
+#  define VC_CBIT(BIT)  if ((conf&BIT) == BIT)
 #  define CALL_VC(...)					\
   do {							\
     int	ver = utilvserver_checkCompatVersion();		\
+    int UNUSED conf = utilvserver_checkCompatConfig();		\
     if (ver==-1) return -1;				\
     VC_SUFFIX, __VA_ARGS__, VC_PREFIX;			\
     errno = ENOSYS;					\
@@ -54,6 +58,7 @@ inline static ALWAYSINLINE void vc_noop0() {}
   } while (0)
 #else
 #  define VC_SELECT(ID) if (1)
+#  define VC_CBIT(BIT)  if (1)
 #  define CALL_VC(...)					\
   do {							\
     if (1) {} VC_SUFFIX, __VA_ARGS__, VC_PREFIX;	\
@@ -103,13 +108,17 @@ inline static ALWAYSINLINE void vc_noop0() {}
 #  define CALL_VC_V13OBS(F,...)	CALL_VC_NOOP
 #endif
 
-
 #ifdef VC_ENABLE_API_V21
 #  define CALL_VC_V21(F,...)	CALL_VC_GENERAL(0x00020100, v21, F, __VA_ARGS__)
 #else
 #  define CALL_VC_V21(F,...)	CALL_VC_NOOP
 #endif
 
+#ifdef VC_ENABLE_API_V21
+#  define CALL_VC_SPACES(F,...)	CALL_VC_GENERAL_CONFIG(VC_VCI_SPACES, spaces, F, __VA_ARGS__)
+#else
+#  define CALL_VC_SPACES(F,...)	CALL_VC_NOOP
+#endif
 
 #ifdef VC_ENABLE_API_NET
 #  define CALL_VC_NET(F,...)	CALL_VC_GENERAL(0x00010016, net, F, __VA_ARGS__)

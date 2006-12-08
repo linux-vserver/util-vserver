@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/types.h>
+#include <sched.h>
 
 #ifndef IS_DOXYGEN
 #if defined(__GNUC__)
@@ -252,6 +253,22 @@
 #define VC_VLIMIT_NSEMS			21
 #define VC_VLIMIT_DENTRY		22
 #define VC_VLIMIT_MAPPED		23
+
+
+// the VCI bit values
+#define VC_VCI_NO_DYNAMIC		(1 << 0)
+#define VC_VCI_SPACES			(1 << 10)
+
+
+#ifndef CLONE_NEWNS
+#  define CLONE_NEWNS			0x00020000
+#endif
+#ifndef CLONE_NEWUTS
+#  define CLONE_NEWUTS			0x04000000
+#endif
+#ifndef CLONE_NEWIPC
+#  define CLONE_NEWIPC			0x08000000
+#endif
 
 
 
@@ -608,9 +625,10 @@ extern "C" {
     /** Returns true iff \a xid is a dynamic xid */
   bool		vc_is_dynamic_xid(xid_t xid);
 
-  int		vc_enter_namespace(xid_t xid);
-  int		vc_set_namespace();
+  int		vc_enter_namespace(xid_t xid, uint_least64_t mask);
+  int		vc_set_namespace(xid_t xid, uint_least64_t mask);
   int		vc_cleanup_namespace();
+  uint_least64_t vc_get_space_mask();
 
   
   /** \brief    Flags of process-contexts

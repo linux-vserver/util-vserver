@@ -23,7 +23,9 @@
 #include "vserver.h"
 
 static inline ALWAYSINLINE int
-vc_enter_namespace_v13(xid_t xid)
+vc_enter_namespace_v13(xid_t xid, uint_least64_t mask)
 {
-  return vserver(VCMD_enter_namespace, CTX_USER2KERNEL(xid), 0);
+  if ((mask & (CLONE_NEWNS|CLONE_FS)) == 0)
+    return 0;
+  return vserver(VCMD_enter_space_v0, CTX_USER2KERNEL(xid), 0);
 }

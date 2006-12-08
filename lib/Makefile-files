@@ -121,7 +121,12 @@ lib_v21_SRCS =			lib/syscall_setccaps-v21.hc \
 				lib/syscall_virtstat.c \
 				lib/syscall_virtstat-v21.hc \
 				lib/syscall_ctxstat.c \
-				lib/syscall_ctxstat-v21.hc
+				lib/syscall_ctxstat-v21.hc \
+				lib/syscall_getspacemask.c \
+				lib/syscall_getspacemask-v21.hc \
+				lib/syscall_enternamespace-v21.hc \
+				lib/syscall_setnamespace-v21.hc \
+				lib/syscall_ctxmigrate-v21.hc
 
 if ENSC_HAVE_C99_COMPILER
 lib_v13_SRCS +=			lib/syscall_adddlimit-v13.hc \
@@ -138,6 +143,7 @@ PKGCONFIG_FILES =		lib/util-vserver
 
 lib_SRCS =  			lib/syscall.c \
 				lib/checkversion.c \
+				lib/checkconfig.c \
 				lib/isdirectory.c \
 				lib/isfile.c \
 				lib/islink.c \

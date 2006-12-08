@@ -21,7 +21,7 @@
 #endif
 
 static inline ALWAYSINLINE int
-vc_get_vci_v21()
+vc_get_vci_v21(int UNUSED tmp)
 {
   return vserver(VCMD_get_vci, 0, 0);
 }

@@ -38,6 +38,7 @@ char *	vc_getVserverByCtx_Internal(xid_t ctx, /*@null@*/vcCfgStyle *style,
 
   
 int	utilvserver_checkCompatVersion();
+uint_least32_t	utilvserver_checkCompatConfig();
 bool	utilvserver_isDirectory(char const *path, bool follow_link);
 bool	utilvserver_isFile(char const *path, bool follow_link);
 bool	utilvserver_isLink(char const *path);

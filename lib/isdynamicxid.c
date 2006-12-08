@@ -26,5 +26,5 @@
 bool
 vc_is_dynamic_xid(xid_t xid)
 {
-  return xid>=MIN_D_CONTEXT;
+  return vc_getXIDType(xid) == vcTYPE_DYNAMIC;
 }

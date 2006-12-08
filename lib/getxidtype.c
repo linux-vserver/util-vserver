@@ -21,14 +21,21 @@
 #endif
 
 #include "vserver.h"
-#include "virtual.h"
+#include "internal.h"
 
 vcXidType
 vc_getXIDType(xid_t xid)
 {
-  if (xid==0)                                  return vcTYPE_MAIN;
-  if (xid==1)                                  return vcTYPE_WATCH;
-  if (xid>1              && xid<MIN_D_CONTEXT) return vcTYPE_STATIC;
-  if (xid>=MIN_D_CONTEXT && xid<MAX_S_CONTEXT) return vcTYPE_DYNAMIC;
+  static xid_t	MIN_D_CONTEXT = 0;
+  const xid_t	MAX_S_CONTEXT = 65535;
+  if (MIN_D_CONTEXT == 0 && (utilvserver_checkCompatConfig() & VC_VCI_NO_DYNAMIC) == 0)
+    MIN_D_CONTEXT = 49152;
+  else
+    MIN_D_CONTEXT = MAX_S_CONTEXT;
+
+  if (xid==0)					return vcTYPE_MAIN;
+  if (xid==1)					return vcTYPE_WATCH;
+  if (xid>1              && xid<MIN_D_CONTEXT)	return vcTYPE_STATIC;
+  if (xid>=MIN_D_CONTEXT && xid<MAX_S_CONTEXT)	return vcTYPE_DYNAMIC;
   return vcTYPE_INVALID;
 }

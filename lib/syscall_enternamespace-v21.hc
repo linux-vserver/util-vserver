@@ -1,6 +1,7 @@
-// $Id$    --*- c++ -*--
+// $Id$    --*- c -*--
 
 // Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2006 Daniel Hokka Zakrisson
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,26 +22,10 @@
 #endif
 
 #include "vserver.h"
-#include "virtual.h"
 
-#if defined(VC_ENABLE_API_V13) && defined(VC_ENABLE_API_V21)
-#  define VC_MULTIVERSION_SYSCALL 1
-#endif
-#include "vserver-internal.h"
-
-#ifdef VC_ENABLE_API_V13
-#  include "syscall_setnamespace-v13.hc"
-#endif
-
-#ifdef VC_ENABLE_API_V21
-#  include "syscall_setnamespace-v21.hc"
-#endif
-
-#if defined(VC_ENABLE_API_V13) || defined(VC_ENABLE_API_V21)
-int
-vc_set_namespace(xid_t xid, uint_least64_t mask)
+static inline ALWAYSINLINE int
+vc_enter_namespace_spaces(xid_t xid, uint_least64_t mask)
 {
-  CALL_VC(CALL_VC_SPACES(vc_set_namespace, xid, mask),
-	  CALL_VC_V13   (vc_set_namespace, xid, mask));
+  struct vcmd_space_mask data = { .mask = mask };
+  return vserver(VCMD_enter_space, CTX_USER2KERNEL(xid), &data);
 }
-#endif

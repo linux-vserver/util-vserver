@@ -36,13 +36,6 @@
 #define ENSC_WRAPPERS_VSERVER	1
 #include <wrappers.h>
 
-#ifndef CLONE_NEWUTS
-#  define CLONE_NEWUTS		0x04000000
-#endif
-#ifndef CLONE_NEWIPC
-#  define CLONE_NEWIPC		0x08000000
-#endif
-
 #define CMD_HELP		0x1000
 #define CMD_VERSION		0x1001
 
@@ -102,9 +95,9 @@ newNamespace(char const *cmd)
   signal(SIGCHLD, SIG_DFL);
   
 #ifdef NDEBUG    
-  pid = sys_clone(CLONE_NEWNS|CLONE_NEWUTS|CLONE_NEWIPC|CLONE_VFORK|SIGCHLD, 0);
+  pid = sys_clone(CLONE_NEWNS|CLONE_VFORK|SIGCHLD, 0);
 #else
-  pid = sys_clone(CLONE_NEWNS|CLONE_NEWUTS|CLONE_NEWIPC|SIGCHLD, 0);
+  pid = sys_clone(CLONE_NEWNS|SIGCHLD, 0);
 #endif
 
   switch (pid) {
@@ -119,18 +112,18 @@ newNamespace(char const *cmd)
 }
 
 static void
-enterNamespace(xid_t xid)
+enterNamespace(xid_t xid, uint_least64_t mask)
 {
-  if (vc_enter_namespace(xid)==-1) {
+  if (vc_enter_namespace(xid, mask)==-1) {
     perror("vnamespace: vc_enter_namespace()");
     exit(255);
   }
 }
 
 static void
-setNamespace()
+setNamespace(xid_t xid, uint_least64_t mask)
 {
-  if (vc_set_namespace()==-1) {
+  if (vc_set_namespace(xid, mask)==-1) {
     perror("vnamespace: vc_set_namespace()");
     exit(255);
   }
@@ -189,9 +182,9 @@ int main(int argc, char *argv[])
     WRITE_MSG(2, "No command specified; try '--help' for more information\n");
   else {
     if      (do_new)     newNamespace(argv[optind]);
-    else if (do_set)     setNamespace();
+    else if (do_set)     setNamespace(VC_SAMECTX, CLONE_NEWNS|CLONE_FS);
     else if (do_cleanup) cleanupNamespace();
-    else if (do_enter)   enterNamespace(xid);
+    else if (do_enter)   enterNamespace(xid, CLONE_NEWNS|CLONE_FS);
 
     if (optind<argc)
       EexecvpD(argv[optind], argv+optind);

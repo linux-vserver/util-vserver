@@ -1,6 +1,7 @@
 // $Id$    --*- c++ -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2006 Daniel Hokka Zakrisson
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,26 +22,24 @@
 #endif
 
 #include "vserver.h"
-#include "virtual.h"
-
-#if defined(VC_ENABLE_API_V13) && defined(VC_ENABLE_API_V21)
-#  define VC_MULTIVERSION_SYSCALL 1
-#endif
 #include "vserver-internal.h"
 
-#ifdef VC_ENABLE_API_V13
-#  include "syscall_setnamespace-v13.hc"
-#endif
-
-#ifdef VC_ENABLE_API_V21
-#  include "syscall_setnamespace-v21.hc"
-#endif
-
-#if defined(VC_ENABLE_API_V13) || defined(VC_ENABLE_API_V21)
-int
-vc_set_namespace(xid_t xid, uint_least64_t mask)
+uint_least32_t
+utilvserver_checkCompatConfig()
 {
-  CALL_VC(CALL_VC_SPACES(vc_set_namespace, xid, mask),
-	  CALL_VC_V13   (vc_set_namespace, xid, mask));
-}
+#ifdef VC_ENABLE_API_V21
+  static uint32_t	res=0;
+  static int		v_errno;
+
+  if (res==0) {
+    res     = vc_get_vci();
+    v_errno = errno;
+    if (res==(uint32_t)-1 && (errno==ENOSYS || errno==EINVAL)) res=0;
+  }
+
+  errno = v_errno;
+  return res;
+#else
+  return 0;
 #endif
+}

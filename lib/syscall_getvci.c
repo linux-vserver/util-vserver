@@ -33,7 +33,7 @@
 int
 vc_get_vci()
 {
-  CALL_VC(CALL_VC_V21(vc_get_vci));
+  CALL_VC(CALL_VC_V21(vc_get_vci, 0));
 }
 
 #endif

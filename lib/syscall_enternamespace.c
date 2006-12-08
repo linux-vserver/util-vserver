@@ -23,14 +23,24 @@
 #include "vserver.h"
 #include "virtual.h"
 
+#if defined(VC_ENABLE_API_V13) && defined(VC_ENABLE_API_V21)
+#  define VC_MULTIVERSION_SYSCALL 1
+#endif
 #include "vserver-internal.h"
 
 #ifdef VC_ENABLE_API_V13
 #  include "syscall_enternamespace-v13.hc"
 #endif
 
+#ifdef VC_ENABLE_API_V21
+#  include "syscall_enternamespace-v21.hc"
+#endif
+
+#if defined(VC_ENABLE_API_V13) || defined(VC_ENABLE_API_V21)
 int
-vc_enter_namespace(xid_t xid)
+vc_enter_namespace(xid_t xid, uint_least64_t mask)
 {
-  CALL_VC(CALL_VC_V13(vc_enter_namespace, xid));
+  CALL_VC(CALL_VC_SPACES(vc_enter_namespace, xid, mask),
+	  CALL_VC_V13   (vc_enter_namespace, xid, mask));
 }
+#endif

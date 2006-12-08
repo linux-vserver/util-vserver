@@ -1,6 +1,7 @@
-// $Id$    --*- c++ -*--
+// $Id$    --*- c -*--
 
 // Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2006 Daniel Hokka Zakrisson
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,27 +21,14 @@
 #  include <config.h>
 #endif
 
-#include "vserver.h"
-#include "virtual.h"
-
-#if defined(VC_ENABLE_API_V13) && defined(VC_ENABLE_API_V21)
-#  define VC_MULTIVERSION_SYSCALL 1
-#endif
-#include "vserver-internal.h"
-
-#ifdef VC_ENABLE_API_V13
-#  include "syscall_setnamespace-v13.hc"
-#endif
-
-#ifdef VC_ENABLE_API_V21
-#  include "syscall_setnamespace-v21.hc"
-#endif
-
-#if defined(VC_ENABLE_API_V13) || defined(VC_ENABLE_API_V21)
-int
-vc_set_namespace(xid_t xid, uint_least64_t mask)
+static inline ALWAYSINLINE int
+vc_ctx_migrate_spaces(xid_t xid)
 {
-  CALL_VC(CALL_VC_SPACES(vc_set_namespace, xid, mask),
-	  CALL_VC_V13   (vc_set_namespace, xid, mask));
+  int ret;
+
+  ret = vc_enter_namespace(xid, vc_get_space_mask() & ~(CLONE_NEWNS|CLONE_FS));
+  if (ret)
+    return ret;
+
+  return vserver(VCMD_ctx_migrate_v0, CTX_USER2KERNEL(xid), NULL);
 }
-#endif
