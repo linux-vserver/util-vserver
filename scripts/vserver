@@ -206,6 +206,9 @@ test "$2" != enter -a "$2" != stop || \
     ! isVserverRunning "$VSERVER_DIR" || \
     exec $_VNAMESPACE --enter "$VSERVER_DIR" -- $_VSERVER ----nonamespace "${OPTIONS_ORIG[@]}"
 
+set_init_cwd
+cd /
+
 . $__PKGLIBDIR/vserver.functions
 case "$2" in
     (start|stop|delete)

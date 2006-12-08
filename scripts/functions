@@ -268,13 +268,27 @@ function unlock
     _VS_LOCKS="$@"
 }
 
+function get_init_cwd
+{
+    if test -n "$INIT_CWD"; then
+	echo "$INIT_CWD"
+    else
+	pwd
+    fi
+}
+function set_init_cwd
+{
+    INIT_CWD="`pwd`"
+    export INIT_CWD
+}
+
 function _getVserverDir
 {
     local vserver="$1"
     case "$vserver" in
-	./*) VSERVER_DIR=`pwd`/$vserver     ;;
-	/*)  VSERVER_DIR=$vserver           ;;
-	*)   VSERVER_DIR=$__CONFDIR/$vserver;;
+	./*) VSERVER_DIR="`get_init_cwd`/$vserver";;
+	/*)  VSERVER_DIR="$vserver"               ;;
+	*)   VSERVER_DIR="$__CONFDIR/$vserver"    ;;
     esac
 }
 
