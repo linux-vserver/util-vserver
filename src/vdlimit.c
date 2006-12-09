@@ -21,7 +21,6 @@
 #endif
 
 #include "util.h"
-#include <lib_internal/sys_clone.h>
 #include <lib/internal.h>
 
 #include <vserver.h>

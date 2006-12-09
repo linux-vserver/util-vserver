@@ -23,10 +23,6 @@
 #include "lib/syscall-wrap.h"
 #define __NR__sys_clone		__NR_clone
 
-#ifndef CLONE_NEWNS
-#  define CLONE_NEWNS 0x00020000
-#endif
-
 #ifndef ENSC_SYSCALL_TRADITIONAL
 #  include <errno.h>
 

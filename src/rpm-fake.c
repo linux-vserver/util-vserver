@@ -66,10 +66,6 @@ int rpm_execcon(unsigned int verified,
 #undef _POSIX_SOURCE
 #include "capability-compat.h"
 
-#ifndef CLONE_NEWNS
-#  define CLONE_NEWNS	0x00020000
-#endif
-
 #define LIBNAME		"rpm-fake.so"
 #define PLATFORM_FILE	"/etc/rpm/platform"
 
