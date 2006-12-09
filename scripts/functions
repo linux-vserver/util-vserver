@@ -636,13 +636,17 @@ function getFileValue
     eval read "$_gfv_var" <"$_gfv_file"
 }
 
-## Called as 'getFileArray <varname> <filename>'
+## Called as 'getFileArray <varname> <filename>+'
 function getFileArray
 {
-    test -r "$2" || return 1
-    
+    local _gfa_var=$1
+    local _gfa_file
+    shift
+
+    findFile _gfa_file "$@" ''
+    test -n "$_gfa_file" -a -r "$_gfa_file" || return 0
     local IFS=$_VS_NEWLINE
-    eval "$1"='( $(< "$2") )'
+    eval "$_gfa_var"='( $(< "$_gfa_file") )'
 }
 
 function checkComponents
