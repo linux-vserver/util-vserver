@@ -1,3 +1,17 @@
+version 0.30.212
+================
+	- support for the Linux-VServer 2.1 API has been implemented.
+
+	- the scheduler configuration has been split up into multiple files.
+
+	- namespace cleanup is enabled by default. This can be disabled by
+	touch ${sysconfdir}/vservers/.defaults/nonamespace-cleanup
+
+	- all unset ulimits are now reset to infinity, so limits are no longer
+	inherited from the host.
+
+	- much improved Gentoo support, thanks to Benedikt Böhm.
+
 version 0.30.211
 ================
 
