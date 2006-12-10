@@ -127,17 +127,11 @@ diff -Nurp yum-2.9.6.orig/yum/__init__.py yum-2.9.6/yum/__init__.py
  
              if os.path.isdir(reposdir):
                  #XXX: why can't we just pass the list of files?
-@@ -502,16 +501,20 @@ class YumBase(depsolve.Depsolve):
+@@ -502,16 +501,14 @@ class YumBase(depsolve.Depsolve):
              
          self.verbose_logger.log(logginglevels.INFO_2, 'Finished')
          
 -    def doLock(self, lockfile):
-+    def __getLockfileName(self):
-+        lockfile = self.conf.lockfile
-+        return self.conf.getRootedPath(lockfile,
-+                                       enforce_default  = True,
-+                                       defaults_to_host = False)
-+        
 +    def doLock(self):
          """perform the yum locking, raise yum-based exceptions, not OSErrors"""
          
@@ -148,7 +142,7 @@ diff -Nurp yum-2.9.6.orig/yum/__init__.py yum-2.9.6/yum/__init__.py
 -        root = self.conf.installroot
 -        lockfile = root + '/' + lockfile # lock in the chroot
 -        lockfile = os.path.normpath(lockfile) # get rid of silly preceding extra /
-+        lockfile = self.__getLockfileName()
++        lockfile = self.conf.lockfile
          
          mypid=str(os.getpid())    
          while not self._lock(lockfile, mypid, 0644):
@@ -166,7 +160,7 @@ diff -Nurp yum-2.9.6.orig/yum/__init__.py yum-2.9.6/yum/__init__.py
          
 -        root = self.conf.installroot
 -        lockfile = root + '/' + lockfile # lock in the chroot
-+        lockfile=self.__getLockfileName()
++        lockfile=self.conf.lockfile
          
          self._unlock(lockfile)
          

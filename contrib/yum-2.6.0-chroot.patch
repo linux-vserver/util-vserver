@@ -48,17 +48,11 @@
  
              if os.path.isdir(reposdir):
                  #XXX: why can't we just pass the list of files?
-@@ -482,16 +481,20 @@
+@@ -482,16 +481,14 @@
              
          self.log(2, 'Finished')
          
 -    def doLock(self, lockfile):
-+    def __getLockfileName(self):
-+        lockfile = self.conf.lockfile
-+        return self.conf.getRootedPath(lockfile,
-+                                       enforce_default  = True,
-+                                       defaults_to_host = False)
-+        
 +    def doLock(self):
          """perform the yum locking, raise yum-based exceptions, not OSErrors"""
          
@@ -69,7 +63,7 @@
 -        root = self.conf.installroot
 -        lockfile = root + '/' + lockfile # lock in the chroot
 -        lockfile = os.path.normpath(lockfile) # get rid of silly preceding extra /
-+        lockfile = self.__getLockfileName()
++        lockfile = self.conf.lockfile
          
          mypid=str(os.getpid())    
          while not self._lock(lockfile, mypid, 0644):
@@ -87,7 +81,7 @@
          
 -        root = self.conf.installroot
 -        lockfile = root + '/' + lockfile # lock in the chroot
-+        lockfile=self.__getLockfileName()
++        lockfile=self.conf.lockfile
          
          self._unlock(lockfile)
          
