@@ -844,9 +844,11 @@ function vshelper.doSanityCheck
 	vshelper=$(cat "$proc_file")
 
 	$_CMP -s "$vshelper" "$_VSHELPER" || {
+	    local readable=""
+	    test -r "$vshelper" && readable=1
 	    warnings=( "${warnings[@]}"
 		       $"The configured vshelper '$vshelper' does not match the 'vshelper'
-  script of the util-vserver package"
+  script of the util-vserver package.${readable:+ Maybe you have two versions installed?}"
 		     )
 	    solution_disable=1
 	    solution_sysctl=1
