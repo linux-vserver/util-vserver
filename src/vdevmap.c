@@ -123,6 +123,8 @@ int main(int argc, char *argv[])
 
   if (xid==VC_NOCTX)
     WRITE_MSG(2, "No xid specified; try '--help' for more information\n");
+  else if (optind!=argc)
+    WRITE_MSG(2, "Unused argument(s); try '--help' for more information\n");
   else if (vc_set_mapping(xid, device, target, flags)==-1)
       perror("vc_set_mapping()");
   else
