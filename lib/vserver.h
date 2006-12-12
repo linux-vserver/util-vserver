@@ -260,6 +260,13 @@
 #define VC_VCI_SPACES			(1 << 10)
 
 
+// the device mapping flags
+#define VC_DATTR_CREATE			0x00000001
+#define VC_DATTR_OPEN			0x00000002
+
+#define VC_DATTR_REMAP			0x00000010
+
+
 #ifndef CLONE_NEWNS
 #  define CLONE_NEWNS			0x00020000
 #endif
@@ -849,6 +856,8 @@ extern "C" {
    *  \ingroup syscalls
    */
   int		vc_wait_exit(xid_t xid);
+
+  int		vc_set_mapping(xid_t xid, const char *device, const char *target, uint32_t flags);
     
   typedef enum { vcFEATURE_VKILL,  vcFEATURE_IATTR,   vcFEATURE_RLIMIT,
 		 vcFEATURE_COMPAT, vcFEATURE_MIGRATE, vcFEATURE_NAMESPACE,

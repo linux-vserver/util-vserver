@@ -1,6 +1,7 @@
 // $Id$    --*- c -*--
 
 // Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2006 Daniel Hokka Zakrisson
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,22 +17,22 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifndef H_UTIL_VSERVER_LIB_VIRTUAL_H
-#define H_UTIL_VSERVER_LIB_VIRTUAL_H
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 
-#include <kernel/context_cmd.h>
-#include <kernel/cvirt_cmd.h>
-#include <kernel/cvirt_cmd.h>
-#include <kernel/dlimit_cmd.h>
-#include <kernel/inode_cmd.h>
-#include <kernel/limit_cmd.h>
-#include <kernel/space_cmd.h>
-#include <kernel/network.h>
-#include <kernel/network_cmd.h>
-#include <kernel/sched_cmd.h>
-#include <kernel/signal_cmd.h>
-#include <kernel/device_cmd.h>
+#include "vserver.h"
+#include "vserver-internal.h"
+#include "virtual.h"
 
-#include <kernel/legacy.h>
+#if defined(VC_ENABLE_API_V21)
+#  include "syscall_setmapping-v21.hc"
+#endif
 
-#endif	//  H_UTIL_VSERVER_LIB_VIRTUAL_H
+#if defined(VC_ENABLE_API_V21)
+int
+vc_set_mapping(xid_t xid, const char *device, const char *target, uint32_t flags)
+{
+  CALL_VC(CALL_VC_V21(vc_set_mapping, xid, device, target, flags));
+}
+#endif

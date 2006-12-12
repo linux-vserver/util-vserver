@@ -77,7 +77,8 @@ DIETPROGS +=		src/chcontext-compat \
 			src/vwait \
 			src/ncontext \
 			src/nattribute \
-			src/naddress
+			src/naddress \
+			src/vdevmap
 
 if ENSC_CAN_BEECRYPT_WITH_DIETLIBC
 DIETPROGS +=		src/vhashify
@@ -154,6 +155,7 @@ sbin_PROGRAMS +=	src/exec-cd \
 			src/ncontext \
 			src/nattribute \
 			src/naddress \
+			src/vdevmap \
 			$(src_sbin_CXX_X_PROGS)
 
 if ENSC_HAVE_C99_COMPILER
@@ -318,6 +320,10 @@ src_nattribute_LDFLAGS		= $(VSERVER_LDFLGS)
 src_naddress_SOURCES		= src/naddress.c
 src_naddress_LDADD		= $(VSERVER_LDADDS) $(LIBINTERNAL)
 src_naddress_LDFLAGS		= $(VSERVER_LDFLGS)
+
+src_vdevmap_SOURCES		= src/vdevmap.c
+src_vdevmap_LDADD		= $(VSERVER_LDADDS) $(LIBINTERNAL)
+src_vdevmap_LDFLAGS		= $(VSERVER_LDFLGS)
 
 EXTRA_PROGRAMS +=		$(src_sbin_CXX_PROGS) $(src_pkglib_CXX_PROGS)
 
