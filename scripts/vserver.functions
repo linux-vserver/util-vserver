@@ -554,20 +554,20 @@ function _processSingleInterface
 	## LEGACY ALERT
 	test ! -e "$iface"/only_ip || break
 
-	local vlan_info
-	if vlan_info=$(_getVLANInfo "$dev"); then
-	    test -d /proc/net/vlan || {
-		echo -e $"VLAN device-name used, but vlan subsystem not enabled.\nTry to execute 'modprobe 8021q' before starting the vservers"  >&2
-		return 1
-	    }
-	    test -e "$iface/vlandev" \
-		 -o \( -e "$iface/../vlandev" -a ! -e "$iface/novlandev" \) \
-		 -o \( -e "$__CONFDIR/.defaults/interfaces/vlandev" \
-		       -a ! -e "$iface/novlandev" \
-		       -a ! -e "$iface/../novlandev" \) && {
+	test -e "$iface/vlandev" \
+	     -o \( -e "$iface/../vlandev" -a ! -e "$iface/novlandev" \) \
+	     -o \( -e "$__CONFDIR/.defaults/interfaces/vlandev" \
+		   -a ! -e "$iface/novlandev" \
+		   -a ! -e "$iface/../novlandev" \) && {
+	    local vlan_info
+	    if vlan_info=$(_getVLANInfo "$dev"); then
+		test -d /proc/net/vlan || {
+		    echo -e $"VLAN device-name used, but vlan subsystem not enabled.\nTry to execute 'modprobe 8021q' before starting the vservers"  >&2
+		    return 1
+		}
 		_addInterfaceCmd VCONFIG $vlan_info
-	    }
-	fi
+	    fi
+	}
 
 	if ! test -e "$iface"/indirect; then
 	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" broadcast ${bcast:-+} ${name:+label "$dev:$name"} dev "$dev"
