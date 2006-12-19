@@ -39,6 +39,7 @@
 #define CMD_UNSET_HIDE		0x8023
 #define CMD_UNSET_BARRIER	0x8024
 #define CMD_UNSET_IMMUX		0x8025
+#define CMD_UNSET_IMMUTABLE	0x8026
 
 
 struct stat;

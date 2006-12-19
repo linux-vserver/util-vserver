@@ -58,6 +58,9 @@ CMDLINE_OPTIONS[] = {
   { "iunlink-but-not-immutable",   no_argument, 0, CMD_IMMUX },
   { "~iunlink-but-not-immutable",  no_argument, 0, CMD_UNSET_IMMUX },
   { "!iunlink-but-not-immutable",  no_argument, 0, CMD_UNSET_IMMUX },
+  { "immutable",   no_argument, 0, CMD_IMMUTABLE },
+  { "~immutable",  no_argument, 0, CMD_UNSET_IMMUTABLE },
+  { "!immutable",  no_argument, 0, CMD_UNSET_IMMUTABLE },
   { 0,0,0,0 }
 };
 
