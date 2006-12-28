@@ -26,40 +26,7 @@ test -n "$MARK" || MARK=default
 : ${LOCKFILE:=vservers-$MARK}
 : ${NUMPARALLEL:=6}
 
-
-if test -e /etc/init.d/functions; then
-    . /etc/init.d/functions
-    _beginResult() { echo -n "$@ ..."; }
-    _postResult() { echo; }
-    lockfile=/var/lock/subsys/$LOCKFILE
-elif test -e /etc/gentoo-release; then
-    . /sbin/functions.sh
-    _beginResult() { ebegin "$@"; }
-    _postResult() { :; }
-    success() { eend 0; }
-    passed()  { eend 0; }
-    failure() { eend 1; }
-    lockfile=/var/lock/vservers/$LOCKFILE
-else
-    _beginResult() { echo -n "$@ ..."; }
-    _postResult() { :; }
-    success() { echo .; }
-    passed()  { echo .; }
-    failure() { echo ERROR; }
-    lockfile=/var/run/$LOCKFILE
-fi
-
-function _endResult()
-{
-    local rc=$1
-    case "$rc" in
-	(0)	success;;
-	(2)	passed; rc=0;;
-	(*)	failure;;
-    esac
-    _postResult
-    return $rc
-}
+. "$_LIB_VSERVER_INIT_FUNCTIONS"
 
 function start()
 {

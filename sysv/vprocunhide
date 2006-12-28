@@ -14,36 +14,23 @@ test -e "$UTIL_VSERVER_VARS" || {
 
 $_VSERVER_INFO - FEATURE iattr || exit 0
 
-f=/etc/rc.d/init.d/functions
-if test -e "$f"; then
-    . "$f"
-    lockfile=/var/lock/subsys/vprocunhide
-else
-    success() { echo .; }
-    passed()  { echo .; }
-    failure() { echo ERROR; }
-    lockfile=/var/run/vprocunhide
-fi
+LOCKFILE=vprocunhide
+. "$_LIB_VSERVER_INIT_FUNCTIONS"
 
 
 function start()
 {
-    echo -n $"Fixing /proc entries visibility..."
+    _beginResult $"Fixing /proc entries visibility"
     $_VPROCUNHIDE
-    retval=$?
-    case "$retval" in
-	0)	success;;
-	2)	passed; retval=0;;
-	*)	failure;
-    esac
-    echo
+    _endResult $?
+    local retval=$?
     test "$retval" -ne 0 || touch "$lockfile"
     return $retval
 }
 
 function stop()
 {
-    rm -f "$lockfile"
+    $_RM -f "$lockfile"
 }
 
 function restart()

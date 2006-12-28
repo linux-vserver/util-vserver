@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+# util-vserver  sets the path to vshelper and kills all guest processes
+#
+# chkconfig: 2345 10 90
+# description: Sets the path to vshelper and kills all guest processes
+
+: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo $"Can not find util-vserver installation (the file '$UTIL_VSERVER_VARS' would be expected); aborting..." >&2
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+
+LOCKFILE=util-vserver
+. "$_LIB_VSERVER_INIT_FUNCTIONS"
+
+
+function set_helper()
+{
+    local f="/proc/sys/kernel/vshelper"
+    if test -e "$f"; then
+	echo "$_VSHELPER" > "$f"
+	return 0
+    else
+	return 2
+    fi
+}
+
+function kill_contexts()
+{
+    for xid in `ls -1 /proc/virtual`; do
+	test "$xid" = "info" -o "$xid" = "status" && continue
+	$_VATTRIBUTE --xid $xid --set --flag ~persistent
+	$_VKILL --xid $xid -s 15
+	sleep 3
+	$_VKILL --xid $xid -s 9
+    done
+}
+
+function start()
+{
+    _beginResult $"Setting path to vshelper"
+    set_helper
+    _endResult $?
+    local retval=$?
+    test "$retval" -ne 0 || touch "$lockfile"
+    return $retval
+}
+
+function stop()
+{
+    # Stop all running, but non-default guests"
+    _beginResult $"Stopping all running guests"
+    $_START_VSERVERS -j 1 --all --stop
+    _endResult $?
+    local retval=$?
+    _beginResult $"Killing all running contexts"
+    kill_contexts
+    _endResult $?
+    $_RM -f "$lockfile"
+}
+
+function restart()
+{
+    stop
+    start
+}
+
+case "$1" in
+    start|stop|restart)	$1;;
+    reload)		;;
+    condrestart)
+	test -f $lockfile && restart || :
+	;;
+    status)
+	test -f $lockfile && {
+	    echo $"/proc entries were fixed"
+	    exit 0
+	}
+	echo $"/proc entries are not fixed"
+	exit 1
+	;;
+    *)
+        echo "Usage: $0 {start|stop|reload|restart|condrestart|status}"
+	exit 2
+	;;
+esac

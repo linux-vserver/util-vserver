@@ -23,6 +23,7 @@ base   @PKGLIBDIR@/vserver.start
 base   @PKGLIBDIR@/vserver.stop
 base   @PKGLIBDIR@/vserver.suexec
 base   @PKGLIBDIR@/vserver.delete
+sysv   @PKGLIBDIR@/vserver-init.functions
 core   @PKGLIBDIR@/util-vserver-vars
 build  @PKGLIBDIR@/rpm-fake.so
 legacy @LEGACYDIR@/save_s_context
@@ -139,6 +140,7 @@ legacy @CONFIG@ @INITRDDIR@/v_sshd
 legacy @CONFIG@ @INITRDDIR@/v_xinetd
 sysv   @CONFIG@ @INITRDDIR@/vprocunhide
 sysv   @CONFIG@ @INITRDDIR@/vservers-default
+sysv   @CONFIG@ @INITRDDIR@/util-vserver
 legacy @CONFIG@ @INITRDDIR@/rebootmgr
 legacy @CONFIG@ @INITRDDIR@/vservers-legacy
 legacy @CONFIG_NOREPLACE@ @SYSCONFDIR@/vservers.conf

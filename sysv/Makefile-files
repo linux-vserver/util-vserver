@@ -24,7 +24,8 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT +=	\
 sysv_src_SCRPTS =	sysv/rebootmgr \
 			sysv/vprocunhide \
 			sysv/vservers-default \
-			sysv/vservers-legacy
+			sysv/vservers-legacy \
+			sysv/util-vserver
 sysv_gen_SCRPTS =	sysv/v_gated \
 			sysv/v_httpd \
 			sysv/v_named \

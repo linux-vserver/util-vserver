@@ -57,7 +57,8 @@ scripts_pkglib_src_DTA =	scripts/functions \
 				scripts/vserver.start \
 				scripts/vserver.stop \
 				scripts/vserver.suexec \
-				scripts/vserver.delete
+				scripts/vserver.delete \
+				scripts/vserver-init.functions
 
 scripts_pkglib_gen_DTA =	scripts/util-vserver-vars
 

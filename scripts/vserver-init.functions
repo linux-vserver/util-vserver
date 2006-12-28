@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+if test -e /etc/init.d/functions; then
+    . /etc/init.d/functions
+    _beginResult() { echo -n "$@..."; }
+    _postResult() { echo; }
+    lockfile=/var/lock/subsys/$LOCKFILE
+elif test -e /etc/gentoo-release; then
+    . /sbin/functions.sh
+    _beginResult() { ebegin "$@"; }
+    _postResult() { :; }
+    success() { eend 0; }
+    passed()  { eend 0; }
+    failure() { eend 1; }
+    lockfile=/var/lock/vservers/$LOCKFILE
+else
+    _beginResult() { echo -n "$@..."; }
+    _postResult() { :; }
+    success() { echo .; }
+    passed()  { echo .; }
+    failure() { echo ERROR; }
+    lockfile=/var/run/$LOCKFILE
+fi
+
+function _endResult()
+{
+    local rc=$1
+    case "$rc" in
+	(0)	success;;
+	(2)	passed; rc=0;;
+	(*)	failure;;
+    esac
+    _postResult
+    return $rc
+}
