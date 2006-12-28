@@ -3,6 +3,8 @@
 ## This package understands the following switches:
 ## --without dietlibc        ...   disable usage of dietlibc
 ## --with xalan              ...   require/use the xalan xslt processor
+## --without doc             ...   disable doc generation
+## --with legacy             ...   enable the legacy APIs
 
 %global confdir		%_sysconfdir/vservers
 %global confdefaultdir	%confdir/.defaults
@@ -33,7 +35,7 @@ Obsoletes:	vserver < %version
 BuildRequires:	mount vconfig gawk iproute iptables
 BuildRequires:	gcc-c++ wget which diffutils
 BuildRequires:	e2fsprogs-devel beecrypt-devel
-BuildRequires:	doxygen tetex-latex
+%{!?_without_doc:BuildRequires:	doxygen tetex-latex}
 Requires(post):		%name-core
 Requires(pre):		%pkglibdir
 Requires(postun):	%pkglibdir
@@ -165,10 +167,11 @@ develop VServer related applications.
 
 %build
 %configure --with-initrddir=%_initrddir --enable-release \
-           %{?_without_dietlibc:--disable-dietlibc}
+           %{?_without_dietlibc:--disable-dietlibc} \
+           %{?_with_legacy:--enable-apis=NOLEGACY}
 
 %__make %{?_smp_mflags} all
-%__make %{?_smp_mflags} doc
+%{!?_without_doc:%__make %{?_smp_mflags} doc}
 
 
 %install
@@ -339,8 +342,8 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 
 %files devel -f %name-devel.list
 %defattr(-,root,root,-)
-%doc lib/apidoc/latex/refman.pdf
-%doc lib/apidoc/html
+%{!?_without_doc:%doc lib/apidoc/latex/refman.pdf}
+%{!?_without_doc:%doc lib/apidoc/html}
 
 
 %changelog
