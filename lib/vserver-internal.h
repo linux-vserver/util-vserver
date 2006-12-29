@@ -50,7 +50,7 @@ inline static ALWAYSINLINE void vc_noop0() {}
 #  define CALL_VC(...)					\
   do {							\
     int	ver = utilvserver_checkCompatVersion();		\
-    int UNUSED conf = utilvserver_checkCompatConfig();		\
+    uint_least32_t conf = utilvserver_checkCompatConfig();	\
     if (ver==-1) return -1;				\
     VC_SUFFIX, __VA_ARGS__, VC_PREFIX;			\
     errno = ENOSYS;					\
