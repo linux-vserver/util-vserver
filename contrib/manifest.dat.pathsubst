@@ -95,6 +95,7 @@ core   @SBINDIR@/showattr
 build  @SBINDIR@/vapt-get
 core   @SBINDIR@/vattribute
 core   @SBINDIR@/vcontext
+core   @SBINDIR@/vdevmap
 build  @SBINDIR@/vdispatch-conf
 core   @SBINDIR@/vdlimit
 base   @SBINDIR@/vdu
