@@ -137,6 +137,11 @@ AC_ARG_VAR(CC, [The C compiler])
 ENSC_INITRDDIR(initrddir)
 ENSC_RELEASE(RELEASE_CPPFLAGS)
 
+# HACK: This needs to be before ENSC_DIETLIBC_NEED_COMPAT, or the alternative
+# syscalls will never be enabled for glibc.
+ENSC_SYSCALLNR(vserver,273,[lib/syscall-fallback.h])
+ENSC_SYSCALL
+
 dnl ###########################
 dnl
 dnl {some dietlibc related tests
@@ -278,8 +283,6 @@ dnl
 dnl ##########################
 
 
-ENSC_SYSCALLNR(vserver,273,[lib/syscall-fallback.h])
-ENSC_SYSCALL
 ENSC_CHECK_EXT2FS_HEADER
 AC_CHECK_FUNCS([vserver])
 AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
