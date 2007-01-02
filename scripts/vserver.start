@@ -153,7 +153,7 @@ else
     fi
     
     ${NICE_CMD[@]} \
-    $_CHBIND_COMPAT    "${CHBIND_OPTS[@]}" \
+    $_CHBIND           "${CHBIND_OPTS[@]}" \
     $_EXEC_ULIMIT      "$VSERVER_DIR/ulimits" \
     $_CHCONTEXT_COMPAT "${CHCONTEXT_OPTS[@]}" "${CHCONTEXT_INIT_OPTS[@]}" \
     $_SAVE_CTXINFO     "$VSERVER_DIR" \
