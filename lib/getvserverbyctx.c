@@ -37,10 +37,13 @@ vc_getVserverByCtx_Internal(xid_t ctx, /*@null@*/vcCfgStyle *style,
 			    /*@null@*/char const *revdir,
 			    bool validate_result)
 {
-  if (vc_isSupported(vcFEATURE_MIGRATE))
-    return vc_getVserverByCtx_v13(ctx, style, revdir, validate_result);
-  else
-    return vc_getVserverByCtx_compat(ctx, style, revdir, validate_result);
+  char *ret;
+  if (vc_isSupported(vcFEATURE_MIGRATE)) {
+    ret = vc_getVserverByCtx_v13(ctx, style, revdir, validate_result);
+    if (ret)
+      return ret;
+  }
+  return vc_getVserverByCtx_compat(ctx, style, revdir, validate_result);
 }
 
 char *
