@@ -82,10 +82,10 @@ case "$1" in
 	;;
     status)
 	test -f $lockfile && {
-	    echo $"/proc entries were fixed"
+	    echo $"Path to vshelper has been set"
 	    exit 0
 	}
-	echo $"/proc entries are not fixed"
+	echo $"Path to vshelper has not been set"
 	exit 1
 	;;
     *)
