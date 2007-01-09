@@ -36,4 +36,8 @@
 #  include "syscall-alternative.h"
 #endif
 
+#if defined(ENSC_SYSCALL_TRADITIONAL) && defined(__dietlibc__) && !defined(ENSC_DIETLIBC_HAS_SYSCALL)
+extern long int syscall(long int __sysno, ...);
+#endif
+
 #endif	//  H_UTIL_VSERVER_LIB_SYSCALL_WRAP_H

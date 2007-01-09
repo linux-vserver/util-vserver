@@ -28,10 +28,6 @@
 inline static UNUSED ALWAYSINLINE
 int sys_personality(int pers)
 {
-#if defined __dietlibc__
-  extern long int syscall (long int __sysno, ...);
-#endif
- 
   return syscall(__NR_sys_personality, pers);
 }
 #else

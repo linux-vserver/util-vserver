@@ -253,10 +253,6 @@ inline static ALWAYSINLINE void vc_noop0() {}
 inline static UNUSED ALWAYSINLINE
 int vserver(uint32_t cmd, uint32_t id, void *data)
 {
-#if defined __dietlibc__
-  extern long int syscall (long int __sysno, ...);
-#endif
- 
   return syscall(__NR_vserver, cmd, id, data);
 }
 #else

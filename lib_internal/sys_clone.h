@@ -42,9 +42,6 @@ int sys_clone(int flags, void *child_stack)
 #ifdef __sparc__
   int parent = getpid();
 #endif
-#if defined(__dietlibc__) && defined(ENSC_SYSCALL_TRADITIONAL)
-  extern long int syscall (long int __sysno, ...);
-#endif
 
 #if   defined(__s390__) && defined(ENSC_SYSCALL_TRADITIONAL)
   ret = syscall(__NR__sys_clone, child_stack, flags);

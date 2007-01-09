@@ -51,6 +51,32 @@ AC_DEFUN([_ENSC_DIETLIBC_C99],
 	fi
 ])
 
+AC_DEFUN([_ENSC_DIETLIBC_SYSCALL],
+[
+	AH_TEMPLATE([ENSC_DIETLIBC_HAS_SYSCALL], [Define to 1 if dietlibc declares syscall])
+
+	AC_CACHE_CHECK([whether dietlibc declares syscall], [ensc_cv_c_dietlibc_syscall],
+	[
+		_ensc_dietlibc_syscall_old_CC="$CC"
+		CC="${DIET:-diet} $CC"
+
+		AC_LANG_PUSH(C)
+		AC_COMPILE_IFELSE([
+			#include <sys/syscall.h>
+			long int syscall(long int __sysno, ...);
+		],
+		[ensc_cv_c_dietlibc_syscall=no],
+		[ensc_cv_c_dietlibc_syscall=yes])
+		AC_LANG_POP
+
+		CC="$_ensc_dietlibc_syscall_old_CC"
+	])
+
+	if test x"$ensc_cv_c_dietlibc_syscall" = xyes; then
+		AC_DEFINE(ENSC_DIETLIBC_HAS_SYSCALL,1)
+	fi
+])
+
 dnl Usage: ENSC_ENABLE_DIETLIBC(<conditional>[,<min-version>])
 dnl        <conditional> ... automake-conditional which will be set when
 dnl                          dietlibc shall be enabled
@@ -134,6 +160,7 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 
 	if test x"$ensc_have_dietlibc" != xno; then
 		_ENSC_DIETLIBC_C99
+		_ENSC_DIETLIBC_SYSCALL
 	fi
 ])
 
