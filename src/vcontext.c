@@ -259,10 +259,10 @@ doit(struct Arguments const *args, int argc, char *argv[])
 	switch (errno) {
 	  case EEXIST	:
 	    if (!args->is_silentexist)
-	      perror(ENSC_WRAPPERS_PREFIX "vc_create_context()");
+	      perror(ENSC_WRAPPERS_PREFIX "vc_ctx_create()");
 	    return 254;
 	  default	:
-	    perror(ENSC_WRAPPERS_PREFIX "vc_create_context()");
+	    perror(ENSC_WRAPPERS_PREFIX "vc_ctx_create()");
 	    return wrapper_exit_code;
 	}
       }
