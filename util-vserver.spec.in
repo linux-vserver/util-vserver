@@ -13,18 +13,22 @@
 
 %global _localstatedir	%_var
 
+%global ver		%( echo @VERSION@ | sed 's/-.*//' )
+%global subver		%( s=`echo @VERSION@ | grep -- - | sed 's/.*-/./'`; echo ${s:-.1} )
+%global fullver		@VERSION@
+
 
 %{!?release_func:%global release_func() %1%{?dist}}
 
 Summary:	Linux virtual server utilities
 Name:		@PACKAGE@
-Version:	@VERSION@
-Release:	%release_func 0
+Version:	%ver
+Release:	%release_func 0%subver
 License:	GPL
 Group:		System Environment/Base
 URL:		http://savannah.nongnu.org/projects/util-vserver/
-Source0:	http://www.13thfloor.at/~ensc/util-vserver/files/alpha/%name-%version.tar.bz2
-#Source1:	http://www.13thfloor.at/~ensc/util-vserver/files/alpha/%name-%version.tar.bz2.asc
+Source0:	http://www.13thfloor.at/~ensc/util-vserver/files/alpha/%name-%fullver.tar.bz2
+#Source1:	http://www.13thfloor.at/~ensc/util-vserver/files/alpha/%name-%fullver.tar.bz2.asc
 BuildRoot:	%_tmppath/%name-%version-%release-root
 Requires:	init(%name)
 Requires:	%name-core = %version-%release
@@ -162,7 +166,7 @@ develop VServer related applications.
 
 
 %prep
-%setup -q
+%setup -q -n %name-%fullver
 
 
 %build
