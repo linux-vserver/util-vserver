@@ -43,6 +43,7 @@ vc_isSupported(vcFeatureSet feature)
     case vcFEATURE_VWAIT	:  return ver >= 0x00010025;
     case vcFEATURE_SCHED	:  return ver >= 0x00020000;  // todo
     case vcFEATURE_VNET		:  return ver >= 0x00020001;
+    case vcFEATURE_VSTAT	:  return ver >= 0x00020103;
     default			:  assert(false); 
   }
 

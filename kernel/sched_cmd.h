@@ -6,7 +6,7 @@
 
 #define VCMD_set_sched_v2	VC_CMD(SCHED, 1, 2)
 #define VCMD_set_sched_v3	VC_CMD(SCHED, 1, 3)
-#define VCMD_set_sched		VC_CMD(SCHED, 1, 4)
+#define VCMD_set_sched_v4	VC_CMD(SCHED, 1, 4)
 
 struct	vcmd_set_sched_v2 {
 	int32_t fill_rate;
@@ -39,6 +39,20 @@ struct	vcmd_set_sched_v4 {
 	int32_t bucket_id;
 };
 
+#define VCMD_set_sched		VC_CMD(SCHED, 1, 5)
+#define VCMD_get_sched		VC_CMD(SCHED, 2, 5)
+
+struct	vcmd_sched_v5 {
+	uint32_t mask;
+	int32_t cpu_id;
+	int32_t bucket_id;
+	int32_t fill_rate[2];
+	int32_t interval[2];
+	int32_t tokens;
+	int32_t tokens_min;
+	int32_t tokens_max;
+	int32_t prio_bias;
+};
 
 #define VXSM_FILL_RATE		0x0001
 #define VXSM_INTERVAL		0x0002
@@ -58,6 +72,21 @@ struct	vcmd_set_sched_v4 {
 #define VXSM_CPU_ID		0x1000
 #define VXSM_BUCKET_ID		0x2000
 
+#define VXSM_MSEC		0x4000
+
 #define SCHED_KEEP		(-2)	/* only for v2 */
+
+
+#define VCMD_sched_info		VC_CMD(SCHED, 3, 0)
+
+struct	vcmd_sched_info {
+	int32_t cpu_id;
+	int32_t bucket_id;
+	uint64_t user_msec;
+	uint64_t sys_msec;
+	uint64_t hold_msec;
+	uint32_t token_usec;
+	int32_t vavavoom;
+};
 
 #endif	/* _VX_SCHED_CMD_H */

@@ -1,6 +1,6 @@
-// $Id$    --*- c -*--
+// $Id$    --*- c++ -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2007 Daniel Hokka Zakrisson <daniel@hozac.com>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,30 +21,19 @@
 #endif
 
 #include "vserver.h"
-#include "lib_internal/util-dimof.h"
-#include <strings.h>
+#include "vserver-internal.h"
+#include "virtual.h"
 
-#define DECL(F) \
-  { vcFEATURE_ ## F, #F }
+#if defined(VC_ENABLE_API_V21)
+#  include "syscall_schedinfo-v21.hc"
+#endif
 
-static struct {
-    vcFeatureSet	feature;
-    char const *	name;
-} FEATURES[] = {
-  DECL(VKILL),   DECL(IATTR),     DECL(RLIMIT),   DECL(COMPAT),
-  DECL(MIGRATE), DECL(NAMESPACE), DECL(SCHED),    DECL(VINFO),
-  DECL(VHI),     DECL(VSHELPER0), DECL(VSHELPER), DECL(VWAIT),
-  DECL(VNET),    DECL(VSTAT),
-};
+#if defined(VC_ENABLE_API_V21)
 
-bool
-vc_isSupportedString(char const *str)
+int
+vc_sched_info(xid_t ctx, struct vc_sched_info *info)
 {
-  size_t	i;
-  for (i=0; i<DIM_OF(FEATURES); ++i) {
-    if (strcasecmp(FEATURES[i].name, str)==0)
-      return vc_isSupported(FEATURES[i].feature);
-  }
-
-  return false;
+  CALL_VC(CALL_VC_V21(vc_sched_info, ctx, info));
 }
+
+#endif

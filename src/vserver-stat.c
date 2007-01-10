@@ -42,6 +42,7 @@
 #include <stdbool.h>
 #include <getopt.h>
 #include <sys/param.h>
+#include <sys/resource.h>
 
 #define ENSC_WRAPPERS_DIRENT	1
 #define ENSC_WRAPPERS_VSERVER	1
@@ -50,6 +51,7 @@
 #include "wrappers.h"
 
 #define PROC_DIR_NAME "/proc"
+#define PROC_VIRT_DIR_NAME "/proc/virtual"
 #define CTX_DIR_NAME "/var/run/vservers/"
 #define CTX_NAME_MAX_LEN 50
 
@@ -221,6 +223,60 @@ registerXid(struct Vector *vec, struct process_info *process)
   res->stime_total  += process->stime + process->cstime;
 
   res->start_time_oldest = MIN(res->start_time_oldest, process->start_time);
+}
+
+static void
+registerXidVstat(struct Vector *vec, unsigned long xid_l)
+{
+  xid_t			xid = (xid_t) xid_l;
+  struct XidData	*res;
+  struct vc_rlimit_stat	limit[3];
+  struct vc_virt_stat	vstat;
+  struct vc_sched_info	sched;
+  int			cpu;
+
+  res = Vector_search(vec, &xid, cmpData);
+  if (res!=0) {
+    WRITE_MSG(2, "Duplicate xid found?!\n");
+    return;
+  }
+  if (vc_virt_stat(xid, &vstat) == -1) {
+    perror("vc_virt_stat()");
+    return;
+  }
+  if (vc_rlimit_stat(xid, RLIMIT_NPROC, &limit[0]) == -1) {
+    perror("vc_rlimit_stat(RLIMIT_NRPOC)");
+    return;
+  }
+  if (vc_rlimit_stat(xid, RLIMIT_AS, &limit[1]) == -1) {
+    perror("vc_rlimit_stat(RLIMIT_AS)");
+    return;
+  }
+  if (vc_rlimit_stat(xid, RLIMIT_RSS, &limit[2]) == -1) {
+    perror("vc_rlimit_stat(RLIMIT_RSS)");
+    return;
+  }
+
+  res			= Vector_insert(vec, &xid, cmpData);
+  res->xid		= xid;
+
+  res->process_count	= limit[0].value;
+  res->VmSize_total	= limit[1].value * pagesize;
+  res->VmRSS_total	= limit[2].value;
+  res->start_time_oldest= getUptime() - vstat.uptime/1000000;
+
+  res->utime_total	= 0;
+  res->stime_total	= 0;
+  // XXX: arbitrary CPU limit.
+  for (cpu = 0; cpu < 1024; cpu++) {
+    sched.cpu_id = cpu;
+    sched.bucket_id = 0;
+    if (vc_sched_info(xid, &sched) == -1)
+      break;
+
+    res->utime_total	+= sched.user_msec;
+    res->stime_total	+= sched.sys_msec;
+  }
 }
 
 static inline uint64_t
@@ -572,21 +628,35 @@ int main(int argc, char **argv)
 
   Vector_init(&xid_data, sizeof(struct XidData));
 
-  Echdir(PROC_DIR_NAME);
-  proc_dir = Eopendir(".");
-  while ((dir_entry = readdir(proc_dir)) != NULL)
-  {
-      // select only process file
-    if (!isdigit(*dir_entry->d_name))
-      continue;
+  if (vc_isSupported(vcFEATURE_VSTAT)) {
+    unsigned long xid;
+    Echdir(PROC_VIRT_DIR_NAME);
+    proc_dir = Eopendir(".");
+    while ((dir_entry = readdir(proc_dir)) != NULL) {
+      if (!isNumberUnsigned(dir_entry->d_name, &xid, false))
+	continue;
 
-    if (atoi(dir_entry->d_name) != my_pid) {
-      struct process_info *	info = get_process_info(dir_entry->d_name);
-      if (info)
-	registerXid(&xid_data, info);
+      registerXidVstat(&xid_data, xid);
     }
+    closedir(proc_dir);
   }
-  closedir(proc_dir);
+  else {
+    Echdir(PROC_DIR_NAME);
+    proc_dir = Eopendir(".");
+    while ((dir_entry = readdir(proc_dir)) != NULL)
+    {
+      // select only process file
+      if (!isdigit(*dir_entry->d_name))
+        continue;
+
+      if (atoi(dir_entry->d_name) != my_pid) {
+	struct process_info *	info = get_process_info(dir_entry->d_name);
+	if (info)
+	  registerXid(&xid_data, info);
+      }
+    }
+    closedir(proc_dir);
+  }
 
   Vector_foreach(&xid_data, fillName, 0);
 

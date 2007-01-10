@@ -414,7 +414,7 @@ extern "C" {
     /** \brief   Contains further statistics about a context. */
   struct vc_virt_stat {
       uint_least64_t	offset;
-      uint_least32_t	uptime;
+      uint_least64_t	uptime;
       uint_least32_t	nr_threads;
       uint_least32_t	nr_running;
       uint_least32_t	nr_uninterruptible;
@@ -720,9 +720,9 @@ extern "C" {
   /** Get a disk limit. */
   int		vc_get_dlimit(char const *filename, xid_t xid,
 			      uint_least32_t flags,
-			      struct vc_ctx_dlimit *limits) VC_ATTR_NONNULL((1,4));
+			      struct vc_ctx_dlimit *limits) VC_ATTR_NONNULL((1));
 
-    /* misc. syscalls */
+    /* scheduler related syscalls */
   struct vc_set_sched {
       uint_least32_t	set_mask;
       int_least32_t	fill_rate;
@@ -739,6 +739,19 @@ extern "C" {
 
   int		vc_set_sched(xid_t xid, struct vc_set_sched const *) VC_ATTR_NONNULL((2));
 
+  struct vc_sched_info {
+      int_least32_t	cpu_id;
+      int_least32_t	bucket_id;
+      uint_least64_t	user_msec;
+      uint_least64_t	sys_msec;
+      uint_least64_t	hold_msec;
+      uint_least32_t	token_usec;
+      int_least32_t	vavavoom;
+  };
+
+  int		vc_sched_info(xid_t xid, struct vc_sched_info *info) VC_ATTR_NONNULL((2));
+
+    /* misc. syscalls */
   int		vc_set_mapping(xid_t xid, const char *device, const char *target, uint32_t flags);
 
 
@@ -870,7 +883,7 @@ extern "C" {
 		 vcFEATURE_COMPAT, vcFEATURE_MIGRATE, vcFEATURE_NAMESPACE,
 		 vcFEATURE_SCHED,  vcFEATURE_VINFO,   vcFEATURE_VHI,
                  vcFEATURE_VSHELPER0, vcFEATURE_VSHELPER, vcFEATURE_VWAIT,
-		 vcFEATURE_VNET }
+		 vcFEATURE_VNET, vcFEATURE_VSTAT }
     vcFeatureSet;
 
   bool		vc_isSupported(vcFeatureSet) VC_ATTR_CONST;
