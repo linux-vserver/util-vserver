@@ -613,19 +613,6 @@ int main(int argc, char **argv)
   if (hertz==0x42)    initHertz();
   if (pagesize==0x42) initPageSize();
   
-  my_pid = getpid();
-
-  if (!switchToWatchXid(&errptr)) {
-    perror(errptr);
-    exit(1);
-  }
-
-  if (access("/proc/uptime",R_OK)==-1 && errno==ENOENT)
-    WRITE_MSG(2,
-	      "WARNING: can not access /proc/uptime. Usually, this is caused by\n"
-	      "         procfs-security. Please read the FAQ for more details\n"
-	      "         http://linux-vserver.org/Proc-Security\n");
-
   Vector_init(&xid_data, sizeof(struct XidData));
 
   if (vc_isSupported(vcFEATURE_VSTAT)) {
@@ -641,6 +628,19 @@ int main(int argc, char **argv)
     closedir(proc_dir);
   }
   else {
+    my_pid = getpid();
+
+    if (!switchToWatchXid(&errptr)) {
+      perror(errptr);
+      exit(1);
+    }
+
+    if (access("/proc/uptime",R_OK)==-1 && errno==ENOENT)
+      WRITE_MSG(2,
+	      "WARNING: can not access /proc/uptime. Usually, this is caused by\n"
+	      "         procfs-security. Please read the FAQ for more details\n"
+	      "         http://linux-vserver.org/Proc-Security\n");
+
     Echdir(PROC_DIR_NAME);
     proc_dir = Eopendir(".");
     while ((dir_entry = readdir(proc_dir)) != NULL)
