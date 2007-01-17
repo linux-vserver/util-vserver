@@ -164,18 +164,3 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 	fi
 ])
 
-
-dnl Usage: ENSC_DIETLIBC_SANITYCHECK
-AC_DEFUN([ENSC_DIETLIBC_SANITYCHECK],
-[
-	AC_REQUIRE([AC_CANONICAL_HOST])
-	AC_REQUIRE([ENSC_ENABLE_DIETLIBC])
-
-	if test "$host_cpu" = x86_64 -a $ENSC_VERSION_DIETLIBC_NUM -le 0027; then
-		AC_MSG_WARN([***                                                             ***])
-		AC_MSG_WARN([*** dietlibc<=0.27 is known to be broken for x86_64 systems     ***])
-		AC_MSG_WARN([*** please make sure that at least the environ.S fix is applied ***])
-		AC_MSG_WARN([*** and lib/__nice.c added                                      ***])
-		AC_MSG_WARN([***                                                             ***])
-	fi
-])

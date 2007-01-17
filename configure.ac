@@ -151,6 +151,7 @@ case $host_cpu in
 	(i*86|athlon)	min_diet_ver=0.25;;
 	(ia64|hppa*)	min_diet_ver=0.29;;
 	(sparc*)	min_diet_ver=0.30;;
+	(x86_64)	min_diet_ver=0.27;;
 	(*)		min_diet_ver=0.28;;
 esac
 
@@ -173,7 +174,6 @@ else
  	# below.  Therefore, this macro must not be called earlier.
 	enable_static=no
 
-	ENSC_DIETLIBC_SANITYCHECK
 	ENSC_DIETLIBC_NEED_COMPAT(USE_DIETLIBC_COMPAT)
 fi
 
