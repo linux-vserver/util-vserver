@@ -225,6 +225,7 @@
 
 #define VC_VXSM_IDLE_TIME		0x0200
 #define VC_VXSM_FORCE			0x0400
+#define VC_VXSM_MSEC			0x4000
 
 #define VC_VXSM_V3_MASK			0x0173
 
