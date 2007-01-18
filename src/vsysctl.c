@@ -116,7 +116,7 @@ void handle_setting(const char *dir, const char *name)
     *ptr = '/';
 
   /* we just want the first line, and not the linefeed */
-  if ((ptr = strchr(setting, '\n')) == NULL)
+  if ((ptr = strchr(setting, '\n')) != NULL)
     *ptr = '\0';
 
   fd = EopenD(setting, O_WRONLY, 0);
