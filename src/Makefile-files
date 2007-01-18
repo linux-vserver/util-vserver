@@ -78,7 +78,8 @@ DIETPROGS +=		src/chcontext-compat \
 			src/ncontext \
 			src/nattribute \
 			src/naddress \
-			src/vdevmap
+			src/vdevmap \
+			src/vsysctl
 
 if ENSC_CAN_BEECRYPT_WITH_DIETLIBC
 DIETPROGS +=		src/vhashify
@@ -115,6 +116,7 @@ pkglib_PROGRAMS +=	src/capchroot \
 			src/vshelper-sync \
 			src/sigexec \
 			src/chbind-compat \
+			src/vsysctl \
 			$(src_pkglib_C99_X_PROGS) \
 			$(src_pkglib_CXX_X_PROGS)
 
@@ -324,6 +326,10 @@ src_naddress_LDFLAGS		= $(VSERVER_LDFLGS)
 src_vdevmap_SOURCES		= src/vdevmap.c
 src_vdevmap_LDADD		= $(VSERVER_LDADDS) $(LIBINTERNAL)
 src_vdevmap_LDFLAGS		= $(VSERVER_LDFLGS)
+
+src_vsysctl_SOURCES		= src/vsysctl.c
+src_vsysctl_LDADD		= $(VSERVER_LDADDS)
+src_vsysctl_LDFLAGS		= $(VSERVER_LDFLGS)
 
 EXTRA_PROGRAMS +=		$(src_sbin_CXX_PROGS) $(src_pkglib_CXX_PROGS)
 

@@ -74,6 +74,7 @@ build  @PKGLIBDIR@/vserver-build
 sysv   @PKGLIBDIR@/vserver-wrapper
 base   @PKGLIBDIR@/vshelper
 base   @PKGLIBDIR@/vshelper-sync
+base   @PKGLIBDIR@/vsysctl
 sysv   @PKGLIBDIR@/vsysvwrapper
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vcopy
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/vunify
