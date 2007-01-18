@@ -1226,3 +1226,28 @@ function _namespaceCleanup
     done
 }
 
+function loadDeviceMap
+{
+    local xid="$1"
+    local dir="$2"
+    local flags device target
+
+    test -d "$dir" || return 0
+
+    for i in "$dir"/*; do
+	test -d "$i" || continue
+
+	local -a vdevmap_opts=()
+	test -e "$i/create" && vdevmap_opts=( "${vdevmap_opts[@]}" --create )
+	test -e "$i/open"   && vdevmap_opts=( "${vdevmap_opts[@]}" --open )
+	test -e "$i/remap"  && vdevmap_opts=( "${vdevmap_opts[@]}" --remap )
+
+	getFileValue flags "$i/flags" || :
+	getFileValue device "$i/device" || :
+	getFileValue target "$i/target" || :
+	vdevmap_opts=(  "${vdevmap_opts[@]}" ${flags:+--flags "$flags"} \
+			${device:+--device "$device"} ${target:+--target "$target"} )
+
+	$_VDEVMAP --xid "$xid" "${vdevmap_opts[@]}" || return $?
+    done
+}

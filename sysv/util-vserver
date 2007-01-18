@@ -14,6 +14,8 @@ test -e "$UTIL_VSERVER_VARS" || {
 
 LOCKFILE=util-vserver
 . "$_LIB_VSERVER_INIT_FUNCTIONS"
+. "$_LIB_FUNCTIONS"
+. "$__PKGLIBDIR/vserver.functions"
 
 
 function set_helper()
@@ -51,6 +53,9 @@ function start()
     set_helper
     _endResult $?
     local retval=$?
+    _beginResult $"Loading default device map"
+    loadDeviceMap 0 "$__CONFDIR/.defaults/apps/vdevmap"
+    _endResult $?
     test "$retval" -ne 0 || touch "$lockfile"
     return $retval
 }
@@ -61,11 +66,12 @@ function stop()
     _beginResult $"Stopping all running guests"
     $_START_VSERVERS -j 1 --all --stop
     _endResult $?
-    local retval=$?
     _beginResult $"Killing all running contexts"
     kill_contexts
     _endResult $?
+    local retval=$?
     $_RM -f "$lockfile"
+    return $retval
 }
 
 function restart()
