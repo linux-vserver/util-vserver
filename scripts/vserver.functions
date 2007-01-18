@@ -1168,6 +1168,8 @@ function _saveSingleDiskLimit
 
     $_VDLIMIT --xid $ctx "$directory" | \
 	$_GREP '_used=' > "$vdir/cache/dlimits/$cachename"
+
+    $_VDLIMIT --xid $ctx --remove "$directory"
 }
 
 
