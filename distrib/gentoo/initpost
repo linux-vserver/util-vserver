@@ -17,7 +17,8 @@
 
 ## Called as: initpost <cfgdir> <path of util-vserver-vars>
 
-vdir="$1"/vdir
+cfgdir="$1"
+vdir="$cfgdir"/vdir
 . "$2"
 
 # portage stuff
@@ -29,7 +30,7 @@ popd &>/dev/null
 
 # gentoo initstyle magic
 initstyle=sysv
-test -e "$1"/apps/init/style && initstyle=$(<"$1"/apps/init/style)
+test -e "$cfgdir"/apps/init/style && initstyle=$(<"$cfgdir"/apps/init/style)
 
 if test "$initstyle" == "gentoo"; then
 	pushd "$vdir" &>/dev/null
@@ -51,6 +52,31 @@ if test "$initstyle" == "gentoo"; then
 	echo "!!! packages into the guest environment."
 	echo "!!!"
 fi
+
+
+# unneeded runlevel scripts
+pushd "$vdir" &>/dev/null
+echo ">>> Fixing default runlevel scripts ... "
+$_CHROOT_SH rm /etc/runlevels/boot/{clock,consolefont,keymaps,modules,net.lo} 2>/dev/null || :
+$_CHROOT_SH rm /etc/runlevels/default/{hdparm,netmount} 2>/dev/null || :
+popd &>/dev/null
+
+
+# setting hostname
+pushd "$vdir" &>/dev/null
+
+if test -r "$cfgdir"/uts/nodename && $_CHROOT_SH testfile /etc/conf.d/hostname; then
+	echo ">>> Setting hostname ... "
+	hostnametmp=$($_MKTEMP hostname.XXXXXX)
+
+	$_CHROOT_SH cat /etc/conf.d/hostname | \
+	$_SED "s:HOSTNAME=\"\(.*\)\":HOSTNAME=\"$(< "$cfgdir"/uts/nodename)\":" > $hostnametmp
+	$_CHROOT_SH truncate /etc/conf.d/hostname  < $hostnametmp
+
+	$_RM -f $hostnametmp
+fi
+
+popd &>/dev/null
 
 
 # check for baselayout >= 1.13
@@ -85,14 +111,6 @@ if $_CHROOT_SH testfile /etc/inittab; then
 	$_RM -f $inittabtmp
 fi
 
-popd &>/dev/null
-
-
-# unneeded runlevel scripts
-pushd "$vdir" &>/dev/null
-echo ">>> Fixing default runlevel scripts ... "
-$_CHROOT_SH rm /etc/runlevels/boot/{clock,consolefont,keymaps,modules,net.lo} 2>/dev/null || :
-$_CHROOT_SH rm /etc/runlevels/default/{hdparm,netmount} 2>/dev/null || :
 popd &>/dev/null
 
 
