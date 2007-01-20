@@ -33,7 +33,7 @@
 
 int wrapper_exit_code = 1;
 
-#define TEST_BLOCKSIZE	0x10000
+#define TEST_BLOCKSIZE	0x20000
 static bool			is_gremlin = false;
 static int			sync_p[2];
 
