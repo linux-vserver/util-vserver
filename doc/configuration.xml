@@ -1309,6 +1309,18 @@ tools and can *not* be modified.
       </collection>
     </collection>
 
+    <collection name="sysctl" since="0.30.213">
+      <collection name="x" type="symbolic">
+        <description>'x' is an arbitrary name, replace it with e.g. integers</description>
+        <scalar name="setting">
+          <description>The sysctl setting</description>
+        </scalar>
+        <scalar name="value">
+          <description>The value</description>
+        </scalar>
+      </collection>
+    </collection>
+
     <collection name="cpuset" since="0.30.211">
       <scalar name="name">
         <description>The name of the cpuset for this vserver</description>
