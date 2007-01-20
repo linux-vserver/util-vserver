@@ -34,7 +34,7 @@ utilvserver_checkCompatConfig()
   if (res==0) {
     res     = vc_get_vci();
     v_errno = errno;
-    if (res==(uint32_t)-1 && (errno==ENOSYS || errno==EINVAL)) res=0;
+    if (res==(uint32_t)-1) res=0;
   }
 
   errno = v_errno;
