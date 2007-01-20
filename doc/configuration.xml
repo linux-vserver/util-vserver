@@ -89,6 +89,33 @@ from this uri and install it at a temporary place.
 	</scalar>
       </collection>
 
+      <collection name="vdevmap">
+        <collection name="x" type="sybmolic">
+          <description>'x' is an arbitrary name, replace it with e.g. device names</description>
+          <boolean name="open">
+            <description>When this file exists, the device can be opened</description>
+          </boolean>
+          <boolean name="create">
+            <description>When this file exists, the device can be created (if the guest has <optionref ref="bcapabilities">CAP_MKNOD</optionref>)</description>
+          </boolean>
+          <boolean id="vdevmap-remap" name="remap">
+            <description>
+When this file exists, <optionref ref="vdevmap-target">target</optionref> will
+have to exist as well and opening the device will in fact open the target device
+            </description>
+          </boolean>
+          <scalar name="flags">
+            <description>This file will let you specify unimplemented flags manually</description>
+          </scalar>
+          <scalar name="device">
+            <description>Contains the name of a device node</description>
+          </scalar>
+          <scalar id="vdevmap-target" name="target">
+            <description>Contains the device node of the target node to open instead of the device when <optionref ref="vdevmap-remap">remap</optionref> is set</description>
+          </scalar>
+        </collection>
+      </collection>
+
       <collection name="vshelper">
 	<link name="logfile">
 	  <description>
