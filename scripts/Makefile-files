@@ -47,6 +47,7 @@ scripts_pkglib_src_DTA =	scripts/functions \
 				scripts/vserver-build.yum \
 				scripts/vserver-build.template \
 				scripts/vserver-build.rsync \
+				scripts/vserver-build.clone \
 				scripts/vserver-build.functions \
 				scripts/vserver-build.functions.apt \
 				scripts/vserver-build.functions.rpm \
