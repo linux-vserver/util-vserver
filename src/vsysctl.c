@@ -48,6 +48,7 @@
 #define CMD_VERSION		0x1001
 #define CMD_XID			0x4000
 #define CMD_DIR			0x4001
+#define CMD_MISSINGOK		0x4002
 
 int		wrapper_exit_code  =  1;
 
@@ -57,6 +58,7 @@ CMDLINE_OPTIONS[] = {
   { "version",    no_argument,       0, CMD_VERSION },
   { "xid",        required_argument, 0, CMD_XID },
   { "dir",        required_argument, 0, CMD_DIR },
+  { "missingok",  no_argument,       0, CMD_MISSINGOK },
   {0,0,0,0}
 };
 
@@ -66,7 +68,7 @@ showHelp(int fd, char const *cmd)
   WRITE_MSG(fd, "Usage: ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " --xid <xid> --dir <directory> -- <command> <args>*\n"
+	    " --xid <xid> --dir <directory> [--missingok] -- <command> <args>*\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
@@ -128,6 +130,7 @@ int main(int argc, char *argv[])
 {
   xid_t		xid	= VC_NOCTX;
   const char	*dir	= NULL;
+  bool		missing	= false;
   
   while (1) {
     int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
@@ -138,6 +141,7 @@ int main(int argc, char *argv[])
       case CMD_VERSION	:  showVersion();
       case CMD_XID	:  xid = Evc_xidopt2xid(optarg, true);	break;
       case CMD_DIR	:  dir = optarg;			break;
+      case CMD_MISSINGOK:  missing = true;			break;
 
       default		:
 	WRITE_MSG(2, "Try '");
@@ -155,13 +159,19 @@ int main(int argc, char *argv[])
 
     Echdir(PROC_SYS_DIRECTORY);
 
-    dp = Eopendir(dir);
-    while ((de = Ereaddir(dp)) != NULL) {
-      if (*de->d_name == '.')
-	continue;
-      handle_setting(dir, de->d_name);
+    dp = opendir(dir);
+    if (dp != NULL) {
+      while ((de = Ereaddir(dp)) != NULL) {
+	if (*de->d_name == '.')
+	  continue;
+	handle_setting(dir, de->d_name);
+      }
+      Eclosedir(dp);
     }
-    Eclosedir(dp);
+    else if (!missing) {
+      perror(ENSC_WRAPPERS_PREFIX "opendir");
+      exit(wrapper_exit_code);
+    }
 
     Efchdir(curdir);
   }
