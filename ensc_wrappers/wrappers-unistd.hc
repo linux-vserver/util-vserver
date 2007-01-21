@@ -138,6 +138,12 @@ Eunlink(char const *pathname)
   FatalErrnoError(unlink(pathname)==-1, "unlink()");
 }
 
+inline static WRAPPER_DECL void
+Elink(char const *oldpath, char const *newpath)
+{
+  FatalErrnoError(link(oldpath, newpath)==-1, "link()");
+}
+
 inline static void
 Esetuid(uid_t uid)
 {

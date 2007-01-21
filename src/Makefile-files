@@ -20,7 +20,7 @@
 src_sbin_CXX_PROGS =	
 src_pkglib_CXX_PROGS =	
 
-src_pkglib_C99_PROGS =	src/vunify src/vcopy
+src_pkglib_C99_PROGS =	src/vunify src/vcopy src/vclone
 
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
@@ -79,7 +79,8 @@ DIETPROGS +=		src/chcontext-compat \
 			src/nattribute \
 			src/naddress \
 			src/vdevmap \
-			src/vsysctl
+			src/vsysctl \
+			src/vclone
 
 if ENSC_CAN_BEECRYPT_WITH_DIETLIBC
 DIETPROGS +=		src/vhashify
@@ -330,6 +331,10 @@ src_vdevmap_LDFLAGS		= $(VSERVER_LDFLGS)
 src_vsysctl_SOURCES		= src/vsysctl.c
 src_vsysctl_LDADD		= $(VSERVER_LDADDS)
 src_vsysctl_LDFLAGS		= $(VSERVER_LDFLGS)
+
+src_vclone_SOURCES		= src/vclone.c
+src_vclone_LDADD		= $(LIBINTERNAL) $(VSERVER_LDADDS)
+src_vclone_LDFLAGS		= $(VSERVER_LDLFGS)
 
 EXTRA_PROGRAMS +=		$(src_sbin_CXX_PROGS) $(src_pkglib_CXX_PROGS)
 

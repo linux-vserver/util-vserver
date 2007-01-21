@@ -23,6 +23,7 @@
 
 #define ENSC_PI_DECLARE(VAR,VAL)	PathInfo VAR={.d = VAL,.l = sizeof(VAL)-1}
 #define ENSC_PI_APPSZ(P1,P2)		((P1).l + sizeof("/") + (P2).l)
+#define ENSC_PI_SETSTR(VAR,VAL)		do { VAR.d = VAL; VAR.l = strlen(VAL); } while (0)
 
 typedef String		PathInfo;
 
