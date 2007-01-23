@@ -132,7 +132,11 @@ visitDirEntry(struct dirent const *ent)
     char		dst_path_buf[ENSC_PI_APPSZ(dst_path, src_path)];
 
     PathInfo_append(&dst_path, &src_path, dst_path_buf);
-    if (S_ISREG(f_stat.st_mode) && Unify_isIUnlinkable(src_d_path.d) == unifyBUSY) {
+
+    /* skip files that already exist */
+    if (access(dst_path.d, F_OK)!=-1)
+      res = 0;
+    else if (S_ISREG(f_stat.st_mode) && Unify_isIUnlinkable(src_d_path.d) == unifyBUSY) {
       Elink(src_d_path.d, dst_path.d);
       res = 0;
     }
@@ -141,11 +145,10 @@ visitDirEntry(struct dirent const *ent)
 	perror(ENSC_WRAPPERS_PREFIX "Unify_copy()");
 	exit(wrapper_exit_code);
       }
-      if (S_ISDIR(f_stat.st_mode))
-        res = visitDir(dirname, &f_stat);
-      else
-	res = 0;
+      res = 0;
     }
+    if (S_ISDIR(f_stat.st_mode))
+      res = visitDir(dirname, &f_stat);
   }
 
   return res;
