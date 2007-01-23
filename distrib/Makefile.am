@@ -33,7 +33,8 @@ nobase_distrib_SCRIPTS	=  redhat/initpost \
 			   redhat/rc.sysinit \
 			   gentoo/initpost \
 			   gentoo/initpre \
-			   gentoo/init-vserver.sh
+			   gentoo/init-vserver.sh \
+			   gentoo/net.vserver
 
 nobase_distrib_DATA	=  defaults/devs \
 			   defaults/apt.conf \

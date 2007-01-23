@@ -21,17 +21,24 @@ vdir="$1"/vdir
 . "$2"
 
 # portage stuff
-
 echo ">>> Adding shared /usr/portage to fstab ... "
 
-if test -d /usr/portage; then
+hash portageq &>/dev/null
+
+if test $? -eq 0; then
+	_PORTDIR=$(portageq portdir)
+else
+	_PORTDIR=/usr/portage
+fi
+
+if test -d $_PORTDIR; then
 	( echo
 	  echo "# shared portage tree"
-	  echo "/usr/portage           /usr/portage           none bind,ro 0 0"
-	  echo "/usr/portage/distfiles /usr/portage/distfiles none bind,rw 0 0"
+	  echo "${_PORTDIR}           /usr/portage           none bind,ro 0 0"
+	  echo "${_PORTDIR}/distfiles /usr/portage/distfiles none bind,rw 0 0"
 	) >> "$1"/fstab
 else
-	echo "!!! Cannot find /usr/portage! You should definitely use a"
+	echo "!!! Cannot find a portage tree! You should definitely use a"
 	echo "!!! shared portage tree if you have multiple Gentoo guests!"
 fi
 
@@ -46,3 +53,5 @@ if test "$initstyle" != "gentoo" -a "$initstyle" != "plain"; then
 	echo "!!! The init-style you specified is not supported for Gentoo"
 	echo "!!! Please use one of: plain, gentoo"
 fi
+
+echo -n ">>> Unpacking template ... "
