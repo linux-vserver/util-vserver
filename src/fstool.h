@@ -55,6 +55,7 @@ struct Arguments {
     bool		do_set;
     bool		do_unset;
     bool		local_fs;
+    bool		no_unified;
 
     uint32_t		set_mask;
     uint32_t		del_mask;

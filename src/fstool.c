@@ -182,8 +182,9 @@ int main(int argc, char *argv[])
     .do_set             =  false,
     .do_unset           =  false,
     .local_fs		=  false,
-    .set_mask           = 0,
-    .del_mask           = 0
+    .set_mask           =  0,
+    .del_mask           =  0,
+    .no_unified		=  false,
   };
 
   global_args = &args;
@@ -217,6 +218,7 @@ int main(int argc, char *argv[])
       case 'u'			:  args.do_unset       = true;		break;
       case 'c'			:  args.ctx_str        = optarg;	break;
       case 'x'			:  args.local_fs       = true;		break;
+      case 'U'			:  args.no_unified     = true;		break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);

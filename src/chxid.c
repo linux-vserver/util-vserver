@@ -38,7 +38,7 @@ CMDLINE_OPTIONS[] = {
   { 0,0,0,0 }
 };
 
-char const		CMDLINE_OPTIONS_SHORT[] = "Rc:x";
+char const		CMDLINE_OPTIONS_SHORT[] = "Rc:xU";
 
 void
 showHelp(int fd, char const *cmd, int res)
@@ -46,11 +46,12 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " -c <ctx|vserver> [-Rx] [--] <file>+\n\n"
+	    " -c <ctx|vserver> [-RxU] [--] <file>+\n\n"
 	    " Options:\n"
 	    "   -R  ...  recurse through directories\n"
 	    "   -c  ...  assign the given context/vserver to the file(s)\n"
-	    "   -x  ...  do not cross filesystems\n\n"
+	    "   -x  ...  do not cross filesystems\n"
+	    "   -U  ...  skip unified files\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
@@ -66,14 +67,30 @@ showVersion()
   exit(0);
 }
 
+static inline bool
+isUnified(char const *filename)
+{
+  uint_least32_t const	V = VC_IATTR_IUNLINK|VC_IATTR_IMMUTABLE;
+
+  uint_least32_t	flags;
+  uint_least32_t	mask = V;
+
+  if (vc_get_iattr(filename, 0, &flags, &mask)==-1 || (mask & V) != V)
+    return false;
+
+  return (flags & V)==V  ? true : false;
+}
+
 bool
 handleFile(char const *name, char const * display_name)
 {
-  int	rc = vc_set_iattr(name, global_args->ctx, 0, VC_IATTR_XID);
+  if (!global_args->no_unified || !isUnified(name)) {
+    int	rc = vc_set_iattr(name, global_args->ctx, 0, VC_IATTR_XID);
   
-  if (rc==-1) {
-    perror(display_name);
-    return false;
+    if (rc==-1) {
+      perror(display_name);
+      return false;
+    }
   }
 
   return true;
