@@ -62,6 +62,20 @@ NOTE: this link exists in 0.30.202+ only; in previous versions it was
 a vserver specific setting.
       </description>
     </link>
+
+    <scalar name="shell">
+      <description>
+Contains the pathname of the shell which will be used by the "vserver
+... enter" command. Can be overridden by the
+<optionref ref="shell">per-guest shell</optionref>.
+      </description>
+    </scalar>
+
+    <data name="fstab">
+      <description>
+The default fstab file to put in newly built guests.
+      </description>
+    </data>
     
     <collection name="apps">
       <collection name="pkgmgmt">
@@ -128,7 +142,7 @@ is invoked from the kernel. This should point somewhere e.g. into
 	<collection name="vshelper-methods">
 	  <program name="handler" type="symbolic">
 	    <description>
-See vshelper/action.
+See <optionref ref="vshelper-action">vshelper/action</optionref>.
             </description>
 	  </program>
 	</collection>
@@ -231,6 +245,14 @@ When this file exists, vlogin isn't used on vserver &lt;guest&gt; enter.
 	  </description>
 	</boolean>
       </collection>
+
+      <collection name="build">
+        <list name="options">
+          <description>
+A list of default options to supply to vserver ... build, one option per line.
+          </description>
+        </list>
+      </collection>
     </collection>
 
     <collection name="interfaces" use="optional">
@@ -240,6 +262,34 @@ When this file exists, the steps which setup and destroy a VLAN
 interface will be executed.
 	</description>
       </boolean>
+    </collection>
+
+    <collection name="files">
+      <description>This directory contains some files which will be copied to the guests during build.</description>
+      <data name="hosts">
+        <description>The default /etc/hosts file.</description>
+      </data>
+      <data name="nsswitch.conf">
+        <description>The default /etc/nsswitch.conf file.</description>
+      </data>
+      <data name="krb5.conf">
+        <description>The default /etc/krb5.conf file.</description>
+      </data>
+      <data name="krb.conf">
+        <description>The default /etc/krb.conf file.</description>
+      </data>
+      <data name="krb.realms">
+        <description>The default /etc/krb.realms file.</description>
+      </data>
+      <data name="ldap.conf">
+        <description>The default /etc/ldap.conf file.</description>
+      </data>
+      <data name="localtime">
+        <description>The default /etc/localtime file.</description>
+      </data>
+      <data name="resolv.conf">
+        <description>The default /etc/resolv.conf file.</description>
+      </data>
     </collection>
   </collection>
     
@@ -498,7 +548,7 @@ Contains per line a capability. This file is used for the 2.4 kernel
 only; for 2.6 use <optionref>bcapabilities</optionref>.
       </description>
     </list>
-    <scalar name="shell">
+    <scalar id="shell" name="shell">
       <description>
 Contains the pathname of the shell which will be used by the "vserver
 ... enter" command.
@@ -712,7 +762,7 @@ assumed.
 	  </description>
 	</scalar>
 	
-	<scalar name="action">
+	<scalar id="vshelper-action" name="action">
 	  <default>restart</default>
 	  <description>
 The action which is going to be executed when a vshelper event
@@ -769,7 +819,7 @@ skipped.
       <collection id="vshelper-methods" name="vshelper-methods">
 	<program name="handler" type="symbolic">
 	  <description>
-See vshelper/action.
+See <optionref ref="vshelper-action">vshelper/action</optionref>.
           </description>
 	</program>
       </collection>
