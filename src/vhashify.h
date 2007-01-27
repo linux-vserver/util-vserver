@@ -32,6 +32,7 @@ struct Arguments {
     char const *			hash_dir;
     bool				dry_run;
     bool				do_refresh;
+    bool				ignore_mtime;
 };
 
 struct HashDirInfo {
