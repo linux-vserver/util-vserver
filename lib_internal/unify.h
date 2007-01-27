@@ -56,11 +56,12 @@ Unify_isIUnlinkable(char const *filename) NONNULL((1));
 #ifdef UTIL_VSERVER_UNIFY_MTIME_OPTIONAL
 #  define Unify_isUnifyable(LHS, RHS)		\
     ((bool)(_Unify_isUnifyable(LHS, RHS)  &&	\
-	  (global_args->ignore_mtime ||		\
-	   (LHS)->st_mtime==(RHS)->st_mtime)))
+	    (global_args->ignore_mtime ||	\
+	     (LHS)->st_mtime==(RHS)->st_mtime)))
 #else
 #  define Unify_isUnifyable(LHS, RHS)		\
-	_Unify_isUnifyable(LHS, RHS)
+    ((bool)(_Unify_isUnifyable(LHS, RHS)  &&	\
+	    (LHS)->st_mtime==(RHS)->st_mtime))
 #endif
   
 
