@@ -169,6 +169,18 @@ function setup_setDefaults
     findFile SETUP_FSTAB "$__CONFDIR"/.defaults/fstab "$__PKGLIBDEFAULTDIR"/fstab
 }
 
+function _setup_generateContext
+{
+    if test -z "$SETUP_CONTEXT" && test ! -e "$__CONFDIR/.defaults/context.dynamic"; then
+	if test -e "$__CONFDIR/.defaults/context.next"; then
+	    SETUP_CONTEXT=`$_CAT "$__CONFDIR/.defaults/context.next"`
+	else
+	    SETUP_CONTEXT=`$_CAT "$__PKGLIBDEFAULTDIR/context.start"`
+	fi
+	expr "$SETUP_CONTEXT" + 1 > "$__CONFDIR/.defaults/context.next"
+    fi
+}
+
 function setup_writeOption
 {
     local name=$1
@@ -176,6 +188,8 @@ function setup_writeOption
     local i
 
     mkdir -p "$cfgdir"/interfaces "$cfgdir"/apps/init "$cfgdir"/uts "$cfgdir"/cpuset
+
+    _setup_generateContext
 
     _setup_writeSingleOption "$name"            "$cfgdir"/name
     _setup_writeSingleOption "$SETUP_CONTEXT"   "$cfgdir"/context

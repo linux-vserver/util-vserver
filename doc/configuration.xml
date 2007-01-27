@@ -76,6 +76,20 @@ Contains the pathname of the shell which will be used by the "vserver
 The default fstab file to put in newly built guests.
       </description>
     </data>
+
+    <boolean name="context.dynamic">
+      <description>
+If this file exists, kernel-side dynamic contexts will be used by the "vserver
+... build" command. Otherwise a context will be generated, based on the
+contents of <optionref>context.next</optionref>.
+      </description>
+    </boolean>
+
+    <scalar id="context.next" name="context.next">
+      <description>
+The context id to use for the next guest created by "vserver ... build".
+      </description>
+    </scalar>
     
     <collection name="apps">
       <collection name="pkgmgmt">

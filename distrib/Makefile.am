@@ -26,7 +26,8 @@ defaults_DATA =		misc/debootstrap.uri \
 			misc/mtab \
 			misc/vprocunhide-files \
 			misc/vunify-exclude \
-			misc/environment
+			misc/environment \
+			misc/context.start
 
 nobase_distrib_SCRIPTS	=  redhat/initpost \
 			   redhat/initpre \
