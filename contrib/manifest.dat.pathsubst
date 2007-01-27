@@ -128,7 +128,7 @@ core   @MANDIR@/*/chbind*
 core   @MANDIR@/*/chcontext*
 core   @MANDIR@/*/reducecap*
 legacy @MANDIR@/*/distrib-info*
-build  @MANDIR@/*/vserver-copy*
+legacy @MANDIR@/*/vserver-copy*
 legacy @MANDIR@/*/rebootmgr*
 legacy @MANDIR@/*/vps.*
 base   @MANDIR@/*/vpstree.*
