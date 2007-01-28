@@ -70,6 +70,7 @@ struct MountInfo {
     unsigned long	xflag;
     unsigned long	mask;
     char *		data;
+    char *		data_parsed;
 };
 
 struct Options {
@@ -121,7 +122,7 @@ static struct FstabOption {
     unsigned long const 	xflag;
     bool const			is_dflt;
 } const FSTAB_OPTIONS[] = {
-  { "defaults",   0,             (MS_RDONLY|MS_NOSUID|MS_NODEV|MS_NOEXEC|
+  { "defaults",   MS_NODEV,      (MS_RDONLY|MS_NOSUID|MS_NODEV|MS_NOEXEC|
 				  MS_SYNCHRONOUS), 0, false },
   { "rbind",      MS_BIND|MS_REC, MS_BIND|MS_REC,  0, false },
   { "bind",       MS_BIND,        MS_BIND,         0, false },
@@ -431,7 +432,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
   if (canHandleInternal(mnt)) {
     if (mount(mnt->src, ".",
 	      mnt->type ? mnt->type : "",
-	      mnt->flag,  mnt->data)==-1) {
+	      mnt->flag,  mnt->data_parsed)==-1) {
       perror("secure-mount: mount()");
       return false;
     }
@@ -493,7 +494,7 @@ transformOptionList(struct MountInfo *info, size_t UNUSED *col)
 
   } while (*ptr!='\0');
 
-  info->data = data;
+  info->data_parsed = data;
   return true;
 }
 
