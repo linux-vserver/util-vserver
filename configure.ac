@@ -336,6 +336,26 @@ dnl
 dnl ########################
 
 
+dnl Check what distro this is, use Gentoo initscripts if appropriate
+AC_MSG_CHECKING([for host initscripts])
+AC_ARG_WITH(initscripts, [force host initscripts (valid values are: gentoo, sysv)], [
+	case "$withval" in
+	gentoo)	ensc_with_init=gentoo;;
+	sysv)	ensc_with_init=sysv;;
+	*)	AC_MSG_ERROR([invalid initscripts value, only gentoo and sysv are supported]);;
+	esac
+	], [
+	if test -e /etc/gentoo-release; then
+		ensc_with_init=gentoo
+	else
+		ensc_with_init=sysv
+	fi
+	])
+AC_MSG_RESULT([$ensc_with_init])
+AM_CONDITIONAL(HAVE_GENTOO_INIT, test x"$ensc_with_init" = xgentoo)
+AM_CONDITIONAL(HAVE_SYSV_INIT, test x"$ensc_with_init" = xsysv)
+
+
 dnl BIG HACK! Do some autodetection here!
 AC_DEFINE(UTMP_GID, [22], [The utmp gid-number])
 

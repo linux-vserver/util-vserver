@@ -172,7 +172,8 @@ develop VServer related applications.
 %build
 %configure --with-initrddir=%_initrddir --enable-release \
            %{?_without_dietlibc:--disable-dietlibc} \
-           %{?_with_legacy:--enable-apis=NOLEGACY}
+           %{?_with_legacy:--enable-apis=NOLEGACY} \
+           --with-initscripts=sysv
 
 %__make %{?_smp_mflags} all
 %{!?_without_doc:%__make %{?_smp_mflags} doc}

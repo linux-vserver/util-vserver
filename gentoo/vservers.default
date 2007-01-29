@@ -1,0 +1,19 @@
+#!/sbin/runscript
+# Copyright 1999-2005 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+depend() {
+	need util-vserver vprocunhide
+}
+
+start() {
+	MARK=${SVCNAME#vservers.} /usr/lib/util-vserver/vserver-wrapper start
+}
+
+stop() {
+	MARK=${SVCNAME#vservers.} /usr/lib/util-vserver/vserver-wrapper stop
+}
+
+
+
+# vim:ts=4:filetype=gentoo-init-d

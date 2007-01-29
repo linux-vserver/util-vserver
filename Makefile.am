@@ -226,6 +226,7 @@ include $(top_srcdir)/ensc_wrappers/Makefile-files
 include $(top_srcdir)/ensc_fmt/Makefile-files
 include $(top_srcdir)/lib_internal/Makefile-files
 include $(top_srcdir)/vserver-start/Makefile-files
+include $(top_srcdir)/gentoo/Makefile-files
 
 include $(top_srcdir)/m4/gpgsig.am
 include $(top_srcdir)/m4/validate.am

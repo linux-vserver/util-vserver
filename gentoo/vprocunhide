@@ -1,0 +1,20 @@
+#!/sbin/runscript
+# Copyright 1999-2005 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+start() {
+	: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
+	if [[ ! -e ${UTIL_VSERVER_VARS} ]]; then
+		eerror "Cannot find util-vserver installation"
+		eerror "(the file '$UTIL_VSERVER_VARS' would be expected)"
+		return 1
+	fi
+	
+	source ${UTIL_VSERVER_VARS}
+	
+	ebegin "Fixing /proc entries visibility"
+	${_VPROCUNHIDE}
+	eend $?
+}
+
+# vim:ts=4:filetype=gentoo-init-d
