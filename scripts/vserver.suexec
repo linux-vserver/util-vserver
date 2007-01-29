@@ -29,6 +29,8 @@ shift
 
 cd "$VSERVER_DIR"/vdir/
 
+test -z "$OPTION_NONAMESPACE" || USE_VNAMESPACE=
+
 if $_VSERVER_INFO - FEATURE migrate; then
     if test -z "$is_stopped"; then
 	exec \

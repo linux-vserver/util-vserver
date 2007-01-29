@@ -71,14 +71,12 @@ if test -n "$_IS_FAKEINIT" && \
     ## is implemented
 elif $_VSERVER_INFO - FEATURE migrate; then
     "${NICE_CMD[@]}" \
-    ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT" -- } \
     $_VCONTEXT $SILENT_OPT --migrate --chroot --xid "$S_CONTEXT" -- \
     "${INITCMD_STOP[@]}" || fail=1
 else
     "${NICE_CMD[@]}" \
     "$_CHBIND"       "${CHBIND_OPTS[@]}" \
     "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
-    ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT"} \
     $_CHCONTEXT_COMPAT    "${CHCONTEXT_OPTS[@]}" \
     "$_CAPCHROOT"    "${CAPCHROOT_OPTS[@]}" "." \
     "${INITCMD_STOP[@]}" || fail=1
