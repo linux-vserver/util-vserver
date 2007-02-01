@@ -36,7 +36,6 @@ sysv_gen_SCRPTS =	sysv/v_gated \
 			sysv/v_xinetd
 sysv_conf_DTA =		sysv/vservers.conf
 
-sysconf_DATA +=		$(sysv_conf_DTA)
 EXTRA_DIST +=		sysv/v_gated.subst \
 			sysv/v_httpd.subst \
 			sysv/v_named.subst \
@@ -48,8 +47,11 @@ EXTRA_DIST +=		sysv/v_gated.subst \
 			$(sysv_src_SCRPTS) \
 			$(sysv_conf_DTA)
 
+if HAVE_SYSV_INIT
+sysconf_DATA +=		$(sysv_conf_DTA)
 initrd_SCRIPTS +=	$(sysv_src_SCRPTS) \
 			$(sysv_gen_SCRPTS)
+endif
 
 CLEANFILES +=		$(sysv_gen_SCRPTS)
 
