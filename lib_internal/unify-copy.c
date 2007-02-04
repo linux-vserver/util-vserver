@@ -83,6 +83,8 @@ static void
 copyMem(void *dst_v, void const *src_v, size_t len_v)
 {
 #if 1
+    // Do not use memcpy because this would dirty pages consisting only of
+    // '\0'
   int		*dst = dst_v;
   int const	*src = src_v;
   size_t	len  = len_v / sizeof(int);
@@ -119,9 +121,7 @@ copyMMap(int in_fd, int out_fd)
   bool   volatile 	res      = false;
 
   if (in_len==-1) return false;
-  if (in_len>0 &&
-      (lseek(out_fd, in_len-1, SEEK_SET)==-1 ||
-       write(out_fd, "\0",     1)!=1))		// create sparse file
+  if (in_len>0 && ftruncate(out_fd, in_len)==-1)	// create sparse file
     return false;
   
   bus_error = 0;
@@ -164,7 +164,7 @@ copyReg(char const *src, struct stat const *src_stat,
 	char const *dst)
 {
   int		in_fd  = open(src, O_RDONLY|O_NOCTTY|O_NONBLOCK|O_NOFOLLOW|O_LARGEFILE);
-  int		out_fd = in_fd==-1 ? -1 : open(dst, O_RDWR|O_CREAT|O_EXCL, 0200);
+  int		out_fd = in_fd==-1 ? -1 : open(dst, O_RDWR|O_CREAT|O_EXCL|O_NOCTTY, 0200);
   bool		res    = false;
   
   if (in_fd==-1 || out_fd==-1 ||
