@@ -152,11 +152,21 @@ kill_wrapper(xid_t xid, char const *pid, int sig)
 }
 #else // VC_ENABLE_API_LEGACY
 inline static int
-kill_wrapper(xid_t xid, char const *pid, int sig)
+kill_wrapper(xid_t xid, char const *pid_s, int sig)
 {
+  pid_t	pid;
+  long	tmp;
+
+  if (!isNumber(pid_s, &tmp, true)) {
+    WRITE_MSG(2, "vkill: '");
+    WRITE_STR(2, pid_s);
+    WRITE_MSG(2, "' is not a number\n");
+  }
+  pid = (pid_t) tmp;
+
   if (xid==VC_NOCTX)
     xid = vc_get_task_xid(pid);
-  if (vc_ctx_kill(xid,atoi(pid),sig)==-1) {
+  if (vc_ctx_kill(xid,pid,sig)==-1) {
     perror("vkill: vc_ctx_kill()");
     return 1;
   }

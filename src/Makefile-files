@@ -210,7 +210,7 @@ src_reducecap_LDFLAGS		=  $(VSERVER_LDFLGS)
 
 src_vkill_SOURCES		=  src/vkill.c
 src_vkill_LDADD			=  $(VSERVER_LDADDS)
-src_vkill_LDFLAGS		=  $(VSERVER_LDFLGS)
+src_vkill_LDFLAGS		=  $(VSERVER_LDFLGS) $(LIBINTERNAL)
 src_vkill_CPPFLAGS		=  $(AM_CPPFLAGS) -DLEGACYDIR=\"$(legacydir)\"
 
 src_vlimit_SOURCES		=  src/vlimit.c
