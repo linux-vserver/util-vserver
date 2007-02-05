@@ -69,4 +69,4 @@ VSOMETHING_PKGMGMT=1
 
 export VSOMETHING_TITLE VSOMETHING_PKGMGMT
 
-exec $_VSOMETHING "${send_through[@]}" dispatch-conf "${vsomething_opts[@]}"
+exec $_VSOMETHING "${send_through[@]}" dispatch-conf "${vsomething_opts[@]}" "$@"

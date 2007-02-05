@@ -75,17 +75,15 @@ VSOMETHING_PKGMGMT=1
 
 export VSOMETHING_TITLE VSOMETHING_PKGMGMT
 
-test ${#vsomething_opts[@]} -eq 0 || vsomething_opts=( "${vsomething_opts[@]}" -- )
-
 ret=0
 
 test $overlay_only -eq 0 && \
-	$_VSOMETHING "${send_through[@]}" emerge "${vsomething_opts[@]}" --metadata
+	$_VSOMETHING "${send_through[@]}" emerge "${vsomething_opts[@]}" "$@" -- --metadata
 
 ret=$?
 
 test -n "$overlay" -a -n "$overlay_host" && \
-	$_VSOMETHING "${send_through[@]}" rsync "${vsomething_opts[@]}" \
+	$_VSOMETHING "${send_through[@]}" rsync "${vsomething_opts[@]}" "$@" -- \
 	-rtW --progress --delete --delete-after "${overlay_host}/" "${overlay}/"
 
 test $? -eq 0 -a $ret -eq 0
