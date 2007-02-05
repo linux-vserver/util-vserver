@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
   uint32_t	flags		= 0;
   char		*device		= NULL;
   char		*target		= NULL;
-  long		tmp		= 0;
+  unsigned long	tmp		= 0;
   
   while (1) {
     int		c = getopt_long(argc, argv, "+x:ocrf:d:t:", CMDLINE_OPTIONS, 0);
