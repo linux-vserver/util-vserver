@@ -85,6 +85,7 @@ int main(int argc, char *argv[])
   uint32_t	flags		= 0;
   char		*device		= NULL;
   char		*target		= NULL;
+  long		tmp		= 0;
   
   while (1) {
     int		c = getopt_long(argc, argv, "+x:ocrf:d:t:", CMDLINE_OPTIONS, 0);
@@ -100,12 +101,13 @@ int main(int argc, char *argv[])
       case 'd'		:  device = optarg;			break;
       case 't'		:  target = optarg;			break;
       case 'f'		:
-	if (!isNumberUnsigned(optarg, &flags, false)) {
+	if (!isNumberUnsigned(optarg, &tmp, false)) {
 	  WRITE_MSG(2, "Invalid flags argument: '");
 	  WRITE_STR(2, optarg);
 	  WRITE_MSG(2, "'; try '--help' for more information\n");
 	  return EXIT_FAILURE;
 	}
+	flags |= (uint32_t) tmp;
 	break;
 
       default		:
