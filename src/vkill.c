@@ -154,6 +154,8 @@ kill_wrapper(xid_t xid, char const *pid, int sig)
 inline static int
 kill_wrapper(xid_t xid, char const *pid, int sig)
 {
+  if (xid==VC_NOCTX)
+    xid = vc_get_task_xid(pid);
   if (vc_ctx_kill(xid,atoi(pid),sig)==-1) {
     perror("vkill: vc_ctx_kill()");
     return 1;
