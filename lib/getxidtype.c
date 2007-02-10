@@ -31,7 +31,7 @@ vc_getXIDType(xid_t xid)
   if (MIN_D_CONTEXT == 0 && (utilvserver_checkCompatConfig() & VC_VCI_NO_DYNAMIC) == 0)
     MIN_D_CONTEXT = 49152;
   else
-    MIN_D_CONTEXT = MAX_S_CONTEXT;
+    MIN_D_CONTEXT = MAX_S_CONTEXT+1;
 
   if (xid==0)					return vcTYPE_MAIN;
   if (xid==1)					return vcTYPE_WATCH;
