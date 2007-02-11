@@ -23,14 +23,12 @@ eval set -- "$tmp"
 DISTRIBUTION=:
 use_pkgmgmt=
 SOURCE=
-declare -a OPTS=()
 while true; do
     case "$1" in
 	-d)		DISTRIBUTION=$2; shift;;
 	--debug)	set -x;;
 	--pkgmgmt)	use_pkgmgmt=1;;
 	-s|--source)	SOURCE=$2; shift;;
-	-o)		OPTS=( "${OPTS[@]}" "$2" ); shift;;
 	--)		shift; break ;;
 	*)		echo "vserver-build.clone: internal error: unrecognized option '$1'" >&2
 			exit 1
@@ -39,11 +37,17 @@ while true; do
     shift
 done
 
-if test -z "$SOURCE"; then
-    panic $"vserver-build.clone: --source argument required"
+if test -d "$SOURCE"; then
+    :
+elif test -d "$__CONFDIR/$SOURCE"; then
+    SOURCE=`getPhysicalDir "$__CONFDIR/$SOURCE/vdir"`
+elif test -d "$__DEFAULT_VSERVERDIR/$SOURCE"; then
+    SOURCE=`getPhysicalDir "$__DEFAULT_VSERVERDIR/$SOURCE"`
+else
+    SOURCE=
 fi
 
-test -z "${OPTS[*]}" && OPTS=( -Hazx --numeric-ids )
+test -n "$SOURCE" || panic $"vserver-build.clone: valid --source argument required"
 
 getDistribution '' 1
 
@@ -59,7 +63,7 @@ setup_writeInitialFstab
 
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
 
-$_VCLONE --source "$SOURCE"/ --dest "$VDIR"/
+$_VCLONE "$SOURCE"/ "$VDIR"/
 
 test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
 

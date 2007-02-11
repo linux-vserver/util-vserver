@@ -44,8 +44,6 @@
 
 #define CMD_HELP		0x8000
 #define CMD_VERSION		0x8001
-#define CMD_SOURCE		0x8002
-#define CMD_DEST		0x8003
 
 struct WalkdownInfo
 {
@@ -67,8 +65,6 @@ struct option const
 CMDLINE_OPTIONS[] = {
   { "help",     no_argument,       0, CMD_HELP },
   { "version",  no_argument,       0, CMD_VERSION },
-  { "source",   required_argument, 0, CMD_SOURCE },
-  { "dest",     required_argument, 0, CMD_DEST },
   { 0,0,0,0 }
 };
 
@@ -81,7 +77,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:\n  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " --source <source> --dest <destination>\n\n"
+	    " <source> <absolute path to destination>\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
@@ -160,6 +156,7 @@ int main(int argc, char *argv[])
     .verbosity		=  0,
   };
   uint64_t		res;
+  int			num_args;
 
   global_args = &args;
   while (1) {
@@ -170,8 +167,6 @@ int main(int argc, char *argv[])
     switch (c) {
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
-      case CMD_SOURCE	:  ENSC_PI_SETSTR(global_info.src, optarg); break;
-      case CMD_DEST	:  ENSC_PI_SETSTR(global_info.dst, optarg); break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -180,6 +175,34 @@ int main(int argc, char *argv[])
 	break;
     }
   }
+
+  num_args = argc - optind;
+  if (num_args < 1) {
+    WRITE_MSG(2, "Source is missing; try '");
+    WRITE_STR(2, argv[0]);
+    WRITE_MSG(2, " --help' for more information.\n");
+    return EXIT_FAILURE;
+  }
+  else if (num_args < 2) {
+    WRITE_MSG(2, "Destination is missing; try '");
+    WRITE_STR(2, argv[0]);
+    WRITE_MSG(2, " --help' for more information.\n");
+    return EXIT_FAILURE;
+  }
+  else if (num_args > 2) {
+    WRITE_MSG(2, "Too many arguments; try '");
+    WRITE_STR(2, argv[0]);
+    WRITE_MSG(2, " --help' for more information.\n");
+    return EXIT_FAILURE;
+  }
+  else if (*argv[optind+1] != '/') {
+    WRITE_MSG(2, "The destination must be an absolute path; try '");
+    WRITE_STR(2, argv[0]);
+    WRITE_MSG(2, " --help' for more information.\n");
+    return EXIT_FAILURE;
+  }
+  ENSC_PI_SETSTR(global_info.src, argv[optind]);
+  ENSC_PI_SETSTR(global_info.dst, argv[optind+1]);
 
   if (global_args->verbosity>3)
     WRITE_MSG(1, "Starting to traverse directories...\n");
