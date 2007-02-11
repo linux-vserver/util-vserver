@@ -713,8 +713,12 @@ function setDefaultTTY
 	"$__CONFDIR/.defaults/apps/init/tty" \
 	$2 /dev/null
 
-    exec   <$ttyname
-    exec  &>$ttyname
+    if test -f "$ttyname"; then
+	exec </dev/null
+    else
+	exec <$ttyname
+    fi
+    exec   &>>$ttyname
 }
 
 ## Usage: killContext <XID> [<SIG>]
