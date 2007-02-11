@@ -1,55 +1,45 @@
- // from http://vserver.13thfloor.at/Experimental/SYSCALL/syscall_shiny10.h
+ // from http://vserver.13thfloor.at/Experimental/SYSCALL/syscall_shiny15.h
 
 #ifndef	__SYSCALL_NEW_H
 #define	__SYSCALL_NEW_H
 
-/*	Copyright (C) 2005-2006 Herbert Pötzl
+/*	Copyright (C) 2005-2007 Herbert Pötzl
 
 		global config options
 
-	__sysc_setret	... set return value (default none)
-	__sysc_seterr	... set error value (default errno)
-
+	__sysc_seterr	... set error value (def: errno)
+	__sysc_cid(N)	... syscall 'name' id (def: __NR_<N>)
 
 		arch specific config
 
-	__sysc_reg_cid	... the callid (if define), immediate otherwise
+	__sysc_regs	... the syscall registers (asm load)
+	__sysc_cmd(n)	... the syscall
+	__sysc_reg_cid	... syscall id register (asm load)
+	__sysc_reg_ret	... syscall return register (asm out)
+	__sysc_reg_err	... syscall error register (asm out)
 
-	__sysc_reg(n)	... syscall argument registers
+	__sysc_clbrs	... the clobbered syscall registers
+	__sysc_clobber	... clobbered registers (def: memory)
+	__sysc_max_err	... maximum error number (def: separate)
+	__sysc_errc(r,e)... error condition (def: e)
 
-	__sysc_reg_res	... simple result register (either that or)
-	__sysc_reg_ret	... complex result register (and)
-	__sysc_reg_err	... complex error register
-
-	__sysc_cmd_pre	... preparation command(s)	__sysc_pre(n)
-	__sysc_cmd_sys	... the syscall			__sysc_cmd(n)
-	__sysc_cmd_fin	... syscall finalization	__sysc_fin(n)
-
-	__sysc_clobber	... clobbered registers (default memory)
-	__sysc_max_err	... maximum error number (for simple result)
-
-	__sysc_errc(r,e)	... error condition (e cmplx)
-	__sysc_retv(t,r,e)	... syscall return value (e cmplx)
-
-		if gcc cannot be trusted
-
-	__sysc_load(r,a)	... asm code for register load
-	__sysc_save(r,a)	... asm code to save result(s)
-	__sysc_limm(r,i)	... asm code to load immediate
-	__sysc_rcon(n)		... syscall register constraint
-	__sysc_regs		... list of input regs for clobber
-	__sysc_type		... register type
-	__sysc_aout		... asm code output constraint
-
-		if all else fails
-
-	__sc_asmload(n,N,...)	... asm code to prepare arguments
-	__sc_asmsysc(n,N)	... asm code to execute syscall
-	__sc_asmsave(n)		... asm code to store results
+	__sysc_type	... type of syscall arguments (def: long)
+	__sysc_acon(n)	... argument constraint (def: "r")
+	__sysc_con_cid	... syscall id constraint (def: "i"/"r")
+	__sysc_con_ret	... return value contraint (def: "=r")
+	__sysc_con_err	... error value contraint (def: "=r")
 
 */
 
+	/* some fallback defaults */
 
+#ifndef	__sysc_seterr
+#define	__sysc_seterr(e)	do { errno = (e); } while(0)
+#endif
+
+#ifndef	__sysc_cid
+#define	__sysc_cid(N)		__NR_##N
+#endif
 
 
 /*	*****************************************
@@ -67,20 +57,22 @@
 	serr:	e0($19) (!=0, err=sret)
 	call:	callsys
 	clob:	memory
+	move:	mov $sR,$dR
+	picr:	pr($29) do we need to save that?
 */
 
+#define	__sysc_cmd(n)	"callsys"
+
 #define	__sysc_reg_cid	"$0"
+#define	__sysc_con_cid	"v"
 #define	__sysc_reg_ret	"$0"
+#define	__sysc_con_ret	"=v"
 #define	__sysc_reg_err	"$19"
-#define	__sysc_cmd_sys	"callsys"
 
-#define	__sysc_reg(n)	__arg_##n\
-	("$16", "$17", "$18", "$19", "$20", "$21")
-
-#define	__sysc_clobber	__sysc_regs,					\
-	"$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8",			\
-	"$22", "$23", "$24", "$25", "$27", "$28", "memory"		\
-
+#define	__sysc_regs	"$16", "$17", "$18", "$19", "$20", "$21"
+#define	__sysc_clbrs	"$16", "$17", "$18", "memory", "$20", "$21"
+#define	__sysc_clobber	"$1", "$2", "$3", "$4", "$5", "$6", "$7", "$8",	\
+			"$22", "$23", "$24", "$25", "$27", "$28", "memory"
 
 
 /*	*****************************************
@@ -98,16 +90,15 @@
 	serr:	(sret >= (unsigned)-EMAXERRNO)
 	call:	swi
 	clob:	memory
+	move:	mov $dR,$sR
 */
 
 #define	__sysc_max_err	125
-#define	__sysc_reg_res	"r0"
-#define	__sysc_cmd_sys	"swi	%0"
 
-#define	__sysc_reg(n)	__arg_##n\
-	("r0", "r1", "r2", "r3", "r4", "r5")
+#define	__sysc_cmd(n)	"swi	%1"
 
-#define	__sysc_clobber	__sysc_regs, "memory"
+#define	__sysc_regs	"r0", "r1", "r2", "r3", "r4", "r5"
+#define	__sysc_reg_ret	"r0"
 
 #warning syscall arch arm not tested yet
 
@@ -130,20 +121,7 @@
 	clob:	memory
 */
 
-#define	__sysc_max_err	125
-#define	__sysc_reg_cid	"r9"
-#define	__sysc_reg_res	"r0"
-#define	__sysc_cmd_sys	"break 13"
-
-#define	__sysc_regs	"r10", "r11", "r12", "r13"
-#define	__sysc_reg(n)	__arg_##n\
-	("r10", "r11", "r12", "r13", "r0", "srp")
-
-#define	__sysc_pre(n)	__casm(n,5,0,"move r0,mof",)
-
-#define	__sysc_clobber	__sysc_regs, "memory"
-
-#warning syscall arch cris not tested yet
+#error syscall arch cris not implemented yet
 
 
 
@@ -165,17 +143,7 @@
 	clob:	memory
 */
 
-#define	__sysc_max_err	125
-#define	__sysc_reg_cid	"gr7"
-#define	__sysc_reg_res	"gr8"
-#define	__sysc_cmd_sys	"tira	gr0,#0"
-
-#define	__sysc_reg(n)	__arg_##n\
-	("gr8", "gr9", "gr10", "gr11", "gr12", "gr13")
-
-#define	__sysc_clobber	__sysc_regs, "memory"
-
-#warning syscall arch frv not tested yet
+#error syscall arch frv not implemented yet
 
 
 
@@ -198,29 +166,7 @@
 	clob:	memory
 */
 
-#define	__sysc_max_err	125
-#define	__sysc_reg_res	"er0"
-
-#define	__sysc_reg(n)	__arg_##n\
-	("er1", "er2", "er3", "er4", "er5", "er6")
-
-#define	__sysc_clobber	"memory"
-
-#define	__sc_asmload(n,N,...)	__sc_asm	(			\
-	__casm(n,1,1,	"mov.l	%0,er1"		,			)\
-	__casm(n,2,1,	"mov.l	%1,er2"		,			)\
-	__casm(n,3,1,	"mov.l	%2,er3"		,			)\
-	__casm(n,4,1,	"mov.l	%3,er4"		,			)\
-	__casm(n,5,1,	"mov.l	%4,er5"		,			)\
-	__casm(n,6,1,	"mov.l	er6,@-sp"	,			)\
-	__casm(n,6,1,	"mov.l	%5,er6"		,			)\
-	""::__sc_iregs(n,__VA_ARGS__):__sysc_regs)
-
-#define	__sysc_cmd_pre	"mov.l	%0,er0"
-#define	__sysc_cmd_sys	"trapa	#0"
-#define	__sysc_fin(n)	__casm(n,6,0,"mov.l	@sp+,er6",)
-
-#warning syscall arch h8300 not tested yet
+#error syscall arch h8300 not implemented yet
 
 
 
@@ -245,31 +191,27 @@
 	serr:	(sret >= (unsigned)-EMAXERRNO)
 	call:	ble  0x100(%%sr2, %%r0)
 	clob:	r1, r2, (r4), r20, r29, r31, memory
-	picr:	pr(r19)
+	picr:	pr(r19) do we need to save that?
 */
 
 #define	__sysc_max_err	4095
-#define	__sysc_reg_res	"r28"
 
-#define	__sysc_reg(n)	__arg_##n\
-	("r26", "r25", "r24", "r23", "r22", "r21")
+#define	__sysc_cmd(n)	\
+	__pasm(n,1,1,	"copy %%r19, %%r4"	,)\
+	__casm(n,0,1,	"ble 0x100(%%sr2,%%r0)"	,)\
+	__casm(n,0,1,	"ldi %1,%%r20"		,)\
+	__pasm(n,1,1,	"copy %%r4, %%r19"	,)
 
-#define	__sysc_cmd_sys	"ble 0x100(%%sr2,%%r0)"
-
-#define	__sysc_pre(n)							\
-	__pasm(n,1,1,	"copy %%r19, %%r4"	,			)
-
-#define	__sysc_fin(n)							\
-	__casm(n,1,1,	"ldi %0,%%r20"		,			)\
-	__pasm(n,1,1,	"copy %%r4, %%r19"	,			)
+#define	__sysc_regs	"r26", "r25", "r24", "r23", "r22", "r21"
 
 #ifndef	__PIC__
-#define	__sysc_clobber	__sysc_regs,					\
-	"r1", "r2", "r20", "r29", "r31", "memory"
+#define	__sysc_clobber	"r1", "r2", "r20", "r29", "r31", "memory"
 #else
-#define	__sysc_clobber	__sysc_regs,					\
-	"r1", "r2", "r4", "r20", "r29", "r31", "memory"
+#define	__sysc_clobber	"r1", "r2", "r4", "r20", "r29", "r31", "memory"
 #endif
+
+#warning syscall arch hppa not tested yet
+
 
 
 /*	*****************************************
@@ -289,41 +231,36 @@
 	call:	int 0x80
 	picr:	pr(ebx)
 	clob:	memory
+	move:	movl $sR,$dR
 */
 
 #define	__sysc_max_err	129
-#define	__sysc_reg_res	"eax"
-#define	__sysc_cmd_sys	"int	$0x80"
 
 #ifndef	__PIC__
-#define	__sysc_regs	"ebx", "ecx", "edx", "esi", "edi"
+#define	__sysc_clbrs	"memory", "ebx", "ecx", "edx", "esi", "edi"
 #else
-#define	__sysc_regs	"ecx", "edx", "esi", "edi"
+#define	__sysc_clbrs	"memory", "memory", "ecx", "edx", "esi", "edi"
 #endif
 
-#define	__sc_asmload(n,N,...)	__sc_asm	(			\
-	__casm(n,6,1,	"movl	%5,%%eax"	,			)\
-	__casm(n,5,1,	"movl	%4,%%edi"	,			)\
-	__casm(n,4,1,	"movl	%3,%%esi"	,			)\
-	__casm(n,3,1,	"movl	%2,%%edx"	,			)\
-	__casm(n,2,1,	"movl	%1,%%ecx"	,			)\
-	__pasm(n,1,1,	"pushl	%%ebx"		,			)\
-	__casm(n,1,1,	"movl	%0,%%ebx"	,			)\
-	__casm(n,6,1,	"pushl	%%ebp"		,			)\
-	""::__sc_iregs(n,__VA_ARGS__):__sysc_clobber)
+#define	__sysc_cmd(n)	\
+	__casm(n,6,1,	"movl	%7, %%eax"	,)\
+	__casm(n,5,1,	"movl	%6, %%edi"	,)\
+	__casm(n,4,1,	"movl	%5, %%esi"	,)\
+	__casm(n,3,1,	"movl	%4, %%edx"	,)\
+	__casm(n,2,1,	"movl	%3, %%ecx"	,)\
+	__pasm(n,1,1,	"pushl	%%ebx"		,)\
+	__casm(n,1,1,	"movl	%2, %%ebx"	,)\
+	__casm(n,6,1,	"pushl	%%ebp"		,)\
+	__casm(n,6,1,	"movl	%%eax, %%ebp"	,)\
+	__casm(n,0,1,	"movl	%1, %%eax"	,)\
+	__casm(n,0,1,	"int	$0x80"		,)\
+	__casm(n,6,1,	"popl	%%ebp"		,)\
+	__pasm(n,1,1,	"popl	%%ebx"		,)
 
-#define	__sc_asmsave(n)
+#define	__sysc_acon(n)	"g"
+#define	__sysc_reg_ret	"eax"
+#define	__sysc_con_ret	"=a"
 
-#define	__sysc_pre(n)							\
-	__casm(n,6,1,	"movl	%%eax,%%ebp"	,			)\
-	__casm(n,0,1,	"movl	%1,%%eax"	,			)\
-
-#define	__sysc_fin(n)							\
-	__casm(n,6,1,	"popl	%%ebp"		,			)\
-	__pasm(n,1,1,	"popl	%%ebx"		,			)\
-
-#define	__sysc_aout 	"=a"(__res)
-#define	__sysc_clobber	__sysc_regs, "memory"
 
 
 /*	*****************************************
@@ -341,22 +278,21 @@
 	serr:	e0(r10)
 	call:	break 0x100000
 	clob:	out6/7, r2/3/9, r11-r14, r16-r31, p6-p15, f6-f15, b6/7
+	move:	mov %dR = %sR
 */
-
-
-#define	__sysc_reg_ret	"r8"
-#define	__sysc_reg_err	"r10"
-#define	__sysc_reg_cid	"r15"
-#define	__sysc_cmd_sys	"break.i	0x100000"
 
 #define	__sysc_errc(r,e)	((e) == -1)
 
-#define	__sysc_reg(n)	__arg_##n\
-	("out0", "out1", "out2", "out3", "out4", "out5")
+#define	__sysc_cmd(n)	"break.i 0x100000"
 
-#define	__sysc_clobber	__sysc_regs,					\
+#define	__sysc_regs	"out0", "out1", "out2", "out3", "out4", "out5"
+#define	__sysc_reg_cid	"r15"
+#define	__sysc_reg_ret	"r8"
+#define	__sysc_reg_err	"r10"
+
+#define	__sysc_clobber	\
 	"out6", "out7", "r2", "r3", "r9", "r11", "r12", "r13",		\
-	"r14", "r16", "r17", "r18", "r19", "r20", "r21", "r22", 	\
+	"r14", "r16", "r17", "r18", "r19", "r20", "r21", "r22",		\
 	"r23", "r24", "r25", "r26", "r27", "r28", "r29", "r30",		\
 	"r31", "p6", "p7", "p8", "p9", "p10", "p11", "p12", "p13",	\
 	"p14", "p15", "f6", "f7", "f8", "f9", "f10", "f11", "f12",	\
@@ -381,17 +317,16 @@
 	serr:	(sret >= (unsigned)-EMAXERRNO)
 	call:	trap #2
 	clob:	out6/7, r2/3/9, r11-r14, r16-r31, p6-p15, f6-f15, b6/7
+	move:	mv %dR,%sR
 */
 
 #define	__sysc_max_err	125
+
+#define	__sysc_cmd(n)	"trap #2"
+
+#define	__sysc_regs	"r0", "r1", "r2", "r3", "r4", "r5"
 #define	__sysc_reg_cid	"r7"
-#define	__sysc_reg_res	"r0"
-#define	__sysc_cmd_sys	"trap #2"
-
-#define	__sysc_reg(n)	__arg_##n\
-	("r0", "r1", "r2", "r3", "r4", "r5")
-
-#define	__sysc_clobber	__sysc_regs, "memory"
+#define	__sysc_reg_ret	"r0"
 
 #warning syscall arch m32r not tested yet
 
@@ -414,42 +349,34 @@
 #elif	defined(__mips__)
 
 /*	The ABIO32 calling convention uses a0-a3  to pass the first
-	four arguments, the rest is passed on the userspace stack.  The 5th arg
-	starts at 16($sp).
+	four arguments, the rest is passed on the userspace stack.  
+	The 5th arg starts at 16($sp). The new mips calling abi uses 
+	registers a0-a5, restart requires a reload of v0 (#syscall)
 
 	ABIN32 and ABI64 pass 6 args in a0-a3, t0-t1.
 
 	scnr:	id(v0)
-	args:	a1(a0), a2(a1), a3(a2), a4(a3), a5(16($sp)), a6(20($sp))
+	args:	a1(a0), a2(a1), a3(a2), a4(a3), a5(t0), a6(t1)
 	sret:	r0(v0)
 	serr:	e0(a3)
 	call:	syscall
-	clob:	at, v0, t0-t7, t8-t9
+	clob:	at, v1, t2-t7, t8-t9
+	move:	move	%dR,%sR
 */
 
-#define	__sysc_reg_cid	"v0"
+#define	__sysc_cmd(n)	\
+	__casm(n,0,1,	"ori	$v0,$0,%2"	,)\
+	__casm(n,0,1,	"syscall"		,)
+
+#define	__sysc_regs	"a0","a1","a2","a3", "t0", "t1"
 #define	__sysc_reg_ret	"v0"
 #define	__sysc_reg_err	"a3"
-#define	__sysc_cmd_sys	"syscall"
 
-#define	__sysc_reg(n) __arg_##n\
-	("a0","a1","a2","a3", "t0", "t1")
+#define	__sysc_clobber	"$1", "$3", "$10", "$11", "$12",		\
+			"$13", "$14", "$15", "$24", "$25", "memory"
 
-#define	__sysc_clobber "$1", "$3", "$8", "$9", "$10", "$11", "$12",	\
-	"$13", "$14", "$15", "$24", "$25", "memory"
+#warning syscall arch mips not tested yet
 
-#if _MIPS_SIM == _ABIO32
-#define	__sysc_pre(n) 							\
-	__casm(n,5,1,"addiu $sp,$sp,-32",)				\
-	__casm(n,6,1,"sw $9,20($sp)",)					\
-	__casm(n,5,1,"sw $8, 16($sp)",)
-#define	__sysc_fin(n) 							\
-	__casm(n,5,1,"addiu $sp,$sp,32",)
-#elif (_MIPS_SIM == _ABIN32) || (_MIPS_SIM == _ABI64)
-#warning syscall arch mips with ABI N32 and 64 not tested yet
-#else
-#error unknown mips ABI version
-#endif
 
 
 /*	*****************************************
@@ -466,24 +393,21 @@
 	sret:	r0(r3)
 	serr:	(carry)
 	call:	sc
-	clob:	cr0, ctr
+	clob:	r9-r12, cr0, ctr
+	move:	mr %dR,%sR
 */
-
-
-#define	__sysc_reg_cid	"r0"
-#define	__sysc_reg_ret	"r3"
-#define	__sysc_reg_err	"r0"
 
 #define	__sysc_errc(r,e)	((e) & 0x10000000)
 
-#define	__sysc_reg(n)	__arg_##n\
-	("r3", "r4", "r5", "r6", "r7", "r8")
+#define	__sysc_cmd(n)	\
+	__casm(n,0,1,	"sc"			,)\
+	__casm(n,0,1,	"mfcr %1"		,)
 
-#define	__sysc_cmd_sys	"sc"
-#define	__sysc_cmd_fin	"mfcr 0"
+#define	__sysc_regs	"r3", "r4", "r5", "r6", "r7", "r8"
+#define	__sysc_reg_cid	"r0"
+#define	__sysc_reg_ret	"r3"
 
-#define	__sysc_clobber	__sysc_regs,					\
-	"r9", "r10", "r11", "r12", "cr0", "ctr", "memory"
+#define	__sysc_clobber	"r9", "r10", "r11", "r12", "cr0", "ctr", "memory"
 
 
 
@@ -506,16 +430,16 @@
 */
 
 #define	__sysc_max_err	4095
+
+#define	__sysc_cmd(n)	"svc	0"
+
+// #define	__sysc_type	unsigned long
+
+#define	__sysc_regs	"r2", "r3", "r4", "r5", "r6", "r7"
 #define	__sysc_reg_cid	"r1"
-#define	__sysc_reg_res	"r2"
-#define	__sysc_cmd_sys	"svc	0"
+#define	__sysc_reg_ret	"r2"
 
-#define	__sysc_regtyp	unsigned long
-
-#define	__sysc_reg(n)	__arg_##n\
-	("r2", "r3", "r4", "r5", "r6", "r7")
-
-#define	__sysc_clobber	__sysc_regs, "memory"
+#warning syscall arch s390 not tested yet
 
 
 
@@ -527,7 +451,7 @@
 
 /*	The SuperH calling convention passes the first four arguments
 	in r4-r7, the remainder is spilled onto the stack. However
-	the Linux kernel passes the remainder in r0-r2.
+	the Linux kernel passes the remainder in r0-r1.
 
 	scnr:	id(r3)
 	args:	a1(r4), a2(r5), a3(r6), a4(r7), a5(r0), a6(r1)
@@ -535,21 +459,22 @@
 	serr:	(sret >= (unsigned)-EMAXERRNO)
 	call:	trapa #0x1x (x=#args)
 	clob:	memory
+	move:	ori	%sR,0,%dR
 */
 
+#ifdef	__sh2__
+#define	__sysc_arch	"trapa	#0x2"
+#else
+#define	__sysc_arch	"trapa	#0x1"
+#endif
+
 #define	__sysc_max_err	4095
+
+#define	__sysc_cmd(n)	__sysc_arch #n
+
+#define	__sysc_regs	"r4", "r5", "r6", "r7", "r0", "r1"
 #define	__sysc_reg_cid	"r3"
-#define	__sysc_reg_res	"r0"
-
-#define	__sysc_reg(n)	__arg_##n\
-	("r4", "r5", "r6", "r7", "r0", "r1")
-
-#define	__sysc_cmd(n)	"trapa	#0x1" __stringify(n)
-
-#define	__rep_6(x)	x x x x x x
-#define	__sysc_cmd_fin	__rep_6("or	r0,r0\n\t")
-
-#define	__sysc_clobber	__sysc_regs, "memory"
+#define	__sysc_reg_ret	"r0"
 
 #warning syscall arch sh not tested yet
 
@@ -562,7 +487,8 @@
 #elif defined(__sh__) && defined(__SH5__)
 
 /*	The SuperH-5 calling convention passes the first eight
-	arguments in r2-r9
+	arguments in r2-r9. The Linux kernel uses only six of
+	them as arguments, and the last one for the syscall id.
 
 	scnr:	id(r9)
 	args:	a1(r2), a2(r3), a3(r4), a4(r5), a5(r6), a6(r7)
@@ -570,21 +496,18 @@
 	serr:	(sret >= (unsigned)-EMAXERRNO)
 	call:	trapa #0x1x (x=#args)
 	clob:	memory
+	move:	ori	%sR,0,%dR
 */
 
 #define	__sysc_max_err	4095
-#define	__sysc_reg_res	"r9"
-#define	__sysc_cmd_sys	"trapa	r9"
 
-#define	__sysc_reg(n)	__arg_##n\
-	("r2", "r3", "r4", "r5", "r6", "r7")
+#define	__sysc_cmd(n)	\
+	__casm(n,0,1,	"movi	0x1" #n ",r9"	,)\
+	__casm(n,0,1,	"shori	%1,r9"		,)\
+	__casm(n,0,1,	"trapa	r9"		,)
 
-#define	__sc_asmsysc(n,N)	__sc_asm_vol	(			\
-	__casm(n,0,1,	"movi %0,r9"		,			)\
-	__casm(n,0,1,	__sc_cmds(n,N)		,			)\
-	""::"i"(__sc_id(N) | 0x1##n << 16) : __sysc_clobber)
-
-#define	__sysc_clobber	__sysc_regs, "memory"
+#define	__sysc_regs	"r2", "r3", "r4", "r5", "r6", "r7"
+#define	__sysc_reg_ret	"r9"
 
 #warning syscall arch sh64 not tested yet
 
@@ -605,27 +528,24 @@
 	serr:	(carry)
 	call:	ta 0x6d, t 0x10
 	clob:	g1-g6, g7?, o7?, f0-f31, cc
+	move:	mov	%sR,%dR
 */
 
-#define	__sysc_max_err	515
-#define	__sysc_reg_cid	"g1"
-#define	__sysc_reg_ret	"o0"
-#define	__sysc_reg_err	"l1"
-
-#define	__sysc_reg(n)	__arg_##n\
-	("o0", "o1", "o2", "o3", "o4", "o5")
-
 #ifdef	__arch64__
-#define	__sysc_cmd_sys	"ta	0x6d"
+#define	__sysc_arch	"ta	0x6d"
 #else
-#define	__sysc_cmd_sys	"t	0x10"
+#define	__sysc_arch	"ta	0x10"
 #endif
 
-#define	__sysc_cmd_fin	"addx	%%g0,%%g0,%%l1"
+#define	__sysc_cmd(n)	\
+	__casm(n,0,1,	__sysc_arch		,)\
+	__casm(n,0,1,	"addx	%%g0,%%g0,%1"	,)
 
+#define	__sysc_regs	"o0", "o1", "o2", "o3", "o4", "o5"
+#define	__sysc_reg_cid	"g1"
+#define	__sysc_reg_ret	"o0"
 
-#define	__sysc_clobber	__sysc_regs,					\
-	"g2", "g3", "g4", "g5", "g6",					\
+#define	__sysc_clobber	"g2", "g3", "g4", "g5", "g6",			\
 	"f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8",		\
 	"f9", "f10", "f11", "f12", "f13", "f14", "f15", "f16",		\
 	"f17", "f18", "f19", "f20", "f21", "f22", "f23", "f24",		\
@@ -633,8 +553,6 @@
 	"f34", "f36", "f38", "f40", "f42", "f44", "f46", "f48",		\
 	"f50", "f52", "f54", "f56", "f58", "f60", "f62",		\
 	"cc", "memory"
-
-#warning syscall arch sparc not tested yet
 
 
 
@@ -657,16 +575,16 @@
 */
 
 #define	__sysc_max_err	515
+
+#define	__sysc_cmd(n)	\
+	__casm(n,4,0,	"trap 1"	,"trap 0"	)
+
+#define	__sysc_regs	"r6", "r7", "r8", "r9", "r13", "r14"
 #define	__sysc_reg_cid	"r12"
-#define	__sysc_reg_res	"r10"
+#define	__sysc_reg_ret	"r10"
 
-#define	__sysc_reg(n)	__arg_##n\
-	("r6", "r7", "r8", "r9", "r13", "r14")
-
-#define	__sysc_cmd(n)	__casm(n,4,0,"trap 1","trap 0")
-
-#define	__sysc_clobber	__sysc_regs,					\
-	"r1", "r5", "r11", "r15", "r16", "r17", "r18", "r19", "memory"
+#define	__sysc_clobber	"r1", "r5", "r11",				\
+			"r15", "r16", "r17", "r18", "r19", "memory"
 
 #warning syscall arch v850 not tested yet
 
@@ -690,23 +608,59 @@
 */
 
 #define	__sysc_max_err	4095
+
+#define	__sysc_cmd(n)	"syscall"
+
+#define	__sysc_regs	"rdi", "rsi", "rdx", "r10", "r8", "r9"
 #define	__sysc_reg_cid	"rax"
-#define	__sysc_reg_res	"rax"
-#define	__sysc_cmd_sys	"syscall"
+#define	__sysc_reg_ret	"rax"
+#define	__sysc_con_ret	"=a"
 
-#define	__sysc_reg(n)	__arg_##n\
-	("rdi", "rsi", "rdx", "r10", "r8", "r9")
-
-#define	__sysc_clobber	__sysc_regs,					\
-	"cc", "r11", "rcx", "memory"
-
-#define	__sysc_aout 	"=a"(__res)
+#define	__sysc_clobber	"cc", "r11", "rcx", "memory"
 
 #else
 #error unknown kernel arch
 #endif
 
+	
+	/* implementation defaults */
 
+
+
+#ifndef	__sysc_clobber
+#define	__sysc_clobber		"memory"
+#endif
+
+#ifndef	__sysc_acon
+#define	__sysc_acon(n)		"r"
+#endif
+
+#ifndef	__sysc_con_ret
+#define	__sysc_con_ret		"=r"
+#endif
+
+#ifndef	__sysc_con_err
+#define	__sysc_con_err		"=r"
+#endif
+
+#ifndef	__sysc_con_cid
+#ifdef	__sysc_reg_cid
+#define	__sysc_con_cid		"r"
+#else
+#define	__sysc_con_cid		"i"
+#endif
+#endif
+
+#ifndef	__sysc_type
+#define	__sysc_type		long
+#endif
+
+#ifdef	__sysc_regs
+#define	__sysc_rega(n,...)	__arg_##n(__VA_ARGS__)
+#ifndef	__sysc_reg
+#define	__sysc_reg(n)		__sysc_rega(n,__sysc_regs)
+#endif
+#endif
 
 
 
@@ -717,18 +671,8 @@
 #define	__lst_4(x,a1,a2,a3,a4)		__lst_3(x,a1,a2,a3),x(4,a4)
 #define	__lst_3(x,a1,a2,a3)		__lst_2(x,a1,a2),x(3,a3)
 #define	__lst_2(x,a1,a2)		__lst_1(x,a1),x(2,a2)
-#define	__lst_1(x,a1)			__lst_0(x,*)x(1,a1)
+#define	__lst_1(x,a1)			__lst_0(x,*),x(1,a1)
 #define	__lst_0(x,a0)
-
-	/* argument concat */
-
-#define	__con_6(x,a1,a2,a3,a4,a5,a6)	__con_5(x,a1,a2,a3,a4,a5)x(6,a6)
-#define	__con_5(x,a1,a2,a3,a4,a5)	__con_4(x,a1,a2,a3,a4)x(5,a5)
-#define	__con_4(x,a1,a2,a3,a4)		__con_3(x,a1,a2,a3)x(4,a4)
-#define	__con_3(x,a1,a2,a3)		__con_2(x,a1,a2)x(3,a3)
-#define	__con_2(x,a1,a2)		__con_1(x,a1)x(2,a2)
-#define	__con_1(x,a1)			__con_0(x,*)x(1,a1)
-#define	__con_0(x,a0)
 
 	/* argument selection */
 
@@ -740,22 +684,28 @@
 #define	__arg_5(a1,a2,a3,a4,a5,...)	a5
 #define	__arg_6(a1,a2,a3,a4,a5,a6)	a6
 
+	/* argument concatenation */
+
+#define	__con_6(x,a1,a2,a3,a4,a5,a6)	__con_5(x,a1,a2,a3,a4,a5)x(6,a6)
+#define	__con_5(x,a1,a2,a3,a4,a5)	__con_4(x,a1,a2,a3,a4)x(5,a5)
+#define	__con_4(x,a1,a2,a3,a4)		__con_3(x,a1,a2,a3)x(4,a4)
+#define	__con_3(x,a1,a2,a3)		__con_2(x,a1,a2)x(3,a3)
+#define	__con_2(x,a1,a2)		__con_1(x,a1)x(2,a2)
+#define	__con_1(x,a1)			__con_0(x,*)x(1,a1)
+#define	__con_0(x,a0)
+
+	/* list remainder */
+
+#define	__rem_0(a1,a2,a3,a4,a5,a6)	,a1,a2,a3,a4,a5,a6
+#define	__rem_1(a1,a2,a3,a4,a5,a6)	,a2,a3,a4,a5,a6
+#define	__rem_2(a1,a2,a3,a4,a5,a6)	,a3,a4,a5,a6
+#define	__rem_3(a1,a2,a3,a4,a5,a6)	,a4,a5,a6
+#define	__rem_4(a1,a2,a3,a4,a5,a6)	,a5,a6
+#define	__rem_5(a1,a2,a3,a4,a5,a6)	,a6
+#define	__rem_6(...)
 
 
-#ifdef	__PIC__
-#define	__pic(v)		v
-#define	__nopic(v)
-#else
-#define	__pic(v)
-#define	__nopic(v)		v
-#endif
-
-#define	__casm_nl(v)		v "\n\t"
-
-#define	__casm(n,a,r,v,w)	__casm_##n##a(v,w,r)
-
-#define	__pasm(n,a,r,v,w)	__pic(__casm(n,a,r,v,w))
-#define	__Pasm(n,a,r,v,w)	__nopic(__casm(n,a,r,v,w))
+	/* conditional asm */
 
 #define	__casm_use(q,r,v)	v __casm_use_##q##r(__casm_nl(""))
 
@@ -826,96 +776,88 @@
 #define	__casm_65(v,w,r)	__casm_use(1,r,v)
 #define	__casm_66(v,w,r)	__casm_use(1,r,v)
 
-#define	__casm_cn_0
-#define	__casm_cn_1		,
-#define	__casm_cn_2		,
-#define	__casm_cn_3		,
-#define	__casm_cn_4		,
-#define	__casm_cn_5		,
-#define	__casm_cn_6		,
 
+	/* special PIC handling */
 
-
-#define	__sc_asm		__asm__
-#define	__sc_asm_vol		__asm__ __volatile__
-
-#ifndef	__sysc_setret
-#define	__sysc_setret(v)	do { } while(0)
+#ifdef	__PIC__
+#define	__pic(v)		v
+#define	__nopic(v)
+#else
+#define	__pic(v)
+#define	__nopic(v)		v
 #endif
 
-#ifndef	__sysc_seterr
-#define	__sysc_seterr(e)	do { errno = (e); } while(0)
+#define	__casm_nl(v)		v "\n\t"
+
+#define	__casm(n,a,r,v,w)	__casm_##n##a(v,w,r)
+
+#define	__pasm(n,a,r,v,w)	__pic(__casm(n,a,r,v,w))
+#define	__nasm(n,a,r,v,w)	__nopic(__casm(n,a,r,v,w))
+
+#define	__sc_cast(v)		(__sysc_type)(v)
+#define	__sc_ldef(N)		__sysc_type N
+#define	__sc_rdef(N,R)		register __sc_ldef(N) __sc_asm (R)
+
+#define	__sc_scid(N,v)		__sc_ldef(N) = __sc_cast(v)
+#define	__sc_areg(N,R,v)	__sc_rdef(N,R) = __sc_cast(v)
+
+#define	__sc_rval(n,v)		"r"(__sc_a##n)
+#define	__sc_ival(n,v)		__sysc_acon(n)(__sc_cast(v))
+#define	__sc_idef(n,v)		__sc_areg(__sc_a##n, __sysc_reg(n), v);
+
+#ifdef	__sysc_clbrs
+#define	__sc_cregs(n,...)	__rem_##n(__VA_ARGS__)
+#else
+#define	__sc_cregs(n,...)
 #endif
 
-#ifndef	__stringify0
-#define	__stringify0(val)	#val
+#ifdef	__sysc_regs
+#define	__sc_input(n,...)	__con_##n(__sc_idef,__VA_ARGS__)
+#define	__sc_ivals(n,...)	__lst_##n(__sc_rval,__VA_ARGS__)
+#else
+#define	__sc_input(n,...)
+#define	__sc_ivals(n,...)	__lst_##n(__sc_ival,__VA_ARGS__)
 #endif
 
-#ifndef	__stringify
-#define	__stringify(val)	__stringify0(val)
+#ifdef	__sysc_reg_cid
+#define	__sc_cidvar(N)		__sc_areg(__sc_id, \
+				__sysc_reg_cid, __sysc_cid(N))
+#define	__sc_cidval(N)		__sysc_con_cid (__sc_id)
+#endif
+
+#ifndef	__sc_cidval
+#define	__sc_cidval(N)		__sysc_con_cid (__sysc_cid(N))
+#endif
+
+#ifndef	__sc_cidvar
+#define	__sc_cidvar(N)
 #endif
 
 
-#if	!defined(__sysc_load) && !defined(__sysc_save)
-#if	!defined(__sysc_limm) && !defined(__sc_asmload)
-#define	__sc_trust
-#endif
+#ifdef	__sysc_reg_ret
+#define	__sc_ret	__ret
+#define	__sc_def_ret	__sc_ldef(ret); __sc_rdef(__sc_ret,__sysc_reg_ret)
+#else
+#define	__sc_ret	ret
+#define	__sc_def_ret	__sc_ldef(__sc_ret)
 #endif
 
-#if	defined(__sysc_reg_ret) && defined(__sysc_reg_err)
+#ifdef	__sysc_reg_err
+#define	__sc_err	__err
+#define	__sc_def_err	__sc_ldef(err); __sc_rdef(__sc_err,__sysc_reg_err)
+#else
+#define	__sc_err	err
+#define	__sc_def_err	__sc_ldef(__sc_err)
+#endif
+
+
+#ifndef	__sysc_max_err
 #define	__sc_complex
 #endif
 
-
-#ifndef	__sysc_type
-#define	__sysc_type		long
-#endif
-
-#define	__sc_cast(v)		(__sysc_type)(v)
-
-
-#define	__sc_reg(n)		register __sysc_type n
-#define	__sc_asm_reg(n,r)	register __sysc_type n __sc_asm (r)
-#define	__sc_asm_val(n,r,v)	__sc_asm_reg(n,r) = __sc_cast(v)
-
-#ifndef	__sysc_load
-#define	__sc_inp_def(n,v)	__sc_asm_val(__sc_a##n, __sysc_reg(n), v);
-#else
-#define	__sc_inp_def(n,value)
-#endif
-
-#if	!defined(__sysc_save) && !defined(__sysc_aout)
-#define	__sc_res_def(n,r)	__sc_asm_reg(n, r);
-#else
-#define	__sc_res_def(n,r)	__sc_reg(n);
-#endif
-
-
-#define	__sc_rreg(n,v)		"r"(__sc_a##n)
-#define	__sc_creg(n,v)		__sysc_rcon(n)(__sc_cast(v))
-
-#ifdef	__sc_trust
-#define	__sc_iregs(n,...)	__lst_##n(__sc_rreg,__VA_ARGS__)
-#define	__sc_input(n,...)	__con_##n(__sc_inp_def,__VA_ARGS__)
-#else
-#define	__sc_iregs(n,...)	__lst_##n(__sc_creg,__VA_ARGS__)
-#define	__sc_input(n,...)
-#endif
-
-
-
-#define	__sc_list(x)		x(1), x(2), x(3), x(4), x(5), x(6)
-
-#ifndef	__sysc_regs
-#define	__sysc_regs		__sc_list(__sysc_reg)
-#endif
-
-#ifndef	__sysc_rcon
-#define	__sysc_rcon(n)		"g"
-#endif
-
-
 #ifdef	__sc_complex	/* complex result */
+
+#define	__sc_results	__sc_def_ret; __sc_def_err
 
 #ifndef	__sysc_errc
 #define	__sysc_errc(ret, err) (err)
@@ -923,171 +865,63 @@
 
 #ifndef	__sysc_retv
 #define	__sysc_retv(type, ret, err)					\
-	__sysc_setret(ret);						\
 	if (__sysc_errc(ret, err)) {					\
-		int __err = (ret);					\
-		__sysc_seterr(__err);					\
+		__sysc_seterr(ret);					\
 		ret = -1;						\
 	}								\
 	return (type)(ret)
 #endif
 
-#define	__sc_results							\
-	__sc_res_def(__err, __sysc_reg_err)				\
-	__sc_res_def(__ret, __sysc_reg_ret)
-
-#define	__sc_oregs	"=r"(__ret), "=r"(__err)
-
-#if	defined(__sc_trust) || !defined(__sysc_save)
-#define	__sc_saveres	__sc_dummy_save(1)
-#else
-#define	__sc_saveres							\
-	__casm_nl(__sysc_save(__sysc_reg_ret,"%0"))			\
-	__casm_nl(__sysc_save(__sysc_reg_err,"%1"))
-#endif
-
-#define	__sc_return(t)	__sysc_retv(t, __ret, __err)
+#define	__sc_oregs	__sysc_con_ret (__sc_ret),			\
+			__sysc_con_err (__sc_err)
+#define	__sc_return(t)	ret = __sc_ret; err = __sc_err;			\
+			__sysc_retv(t, ret, err)
 
 #else			/* simple result  */
 
+#define	__sc_results	__sc_def_ret
+
 #ifndef	__sysc_errc
-#define	__sysc_errc(res)						\
-	((unsigned __sysc_type)(res) >= 				\
+#define	__sysc_errc(ret)						\
+	((unsigned __sysc_type)(ret) >= 				\
 		(unsigned __sysc_type)(-(__sysc_max_err)))
 #endif
 
 #ifndef	__sysc_retv
-#define	__sysc_retv(type, res)						\
-	__sysc_setret(res);						\
-	if (__sysc_errc(res)) {						\
-		int __err = -(res);					\
-		__sysc_seterr(__err);					\
-		res = -1;						\
+#define	__sysc_retv(type, ret)						\
+	if (__sysc_errc(ret)) {						\
+		__sysc_seterr(-ret);					\
+		ret = -1;						\
 	}								\
-	return (type)(res)
+	return (type)(ret)
 #endif
 
-
-#define	__sc_results							\
-	__sc_res_def(__res, __sysc_reg_res)
-
-#define	__sc_oregs	"=r"(__res)
-
-#if	defined(__sc_trust) || !defined(__sysc_save)
-#define	__sc_saveres	__sc_dummy_save(0)
-#else
-#define	__sc_saveres	__casm_nl(__sysc_save(__sysc_reg_res,"%0"))
-#endif
-
-#define	__sc_return(t)	__sysc_retv(t, __res)
+#define	__sc_oregs	__sysc_con_ret (__sc_ret)
+#define	__sc_return(t)	ret = __sc_ret; __sysc_retv(t, ret)
 
 #endif			/* simple/complex */
 
 
-#define	__sc_dummy_load(n)	"/* gcc dummy load " 			\
-	__casm(n,0,0,"%0 ",) __casm(n,1,0,"%1 ",) __casm(n,2,0,"%2 ",)	\
-	__casm(n,3,0,"%3 ",) __casm(n,4,0,"%4 ",) __casm(n,5,0,"%5 ",)	\
-	__casm(n,6,0,"%6 ",) "*/"
 
-#ifdef	__sysc_aout
-#define	__sc_dummy_save(n)
-#define __sc_asmsave(n)
-#else
-#define	__sc_dummy_save(n)	"/* gcc dummy save " 			\
-	__casm(n,0,0,"%0 ",) __casm(n,1,0,"%1 ",) "*/"
-#endif
+	/* the inline syscall */
 
-#define	__comment(name)		"\t/* kernel sys_" 			\
-	#name "[" __stringify(__sc_id(name)) "] */"
+#define	__sc_asm	__asm__
+#define	__sc_asm_vol	__asm__ __volatile__
 
-
-#define	__sc_id(N)		__NR_##N
-
-#ifndef	__sysc_reg_cid
-#define	__sc_cid(N)		"i"(__sc_id(N))
-#define	__sc_load_cid		""
-#define	__sc_callid(N)
-#else
-#define	__sc_cid(N)		"r"(__cid)
-#define	__sc_load_cid		__sysc_limm(__sysc_reg_cid,"%0")
-#define	__sc_callid(N)							\
-	__sc_asm_val(__cid, __sysc_reg_cid, __sc_id(N));
-#endif
-
-#ifndef	__sysc_cmd_pre
-#define	__sc_cmd_pre		""
-#else
-#define	__sc_cmd_pre		__casm_nl(__sysc_cmd_pre)
-#endif
-
-#ifndef	__sysc_cmd_fin
-#define	__sc_cmd_fin		""
-#else
-#define	__sc_cmd_fin		__sysc_cmd_fin
-#endif
-
-#ifndef	__sysc_pre
-#define	__sysc_pre(n)		__sc_cmd_pre
-#endif
-
-#ifndef	__sysc_cmd
-#define	__sysc_cmd(n)		__sysc_cmd_sys
-#endif
-
-#ifndef	__sysc_fin
-#define	__sysc_fin(n)		__sc_cmd_fin
-#endif
-
-#define	__sc_cmds(n,name)						\
-	__sysc_pre(n)							\
-	__casm_nl(__sysc_cmd(n) __comment(name))			\
-	__sysc_fin(n)
-
-#ifndef	__sc_asmload
-#ifdef	__sc_trust
-#define	__sc_asmload(n,N,...)	__sc_asm(				\
-	__sc_dummy_load(n)						\
-	::__sc_cid(N) __casm_cn_##n __sc_iregs(n,__VA_ARGS__))
-#else
-#define	__sc_asmload(n,N,...)	__sc_asm(				\
-	__casm(n,1,1,	__sysc_load(__sysc_reg(1),"%1"),		)\
-	__casm(n,2,1,	__sysc_load(__sysc_reg(2),"%2"),		)\
-	__casm(n,3,1,	__sysc_load(__sysc_reg(3),"%3"),		)\
-	__casm(n,4,1,	__sysc_load(__sysc_reg(4),"%4"),		)\
-	__casm(n,5,1,	__sysc_load(__sysc_reg(5),"%5"),		)\
-	__casm(n,6,1,	__sysc_load(__sysc_reg(6),"%6"),		)\
-	__sc_load_cid	::__sc_cid(N) __casm_cn_##n			\
-	__sc_iregs(n,__VA_ARGS__):__sysc_regs)
-#endif
-#endif
-
-#ifndef	__sysc_aout
-#define	__sysc_aout
-#endif
-
-#ifndef	__sc_asmsysc
-#define	__sc_asmsysc(n,N)	__sc_asm_vol(				\
-	__casm(n,0,0,	__sc_cmds(n,N)		,			)\
-	:__sysc_aout:"i"(__sc_id(N)) : __sysc_clobber)
-#endif
-
-#ifndef	__sc_asmsave
-#define	__sc_asmsave(n)		__sc_asm(				\
-	__sc_saveres		:__sc_oregs)
-#endif
-
-
+#define	__sc_syscall(n,N,...)						\
+	__sc_asm_vol (__sysc_cmd(n)						\
+	  : __sc_oregs							\
+	  : __sc_cidval(N) __sc_ivals(n,__VA_ARGS__)			\
+	  : __sysc_clobber __sc_cregs(n,__sysc_clbrs))
 
 
 #define	__sc_body(n, type, name, ...)					\
 {									\
-	__sc_results __sc_callid(name) __sc_input(n, __VA_ARGS__)	\
-	__sc_asmload(n, name, __VA_ARGS__);				\
-	__sc_asmsysc(n, name);						\
-	__sc_asmsave(n);						\
+	__sc_results;__sc_cidvar(name);					\
+	__sc_input(n,__VA_ARGS__)					\
+	__sc_syscall(n,name,__VA_ARGS__);				\
 	__sc_return(type);						\
 }
-
 
 
 #define	_syscall0(type, name)						\
@@ -1121,6 +955,7 @@ __sc_body(5, type, name, arg1, arg2, arg3, arg4, arg5)
 type name(type1 arg1, type2 arg2, type3 arg3,				\
 	  type4 arg4, type5 arg5, type6 arg6)				\
 __sc_body(6, type, name, arg1, arg2, arg3, arg4, arg5, arg6)
+
 
 
 #endif	/* __SYSCALL_NEW_H */
