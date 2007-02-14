@@ -718,7 +718,7 @@ function setDefaultTTY
     else
 	exec <$ttyname
     fi
-    exec   &>>$ttyname
+    exec    >>$ttyname 2>&1
 }
 
 ## Usage: killContext <XID> [<SIG>]
