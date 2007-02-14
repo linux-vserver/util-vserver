@@ -1,4 +1,4 @@
- // from http://vserver.13thfloor.at/Experimental/SYSCALL/syscall_shiny15.h
+ // from http://vserver.13thfloor.at/Experimental/SYSCALL/syscall_shiny16.h
 
 #ifndef	__SYSCALL_NEW_H
 #define	__SYSCALL_NEW_H
@@ -28,6 +28,15 @@
 	__sysc_con_cid	... syscall id constraint (def: "i"/"r")
 	__sysc_con_ret	... return value contraint (def: "=r")
 	__sysc_con_err	... error value contraint (def: "=r")
+
+		hard core replacements
+
+	__sc_body(n,type,name,...)
+	  __sc_results
+	  __sc_cidvar(N)
+	  __sc_input(n,...)
+	  __sc_syscall(n,N,...)
+	  __sc_return(t)
 
 */
 
@@ -236,28 +245,52 @@
 
 #define	__sysc_max_err	129
 
-#ifndef	__PIC__
-#define	__sysc_clbrs	"memory", "ebx", "ecx", "edx", "esi", "edi"
-#else
-#define	__sysc_clbrs	"memory", "memory", "ecx", "edx", "esi", "edi"
-#endif
+#define	__sc_reg1(...) __sc_cast(__arg_1(__VA_ARGS__,,,,,,))
+#define	__sc_reg6(...) __sc_cast(__arg_6(__VA_ARGS__,,,,,,))
+
+#define	__scsd	struct { __sc_ldef(__a); __sc_ldef(__b); } __scs
+#define	__scsa(n,...) \
+	__scs.__a = __sc_reg1(__VA_ARGS__);	\
+	__scs.__b = __sc_reg6(__VA_ARGS__);
+
+#define	__sc_input(n,...) __casm(n,6,0,		\
+	__scsd; __scsa(n,__VA_ARGS__),	)
+
+#define	__cm	,
+#define	__sc_null(n)	__arg_##n(		\
+	__cm,__cm,__cm,__cm,__cm,__cm)
+
+#define	__sc_rvcs(r,v)	r (__sc_cast(v))
+
+#define	__sc_rvrd(n,N)	__arg_##n(,		\
+	__cm	__sc_rvcs("c", N),		\
+	__cm	__sc_rvcs("d", N),		\
+	__cm	__sc_rvcs("S", N),		\
+	__cm	__sc_rvcs("D", N),)
+
+#define	__sc_arg1(n,...) __Casm(n,1,6,0,,	\
+	__sc_rvcs("ri", __sc_reg1(__VA_ARGS__)),\
+	__sc_rvcs("0", &__scs))
+
+#define	__sc_syscall(n,N,...) \
+	__sc_asm_vol (__sysc_cmd(n)		\
+	  : __sc_oregs				\
+	  : __sc_cidval(N) __sc_null(n)		\
+	    __sc_arg1(n,__VA_ARGS__)		\
+	    __con_##n(__sc_rvrd,__VA_ARGS__)	\
+	  : "memory" __nopic(__cm "ebx"))
 
 #define	__sysc_cmd(n)	\
-	__casm(n,6,1,	"movl	%7, %%eax"	,)\
-	__casm(n,5,1,	"movl	%6, %%edi"	,)\
-	__casm(n,4,1,	"movl	%5, %%esi"	,)\
-	__casm(n,3,1,	"movl	%4, %%edx"	,)\
-	__casm(n,2,1,	"movl	%3, %%ecx"	,)\
 	__pasm(n,1,1,	"pushl	%%ebx"		,)\
-	__casm(n,1,1,	"movl	%2, %%ebx"	,)\
+	__Casm(n,1,6,1,,"movl	%2, %%ebx"	,)\
 	__casm(n,6,1,	"pushl	%%ebp"		,)\
-	__casm(n,6,1,	"movl	%%eax, %%ebp"	,)\
+	__casm(n,6,1,	"movl	0(%2), %%ebx"	,)\
+	__casm(n,6,1,	"movl	4(%2), %%ebp"	,)\
 	__casm(n,0,1,	"movl	%1, %%eax"	,)\
 	__casm(n,0,1,	"int	$0x80"		,)\
 	__casm(n,6,1,	"popl	%%ebp"		,)\
 	__pasm(n,1,1,	"popl	%%ebx"		,)
 
-#define	__sysc_acon(n)	"g"
 #define	__sysc_reg_ret	"eax"
 #define	__sysc_con_ret	"=a"
 
@@ -674,16 +707,6 @@
 #define	__lst_1(x,a1)			__lst_0(x,*),x(1,a1)
 #define	__lst_0(x,a0)
 
-	/* argument selection */
-
-#define	__arg_0(...)
-#define	__arg_1(a1,...)			a1
-#define	__arg_2(a1,a2,...)		a2
-#define	__arg_3(a1,a2,a3,...)		a3
-#define	__arg_4(a1,a2,a3,a4,...)	a4
-#define	__arg_5(a1,a2,a3,a4,a5,...)	a5
-#define	__arg_6(a1,a2,a3,a4,a5,a6)	a6
-
 	/* argument concatenation */
 
 #define	__con_6(x,a1,a2,a3,a4,a5,a6)	__con_5(x,a1,a2,a3,a4,a5)x(6,a6)
@@ -693,6 +716,16 @@
 #define	__con_2(x,a1,a2)		__con_1(x,a1)x(2,a2)
 #define	__con_1(x,a1)			__con_0(x,*)x(1,a1)
 #define	__con_0(x,a0)
+
+	/* argument selection */
+
+#define	__arg_0(...)
+#define	__arg_1(a1,...)			a1
+#define	__arg_2(a1,a2,...)		a2
+#define	__arg_3(a1,a2,a3,...)		a3
+#define	__arg_4(a1,a2,a3,a4,...)	a4
+#define	__arg_5(a1,a2,a3,a4,a5,...)	a5
+#define	__arg_6(a1,a2,a3,a4,a5,a6,...)	a6
 
 	/* list remainder */
 
@@ -790,9 +823,14 @@
 #define	__casm_nl(v)		v "\n\t"
 
 #define	__casm(n,a,r,v,w)	__casm_##n##a(v,w,r)
+#define	__Casm(n,a,b,r,u,v,w)	__casm_##n##b(w,__casm_##n##a(v,u,r),r)
 
 #define	__pasm(n,a,r,v,w)	__pic(__casm(n,a,r,v,w))
+#define	__Pasm(n,a,b,r,u,v,w)	__pic(__Casm(n,a,b,r,u,v,w))
+
 #define	__nasm(n,a,r,v,w)	__nopic(__casm(n,a,r,v,w))
+#define	__Nasm(n,a,b,r,u,v,w)	__nopic(__Casm(n,a,b,r,u,v,w))
+
 
 #define	__sc_cast(v)		(__sysc_type)(v)
 #define	__sc_ldef(N)		__sysc_type N
@@ -815,7 +853,6 @@
 #define	__sc_input(n,...)	__con_##n(__sc_idef,__VA_ARGS__)
 #define	__sc_ivals(n,...)	__lst_##n(__sc_rval,__VA_ARGS__)
 #else
-#define	__sc_input(n,...)
 #define	__sc_ivals(n,...)	__lst_##n(__sc_ival,__VA_ARGS__)
 #endif
 
@@ -823,6 +860,10 @@
 #define	__sc_cidvar(N)		__sc_areg(__sc_id, \
 				__sysc_reg_cid, __sysc_cid(N))
 #define	__sc_cidval(N)		__sysc_con_cid (__sc_id)
+#endif
+
+#ifndef	__sc_input
+#define	__sc_input(n,...)
 #endif
 
 #ifndef	__sc_cidval
@@ -857,7 +898,9 @@
 
 #ifdef	__sc_complex	/* complex result */
 
+#ifndef	__sc_results
 #define	__sc_results	__sc_def_ret; __sc_def_err
+#endif
 
 #ifndef	__sysc_errc
 #define	__sysc_errc(ret, err) (err)
@@ -874,12 +917,15 @@
 
 #define	__sc_oregs	__sysc_con_ret (__sc_ret),			\
 			__sysc_con_err (__sc_err)
+#ifndef	__sc_return
 #define	__sc_return(t)	ret = __sc_ret; err = __sc_err;			\
 			__sysc_retv(t, ret, err)
-
+#endif
 #else			/* simple result  */
 
+#ifndef	__sc_results
 #define	__sc_results	__sc_def_ret
+#endif
 
 #ifndef	__sysc_errc
 #define	__sysc_errc(ret)						\
@@ -897,8 +943,9 @@
 #endif
 
 #define	__sc_oregs	__sysc_con_ret (__sc_ret)
+#ifndef	__sc_return
 #define	__sc_return(t)	ret = __sc_ret; __sysc_retv(t, ret)
-
+#endif
 #endif			/* simple/complex */
 
 
@@ -908,13 +955,15 @@
 #define	__sc_asm	__asm__
 #define	__sc_asm_vol	__asm__ __volatile__
 
+#ifndef	__sc_syscall
 #define	__sc_syscall(n,N,...)						\
-	__sc_asm_vol (__sysc_cmd(n)						\
+	__sc_asm_vol (__sysc_cmd(n)					\
 	  : __sc_oregs							\
 	  : __sc_cidval(N) __sc_ivals(n,__VA_ARGS__)			\
 	  : __sysc_clobber __sc_cregs(n,__sysc_clbrs))
+#endif
 
-
+#ifndef	__sc_body
 #define	__sc_body(n, type, name, ...)					\
 {									\
 	__sc_results;__sc_cidvar(name);					\
@@ -922,7 +971,7 @@
 	__sc_syscall(n,name,__VA_ARGS__);				\
 	__sc_return(type);						\
 }
-
+#endif
 
 #define	_syscall0(type, name)						\
 type name(void)								\
