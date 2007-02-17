@@ -133,7 +133,12 @@ function _setup_writeInterface
 
     tmp=${tmp##${name}=}
     local dev=${tmp%%:*}
-    test "$dev" != "$tmp" || dev=
+    local nodev=
+    test "$dev" != "$tmp"  || dev=
+    test "$dev" != "nodev" || {
+	dev=
+	nodev=1
+    }
 
     tmp=${tmp##${dev}:}
     local mask=${tmp##*/}
@@ -157,7 +162,8 @@ function _setup_writeInterface
     _setup_writeSingleOption "$prefix" $d/prefix
 
     test -n "$dev" -o -n "$SETUP_NETDEV" || {
-	echo $"No device specified for interface '$idx'; setting 'nodev'" >&2
+	test -n "$nodev" || \
+	    echo $"No device specified for interface '$idx'; setting 'nodev'" >&2
 	$_TOUCH $d/nodev
     }
 }
