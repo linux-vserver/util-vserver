@@ -877,17 +877,17 @@
 
 #ifdef	__sysc_reg_ret
 #define	__sc_ret	__ret
-#define	__sc_def_ret	__sc_ldef(ret); __sc_rdef(__sc_ret,__sysc_reg_ret)
+#define	__sc_def_ret	__sc_ldef(__r); __sc_rdef(__sc_ret,__sysc_reg_ret)
 #else
-#define	__sc_ret	ret
+#define	__sc_ret	__r
 #define	__sc_def_ret	__sc_ldef(__sc_ret)
 #endif
 
 #ifdef	__sysc_reg_err
 #define	__sc_err	__err
-#define	__sc_def_err	__sc_ldef(err); __sc_rdef(__sc_err,__sysc_reg_err)
+#define	__sc_def_err	__sc_ldef(__e); __sc_rdef(__sc_err,__sysc_reg_err)
 #else
-#define	__sc_err	err
+#define	__sc_err	__e
 #define	__sc_def_err	__sc_ldef(__sc_err)
 #endif
 
@@ -918,8 +918,8 @@
 #define	__sc_oregs	__sysc_con_ret (__sc_ret),			\
 			__sysc_con_err (__sc_err)
 #ifndef	__sc_return
-#define	__sc_return(t)	ret = __sc_ret; err = __sc_err;			\
-			__sysc_retv(t, ret, err)
+#define	__sc_return(t)	__r = __sc_ret; __e = __sc_err;			\
+			__sysc_retv(t, __r, __e)
 #endif
 #else			/* simple result  */
 
@@ -944,7 +944,7 @@
 
 #define	__sc_oregs	__sysc_con_ret (__sc_ret)
 #ifndef	__sc_return
-#define	__sc_return(t)	ret = __sc_ret; __sysc_retv(t, ret)
+#define	__sc_return(t)	__r = __sc_ret; __sysc_retv(t, __r)
 #endif
 #endif			/* simple/complex */
 
