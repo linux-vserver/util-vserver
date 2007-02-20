@@ -38,9 +38,9 @@
 
 #if defined(VC_ENABLE_API_V13) || defined(VC_ENABLE_API_V21)
 int
-vc_ctx_migrate(xid_t xid)
+vc_ctx_migrate(xid_t xid, uint_least64_t flags)
 {
-  CALL_VC(CALL_VC_SPACES(vc_ctx_migrate, xid),
+  CALL_VC(CALL_VC_SPACES(vc_ctx_migrate, xid, flags),
 	  CALL_VC_V13A  (vc_ctx_migrate, xid));
 }
 #endif

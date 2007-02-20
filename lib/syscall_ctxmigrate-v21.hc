@@ -22,14 +22,17 @@
 #endif
 
 static inline ALWAYSINLINE int
-vc_ctx_migrate_spaces(xid_t xid)
+vc_ctx_migrate_spaces(xid_t xid, uint_least64_t flags)
 {
-  int ret = vc_getXIDType(xid);
+  int ret;
+  struct vcmd_ctx_migrate data = { .flagword = flags };
+
+  ret = vc_getXIDType(xid);
   if (ret == vcTYPE_STATIC || ret == vcTYPE_DYNAMIC) {
     ret = vc_enter_namespace(xid, vc_get_space_mask() & ~(CLONE_NEWNS|CLONE_FS));
     if (ret)
       return ret;
   }
 
-  return vserver(VCMD_ctx_migrate_v0, CTX_USER2KERNEL(xid), NULL);
+  return vserver(VCMD_ctx_migrate, CTX_USER2KERNEL(xid), &data);
 }

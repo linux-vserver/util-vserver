@@ -35,7 +35,7 @@ switchToWatchXid(char const **errptr)
   if (vc_get_task_xid(0)==1) return true;
 
   if (vc_isSupported(vcFEATURE_MIGRATE)) {
-    if (vc_ctx_migrate(1)==-1) {
+    if (vc_ctx_migrate(1, 0)==-1) {
       if (errptr) *errptr = "vc_migrate_context()";
       return false;
     }

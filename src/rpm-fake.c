@@ -595,7 +595,7 @@ execvWorker(char const *path, char * const argv[], char * const envp[])
   int		res = -1;
 
   if (vc_isSupported(vcFEATURE_MIGRATE))
-    res = vc_ctx_migrate(ctx);
+    res = vc_ctx_migrate(ctx, 0);
   else {
 #ifdef VC_ENABLE_API_COMPAT  
     res = vc_new_s_context(ctx,caps,flags);

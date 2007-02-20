@@ -268,6 +268,11 @@
 #define VC_DATTR_REMAP			0x00000010
 
 
+// the process context migration flags
+#define VC_VXM_SET_INIT			0x00000001
+#define VC_VXM_SET_REAPER		0x00000002
+
+
 #ifndef CLONE_NEWNS
 #  define CLONE_NEWNS			0x00020000
 #endif
@@ -393,9 +398,10 @@ extern "C" {
     /** \brief   Moves the current process into the specified context.
      *  \ingroup syscalls
      *
-     *  \param   xid  The new context
+     *  \param   xid    The new context
+     *  \param   flags  The flags, see VC_VXM_*
      *  \returns 0 on success, -1 on errors */
-  int		vc_ctx_migrate(xid_t xid);
+  int		vc_ctx_migrate(xid_t xid, uint_least64_t flags);
 
     /** \brief   Statistics about a context */
   struct vc_ctx_stat {

@@ -65,9 +65,9 @@ Evc_net_create(nid_t nid)
 }
 
 inline static WRAPPER_DECL void
-Evc_ctx_migrate(xid_t xid)
+Evc_ctx_migrate(xid_t xid, uint_least64_t flags)
 {
-  FatalErrnoError(vc_ctx_migrate(xid)==-1, "vc_ctx_migrate()");
+  FatalErrnoError(vc_ctx_migrate(xid, flags)==-1, "vc_ctx_migrate()");
 }
 
 inline static WRAPPER_DECL void

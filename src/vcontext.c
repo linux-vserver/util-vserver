@@ -282,7 +282,7 @@ doit(struct Arguments const *args, int argc, char *argv[])
     setFlags(args, xid);
 
     if (args->do_migrate && !args->do_migrateself)
-      Evc_ctx_migrate(xid);
+      Evc_ctx_migrate(xid, 0);
 
     if (args->uid != NULL) {
       uid_t uid = 0;
