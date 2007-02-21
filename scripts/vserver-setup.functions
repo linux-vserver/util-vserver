@@ -34,8 +34,8 @@ declare -a SETUP_FLAGS=()
 
 declare -r SETUP_OPTIONS="confdir:,lockfile:,hostname:,netdev:,netmask:,netprefix:,netbcast:,interface:,flags:,context:,initstyle:,cpuset:,cpusetcpus:,cpusetmems:,cpusetvirt"
 declare -r SETUP_HELPMSG=$"
-    --context   ...  the static context of the vserver [default: none; a dynamic
-                     context will be assumed]
+    --context   ...  the static context of the vserver [default: none; one will
+                     be generated for you]
     --confdir   ...  [default: $__CONFDIR/<name>]
     --lockfile <filename>
 		...  [default: $__RUNDIR/<name>]
