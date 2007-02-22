@@ -1,4 +1,4 @@
- // from http://vserver.13thfloor.at/Experimental/SYSCALL/syscall_shiny16.h
+ // from http://vserver.13thfloor.at/Experimental/SYSCALL/syscall_shiny17.h
 
 #ifndef	__SYSCALL_NEW_H
 #define	__SYSCALL_NEW_H
@@ -269,7 +269,8 @@
 	__cm	__sc_rvcs("D", N),)
 
 #define	__sc_arg1(n,...) __Casm(n,1,6,0,,	\
-	__sc_rvcs("ri", __sc_reg1(__VA_ARGS__)),\
+	__sc_rvcs(__pic("ri") __nopic("b"),	\
+	__sc_reg1(__VA_ARGS__)),		\
 	__sc_rvcs("0", &__scs))
 
 #define	__sc_syscall(n,N,...) \
@@ -278,11 +279,11 @@
 	  : __sc_cidval(N) __sc_null(n)		\
 	    __sc_arg1(n,__VA_ARGS__)		\
 	    __con_##n(__sc_rvrd,__VA_ARGS__)	\
-	  : "memory" __nopic(__cm "ebx"))
+	  : "memory" )
 
 #define	__sysc_cmd(n)	\
 	__pasm(n,1,1,	"pushl	%%ebx"		,)\
-	__Casm(n,1,6,1,,"movl	%2, %%ebx"	,)\
+	__Pasm(n,1,5,1,,"movl	%2, %%ebx"	,)\
 	__casm(n,6,1,	"pushl	%%ebp"		,)\
 	__casm(n,6,1,	"movl	0(%2), %%ebx"	,)\
 	__casm(n,6,1,	"movl	4(%2), %%ebp"	,)\
@@ -877,17 +878,17 @@
 
 #ifdef	__sysc_reg_ret
 #define	__sc_ret	__ret
-#define	__sc_def_ret	__sc_ldef(__r); __sc_rdef(__sc_ret,__sysc_reg_ret)
+#define	__sc_def_ret	__sc_ldef(ret); __sc_rdef(__sc_ret,__sysc_reg_ret)
 #else
-#define	__sc_ret	__r
+#define	__sc_ret	ret
 #define	__sc_def_ret	__sc_ldef(__sc_ret)
 #endif
 
 #ifdef	__sysc_reg_err
 #define	__sc_err	__err
-#define	__sc_def_err	__sc_ldef(__e); __sc_rdef(__sc_err,__sysc_reg_err)
+#define	__sc_def_err	__sc_ldef(err); __sc_rdef(__sc_err,__sysc_reg_err)
 #else
-#define	__sc_err	__e
+#define	__sc_err	err
 #define	__sc_def_err	__sc_ldef(__sc_err)
 #endif
 
@@ -918,8 +919,8 @@
 #define	__sc_oregs	__sysc_con_ret (__sc_ret),			\
 			__sysc_con_err (__sc_err)
 #ifndef	__sc_return
-#define	__sc_return(t)	__r = __sc_ret; __e = __sc_err;			\
-			__sysc_retv(t, __r, __e)
+#define	__sc_return(t)	ret = __sc_ret; err = __sc_err;			\
+			__sysc_retv(t, ret, err)
 #endif
 #else			/* simple result  */
 
@@ -944,7 +945,7 @@
 
 #define	__sc_oregs	__sysc_con_ret (__sc_ret)
 #ifndef	__sc_return
-#define	__sc_return(t)	__r = __sc_ret; __sysc_retv(t, __r)
+#define	__sc_return(t)	ret = __sc_ret; __sysc_retv(t, ret)
 #endif
 #endif			/* simple/complex */
 
