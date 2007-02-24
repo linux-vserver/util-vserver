@@ -59,6 +59,10 @@ $4])
 		fi
 	fi
 
+	if test -e "${$1}"; then
+		$1=`readlink -f "${$1}"`
+	fi
+
 	test "${$1}" && ENSC_PATHPROG_SED="${ENSC_PATHPROG_SED}s!@'$1'@!${$1}!g;"
 
 	test "${$1}"])
@@ -75,10 +79,7 @@ AC_DEFUN([ENSC_PATHPROG_STANDARD_TOOLS],
 	ENSC_PATHPROG(CP,        cp)
 	ENSC_PATHPROG(DIRNAME,   dirname)
 	ENSC_PATHPROG(EGREP,     egrep)
-	env_old_searchpath="${ensc_searchpath}"
-	ensc_searchpath="/bin:${ensc_searchpath:-$PATH}"
 	ENSC_PATHPROG(ENV,       env)
-	ensc_searchpath="${env_old_searchpath}"
 	ENSC_PATHPROG(GREP,      grep)
 	ENSC_PATHPROG(LN,        ln)
 	ENSC_PATHPROG(MKDIR,     mkdir)
