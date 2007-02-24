@@ -33,9 +33,7 @@ nobase_distrib_SCRIPTS	=  redhat/initpost \
 			   redhat/initpre \
 			   redhat/rc.sysinit \
 			   gentoo/initpost \
-			   gentoo/initpre \
-			   gentoo/init-vserver.sh \
-			   gentoo/net.vserver
+			   gentoo/initpre
 
 nobase_distrib_DATA	=  defaults/devs \
 			   defaults/apt.conf \
@@ -60,7 +58,8 @@ nobase_distrib_DATA	=  defaults/devs \
 			   centos4/pkgs/01 centos4/pkgs/02 centos4/pkgs/03 \
 			   centos4/yum/yum.conf $(wildcard centos4/yum.repos.d/*.repo) \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
-			   suse91/rpm/macros
+			   suse91/rpm/macros \
+			   gentoo/init-vserver.sh gentoo/net.vserver
 
 nobase_confdistrib_DATA	=  rh9/apt/sources.list \
 			   fc1/apt/sources.list \
