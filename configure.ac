@@ -338,7 +338,7 @@ dnl ########################
 
 dnl Check what distro this is, use Gentoo initscripts if appropriate
 AC_MSG_CHECKING([for host initscripts])
-AC_ARG_WITH(initscripts, [force host initscripts (valid values are: gentoo, sysv)], [
+AC_ARG_WITH(initscripts, AC_HELP_STRING([--with-initscripts=TYPE], [force host initscripts; valid values are 'gentoo' and 'sysv' (default: guess)]), [
 	case "$withval" in
 	gentoo)	ensc_with_init=gentoo;;
 	sysv)	ensc_with_init=sysv;;
