@@ -66,9 +66,9 @@ fail=
 initWait	   "$VSERVER_DIR" "$S_CONTEXT" vwait_statdir
 if test -n "$_IS_FAKEINIT" && \
    $_VSERVER_INFO - FEATURE vkill; then
-    $_VKILL -s INT --xid "$S_CONTEXT" -- 1 || fail=1
-    ## HACK: remove the 'initpid' stuff above when PID virtualization
-    ## is implemented
+    if ! vshelper.isStopSync; then
+	$_VKILL -s INT --xid "$S_CONTEXT" -- 1 || fail=1
+    fi
 elif $_VSERVER_INFO - FEATURE migrate; then
     "${NICE_CMD[@]}" \
     $_VCONTEXT $SILENT_OPT --migrate --chroot --xid "$S_CONTEXT" -- \

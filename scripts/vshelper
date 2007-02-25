@@ -73,6 +73,7 @@ function doInternalMethod
 
 		    disown %%
 		    vshelper.waitForStopSync "$sync_dir"
+		    spawn killContext "$XID"
 		    ;;
 		(swsusp)
 		    ## TODO: any senseful action here? Perhaps shutdown scheduler for it?
