@@ -1201,7 +1201,7 @@ function _namespaceCleanup
 
     # these are things that have to be accessible post-cleanup
     for tmp in "$root" "$__SBINDIR" "$__PKGLIBDIR" "$vdir" \
-	"$__PKGSTATEDIR" /usr/bin "${skip[@]}"; do
+	"$__PKGSTATEDIR" "$__LOCKDIR" /usr/local /tmp "${skip[@]}"; do
 	while test -n "$tmp"; do
 	    list=( "${list[@]}" "$tmp" )
 	    tmp="${tmp%/*}"
