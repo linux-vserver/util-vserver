@@ -306,21 +306,6 @@ function _generateInitOptions
 	    INITCMD_START=( /lib/rcscripts/sh/init-vserver.sh "$RUNLEVEL_START" )
 	    INITCMD_STOP=( /sbin/rc shutdown )
 	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL 3 /var/run/utmp )
-
-	    pushd "$vdir"/vdir &>/dev/null
-	    basever=$($_CHROOT_SH cat /etc/gentoo-release | $_AWK '{print $5}')
-	    popd &>/dev/null
-
-	    basemaj=${basever/.*}
-	    basemin=${basever#*.}
-	    basemin=${basemin/.*}
-
-	    test "$basemaj" -lt 1 -o "$basemin" -lt 13 && \
-	    panic "\
-Using init-style 'gentoo' requires >=baselayout-1.13 inside the vserver!
-
-Your vserver ($(basename "$vdir")) seems to have baselayout-$basever,
-please use 'plain' init-style instead!"
 	    ;;
 
 	(x) ;;

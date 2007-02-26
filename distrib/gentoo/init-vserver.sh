@@ -24,6 +24,7 @@
 # You have been warned...
 #
 
-RUNLEVEL=1 /sbin/rc sysinit
-/sbin/rc boot
+RUNLEVEL=1 /sbin/rc sysinit || exit 1
+/sbin/rc boot || exit 1
 /sbin/rc ${1:-default}
+exit 0
