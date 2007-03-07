@@ -158,12 +158,7 @@ showVersion()
 
 static void do_dir_entry(struct vc_set_sched *sched, const char *name)
 {
-  int fd;
-  char buf[128];
-  signed long val;
   struct sched_opt *opt;
-  ssize_t len;
-  char *newline;
 
   for (opt = FILE_OPTIONS; opt->name != 0; opt++) {
     if (strcmp(name, opt->name) == 0)
@@ -172,22 +167,28 @@ static void do_dir_entry(struct vc_set_sched *sched, const char *name)
   if (opt->name == 0)
     return;
 
-  fd = Eopen(name, O_RDONLY, 0);
-  len = Eread(fd, buf, sizeof(buf)-1);
-  Eclose(fd);
-  buf[len] = '\0';
-  if ((newline=strchr(buf, '\n')) != NULL)
-    *newline = '\0';
+  if (opt->offset != offsetof(struct vc_set_sched, set_mask)) {
+    int fd;
+    char buf[128], *newline;
+    signed long val;
+    ssize_t len;
 
-  if (!isNumber(buf, &val, true)) {
-    WRITE_MSG(2, ENSC_WRAPPERS_PREFIX);
-    WRITE_STR(2, name);
-    WRITE_MSG(2, ": is not a number\n");
-    exit(1);
-  }
+    fd = Eopen(name, O_RDONLY, 0);
+    len = Eread(fd, buf, sizeof(buf)-1);
+    Eclose(fd);
+    buf[len] = '\0';
+    if ((newline=strchr(buf, '\n')) != NULL)
+      *newline = '\0';
 
-  if (opt->offset != offsetof(struct vc_set_sched, set_mask))
+    if (!isNumber(buf, &val, true)) {
+      WRITE_MSG(2, ENSC_WRAPPERS_PREFIX);
+      WRITE_STR(2, name);
+      WRITE_MSG(2, ": is not a number\n");
+      exit(1);
+    }
+
     *(int_least32_t *)(((char *)sched)+opt->offset) = (int_least32_t) val;
+  }
 
   sched->set_mask |= opt->mask;
 }
