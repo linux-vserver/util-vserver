@@ -555,7 +555,10 @@ function _processSingleInterface
 	}
 
 	if ! test -e "$iface"/indirect; then
-	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" broadcast ${bcast:-+} ${name:+label "$dev:$name"} dev "$dev"
+	    # XXX: IPv6 hack
+	    use_bcast="broadcast ${bcast:-+}"
+	    echo "$ip" | $_GREP -q : && use_bcast=
+	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" $use_bcast ${name:+label "$dev:$name"} dev "$dev"
 	    #_addInterfaceCmd IP_ROUTE "$ip${prefix:+/$prefix}" dev "$dev"
 	    _addInterfaceCmd IP_LINK  "$dev" $up
 	elif ! test -n "$ctx"; then
