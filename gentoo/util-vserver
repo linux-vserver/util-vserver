@@ -39,7 +39,7 @@ start() {
 	source "$_LIB_FUNCTIONS"
 	source "$__PKGLIBDIR/vserver.functions"
 
-	ebegin "Setting path to vshelper"
+	ebegin "Setting vshelper path to $_VSHELPER"
 	set_helper
 	eend $?
 
