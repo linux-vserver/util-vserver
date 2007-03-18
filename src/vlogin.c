@@ -124,7 +124,7 @@ terminal_redraw(void)
 }
 
 /* copy terminal activities */
-static void
+static ssize_t
 terminal_copy(int src, int dst)
 {
   char buf[64];
@@ -141,6 +141,8 @@ terminal_copy(int src, int dst)
 
   /* write activity to user */
   EwriteAll(dst, buf, len);
+
+  return len;
 }
 
 /* shuffle all output, and reset the terminal */
@@ -276,11 +278,21 @@ void do_vlogin(int argc, char *argv[], int ind)
       exit(wrapper_exit_code);
     }
 
-    if (FD_ISSET(STDIN_FILENO, &rfds))
-      terminal_copy(STDIN_FILENO, t.fd);
+    if (FD_ISSET(STDIN_FILENO, &rfds)) {
+      /* EOF */
+      if (terminal_copy(STDIN_FILENO, t.fd) == 0) {
+	terminal_kill(SIGHUP);
+	exit(0);
+      }
+    }
 
-    if (FD_ISSET(t.fd, &rfds))
-      terminal_copy(t.fd, STDOUT_FILENO);
+    if (FD_ISSET(t.fd, &rfds)) {
+      /* EOF */
+      if (terminal_copy(t.fd, STDOUT_FILENO) == 0) {
+	terminal_kill(SIGHUP);
+	exit(0);
+      }
+    }
   }
 
   /* never get here, signal handler exits */
