@@ -399,7 +399,7 @@ function processVserver()
 	return 1
     } >&2
 
-    _setVserverDir
+    _setVserverDir "$vserver"
     _setVserverName
     _setVserverDirName
     pkgmgmt.initVariables
