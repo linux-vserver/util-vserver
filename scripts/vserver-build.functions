@@ -112,7 +112,7 @@ function _setCacheDir
     }
 }
 
-function _setVserverDir
+function _setVserverDirName
 {
     test -z "$VSERVERDIRNAME" || return 0
     VSERVERDIRNAME="$VSERVER_NAME"
@@ -223,7 +223,7 @@ function base._initVariables
 {
     _setRootDir
     _setCacheDir
-    _setVserverDir
+    _setVserverDirName
     _setVdir
 
     findFile _DEV_FILE      "$__CONFDIR/.distributions/$DISTRIBUTION/devs"      "$__DISTRIBDIR/$DISTRIBUTION/devs"     "$__DISTRIBDIR/defaults/devs"

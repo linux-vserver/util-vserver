@@ -190,11 +190,7 @@ Possible solutions:
     exit 5
 } >&2
 
-if test -e "$VSERVER_DIR"/name; then
-    read VSERVER_NAME <"$VSERVER_DIR"/name
-else
-    VSERVER_NAME=$(basename "$VSERVER_DIR")
-fi
+_setVserverName
 
 # Create a new namespace when starting the guest
 test "$2" != start -o -n "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" || \

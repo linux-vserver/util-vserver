@@ -106,7 +106,7 @@ for i in "${vservers[@]}"; do
 	if pkgmgmt.isInternal "$i"; then
 	    $_VSERVER "$i" exec "$cmd" "$@"
 	else
-	    _getVserverDir "$i"
+	    _setVserverDir "$i"
 	    ( _generateChbindOptions "$VSERVER_DIR"
 	      $_VSERVER "$i" status &> /dev/null && \
 		CHBIND_CMD=( "$_CHBIND" "${CHBIND_OPTS[@]}" -- )

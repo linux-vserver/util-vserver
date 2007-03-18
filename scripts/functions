@@ -282,7 +282,7 @@ function set_init_cwd
     export INIT_CWD
 }
 
-function _getVserverDir
+function _setVserverDir
 {
     local vserver="$1"
     case "$vserver" in
@@ -290,6 +290,15 @@ function _getVserverDir
 	/*)  VSERVER_DIR="$vserver"               ;;
 	*)   VSERVER_DIR="$__CONFDIR/$vserver"    ;;
     esac
+}
+
+function _setVserverName
+{
+    if test -e "$VSERVER_DIR"/name; then
+	read VSERVER_NAME <"$VSERVER_DIR"/name
+    else
+	VSERVER_NAME=$(basename "$VSERVER_DIR")
+    fi
 }
 
 function _pkgMountBindDir()

@@ -23,6 +23,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 . "$_LIB_FUNCTIONS"
+. "$_LIB_VSERVER_BUILD_FUNCTIONS"
 . "$_LIB_VSERVER_BUILD_FUNCTIONS_PKGMGMT"
 . "$__PKGLIBDIR/vserver.functions"
 
@@ -54,7 +55,6 @@ function init()
     else
 	rpmdb_mntpoint=/.rpmdb
     fi
-    pkgmgmt.initVariables
 }
 
 function _createDirs()
@@ -398,6 +398,11 @@ function processVserver()
 	echo $"Vserver '$vserver' does not seem to exist; skipping it..."
 	return 1
     } >&2
+
+    _setVserverDir
+    _setVserverName
+    _setVserverDirName
+    pkgmgmt.initVariables
     
     pkgmgmt.isInternal "$vserver" || is_external=1
 
