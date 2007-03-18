@@ -135,12 +135,12 @@ function _setup_writeInterface
     local dev=${tmp%%:*}
     local nodev=
     test "$dev" != "$tmp"  || dev=
+
+    tmp=${tmp##${dev}:}
     test "$dev" != "nodev" || {
 	dev=
 	nodev=1
     }
-
-    tmp=${tmp##${dev}:}
     local mask=${tmp##*/}
     test "$mask" != "$tmp"  || mask=
 
