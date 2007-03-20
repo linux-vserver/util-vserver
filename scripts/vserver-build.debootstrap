@@ -15,16 +15,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-function cleanUp
-{
-    test ! -d "$workdir"  || $_RM -rf "$workdir"
-}
-
 function init
 {
     workdir=
     mirror=
-    trap "cleanUp" EXIT
 }
 
 function initVariables
@@ -55,6 +49,8 @@ function findDebootstrap
         dir=$($_MKTEMPDIR -p /var/tmp debootstrap.XXXXXX)
         workdir=$dir
         dst=$dir/debootstrap.deb
+
+        base._addGeneratedFile "$workdir"
         
         findFile DEBOOTSTRAP_URI "$__CONFDIR"/.defaults/apps/debootstrap/uri "$__PKGLIBDEFAULTDIR"/debootstrap.uri
         read tmp <$DEBOOTSTRAP_URI
