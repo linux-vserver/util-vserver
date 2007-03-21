@@ -59,8 +59,8 @@ Possible commands are:
                 ... builds a new vserver from scratch
     delete      ... remove a vserver
 
-    unify [-R]
-		... (de)unify vserver
+    unify [-R] <vunify-opts>*
+		... (de)unify the vserver with its reference vserver(s).
 		
     pkg install <pkg>
 		... installs package(s) in the vserver
@@ -77,8 +77,8 @@ Possible commands are:
 		    while 'internalize' means that data and programs from the
 		    vserver will be used.
 
-    unify <vunify-opts>*
-                ... unify the vserver with its reference vserver(s).
+    hashify
+                ... hashify the guest.
 		    
 
 Please report bugs to $PACKAGE_BUGREPORT"
