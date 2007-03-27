@@ -61,8 +61,16 @@ if test "$initstyle" == "gentoo"; then
 	$_CHROOT_SH truncate   /lib/rcscripts/sh/init-vserver.sh
 	$_CHROOT_SH chmod 0755 /lib/rcscripts/sh/init-vserver.sh
 
+	$_CAT "$__DISTRIBDIR"/gentoo/reboot.sh | \
+	$_CHROOT_SH truncate   /etc/init.d/reboot.sh
+	$_CHROOT_SH chmod 0755 /etc/init.d/reboot.sh
+
+	$_CAT "$__DISTRIBDIR"/gentoo/shutdown.sh | \
+	$_CHROOT_SH truncate   /etc/init.d/shutdown.sh
+	$_CHROOT_SH chmod 0755 /etc/init.d/shutdown.sh
+
 	echo "!!!"
-	echo "!!! You have to install a service (e.g. syslog-ng) and add it to the"
+	echo "!!! You have to install a service (e.g. syslog/cron) and add it to the"
 	echo "!!! default runlevel before you start the guest the first time!"
 	echo "!!! Otherwise the guest will die as soon as it has finished booting."
 	echo "!!!"

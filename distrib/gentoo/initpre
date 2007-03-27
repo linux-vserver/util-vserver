@@ -43,6 +43,11 @@ else
 fi
 
 
+# prevent dmesg errors/warnings
+echo ">>> Enabling dummy /proc/kmsg"
+echo syslog >> "$1"/ccapabilities
+
+
 # initstyle sanity
 initstyle=sysv
 test -e "$1"/apps/init/style && initstyle=$(<"$1"/apps/init/style)
