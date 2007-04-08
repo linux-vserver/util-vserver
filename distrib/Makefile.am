@@ -59,7 +59,8 @@ nobase_distrib_DATA	=  defaults/devs \
 			   centos4/yum/yum.conf $(wildcard centos4/yum.repos.d/*.repo) \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros \
-			   gentoo/init-vserver.sh gentoo/net.vserver
+			   gentoo/init-vserver.sh gentoo/net.vserver \
+			   gentoo/reboot.sh gentoo/shutdown.sh
 
 nobase_confdistrib_DATA	=  rh9/apt/sources.list \
 			   fc1/apt/sources.list \
