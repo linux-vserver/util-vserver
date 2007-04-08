@@ -137,7 +137,7 @@ terminal_copy(int src, int dst)
     terminal_kill(SIGTERM);
     exit(1);
   } else if (len == -1)
-    return;
+    return -1;
 
   /* write activity to user */
   EwriteAll(dst, buf, len);
