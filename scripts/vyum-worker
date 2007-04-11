@@ -68,7 +68,7 @@ case $($yum --version|tail -n 1) in
 You are using a version of yum which current status is unknown to vyum.
 
 Just to be sure, 'vyum' will use dirty hacks which might not work when
-the vsrever is running and local DOS attacks are possible.
+the vserver is running and local DOS attacks are possible.
 
 Execution will continue in 5 seconds..."
 	sleep 5
