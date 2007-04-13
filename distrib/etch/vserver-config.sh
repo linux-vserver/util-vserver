@@ -28,15 +28,10 @@ umountroot
 urandom
 "
 
-test -x /usr/sbin/tzconfig && /usr/sbin/tzconfig
-
 aptitude update
 LANG=C aptitude install locales
 
 test -x /usr/sbin/locale-gen && /usr/sbin/locale-gen
-
-dpkg-reconfigure passwd
-tasksel
 
 for link in $REMOVE_LINKS; do
 	update-rc.d -f $link remove
