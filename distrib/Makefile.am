@@ -21,7 +21,8 @@ distribdir =		$(pkglibdir)/distributions
 confdistribdir =	$(confdir)/.distributions
 confdefaultsdir =	$(confdir)/.defaults
 
-defaults_DATA =		misc/debootstrap.uri \
+defaults_DATA =		misc/debootstrap.mirror \
+			misc/debootstrap.uri \
 			misc/fstab \
 			misc/mtab \
 			misc/vprocunhide-files \
@@ -33,7 +34,8 @@ nobase_distrib_SCRIPTS	=  redhat/initpost \
 			   redhat/initpre \
 			   redhat/rc.sysinit \
 			   gentoo/initpost \
-			   gentoo/initpre
+			   gentoo/initpre \
+			   etch/initpost
 
 nobase_distrib_DATA	=  defaults/devs \
 			   defaults/apt.conf \
@@ -60,7 +62,8 @@ nobase_distrib_DATA	=  defaults/devs \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros \
 			   gentoo/init-vserver.sh gentoo/net.vserver \
-			   gentoo/reboot.sh gentoo/shutdown.sh
+			   gentoo/reboot.sh gentoo/shutdown.sh \
+			   etch/vserver-config.sh
 
 nobase_confdistrib_DATA	=  rh9/apt/sources.list \
 			   fc1/apt/sources.list \

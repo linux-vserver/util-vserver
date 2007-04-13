@@ -1,0 +1,130 @@
+#!/bin/bash
+
+# Copyright (C) 2006 Benedikt Boehm <hollow@gentoo.org>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+## Called as: initpost <cfgdir> <path of util-vserver-vars>
+
+# setup environment
+cfgdir="$1"
+vdir="$cfgdir"/vdir
+. "$2"
+
+
+# vserver name
+NAME=$(< "$cfgdir"/name)
+
+# debian mirror
+MIRROR=$3
+
+# debian distribution
+DIST="etch"
+
+
+# go to vdir for chroot-sh
+pushd "$vdir" &>/dev/null
+
+
+# helper for sed in chroot
+chrootsed() {
+	local file="$1"
+	shift
+	
+	sedtmp=$($_MKTEMP chrootsed.XXXXXX)
+	
+	$_CHROOT_SH cat "$file" | $_SED "$@" > $sedtmp
+	$_CHROOT_SH truncate "$file"  < $sedtmp
+	
+	$_RM -f $sedtmp
+}
+
+
+# create a locale.gen if needed.
+if test -n "$LANG" && test "$LANG" != "C"; then
+	echo $LANG $(locale charmap) | $_CHROOT_SH append /etc/locale.gen
+fi
+
+
+# make apt and friends work
+$_CHROOT_SH truncate /etc/apt/sources.list <<EOF
+deb $MIRROR/ $DIST main
+deb-src $MIRROR/ $DIST main
+
+deb http://security.debian.org $DIST/updates main
+EOF
+
+
+# setting hostname
+if test -r "$cfgdir"/uts/nodename; then
+	$_CHROOT_SH truncate /etc/hostname < "$cfgdir"/uts/nodename
+fi
+
+
+# setting default /etc/hosts
+$_CHROOT_SH truncate /etc/hosts <<EOF
+# /etc/hosts
+
+127.0.0.1	localhost
+
+# The following lines are desirable for IPv6 capable hosts
+# (added automatically by netbase upgrade)
+
+::1	ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+EOF
+
+
+# copy proxy server statement from host if any
+if test -f /etc/apt/apt.conf; then
+	$_CHROOT_SH truncate /etc/apt/apt.conf < /etc/apt/apt.conf
+fi
+
+
+# fix gettys in inittab
+if $_CHROOT_SH testfile /etc/inittab; then
+	chrootsed /etc/inittab \
+		-e 's/\(^[^#].*getty.*$\)/#\1/'
+fi
+
+
+# fix /proc/cmdline in sendsigs
+if $_CHROOT_SH testfile /etc/init.d/sendsigs; then
+	chrootsed /etc/init.d/sendsigs \
+		-e 's/^\(\s\+splash_back\)$/#\1/'
+fi
+
+# from here on we need to do things live in the server
+$_CHROOT_SH truncate   /vserver-config.sh < "$__DISTRIBDIR"/etch/vserver-config.sh
+$_CHROOT_SH chmod 0755 /vserver-config.sh
+
+echo
+echo ">>> Executing post install script ... "
+echo
+
+# start vserver before we can exec anything inside it
+vserver $NAME start
+
+# run the configure commands from within the server
+vserver $NAME exec /vserver-config.sh
+$_CHROOT_SH rm /vserver-config.sh
+
+# stop the vserver
+vserver $NAME stop
+
+popd &>/dev/null

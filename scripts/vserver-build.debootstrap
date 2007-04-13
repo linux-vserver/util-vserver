@@ -25,9 +25,9 @@ function initVariables
 {
     base.init
 
-    test -n "${mirror-unset}" || {
+    test -n "${mirror}" || {
 	local aux
-	findFile aux "$__CONFDIR"/.defaults/apps/debootstrap/mirror ''
+	findFile aux "$__CONFDIR"/.defaults/apps/debootstrap/mirror "$__PKGLIBDEFAULTDIR"/debootstrap.mirror
 	test -z "$aux" || read mirror <"$aux"
     }
 }
@@ -146,11 +146,11 @@ setup_writeInitialFstab
 
 findDebootstrap
 
-test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
+test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS" "$mirror"
 mv "$VDIR"/dev "$VDIR"/dev.X
 "$_VNAMESPACE" --new -- "$DEBOOTSTRAP" "$@" "$DISTRIBUTION" "$VDIR" "$mirror" "$script" || :   ## HACK: ignore all errors...
 fixupDebian "$VDIR"
-test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
+test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS" "$mirror"
 
 $_RM -fr "$workdir"
 base.setSuccess
