@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-tmp=$(getopt -o '+d:t:' --long debug,pkgmgmt,template: -n "vserver-build.template" -- "$@") || exit 1
+tmp=$(getopt -o '+d:t:' --long debug,pkgmgmt,template:,nodevsanity -n "vserver-build.template" -- "$@") || exit 1
 eval set -- "$tmp"
 
 . "$_LIB_VSERVER_BUILD_FUNCTIONS_PKGMGMT"
