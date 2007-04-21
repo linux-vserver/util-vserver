@@ -68,7 +68,7 @@ static struct Mapping_uint64 const VALUES[] = {
 
     // Some pseudo flags
   DECL("secure",        VC_VXF_HIDE_NETIF),
-  DECL("default",       VC_VXF_VIRT_UPTIME),
+  DECL("default",       VC_VXF_VIRT_UPTIME|VC_VXF_SC_HELPER),
 
     // Aliases for the legacy flags
   DECL("info_lock",	VC_VXF_INFO_LOCK),

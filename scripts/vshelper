@@ -80,6 +80,10 @@ function doInternalMethod
 		    exit 0
 		    ;;
 		(restart2)	;;
+		(shutdown)
+		    logging $"Cleaning up after vserver '$VSERVER'"
+		    spawn $_VSERVER --defaulttty "$VSERVER" stop
+		    ;;
 		(*)
 		    warning $"Unknown action '$ACTION' for vserver '$VSERVER'"
 		    exit 1
@@ -178,7 +182,7 @@ while true; do
     responsible_xid=$pxid
 done
 
-vserver_id=$($_VSERVER_INFO "$responsible_xid" ID) ||
+vserver_id=$($_VSERVER_INFO "$responsible_xid" ID) || test "$ACTION" = "shutdown" ||
     panic $"No responsible vserver found for xid '$responsible_xid' ($XID); aborting..."
     
 test "$XID" = "$responsible_xid" || {
