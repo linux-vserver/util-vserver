@@ -59,6 +59,8 @@ nobase_distrib_DATA	=  defaults/devs \
 			   $(wildcard fc6/rpmlist.d/*.lst) $(wildcard fc6/rpmlist.d/*.opt) \
 			   centos4/pkgs/01 centos4/pkgs/02 centos4/pkgs/03 \
 			   centos4/yum/yum.conf $(wildcard centos4/yum.repos.d/*.repo) \
+			   centos5/pkgs/01 centos5/pkgs/02 centos5/pkgs/03 \
+			   centos5/yum/yum.conf $(wildcard centos5/yum.repos.d/*.repo) \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros \
 			   gentoo/init-vserver.sh gentoo/net.vserver \
@@ -82,7 +84,7 @@ EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(nobase_confdistrib_DATA) \
 			   $(defaults_DATA)
 
-redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 fc6 centos4
+redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 fc6 centos4 centos5
 
 install-exec-hook:	install-notify-xtra
 install-data-hook:	install-data-xtras
