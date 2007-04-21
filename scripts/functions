@@ -519,6 +519,7 @@ function isNamespaceCleanup
 
     $_VSERVER_INFO - FEATURE namespace   || return 1
     cfgdir=$($_VSERVER_INFO "$1" CFGDIR) || return 1
+    isAvoidNamespace "$1"                && return 1
     test -e "$cfgdir"/namespace-cleanup  && return 0
     test -e "$cfgdir"/nonamespace-cleanup -o \
          -e "$__CONFDIR"/.defaults/nonamespace-cleanup && return 1
