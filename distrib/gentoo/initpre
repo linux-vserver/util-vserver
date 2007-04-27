@@ -27,21 +27,28 @@ hash portageq &>/dev/null
 
 if test $? -eq 0; then
 	_PORTDIR=$(portageq portdir)
+	_DISTDIR=$(portageq distdir)
 else
 	_PORTDIR=/usr/portage
+	_DISTDIR=/usr/portage/distfiles
 fi
 
 if test -d $_PORTDIR; then
 	( echo
 	  echo "# shared portage tree"
-	  echo "${_PORTDIR}           /usr/portage           none bind,ro 0 0"
-	  echo "${_PORTDIR}/distfiles /usr/portage/distfiles none bind,rw 0 0"
+	  echo "${_PORTDIR} /usr/portage           none bind,ro 0 0"
 	) >> "$1"/fstab
 else
 	echo "!!! Cannot find a portage tree! You should definitely use a"
 	echo "!!! shared portage tree if you have multiple Gentoo guests!"
 fi
 
+if test -d $_DISTDIR; then
+	echo "${_DISTDIR} /usr/portage/distfiles none bind,rw 0 0" >> "$1"/fstab
+else
+	echo "!!! Cannot find distfiles directory! You should definitely use a"
+	echo "!!! shared distfiles directory if you have multiple Gentoo guests!"
+fi
 
 # prevent dmesg errors/warnings
 echo ">>> Enabling dummy /proc/kmsg"
