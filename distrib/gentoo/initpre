@@ -50,10 +50,6 @@ else
 	echo "!!! shared distfiles directory if you have multiple Gentoo guests!"
 fi
 
-# prevent dmesg errors/warnings
-echo ">>> Enabling dummy /proc/kmsg"
-echo syslog >> "$1"/ccapabilities
-
 
 # initstyle sanity
 initstyle=sysv

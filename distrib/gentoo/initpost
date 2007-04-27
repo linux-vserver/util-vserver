@@ -46,8 +46,9 @@ chrootsed() {
 
 
 # portage stuff
-$_CHROOT_SH mkdir /usr         2>/dev/null || :
+$_CHROOT_SH mkdir /usr 2>/dev/null || :
 $_CHROOT_SH mkdir /usr/portage 2>/dev/null || :
+$_CHROOT_SH mkdir /usr/portage/distfiles 2>/dev/null || :
 
 
 # gentoo initstyle magic
@@ -111,17 +112,18 @@ if $_CHROOT_SH testfile /etc/inittab; then
 fi
 
 
-# fix fstab for checkfs/localmount in baselayout >= 1.13
+# fix fstab for checkfs/localmount in baselayout-2
 # (does not affect any previous versions)
 echo ">>> Fixing fstab ... "
 echo "/dev/hdv1 / ufs defaults 0 0" | $_CHROOT_SH truncate /etc/fstab
 
 
-# always satisfy net dependency in baselayout >= 1.13
+# always satisfy net dependency in baselayout-2
 # (does not affect any previous versions)
 echo ">>> Providing dummy net dependency ... "
 $_CAT "$__DISTRIBDIR"/gentoo/net.vserver | \
 $_CHROOT_SH truncate /etc/init.d/net.vserver
 $_CHROOT_SH chmod 0755 /etc/init.d/net.vserver
+$_CHROOT_SH link /etc/init.d/net.vserver /etc/runlevels/boot/net.vserver
 
 popd &>/dev/null
