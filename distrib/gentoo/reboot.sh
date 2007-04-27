@@ -2,4 +2,4 @@
 # Distributed under the terms of the GNU General Public License v2
 
 # gentoo init style needs this (and nothing else)
-/sbin/reboot -f
+exit 0
