@@ -304,7 +304,7 @@ function _generateInitOptions
 	    test -n "$RUNLEVEL_START" || RUNLEVEL_START="default"
 
 	    INITCMD_START=( /lib/rcscripts/sh/init-vserver.sh "$RUNLEVEL_START" )
-	    INITCMD_STOP=( /sbin/rc shutdown )
+	    INITCMD_STOP=( env -i RUNLEVEL=0 /sbin/rc shutdown )
 	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL 3 /var/run/utmp )
 	    ;;
 
