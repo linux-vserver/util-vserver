@@ -24,7 +24,7 @@ dnl distribution terms that you use for the rest of that program.
 dnl  
 
 AC_PREREQ(2.57)
-AC_INIT(util-vserver, 0.30.212, vserver@list.linux-vserver.org)
+AC_INIT(util-vserver, 0.30.213, vserver@list.linux-vserver.org)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
 
