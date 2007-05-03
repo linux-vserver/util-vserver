@@ -46,6 +46,7 @@ base   @PKGLIBDIR@/defaults/environment
 build  @PKGLIBDIR@/defaults/fstab
 build  @PKGLIBDIR@/defaults/debootstrap.uri
 build  @PKGLIBDIR@/defaults/context.start
+build  @PKGLIBDIR@/defaults/debootstrap.mirror
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/defaults/vunify-exclude
 base   @PKGLIBDIR@/capchroot
 base   @PKGLIBDIR@/chain-echo
