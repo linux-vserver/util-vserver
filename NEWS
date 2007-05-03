@@ -1,3 +1,36 @@
+version 0.30.213
+================
+	- added support for the device mapping feature present in development
+	kernels.
+
+	- further improved Gentoo support, again thanks to Benedikt Böhm.
+
+	- support persistent contexts.
+
+	- add another initscript that creates directories, configures vshelper
+	as well as kills all contexts.
+
+	- new vserver-stat implementation, which uses the accounting APIs
+	available in Linux-VServer 2.2.
+
+	- added support for setting sysctl values in the guest configuration.
+
+	- added a clone build method, which simply links already unified files.
+
+	- implement dynamic contexts in userspace, generating a static one
+	during vserver ... build.
+
+	- fix the endless loop in vlogin.
+
+	- fix Ubuntu builds.
+
+	- improved support for Debian Etch, thanks to Benedikt Böhm.
+
+	- added CentOS 5.
+
+	- use the state change helper to try to cleanup after us if the guest
+	exited on its own.
+
 version 0.30.212
 ================
 	- support for the Linux-VServer 2.1 API has been implemented.
