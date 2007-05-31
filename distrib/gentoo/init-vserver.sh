@@ -25,7 +25,6 @@
 
 # Force TERM=linux for baselayout-2
 
-export TERM=linux
 RUNLEVEL=1 /sbin/rc sysinit || exit 1
 /sbin/rc boot || exit 1
 /sbin/rc ${1:-default}
