@@ -40,6 +40,9 @@ EXTRA_DIST +=			lib_internal/testsuite/copy-check
 TESTS_ENVIRONMENT += 		libinternaltestsuitedir=$(top_builddir)/lib_internal/testsuite
 
 
+# When building both a GNU and a dietlibc version, set target specific
+# CPPFLAGS to enforce separate compilation for both variants
+
 lib_internal_testsuite_command_SOURCES =	lib_internal/testsuite/command.c
 lib_internal_testsuite_command_LDADD =		$(LIBINTERNAL_GLIBC) \
 						$(LIBENSCVECTOR_GLIBC)
@@ -52,9 +55,14 @@ lib_internal_testsuite_copy_LDADD =		$(LIBINTERNAL_GLIBC)
 
 lib_internal_testsuite_isnumber_SOURCES =	lib_internal/testsuite/isnumber.c
 lib_internal_testsuite_isnumber_LDADD =		$(LIBINTERNAL)
+lib_internal_testsuite_isnumber_CPPFLAGS =	$(AM_CPPFLAGS)		# see note above
 
 lib_internal_testsuite_isnumber_gnu_SOURCES =	lib_internal/testsuite/isnumber.c
 lib_internal_testsuite_isnumber_gnu_LDADD =	$(LIBINTERNAL_GLIBC)
+lib_internal_testsuite_isnumber_gnu_CPPFLAGS =	$(AM_CPPFLAGS)		# see note above
 
 lib_internal_testsuite_sigbus_SOURCES =		lib_internal/testsuite/sigbus.c
+lib_internal_testsuite_sigbus_CPPFLAGS =	$(AM_CPPFLAGS)		# see note above
+
 lib_internal_testsuite_sigbus_gnu_SOURCES =	lib_internal/testsuite/sigbus.c
+lib_internal_testsuite_sigbus_gnu_CPPFLAGS =	$(AM_CPPFLAGS)		# see note above
