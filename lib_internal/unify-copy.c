@@ -145,16 +145,16 @@ copyMMap(int in_fd, int out_fd)
       TESTSUITE_COPY_CODE;
       copyMem(out_buf, in_buf, buf_size);
 
-      munmap(const_cast(void *)(in_buf),  buf_size);  in_buf = 0;
       munmap(out_buf,                     buf_size); out_buf = 0;
+      munmap(const_cast(void *)(in_buf),  buf_size);  in_buf = 0;
     }
 
     res = true;
   }
 
   out:
-  if (in_buf !=0) munmap(const_cast(void *)(in_buf),  buf_size);
   if (out_buf!=0) munmap(out_buf,                     buf_size);
+  if (in_buf !=0) munmap(const_cast(void *)(in_buf),  buf_size);
 
   return res;
 }
