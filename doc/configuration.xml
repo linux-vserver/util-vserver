@@ -646,7 +646,7 @@ the 'fstab' file should be used.
     <data id="fstab.remote" name="fstab.remote">
       <description>
 The fstab file for the vserver. Entries in this file will be mounted
-within the network context of the host; this means that mount will be
+within the network context of the guest; this means that mount will be
 called as <command>chbind &lt;options&gt; mount ...</command>. See
 <optionref>fstab</optionref> also.
       </description>
