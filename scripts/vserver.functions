@@ -278,6 +278,7 @@ function _generateInitOptions
 		INITCMD_STOP=(  "$i" "$RUNLEVEL_STOP"  )
 	    done
 	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL "$RUNLEVEL_START" /var/run/utmp )
+	    OPTS_ENV=( "${OPTS_ENV[@]}" PREVLEVEL=N RUNLEVEL="$RUNLEVEL_START" )
 	    ;;
 	    
 	(xplain)
@@ -690,7 +691,7 @@ function prepareStop
     pushd "$1/vdir" >/dev/null
     case "$INITSTYLE" in
 	(sysv)
-	    export PREVLEVEL=$RUNLEVEL_START # required by Debian's initscripts
+	    export PREVLEVEL=$RUNLEVEL_START RUNLEVEL=$RUNLEVEL_STOP # required by Debian's initscripts
 	    ;;
     esac
     "${STOPCMD_PREPARE[@]}"
