@@ -60,7 +60,7 @@ case $($yum --version|tail -n 1) in
     (2.[012345]*)
 	check 'import yum,sys; sys.exit(not hasattr(yum.config.yumconf, "getRootedPath"))'
 	;;
-    (2.[6789]*|3.0*)
+    (2.[6789]*|3.[012]*)
 	check 'import yum,sys; sys.exit(not hasattr(yum.config.YumConf, "getRootedPath"))'
 	;;
     (*)
