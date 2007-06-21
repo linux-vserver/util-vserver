@@ -1,7 +1,8 @@
 #!/bin/bash
 
 proj="util-vserver"
-svnroot="http://svn.linux-vserver.org/svn/${proj}"
+rwroot="svn+ssh://svn.linux-vserver.org/var/svn/${proj}"
+roroot="http://svn.linux-vserver.org/svn/${proj}"
 
 usage() {
 	echo "Usage: mkrelease"
@@ -12,12 +13,17 @@ die() {
 	exit ${2:-1}
 }
 
+TMP=`mktemp -d`
+cd "$TMP"
+svn co ${roroot}/trunk || die "svn co failed"
+cd trunk
+
 ver=`grep AC_INIT configure.ac | awk '{ print $2 }'`
 ver=${ver/,}
 
 echo ">>> create release tag"
 
-svn copy ${svnroot}/trunk ${svnroot}/tags/release-${ver} \
+svn copy ${rwroot}/trunk ${rwroot}/tags/release-${ver} \
 	-m "Tagging the ${ver} release of the ${proj} project" || die "svn copy failed"
 
 
@@ -27,9 +33,16 @@ make -f Makefile.svn || die "make failed"
 
 echo ">>> create release tarball"
 
-./configure --sysconfdir=/etc --prefix=/usr || die "configure failed"
+./configure --sysconfdir=/etc --prefix=/usr --localstatedir=/var || die "configure failed"
 make dist || die "make dist failed"
 
-for i in *.tar.bz2 *.tar.gz; do
-	md5sum $i > $i.md5
+for i in *.tar.bz2; do
+	gpg --detach-sign --armor $i || die "signing failed"
 done
+
+echo ">>> uploading tarball and signature"
+
+scp -p *.tar.bz2* ftp.linux-vserver.org:/var/ftp/pub/utils/util-vserver || die "scp failed"
+
+cd /
+rm -fr "$TMP"
