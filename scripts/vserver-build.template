@@ -48,6 +48,13 @@ done
 
 getDistribution '' 1
 
+for d in "$__CONFDIR/.distributions/$DISTRIBUTION" \
+	"$__DISTRIBDIR/$DISTRIBUTION"; do
+    if test -r "$d/template"; then
+	TEMPLATE=( "$d/template" "${TEMPLATE[@]}" )
+    fi
+done
+
 base.init
 test -z "$use_pkgmgmt" || pkgmgmt.initVariables
 

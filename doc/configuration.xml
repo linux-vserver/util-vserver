@@ -412,6 +412,11 @@ this distribution.
         </description>
       </link>
     </collection>
+    <link name="template">
+      <description>
+Symlink to the default template for this distribution.
+      </description>
+    </link>
   </collection>
   
   <!-- Vserver configuration -->
