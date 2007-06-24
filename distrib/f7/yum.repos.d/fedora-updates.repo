@@ -1,0 +1,23 @@
+[updates]
+name=Fedora 7 - $basearch - Updates
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/updates/7/$basearch/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f7&arch=$basearch
+enabled=1
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/7/Everything/$basearch/os/RPM-GPG-KEY-fedora
+
+[updates-debuginfo]
+name=Fedora 7 - $basearch - Updates - Debug
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/updates/7/$basearch/debug/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-debug-f7&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/7/Everything/$basearch/os/RPM-GPG-KEY-fedora
+
+[updates-source]
+name=Fedora 7 - Updates Source
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/updates/7/SRPMS/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-source-f7&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/7/Everything/$basearch/os/RPM-GPG-KEY-fedora
