@@ -359,7 +359,7 @@ int main (int argc, char *argv[])
   }
 #else
   {
-    WRITE_MSG(2, "chbind: kernel does not provide network virtualization\n");
+    WRITE_MSG(2, "chbind: kernel does not provide network isolation\n");
     exit(wrapper_exit_code);
   }
 #endif
