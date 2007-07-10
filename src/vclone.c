@@ -40,10 +40,12 @@
 #define ENSC_WRAPPERS_UNISTD	1
 #define ENSC_WRAPPERS_FCNTL	1
 #define ENSC_WRAPPERS_DIRENT	1
+#define ENSC_WRAPPERS_VSERVER	1
 #include <wrappers.h>
 
 #define CMD_HELP		0x8000
 #define CMD_VERSION		0x8001
+#define CMD_XID			0x8002
 
 struct WalkdownInfo
 {
@@ -54,6 +56,7 @@ struct WalkdownInfo
 
 struct Arguments {
     unsigned int	verbosity;
+    xid_t		xid;
 };
 
 static struct WalkdownInfo		global_info;
@@ -65,6 +68,7 @@ struct option const
 CMDLINE_OPTIONS[] = {
   { "help",     no_argument,       0, CMD_HELP },
   { "version",  no_argument,       0, CMD_VERSION },
+  { "xid",      required_argument, 0, CMD_XID },
   { 0,0,0,0 }
 };
 
@@ -77,7 +81,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:\n  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " <source> <absolute path to destination>\n\n"
+	    " [--xid <xid>] <source> <absolute path to destination>\n\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
   exit(res);
 }
@@ -137,11 +141,12 @@ visitDirEntry(struct dirent const *ent)
       res = 0;
     }
     else {
-      if (!Unify_copy(src_d_path.d, &f_stat, dst_path.d)) {
+      if (!Unify_copy(src_d_path.d, &f_stat, dst_path.d))
 	perror(ENSC_WRAPPERS_PREFIX "Unify_copy()");
-	exit(wrapper_exit_code);
-      }
-      res = 0;
+      else if (vc_set_iattr(dst_path.d, global_args->xid, 0, VC_IATTR_XID) == -1)
+	perror(ENSC_WRAPPERS_PREFIX "vc_set_iattr()");
+      else
+	res = 0;
     }
     if (S_ISDIR(f_stat.st_mode))
       res = visitDir(dirname, &f_stat);
@@ -154,19 +159,22 @@ int main(int argc, char *argv[])
 {
   struct Arguments	args = {
     .verbosity		=  0,
+    .xid		= VC_NOCTX,
   };
   uint64_t		res;
   int			num_args;
 
   global_args = &args;
   while (1) {
-    int		c = getopt_long(argc, argv, "+",
+    int		c = getopt_long(argc, argv, "+v",
 				CMDLINE_OPTIONS, 0);
     if (c==-1) break;
 
     switch (c) {
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
+      case 'v'		:  args.verbosity++; break;
+      case CMD_XID	:  args.xid = Evc_xidopt2xid(optarg,true); break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
