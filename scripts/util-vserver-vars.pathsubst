@@ -40,6 +40,7 @@ _EXEC_CD="$__SBINDIR/exec-cd"
 _EXEC_ULIMIT="$__PKGLIBDIR/exec-ulimit"
 _FAKE_RUNLEVEL="$__PKGLIBDIR/fakerunlevel"
 _FILETIME="$__PKGLIBDIR/filetime"
+_H2EXT="$__PKGLIBDIR/h2ext"
 _IFSPEC="$__LEGACYDIR/ifspec"
 _INITSYNC_MINIT_START=:
 _KEEP_CTX_ALIVE="$__PKGLIBDIR/keep-ctx-alive"

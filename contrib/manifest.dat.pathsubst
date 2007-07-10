@@ -17,7 +17,6 @@ build  @PKGLIBDIR@/vserver-build.functions.rpm
 build  @PKGLIBDIR@/vserver-build.functions.yum
 build  @PKGLIBDIR@/vserver-build.functions.pkgmgmt
 build  @PKGLIBDIR@/vserver-setup.functions
-build  @PKGLIBDIR@/magic.mime
 base   @PKGLIBDIR@/vserver.functions
 base   @PKGLIBDIR@/vserver.start
 @ENSC_HAVE_C99_COMPILER_TRUE@base   @PKGLIBDIR@/vserver.start.bin
@@ -48,6 +47,7 @@ build  @PKGLIBDIR@/defaults/debootstrap.uri
 build  @PKGLIBDIR@/defaults/context.start
 build  @PKGLIBDIR@/defaults/debootstrap.mirror
 @ENSC_HAVE_C99_COMPILER_TRUE@build  @PKGLIBDIR@/defaults/vunify-exclude
+build  @PKGLIBDIR@/defaults/h2ext.desc
 base   @PKGLIBDIR@/capchroot
 base   @PKGLIBDIR@/chain-echo
 core   @PKGLIBDIR@/chcontext-compat
@@ -57,6 +57,8 @@ base   @PKGLIBDIR@/chroot-sh
 base   @PKGLIBDIR@/exec-ulimit
 base   @PKGLIBDIR@/fakerunlevel
 base   @PKGLIBDIR@/filetime
+build  @PKGLIBDIR@/h2ext
+build  @PKGLIBDIR@/h2ext-worker
 base   @PKGLIBDIR@/lockfile
 base   @PKGLIBDIR@/keep-ctx-alive
 base   @PKGLIBDIR@/mask2prefix

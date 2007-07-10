@@ -44,6 +44,7 @@
 #define PROG_VCONFIG		"@VCONFIG@"
 
 #define PROG_SECURE_MOUNT	PKGLIBDIR "/secure-mount"
+#define PROG_H2EXT_WORKER	PKGLIBDIR "/h2ext-worker"
 
 #define PATH_VSERVER_START	PKGLIBDIR "/vserver.start"
 #define PATH_FUNCTIONS		PKGLIBDIR "/functions"

@@ -69,30 +69,15 @@ test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_V
 
 pushd "$SETUP_CONFDIR/vdir" &> /dev/null
 for t in "${TEMPLATE[@]}"; do
-    mime=$($_FILE -Nbiz -m "$_LIB_MAGIC" "$t")
-    compression=$(echo "$mime" | $_GREP '(' | $_SED 's!.*(\(.*\))$!\1!')
+    findFile DESC "$__CONFDIR/.defaults/apps/h2ext/desc" "$__PKGLIBDEFAULTDIR/h2ext.desc"
+    pipe=$($_H2EXT -d "$DESC" -q "$t")
 
-    case "$compression" in
-	application/x-bzip2)	DECOMPRESS="$_BZIP2 -d -c";;
-	application/x-gzip)	DECOMPRESS="$_GZIP -d -c";;
-	"")			DECOMPRESS=$_CAT;;
-	*)
-	    echo "Unsupported compression method: $compression"
-	    exit 1
-	    ;;
-    esac
+    if echo "$pipe" | grep -q "unknown format"; then
+	echo "vserver-build.template: $t: Unknown format" >&2
+	exit 1
+    fi
 
-    case "$mime" in
-	application/x-tar*)	EXTRACT="$_TAR -x";;
-	application/x-cpio*)	EXTRACT="$_CPIO -i";;
-	application/x-dump*)	EXTRACT="$_RESTORE -rf -";;
-	*)
-	    echo "Unsupported packaging method: $mime"
-	    exit 1
-	    ;;
-    esac
-
-    $DECOMPRESS "$t" | $EXTRACT
+    eval `echo $_CAT "\$t" '|' $pipe`
 done
 
 test -z "$no_dev_sanity" && {

@@ -28,7 +28,8 @@ defaults_DATA =		misc/debootstrap.mirror \
 			misc/vprocunhide-files \
 			misc/vunify-exclude \
 			misc/environment \
-			misc/context.start
+			misc/context.start \
+			misc/h2ext.desc
 
 nobase_distrib_SCRIPTS	=  redhat/initpost \
 			   redhat/initpre \
