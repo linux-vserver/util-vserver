@@ -1,0 +1,23 @@
+[fedora]
+name=Fedora 7 - $basearch
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/releases/7/Everything/$basearch/os/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-7&arch=$basearch
+enabled=1
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/7/Everything/$basearch/os/RPM-GPG-KEY-fedora file:///etc/pki/rpm-gpg/RPM-GPG-KEY
+
+[fedora-debuginfo]
+name=Fedora 7 - $basearch - Debug
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/releases/7/Everything/$basearch/debug/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-debug-7&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/7/Everything/$basearch/os/RPM-GPG-KEY-fedora file:///etc/pki/rpm-gpg/RPM-GPG-KEY
+
+[fedora-source]
+name=Fedora 7 - Source
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/releases/7/Everything/source/SRPMS/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-source-7&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/7/Everything/$basearch/os/RPM-GPG-KEY-fedora file:///etc/pki/rpm-gpg/RPM-GPG-KEY
