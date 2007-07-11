@@ -45,6 +45,8 @@
 
 #define MAX_PEEK_SIZE 4096
 #define MIN(a,b)  (((a) > (b)) ? (b) : (a))
+#define STRINGIFY_(x)	#x
+#define STRINGIFY(x)	STRINGIFY_(x)
 
 struct file_format {
   /* where the value would be in the file */
@@ -273,9 +275,10 @@ load_description(const char *file, file_format_t **head)
     }
     i->next = NULL;
 
-#define get_field()  for (ptr++; *ptr == '\t' && *ptr != '\0'; ptr++); \
-      for (field = ptr; *ptr != '\t' && *ptr != '\0'; ptr++); \
-      *ptr = '\0';
+#define get_field()	if (*(ptr+1) == '\0') goto new_line_and_free; \
+			for (ptr++; *ptr == '\t' && *ptr != '\0'; ptr++); \
+			for (field = ptr; *ptr != '\t' && *ptr != '\0'; ptr++); \
+			*ptr = '\0';
     field = ptr = buf;
     while (*ptr != '\t' && *ptr != '\0')
       ptr++;
@@ -361,6 +364,25 @@ load_description(const char *file, file_format_t **head)
     get_field();
     i->peek_inside = (int)strtol(field, NULL, 0);
 
+    /* sanity check the entry */
+    if (i->offset < 0) {
+      WRITE_MSG(2, ENSC_WRAPPERS_PREFIX);
+      WRITE_STR(2, file);
+      WRITE_MSG(2, ":");
+      WRITE_INT(2, line_no);
+      WRITE_MSG(2, " has an invalid offset: ");
+      WRITE_INT(2, i->offset);
+      WRITE_MSG(2, "\n");
+      goto new_line_and_free;
+    }
+    else if ((i->offset + i->len) > MAX_PEEK_SIZE) {
+      WRITE_MSG(2, ENSC_WRAPPERS_PREFIX);
+      WRITE_STR(2, file);
+      WRITE_MSG(2, ":");
+      WRITE_INT(2, line_no);
+      WRITE_MSG(2, " exceeds maximum offset (" STRINGIFY(MAX_PEEK_SIZE) ")\n");
+      goto new_line_and_free;
+    }
 #undef get_field
     goto new_line;
 
