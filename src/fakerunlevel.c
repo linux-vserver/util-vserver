@@ -83,7 +83,7 @@ int main (int argc, char *argv[])
     gid_t		gid;
     char		*gid_str = getenv("UTMP_GID");
     
-    if (runlevel<0 || runlevel>6) showHelp(2,1);
+    if (runlevel<0 || runlevel>9) showHelp(2,1);
 
     Echroot(".");
     Echdir("/");
