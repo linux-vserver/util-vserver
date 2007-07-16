@@ -20,32 +20,24 @@
 #  include <config.h>
 #endif
 
-#include "vserver.h"
-#include "virtual.h"
-
-#if defined(VC_ENABLE_API_V13) && defined(VC_ENABLE_API_V21)
-#  define VC_MULTIVERSION_SYSCALL 1
-#endif
-#include "vserver-internal.h"
-
-#if defined(VC_ENABLE_API_V13)
-#  include "syscall_getccaps-v13.hc"
-#endif
-
-#if defined(VC_ENABLE_API_V21)
-#  include "syscall_getccaps-v21.hc"
-#endif
-
-#if defined(VC_ENABLE_API_V13) || defined(VC_ENABLE_API_V21)
-int
-vc_get_ccaps(xid_t xid, struct vc_ctx_caps *caps)
+static inline ALWAYSINLINE int
+vc_get_ccaps_v21(xid_t xid, struct vc_ctx_caps *caps)
 {
-  if (caps==0) {
-    errno = EFAULT;
-    return -1;
-  }
+  struct vcmd_ctx_caps_v1	k_ccaps;
+  struct vcmd_bcaps		k_bcaps;
+  int				res;
+  
+  res = vserver(VCMD_get_ccaps, CTX_USER2KERNEL(xid), &k_ccaps);
+  if (res)
+    return res;
+  res = vserver(VCMD_get_bcaps, CTX_USER2KERNEL(xid), &k_bcaps);
+  if (res)
+    return res;
 
-  CALL_VC(CALL_VC_V21(vc_get_ccaps, xid, caps),
-	  CALL_VC_V13A(vc_get_ccaps, xid, caps));
+  caps->bcaps = k_bcaps.bcaps;
+  caps->bmask = k_bcaps.bmask;
+  caps->ccaps = k_ccaps.ccaps;
+  caps->cmask = k_ccaps.cmask;
+
+  return res;
 }
-#endif
