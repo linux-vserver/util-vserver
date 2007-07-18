@@ -279,6 +279,10 @@ function _generateInitOptions
 	    done
 	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL "$RUNLEVEL_START" /var/run/utmp )
 	    OPTS_ENV=( "${OPTS_ENV[@]}" PREVLEVEL=N RUNLEVEL="$RUNLEVEL_START" )
+	    if test -n "$OPTION_DEBUG_SYSV"; then
+		INITCMD_START=( /bin/bash -x "${INITCMD_START[@]}" )
+		INITCMD_STOP=( /bin/bash -x "${INITCMD_STOP[@]}" )
+	    fi
 	    ;;
 	    
 	(xplain)
