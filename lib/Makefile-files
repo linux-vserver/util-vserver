@@ -131,7 +131,9 @@ lib_v21_SRCS =			lib/syscall_setccaps-v21.hc \
 				lib/syscall_setmapping-v21.hc \
 				lib/syscall_schedinfo.c \
 				lib/syscall_schedinfo-v21.hc \
-				lib/syscall_getccaps-v21.hc
+				lib/syscall_getccaps-v21.hc \
+				lib/syscall_getsched.c \
+				lib/syscall_getsched-v21.hc
 
 if ENSC_HAVE_C99_COMPILER
 lib_v13_SRCS +=			lib/syscall_adddlimit-v13.hc \

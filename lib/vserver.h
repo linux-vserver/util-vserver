@@ -745,6 +745,7 @@ extern "C" {
   };
 
   int		vc_set_sched(xid_t xid, struct vc_set_sched const *) VC_ATTR_NONNULL((2));
+  int		vc_get_sched(xid_t xid, struct vc_set_sched *) VC_ATTR_NONNULL((2));
 
   struct vc_sched_info {
       int_least32_t	cpu_id;
