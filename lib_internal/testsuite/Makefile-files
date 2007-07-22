@@ -23,17 +23,22 @@ check_PROGRAMS +=		lib_internal/testsuite/filecfg-ml \
 				lib_internal/testsuite/isnumber \
 				lib_internal/testsuite/isnumber-gnu \
 				lib_internal/testsuite/sigbus \
-				lib_internal/testsuite/sigbus-gnu
+				lib_internal/testsuite/sigbus-gnu \
+				lib_internal/testsuite/matchlist \
+				lib_internal/testsuite/matchlist-gnu
 TESTS +=			lib_internal/testsuite/filecfg-ml \
 				lib_internal/testsuite/copy-check \
 				lib_internal/testsuite/isnumber \
 				lib_internal/testsuite/isnumber-gnu \
 				lib_internal/testsuite/sigbus \
-				lib_internal/testsuite/sigbus-gnu
+				lib_internal/testsuite/sigbus-gnu \
+				lib_internal/testsuite/matchlist \
+				lib_internal/testsuite/matchlist-gnu
 endif
 
 DIETPROGS +=			lib_internal/testsuite/isnumber \
-				lib_internal/testsuite/sigbus
+				lib_internal/testsuite/sigbus \
+				lib_internal/testsuite/matchlist
 
 EXTRA_DIST +=			lib_internal/testsuite/copy-check
 
@@ -66,3 +71,11 @@ lib_internal_testsuite_sigbus_CPPFLAGS =	$(AM_CPPFLAGS)		# see note above
 
 lib_internal_testsuite_sigbus_gnu_SOURCES =	lib_internal/testsuite/sigbus.c
 lib_internal_testsuite_sigbus_gnu_CPPFLAGS =	$(AM_CPPFLAGS)		# see note above
+
+lib_internal_testsuite_matchlist_SOURCES =	lib_internal/testsuite/matchlist.c
+lib_internal_testsuite_matchlist_LDADD =	$(LIBINTERNAL)
+lib_internal_testsuite_matchlist_CPPFLAGS =	$(AM_CPPFLAGS)		# see note above
+
+lib_internal_testsuite_matchlist_gnu_SOURCES =	lib_internal/testsuite/matchlist.c
+lib_internal_testsuite_matchlist_gnu_LDADD =	$(LIBINTERNAL_GLIBC)
+lib_internal_testsuite_matchlist_gnu_CPPFLAGS =	$(AM_CPPFLAGS)		# see note above

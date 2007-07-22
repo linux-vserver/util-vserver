@@ -37,5 +37,5 @@ MatchList_compare(struct MatchList const *list, char const *path)
       return ptr->type;
   }
 
-  return stINCLUDE;
+  return list->skip_depth > 0 ? stEXCLUDE : stINCLUDE;
 }

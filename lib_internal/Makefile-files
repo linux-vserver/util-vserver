@@ -101,6 +101,7 @@ lib_internal_libinternal_common_SRCS = \
 				lib_internal/util-isnumberunsigned.c \
 				lib_internal/util-lockfile.c \
 				lib_internal/util-safechdir.c \
+				lib_internal/mkdir.c \
 				$(command_SRCS) \
 				$(filecfg_SRCS)
 

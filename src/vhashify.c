@@ -393,69 +393,6 @@ calculateHash(PathInfo const *filename, HashPath d_path, struct stat const * con
   return res;
 }
 
-static enum { mkdirFAIL, mkdirSUCCESS, mkdirSKIP }
-mkdirSingle(char const *path, char *end_ptr, int good_err)
-{
-  *end_ptr = '\0';
-  if (mkdir(path, 0700)!=-1 || errno==EEXIST) {
-    *end_ptr = '/';
-    return mkdirSUCCESS;
-  }
-  else if (errno==good_err) {
-    *end_ptr = '/';
-    return mkdirSKIP;
-  }
-  else {
-    int		old_errno = errno;
-    WRITE_MSG(2, "mkdir('");
-    WRITE_STR(2, path);
-    errno = old_errno;
-    perror("')");
-    return mkdirFAIL;
-  }
-}
-
-static char *
-rstrchr(char *str, char c)
-{
-  while (*str!=c) --str;
-  return str;
-}
-
-static bool
-mkdirRecursive(char const *path)
-{
-  if (path[0]!='/')      return false; // only absolute paths
-
-  char			buf[strlen(path)+1];
-  char *		ptr = buf + sizeof(buf) - 2;
-
-  strcpy(buf, path);
-
-  while (ptr>buf && (ptr = rstrchr(ptr, '/'))!=0) {
-    switch (mkdirSingle(buf, ptr, ENOENT)) {
-      case mkdirSUCCESS		:  break;
-      case mkdirSKIP		:  --ptr; continue;
-      case mkdirFAIL		:  return false;
-    }
-
-    break;	// implied by mkdirSUCCESS
-  }
-
-  assert(ptr!=0);
-  ++ptr;
-
-  while ((ptr=strchr(ptr, '/'))!=0) {
-    switch (mkdirSingle(buf, ptr, 0)) {
-      case mkdirSKIP		:
-      case mkdirFAIL		:  return false;
-      case mkdirSUCCESS		:  ++ptr; continue;
-    }
-  }
-
-  return true;
-}
-
 static bool
 resolveCollisions(char *result, PathInfo const *root, HashPath d_path,
 		  struct stat *st, struct stat *hash_st)
@@ -497,18 +434,16 @@ resolveCollisions(char *result, PathInfo const *root, HashPath d_path,
 
     if (!global_args->dry_run) {
       *ptr = '\0';
-      if (!mkdirRecursive(result))
+      if (!mkdirRecursive(result)) {
+	PERROR_Q("mkdir", result);
 	return false;
+      }
       *ptr = '-';
 
       int		fd = open(result, O_NOFOLLOW|O_EXCL|O_CREAT|O_WRONLY, 0200);
 
       if (fd==-1) {
-	int		old_errno = errno;
-	WRITE_MSG(2, "open('");
-	WRITE_STR(2, buf);
-	errno = old_errno;
-	perror("')");
+	PERROR_Q("open", buf);
 	return false;
       }
 
