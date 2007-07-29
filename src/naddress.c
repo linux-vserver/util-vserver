@@ -339,6 +339,8 @@ doit(struct Arguments *args)
     for (ips = &args->head; ips->next; ips = ips->next) {
       tellAddress(&ips->a, args->is_silent);
       if (vc_net_add(args->nid, &ips->a) != (int)ips->a.count) {
+	if (!args->is_silent)
+	  WRITE_MSG(1, "\n");
 	perror(ENSC_WRAPPERS_PREFIX "vc_net_add()");
 	exit(wrapper_exit_code);
       }
