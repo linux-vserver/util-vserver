@@ -18,18 +18,26 @@
 function init
 {
     workdir=
-    mirror=
+    MIRROR=
+    options=
 }
 
 function initVariables
 {
     base.init
 
-    test -n "${mirror}" || {
+    test -n "${MIRROR}" || {
 	local aux
-	findFile aux "$__CONFDIR"/.defaults/apps/debootstrap/mirror "$__PKGLIBDEFAULTDIR"/debootstrap.mirror
-	test -z "$aux" || read mirror <"$aux"
+	findFile aux "$__CONFDIR"/.distributions/"$DISTRIBUTION"/debootstrap.mirror \
+		     "$__CONFDIR"/.defaults/apps/debootstrap/mirror \
+		     "$__DISTRIBDIR"/"$DISTRIBUTION"/debootstrap.mirror \
+		     "$__PKGLIBDEFAULTDIR"/debootstrap.mirror
+	test -z "$aux" || read MIRROR <"$aux"
     }
+    local file
+    findFile file "$__CONFDIR"/.distributions/"$DISTRIBUTION"/debootstrap.options \
+		  "$__CONFDIR"/.defaults/apps/debootstrap/options
+    test -z "$file" || read options <"$file"
 }
 
 function initFilesystem
@@ -125,7 +133,7 @@ init
 while true; do
     case "$1" in
 	(-d)		DISTRIBUTION=$2; shift;;
-	(-m)		mirror=$2;       shift;;
+	(-m)		MIRROR=$2;       shift;;
 	(-s)            script=$2;       shift;;
 	(--debug)	set -x;;
 	(--)		shift; break ;;
@@ -146,11 +154,24 @@ setup_writeInitialFstab
 
 findDebootstrap
 
-test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS" "$mirror"
+if test -z "$script"; then
+    for s in "$__CONFDIR/.distributions/$DISTRIBUTION/debootstrap.script"
+	     "$__DISTRIBDIR/$DISTRIBUTION/debootstrap.script"
+    do
+	if test -e "$s"; then
+	    script="$s"
+	    break
+	fi
+    done
+fi
+
+export MIRROR
+test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE"  "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
 mv "$VDIR"/dev "$VDIR"/dev.X
-"$_VNAMESPACE" --new -- "$DEBOOTSTRAP" "$@" "$DISTRIBUTION" "$VDIR" "$mirror" "$script" || :   ## HACK: ignore all errors...
+"$_VNAMESPACE" --new -- \
+    "$DEBOOTSTRAP" $options "$@" "$DISTRIBUTION" "$VDIR" "$MIRROR" "$script" || :   ## HACK: ignore all errors...
 fixupDebian "$VDIR"
-test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS" "$mirror"
+test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
 
 $_RM -fr "$workdir"
 base.setSuccess

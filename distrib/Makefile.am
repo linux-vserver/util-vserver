@@ -36,7 +36,7 @@ nobase_distrib_SCRIPTS	=  redhat/initpost \
 			   redhat/rc.sysinit \
 			   gentoo/initpost \
 			   gentoo/initpre \
-			   etch/initpost
+			   debian/initpost
 
 nobase_distrib_DATA	=  defaults/devs \
 			   defaults/apt.conf \
@@ -69,7 +69,11 @@ nobase_distrib_DATA	=  defaults/devs \
 			   suse91/rpm/macros \
 			   gentoo/init-vserver.sh gentoo/net.vserver \
 			   gentoo/reboot.sh gentoo/shutdown.sh \
-			   etch/vserver-config.sh
+			   debian/vserver-config.sh  debian/debootstrap.script \
+			   breezy/debootstrap.script dapper/debootstrap.script \
+			   edgy/debootstrap.script   feisty/debootstrap.script \
+			   gutsy/debootstrap.script  hoary/debootstrap.script \
+			   warty/debootstrap.script
 
 nobase_confdistrib_DATA	=  rh9/apt/sources.list \
 			   fc1/apt/sources.list \
@@ -90,6 +94,7 @@ EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(defaults_DATA)
 
 redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 fc6 f7 centos4 centos5
+sid_style		=  etch lenny sid
 
 install-exec-hook:	install-notify-xtra
 install-data-hook:	install-data-xtras
@@ -98,6 +103,9 @@ install-data-xtras:
 			l="$(redhat_style)"; for i in $$l; do \
 				ln -sf ../redhat/initpost $(DESTDIR)$(distribdir)/$$i/ && \
 				ln -sf ../redhat/initpre  $(DESTDIR)$(distribdir)/$$i/; \
+			done
+			l="$(sid_style)"; for i in $$l; do \
+				ln -sf debian $(DESTDIR)$(distribdir)/$$i; \
 			done
 			$(mkinstalldirs) $(DESTDIR)$(confdir) \
 				$(DESTDIR)$(confdistribdir)/.common/pubkeys \

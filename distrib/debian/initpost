@@ -26,12 +26,6 @@ vdir="$cfgdir"/vdir
 # vserver name
 NAME=$(< "$cfgdir"/name)
 
-# debian mirror
-MIRROR=$3
-
-# debian distribution
-DIST="etch"
-
 
 # go to vdir for chroot-sh
 pushd "$vdir" &>/dev/null
@@ -59,10 +53,10 @@ fi
 
 # make apt and friends work
 $_CHROOT_SH truncate /etc/apt/sources.list <<EOF
-deb $MIRROR/ $DIST main
-deb-src $MIRROR/ $DIST main
+deb $MIRROR/ $DISTRIBUTION main
+deb-src $MIRROR/ $DISTRIBUTION main
 
-deb http://security.debian.org $DIST/updates main
+deb http://security.debian.org $DISTRIBUTION/updates main
 EOF
 
 

@@ -183,6 +183,8 @@ ERROR: Can not determine distribution; please specify it manually with
 ERROR: Can not find configuration for the distribution '$DISTRIBUTION';
   please read http://linux-vserver.org/HowToRegisterNewDistributions
   for information how to add support for your own distribution."
+
+    export DISTRIBUTION
 }
 
 function base._addGeneratedFile
