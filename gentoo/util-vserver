@@ -36,15 +36,13 @@ start() {
 	fi
 	
 	source ${UTIL_VSERVER_VARS}
-	source "$_LIB_FUNCTIONS"
-	source "$__PKGLIBDIR/vserver.functions"
 
 	ebegin "Setting vshelper path to $_VSHELPER"
 	set_helper
 	eend $?
 
 	ebegin "Loading default device map"
-	loadDeviceMap 0 "$__CONFDIR/.defaults/apps/vdevmap"
+	$__PKGLIBDIR/bash-wrapper 'loadDeviceMap 0 "$__CONFDIR/.defaults/apps/vdevmap"'
 	eend $?
 }
 
@@ -57,8 +55,6 @@ stop() {
 	fi
 	
 	source ${UTIL_VSERVER_VARS}
-	source "$_LIB_FUNCTIONS"
-	source "$__PKGLIBDIR/vserver.functions"
 
 	ebegin "Stopping all running guests"
 	$_START_VSERVERS -j 1 --all --stop

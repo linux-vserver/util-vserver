@@ -1,0 +1,66 @@
+#! /bin/bash
+# $Id$
+
+# Copyright (C) 2007 Daniel Hokka Zakrisson
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo $"Can not find util-vserver installation (the file '$UTIL_VSERVER_VARS' would be expected); aborting..." >&2
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+. "$_LIB_FUNCTIONS"
+. "$__PKGLIBDIR/vserver.functions"
+
+
+function showHelp()
+{
+    echo \
+$"Usage: $0 <statements>
+
+Report bugs to <$PACKAGE_BUGREPORT>."
+    exit 0
+}
+
+function showVersion()
+{
+    echo \
+$"bash-wrapper $PACKAGE_VERSION -- wrapper for bash snippets for Gentoo initscripts
+This program is part of $PACKAGE_STRING
+
+Copyright (C) 2007 Daniel Hokka Zakrisson
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License.  This program has absolutely no warranty."
+    exit 0
+}
+
+tmp=$(getopt -o +q --long help,version,debug -n "$0" -- "$@") || exit 1
+eval set -- "$tmp"
+
+while true; do
+    case "$1" in
+	(--help)    	showHelp $0 ;;
+	(--version) 	showVersion ;;
+	(--debug)	set -x;;
+	(--)		shift; break;;
+	(*)	   	echo $"bash-wrapper: internal error; arg=='$1'" >&2; exit 1;;
+    esac
+    shift
+done
+
+for i; do
+	eval $i
+done
