@@ -29,13 +29,13 @@ kill_contexts() {
 
 start() {
 	: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
-	if [[ ! -e ${UTIL_VSERVER_VARS} ]]; then
+	if [ ! -e ${UTIL_VSERVER_VARS} ]; then
 		eerror "Cannot find util-vserver installation"
 		eerror "(the file '$UTIL_VSERVER_VARS' would be expected)"
 		return 1
 	fi
 	
-	source ${UTIL_VSERVER_VARS}
+	. ${UTIL_VSERVER_VARS}
 
 	ebegin "Setting vshelper path to $_VSHELPER"
 	set_helper
@@ -48,13 +48,13 @@ start() {
 
 stop() {
 	: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
-	if [[ ! -e ${UTIL_VSERVER_VARS} ]]; then
+	if [ ! -e ${UTIL_VSERVER_VARS} ]; then
 		eerror "Cannot find util-vserver installation"
 		eerror "(the file '$UTIL_VSERVER_VARS' would be expected)"
 		return 1
 	fi
 	
-	source ${UTIL_VSERVER_VARS}
+	. ${UTIL_VSERVER_VARS}
 
 	ebegin "Stopping all running guests"
 	$_START_VSERVERS -j 1 --all --stop
