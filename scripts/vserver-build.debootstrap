@@ -31,12 +31,12 @@ function initVariables
 	findFile aux "$__CONFDIR"/.distributions/"$DISTRIBUTION"/debootstrap.mirror \
 		     "$__CONFDIR"/.defaults/apps/debootstrap/mirror \
 		     "$__DISTRIBDIR"/"$DISTRIBUTION"/debootstrap.mirror \
-		     "$__PKGLIBDEFAULTDIR"/debootstrap.mirror
+		     "$__PKGLIBDEFAULTDIR"/debootstrap.mirror ''
 	test -z "$aux" || read MIRROR <"$aux"
     }
     local file
     findFile file "$__CONFDIR"/.distributions/"$DISTRIBUTION"/debootstrap.options \
-		  "$__CONFDIR"/.defaults/apps/debootstrap/options
+		  "$__CONFDIR"/.defaults/apps/debootstrap/options ''
     test -z "$file" || read options <"$file"
 }
 
@@ -155,14 +155,8 @@ setup_writeInitialFstab
 findDebootstrap
 
 if test -z "$script"; then
-    for s in "$__CONFDIR/.distributions/$DISTRIBUTION/debootstrap.script"
-	     "$__DISTRIBDIR/$DISTRIBUTION/debootstrap.script"
-    do
-	if test -e "$s"; then
-	    script="$s"
-	    break
-	fi
-    done
+    findFile script "$__CONFDIR/.distributions/$DISTRIBUTION/debootstrap.script" \
+		    "$__DISTRIBDIR/$DISTRIBUTION/debootstrap.script" ''
 fi
 
 export MIRROR
