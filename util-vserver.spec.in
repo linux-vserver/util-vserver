@@ -58,7 +58,7 @@ Requires:		util-linux
 %package build
 Summary:		Tools which can be used to build vservers
 Group:			Applications/System
-Requires:		rpm wget binutils tar e2fsprogs
+Requires:		rpm wget binutils tar
 Requires:		%name = %version-%release
 Requires(pre):		%confdir
 Requires(postun):	%confdir
@@ -356,6 +356,7 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 %changelog
 * Mon Jun 25 2007 Daniel Hokka Zakrisson <daniel@hozac.com> - 0.30.214-0
 - updated URLs
+- get rid of e2fsprogs requirement
 
 * Fri Dec 29 2006 Daniel Hokka Zakrisson <daniel@hozac.com> - 0.30.213-0
 - add --with legacy and --without doc switches
