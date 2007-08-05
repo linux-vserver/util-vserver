@@ -27,7 +27,7 @@ while true; do
 	(-d)		DISTRIBUTION=$2; shift;;
 	(--debug)	set -x;;
 	(--)		shift; break ;;
-	(*)		echo "vserver-build.yum-rpm: internal error: unrecognized option '$1'" >&2
+	(*)		echo "vserver-build.yum: internal error: unrecognized option '$1'" >&2
 			exit 1
 			;;
     esac
