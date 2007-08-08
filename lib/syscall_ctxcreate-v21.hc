@@ -38,8 +38,9 @@ vc_ctx_create_v21(xid_t xid, struct vc_ctx_flags *flags)
 
   if (res != VC_NOCTX) {
     if (utilvserver_checkCompatConfig() & VC_VCI_SPACES) {
-      sys_unshare(CLONE_NEWUTS | CLONE_NEWIPC);
-      vc_set_namespace(VC_SAMECTX, CLONE_NEWUTS | CLONE_NEWIPC);
+      uint32_t spaces = vc_get_space_mask() & ~(CLONE_NEWNS|CLONE_FS);
+      sys_unshare(spaces);
+      vc_set_namespace(VC_SAMECTX, spaces);
     }
   }
 
