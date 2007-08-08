@@ -39,6 +39,7 @@ vc_ctx_create_v21(xid_t xid, struct vc_ctx_flags *flags)
   if (res != VC_NOCTX) {
     if (utilvserver_checkCompatConfig() & VC_VCI_SPACES) {
       sys_unshare(CLONE_NEWUTS | CLONE_NEWIPC);
+      vc_set_namespace(VC_SAMECTX, CLONE_NEWUTS | CLONE_NEWIPC);
     }
   }
 
