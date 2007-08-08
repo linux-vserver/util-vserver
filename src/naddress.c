@@ -57,6 +57,9 @@
 #define CMD_SET		0x2004
 #define CMD_IP		0x2010
 #define CMD_BCAST	0x2011
+#define CMD_MASK	0x2012
+#define CMD_RANGE	0x2013
+#define CMD_LBACK	0x2014
 
 int wrapper_exit_code = 255;
 
@@ -71,12 +74,15 @@ CMDLINE_OPTIONS[] = {
   { "set",      no_argument,  0, CMD_SET },
   { "nid",      required_argument, 0, CMD_NID },
   { "ip",       required_argument, 0, CMD_IP },
+  { "mask",     required_argument, 0, CMD_MASK },
+  { "range",    required_argument, 0, CMD_RANGE },
   { "bcast",    required_argument, 0, CMD_BCAST },
+  { "lback",    required_argument, 0, CMD_LBACK },
   { 0,0,0,0 }
 };
 
 struct vc_ips {
-  struct vc_net_nx a;
+  struct vc_net_addr a;
   struct vc_ips *next;
 };
 
@@ -197,32 +203,53 @@ int ifconfig_getaddr (
 }
 
 static int
-convertAddress(const char *str, vc_net_nx_type *type, void *dst)
+convertAddress(const char *str, uint16_t *type, void *dst)
 {
   int	ret;
-  if (type) *type = vcNET_IPV4;
+  if (type) *type = VC_NXA_TYPE_IPV4;
   ret = inet_pton(AF_INET, str, dst);
   if (ret==0) {
-    if (type) *type = vcNET_IPV6;
+    if (type) *type = VC_NXA_TYPE_IPV6;
     ret = inet_pton(AF_INET6, str, dst);
   }
   return ret > 0 ? 0 : -1;
 }
 
 static void
-readIP(char const *str, struct vc_ips **ips)
+ipv6PrefixToMask(struct in6_addr *mask, int prefix)
 {
-  if (ifconfig_getaddr(str, &(*ips)->a.ip[0], &(*ips)->a.mask[0], NULL)==-1) {
+  int i;
+  mask->s6_addr32[0] = mask->s6_addr32[1] = mask->s6_addr32[2] = mask->s6_addr32[3] = 0;
+  for (i = 0; (i << 3) < prefix; i++) {
+    mask->s6_addr[i] = 0xff;
+  }
+  if ((i << 3) > prefix)
+    mask->s6_addr[i-1] = ~((1 << (prefix & 0x07)) - 1);
+}
+
+static int
+maskToPrefix(void *data, int limit)
+{
+  uint8_t *mask = data;
+  int prefix;
+  for (prefix = 0; prefix < limit && mask[prefix >> 3] & (1 << (prefix & 0x07)); prefix++)
+    ;
+  return prefix;
+}
+
+static void
+readIP(char const *str, struct vc_ips **ips, uint16_t type)
+{
+  if (ifconfig_getaddr(str, &(*ips)->a.vna_v4_ip.s_addr, &(*ips)->a.vna_v4_mask.s_addr, NULL)==-1) {
     char		*pt;
     char		tmpopt[strlen(str)+1];
-    uint32_t		*mask = (*ips)->a.mask;
 
     strcpy(tmpopt,str);
     pt = strchr(tmpopt,'/');
     if (pt)
       *pt++ = '\0';
 
-    if (convertAddress(tmpopt, &(*ips)->a.type, (*ips)->a.ip) == -1) {
+    if (convertAddress(tmpopt, &(*ips)->a.vna_type, &(*ips)->a.vna_v4_ip.s_addr) == -1) {
       WRITE_MSG(2, "Invalid IP number '");
       WRITE_STR(2, tmpopt);
       WRITE_MSG(2, "'\n");
@@ -230,12 +257,15 @@ readIP(char const *str, struct vc_ips **ips)
     }
 
     if (pt==0) {
-      switch ((*ips)->a.type) {
-	case vcNET_IPV4:
-	  mask[0] = htonl(0xffffff00);
+      switch ((*ips)->a.vna_type) {
+	case VC_NXA_TYPE_IPV4:
+	  (*ips)->a.vna_v4_mask.s_addr = htonl(0xffffff00);
+	  (*ips)->a.vna_prefix = 24;
 	  break;
-	case vcNET_IPV6:
-	  mask[0] = 64;
+	case VC_NXA_TYPE_IPV6:
+	  (*ips)->a.vna_prefix = 64;
+	  (*ips)->a.vna_v6_mask.s6_addr32[0] = (*ips)->a.vna_v6_mask.s6_addr32[1] = 0xffffffff;
+	  (*ips)->a.vna_v6_mask.s6_addr32[2] = (*ips)->a.vna_v6_mask.s6_addr32[3] = 0x00000000;
 	  break;
 	default: break;
       }
@@ -245,10 +275,10 @@ readIP(char const *str, struct vc_ips **ips)
       if (strchr(pt,'.')==0 && strchr(pt,':')==0) {
 	unsigned long	sz, limit = 0;
 
-	switch ((*ips)->a.type) {
-	  case vcNET_IPV4: limit =  32; break;
-	  case vcNET_IPV6: limit = 128; break;
-	  default:			break;
+	switch ((*ips)->a.vna_type) {
+	  case VC_NXA_TYPE_IPV4: limit =  32;	break;
+	  case VC_NXA_TYPE_IPV6: limit = 128;	break;
+	  default:				break;
 	}
 
 	if (!isNumberUnsigned(pt, &sz, true) || sz > limit) {
@@ -258,30 +288,48 @@ readIP(char const *str, struct vc_ips **ips)
 	  exit(wrapper_exit_code);
 	}
 
-	switch ((*ips)->a.type) {
-	  case vcNET_IPV4:
-	    mask[0] = htonl(~((1 << (32 - sz)) - 1));
+	(*ips)->a.vna_prefix = sz;
+	switch ((*ips)->a.vna_type) {
+	  case VC_NXA_TYPE_IPV4:
+	    (*ips)->a.vna_v4_mask.s_addr = htonl(~((1 << (32 - sz)) - 1));
 	    break;
-	  case vcNET_IPV6:
-	    mask[0] = sz;
+	  case VC_NXA_TYPE_IPV6:
+	    ipv6PrefixToMask(&(*ips)->a.vna_v6_mask, (*ips)->a.vna_prefix);
 	    break;
 	  default: break;
 	}
       }
-      else { 
-	if (convertAddress(pt, NULL, &(*ips)->a.mask) == -1) {
+      else {
+	int af, limit;
+	void *mask;
+	switch ((*ips)->a.vna_type) {
+	  case VC_NXA_TYPE_IPV4:
+	    af = AF_INET;
+	    mask = &(*ips)->a.vna_v4_mask.s_addr;
+	    limit = 32;
+	    break;
+	  case VC_NXA_TYPE_IPV6:
+	    af = AF_INET6;
+	    mask = (*ips)->a.vna_v6_mask.s6_addr32;
+	    limit = 128;
+	    break;
+	  default:
+	    return;
+	}
+	if (inet_pton(af, pt, mask) < 0) {
 	  WRITE_MSG(2, "Invalid netmask '");
 	  WRITE_STR(2, pt);
 	  WRITE_MSG(2, "'\n");
 	  exit(wrapper_exit_code);
 	}
+	(*ips)->a.vna_prefix = maskToPrefix(mask, limit);
       }
     }
   }
   else
-    (*ips)->a.type = vcNET_IPV4;
+    (*ips)->a.vna_type = VC_NXA_TYPE_IPV4;
+  (*ips)->a.vna_type |= type;
 
-  (*ips)->a.count = 1;
   (*ips)->next = calloc(1, sizeof(struct vc_ips));
   *ips = (*ips)->next;
 }
@@ -291,28 +339,41 @@ readBcast(char const *str, struct vc_ips **ips)
 {
   uint32_t bcast;
   if (ifconfig_getaddr(str, NULL, NULL, &bcast)==-1){
-    if (convertAddress(str, NULL, &bcast) == -1) {
+    if (inet_pton(AF_INET, str, &bcast) < 0) {
       WRITE_MSG(2, "Invalid broadcast number '");
       WRITE_STR(2, optarg);
       WRITE_MSG(2, "'\n");
       exit(wrapper_exit_code);
     }
   }
-  (*ips)->a.ip[0] = bcast;
-  (*ips)->a.count = 1;
-  (*ips)->a.type = vcNET_IPV4B;
+  (*ips)->a.vna_v4_ip.s_addr = bcast;
+  (*ips)->a.vna_type = VC_NXA_TYPE_IPV4 | VC_NXA_MOD_BCAST;
   (*ips)->next = calloc(1, sizeof(struct vc_ips));
   *ips = (*ips)->next;
 }
 
 static void
-tellAddress(struct vc_net_nx *addr, bool silent)
+tellAddress(struct vc_net_addr *addr, bool silent)
 {
   char buf[41];
+  int af;
+  void *address;
   if (silent)
     return;
-  if (inet_ntop(addr->type == vcNET_IPV6 ? AF_INET6 : AF_INET,
-		addr->ip, buf, sizeof(buf)) == NULL) {
+  switch (addr->vna_type & (VC_NXA_TYPE_IPV4 | VC_NXA_TYPE_IPV6)) {
+    case VC_NXA_TYPE_IPV4:
+      af = AF_INET;
+      address = &addr->vna_v4_ip.s_addr;
+      break;
+    case VC_NXA_TYPE_IPV6:
+      af = AF_INET6;
+      address = addr->vna_v6_ip.s6_addr32;
+      break;
+    default:
+      WRITE_MSG(1, " <unknown address type>");
+      return;
+  }
+  if (inet_ntop(af, address, buf, sizeof(buf)) == NULL) {
     WRITE_MSG(1, " <conversion failed>");
     return;
   }
@@ -326,7 +387,7 @@ doit(struct Arguments *args)
   struct vc_ips *ips;
 
   if (args->do_set) {
-    struct vc_net_nx remove = { .type = vcNET_ANY };
+    struct vc_net_addr remove = { .vna_type = VC_NXA_TYPE_ANY };
     if (vc_net_remove(args->nid, &remove) == -1) {
       perror(ENSC_WRAPPERS_PREFIX "vc_net_remove()");
       exit(wrapper_exit_code);
@@ -338,7 +399,7 @@ doit(struct Arguments *args)
       WRITE_MSG(1, "Adding");
     for (ips = &args->head; ips->next; ips = ips->next) {
       tellAddress(&ips->a, args->is_silent);
-      if (vc_net_add(args->nid, &ips->a) != (int)ips->a.count) {
+      if (vc_net_add(args->nid, &ips->a) == -1) {
 	if (!args->is_silent)
 	  WRITE_MSG(1, "\n");
 	perror(ENSC_WRAPPERS_PREFIX "vc_net_add()");
@@ -353,7 +414,9 @@ doit(struct Arguments *args)
       WRITE_MSG(1, "Removing");
     for (ips = &args->head; ips->next; ips = ips->next) {
       tellAddress(&ips->a, args->is_silent);
-      if (vc_net_remove(args->nid, &ips->a) != (int)ips->a.count) {
+      if (vc_net_remove(args->nid, &ips->a) == -1) {
+	if (!args->is_silent)
+	  WRITE_MSG(1, "\n");
 	perror(ENSC_WRAPPERS_PREFIX "vc_net_remove()");
 	exit(wrapper_exit_code);
       }
@@ -387,8 +450,11 @@ int main (int argc, char *argv[])
       case CMD_ADD	:  args.do_add    = true; break;
       case CMD_REMOVE	:  args.do_remove = true; break;
       case CMD_SET	:  args.do_set    = true; break;
-      case CMD_IP	:  readIP(optarg, &ips); break;
+      case CMD_IP	:  readIP(optarg, &ips, VC_NXA_TYPE_ADDR);  break;
+      case CMD_MASK	:  readIP(optarg, &ips, VC_NXA_TYPE_MASK);  break;
+      case CMD_RANGE	:  readIP(optarg, &ips, VC_NXA_TYPE_RANGE); break;
       case CMD_BCAST	:  readBcast(optarg, &ips); break;
+      case CMD_LBACK	:  readIP(optarg, &ips, VC_NXA_TYPE_ADDR | VC_NXA_MOD_LBACK); break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);

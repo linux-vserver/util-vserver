@@ -242,61 +242,6 @@ readBcast(char const *str, uint32_t *bcast)
   }
 }
 
-#if defined(VC_ENABLE_API_NET)
-static void
-make_nx(nid_t nid, uint32_t bcast, size_t nbaddrs, struct vc_ip_mask_pair *ips)
-{
-  size_t i;
-  struct vc_net_nx addr;
-
-  if (nid == VC_DYNAMIC_NID) {
-    nid = vc_net_create(VC_DYNAMIC_NID);
-    if (nid == (nid_t) -1) {
-      perror("chbind: vc_net_create()");
-      exit(wrapper_exit_code);
-    }
-  }
-  else {
-    if (vc_net_create(nid) == (nid_t) -1) {
-      if (errno == EEXIST) {
-        if (vc_net_migrate(nid) != 0) {
-          perror("chbind: vc_net_migrate()");
-          exit(wrapper_exit_code);
-        }
-        else
-          return;
-      }
-      else {
-        perror("chbind: vc_net_create()");
-        exit(wrapper_exit_code);
-      }
-    }
-  }
-
-  addr.type = vcNET_IPV4B;
-  addr.count = 1;
-  addr.ip[0] = bcast;
-  addr.mask[0] = 0;
-
-  if (vc_net_add(nid, &addr) != 1) {
-    perror("chbind: vc_net_add()");
-    exit(wrapper_exit_code);
-  }
-
-  for (i = 0; i < nbaddrs; i++) {
-    addr.type = vcNET_IPV4;
-    addr.count = 1;
-    addr.ip[0] = ips[i].ip;
-    addr.mask[0] = ips[i].mask;
-
-    if (vc_net_add(nid, &addr) != 1) {
-      perror("chbind: vc_net_add()");
-      exit(wrapper_exit_code);
-    }
-  }
-}
-#endif
-
 int main (int argc, char *argv[])
 {
   size_t const			nb_ipv4root = vc_get_nb_ipv4root();
@@ -315,11 +260,7 @@ int main (int argc, char *argv[])
       case CMD_VERSION		:  showVersion();
       case CMD_SILENT		:  is_silent = true; break;
       case CMD_BCAST		:  readBcast(optarg, &bcast); break;
-#if defined(VC_ENABLE_API_NET)
-      case CMD_NID		:  nid = Evc_nidopt2nid(optarg,true); break;
-#else
       case CMD_NID		:  WRITE_MSG(2, "WARNING: --nid is not supported by this version\n"); break;
-#endif
       case CMD_IP		:
 	if (nbaddrs>=nb_ipv4root) {
 	  WRITE_MSG(2, "Too many IP numbers, max 16\n");
@@ -342,16 +283,10 @@ int main (int argc, char *argv[])
     exit(wrapper_exit_code);
   }
   
-#if !defined(VC_ENABLE_API_NET) && !defined(VC_ENABLE_API_COMPAT) && !defined(VC_ENABLE_API_LEGACY)
-#  error can not build 'chbind' without network virtualization API
+#if !defined(VC_ENABLE_API_COMPAT) && !defined(VC_ENABLE_API_LEGACY)
+#  warning building a dummy chbind-compat with no available APIs
 #endif
   
-#if defined(VC_ENABLE_API_NET)
-  if (vc_isSupported(vcFEATURE_VNET)) {
-    make_nx(nid, bcast, nbaddrs, ips);
-  }
-  else
-#endif
 #if defined(VC_ENABLE_API_COMPAT) || defined(VC_ENABLE_API_LEGACY)
   if (vc_set_ipv4root(bcast,nbaddrs,ips)!=0) {
     perror("chbind: vc_set_ipv4root()");

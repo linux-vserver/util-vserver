@@ -20,23 +20,34 @@
 #  include <config.h>
 #endif
 
+#include <string.h>
+
 #include "vserver.h"
-#include "vserver-internal.h"
 #include "virtual.h"
+
+#if defined(VC_ENABLE_API_NET) && defined(VC_ENABLE_API_NETV2)
+#  define VC_MULTIVERSION_SYSCALL 1
+#endif
+#include "vserver-internal.h"
 
 #if defined(VC_ENABLE_API_NET)
 #  include "syscall_netadd-net.hc"
 #endif
 
-#if defined(VC_ENABLE_API_NET)
+#if defined(VC_ENABLE_API_NETV2)
+#  include "syscall_netadd-netv2.hc"
+#endif
+
+#if defined(VC_ENABLE_API_NET) || defined(VC_ENABLE_API_NETV2)
 int
-vc_net_add(nid_t nid, struct vc_net_nx const *info)
+vc_net_add(nid_t nid, struct vc_net_addr const *info)
 {
   if (info==0) {
     errno = EFAULT;
     return -1;
   }
   
-  CALL_VC(CALL_VC_NET(vc_net_add, nid, info));
+  CALL_VC(CALL_VC_NETV2(vc_net_add, nid, info),
+	  CALL_VC_NET  (vc_net_add, nid, info));
 }
 #endif

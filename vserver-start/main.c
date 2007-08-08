@@ -166,7 +166,7 @@ int main(int UNUSED argc, char UNUSED *argv[])
       execScriptlets(&cfgdir, opts.VSERVER_NAME, "prepre-start");
       activateInterfaces(&cfg.interfaces);
       
-      xid = Evc_ctx_create(cfg.xid);
+      xid = Evc_ctx_create(cfg.xid, NULL);
       setCFlag(xid, VC_VXF_INFO_NAMESPACE);
       
       mountVserver(&cfg);

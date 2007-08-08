@@ -21,17 +21,26 @@
 #endif
 
 #include "vserver.h"
-#include "vserver-internal.h"
 #include "virtual.h"
+
+#if defined(VC_ENABLE_API_V13) && defined(VC_ENABLE_API_V21)
+#  define VC_MULTIVERSION_SYSCALL 1
+#endif
+#include "vserver-internal.h"
 
 #if defined(VC_ENABLE_API_V13)
 #  include "syscall_ctxcreate-v13.hc"
 #endif
 
-#if defined(VC_ENABLE_API_V13)
+#if defined(VC_ENABLE_API_V21)
+#  include "syscall_ctxcreate-v21.hc"
+#endif
+
+#if defined(VC_ENABLE_API_V13) || defined(VC_ENABLE_API_V21)
 xid_t
-vc_ctx_create(xid_t xid)
+vc_ctx_create(xid_t xid, struct vc_ctx_flags *flags)
 {
-  CALL_VC(CALL_VC_V13A(vc_ctx_create, xid));
+  CALL_VC(CALL_VC_V21 (vc_ctx_create, xid, flags),
+	  CALL_VC_V13A(vc_ctx_create, xid, flags));
 }
 #endif

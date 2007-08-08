@@ -1,6 +1,6 @@
-// $Id$    --*- c -*--
+// $Id$    --*- c++ -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2007 Daniel Hokka Zakrisson
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,15 +20,19 @@
 #  include <config.h>
 #endif
 
-static inline ALWAYSINLINE xid_t
-vc_ctx_create_v13(xid_t xid, struct vc_ctx_flags *flags)
+#include "vserver.h"
+#include "virtual.h"
+#include "vserver-internal.h"
+
+#if defined(VC_ENABLE_API_V22)
+#  include "syscall_fsetiattr-v22.hc"
+#endif
+
+#if defined(VC_ENABLE_API_V22)
+int
+vc_fset_iattr(int fd, xid_t ctx, uint_least32_t flags,
+              uint_least32_t mask)
 {
-  xid_t		res = vserver(VCMD_ctx_create_v0, CTX_USER2KERNEL(xid), 0);
-
-  if (flags) {
-    /* no sane way to report errors here */
-    vc_set_cflags(xid, flags);
-  }
-
-  return CTX_KERNEL2USER(res);
+  CALL_VC(CALL_VC_V22(vc_fset_iattr, fd, ctx, flags, mask));
 }
+#endif

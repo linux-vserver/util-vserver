@@ -29,6 +29,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sched.h>
+#include <netinet/in.h>
 
 #ifndef IS_DOXYGEN
 #if defined(__GNUC__)
@@ -259,6 +260,7 @@
 // the VCI bit values
 #define VC_VCI_NO_DYNAMIC		(1 << 0)
 #define VC_VCI_SPACES			(1 << 10)
+#define VC_VCI_NETV2			(1 << 11)
 
 
 // the device mapping flags
@@ -271,6 +273,21 @@
 // the process context migration flags
 #define VC_VXM_SET_INIT			0x00000001
 #define VC_VXM_SET_REAPER		0x00000002
+
+
+// the network address flags
+#define VC_NXA_TYPE_IPV4		0x0001
+#define VC_NXA_TYPE_IPV6		0x0002
+
+#define VC_NXA_TYPE_NONE		0x0000
+#define VC_NXA_TYPE_ANY			0x00FF
+
+#define VC_NXA_TYPE_ADDR		0x0010
+#define VC_NXA_TYPE_MASK		0x0020
+#define VC_NXA_TYPE_RANGE		0x0040
+
+#define VC_NXA_MOD_BCAST		0x0100
+#define VC_NXA_MOD_LBACK		0x0200
 
 
 #ifndef CLONE_NEWNS
@@ -393,7 +410,7 @@ extern "C" {
      *
      *	\returns the xid of the created context, or VC_NOCTX on errors. \c errno
      *	         will be set appropriately. */
-  xid_t		vc_ctx_create(xid_t xid);
+  xid_t		vc_ctx_create(xid_t xid, struct vc_ctx_flags *flags);
 
     /** \brief   Moves the current process into the specified context.
      *  \ingroup syscalls
@@ -601,15 +618,25 @@ extern "C" {
   nid_t		vc_get_task_nid(pid_t pid);
   int		vc_get_nx_info(nid_t nid, struct vc_nx_info *) VC_ATTR_NONNULL((2));
 
-  typedef enum { vcNET_IPV4=1,      vcNET_IPV6=2,
-		 vcNET_IPV4B=0x101, vcNET_IPV6B=0x102,
-		 vcNET_ANY=~0 }		vc_net_nx_type;
-
-  struct vc_net_nx {
-      vc_net_nx_type	type;
-      size_t		count;
-      uint32_t		ip[4];
-      uint32_t		mask[4];
+  struct vc_net_addr {
+      uint16_t			vna_type;
+      uint16_t			vna_flags;
+      uint16_t			vna_prefix;
+      uint16_t			vna_parent;
+      union {
+	struct {
+	  struct in_addr	ip;
+	  struct in_addr	mask;
+	} ipv4;
+	struct {
+	  struct in6_addr	ip;
+	  struct in6_addr	mask;
+	} ipv6;
+      } u;
+#define vna_v4_ip	u.ipv4.ip
+#define vna_v4_mask	u.ipv4.mask
+#define vna_v6_ip	u.ipv6.ip
+#define vna_v6_mask	u.ipv6.mask
   };
 
   struct vc_net_flags {
@@ -620,8 +647,8 @@ extern "C" {
   nid_t		vc_net_create(nid_t nid);
   int		vc_net_migrate(nid_t nid);
 
-  int		vc_net_add(nid_t nid, struct vc_net_nx const *info);
-  int		vc_net_remove(nid_t nid, struct vc_net_nx const *info);
+  int		vc_net_add(nid_t nid, struct vc_net_addr const *info);
+  int		vc_net_remove(nid_t nid, struct vc_net_addr const *info);
 
   int		vc_get_nflags(nid_t, struct vc_net_flags *);
   int		vc_set_nflags(nid_t, struct vc_net_flags const *);
@@ -639,6 +666,9 @@ extern "C" {
 
   int		vc_set_iattr(char const *filename, xid_t xid,
 			     uint_least32_t flags, uint_least32_t mask) VC_ATTR_NONNULL((1));
+
+  int		vc_fset_iattr(int fd, xid_t xid,
+			      uint_least32_t flags, uint_least32_t mask);
 
     /** \brief   Returns information about attributes and assigned context of a file.
      *  \ingroup syscalls
@@ -669,6 +699,10 @@ extern "C" {
   int		vc_get_iattr(char const *filename, xid_t * /*@null@*/ xid,
 			     uint_least32_t * /*@null@*/ flags,
 			     uint_least32_t * /*@null@*/ mask) VC_ATTR_NONNULL((1));
+
+  int		vc_fget_iattr(int fd, xid_t * /*@null@*/ xid,
+			      uint_least32_t * /*@null@*/ flags,
+			      uint_least32_t * /*@null@*/ mask) VC_ATTR_NONNULL((4));
   
   /** \brief   Returns the context of \c filename
    *  \ingroup syscalls

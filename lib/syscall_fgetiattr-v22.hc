@@ -1,6 +1,6 @@
-// $Id$    --*- c -*--
+// $Id$    --*- c++ -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2007 Daniel Hokka Zakrisson
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,15 +20,25 @@
 #  include <config.h>
 #endif
 
-static inline ALWAYSINLINE xid_t
-vc_ctx_create_v13(xid_t xid, struct vc_ctx_flags *flags)
+static inline ALWAYSINLINE int
+vc_fget_iattr_v22(int fd, xid_t *ctx, uint_least32_t *flags,
+              uint_least32_t *mask)
 {
-  xid_t		res = vserver(VCMD_ctx_create_v0, CTX_USER2KERNEL(xid), 0);
+  int ret;
+  struct vcmd_ctx_fiattr_v0 data = { .mask = 0 };
 
-  if (flags) {
-    /* no sane way to report errors here */
-    vc_set_cflags(xid, flags);
-  }
+  if (mask)
+    data.mask = *mask;
+  ret = vserver(VCMD_fget_iattr, fd, &data);
+  if (ret)
+    return ret;
 
-  return CTX_KERNEL2USER(res);
+  if (ctx)
+    *ctx = data.xid;
+  if (flags)
+    *flags = data.flags;
+  if (mask)
+    *mask = data.mask;
+
+  return 0;
 }

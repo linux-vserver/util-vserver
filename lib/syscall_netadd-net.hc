@@ -21,17 +21,27 @@
 #endif
 
 static inline ALWAYSINLINE int
-vc_net_add_net(nid_t nid, struct vc_net_nx const *info)
+vc_net_add_net(nid_t nid, struct vc_net_addr const *info)
 {
   struct vcmd_net_addr_v0		k_info;
   size_t				i;
 
-  k_info.type      = NETTYPE_USER2KERNEL(info->type);
-  k_info.count     = info->count;
-  for (i = 0; i < sizeof(k_info.ip) / sizeof(*k_info.ip); i++)
-    k_info.ip[i]   = info->ip[i];
-  for (i = 0; i < sizeof(k_info.mask) / sizeof(*k_info.mask); i++)
-    k_info.mask[i] = info->mask[i];
-  
-  return vserver(VCMD_net_add, NID_USER2KERNEL(nid), &k_info);
+  k_info.type             = info->vna_type & (VC_NXA_TYPE_IPV4|VC_NXA_TYPE_IPV6);
+  k_info.count            = 1;
+  switch (info->vna_type & ~VC_NXA_TYPE_ADDR) {
+    case VC_NXA_TYPE_IPV4:
+      k_info.ip[0].s_addr   = info->vna_v4_ip.s_addr;
+      k_info.mask[0].s_addr = info->vna_v4_mask.s_addr;
+      break;
+    case VC_NXA_TYPE_IPV6:
+      for (i = 0; i < 4; i++)
+	k_info.ip[i].s_addr = info->vna_v6_ip.s6_addr32[i];
+      k_info.mask[0].s_addr = info->vna_prefix;
+      break;
+    default:
+      errno = EINVAL;
+      return -1;
+  }
+
+  return vserver(VCMD_net_add_v0, NID_USER2KERNEL(nid), &k_info);
 }

@@ -254,7 +254,7 @@ doit(struct Arguments const *args, int argc, char *argv[])
     doSyncStage0(p, args->do_disconnect);  
     
     if (args->do_create) {
-      xid = vc_ctx_create(args->xid);
+      xid = vc_ctx_create(args->xid, NULL);
       if (xid==VC_NOCTX) {
 	switch (errno) {
 	  case EEXIST	:

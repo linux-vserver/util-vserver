@@ -133,7 +133,17 @@ lib_v21_SRCS =			lib/syscall_setccaps-v21.hc \
 				lib/syscall_schedinfo-v21.hc \
 				lib/syscall_getccaps-v21.hc \
 				lib/syscall_getsched.c \
-				lib/syscall_getsched-v21.hc
+				lib/syscall_getsched-v21.hc \
+				lib/syscall_ctxcreate-v21.hc
+
+lib_v22_SRCS =			lib/syscall_setsched-v22.hc \
+				lib/syscall_fsetiattr.c \
+				lib/syscall_fsetiattr-v22.hc \
+				lib/syscall_fgetiattr.c \
+				lib/syscall_fgetiattr-v22.hc
+
+lib_netv2_SRCS =		lib/syscall_netadd-netv2.hc \
+				lib/syscall_netremove-netv2.hc
 
 if ENSC_HAVE_C99_COMPILER
 lib_v13_SRCS +=			lib/syscall_adddlimit-v13.hc \
@@ -180,6 +190,8 @@ lib_SRCS =  			lib/syscall.c \
 				$(lib_v11_SRCS) \
 				$(lib_v13_SRCS) \
 				$(lib_v21_SRCS) \
+				$(lib_v22_SRCS) \
+				$(lib_netv2_SRCS) \
 				$(ensc_fmt_SRCS)
 
 include_HEADERS +=		lib/vserver.h

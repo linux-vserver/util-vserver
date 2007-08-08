@@ -245,7 +245,7 @@ setupContext(xid_t xid, char const **xid_str)
     xid_t	rc=VC_NOCTX;
 
     if ((xid==VC_DYNAMIC_XID || !vc_is_dynamic_xid(xid)) &&
-	(rc=vc_ctx_create(xid))==VC_NOCTX &&
+	(rc=vc_ctx_create(xid, NULL))==VC_NOCTX &&
 	errno!=EEXIST) {
       perror(ENSC_WRAPPERS_PREFIX "vc_ctx_create()");
       exit(255);

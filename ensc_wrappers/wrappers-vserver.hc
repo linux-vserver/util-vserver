@@ -49,9 +49,9 @@ Evc_get_task_nid(pid_t pid)
 }
 
 inline static WRAPPER_DECL xid_t
-Evc_ctx_create(xid_t xid)
+Evc_ctx_create(xid_t xid, struct vc_ctx_flags *flags)
 {
-  register xid_t	res = vc_ctx_create(xid);
+  register xid_t	res = vc_ctx_create(xid, flags);
   FatalErrnoError(res==VC_NOCTX, "vc_ctx_create()");
   return res;
 }

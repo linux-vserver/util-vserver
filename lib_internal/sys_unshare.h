@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2007 Daniel Hokka Zakrisson
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,19 +16,28 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 
-#ifdef HAVE_CONFIG_H
-#  include <config.h>
+#ifndef H_UTIL_VSERVER_SRC_SYS_UNSHARE_H
+#define H_UTIL_VSERVER_SRC_SYS_UNSHARE_H
+
+#include <unistd.h>
+#include "lib/syscall-wrap.h"
+#define __NR_sys_unshare	__NR_unshare
+
+#ifndef ENSC_SYSCALL_TRADITIONAL
+#  include <errno.h>
+
+inline static UNUSED ALWAYSINLINE
+_syscall1(int, sys_unshare, int, flags)
+#else
+inline static UNUSED ALWAYSINLINE
+int sys_unshare(int flags)
+{
+  return syscall(__NR_sys_clone, flags);
+}
 #endif
 
-static inline ALWAYSINLINE xid_t
-vc_ctx_create_v13(xid_t xid, struct vc_ctx_flags *flags)
-{
-  xid_t		res = vserver(VCMD_ctx_create_v0, CTX_USER2KERNEL(xid), 0);
+#undef __NR_sys_unshare
 
-  if (flags) {
-    /* no sane way to report errors here */
-    vc_set_cflags(xid, flags);
-  }
-
-  return CTX_KERNEL2USER(res);
-}
+#define ENSC_HAVE_SYSUNSHARE		1
+  
+#endif	//  H_UTIL_VSERVER_SRC_SYS_UNSHARE_H

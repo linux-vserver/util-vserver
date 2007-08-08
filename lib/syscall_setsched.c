@@ -38,10 +38,15 @@
 #  include "syscall_setsched-v21.hc"
 #endif
 
+#ifdef VC_ENABLE_API_V22
+#  include "syscall_setsched-v22.hc"
+#endif
+
 int
 vc_set_sched(xid_t xid, struct vc_set_sched const *data)
 {
-  CALL_VC(CALL_VC_V21   (vc_set_sched,xid,data),
+  CALL_VC(CALL_VC_V22   (vc_set_sched,xid,data),
+	  CALL_VC_V21   (vc_set_sched,xid,data),
 	  CALL_VC_V13B  (vc_set_sched,xid,data),
 	  CALL_VC_V13OBS(vc_set_sched,xid,data));
 }
