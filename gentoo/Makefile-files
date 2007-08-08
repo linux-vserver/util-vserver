@@ -24,7 +24,8 @@ gentoo_src_SCRPTS =	gentoo/vprocunhide \
 			gentoo/vservers.default \
 			gentoo/util-vserver
 
-EXTRA_DIST +=		$(gentoo_src_SCRPTS)
+EXTRA_DIST +=		$(gentoo_src_SCRPTS) \
+			gentoo/bash-wrapper
 
 if HAVE_GENTOO_INIT
 initrd_SCRIPTS +=	$(gentoo_src_SCRPTS)
