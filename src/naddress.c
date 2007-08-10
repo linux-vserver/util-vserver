@@ -347,7 +347,7 @@ readBcast(char const *str, struct vc_ips **ips)
     }
   }
   (*ips)->a.vna_v4_ip.s_addr = bcast;
-  (*ips)->a.vna_type = VC_NXA_TYPE_IPV4 | VC_NXA_MOD_BCAST;
+  (*ips)->a.vna_type = VC_NXA_TYPE_IPV4 | VC_NXA_MOD_BCAST | VC_NXA_TYPE_ADDR;
   (*ips)->next = calloc(1, sizeof(struct vc_ips));
   *ips = (*ips)->next;
 }

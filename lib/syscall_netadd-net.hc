@@ -26,10 +26,17 @@ vc_net_add_net(nid_t nid, struct vc_net_addr const *info)
   struct vcmd_net_addr_v0		k_info;
   size_t				i;
 
-  k_info.type             = info->vna_type & (VC_NXA_TYPE_IPV4|VC_NXA_TYPE_IPV6);
+  k_info.type             = info->vna_type & (VC_NXA_TYPE_IPV4|VC_NXA_TYPE_IPV6|VC_NXA_MOD_BCAST);
   k_info.count            = 1;
-  switch (info->vna_type & ~VC_NXA_TYPE_ADDR) {
+
+  if ((k_info.type | VC_NXA_TYPE_ADDR) != info->vna_type) {
+    errno = EINVAL;
+    return -1;
+  }
+
+  switch (k_info.type) {
     case VC_NXA_TYPE_IPV4:
+    case VC_NXA_TYPE_IPV4 | VC_NXA_MOD_BCAST:
       k_info.ip[0].s_addr   = info->vna_v4_ip.s_addr;
       k_info.mask[0].s_addr = info->vna_v4_mask.s_addr;
       break;
@@ -38,9 +45,6 @@ vc_net_add_net(nid_t nid, struct vc_net_addr const *info)
 	k_info.ip[i].s_addr = info->vna_v6_ip.s6_addr32[i];
       k_info.mask[0].s_addr = info->vna_prefix;
       break;
-    default:
-      errno = EINVAL;
-      return -1;
   }
 
   return vserver(VCMD_net_add_v0, NID_USER2KERNEL(nid), &k_info);
