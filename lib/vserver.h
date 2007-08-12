@@ -248,6 +248,10 @@
 #define VC_NXF_PERSISTENT		(1ULL<<38)
 
 
+// the network capabilities
+#define VC_NXC_RAW_ICMP			0x00000100ull
+
+
 // the vserver specific limits
 #define VC_VLIMIT_NSOCK			16
 #define VC_VLIMIT_OPENFD		17

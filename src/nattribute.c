@@ -126,8 +126,8 @@ parseSecure(struct vc_net_flags * flags,
 	    struct vc_net_caps  * caps)
 {
     // TODO: generalize this
-  caps->ncaps = 0ull;
-  caps->cmask = 0ull;
+  caps->ncaps = VC_NXC_RAW_ICMP;
+  caps->cmask = VC_NXC_RAW_ICMP;
 
   flags->flagword = VC_NXF_HIDE_NETIF;
   flags->mask     = VC_NXF_HIDE_NETIF;

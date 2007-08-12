@@ -31,8 +31,7 @@
 #define DECL(STR, VAL) { STR, sizeof(STR)-1, VAL }
 
 static struct Mapping_uint64 const VALUES[] = {
-#warning Add the 'ncap' values here
-  DECL("", 0)
+  DECL("raw_icmp", VC_NXC_RAW_ICMP),
 };
 
 inline static char const *
