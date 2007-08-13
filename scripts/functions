@@ -994,7 +994,11 @@ function vshelper.doInit
     
     local xid
     xid=$($_VSERVER_INFO "$1" CONTEXT false) && test -n "$xid" || {
-	warning $"vshelper.init: can not determine xid of vserver '$vserver'; returned value was '$xid'"
+	warning $"vshelper.init: can not determine xid of vserver '$vserver'; returned value was '$xid'
+
+This usually means that you're using an init-less init-style, but the
+guest isn't configured to start any service. Try enabling a service,
+changing the init-style, or making the contexts persistent."
 	return 1
     }
 
