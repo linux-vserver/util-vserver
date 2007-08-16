@@ -158,9 +158,7 @@ chain_cmd=( "${chain_cmd[@]}"
 		${OPT_CAPS:+--bcap "${OPT_CAPS[*]}"}
 		${OPT_FLAGS:+--flag "${OPT_FLAGS[*]}"} )
 		
-migrate_cmd=( $_VTAG --migrate --tag "$OPT_CTX"
-	      --
-	      $_VCONTEXT
+migrate_cmd=( $_VCONTEXT
 	      ${OPT_SILENT:+--silent}
 	      ${OPT_DISCONNECT:+--disconnect}
 	      $OPT_INITPID )
@@ -175,5 +173,6 @@ else
     rc=254
 fi
 
-test "$rc" -ne 254 || exec "${migrate_cmd[@]}" --xid "$OPT_CTX" --migrate -- "$@"
+test "$rc" -ne 254 || exec "$_VTAG" --migrate --tag "$OPT_CTX" -- \
+			   "${migrate_cmd[@]}" --xid "$OPT_CTX" --migrate -- "$@"
 exit $rc
