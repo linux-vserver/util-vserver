@@ -249,7 +249,6 @@ int main (int argc, char *argv[])
   struct vc_ip_mask_pair	ips[nb_ipv4root];
   size_t			nbaddrs = 0;
   uint32_t			bcast   = 0xffffffff;
-  nid_t				nid	= VC_DYNAMIC_NID;
   
   while (1) {
     int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
