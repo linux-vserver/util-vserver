@@ -72,7 +72,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-Rx] [--[~](iunlink|admin|watch|hide|barrier|iunlink-but-not-immutable)]* [--] <file>+\n\n"
+	    " [-Rx] [--[~](iunlink|admin|watch|hide|barrier|iunlink-but-not-immutable|immutable)]* [--] <file>+\n\n"
 	    " Options:\n"
 	    "   -R  ...  recurse through directories\n"
 	    "   -x  ...  do not cross filesystems\n\n"
