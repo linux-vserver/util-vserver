@@ -53,6 +53,7 @@ typedef enum { tgNONE,tgCONTEXT, tgID, tgRUNNING,
 	       tgXID, tgUTS, tgSYSINFO,
 	       tgFEATURE, tgCANONIFY,
 	       tgVERIFYCAP, tgXIDTYPE, tgVERIFYPROC,
+	       tgNID, tgTAG,
 }	VserverTag;
 
 static struct {
@@ -82,6 +83,8 @@ static struct {
   { "VERIFYCAP",   tgVERIFYCAP,   "test if the kernel supports linux capabilities" },
   { "VERIFYPROC",  tgVERIFYPROC,  "test if /proc can be read by contexts!=0" },
   { "XIDTYPE",     tgXIDTYPE,     "returns the type of the given XID" },
+  { "NID",         tgNID,         "outputs the network context-id of the given pid" },
+  { "TAG",         tgTAG,         "outputs the filesystem tag of the given pid" },
 };
 
 int wrapper_exit_code = 1;
@@ -230,19 +233,37 @@ getAPIVer(char *buf)
   return buf;
 }
 
-static char *
-getXid(char *buf, char const *pid_str)
+static inline char *
+getCtxId(char *buf, const char *pid_str, xid_t (*get_id)(pid_t pid), const char *err_str)
 {
   pid_t		pid = atoi(pid_str);
-  xid_t		xid = vc_get_task_xid(pid);
+  xid_t		xid = get_id(pid);
 
-  if (xid==VC_NOCTX) perror("vc_get_task_xid()");
+  if (xid==VC_NOCTX) perror(err_str);
   else {
     utilvserver_fmt_long(buf, xid);
     return buf;
   }
 
   return 0;
+}
+
+static char *
+getXid(char *buf, char const *pid_str)
+{
+  return getCtxId(buf, pid_str, vc_get_task_xid, "vc_get_task_xid()");
+}
+
+static char *
+getNid(char *buf, const char *pid_str)
+{
+  return getCtxId(buf, pid_str, vc_get_task_nid, "vc_get_task_nid()");
+}
+
+static char *
+getTag(char *buf, const char *pid_str)
+{
+  return getCtxId(buf, pid_str, vc_get_task_tag, "vc_get_task_tag()");
 }
 
 static char *
@@ -434,7 +455,7 @@ static char *
 getContext(char *buf, char const *vserver, bool allow_only_static)
 {
   xid_t		xid = vc_getVserverCtx(vserver, vcCFG_AUTO,
-				       allow_only_static, 0);
+				       allow_only_static, 0, vcCTX_XID);
   if (xid==VC_NOCTX) return 0;
   
   utilvserver_fmt_long(buf, xid);
@@ -502,7 +523,7 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
       if (isNumber(vserver, &xid, true) && xid>=0)
 	res = (vc_get_vx_info(xid, &info)==-1) ? 0 : "1";
       else
-	res = (vc_getVserverCtx(vserver, vcCFG_AUTO, false, 0)==VC_NOCTX) ? 0 : "1";
+	res = (vc_getVserverCtx(vserver, vcCFG_AUTO, false, 0, vcCTX_XID)==VC_NOCTX) ? 0 : "1";
       
       break;
     }
@@ -522,6 +543,8 @@ execQuery(char const *vserver, VserverTag tag, int argc, char *argv[])
     case tgFEATURE	:  return testFeature(argc,argv);      break;
     case tgVERIFYCAP	:  return verifyCap() ? 0 : 1;         break;
     case tgVERIFYPROC	:  return verifyProc() ? 0 : 1;        break;
+    case tgNID		:  res = getNid(buf, vserver);         break;
+    case tgTAG		:  res = getTag(buf, vserver);         break;
 
 
     default		: {

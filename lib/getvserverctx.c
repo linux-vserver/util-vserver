@@ -120,10 +120,11 @@ getCtxFromFile(char const *pathname)
 }
 
 xid_t
-vc_getVserverCtx(char const *id, vcCfgStyle style, bool honor_static, bool *is_running)
+vc_getVserverCtx(char const *id, vcCfgStyle style, bool honor_static, bool *is_running,
+		 vcCtxType type)
 {
   size_t		l1 = strlen(id);
-  char			buf[sizeof(CONFDIR "//") + l1 + sizeof("/context")];
+  char			buf[sizeof(CONFDIR "//") + l1 + sizeof("/ncontext")];
 			    
   if (style==vcCFG_NONE || style==vcCFG_AUTO)
     style = vc_getVserverCfgStyle(id);
@@ -151,7 +152,7 @@ vc_getVserverCtx(char const *id, vcCfgStyle style, bool honor_static, bool *is_r
 	// when context information could be read, we have to verify that
 	// it belongs to a running vserver and the both vservers are
 	// identically
-      if (res!=VC_NOCTX) {
+      if (res!=VC_NOCTX && type == vcCTX_XID) {
 	char			*cur_name;
 	struct vc_vx_info	info;
 
@@ -180,7 +181,17 @@ vc_getVserverCtx(char const *id, vcCfgStyle style, bool honor_static, bool *is_r
 	*is_running = res!=VC_NOCTX;
       
       if (res==VC_NOCTX && honor_static) {
-	memcpy(buf+idx, "/context", 9);	// appends '\0' too
+	switch (type) {
+	  case vcCTX_XID:
+	    memcpy(buf+idx, "/context", 9);	// appends '\0' too
+	    break;
+	  case vcCTX_NID:
+	    memcpy(buf+idx, "/ncontext", 10);
+	    break;
+	  case vcCTX_TAG:
+	    memcpy(buf+idx, "/tag", 5);
+	    break;
+	}
 
 	res = getCtxFromFile(buf);
       }

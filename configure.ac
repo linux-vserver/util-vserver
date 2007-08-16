@@ -295,6 +295,7 @@ AC_CHECK_FUNCS([vserver])
 AC_CHECK_DECLS(MS_MOVE,,,[#include <linux/fs.h>])
 AC_CHECK_TYPES(xid_t,,,[#include <sys/types.h>])
 AC_CHECK_TYPES(nid_t,,,[#include <sys/types.h>])
+AC_CHECK_TYPES(tag_t,,,[#include <sys/types.h>])
 
 AC_CHECK_HEADERS([sys/capability.h])
 

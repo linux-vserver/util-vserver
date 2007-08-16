@@ -132,6 +132,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
     ${NICE_CMD[@]} \
     $_CHBIND      "${CHBIND_OPTS[@]}" -- \
     $_EXEC_ULIMIT "$VSERVER_DIR"/ulimits \
+    $_VTAG       --create "${OPTS_VTAG_CREATE[@]}" -- \
     $_VCONTEXT   --create "${OPTS_VCONTEXT_CREATE[@]}" -- \
     ${OPTION_STRACE:+$_STRACE -fF -o /tmp/vserver-start.$$} \
     ${USE_VNAMESPACE:+$_VNAMESPACE --set -- } \

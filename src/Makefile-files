@@ -81,7 +81,8 @@ DIETPROGS +=		src/chcontext-compat \
 			src/vdevmap \
 			src/vsysctl \
 			src/vclone \
-			src/h2ext
+			src/h2ext \
+			src/vtag
 
 if ENSC_CAN_BEECRYPT_WITH_DIETLIBC
 DIETPROGS +=		src/vhashify
@@ -161,6 +162,7 @@ sbin_PROGRAMS +=	src/exec-cd \
 			src/nattribute \
 			src/naddress \
 			src/vdevmap \
+			src/vtag \
 			$(src_sbin_CXX_X_PROGS)
 
 if ENSC_HAVE_C99_COMPILER
@@ -341,6 +343,10 @@ src_vclone_LDFLAGS		= $(VSERVER_LDLFGS)
 src_h2ext_SOURCES		= src/h2ext.c
 src_h2ext_LDADD			= $(LIBINTERNAL) $(VSERVER_LDADDS)
 src_h2ext_LDFLAGS		= $(VSERVER_LDFLGS)
+
+src_vtag_SOURCES		= src/vtag.c
+src_vtag_LDADD			= $(VSERVER_LDADDS)
+src_vtag_LDFLAGS		= $(VSERVER_LDADDS)
 
 EXTRA_PROGRAMS +=		$(src_sbin_CXX_PROGS) $(src_pkglib_CXX_PROGS)
 

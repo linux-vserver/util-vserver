@@ -134,7 +134,8 @@ while true; do
     shift
 done
 
-create_cmd=( $_VCONTEXT --create --silentexist
+create_cmd=( ${OPT_CTX:+$_VTAG --create --tag "$OPT_CTX" --silentexist --}
+	     $_VCONTEXT --create --silentexist
 	     ${OPT_SILENT:+--silent}
 	     ${OPT_CTX:+--xid "$OPT_CTX"} )
 
@@ -157,7 +158,9 @@ chain_cmd=( "${chain_cmd[@]}"
 		${OPT_CAPS:+--bcap "${OPT_CAPS[*]}"}
 		${OPT_FLAGS:+--flag "${OPT_FLAGS[*]}"} )
 		
-migrate_cmd=( $_VCONTEXT
+migrate_cmd=( $_VTAG --migrate --tag "$OPT_CTX"
+	      --
+	      $_VCONTEXT
 	      ${OPT_SILENT:+--silent}
 	      ${OPT_DISCONNECT:+--disconnect}
 	      $OPT_INITPID )

@@ -50,7 +50,7 @@ inline static ALWAYSINLINE void vc_noop0() {}
 #  define CALL_VC(...)					\
   do {							\
     int	ver = utilvserver_checkCompatVersion();		\
-    uint_least32_t UNUSED conf = utilvserver_checkCompatConfig();	\
+    vc_vci_t UNUSED conf = utilvserver_checkCompatConfig();	\
     if (ver==-1) return -1;				\
     VC_SUFFIX, __VA_ARGS__, VC_PREFIX;			\
     errno = ENOSYS;					\
@@ -120,6 +120,12 @@ inline static ALWAYSINLINE void vc_noop0() {}
 #  define CALL_VC_SPACES(F,...)	CALL_VC_NOOP
 #endif
 
+#if defined(VC_ENABLE_API_V23)
+#  define CALL_VC_TAG(F,...)	CALL_VC_GENERAL_CONFIG(VC_VCI_PPTAG, tag, F, __VA_ARGS__)
+#else
+#  define CALL_VC_TAG(F,...)	CALL_VC_NOOP
+#endif
+
 #ifdef VC_ENABLE_API_V22
 #  define CALL_VC_V22(F,...)	CALL_VC_GENERAL(0x00020200, v22, F, __VA_ARGS__)
 #else
@@ -176,6 +182,19 @@ inline static ALWAYSINLINE void vc_noop0() {}
 #else
 #  define CTX_USER2KERNEL(X)	(X)
 #  define CTX_KERNEL2USER(X)	(X)
+#endif
+
+#if 1
+#  define TAG_KERNEL2USER(X)	(((X)==(uint32_t)(-1)) ? VC_NOCTX   : \
+				 ((X)==(uint32_t)(-2)) ? VC_SAMECTX : \
+				 (tag_t)(X))
+
+#  define TAG_USER2KERNEL(X)	(((X)==VC_DYNAMIC_XID) ? (uint32_t)(-1) : \
+				 ((X)==VC_SAMECTX)     ? (uint32_t)(-2) : \
+				 (uint32_t)(X))
+#else
+#  define TAG_USER2KERNEL(X)	(X)
+#  define TAG_KERNEL2USER(X)	(X)
 #endif
 
 #if 1

@@ -115,7 +115,7 @@ checkConstraints()
   struct vc_vx_info	info;
 
   xid = vc_getVserverCtx(opts.VSERVER_DIR, vcCFG_RECENT_FULL,
-			 true, &is_running);
+			 true, &is_running, vcCTX_XID);
 
   if (xid!=VC_NOCTX && vc_get_vx_info(xid, &info)!=-1) {
     WRITE_MSG(2, "vserver.start: vserver '");

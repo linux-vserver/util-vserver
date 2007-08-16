@@ -121,6 +121,7 @@ legacy @SBINDIR@/vserver-copy
 core   @SBINDIR@/vserver-info
 base   @SBINDIR@/vserver-stat
 base   @SBINDIR@/vsomething
+core   @SBINDIR@/vtag
 base   @SBINDIR@/vtop
 core   @SBINDIR@/vuname
 build  @SBINDIR@/vupdateworld

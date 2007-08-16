@@ -87,6 +87,11 @@ typedef uint32_t		xid_t;
 typedef uint32_t		nid_t;
 #endif
 
+#ifndef HAVE_TAG_T
+#include <stdint.h>
+typedef uint32_t		tag_t;
+#endif
+
 
 #if defined(__dietlibc__)
   #define TEMP_FAILURE_RETRY(expression)				\

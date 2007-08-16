@@ -1,6 +1,7 @@
 // $Id$    --*- c -*--
 
 // Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2007 Daniel Hokka Zakrisson
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,30 +25,30 @@
 #include <string.h>
 #include <stdlib.h>
 
-static nid_t
-getVserverNid(char const *id, bool honor_static, char const **err)
+static tag_t
+getVserverTag(char const *id, bool honor_static, char const **err)
 {
   *err = "vc_getVserverCtx";
-  return vc_getVserverCtx(id, vcCFG_AUTO, honor_static, 0, vcCTX_NID);
+  return vc_getVserverCtx(id, vcCFG_AUTO, honor_static, 0, vcCTX_TAG);
 }
 
-nid_t
-vc_nidopt2nid(char const *str, bool honor_static, char const **err_info)
+tag_t
+vc_tagopt2tag(char const *str, bool honor_static, char const **err_info)
 {
   char const *		err;
-  nid_t			res = VC_NOCTX;
+  tag_t			res = VC_NOCTX;
 
-  err = "vc_get_task_nid()";
-  if (strcmp(str,"self")==0) res = vc_get_task_nid(0);
-  else if (str[0]==':')      res = getVserverNid(str+1, honor_static, &err);
+  err = "vc_task_tag()";
+  if (strcmp(str,"self")==0) res = vc_get_task_tag(0);
+  else if (str[0]==':')      res = getVserverTag(str+1, honor_static, &err);
   else {
     char *	endptr;
-    nid_t	nid = strtol(str, &endptr, 10);
+    tag_t	tag = strtol(str, &endptr, 10);
 
     if (endptr!=str && (*endptr=='\0' || *endptr=='\n'))
-      res = nid;
+      res = tag;
     else
-      res = getVserverNid(str, honor_static, &err);
+      res = getVserverTag(str, honor_static, &err);
   }
 
   if (res==VC_NOCTX && err_info) *err_info = err;

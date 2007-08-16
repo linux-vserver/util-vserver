@@ -28,7 +28,7 @@ vc_getVserverByCtx_v13(xid_t ctx, vcCfgStyle *style, char const UNUSED *revdir,
 
   if (vc_get_vhi_name(ctx, vcVHI_CONTEXT, buf, sizeof buf)!=-1 &&
       (!validate_result ||
-       vc_getVserverCtx(buf, vcCFG_RECENT_FULL, false, 0)==ctx)) {
+       vc_getVserverCtx(buf, vcCFG_RECENT_FULL, false, 0,  vcCTX_XID)==ctx)) {
     if (style) *style = vcCFG_RECENT_FULL;
     return strdup(buf);
   }

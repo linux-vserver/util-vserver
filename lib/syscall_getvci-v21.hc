@@ -20,7 +20,7 @@
 #  include <config.h>
 #endif
 
-static inline ALWAYSINLINE int
+static inline ALWAYSINLINE vc_vci_t
 vc_get_vci_v21(int UNUSED tmp)
 {
   return vserver(VCMD_get_vci, 0, 0);

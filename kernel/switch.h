@@ -8,7 +8,7 @@
 #define VC_COMMAND(c)		(((c) >> 16) & 0xFF)
 #define VC_VERSION(c)		((c) & 0xFFF)
 
-#define VC_CMD(c,i,v)		((((VC_CAT_ ## c) & 0x3F) << 24) \
+#define VC_CMD(c, i, v)		((((VC_CAT_ ## c) & 0x3F) << 24) \
 				| (((i) & 0xFF) << 16) | ((v) & 0xFFF))
 
 /*
@@ -31,7 +31,7 @@
   NETWORK|       |VNET   |NETALT |NETMIG |NETCTL |       | |SERIAL |       |
 	 |     24|     25|     26|     27|     28|     29| |     30|     31|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
-  DISK   |       |       |       |       |DLIMIT |       | |INODE  |       |
+  DISK   |       |       |       |TAGMIG |DLIMIT |       | |INODE  |       |
   VFS    |     32|     33|     34|     35|     36|     37| |     38|     39|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
   OTHER  |VSTAT  |       |       |       |       |       | |VINFO  |       |
@@ -65,6 +65,7 @@
 #define VC_CAT_NETMIG		27
 #define VC_CAT_NETCTRL		28
 
+#define VC_CAT_TAGMIG		35
 #define VC_CAT_DLIMIT		36
 #define VC_CAT_INODE		38
 
@@ -78,11 +79,6 @@
 
 #define VC_CAT_SYSTEST		61
 #define VC_CAT_COMPAT		63
-
-/*  interface version */
-
-#define VCI_VERSION		0x00020102
-#define VCI_LEGACY_VERSION	0x000100FF
 
 /*  query version */
 

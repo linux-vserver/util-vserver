@@ -267,6 +267,7 @@
 #define VC_VCI_NO_DYNAMIC		(1 << 0)
 #define VC_VCI_SPACES			(1 << 10)
 #define VC_VCI_NETV2			(1 << 11)
+#define VC_VCI_PPTAG			(1 << 28)
 
 
 // the device mapping flags
@@ -323,6 +324,7 @@
 #ifdef IS_DOXYGEN
 typedef an_unsigned_integer_type	xid_t;
 typedef an_unsigned_integer_type	nid_t;
+typedef an_unsigned_integer_type	tag_t;
 #endif
 
 #ifdef __cplusplus
@@ -349,11 +351,12 @@ extern "C" {
      */
   int		vc_get_version();
 
+  typedef	uint64_t vc_vci_t;
     /** \brief   Returns the kernel configuration bits
      *  \ingroup syscalls
      *  \returns The kernel configuration bits
      */
-  int		vc_get_vci();
+  vc_vci_t	vc_get_vci();
 
     /** \brief   Moves current process into a context
      *  \ingroup syscalls
@@ -769,6 +772,15 @@ extern "C" {
 			      uint_least32_t flags,
 			      struct vc_ctx_dlimit *limits) VC_ATTR_NONNULL((1));
 
+  /** Get the filesystem tag for a process. */
+  tag_t		vc_get_task_tag(pid_t pid);
+
+  /** Create a new filesystem tag space. */
+  int		vc_tag_create(tag_t tag);
+
+  /** Migrate to an existing filesystem tag space. */
+  int		vc_tag_migrate(tag_t tag);
+
     /* scheduler related syscalls */
   struct vc_set_sched {
       uint_least32_t	set_mask;
@@ -931,7 +943,7 @@ extern "C" {
 		 vcFEATURE_COMPAT, vcFEATURE_MIGRATE, vcFEATURE_NAMESPACE,
 		 vcFEATURE_SCHED,  vcFEATURE_VINFO,   vcFEATURE_VHI,
                  vcFEATURE_VSHELPER0, vcFEATURE_VSHELPER, vcFEATURE_VWAIT,
-		 vcFEATURE_VNET, vcFEATURE_VSTAT }
+		 vcFEATURE_VNET, vcFEATURE_VSTAT,     vcFEATURE_PPTAG, }
     vcFeatureSet;
 
   bool		vc_isSupported(vcFeatureSet) VC_ATTR_CONST;
@@ -962,6 +974,8 @@ extern "C" {
   xid_t		vc_xidopt2xid(char const *, bool honor_static, char const **err_info);
   /** Maps a  nid given at '--nid' options to a  nid_t */
   nid_t		vc_nidopt2nid(char const *, bool honor_static, char const **err_info);
+  /** Maps a  tag given at '--tag' options to a  tag_t */
+  tag_t		vc_tagopt2tag(char const *, bool honor_static, char const **err_info);
 
   vcCfgStyle	vc_getVserverCfgStyle(char const *id);
   
@@ -984,6 +998,11 @@ extern "C" {
    *  allocated and must be freed by the caller. */
   char *	vc_getVserverVdir(char const *id, vcCfgStyle style, bool physical);
 
+  typedef enum { vcCTX_XID = 1,
+		 vcCTX_NID,
+		 vcCTX_TAG,
+	} vcCtxType;
+
   /** Returns the ctx of the given vserver. When vserver is not running and
    *  'honor_static' is false, VC_NOCTX will be returned. Else, when
    *  'honor_static' is true and a static assignment exists, those value will
@@ -992,7 +1011,8 @@ extern "C" {
    *  When 'is_running' is not null, the status of the vserver will be
    *  assigned to this variable. */
   xid_t		vc_getVserverCtx(char const *id, vcCfgStyle style,
-				 bool honor_static, bool /*@null@*/ *is_running);
+				 bool honor_static, bool /*@null@*/ *is_running,
+				 vcCtxType type);
 
   /** Resolves the cfg-path of the vserver owning the given ctx. 'revdir' will
       be used as the directory holding the mapping-links; when NULL, the

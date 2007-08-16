@@ -34,7 +34,8 @@ lib_management_SRCS =		lib/comparevserverbyid.c \
 				lib/getvservername.c \
 				lib/getvservervdir.c \
 				lib/xidopt2xid.c \
-				lib/nidopt2nid.c
+				lib/nidopt2nid.c \
+				lib/tagopt2tag.c
 lib_v11_SRCS =			lib/syscall_rlimit.c \
 				lib/syscall_rlimit-v11.hc \
 				lib/syscall_kill.c  \
@@ -145,6 +146,12 @@ lib_v22_SRCS =			lib/syscall_setsched-v22.hc \
 lib_netv2_SRCS =		lib/syscall_netadd-netv2.hc \
 				lib/syscall_netremove-netv2.hc
 
+lib_v23_SRCS =			lib/syscall_tagmigrate-v23.hc \
+				lib/syscall_tagmigrate.c \
+				lib/syscall_tagcreate.c \
+				lib/syscall_tasktag-v23.hc \
+				lib/syscall_tasktag.c
+
 if ENSC_HAVE_C99_COMPILER
 lib_v13_SRCS +=			lib/syscall_adddlimit-v13.hc \
 				lib/syscall_adddlimit.c \
@@ -192,6 +199,7 @@ lib_SRCS =  			lib/syscall.c \
 				$(lib_v21_SRCS) \
 				$(lib_v22_SRCS) \
 				$(lib_netv2_SRCS) \
+				$(lib_v23_SRCS) \
 				$(ensc_fmt_SRCS)
 
 include_HEADERS +=		lib/vserver.h

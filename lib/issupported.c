@@ -26,8 +26,10 @@
 bool
 vc_isSupported(vcFeatureSet feature)
 {
-  int	ver = vc_get_version();
+  int		ver = vc_get_version();
+  vc_vci_t	conf = vc_get_vci();
   if (ver==-1) return false;
+  if (conf==(vc_vci_t)-1) conf = 0;
 
   switch (feature) {
     case vcFEATURE_COMPAT	:  return true;
@@ -44,6 +46,7 @@ vc_isSupported(vcFeatureSet feature)
     case vcFEATURE_SCHED	:  return ver >= 0x00020000;  // todo
     case vcFEATURE_VNET		:  return ver >= 0x00020001;
     case vcFEATURE_VSTAT	:  return ver >= 0x00020103;
+    case vcFEATURE_PPTAG	:  return conf & VC_VCI_PPTAG;
     default			:  assert(false); 
   }
 

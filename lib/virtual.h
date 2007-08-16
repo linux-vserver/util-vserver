@@ -31,6 +31,7 @@
 #include <kernel/sched_cmd.h>
 #include <kernel/signal_cmd.h>
 #include <kernel/device_cmd.h>
+#include <kernel/tag_cmd.h>
 
 #include <kernel/legacy.h>
 

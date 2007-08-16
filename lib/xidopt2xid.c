@@ -28,7 +28,7 @@ static xid_t
 getVserverXid(char const *id, bool honor_static, char const **err)
 {
   *err = "vc_getVserverCtx";
-  return vc_getVserverCtx(id, vcCFG_AUTO, honor_static, 0);
+  return vc_getVserverCtx(id, vcCFG_AUTO, honor_static, 0, vcCTX_XID);
 }
 
 xid_t

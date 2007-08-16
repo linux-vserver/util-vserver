@@ -1,6 +1,6 @@
 // $Id$    --*- c++ -*--
 
-// Copyright (C) 2006 Daniel Hokka Zakrisson <daniel@hozac.com>
+// Copyright (C) 2007 Daniel Hokka Zakrisson
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,20 +20,8 @@
 #  include <config.h>
 #endif
 
-#include "vserver.h"
-#include "vserver-internal.h"
-#include "virtual.h"
-
-#if defined(VC_ENABLE_API_V21)
-#  include "syscall_getvci-v21.hc"
-#endif
-
-#if defined(VC_ENABLE_API_V21)
-
-vc_vci_t
-vc_get_vci()
+static inline ALWAYSINLINE int
+vc_tag_migrate_tag(tag_t tag)
 {
-  CALL_VC(CALL_VC_V21(vc_get_vci, 0));
+  return vserver(VCMD_tag_migrate, TAG_USER2KERNEL(tag), NULL);
 }
-
-#endif

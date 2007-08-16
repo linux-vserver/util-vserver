@@ -96,7 +96,7 @@ vc_getVserverByCtx_compat(xid_t ctx, vcCfgStyle *style, char const *revdir,
 	// check if expected ctx == actual ctx (but only when this check is
 	// request)
       if (validate_result &&
-	  vc_getVserverCtx(path, vcCFG_RECENT_FULL, false, 0)!=ctx) return 0;
+	  vc_getVserverCtx(path, vcCFG_RECENT_FULL, false, 0, vcCTX_XID)!=ctx) return 0;
 
       if (style) *style = vcCFG_RECENT_FULL;
       return strdup(path);
