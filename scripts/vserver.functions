@@ -1080,6 +1080,15 @@ WARNING: There is no cachedirectory configured for this vserver;
 /proc/uptime can not be accessed. Usually, this is caused by
 procfs-security. Please read the FAQ for more details
 http://linux-vserver.org/Proc-Security"
+
+    test -e "$cfgdir"/context || {
+	TYPE=$( $_VSERVER_INFO 49152 XIDTYPE )
+	test "$TYPE" != "static" || panic $"\
+The kernel does not have dynamic contexts enabled. Please configure
+a static one by executing
+
+  echo [number between 2 and 49151] > $cfgdir/context"
+    }
 }
 
 
