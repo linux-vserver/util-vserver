@@ -175,12 +175,15 @@ vc_getVserverCtx(char const *id, vcCfgStyle style, bool honor_static, bool *is_r
 		    : VC_NOCTX);	// correct the value of 'res'
 	  
 	free(cur_name);
+
+	if (is_running)			// fill 'is_running' information...
+	  *is_running = res!=VC_NOCTX;
       }
-      
-      if (is_running)			// fill 'is_running' information...
-	*is_running = res!=VC_NOCTX;
-      
+      else if (is_running)
+	*is_running = false;
+
       if (res==VC_NOCTX && honor_static) {
+check_static:
 	switch (type) {
 	  case vcCTX_XID:
 	    memcpy(buf+idx, "/context", 9);	// appends '\0' too
@@ -194,6 +197,10 @@ vc_getVserverCtx(char const *id, vcCfgStyle style, bool honor_static, bool *is_r
 	}
 
 	res = getCtxFromFile(buf);
+	if (res==VC_NOCTX && type!=vcCTX_XID) {
+	  type = vcCTX_XID;
+	  goto check_static;
+	}
       }
 
       return res;

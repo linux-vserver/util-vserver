@@ -48,7 +48,7 @@ handleLegacy(xid_t xid)
 
     if (l<=4 || strcmp(name+l-4, ".ctx")!=0) continue;
     name[l-4]   = '\0';
-    cur_xid = vc_getVserverCtx(name, vcCFG_LEGACY, false, 0);
+    cur_xid = vc_getVserverCtx(name, vcCFG_LEGACY, false, 0, vcCTX_XID);
     if (cur_xid!=xid) continue;
 
     result      = strdup(name);
