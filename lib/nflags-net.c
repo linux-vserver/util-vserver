@@ -36,6 +36,7 @@ static struct Mapping_uint64 const VALUES[] = {
 
   DECL("single_ip",	VC_NXF_SINGLE_IP),
   DECL("lback_remap",	VC_NXF_LBACK_REMAP),
+  DECL("remap_lback",	VC_NXF_LBACK_REMAP),
 
   DECL("hide_netif",	VC_NXF_HIDE_NETIF),
   DECL("hide_lback",	VC_NXF_HIDE_LBACK),
