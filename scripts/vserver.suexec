@@ -34,18 +34,20 @@ test -z "$OPTION_NONAMESPACE" || USE_VNAMESPACE=
 if $_VSERVER_INFO - FEATURE migrate; then
     if test -z "$is_stopped"; then
 	exec \
-        $_CHBIND      "${CHBIND_OPTS[@]}" \
+	"${NICE_CMD[@]}" \
+	"${CHBIND_CMD[@]}" \
 	$_EXEC_ULIMIT "$VSERVER_DIR/ulimits" \
 	${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT" -- } \
-	$_VTAG --migrate "${OPTS_VTAG_ENTER[@]}" -- \
+	$_VTAG --migrate "${OPTS_VTAG_ENTER[@]}" --silent -- \
 	$_VCONTEXT $SILENT_OPT --migrate --chroot \
 	  --xid "$S_CONTEXT" --uid "$user" "${OPTS_VCONTEXT_ENTER[@]}" -- \
 	"$@"
     else
 	exec \
-	$_CHBIND      "${CHBIND_OPTS[@]}" \
+	"${NICE_CMD[@]}" \
+	"${CHBIND_CMD[@]}" \
 	$_EXEC_ULIMIT "$VSERVER_DIR/ulimits" \
-	$_VTAG --migrate "${OPTS_VTAG_ENTER[@]}" -- \
+	$_VTAG --create "${OPTS_VTAG_CREATE[@]}" --silent -- \
         $_VCONTEXT --create "${OPTS_VCONTEXT_CREATE[@]}" -- \
 	$_VUNAME   --xid self --dir "$VSERVER_DIR"/uts     --missingok -- \
 	$_VUNAME   --xid self --set -t context="$VSERVER_DIR" -- \
@@ -55,7 +57,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
 else
     exec \
     "${NICE_CMD[@]}" \
-    "$_CHBIND"       "${CHBIND_OPTS[@]}" \
+    "${CHBIND_CMD[@]}" \
     "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
     ${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT" --} \
     $_CHCONTEXT_COMPAT "${CHCONTEXT_OPTS[@]}" -- \

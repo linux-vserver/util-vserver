@@ -130,9 +130,9 @@ pushd "$VSERVER_DIR"/vdir/ >/dev/null
 is_configured=1
 if $_VSERVER_INFO - FEATURE migrate; then
     ${NICE_CMD[@]} \
-    $_CHBIND      "${CHBIND_OPTS[@]}" -- \
+    "${CHBIND_CMD[@]}" \
     $_EXEC_ULIMIT "$VSERVER_DIR"/ulimits \
-    $_VTAG       --create "${OPTS_VTAG_CREATE[@]}" -- \
+    $_VTAG       --create "${OPTS_VTAG_CREATE[@]}" --silent -- \
     $_VCONTEXT   --create "${OPTS_VCONTEXT_CREATE[@]}" -- \
     ${OPTION_STRACE:+$_STRACE -fF -o /tmp/vserver-start.$$} \
     ${USE_VNAMESPACE:+$_VNAMESPACE --set -- } \
@@ -156,7 +156,7 @@ else
     fi
     
     ${NICE_CMD[@]} \
-    $_CHBIND           "${CHBIND_OPTS[@]}" \
+    "${CHBIND_CMD[@]}" \
     $_EXEC_ULIMIT      "$VSERVER_DIR/ulimits" \
     $_CHCONTEXT_COMPAT "${CHCONTEXT_OPTS[@]}" "${CHCONTEXT_INIT_OPTS[@]}" \
     $_SAVE_CTXINFO     "$VSERVER_DIR" \

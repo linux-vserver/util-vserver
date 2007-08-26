@@ -134,7 +134,7 @@ while true; do
     shift
 done
 
-create_cmd=( ${OPT_CTX:+$_VTAG --create --tag "$OPT_CTX" --silentexist --}
+create_cmd=( ${OPT_CTX:+$_VTAG --create --tag "$OPT_CTX" --silentexist --silent --}
 	     $_VCONTEXT --create --silentexist
 	     ${OPT_SILENT:+--silent}
 	     ${OPT_CTX:+--xid "$OPT_CTX"} )
@@ -173,6 +173,6 @@ else
     rc=254
 fi
 
-test "$rc" -ne 254 || exec "$_VTAG" --migrate --tag "$OPT_CTX" -- \
+test "$rc" -ne 254 || exec "$_VTAG" --migrate --tag "$OPT_CTX" --silent -- \
 			   "${migrate_cmd[@]}" --xid "$OPT_CTX" --migrate -- "$@"
 exit $rc

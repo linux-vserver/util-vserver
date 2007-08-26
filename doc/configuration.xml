@@ -1221,7 +1221,10 @@ The name of the current vserver.
     
     <collection name="interfaces">
       <scalar name="bcast">
-	<description>The default broadcast address.</description>
+	<description>The guest's broadcast address.</description>
+      </scalar>
+      <scalar name="lback">
+        <description>The guest's loopback address.</description>
       </scalar>
       <scalar name="dev">
 	<description>The default network device. See <optionref ref="per-if-dev">iface/dev</optionref> for more information.</description>
@@ -1264,9 +1267,6 @@ numbers like '00' are good names for these directories.
 	
 	<scalar name="ip">
 	  <description>The IP address which will be assigned to this interface.</description>
-	</scalar>
-	<scalar name="bcast">
-	  <description>The broadcast address.</description>
 	</scalar>
 	<scalar name="dev" id="per-if-dev">
 	  <description>The network device. When this is specified, the IP address will be assigned and removed when starting and stopping the guest.</description>

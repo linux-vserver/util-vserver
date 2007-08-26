@@ -107,9 +107,10 @@ for i in "${vservers[@]}"; do
 	    $_VSERVER "$i" exec "$cmd" "$@"
 	else
 	    _setVserverDir "$i"
+	    # subshell so we don't have to clean up
 	    ( _generateChbindOptions "$VSERVER_DIR"
-	      $_VSERVER "$i" status &> /dev/null && \
-		CHBIND_CMD=( "$_CHBIND" "${CHBIND_OPTS[@]}" -- )
+	      $_VSERVER "$i" status &> /dev/null || \
+		CHBIND_CMD=()
 	      callInNamespace "$i" \
 		"$_VNAMESPACE" --new -- \
 		"${CHBIND_CMD[@]}" \

@@ -20,7 +20,7 @@
 #  $VSERVER_NAME  ... name of vserver
 
 declare -a NICE_CMD=()
-declare -a CHBIND_OPTS=()
+declare -a CHBIND_CMD=()
 declare -a CAP_OPTS=()
 declare -a CHCONTEXT_INIT_OPTS=()
 declare -a CHCONTEXT_FLAG_OPTS=()
@@ -96,23 +96,28 @@ function _generateChbindOptions
     local vdir="$1"
     local i
     local bcast=
+    local lback=
     local nid=
 
     test -n "$_HAVE_INTERFACE_OPTIONS" || _generateInterfaceOptions "$vdir"
 
-    local f=$vdir/interfaces/bcast
+    local f="$vdir"/interfaces/bcast
     getFileValue bcast "$f"
+    f="$vdir"/interfaces/lback
+    getFileValue lback "$f"
 
     getFileValue nid "$vdir/ncontext" "$vdir/context"
     
-    CHBIND_OPTS=( $SILENT_OPT --secure ${nid:+--nid "$nid"} ${bcast:+--bcast "$bcast"} )
+    CHBIND_CMD=( $_CHBIND $SILENT_OPT --secure ${nid:+--nid "$nid"}
+		 ${bcast:+--bcast "$bcast"} ${lback:+--lback "$lback"}
+		)
 
     for i in "${INTERFACES[@]}"; do
-	CHBIND_OPTS=( "${CHBIND_OPTS[@]}" --ip "$i" )
+	CHBIND_CMD=( "${CHBIND_CMD[@]}" --ip "$i" )
     done
 
-    _readFileToArray "$vdir"/nflags        CHBIND_OPTS --flag
-    _readFileToArray "$vdir"/ncapabilities CHBIND_OPTS --ncap
+    _readFileToArray "$vdir"/nflags        CHBIND_CMD --flag
+    _readFileToArray "$vdir"/ncapabilities CHBIND_CMD --ncap
 
     _HAVE_CHBIND_OPTIONS=1
 }
@@ -836,7 +841,7 @@ function mountVserver
 
     _mountVserverInternal "$cfgdir"/fstab
     _mountVserverInternal "$cfgdir"/fstab.local
-    _mountVserverInternal "$cfgdir"/fstab.remote $_CHBIND "${CHBIND_OPTS[@]}"
+    _mountVserverInternal "$cfgdir"/fstab.remote "${CHBIND_CMD[@]}"
 
     isNamespaceCleanup "$cfgdir" && \
         _namespaceCleanup "$cfgdir"
@@ -879,9 +884,9 @@ function umountVserver
     test -n "$_HAVE_CHBIND_OPTIONS"  || _generateChbindOptions "$cfgdir"
     
     pushd "$vdir/" >/dev/null || return 1
-	_umountVserverInternal  "$cfgdir"/fstab.remote $_CHBIND "${CHBIND_OPTS[@]}" || is_ok=
-	_umountVserverInternal  "$cfgdir"/fstab.local                               || is_ok=
-	_umountVserverInternal  "$cfgdir"/fstab                                     || is_ok=
+	_umountVserverInternal  "$cfgdir"/fstab.remote "${CHBIND_CMD[@]}" || is_ok=
+	_umountVserverInternal  "$cfgdir"/fstab.local                     || is_ok=
+	_umountVserverInternal  "$cfgdir"/fstab                           || is_ok=
     popd >/dev/null           || return 1
 
     test -n "$is_ok"

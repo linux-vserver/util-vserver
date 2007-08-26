@@ -156,7 +156,7 @@ $_SECURE_MOUNT -n -o ro --bind "$FAI_DIR" /mnt/fai
 $_SECURE_MOUNT -n -t proc proc /mnt/proc
 
 cd /mnt
-$_CHBIND "${CHBIND_OPTS[@]}" \
+"${CHBIND_CMD[@]}" \
     $_VCONTEXT --create "${OPTS_VCONTEXT_CREATE[@]}" -- \
     $_VUNAME --xid self --set -t nodename="${SETUP_HOSTNAME:-fai-build}" \
 	-t context="$SETUP_CONFDIR" -- \

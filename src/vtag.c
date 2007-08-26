@@ -38,6 +38,7 @@
 #define CMD_CREATE		0x4001
 #define CMD_MIGRATE		0x4002
 #define CMD_SILENTEXIST		0x4003
+#define CMD_SILENT		0x4004
 
 
 struct option const
@@ -47,6 +48,7 @@ CMDLINE_OPTIONS[] = {
   { "tag",          required_argument, 0, CMD_TAG },
   { "create",       no_argument,       0, CMD_CREATE },
   { "migrate",      no_argument,       0, CMD_MIGRATE },
+  { "silent",       no_argument,       0, CMD_SILENT },
   { "silentexist",  no_argument,       0, CMD_SILENTEXIST },
   { 0,0,0,0 },
 };
@@ -72,6 +74,8 @@ showHelp(int fd, char const *cmd, int res)
 	    "<opts> can be:\n"
 	    "    --silentexist   ...  be silent when context exists already; useful\n"
 	    "                         for '--create' only\n"
+	    "    --silent        ...  if the feature is not supported, just execute\n"
+	    "                         <program>\n"
 	    "\n"
 	    "'vtag --create' exits with code 254 iff the context exists already.\n"
 	    "\n"
@@ -96,8 +100,15 @@ doit(struct Arguments const *args, char *argv[])
 {
   tag_t			tag;
 
-  if (!vc_isSupported(vcFEATURE_PPTAG))
-    goto exec;
+  if (!vc_isSupported(vcFEATURE_PPTAG)) {
+    if (args->verbosity >= 1) {
+      errno = ENOSYS;
+      perror(ENSC_WRAPPERS_PREFIX);
+      return wrapper_exit_code;
+    }
+    else
+      goto exec;
+  }
 
   if (args->do_create) {
     tag = vc_tag_create(args->tag);
@@ -139,7 +150,7 @@ int main (int argc, char *argv[])
   while (1) {
     int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
-    
+
     switch (c) {
       case CMD_HELP		:  showHelp(1, argv[0], 0);
       case CMD_VERSION		:  showVersion();
@@ -147,6 +158,7 @@ int main (int argc, char *argv[])
       case CMD_MIGRATE		:  args.do_migrate     = true;   break;
       case CMD_SILENTEXIST	:  args.is_silentexist = true;   break;
       case CMD_TAG		:  args.tag = Evc_tagopt2tag(optarg,true); break;
+      case CMD_SILENT		:  args.verbosity--;             break;
 
       default		:
 	WRITE_MSG(2, "Try '");
