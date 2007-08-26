@@ -636,8 +636,18 @@ for possible values.
     </list>
     <scalar name="context">
       <description>
-Contains the context which shall be used for the vserver.
+Contains the context id which shall be used for the vserver. Valid range is 2 through 49151.
         </description>
+    </scalar>
+    <scalar name="ncontext">
+      <description>
+Contains the network context id which shall be used for the vserver. Valid range is 2 through 49151.
+      </description>
+    </scalar>
+    <scalar name="tag">
+      <description>
+Contains the filesystem tag which shall be used for the vserver. Valid range is 2 through 49151.
+      </description>
     </scalar>
     <data id="fstab" name="fstab">
       <description>
