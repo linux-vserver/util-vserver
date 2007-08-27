@@ -69,7 +69,7 @@ nobase_distrib_DATA	=  defaults/devs \
 			   suse91/rpm/macros \
 			   gentoo/init-vserver.sh gentoo/net.vserver \
 			   gentoo/reboot.sh gentoo/shutdown.sh \
-			   debian/vserver-config.sh  debian/debootstrap.script \
+			   debian/debootstrap.script \
 			   breezy/debootstrap.script dapper/debootstrap.script \
 			   edgy/debootstrap.script   feisty/debootstrap.script \
 			   gutsy/debootstrap.script  hoary/debootstrap.script \
