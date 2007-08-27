@@ -24,7 +24,7 @@ vdir="$cfgdir"/vdir
 
 
 # vserver name
-NAME=$(< "$cfgdir"/name)
+NAME="$cfgdir"
 
 
 # go to vdir for chroot-sh
@@ -103,22 +103,43 @@ if $_CHROOT_SH testfile /etc/init.d/sendsigs; then
 		-e 's/^\(\s\+splash_back\)$/#\1/'
 fi
 
-# from here on we need to do things live in the server
-$_CHROOT_SH truncate   /vserver-config.sh < "$__DISTRIBDIR"/etch/vserver-config.sh
-$_CHROOT_SH chmod 0755 /vserver-config.sh
-
 echo
 echo ">>> Executing post install script ... "
 echo
 
 # start vserver before we can exec anything inside it
-vserver $NAME start
+$_VSERVER "$NAME" stop &>/dev/null || :
+$_VSERVER "$NAME" start --rescue --rescue-init bash -c '
+    exec  > /dev/null
+    exec 2> /dev/null
+
+    set -x
+    f=/tmp/startwait
+    trap "rm -f $f" EXIT
+    mkfifo $f
+    ( sleep 15; kill -s 9 -- -1 ) &
+    cat "$f"
+    kill -s 9 -- -1
+    wait
+'
 
 # run the configure commands from within the server
-vserver $NAME exec /vserver-config.sh
-$_CHROOT_SH rm /vserver-config.sh
+export LANG=C LC_ALL=C
+
+$_CHROOT_SH testfile /usr/sbin/locale-gen && \
+    $_VSERVER "$NAME" exec /usr/sbin/locale-gen
+
+for i in bootlogd checkfs checkroot halt hwclock.sh ifupdown klogd \
+	 libdevmapper1.02 makedev module-init-tools mountall.sh \
+	 mountdevsubfs.sh mountnfs.sh mountkernfs.sh mountvirtfs \
+	 networking reboot setserial single stop-bootlogd \
+	 stop-bootlogd-single umountfs umountnfs.sh umountroot \
+	 urandom; do
+    $_VSERVER "$NAME" exec update-rc.d -f "$i" remove
+done
 
 # stop the vserver
-vserver $NAME stop
+$_VSERVER "$NAME" exec bash -c ': >/tmp/startwait' &>/dev/null || :
+$_VSERVER "$NAME" stop &>/dev/null || :
 
 popd &>/dev/null
