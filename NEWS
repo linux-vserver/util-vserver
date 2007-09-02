@@ -1,3 +1,26 @@
+version 0.30.214
+================
+	- patches for yum-3.2.
+
+	- various fixes to allow for *SuSE guests.
+
+	- added Fedora 7.
+
+	- replace file with h2ext for build -m template.
+
+	- add exclude list support for vclone.
+
+	- include debootstrap scripts for a lot of distributions.
+
+	- fixes to allow the Gentoo initscripts to be used with baselayout 2.
+
+	- remove disk limit caches on vserver ... delete.
+
+	- added support for the new APIs in 2.2 and 2.3, in particular the
+	netv2 API, allowing native IPv6 support.
+
+	- added support for a separate filesystem tag.
+
 version 0.30.213
 ================
 	- added support for the device mapping feature present in development
