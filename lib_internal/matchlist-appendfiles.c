@@ -38,7 +38,7 @@ determineCompareFunc(char const UNUSED *fname)
 
 void
 MatchList_appendFiles(struct MatchList *list, size_t idx,
-		      char **files, size_t count,
+		      char const **files, size_t count,
 		      bool auto_type)
 {
   struct MatchItem	*ptr = list->data + idx;
@@ -48,7 +48,7 @@ MatchList_appendFiles(struct MatchList *list, size_t idx,
 
   if (auto_type) {
     for (i=0; i<count; ++i) {
-      char	*file = files[i];
+      char const	*file = files[i];
       switch (file[0]) {
 	case '+'	:  ptr->type = stINCLUDE; ++file; break;
 	case '~'	:  ptr->type = stSKIP;    ++file; break;

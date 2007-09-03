@@ -73,7 +73,7 @@ void		MatchList_initRefserverList(struct MatchList **, size_t *cnt,
 					    char const *dir) NONNULL((1,2,3));
 void		MatchList_destroy(struct MatchList *) NONNULL((1));
 void		MatchList_appendFiles(struct MatchList *, size_t idx,
-				      char **files, size_t count,
+				      char const **files, size_t count,
 				      bool auto_type) NONNULL((1,3));
 
 MatchType	MatchList_compare(struct MatchList const *,

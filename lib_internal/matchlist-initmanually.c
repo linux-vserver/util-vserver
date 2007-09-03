@@ -42,7 +42,7 @@ extern bool	Global_doRenew() PURE CONST;
 
 static void
 readExcludeListFD(int fd,
-		  char ***files,  size_t *size,
+		  char const ***files,  size_t *size,
 		  char **buf)
 {
   off_t		len;
@@ -90,7 +90,7 @@ readExcludeListFD(int fd,
 
 static void
 readExcludeList(char const *filename,
-		char ***files,  size_t *size,
+		char const ***files,  size_t *size,
 		char **buf)
 {
   int		fd = open(filename, O_RDONLY);
@@ -102,7 +102,7 @@ readExcludeList(char const *filename,
 
 static void
 getConfigfileList(char const *vserver,
-		  char ***files, size_t *size,
+		  char const ***files, size_t *size,
 		  char **buf)
 {
   char 		tmpname[] = "/tmp/vunify.XXXXXX";
@@ -152,10 +152,10 @@ MatchList_initManually(struct MatchList *list,
 {
   char			*buf[2] = { 0,0 };
   
-  char			**fixed_files = 0;
+  char const		**fixed_files = 0;
   size_t		fixed_count   = 0;
 
-  char			**expr_files  = 0;
+  char const		**expr_files  = 0;
   size_t		expr_count    = 0;
   size_t		len;
 
