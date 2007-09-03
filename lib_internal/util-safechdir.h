@@ -19,7 +19,8 @@
 #ifndef H_UTIL_VSERVER_LIB_INTERNAL_UTIL_SAFECHDIR_H
 #define H_UTIL_VSERVER_LIB_INTERNAL_UTIL_SAFECHDIR_H
 
-struct stat;
+#include <sys/stat.h>
+
 int	safeChdir(char const *, struct stat const *exp_stat) NONNULL((1,2));
 
 #define EsafeChdir(PATH,EXP_STAT) \
