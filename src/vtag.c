@@ -109,6 +109,16 @@ doit(struct Arguments const *args, char *argv[])
     else
       goto exec;
   }
+  if (args->tag == VC_DYNAMIC_XID) {
+    if (args->verbosity >= 1) {
+      WRITE_MSG(2, "You must specify the tag with '--tag'; try '--help' for more information\n");
+      return wrapper_exit_code;
+    }
+    else {
+      WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "WARNING: A dynamic tag has been specified, this is not supported\n");
+      goto exec;
+    }
+  }
 
   if (args->do_create) {
     tag = vc_tag_create(args->tag);
@@ -140,7 +150,7 @@ exec:
 int main (int argc, char *argv[])
 {
   struct Arguments		args = {
-    .tag               = VC_NOCTX,
+    .tag               = VC_DYNAMIC_XID,
     .do_create         = false,
     .do_migrate        = false,
     .is_silentexist    = false,
@@ -173,8 +183,6 @@ int main (int argc, char *argv[])
     WRITE_MSG(2, "Neither '--create' nor '--migrate' specified; try '--help' for more information\n");
   else if (args.do_create && args.do_migrate)
     WRITE_MSG(2, "Can not specify '--create' and '--migrate' at the same time; try '--help' for more information\n");
-  else if (args.tag==VC_NOCTX)
-    WRITE_MSG(2, "You must specify the tag with '--tag'; try '--help' for more information\n");
   else if (optind>=argc)
     WRITE_MSG(2, "No command given; use '--help' for more information.\n");
   else

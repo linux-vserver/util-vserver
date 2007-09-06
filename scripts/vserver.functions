@@ -611,7 +611,8 @@ function _generateTagOptions
     local vdir="$1"
     local tag
 
-    getFileValue tag "$vdir/tag" "$vdir/context" || return 0
+    getFileValue tag "$vdir/tag" "$vdir/context"
+    test -n "$tag" || return 0
 
     OPTS_VTAG_CREATE=( --tag "$tag" )
     OPTS_VTAG_ENTER=( --tag "$tag" )
