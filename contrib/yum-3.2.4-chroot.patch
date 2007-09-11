@@ -74,15 +74,18 @@
      reposdir = ListOption(['/etc/yum/repos.d', '/etc/yum.repos.d'])
      syslog_ident = Option()
      syslog_facility = Option('LOG_DAEMON')
-@@ -615,7 +636,7 @@ def readMainConfig(startupconf):
+@@ -615,9 +636,9 @@ def readMainConfig(startupconf):
      yumconf.populate(startupconf._parser, 'main')
  
      # Apply the installroot to directory options
 -    for option in ('cachedir', 'logfile', 'persistdir'):
 +    for option in ('cachedir', 'logfile', 'persistdir', 'lockfile'):
          path = getattr(yumconf, option)
-         setattr(yumconf, option, yumconf.installroot + path)
+-        setattr(yumconf, option, yumconf.installroot + path)
++        setattr(yumconf, option, yumconf.getRootedPath(path))
      
+     # Add in some extra attributes which aren't actually configuration values 
+     yumconf.yumvar = yumvars
 --- yum-3.2.4/docs/yum.conf.5.chroot
 +++ yum-3.2.4/docs/yum.conf.5
 @@ -23,8 +23,10 @@ The [main] section must exist for yum to
