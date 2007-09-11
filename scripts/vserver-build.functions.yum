@@ -56,6 +56,7 @@ function yum.__substituteConf
     if test -e "$f"; then
 	$_SED -e "s!@YUMETCDIR@!$prefix$PKGCFGDIR/yum/etc!g;
 		  s!@YUMCACHEDIR@!$prefix$PKGCFGDIR/yum/cache!g;
+		  s!@YUMLIBDIR@!$prefix$PKGCFGDIR/yum/lib!g;
 		  s!@YUMLOGDIR@!$prefix$PKGCFGDIR/yum!g;
 		  s!@YUMLOCKDIR@!$prefix$PKGCFGDIR/yum!g;
                  " "$f" >"$f.tmp"
@@ -66,7 +67,7 @@ function yum.__substituteConf
 
 function yum.initFilesystem
 {
-    mkdir -p "$PKGCFGDIR"/yum/{etc,cache}
+    mkdir -p "$PKGCFGDIR"/yum/{etc,cache,lib}
     
     populateDirectory "$PKGCFGDIR/yum/etc" \
 	"$__DISTRIBDIR/defaults/yum" \
