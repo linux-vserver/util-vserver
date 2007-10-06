@@ -1216,17 +1216,22 @@ function _namespaceCleanup
     local root=$($_VSERVER_INFO "$1" VDIR 1)
     local -a list
     local -a skip
-    local tmp
+    local i
+    local j
 
     getFileArray skip "$vdir"/namespace-cleanup-skip \
 	"$__CONFDIR"/.defaults/namespace-cleanup-skip || :
 
     # these are things that have to be accessible post-cleanup
-    for tmp in "$root" "$__SBINDIR" "$__PKGLIBDIR" "$vdir" \
+    for i in "$root" "$__SBINDIR" "$__PKGLIBDIR" "$vdir" \
 	"$__PKGSTATEDIR" "$__LOCKDIR" /usr/local /tmp "${skip[@]}"; do
-	while test -n "$tmp"; do
-	    list=( "${list[@]}" "$tmp" )
-	    tmp="${tmp%/*}"
+	local real=`readlink -f "$i"`
+	test "$i" != "$real" || real=
+	for j in "$i" "$real"; do
+	    while test -n "$j"; do
+		list=( "${list[@]}" "$j" )
+		j="${j%/*}"
+	    done
 	done
     done
 
