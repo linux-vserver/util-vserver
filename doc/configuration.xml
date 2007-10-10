@@ -1428,6 +1428,9 @@ tools and can *not* be modified.
     </collection>
 
     <collection name="cpuset" since="0.30.211">
+      <description>
+Puts the guest in a cpuset. Required entries are name, cpus and mems.
+      </description>
       <scalar name="name">
         <description>The name of the cpuset for this vserver</description>
       </scalar>
