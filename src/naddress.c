@@ -237,93 +237,93 @@ maskToPrefix(void *data, int limit)
   return prefix;
 }
 
+static int
+parseIPFormat(char const *str_c, struct vc_ips **ips,
+	     char const *format)
+{
+  size_t len = strlen(str_c);
+  char const *fc;
+  char str[len + 1], *ptr = str;
+  int ret = -1;
+
+  strcpy(str, str_c);
+
+  /* XXX: condition at the bottom */
+  for (fc = format; ; fc += 2) {
+    char *sep;
+    void *dst;
+    unsigned long limit = 0;
+
+    switch (*fc) {
+      case '1': dst = &(*ips)->a.s.ip;		break;
+      case '2': dst = &(*ips)->a.s.ip2;		break;
+      case 'm':	dst = &(*ips)->a.s.mask;	break;
+      default:					goto out;
+    }
+
+    if ((sep = memchr(ptr, *(fc + 1), len)) == NULL) {
+      goto out;
+    }
+    *sep = '\0';
+
+    /* This is ugly, and means that m cannot be first */
+    switch ((*ips)->a.vna_type) {
+      case VC_NXA_TYPE_IPV4: limit =  32;	break;
+      case VC_NXA_TYPE_IPV6: limit = 128;	break;
+    }
+
+    /* This is required due to the dain-bramage that is inet_pton in dietlibc.
+     * Essentially any number will be parsed as a valid IPv4 address...
+     */
+    if (*fc == 'm' && strchr(ptr, ':') == NULL && strchr(ptr, '.') == NULL) {
+      /* This is a prefix, not a netmask */
+      unsigned long	sz;
+
+      if (!isNumberUnsigned(ptr, &sz, true) || sz > limit) {
+	goto out;
+      }
+
+      (*ips)->a.vna_prefix = sz;
+      switch ((*ips)->a.vna_type) {
+	case VC_NXA_TYPE_IPV4:
+	  (*ips)->a.vna_v4_mask.s_addr = htonl(~((1 << (32 - sz)) - 1));
+	  break;
+	case VC_NXA_TYPE_IPV6:
+	  ipv6PrefixToMask(&(*ips)->a.vna_v6_mask, sz);
+	  break;
+      }
+    }
+    else {
+      if (convertAddress(ptr, &(*ips)->a.vna_type, dst) == -1) {
+	goto out;
+      }
+      else if (*fc == 'm') {
+	/* Got a mask, set the prefix */
+	(*ips)->a.vna_prefix = maskToPrefix(&(*ips)->a.s.mask, limit);
+      }
+    }
+
+    ptr = sep + 1;
+
+    if (*(fc + 1) == '\0')
+      break;
+  }
+  ret = 0;
+
+out:
+  free(str);
+  return ret;
+}
+
 static void
 readIP(char const *str, struct vc_ips **ips, uint16_t type)
 {
   if (ifconfig_getaddr(str, &(*ips)->a.vna_v4_ip.s_addr, &(*ips)->a.vna_v4_mask.s_addr, NULL)==-1) {
-    char		*pt;
-    char		tmpopt[strlen(str)+1];
-
-    strcpy(tmpopt,str);
-    pt = strchr(tmpopt,'/');
-    if (pt)
-      *pt++ = '\0';
-
-    if (convertAddress(tmpopt, &(*ips)->a.vna_type, &(*ips)->a.vna_v4_ip.s_addr) == -1) {
+    if (parseIPFormat(str, ips, "1/m") == -1) {
       WRITE_MSG(2, "Invalid IP number '");
-      WRITE_STR(2, tmpopt);
+      WRITE_STR(2, str);
       WRITE_MSG(2, "'\n");
       exit(wrapper_exit_code);
-    }
-
-    if (pt==0) {
-      switch ((*ips)->a.vna_type) {
-	case VC_NXA_TYPE_IPV4:
-	  (*ips)->a.vna_v4_mask.s_addr = htonl(0xffffff00);
-	  (*ips)->a.vna_prefix = 24;
-	  break;
-	case VC_NXA_TYPE_IPV6:
-	  (*ips)->a.vna_prefix = 64;
-	  (*ips)->a.vna_v6_mask.s6_addr32[0] = (*ips)->a.vna_v6_mask.s6_addr32[1] = 0xffffffff;
-	  (*ips)->a.vna_v6_mask.s6_addr32[2] = (*ips)->a.vna_v6_mask.s6_addr32[3] = 0x00000000;
-	  break;
-	default: break;
-      }
-    }
-    else {
-      // Ok, we have a network size, not a netmask
-      if (strchr(pt,'.')==0 && strchr(pt,':')==0) {
-	unsigned long	sz, limit = 0;
-
-	switch ((*ips)->a.vna_type) {
-	  case VC_NXA_TYPE_IPV4: limit =  32;	break;
-	  case VC_NXA_TYPE_IPV6: limit = 128;	break;
-	  default:				break;
-	}
-
-	if (!isNumberUnsigned(pt, &sz, true) || sz > limit) {
-	  WRITE_MSG(2, "Invalid prefix '");
-	  WRITE_STR(2, pt);
-	  WRITE_MSG(2, "'\n");
-	  exit(wrapper_exit_code);
-	}
-
-	(*ips)->a.vna_prefix = sz;
-	switch ((*ips)->a.vna_type) {
-	  case VC_NXA_TYPE_IPV4:
-	    (*ips)->a.vna_v4_mask.s_addr = htonl(~((1 << (32 - sz)) - 1));
-	    break;
-	  case VC_NXA_TYPE_IPV6:
-	    ipv6PrefixToMask(&(*ips)->a.vna_v6_mask, (*ips)->a.vna_prefix);
-	    break;
-	  default: break;
-	}
-      }
-      else {
-	int af, limit;
-	void *mask;
-	switch ((*ips)->a.vna_type) {
-	  case VC_NXA_TYPE_IPV4:
-	    af = AF_INET;
-	    mask = &(*ips)->a.vna_v4_mask.s_addr;
-	    limit = 32;
-	    break;
-	  case VC_NXA_TYPE_IPV6:
-	    af = AF_INET6;
-	    mask = (*ips)->a.vna_v6_mask.s6_addr32;
-	    limit = 128;
-	    break;
-	  default:
-	    return;
-	}
-	if (inet_pton(af, pt, mask) < 0) {
-	  WRITE_MSG(2, "Invalid netmask '");
-	  WRITE_STR(2, pt);
-	  WRITE_MSG(2, "'\n");
-	  exit(wrapper_exit_code);
-	}
-	(*ips)->a.vna_prefix = maskToPrefix(mask, limit);
-      }
     }
   }
   else
@@ -348,6 +348,20 @@ readBcast(char const *str, struct vc_ips **ips)
   }
   (*ips)->a.vna_v4_ip.s_addr = bcast;
   (*ips)->a.vna_type = VC_NXA_TYPE_IPV4 | VC_NXA_MOD_BCAST | VC_NXA_TYPE_ADDR;
+  (*ips)->next = calloc(1, sizeof(struct vc_ips));
+  *ips = (*ips)->next;
+}
+
+static void
+readRange(char const *str, struct vc_ips **ips)
+{
+  if (parseIPFormat(str, ips, "1-2/m") == -1) {
+    WRITE_MSG(2, "Invalid range '");
+    WRITE_STR(2, str);
+    WRITE_MSG(2, "'\n");
+    exit(wrapper_exit_code);
+  }
+  (*ips)->a.vna_type |= VC_NXA_TYPE_RANGE;
   (*ips)->next = calloc(1, sizeof(struct vc_ips));
   *ips = (*ips)->next;
 }
@@ -452,7 +466,7 @@ int main (int argc, char *argv[])
       case CMD_SET	:  args.do_set    = true; break;
       case CMD_IP	:  readIP(optarg, &ips, VC_NXA_TYPE_ADDR);  break;
       case CMD_MASK	:  readIP(optarg, &ips, VC_NXA_TYPE_MASK);  break;
-      case CMD_RANGE	:  readIP(optarg, &ips, VC_NXA_TYPE_RANGE); break;
+      case CMD_RANGE	:  readRange(optarg, &ips); break;
       case CMD_BCAST	:  readBcast(optarg, &ips); break;
       case CMD_LBACK	:  readIP(optarg, &ips, VC_NXA_TYPE_ADDR | VC_NXA_MOD_LBACK); break;
       default		:

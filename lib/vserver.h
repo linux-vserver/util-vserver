@@ -632,20 +632,26 @@ extern "C" {
       uint16_t			vna_flags;
       uint16_t			vna_prefix;
       uint16_t			vna_parent;
-      union {
-	struct {
-	  struct in_addr	ip;
-	  struct in_addr	mask;
-	} ipv4;
-	struct {
-	  struct in6_addr	ip;
-	  struct in6_addr	mask;
-	} ipv6;
-      } u;
-#define vna_v4_ip	u.ipv4.ip
-#define vna_v4_mask	u.ipv4.mask
-#define vna_v6_ip	u.ipv6.ip
-#define vna_v6_mask	u.ipv6.mask
+      struct {
+	union {
+	  struct in_addr	v4;
+	  struct in6_addr	v6;
+	} ip;
+	union {
+	  struct in_addr	v4;
+	  struct in6_addr	v6;
+	} ip2;
+	union {
+	  struct in_addr	v4;
+	  struct in6_addr	v6;
+	} mask;
+      } s;
+#define vna_v4_ip	s.ip.v4
+#define vna_v4_ip2	s.ip2.v6
+#define vna_v4_mask	s.mask.v4
+#define vna_v6_ip	s.ip.v6
+#define vna_v6_ip2	s.ip2.v6
+#define vna_v6_mask	s.mask.v6
   };
 
   struct vc_net_flags {
