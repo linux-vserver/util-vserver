@@ -813,6 +813,7 @@ extern "C" {
 
     /* misc. syscalls */
   int		vc_set_mapping(xid_t xid, const char *device, const char *target, uint32_t flags);
+  int		vc_unset_mapping(xid_t xid, const char *device, const char *target, uint32_t flags);
 
 
   /** \brief    Information about parsing errors

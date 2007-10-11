@@ -43,6 +43,8 @@ CMDLINE_OPTIONS[] = {
   { "help",       no_argument,       0, CMD_HELP },
   { "version",    no_argument,       0, CMD_VERSION },
   { "xid",        required_argument, 0, 'x' },
+  { "set",        no_argument,       0, 's' },
+  { "unset",      no_argument,       0, 'u' },
   { "open",       no_argument,       0, 'o' },
   { "create",     no_argument,       0, 'c' },
   { "remap",      no_argument,       0, 'r' },
@@ -58,7 +60,15 @@ showHelp(int fd, char const *cmd)
   WRITE_MSG(fd, "Usage: ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " --xid <xid> [--flags <flags>] [--open] [--create] [--remap] [--device <dev>] [--target <dev>]\n"
+	    " --xid <xid> {--set|--unset} [--flags <flags>] [--open] [--create]\n"
+	    "        [--device <dev>] [--remap --target <dev>]\n"
+	    "\n"
+	    "    --flags <flags>     Set the specified flags\n"
+	    "    --open              Allow opening of the device\n"
+	    "    --create            If SECURE_MKNOD is given, allow mknod(2)\n"
+	    "    --device <dev>      Device to apply the command to\n"
+	    "    --remap             Remap the device to the target\n"
+	    "    --target <dev>      Target for --remap\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
@@ -85,10 +95,11 @@ int main(int argc, char *argv[])
   uint32_t	flags		= 0;
   char		*device		= NULL;
   char		*target		= NULL;
+  bool		set		= true;
   unsigned long	tmp		= 0;
   
   while (1) {
-    int		c = getopt_long(argc, argv, "+x:ocrf:d:t:", CMDLINE_OPTIONS, 0);
+    int		c = getopt_long(argc, argv, "+x:suocrf:d:t:", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
 
     switch (c) {
@@ -100,6 +111,8 @@ int main(int argc, char *argv[])
       case 'r'		:  do_remap = true;			break;
       case 'd'		:  device = optarg;			break;
       case 't'		:  target = optarg;			break;
+      case 's'		:  set = 1;				break;
+      case 'u'		:  set = 0;				break;
       case 'f'		:
 	if (!isNumberUnsigned(optarg, &tmp, false)) {
 	  WRITE_MSG(2, "Invalid flags argument: '");
@@ -123,12 +136,16 @@ int main(int argc, char *argv[])
   if (allow_create)	flags |= VC_DATTR_CREATE;
   if (do_remap)		flags |= VC_DATTR_REMAP;
 
-  if (xid==VC_NOCTX)
+  if (target && !do_remap)
+    WRITE_MSG(2, "Target specified without --remap; try '--help' for more information\n");
+  else if (xid==VC_NOCTX)
     WRITE_MSG(2, "No xid specified; try '--help' for more information\n");
   else if (optind!=argc)
     WRITE_MSG(2, "Unused argument(s); try '--help' for more information\n");
-  else if (vc_set_mapping(xid, device, target, flags)==-1)
+  else if (set && vc_set_mapping(xid, device, target, flags)==-1)
       perror("vc_set_mapping()");
+  else if (!set && vc_unset_mapping(xid, device, target, flags)==-1)
+      perror("vc_unset_mapping()");
   else
     return EXIT_SUCCESS;
 
