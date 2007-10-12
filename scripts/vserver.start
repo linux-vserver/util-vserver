@@ -105,6 +105,8 @@ pushd "$VSERVER_DIR" >/dev/null
 execScriptlets   "$VSERVER_DIR" "$VSERVER_NAME" initialize
 popd >/dev/null
 
+fsckAllFS        "$VSERVER_DIR"
+
 mountRootFS      "$VSERVER_DIR"
 generateOptions  "$VSERVER_DIR"
 

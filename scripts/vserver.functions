@@ -893,6 +893,22 @@ function umountVserver
     test -n "$is_ok"
 }
 
+function fsckAllFS
+{
+    local cfgdir=$1
+    local fstab="$cfgdir"/fstab
+    local FSTAB_FILE
+    local fsck_exitcode
+
+    test -e "$fstab" || return 0
+
+    export FSTAB_FILE="$fstab"
+    $_FSCK -s -n -A -T
+    fsck_exitcode=$?
+    test "$fsck_exitcode" -eq 0 -o \
+         "$fsck_exitcode" -eq 1 || return $fsck_exitcode
+}
+
 ## Usage: waitForSync <vserver> <context> <vshelper-fifo-varname>
 function initSync
 {
