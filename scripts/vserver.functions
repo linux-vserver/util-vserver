@@ -45,6 +45,7 @@ declare -a OPTS_VSCHED=()
 declare -a OPTS_ENV=()
 declare -a OPTS_VTAG_CREATE=()
 declare -a OPTS_VTAG_ENTER=()
+declare -a OPTS_VMEMCTRL=()
 
 declare -a STOPCMD_PREPARE=()
 
@@ -606,18 +607,6 @@ function _generateInterfaceOptions
     _HAVE_INTERFACE_OPTIONS=1
 }
 
-function _generateTagOptions
-{
-    local vdir="$1"
-    local tag
-
-    getFileValue tag "$vdir/tag" "$vdir/context"
-    test -n "$tag" || return 0
-
-    OPTS_VTAG_CREATE=( --tag "$tag" )
-    OPTS_VTAG_ENTER=( --tag "$tag" )
-}
-
 function enableInterfaces
 {
     local i=0
@@ -688,6 +677,29 @@ function disableInterfaces
     unlock 1
 }
 
+function _generateTagOptions
+{
+    local vdir="$1"
+    local tag
+
+    getFileValue tag "$vdir/tag" "$vdir/context"
+    test -n "$tag" || return 0
+
+    OPTS_VTAG_CREATE=( --tag "$tag" )
+    OPTS_VTAG_ENTER=( --tag "$tag" )
+}
+
+function _generateMemctrlOptions
+{
+    local vdir="$"
+    local badness
+
+    getFileValue badness "$vdir/badness"
+    test -n "$badness" || return 0
+
+    OPTS_VMEMCTRL=( --badness "$badness" )
+}
+
 ## Usage: prepareInit <vserver-directory>
 function prepareInit
 {
@@ -732,6 +744,7 @@ function generateOptions
     _generateScheduleOptions    "$1"
     _generatePersonalityOptions "$1"
     _generateTagOptions         "$1"
+    _generateMemctrlOptions     "$1"
 
     if test -n "$_IS_FAKEINIT"; then
 	CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )

@@ -142,6 +142,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
     $_VSCHED     --xid self --force "${OPTS_VSCHED[@]}" -- \
     $_VSYSCTL    --xid self --dir "$VSERVER_DIR"/sysctl --missingok -- \
     $_VUNAME     --xid self --dir "$VSERVER_DIR"/uts    --missingok -- \
+    $_VMEMCTRL   --xid self "${OPTS_VMEMCTRL[@]}" -- \
     "${VSERVER_EXTRA_CMDS[@]}" \
     $_VUNAME     --xid self --set -t context="$VSERVER_DIR" -- \
     $_VATTRIBUTE --set "${OPTS_VATTRIBUTE[@]}" -- \

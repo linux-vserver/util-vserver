@@ -666,6 +666,11 @@ called as <command>chbind &lt;options&gt; mount ...</command>. See
 <optionref>fstab</optionref> also.
       </description>
     </data>
+    <scalar name="badness">
+      <description>
+Contains the bias to be applied to processes in this guest when the OOM-killer strikes.
+      </description>
+    </scalar>
     
     <collection name="apps">
       <collection name="init">
