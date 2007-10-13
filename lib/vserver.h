@@ -823,6 +823,9 @@ extern "C" {
   int		vc_set_mapping(xid_t xid, const char *device, const char *target, uint32_t flags);
   int		vc_unset_mapping(xid_t xid, const char *device, const char *target, uint32_t flags);
 
+  int		vc_get_badness(xid_t xid, int64_t *badness);
+  int		vc_set_badness(xid_t xid, int64_t badness);
+
 
   /** \brief    Information about parsing errors
    *  \ingroup  helper

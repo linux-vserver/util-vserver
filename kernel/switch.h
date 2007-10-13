@@ -60,6 +60,8 @@
 
 #define VC_CAT_SCHED		14
 
+#define VC_CAT_MEMCTRL		20
+
 #define VC_CAT_VNET		25
 #define VC_CAT_NETALT		26
 #define VC_CAT_NETMIG		27

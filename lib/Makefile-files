@@ -152,7 +152,11 @@ lib_v23_SRCS =			lib/syscall_tagmigrate-v23.hc \
 				lib/syscall_tagmigrate.c \
 				lib/syscall_tagcreate.c \
 				lib/syscall_tasktag-v23.hc \
-				lib/syscall_tasktag.c
+				lib/syscall_tasktag.c \
+				lib/syscall_getbadness.c \
+				lib/syscall_getbadness-v23.hc \
+				lib/syscall_setbadness.c \
+				lib/syscall_setbadness-v23.hc
 
 if ENSC_HAVE_C99_COMPILER
 lib_v13_SRCS +=			lib/syscall_adddlimit-v13.hc \

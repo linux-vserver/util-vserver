@@ -79,11 +79,22 @@ struct	vcmd_ctx_caps_v1 {
 /* bcaps commands */
 
 #define VCMD_get_bcaps		VC_CMD(FLAGS, 9, 0)
-#define VCMD_set_bcaps		VC_CMD(FLAGS,10, 0)
+#define VCMD_set_bcaps		VC_CMD(FLAGS, 10, 0)
 
 struct	vcmd_bcaps {
 	uint64_t bcaps;
 	uint64_t bmask;
+};
+
+
+
+/* OOM badness */
+
+#define VCMD_get_badness	VC_CMD(MEMCTRL, 5, 0)
+#define VCMD_set_badness	VC_CMD(MEMCTRL, 6, 0)
+
+struct	vcmd_badness_v0 {
+	int64_t bias;
 };
 
 #endif	/* _VX_CONTEXT_CMD_H */
