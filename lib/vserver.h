@@ -306,7 +306,9 @@
 #ifndef CLONE_NEWIPC
 #  define CLONE_NEWIPC			0x08000000
 #endif
-
+#ifndef CLONE_NEWUSER
+#  define CLONE_NEWUSER			0x10000000
+#endif
 
 
 #define VC_BAD_PERSONALITY		((uint_least32_t)(-1))
