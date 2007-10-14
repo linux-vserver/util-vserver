@@ -1,5 +1,9 @@
 /proc/net/
 -/proc/net/rpc/
+-/proc/net/ip_conntrack
+-/proc/net/ip_conntrack_expect
+-/proc/net/nf_conntrack
+-/proc/net/nf_conntrack_expect
 /proc/sys/
 -/proc/sys/debug/
 -/proc/sys/dev/
