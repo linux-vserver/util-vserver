@@ -1404,7 +1404,11 @@ tools and can *not* be modified.
     </collection>
 
     <collection name="dlimits" since="0.30.210">
-      <collection name="dlimit" type="symbolic">
+      <description>
+Note that all entries are required for the disk limit to be applied.
+      </description>
+      <collection name="x" type="symbolic">
+        <description>'x' is an arbitrary name, replace it with e.g. integers</description>
         <scalar name="directory">
           <description>The directory to which the limit should be applied</description>
         </scalar>
