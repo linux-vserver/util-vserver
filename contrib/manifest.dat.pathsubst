@@ -110,6 +110,7 @@ build  @SBINDIR@/vemerge
 build  @SBINDIR@/vesync
 core   @SBINDIR@/vkill
 core   @SBINDIR@/vlimit
+core   @SBINDIR@/vmemctrl
 core   @SBINDIR@/vnamespace
 base   @SBINDIR@/vps
 base   @SBINDIR@/vpstree
@@ -121,6 +122,7 @@ legacy @SBINDIR@/vserver-copy
 core   @SBINDIR@/vserver-info
 base   @SBINDIR@/vserver-stat
 base   @SBINDIR@/vsomething
+core   @SBINDIR@/vspace
 core   @SBINDIR@/vtag
 base   @SBINDIR@/vtop
 core   @SBINDIR@/vuname
