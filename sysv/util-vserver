@@ -62,7 +62,7 @@ function start()
     _endResult $?
     local retval=$?
     _beginResult $"Loading default device map"
-    loadDeviceMap 0 "$__CONFDIR/.defaults/apps/vdevmap"
+    handleDeviceMap --set 0 "$__CONFDIR/.defaults/apps/vdevmap"
     _endResult $?
     test "$retval" -ne 0 || touch "$lockfile"
     return $retval

@@ -42,7 +42,7 @@ start() {
 	eend $?
 
 	ebegin "Loading default device map"
-	$__PKGLIBDIR/bash-wrapper 'loadDeviceMap 0 "$__CONFDIR/.defaults/apps/vdevmap"'
+	$__PKGLIBDIR/bash-wrapper 'handleDeviceMap --set 0 "$__CONFDIR/.defaults/apps/vdevmap"'
 	eend $?
 }
 

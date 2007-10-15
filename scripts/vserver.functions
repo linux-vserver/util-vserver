@@ -1282,13 +1282,15 @@ function _namespaceCleanup
     done
 }
 
-function loadDeviceMap
+function handleDeviceMap
 {
-    local xid="$1"
-    local dir="$2"
+    local op="$1"
+    local xid="$2"
+    local dir="$3"
     local flags device target
 
     test -d "$dir" || return 0
+    test -n "$xid" || return 0
 
     for i in "$dir"/*; do
 	test -d "$i" || continue
@@ -1304,6 +1306,6 @@ function loadDeviceMap
 	vdevmap_opts=(  "${vdevmap_opts[@]}" ${flags:+--flags "$flags"} \
 			${device:+--device "$device"} ${target:+--target "$target"} )
 
-	$_VDEVMAP --xid "$xid" --set "${vdevmap_opts[@]}" || return $?
+	$_VDEVMAP --xid "$xid" "$op" "${vdevmap_opts[@]}" || return $?
     done
 }

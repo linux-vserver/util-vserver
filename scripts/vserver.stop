@@ -103,7 +103,9 @@ sendKillSequence   "$S_CONTEXT" "${INITKILL_SEQ[@]}"
     echo $"Vserver '$VSERVER_DIR' still running unexpectedly; please investigate it manually..." >&2
 
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" post-stop
-    
+
+handleDeviceMap --unset "$S_CONTEXT" "$VSERVER_DIR/apps/vdevmap"
+
 umountVserver     "$VSERVER_DIR" || :
 disableInterfaces "$VSERVER_DIR"
 
