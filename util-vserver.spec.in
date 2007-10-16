@@ -39,6 +39,7 @@ Obsoletes:	vserver < %version
 BuildRequires:	mount vconfig gawk iproute iptables
 BuildRequires:	gcc-c++ wget which diffutils
 BuildRequires:	e2fsprogs-devel beecrypt-devel
+BuildRequires:	e2fsprogs
 %{!?_without_doc:BuildRequires:	doxygen tetex-latex}
 Requires(post):		%name-core
 Requires(pre):		%pkglibdir

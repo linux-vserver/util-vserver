@@ -63,6 +63,7 @@ ENSC_PATHPROG(CPIO,      cpio,    [cpio])
 ENSC_PATHPROG(RESTORE,   restore, [restore])
 ENSC_PATHPROG(RSYNC,     rsync,   [rsync])
 ENSC_PATHPROG(STRACE,    strace,  [strace])
+ENSC_PATHPROG(FSCK,      fsck)
 
 ENSC_PATHPROG(DOXYGEN,   doxygen,  [:])
 ENSC_PATHPROG(XSLTP,     xsltp,    [:])
