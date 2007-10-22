@@ -65,7 +65,14 @@ struct Arguments {
   int64_t	badness;
   bool		do_set;
   bool		do_get;
+  uint32_t	mask;
 };
+
+static inline int
+hasArg(struct Arguments *args, uint32_t arg)
+{
+  return (args->mask & arg) == arg;
+}
 
 static void
 showHelp(int fd, char const *cmd, int res)
@@ -94,7 +101,8 @@ showVersion()
 static inline void
 doset(struct Arguments *args)
 {
-  if (vc_set_badness(args->xid, args->badness) == -1) {
+  if (hasArg(args, CMD_BADNESS) &&
+      vc_set_badness(args->xid, args->badness) == -1) {
     perror(ENSC_WRAPPERS_PREFIX "vc_set_badness()");
     exit(wrapper_exit_code);
   }
@@ -123,6 +131,7 @@ int main (int argc, char *argv[])
     .do_get	= false,
     .xid	= VC_NOCTX,
     .badness	= 0,
+    .mask	= 0,
   };
   
   while (1) {
@@ -153,6 +162,7 @@ int main (int argc, char *argv[])
 	exit(wrapper_exit_code);
 	break;
     }
+    args.mask |= c;
   }
 
   if (args.xid == VC_NOCTX) args.xid = Evc_get_task_xid(0);
