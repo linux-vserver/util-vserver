@@ -48,6 +48,14 @@ trap "cleanup" EXIT
 
 OPTION_FORCE_SYNC=1
 
+while test "$#" -gt 0; do
+    case "$1" in
+	(--rescue-init)	_IS_FAKEINIT=1;;
+	(--)		shift; break;;
+	(-*)		panic $"vserver ... stop: unknown option '$1'";;
+    esac
+done
+
 set -e
 generateOptions   "$VSERVER_DIR"
 set +e

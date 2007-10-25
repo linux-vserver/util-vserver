@@ -21,6 +21,7 @@
 cfgdir="$1"
 vdir="$cfgdir"/vdir
 . "$2"
+. "$_LIB_VSERVER_BUILD_FUNCTIONS"
 
 
 # vserver name
@@ -109,19 +110,7 @@ echo
 
 # start vserver before we can exec anything inside it
 $_VSERVER "$NAME" stop &>/dev/null || :
-$_VSERVER "$NAME" start --rescue --rescue-init bash -c '
-    exec  > /dev/null
-    exec 2> /dev/null
-
-    set -x
-    f=/tmp/startwait
-    trap "rm -f $f" EXIT
-    mkfifo $f
-    ( sleep 15; kill -s 9 -- -1 ) &
-    cat "$f"
-    kill -s 9 -- -1
-    wait
-'
+startSleepingGuest "$NAME" 30
 
 # run the configure commands from within the server
 export LANG=C LC_ALL=C
@@ -139,7 +128,6 @@ for i in bootlogd checkfs checkroot halt hwclock.sh ifupdown klogd \
 done
 
 # stop the vserver
-$_VSERVER "$NAME" exec bash -c ': >/tmp/startwait' &>/dev/null || :
-$_VSERVER "$NAME" stop &>/dev/null || :
+stopSleepingGuest "$NAME" &>/dev/null || :
 
 popd &>/dev/null

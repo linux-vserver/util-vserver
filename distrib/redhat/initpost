@@ -19,6 +19,7 @@
 
 vdir=$1/vdir
 . "$2"
+. "$_LIB_VSERVER_BUILD_FUNCTIONS"
 
 function relink
 {
@@ -44,19 +45,7 @@ vserver=$1
 
 ## Do some magic to set the vserver into a defined state
 $_VSERVER "$vserver" stop  &>/dev/null || :
-$_VSERVER "$vserver" start --rescue --rescue-init bash -c '
-    exec  >/dev/null
-    exec 2>/dev/null
-
-    set -x
-    f=/tmp/startwait
-    trap "rm -f $f" EXIT
-    mkfifo $f
-    ( sleep 15; kill -s 9 -- -1 ) &
-    cat "$f" >/dev/null
-    kill -s 9 -- -1
-    wait
-'
+startSleepingGuest "$vserver" 15
 
 pushd "$vdir"/etc/init.d &>/dev/null ||
     pushd "$vdir"/etc/rc.d/init.d &>/dev/null || exit 1
@@ -102,5 +91,4 @@ EOF
 		       s!si::sysinit:/etc/rc.d/rc.sysinit!si::sysinit:/etc/rc.d/rc.sysinit.vserver!'
 popd >/dev/null
 
-$_VSERVER "$vserver" exec bash -c ': >/tmp/startwait' &>/dev/null || :
-$_VSERVER "$vserver" stop &>/dev/null || :
+stopSleepingGuest "$vserver" &> /dev/null || :
