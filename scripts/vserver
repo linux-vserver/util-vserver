@@ -44,9 +44,9 @@ Possible commands are:
     restart     ... restarts the specified vserver; this is the subsequent
                     execution of a synchronized 'stop' and a 'start'
     condrestart ... restarts the vserver when it is running already
-    suexec <user> <shell-command> <args*>
+    suexec <user> <command> <args*>
                 ... executes a command as the specified user in the vserver
-    exec <shell-command> <args*>
+    exec <command> <args*>
                 ... executes a command as root in the vserver
     enter       ... executes the configured shell in the vserver
     chkconfig <chkconfig-options*>
@@ -57,7 +57,8 @@ Possible commands are:
                     the vserver, and succeeds iff the vserver is running
 
     build <buildopts>*
-                ... builds a new vserver from scratch
+                ... builds a new vserver from scratch, see
+                    vserver ... build --help for details
     delete      ... remove a vserver
 
     unify [-R] <vunify-opts>*
