@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# Copyright (C) 2007 Natanael Copa <ncopa@alpinelinux.org>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+## Called as: initpost <cfgdir> <path of util-vserver-vars>
+
+cfgdir="$1"
+vdir="$cfgdir"/vdir
+. "$2"
+
+cd "$vdir"
+
+echo ">>> Creating missing dirs..."
+$_CHROOT_SH mkdir proc sys dev home etc etc/rcL.d etc/rcK.d 2>/dev/null
+
+# remove mtab which is a link
+if test -e "$vdir/etc/mtab"; then
+	$_CHROOT_SH rm /etc/mtab 2>/dev/null
+fi
+
+# trick to install busybox links and boot services
+echo ">>> Installing boot services..."
+vserver="$1"
+$_VSERVER "$vserver" stop  &>/dev/null || true
+$_VSERVER "$vserver" start --rescue --rescue-init /bin/busybox sh -c '
+	/bin/busybox --install -s
+	/sbin/rc_add -s 20 -k syslog
+'
+
+# set up hostname
+if test -r "$cfgdir"/uts/nodename; then
+	echo ">>> Setting hostname..."
+	$_CHROOT_SH truncate /etc/hostname < "$cfgdir/uts/nodename"
+fi
+
+# create fstab
+echo -e "none\t/\tnone\tdefaults" | $_CHROOT_SH truncate /etc/fstab
+
+# create busybox style inittab
+cat <<EOF | $_CHROOT_SH truncate /etc/inittab
+::wait:/etc/init.d/rcL
+::ctrlaltdel:/etc/init.d/rcK
+::ctrlaltdel:/usr/bin/killall5 -15
+EOF
+
+# set up cmd.start and cmd stop if needed
+test -e "$1"/apps/init/style && initstlye=$(cat "$1"/apps/init/style)
+if test "$initstlye" != "plain"; then
+	echo "/etc/init.d/rcL" > "$cfgdir/apps/init/cmd.start"
+	echo "/etc/init.d/rcK" > "$cfgdir/apps/init/cmd.stop"
+fi
+
+# vserver should not be running at this point but lets be sure
+$_VSERVER "$vserver" stop  &>/dev/null || true
+

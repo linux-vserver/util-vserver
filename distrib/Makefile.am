@@ -36,7 +36,9 @@ nobase_distrib_SCRIPTS	=  redhat/initpost \
 			   redhat/rc.sysinit \
 			   gentoo/initpost \
 			   gentoo/initpre \
-			   debian/initpost
+			   debian/initpost \
+			   alpine/initpre \
+			   alpine/initpost
 
 nobase_distrib_DATA	=  defaults/devs \
 			   defaults/apt.conf \
