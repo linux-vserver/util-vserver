@@ -136,7 +136,7 @@ core   @MANDIR@/*/reducecap*
 legacy @MANDIR@/*/distrib-info*
 legacy @MANDIR@/*/vserver-copy*
 legacy @MANDIR@/*/rebootmgr*
-legacy @MANDIR@/*/vps.*
+base   @MANDIR@/*/vps.*
 base   @MANDIR@/*/vpstree.*
 base   @MANDIR@/*/vserver-stat*
 base   @MANDIR@/*/vserver.*

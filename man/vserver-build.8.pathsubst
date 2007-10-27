@@ -1,0 +1,173 @@
+.TH VSERVER-BUILD "8" "October 27, 2007" "vserver-build" "System Administration"
+.SH "NAME"
+vserver-build \- initializes a vserver
+.SH SYNTAX
+.B vserver-build
+\fB\-m\fR \fImethod\fR \fB\-n\fR \fIname\fR [\fB\-\-force\fR] [\fB\-\-keep\fR]
+[\fB\-\-rootdir\fR \fIdir\fR] [\fB\-\-pkgbase\fR \fIdir\fR]
+\fIconfig options*\fR [\fB\-\-\fR] \fImethod arguments*\fR
+.TP
+\fB\-m\fR \fImethod\fR
+Use build \fImethod\fR; see below for possible values.
+.TP
+\fB\-n\fR \fIname\fR
+Name of vserver you are building.
+.TP
+\fB\-\-force\fR 
+Remove/rename already existing vservers with the same name.
+.TP
+\fB\-\-keep\fR 
+Do not delete generated files and directories if vserver build fails.
+.TP
+\fB\-\-rootdir\fR \fIdir\fR
+Root vserver directory [default: @SYSCONFDIR@/vservers/.defaults/vdirbase].
+.TP
+\fB\-\-pkgbase\fR \fIdir\fR
+Package base directory [default: @VSERVERDIR@/.pkg].
+.SH "CONFIG OPTIONS"
+.TP
+\fB\-\-context\fR \fInum\fR
+.IP
+\&The static context of the vserver [default: none; one will be generated for you].
+The valid range is 2 through 49151.
+.TP
+\fB\-\-confdir\fR \fIdir\fR
+.IP
+\&The vserver configuration directory to use [default: @SYSCONFDIR@/vservers/<name>].
+.TP
+\fB\-\-lockfile\fR \fIfilename\fR
+.IP
+\&The lockfile to use [default: /var/run/vservers/<name>].
+.TP
+\fB\-\-hostname\fR \fIhostname\fR
+.IP
+\&Hostname of the vserver.
+.TP
+\fB\-\-netdev\fR \fIdevice\fR
+.IP
+\&The default interface to use for \fB--interface\fR.
+.TP
+\fB\-\-netbcast\fR \fIbroadcast\fR
+.IP
+\&Broadcast address to associate with the vserver.
+.TP
+\fB\-\-netmask\fR \fInetmask\fR|\fB\-\-netprefix\fR \fIprefixlen\fR
+.IP
+\&Sets the default netmask (a.b.c.d quadruple) or prefixlen (length of the
+network).
+.TP
+\fB\-\-interface\fR [\fIname\-suffix\fR=][\fIdevice\fR:]\fIip\fR[/\fImask|prefixlen\fR]
+.IP
+\&Declares a network\-interface name and associated IP/netmask; this option can
+be specified multiple times.
+.TP
+\fB\-\-flags\fR \fIflags+\fR
+.IP
+\&Sets comma\-separated list of flags; see lib/cflags-v13.c for a list.
+.TP
+\fB\-\-cpuset\fR \fIname\fR
+.IP
+\&Declares the CPUSET this vserver will run in [default: none]
+.TP
+\fB\-\-cpusetcpus\fR \fInumber[\-number][:exclusive]\fR
+.IP
+\&Sets which CPUs belong to the CPUSET, \fI:exclusive\fR is a flag (0|1)
+prohibiting any other cpuset from using those CPUs.
+.TP
+\fB\-\-cpusetmems\fR \fInumber[\-number][:exclusive]\fR
+.IP
+\&Sets which memory pools belong to the CPUSET, \fI:exclusive\fR is a flag
+(0|1) prohibiting any other cpuset from using those memory pools.
+.TP
+\fB\-\-cpusetvirt\fR
+.IP
+\&Virtualize the cpuset (the vserver will see only CPUs defined in the cpuset).
+Requires kernel patch from http://www.bullopensource.org/cpuset/
+.TP
+\fB\-\-initstyle\fR \fIstyle\fR
+.IP
+\&Configures the initstyle (e.g. minit, sysv, plain, gentoo)
+.SH "METHODS"
+.TP
+\fBapt\-rpm\fR
+.IP
+\& \fB\-\-\fR \fB\-d\fR \fIdistribution\fR
+
+\&Installs the base\-packages of the given distribution with the help of
+'\fBvapt\-get\fR'
+.TP
+\fByum\fR
+.IP
+\&\fB\-\-\fR \fB\-d\fR \fIdistribution\fR
+
+\&Installs the base\-packages of the given distribution with help of
+'\fBvyum\fR'
+.TP
+\fBrpm\fR
+.IP
+\&\fB\-\-\fR [\fB\-d\fR \fIdistribution\fR] \fB\-\-empty\fR|([\fB\-\-force\fR] [\fB\-\-nodeps\fR] \fImanifest\fR)+
+
+\&Installs lists of rpm\-packages
+.TP
+\fBskeleton\fR
+.IP
+\&\fB\-\-\fR [\fIcmd args*\fR]
+
+\&Installs a minimal skeleton filesystem, creates the configuration file
+and calls an optional command
+.TP
+\fBdebootstrap\fR
+.IP
+\fB\-\-\fR \fB\-d\fR \fIdistribution\fR [\fB\-m\fR \fImirror\fR] [\fB\-s\fR \fIscript\fR] [\fB\-\-\fR \fIdebootstrap\-options*\fR]
+
+\&Bootstraps the vserver with Debian's 'debootstrap' package
+.TP
+\fBtemplate\fR
+.IP
+\&\fB\-\-\fR (\fB\-t\fR \fItarball\fR)+ [\fB\-d\fR \fIdistribution\fR]
+
+\&Installs a vserver using tarball(s)
+.TP
+\fBfai\fR
+.IP
+\&\fB\-\-\fR [\fB\-f\fR \fIfai_vserver\fR] [\fB\-n\fR \fInfsroot\fR] [\fB\-d\fR \fIfai_dir\fR] [\fB\-a\fR]
+
+\&Bootstraps the vserver with the Debian Fully Automatic Installation
+
+\fB\-f\fR means use the nfsroot and profile in the vserver \fIfai_vserver\fR
+
+\fB\-n\fR \fInfsroot\fR specifies the 'NFS' root explicitly
+
+\fB\-d\fR \fIfai_dir\fR specifies the location of the FAI profile
+
+the \fB\-f\fR option implies \fB\-n\fR and \fB\-d\fR are relative to the \fIfai_vserver\fR
+.TP
+\fBrsync\fR
+.IP
+\&\fB\-\-\fR [\fB\-d\fR \fIdistribution\fR] \fB\-\-source\fR \fIsource\fR [\fB\-o\fR \fIrsync option\fR]*
+
+\&Installs a vserver by rsyncing from \fIsource\fR to the guest root
+.TP
+\fBclone\fR
+.IP
+\&\fB\-\-\fR [\fB\-d\fR \fIdistribution\fR] \fB\-\-source\fR \fIsource\fR
+
+\&Clones a vserver by linking unified files and copying the rest
+.SH "EXAMPLES"
+.LP
+# vserver kea build -m debootstrap --context 10 --hostname kea --interface eth0:192.168.0.44/32 -- -d etch
+.SH "BUGS"
+.LP
+Please report bugs to vserver@list.linux\-vserver.org
+.SH "AUTHORS"
+.LP
+This man page was written by Micah Anderson <micah@debian.org> and based upon the helpful output from the program itself.
+.SH "SEE ALSO"
+.PP
+ chbind(8) chcontext(8)
+ rebootmgr(8) reducecap(8)
+ vps(8) vpstree(8)
+ vrpm(8)
+ vserver\-stat(8)
+ vtop(8)
+

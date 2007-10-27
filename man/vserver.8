@@ -1,74 +1,134 @@
-.TH "vserver" "8" "0.1.0" "Klavs Klavsen <kl@vsen.dk>" "System Administration"
+.TH VSERVER 8 "October 24, 2007" "util-vserver" "System Administration"
 .SH "NAME"
 .LP 
-vserver \- The vserver utility enables you to control different aspects of your vservers.
-.SH "SYNTAX"
-.LP 
-vserver [ options ] [vserver name] [options]
-
-.SH "DESCRIPTION"
-.LP 
-vserver \- The vserver utility enables you to control different aspects of your vservers, such as stopping and starting them, and services within them.
-.SH "OPTIONS"
-.LP 
-.TP 
-\fBbuild\fR Create a virtual server by copying the packages of the root server
-.TP 
-\fBenter\fR Enter in the virtual server context and starts a shell. Same as "vserver name exec /bin/sh\".
-.TP 
-\fBexec\fR Exec a command in the virtual server context as root.
-syntax: vserver name exec command ...
-.TP 
-\fBsuexec\fR Exec a command in the virtual server context under some user id.
-syntax: vserver name suexec userid command ...
-.TP 
-\fBservice\fR Control a service inside a vserver. 
-syntax: vserver name service service\-name (start/stop/restart etc.)
-.TP 
-\fBstart\fR Starts the various services in the vserver.
-It uses the default runlevel found in the
-.B /etc/inittab
-file of the vserver.
-.TP 
-\fBstop\fR Ends all services and kills the remaining processes.
-.TP 
-\fBrunning\fR Tells if a virtual server is running. It returns proper exit code, so you can use it as a test.
+vserver \- The vserver utility enables you to manage the state of vservers, including building, starting, stopping, etc.
+.SH SYNTAX
+.B vserver
+[\fB-s|--sync\fR] [\fB-v|--verbose\fR] [\fB--silent\fR] [\-\-] \fIvserver\fR \fIcommand\fR [\fB--help\fR] \fIargs*\fR
 .TP
-\fBstatus\fR Tells various information about the state of a virtual server:
-running status, number of running processes and uptime.
+\fB\-\-sync\fR - Perform synchronization with vshelper to ensure that the guest has been stopped
 .TP
-.I --nodev
-do not configure the IP devices associated with the vserver. This
-is useful to execute some commands on the vserver (or enter it)
-without making it active on the network. Especially useful if you
-have an active copy of the vserver moved to another server on the
-network.
+\fB\-\-verbose\fR - Makes things a lot louder.
 .TP
-.I --silent
-cuts most informative messages.
-
+\fB\-\-silent\fR - Removes most informative messages.
+.TP
+\fIvserver\fR - The name of a vserver.
+.TP
+\fIcommand\fR - One of the commands listed below.
+.TP
+\fB\-\-help\fR 
+.IP
+provides additional help for provided \fIcommand\fR, for example: vserver - build --help
+\fIargs\fR are the arguments that are possible for the different commands, see the
+arguments for each \fIcommand\fR listed below
+.SH "COMMANDS"
+.TP
+\fBstart\fR [\fB\-\-rescue\fR [\fB\-\-rescue\-init\fR] \fIprogram args\fR] 
+.IP
+\&Starts the specified vserver. The optional argument \fB--rescue\fR starts the
+vserver in rescue mode, which runs \fIprogram args*\fR to start the vserver
+instead of whatever is configured. The optional argument \fB--rescue-init\fR
+makes the command appear as PID 1 in the vserver. This can be used to start
+/bin/bash to investigate why a vserver is not able to start correctly.
+.TP
+\fBstop\fR [\fB\-\-rescue\-init\fR]
+.IP
+\&Stops the specified vserver, and kills the remaining processes. The optional
+argument \fB--rescue-init\fR can be used to stop a vserver that was started
+with the option of the same name.
+.TP
+\fBrestart\fR
+.IP
+\&Restarts the specified vserver. This is the subsequent execution of a
+synchronized 'stop' and a 'start'.
+.TP
+\fBcondrestart\fR
+.IP
+\&Restarts a running vserver.
+.TP
+\fBsuexec\fR \fIuser\fR \fIprogram args*\fR
+.IP
+\&Executes \fIprogram args*\fR as the specified \fIuser\fR in the vserver.
+.TP
+\fBexec\fR \fIprogram args*\fR
+.IP
+\&Executes \fIprogram args*\fR as the root user in the vserver.
+.TP
+\fBenter\fR
+.IP
+\&Executes the configured shell (default: /bin/bash if it exists) in the
+vserver and allocates a pty.
+.TP
+\fBchkconfig\fR \fIchkconfig\-options*\fR
+.IP
+\&Modifies the init\-system; currently, only Red Hat's \fBchkconfig\fR is
+supported.
+.TP
+\fBrunning\fR
+.IP
+\&Returns an exit code of 0 iff the vserver is running, 1 if not.
+.TP
+\fBstatus\fR
+.IP
+\&Provides some human readable status information about the vserver, and
+succeeds iff the vserver is running.
+.TP
+\fBbuild\fR \fIbuildopts*\fR
+.IP
+\&Create a vserver from scratch, where the \fIbuildopts*\fR are a set of
+options and a build method. As this option calls vserver-build, please see
+vserver-build(8) for a complete listing of possible options and methods.
+.TP
+\fBdelete\fR
+.IP
+\&Remove a vserver.
+.TP
+\fBunify\fR [\fB\-R\fR] [\fIvunify\-opts*\fR]
+.IP
+\&Unify or de-unify the vserver with its reference vserver(s).
+.TP
+\fBpkg install\fR \fIpkg*\fR
+.IP
+\&Installs package(s) \fIpkg\fR in the vserver.
+.TP
+\fBapt\-get,apt\-config,apt\-cache\fR \fIapt\-opts*\fR
+.IP
+\&Execute the apt\-* command for the given vserver
+.TP
+\fBrpm\fR \fIrpm\-opts*\fR
+.IP
+\&Execute the \fBrpm\fR command for the given vserver.
+.TP
+\fBpkgmgmt\fR \fBexternalize\fR|\fBinternalize\fR [\fB\-y\fR]
+.IP
+\&Externalize or internalize the package\-management for the given vserver.
+\'Externalize' means that package metadata and management tools (apt\-get,rpm)
+are living in the host, while 'internalize' means that data and programs from
+the vserver will be used.
+.TP
+\fBhashify\fR
+.IP
+\&Hashify the vserver.
 .SH "FILES"
 .LP 
 \fI/usr/sbin/vserver\fP 
 .P
-\fI/etc/vservers/*.conf\fP 
+\fI/etc/vservers/*\fP 
 .P
-\fI/etc/vservers/*.sh\fP 
 .P
-\fI/vservers/*\fP 
-
+\fI/var/lib/vservers/*\fP 
 .SH "EXAMPLES"
 .LP 
 Please contribute some, if you feel it's important.
 .SH "AUTHORS"
 .LP 
-This Man page was written by Klavs Klavsen <kl@vsen.dk> and based upon the helpful output from the program itself and the documentation on the Virtual Server site <http://www.solucorp.qc.ca/miscprj/s_context.hc?prjstate=1&nodoc=0>
+This man page was written by Micah Anderson <micah@debian.org> and based upon the helpful output from the program itself.
 .SH "SEE ALSO"
 .LP 
 chbind(8) chcontext(8)
-newvserver(8)
 rebootmgr(8) reducecap(8)
 vps(8) vpstree(8)
 vrpm(8)
+vserver\-build(8)
 vserver\-stat(8) 
 vtop(8)
