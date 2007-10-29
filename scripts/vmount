@@ -1,0 +1,103 @@
+#!/bin/bash
+# $Id$
+
+# Copyright (C) 2007 Daniel Hokka Zakrisson
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo $"Can not find util-vserver installation (the file '$UTIL_VSERVER_VARS' would be expected); aborting..." >&2
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+. "$_LIB_FUNCTIONS"
+
+
+function showHelp()
+{
+    echo \
+$"Usage: $0 <vserver-name> -- [-o options] [--bind|--rbind]
+         [-t <type>] [-a] [-n] [--move]
+         <source> <destination>
+
+<source>       ...  what to mount, this is relative to the host's root
+<destination>  ...  where to mount it, this is relative to the guest's root
+
+Report bugs to <$PACKAGE_BUGREPORT>."
+    exit 0
+}
+
+function showVersion()
+{
+    echo \
+$"vmount $PACKAGE_VERSION -- mount for guests
+This program is part of $PACKAGE_STRING
+
+Copyright (C) 2007 Daniel Hokka Zakrisson
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License.  This program has absolutely no warranty."
+    exit 0
+}
+
+
+declare -a guests
+while true; do
+    case "$1" in
+	(--)	shift; break;;
+	(*)
+	    _setVserverDir "$1"
+	    guests=( "${guests[@]}" "$VSERVER_DIR" )
+	    ;;
+    esac
+    shift
+done
+
+tmp=$(getopt -o +o:t:an --long help,version,debug,bind,rbind,move -n "$0" -- "$@") || exit 1
+eval set -- "$tmp"
+
+declare -a options
+
+while true; do
+    case "$1" in
+	(--help)	showHelp $0 ;;
+	(--version)	showVersion ;;
+	(--debug)	set -x;;
+	(--bind|--rbind|--move|-n|-a)
+			options=( "${options[@]}" "$1" )
+			;;
+	(-t|-o)		options=( "${options[@]}" "$1" "$2" )
+			shift
+			;;
+	(--)		shift; break;;
+	(*)		echo $"vmount: internal error; arg=='$1'" >&2; exit 1;;
+    esac
+    shift
+done
+
+case "$1" in
+    (/*)	;;
+    (*)		panic $"vmount: the source must be an absolute path";;
+esac
+
+rc=0
+for guest in "${guests[@]}"; do
+    pushd "$guest/vdir" &> /dev/null
+    $_VNAMESPACE -e "$guest" -- \
+	$_SECURE_MOUNT --chroot --fstab "$guest/fstab" "${options[@]}" "$@"
+    test "$?" -eq 0 || rc=$?
+    popd &> /dev/null
+done
+
+exit $rc

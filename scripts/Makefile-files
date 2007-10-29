@@ -97,7 +97,8 @@ scripts_sbin_src_PRGS =		scripts/chbind \
 				scripts/vsomething \
 				scripts/vtop \
 				scripts/vupdateworld \
-				scripts/vyum
+				scripts/vyum \
+				scripts/vmount
 
 scripts_sbin_gen_PRGS =
 scripts_sbincfg_gen_DTA =
