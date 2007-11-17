@@ -315,9 +315,10 @@ function _generateInitOptions
 
 	(xgentoo)
 	    test -n "$RUNLEVEL_START" || RUNLEVEL_START="default"
+	    RC_PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 	    INITCMD_START=( env TERM=$TERM /lib/rcscripts/sh/init-vserver.sh "$RUNLEVEL_START" )
-	    INITCMD_STOP=( env -i TERM=$TERM RUNLEVEL=0 /sbin/rc shutdown )
+	    INITCMD_STOP=( env -i PATH=$RC_PATH TERM=$TERM RUNLEVEL=0 /sbin/rc shutdown )
 	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL 3 /var/run/utmp )
 	    ;;
 
