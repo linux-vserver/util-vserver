@@ -64,8 +64,18 @@ while true; do
 	(--overlay)      overlay="${2%/}";;
 	(--overlay-host) overlay_host="${2%/}";;
 	(--overlay-only) overlay_only=1;;
-	(--)             shift; break;;
+	(--)             test ${#vsomething_opts[@]} -eq 0 && shift; break;;
 	(*)              echo $"vesync: internal error; arg=='$1'" >&2; exit 1;;
+    esac
+    shift
+done
+
+declare -a vserver_names
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+	(--)		shift; break;;
+	(*)	   	vserver_names=( "${vserver_names[@]}" "$1" );;
     esac
     shift
 done
@@ -78,12 +88,12 @@ export VSOMETHING_TITLE VSOMETHING_PKGMGMT
 ret=0
 
 test $overlay_only -eq 0 && \
-	$_VSOMETHING "${send_through[@]}" emerge "${vsomething_opts[@]}" "$@" -- --metadata
+	$_VSOMETHING "${send_through[@]}" emerge "${vsomething_opts[@]}" "${vserver_names[@]}" -- --metadata
 
 ret=$?
 
 test -n "$overlay" -a -n "$overlay_host" && \
-	$_VSOMETHING "${send_through[@]}" rsync "${vsomething_opts[@]}" "$@" -- \
+	$_VSOMETHING "${send_through[@]}" rsync "${vsomething_opts[@]}" "${vserver_names[@]}" -- \
 	-rtW --progress --delete --delete-after "${overlay_host}/" "${overlay}/"
 
 test $? -eq 0 -a $ret -eq 0

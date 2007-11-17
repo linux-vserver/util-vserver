@@ -58,15 +58,24 @@ while true; do
 	(--debug)	send_through=( "${send_through[@]}" "$1" ); set -x;;
 	(--quiet|-q)	send_through=( "${send_through[@]}" "$1" );;
 	(--all)         vsomething_opts=( "${vsomething_opts[@]}" "$1" );;
-	(--)		shift; break;;
+	(--)		test ${#vsomething_opts[@]} -eq 0 && shift; break;;
 	(*)	   	echo $"vdispatch-conf: internal error; arg=='$1'" >&2; exit 1;;
     esac
     shift
 done
 
-VSOMETHING_TITLE=vemerge
+declare -a vserver_names
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+	(--)		shift; break;;
+	(*)	   	vserver_names=( "${vserver_names[@]}" "$1" );;
+    esac
+    shift
+done
+
+VSOMETHING_TITLE=vdispatch-conf
 VSOMETHING_PKGMGMT=1
 
 export VSOMETHING_TITLE VSOMETHING_PKGMGMT
-
-exec $_VSOMETHING "${send_through[@]}" dispatch-conf "${vsomething_opts[@]}" "$@"
+exec $_VSOMETHING "${send_through[@]}" dispatch-conf "${vsomething_opts[@]}" "${vserver_names[@]}" -- "$@"

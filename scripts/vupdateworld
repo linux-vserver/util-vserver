@@ -58,8 +58,8 @@ while true; do
 	(--debug)	send_through=( "${send_through[@]}" "$1" ); set -x;;
 	(--quiet|-q)	send_through=( "${send_through[@]}" "$1" );;
 	(--all)         vsomething_opts=( "${vsomething_opts[@]}" "$1" );;
-	(--)		shift; break;;
-	(*)	   	echo $"vemerge: internal error; arg=='$1'" >&2; exit 1;;
+	(--)		test ${#vsomething_opts[@]} -eq 0 && shift; break;;
+	(*)	   	echo $"vupdateworld: internal error; arg=='$1'" >&2; exit 1;;
     esac
     shift
 done
@@ -74,10 +74,8 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-VSOMETHING_TITLE=vemerge
+VSOMETHING_TITLE=vupdateworld
 VSOMETHING_PKGMGMT=1
 
 export VSOMETHING_TITLE VSOMETHING_PKGMGMT
-
-test ${#vsomething_opts[@]} -eq 0 || vsomething_opts=( "${vsomething_opts[@]}" -- )
 exec $_VSOMETHING "${send_through[@]}" emerge "${vsomething_opts[@]}" "${vserver_names[@]}" -- world --update --deep --newuse "$@"
