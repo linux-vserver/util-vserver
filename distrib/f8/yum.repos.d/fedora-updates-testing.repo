@@ -1,0 +1,26 @@
+[updates-testing]
+name=Fedora 8 - $basearch - Test Updates
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/updates/testing/8/$basearch/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-testing-f8&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/8/Everything/$basearch/os/RPM-GPG-KEY-fedora-test
+
+[updates-testing-debuginfo]
+name=Fedora 8 - $basearch - Test Updates Debug
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/updates/testing/8/$basearch/debug/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-testing-debug-f8&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/8/Everything/$basearch/os/RPM-GPG-KEY-fedora-test
+
+[updates-testing-source]
+name=Fedora 8 - Test Updates Source
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/updates/testing/8/SRPMS/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-testing-source-f8&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/8/Everything/$basearch/os/RPM-GPG-KEY-fedora-test

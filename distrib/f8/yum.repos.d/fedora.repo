@@ -1,0 +1,26 @@
+[fedora]
+name=Fedora 8 - $basearch
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/releases/8/Everything/$basearch/os/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-8&arch=$basearch
+enabled=1
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/8/Everything/$basearch/os/RPM-GPG-KEY-fedora http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/8/Everything/$basearch/os/RPM-GPG-KEY
+
+[fedora-debuginfo]
+name=Fedora 8 - $basearch - Debug
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/releases/8/Everything/$basearch/debug/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-debug-8&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/8/Everything/$basearch/os/RPM-GPG-KEY-fedora http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/8/Everything/$basearch/os/RPM-GPG-KEY
+
+[fedora-source]
+name=Fedora 8 - Source
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/releases/8/Everything/source/SRPMS/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-source-8&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/8/Everything/$basearch/os/RPM-GPG-KEY-fedora http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/8/Everything/$basearch/os/RPM-GPG-KEY

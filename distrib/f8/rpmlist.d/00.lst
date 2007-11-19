@@ -1,0 +1,7 @@
+basesystem-*.rpm
+filesystem-*.rpm
+glibc-common-*.rpm
+glibc-[0-9]*.rpm
+libgcc-[0-9]*.rpm
+setup-*.rpm
+tzdata-*.rpm
