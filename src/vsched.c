@@ -183,7 +183,7 @@ static void do_dir_entry(struct vc_set_sched *sched, const char *name)
     if (!isNumber(buf, &val, true)) {
       WRITE_MSG(2, ENSC_WRAPPERS_PREFIX);
       WRITE_STR(2, name);
-      WRITE_MSG(2, ": is not a number\n");
+      WRITE_MSG(2, ": is not an integer\n");
       exit(1);
     }
 
@@ -244,7 +244,7 @@ static void do_dir(xid_t xid, struct vc_set_sched *sched, const char *dir, int m
 
 #define SETVAL(ATTR,MASK) \
   if (!isNumber(optarg, &tmp, false)) { \
-    WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "non-numeric value specified for '--" #ATTR "'\n"); \
+    WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "non-integer value specified for '--" #ATTR "'\n"); \
     exit(wrapper_exit_code); \
   } \
   else { \
