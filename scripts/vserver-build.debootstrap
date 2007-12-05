@@ -95,8 +95,10 @@ EOF
         cd $dir
         ar x "$dst"
         tar xzf data.tar.gz
-        export DEBOOTSTRAP_DIR=`pwd`/usr/lib/debootstrap
+        DEBOOTSTRAP_DIR=`pwd`/usr/lib/debootstrap
         DEBOOTSTRAP=`pwd`/usr/sbin/debootstrap
+        test -d "$DEBOOTSTRAP_DIR" || DEBOOTSTRAP_DIR=`pwd`/usr/share/debootstrap
+        export DEBOOTSTRAP_DIR
 
 	local arch
 	arch=$(uname -i 2>/dev/null) || \
