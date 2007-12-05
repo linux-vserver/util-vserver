@@ -23,5 +23,5 @@
 static inline ALWAYSINLINE int
 vc_tag_migrate_tag(tag_t tag)
 {
-  return vserver(VCMD_tag_migrate, TAG_USER2KERNEL(tag), NULL);
+  return TAG_KERNEL2USER(vserver(VCMD_tag_migrate, TAG_USER2KERNEL(tag), NULL));
 }
