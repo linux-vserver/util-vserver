@@ -211,6 +211,8 @@
 #define VC_VXC_ADMIN_MAPPER		0x00200000ull
 #define VC_VXC_ADMIN_CLOOP		0x00400000ull
 
+#define VC_VXC_KTHREAD			0x01000000ull
+
 
 // the scheduler flags
 #define VC_VXSM_FILL_RATE		0x0001
