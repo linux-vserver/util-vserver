@@ -118,14 +118,23 @@ export LANG=C LC_ALL=C
 $_CHROOT_SH testfile /usr/sbin/locale-gen && \
     $_VSERVER "$NAME" exec /usr/sbin/locale-gen
 
-for i in bootlogd checkfs checkroot halt hwclock.sh ifupdown klogd \
-	 libdevmapper1.02 makedev module-init-tools mountall.sh \
-	 mountdevsubfs.sh mountnfs.sh mountkernfs.sh mountvirtfs \
-	 networking reboot setserial single stop-bootlogd \
-	 stop-bootlogd-single umountfs umountnfs.sh umountroot \
-	 urandom; do
-    $_VSERVER "$NAME" exec update-rc.d -f "$i" remove
+have_halt=
+test "$(cat "$cfgdir"/apps/init/style 2>/dev/null)" != "plain" || \
+    have_halt=halt
+
+pushd etc/init.d &>/dev/null
+for i in *; do
+    case "$i" in
+      (sysklogd|syslog-ng|README|skeleton|sendsigs|single|rc|rc.local|rcS)
+	;;
+      ($have_halt)
+	;;
+      (*)
+	$_VSERVER "$NAME" exec update-rc.d -f "$i" remove
+	;;
+    esac
 done
+popd &>/dev/null
 
 # stop the vserver
 stopSleepingGuest "$NAME" &>/dev/null || :
