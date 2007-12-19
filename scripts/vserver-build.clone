@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-tmp=$(getopt -o '+d:s:o:' --long debug,pkgmgmt,source: -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o '+d:s:o:X:' --long debug,pkgmgmt,source:,exclude-from: -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 . "$_LIB_VSERVER_BUILD_FUNCTIONS_PKGMGMT"
@@ -23,12 +23,15 @@ eval set -- "$tmp"
 DISTRIBUTION=:
 use_pkgmgmt=
 SOURCE=
+EXCLUDES=
 while true; do
     case "$1" in
 	-d)		DISTRIBUTION=$2; shift;;
 	--debug)	set -x;;
 	--pkgmgmt)	use_pkgmgmt=1;;
 	-s|--source)	SOURCE=$2; shift;;
+	-X|--exclude-from)
+			EXCLUDES=$2; shift;;
 	--)		shift; break ;;
 	*)		echo "vserver-build.clone: internal error: unrecognized option '$1'" >&2
 			exit 1
@@ -63,7 +66,9 @@ setup_writeInitialFstab
 
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
 
-$_VCLONE "$SOURCE"/ "$VDIR"/
+$_VCLONE ${SETUP_CONTEXT:+--xid "$SETUP_CONTEXT"} \
+	 ${EXCLUDES:+--exclude-from "$EXCLUDES"} \
+	 "$SOURCE"/ "$VDIR"/
 
 test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
 

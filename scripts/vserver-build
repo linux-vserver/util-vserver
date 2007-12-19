@@ -74,7 +74,7 @@ Possible methods are:
                      the -f option implies -n and -d are relative to the <fai_vserver>
     rsync       ... -- [-d <distribution>] --source <source> [-o <rsync option>]*
                 ...  installs a guest by rsyncing from <source> to the guest root
-    clone       ... -- [-d <distribution>] --source <source>
+    clone       ... -- [-d <distribution>] --source <source> [--exclude-from <exclude-list>]
                 ...  clones a guest by linking unified files and copying the rest
 
 Please report bugs to $PACKAGE_BUGREPORT"
