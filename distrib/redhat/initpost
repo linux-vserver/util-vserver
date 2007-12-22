@@ -54,7 +54,7 @@ pushd "$vdir"/etc/init.d &>/dev/null ||
 	test -e "$i" || continue
 	case "$i" in
 	    functions|halt|killall|single) ;;
-	    syslog) ;;
+	    syslog|rsyslog) ;;
 	    *)
 		$_VSERVER "$1" chkconfig "$i" off
 		;;
