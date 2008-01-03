@@ -67,10 +67,11 @@
 									\
     if (idx==-1) {							\
       size_t	i;							\
-      for (i=0; i<sizeof(*val)*8 && (*val&(1<<i))==0; ++i) {}		\
-      del_val = (1<<i);							\
+      for (i=0; i<sizeof(*val)*8 && (*val&((TYPE)1<<i))==0; ++i) {}	\
+      del_val = ((TYPE)1<<i);						\
       idx     = searchValue(del_val, map, map_len);			\
     }									\
-    *val &= ~del_val;							\
+    if (idx!=-1)							\
+      *val &= ~del_val;							\
     return idx;								\
   }
