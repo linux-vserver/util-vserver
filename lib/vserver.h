@@ -651,7 +651,7 @@ extern "C" {
 	} mask;
       } s;
 #define vna_v4_ip	s.ip.v4
-#define vna_v4_ip2	s.ip2.v6
+#define vna_v4_ip2	s.ip2.v4
 #define vna_v4_mask	s.mask.v4
 #define vna_v6_ip	s.ip.v6
 #define vna_v6_ip2	s.ip2.v6
