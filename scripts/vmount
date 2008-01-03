@@ -30,7 +30,7 @@ function showHelp()
     echo \
 $"Usage: $0 <vserver-name> -- [-o options] [--bind|--rbind]
          [-t <type>] [-a] [-n] [--move]
-         <source> <destination>
+         [<source> [<destination>]]
 
 <source>       ...  what to mount, this is relative to the host's root
 <destination>  ...  where to mount it, this is relative to the guest's root
@@ -86,8 +86,8 @@ while true; do
     shift
 done
 
-case "$1" in
-    (/*)	;;
+case "x$1" in
+    (x/*|x)	;;
     (*)		panic $"vmount: the source must be an absolute path";;
 esac
 
