@@ -210,17 +210,6 @@ byteswap(void *p, size_t len)
   }
 }
 
-static inline ALWAYSINLINE void
-WRITE_INT(int fd, int num)
-{
-  char   buf[sizeof(num)*3+2];
-  size_t l;
-
-  l = utilvserver_fmt_long(buf,num);
-
-  Vwrite(fd, buf, l);
-}
-
 static int
 load_description(const char *file, file_format_t **head)
 {

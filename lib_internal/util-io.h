@@ -21,6 +21,7 @@
 
 #include <unistd.h>
 #include <string.h>
+#include "ensc_fmt/fmt.h"
 
 inline static void UNUSED
 Vwrite(int fd, char const *buf, size_t len)
@@ -32,6 +33,17 @@ inline static void UNUSED
 writeStr(int fd, char const *cmd)
 {
   Vwrite(fd, cmd, strlen(cmd));
+}
+
+inline static void UNUSED
+WRITE_INT(int fd, int num)
+{
+  char   buf[sizeof(num)*3+2];
+  size_t l;
+
+  l = utilvserver_fmt_long(buf,num);
+
+  Vwrite(fd, buf, l);
 }
 
 #define WRITE_MSG(FD,X)		Vwrite(FD,X,sizeof(X)-1)
