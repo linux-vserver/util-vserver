@@ -94,7 +94,7 @@ esac
 rc=0
 for guest in "${guests[@]}"; do
     pushd "$guest/vdir" &> /dev/null
-    $_VNAMESPACE -e "$guest" -- \
+    callInNamespace "$guest" \
 	$_SECURE_MOUNT --chroot --fstab "$guest/fstab" "${options[@]}" "$@"
     test "$?" -eq 0 || rc=$?
     popd &> /dev/null
