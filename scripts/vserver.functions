@@ -1266,7 +1266,7 @@ function _namespaceCleanup
     done
 
     local -a list_umount
-    while read dev path opts; do
+    while read -r dev path opts; do
 	test -n "$path" || continue
 	for i in "$root" /dev /proc; do
 	    test "${path#$i}" != "$path" && continue 2
