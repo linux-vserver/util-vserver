@@ -56,6 +56,8 @@ CMDLINE_OPTIONS[] = {
   { "ipc",        no_argument,       0, 'I' },
   { "uts",        no_argument,       0, 'U' },
   { "user",       no_argument,       0, 'S' },
+  { "pid",        no_argument,       0, 'P' },
+  { "net",        no_argument,       0, 'N' },
   {0,0,0,0}
 };
 
@@ -83,6 +85,8 @@ showHelp(int fd, char const *cmd, int res)
 	    "    --ipc             ...  the IPC namespace\n"
 	    "    --uts             ...  the uts namespace\n"
 	    "    --user            ...  the user namespace\n"
+	    "    --pid             ...  the pid namespace\n"
+	    "    --net             ...  the network namespace\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
@@ -153,7 +157,7 @@ int main(int argc, char *argv[])
   int			sum        = 0;
   
   while (1) {
-    int		c = getopt_long(argc, argv, "+nsce:m:" "MFIUS", CMDLINE_OPTIONS, 0);
+    int		c = getopt_long(argc, argv, "+nsce:m:" "MFIUSPN", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
 
     switch (c) {
@@ -178,6 +182,8 @@ int main(int argc, char *argv[])
       case 'I'		:  mask |= CLONE_NEWIPC;	break;
       case 'U'		:  mask |= CLONE_NEWUTS;	break;
       case 'S'		:  mask |= CLONE_NEWUSER;	break;
+      case 'P'		:  mask |= CLONE_NEWPID;	break;
+      case 'N'		:  mask |= CLONE_NEWNET;	break;
 
       default		:
 	WRITE_MSG(2, "Try '");
