@@ -199,11 +199,11 @@ Possible solutions:
 _setVserverName
 
 # Create a new namespace when starting the guest
-test "$2" != start -o -n "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" || \
+test "$cmd" != start -o -n "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" || \
     exec $_VNAMESPACE --new -- $_VSERVER ----nonamespace "${OPTIONS_ORIG[@]}"
 
 # Enter the namespace early so we can test for files inside the guest
-test "$2" != enter -a "$2" != stop || \
+test "$cmd" != enter -a "$cmd" != stop || \
     test -n "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" || \
     ! isVserverRunning "$VSERVER_DIR" || \
     exec $_VNAMESPACE --enter "$VSERVER_DIR" -- $_VSERVER ----nonamespace "${OPTIONS_ORIG[@]}"
