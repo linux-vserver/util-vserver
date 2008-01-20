@@ -510,8 +510,13 @@ exitRPMFake()
     uint8_t	c;
     if (read(sync_sock, &c, 1)!=1) { /*...*/ }
     if (write(pw_sock, "Q", 1)!=1) { /*...*/ }
-    /* sync_sock should return EOF when the resolver exits... */
-    if (read(sync_sock, &c, 1)!=0) { /*...*/ }
+    if (vc_isSupported(vcFEATURE_VWAIT)) {
+      if (vc_wait_exit(ctx)==-1) { /*...*/ }
+    }
+    else {
+      /* this can race */
+      if (read(sync_sock, &c, 1)!=0) { /*...*/}
+    }
   }
 }
 
