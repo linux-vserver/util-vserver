@@ -49,7 +49,7 @@ function kill_contexts()
 
 function create_dirs()
 {
-    $_MKDIR -p "$__RUNDIR" && $_MKDIR -p "$__VSHELPERSTATEDIR" && $_MKDIR -p `getPhysicalDir "$__PKGSTATEREVDIR"`
+    $_MKDIR -p "$__RUNDIR" && $_MKDIR -p "$__VSHELPERSTATEDIR" && $_MKDIR -p `$_READLINK "$__PKGSTATEREVDIR"`
 }
 
 function start()
