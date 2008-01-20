@@ -1552,5 +1552,16 @@ Puts the guest in a cpuset. Required entries are name, cpus and mems.
         </scalar>
       </collection>
     </collection>
+
+    <collection name="spaces" since="0.30.215">
+      <boolean name="pid">
+        <description>Enables pid virtualization for this guest</description>
+      </boolean>
+      <boolean name="net">
+        <description>Enable network virtualization for this guest</description>
+      </boolean>
+      <scalar name="mask">
+        <description>Contains a mask of spaces to clone/enter</description>
+    </collection>
   </collection>
   </database>

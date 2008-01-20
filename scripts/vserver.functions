@@ -46,6 +46,7 @@ declare -a OPTS_ENV=()
 declare -a OPTS_VTAG_CREATE=()
 declare -a OPTS_VTAG_ENTER=()
 declare -a OPTS_VMEMCTRL=()
+declare -a OPTS_VSPACE=()
 
 declare -a STOPCMD_PREPARE=()
 
@@ -692,13 +693,33 @@ function _generateTagOptions
 
 function _generateMemctrlOptions
 {
-    local vdir="$"
+    local vdir="$1"
     local badness
 
     getFileValue badness "$vdir/badness"
     test -n "$badness" || return 0
 
     OPTS_VMEMCTRL=( --badness "$badness" )
+}
+
+function _generateSpaceOptions
+{
+    local vdir="$1"
+    local d="$vdir"/spaces
+
+    test ! -e "$d"/pid || \
+      OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --pid )
+
+    test ! -e "$d"/net || {
+	OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --net )
+	# network context and namespace don't make much sense
+	_HAVE_CHBIND_OPTIONS=1
+	CHBIND_CMD=()
+    }
+
+    local mask
+    getFileValue mask "$d"/mask || \
+      OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --mask "$mask" )
 }
 
 ## Usage: prepareInit <vserver-directory>
@@ -746,6 +767,7 @@ function generateOptions
     _generatePersonalityOptions "$1"
     _generateTagOptions         "$1"
     _generateMemctrlOptions     "$1"
+    _generateSpaceOptions       "$1"
 
     if test -n "$_IS_FAKEINIT"; then
 	CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )

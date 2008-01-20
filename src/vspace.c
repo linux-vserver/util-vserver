@@ -110,6 +110,10 @@ newSpaces(uint_least64_t mask, const char *cmd)
 {
   pid_t pid;
 
+  /* optimize default case */
+  if (mask == 0)
+    return;
+
   signal(SIGCHLD, SIG_DFL);
 
 #ifdef NDEBUG
