@@ -111,6 +111,7 @@ build  @SBINDIR@/vesync
 core   @SBINDIR@/vkill
 core   @SBINDIR@/vlimit
 core   @SBINDIR@/vmemctrl
+core   @SBINDIR@/vmount
 core   @SBINDIR@/vnamespace
 base   @SBINDIR@/vps
 base   @SBINDIR@/vpstree
@@ -141,6 +142,7 @@ base   @MANDIR@/*/vpstree.*
 base   @MANDIR@/*/vserver-stat*
 base   @MANDIR@/*/vserver.*
 base   @MANDIR@/*/vtop*
+build  @MANDIR@/*/vserver-build*
 legacy @CONFIG@ @INITRDDIR@/v_gated
 legacy @CONFIG@ @INITRDDIR@/v_httpd
 legacy @CONFIG@ @INITRDDIR@/v_named
