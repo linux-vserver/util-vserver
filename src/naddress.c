@@ -244,7 +244,7 @@ parseIPFormat(char const *str_c, struct vc_ips **ips,
   size_t len = strlen(str_c);
   char const *fc;
   char str[len + 1], *ptr = str;
-  int ret = -1;
+  int ret = 0;
 
   strcpy(str, str_c);
 
@@ -261,9 +261,10 @@ parseIPFormat(char const *str_c, struct vc_ips **ips,
       default:					goto out;
     }
 
-    if ((sep = memchr(ptr, *(fc + 1), len)) == NULL) {
+    if (len == 0)
       goto out;
-    }
+    if ((sep = memchr(ptr, *(fc + 1), len)) == NULL)
+      sep = ptr + len;
     *sep = '\0';
 
     /* This is ugly, and means that m cannot be first */
@@ -280,6 +281,7 @@ parseIPFormat(char const *str_c, struct vc_ips **ips,
       unsigned long	sz;
 
       if (!isNumberUnsigned(ptr, &sz, true) || sz > limit) {
+	ret = -1;
 	goto out;
       }
 
@@ -295,6 +297,7 @@ parseIPFormat(char const *str_c, struct vc_ips **ips,
     }
     else {
       if (convertAddress(ptr, &(*ips)->a.vna_type, dst) == -1) {
+	ret = -1;
 	goto out;
       }
       else if (*fc == 'm') {
@@ -303,12 +306,13 @@ parseIPFormat(char const *str_c, struct vc_ips **ips,
       }
     }
 
+    ret++;
+    len -= (sep - ptr);
     ptr = sep + 1;
 
     if (*(fc + 1) == '\0')
       break;
   }
-  ret = 0;
 
 out:
   free(str);
@@ -319,7 +323,7 @@ static void
 readIP(char const *str, struct vc_ips **ips, uint16_t type)
 {
   if (ifconfig_getaddr(str, &(*ips)->a.vna_v4_ip.s_addr, &(*ips)->a.vna_v4_mask.s_addr, NULL)==-1) {
-    if (parseIPFormat(str, ips, "1/m") == -1) {
+    if (parseIPFormat(str, ips, "1/m") < 1) {
       WRITE_MSG(2, "Invalid IP number '");
       WRITE_STR(2, str);
       WRITE_MSG(2, "'\n");
@@ -355,7 +359,7 @@ readBcast(char const *str, struct vc_ips **ips)
 static void
 readRange(char const *str, struct vc_ips **ips)
 {
-  if (parseIPFormat(str, ips, "1-2/m") == -1) {
+  if (parseIPFormat(str, ips, "1-2/m") < 2) {
     WRITE_MSG(2, "Invalid range '");
     WRITE_STR(2, str);
     WRITE_MSG(2, "'\n");
