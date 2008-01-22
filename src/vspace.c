@@ -205,8 +205,6 @@ int main(int argc, char *argv[])
     WRITE_MSG(2, "No operation was specified; try '--help' for more information\n");
   else if (sum>1)
     WRITE_MSG(2, "Can not specify multiple operations; try '--help' for more information\n");
-  else if (mask==0)
-    WRITE_MSG(2, "Must specify at least one space; try '--help' for more information\n");
   else if (optind==argc && (do_new || do_enter))
     WRITE_MSG(2, "No command specified; try '--help' for more information\n");
   else {
