@@ -81,7 +81,7 @@ _syscall1(int, sys_unshare, int, flags)
 inline static UNUSED ALWAYSINLINE
 int sys_unshare(int flags)
 {
-  return syscall(__NR_sys_clone, flags);
+  return syscall(__NR_sys_unshare, flags);
 }
 #endif
 
