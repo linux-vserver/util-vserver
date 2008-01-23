@@ -98,7 +98,7 @@ EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(nobase_confdistrib_DATA) \
 			   $(defaults_DATA)
 
-redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 fc6 f7 centos4 centos5
+redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 fc6 f7 f8 centos4 centos5
 sid_style		=  etch lenny sid
 
 install-exec-hook:	install-notify-xtra
