@@ -54,7 +54,8 @@ function populateDev
 {
     local spec
 
-    mkdir -p -m755 "$VDIR"/dev/pts
+    mkdir -p -m755 "$VDIR"/dev
+    mkdir -m755 "$VDIR"/dev/pts
 
     while read spec; do
 	makeDevEntry "$VDIR"/dev $spec
