@@ -264,6 +264,7 @@ function startSleepingGuest
     $_VSERVER "$guest" start --rescue --rescue-init bash -c "
 	exec  > /dev/null
 	exec 2> /dev/null
+	trap 'kill -s 9 -- -1; exit 0' INT
 	sleep $timeout
 	kill -s 15 -- -1
 	sleep 1
@@ -273,5 +274,5 @@ function startSleepingGuest
 function stopSleepingGuest
 {
     local guest="$1"
-    $_VSERVER "$guest" stop --rescue-init
+    $_VKILL --xid "$guest" -s INT -- 1
 }
