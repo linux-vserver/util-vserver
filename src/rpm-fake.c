@@ -96,6 +96,8 @@ static unsigned int	debug_level = 0;
 
 static bool		is_initialized = false;
 
+static bool		ctx_created = false;
+
   //DECLARE(rpm_execcon);
   //DECLARE(execv);
 DECLARE(getpwnam);
@@ -270,6 +272,7 @@ setupContext(xid_t xid, char const **xid_str)
 
       xid = rc;
       res = true;
+      ctx_created = true;
     }
   }
 
@@ -510,12 +513,14 @@ exitRPMFake()
     uint8_t	c;
     if (read(sync_sock, &c, 1)!=1) { /*...*/ }
     if (write(pw_sock, "Q", 1)!=1) { /*...*/ }
-    if (vc_isSupported(vcFEATURE_VWAIT)) {
-      if (vc_wait_exit(ctx)==-1) { /*...*/ }
-    }
-    else {
-      /* this can race */
-      if (read(sync_sock, &c, 1)!=0) { /*...*/}
+    if (ctx_created) {
+      if (vc_isSupported(vcFEATURE_VWAIT)) {
+	if (vc_wait_exit(ctx)==-1) { /*...*/ }
+      }
+      else {
+	/* this can race */
+	if (read(sync_sock, &c, 1)!=0) { /*...*/}
+      }
     }
   }
 }
