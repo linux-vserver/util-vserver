@@ -257,6 +257,7 @@ setupContext(xid_t xid, char const **xid_str)
       char			buf[sizeof(xid_t)*3 + 128];
       size_t			l;
       struct vc_ctx_caps	caps;
+      struct vc_ctx_flags	flags;
       
       strcpy(buf, "rpm-fake.so #");
       l = utilvserver_fmt_uint(buf+sizeof("rpm-fake.so #")-1, getppid());
@@ -267,6 +268,10 @@ setupContext(xid_t xid, char const **xid_str)
       caps.bcaps = ~vc_get_insecurebcaps();
       caps.bmask = ~0ull;
       Evc_set_ccaps(rc, &caps);
+
+      flags.flagword = 0;
+      flags.mask = VC_VXF_SC_HELPER;
+      Evc_set_cflags(rc, &flags);
       
 	// context will be activated later...
 
