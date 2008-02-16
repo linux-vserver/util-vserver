@@ -98,7 +98,7 @@ initLock()
   ptr  = Xmemcpy(ptr, ".startup",  sizeof(".startup"));
   *ptr = '\0';
 
-  if (!lockfile(&fd, tmp, LOCK_EX, 30, &err)) {
+  if (!lockfile(&fd, tmp, F_LOCK, 30, &err)) {
     WRITE_MSG(2, "vserver.start: failed to lock '");
     WRITE_STR(2, tmp);
     WRITE_MSG(2, "': ");

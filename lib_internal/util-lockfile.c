@@ -61,8 +61,8 @@ lockfile(int *fd, char const *filename, int op, long timeout,
     alarm(timeout);
   }
 
-  errstr = "flock()";
-  while (flock(*fd, op)==-1) {
+  errstr = "lockf()";
+  while (lockf(*fd, op, 0)==-1) {
     if ((errno!=EINTR && errno!=EINTR) || alarm_flag) goto err;
   }
 

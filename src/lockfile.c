@@ -44,7 +44,7 @@ showHelp(char const *cmd)
 	    "  2.  'lockfile' will be called\n"
 	    "  3a. 'lockfile' waits until somebody opens the <syncpipe> for reading\n"
 	    "  3b. parent (shell) opens the pipe for reading and blocks\n"
-	    "  4.  'lockfile' calls flock() on the <lockfile>\n"
+	    "  4.  'lockfile' calls lockf() on the <lockfile>\n"
 	    "  5.  'lockfile' closes the <syncpipe>\n"
 	    "  6.  parent (shell) unlocks since <syncpipe> is closed\n"
 	    "  7.  'lockfile' goes into infinite loop\n"
@@ -123,9 +123,9 @@ int main(int argc, char *argv[])
     int		duration = end_time-time(0);
     alarm(MIN(10, MAX(duration,1)));
     
-    if (flock(fd,LOCK_EX)==-1) {
+    if (lockf(fd,F_LOCK,0)==-1) {
       if (errno==EINTR) continue;
-      perror("lockfile: flock()");
+      perror("lockfile: lockf()");
       break;
     }
     signal(SIGALRM, SIG_IGN);

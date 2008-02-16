@@ -279,8 +279,8 @@ updateMtab(struct MountInfo const *mnt, struct Options const *opt)
     goto err0;
   }
 
-  if (flock(fd, LOCK_EX)==-1) {
-    perror("secure-mount: flock()");
+  if (lockf(fd, F_LOCK, 0)==-1) {
+    perror("secure-mount: lockf()");
     goto err1;
   }
 
