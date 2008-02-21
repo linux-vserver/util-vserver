@@ -28,6 +28,7 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 				scripts/vserver-wrapper \
 				scripts/vsysvwrapper \
 				scripts/vtop \
+				scripts/h2ext-worker \
 				scripts/legacy/distrib-info \
 				scripts/legacy/vps \
 				scripts/legacy/save_s_context \
