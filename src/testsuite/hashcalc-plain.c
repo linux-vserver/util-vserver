@@ -20,7 +20,7 @@
 #  include <config.h>
 #endif
 
-#include <beecrypt/beecrypt.h>
+#include <lib_internal/crypto-wrapper.h>
 #include <stdbool.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -32,15 +32,15 @@
 #define HASH_BLOCKSIZE		0x10000000u
 
 static bool
-convertDigest(char res[], hashFunctionContext * h_ctx)
+convertDigest(char res[], ensc_hash_context * h_ctx)
 {
   static char const		HEX_DIGIT[] = "0123456789abcdef";
-  size_t			d_size   = h_ctx->algo->digestsize;
+  size_t			d_size   = ensc_crypto_hashctx_get_digestsize(h_ctx);
     
   unsigned char			digest[d_size];
   size_t			out = 0;
 
-  if (hashFunctionContextDigest(h_ctx, digest)==-1)
+  if (ensc_crypto_hashctx_get_digest(h_ctx, digest, NULL, d_size)==-1)
     return false;
   
   for (size_t in=0; in<d_size; ++in) {
@@ -54,19 +54,20 @@ convertDigest(char res[], hashFunctionContext * h_ctx)
 
 int main(int UNUSED argc, char *argv[])
 {
-  int			fd = open(argv[1], O_NOFOLLOW|O_NONBLOCK|O_RDONLY|O_NOCTTY);
-  hashFunctionContext	hash_context;
-  hashFunction const	*method;
-  struct stat		st;
-  off_t			size;
-  loff_t		offset = 0;
-  char			digest[1024];
+  int				fd = open(argv[1], O_NOFOLLOW|O_NONBLOCK|O_RDONLY|O_NOCTTY);
+  ensc_hash_context		hash_context;
+  ensc_hash_method const	*method;
+  struct stat			st;
+  off_t				size;
+  loff_t			offset = 0;
+  char				digest[2048];
 
-  assert((method = hashFunctionFind(argv[2]))!=0);
-  assert(hashFunctionContextInit(&hash_context, method)!=-1);
+  ensc_crypto_init();
+  assert((method = ensc_crypto_hash_find(argv[2]))!=0);
+  assert(ensc_crypto_hashctx_init(&hash_context, method)!=-1);
 
   assert(fstat(fd, &st)!=-1);
-  assert(hashFunctionContextReset(&hash_context)!=-1);
+  assert(ensc_crypto_hashctx_reset(&hash_context)!=-1);
 
   size = st.st_size;
 
@@ -77,7 +78,7 @@ int main(int UNUSED argc, char *argv[])
 
     assert((buf=mmap(0, buf_size, PROT_READ, MAP_SHARED, fd, offset))!=0);
     offset += buf_size;
-    assert(hashFunctionContextUpdate(&hash_context, buf, buf_size)!=-1);
+    assert(ensc_crypto_hashctx_update(&hash_context, buf, buf_size)!=-1);
     munmap((void *)(buf), buf_size);
   }
     
@@ -86,7 +87,7 @@ int main(int UNUSED argc, char *argv[])
   Vwrite(1, digest, strlen(digest));
   Vwrite(1, "\n", 1);
   
-  hashFunctionContextFree(&hash_context);
+  ensc_crypto_hashctx_free(&hash_context);
   
   return 0;
 }

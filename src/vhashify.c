@@ -30,7 +30,7 @@
 #include "lib_internal/unify.h"
 #include "ensc_vector/vector.h"
 
-#include <beecrypt/beecrypt.h>
+#include "lib_internal/crypto-wrapper.h"
 
 #include <setjmp.h>
 #include <unistd.h>
@@ -95,7 +95,7 @@ typedef char			HashPath[HASH_MAXBITS/4 + (HASH_MAXBITS/4/2) +
 
 struct HashDirConfiguration
 {
-    hashFunction const				*method;
+    ensc_hash_method const			*method;
     enum { hshALL=0, hshSTART = 1, hshMIDDLE=2,
 	   hshEND = 4, hshINVALID = -1 }	blocks;
     size_t					blocksize;
@@ -109,7 +109,7 @@ struct WalkdownInfo
     HashDirCollection		hash_dirs;
     size_t			hash_dirs_max_size;
 
-    hashFunctionContext		hash_context;
+    ensc_hash_context		hash_context;
 };
 
 int				wrapper_exit_code = 1;
@@ -251,13 +251,13 @@ static bool
 convertDigest(HashPath d_path)
 {
   static char const		HEX_DIGIT[] = "0123456789abcdef";
-  hashFunctionContext * const	h_ctx    = &global_info.hash_context;
-  size_t			d_size   = h_ctx->algo->digestsize;
-    
+  ensc_hash_context * const	h_ctx    = &global_info.hash_context;
+  size_t			d_size   = ensc_crypto_hashctx_get_digestsize(h_ctx);
+
   unsigned char			digest[d_size];
   size_t			out = 0;
 
-  if (hashFunctionContextDigest(h_ctx, digest)==-1)
+  if (ensc_crypto_hashctx_get_digest(h_ctx, digest, NULL, d_size)==-1)
     return false;
   
   for (size_t in=0;
@@ -275,7 +275,7 @@ convertDigest(HashPath d_path)
 
 #ifndef ENSC_TESTSUITE
 static bool
-addStatHash(hashFunctionContext *h_ctx, struct stat const * const st)
+addStatHash(ensc_hash_context *h_ctx, struct stat const * const st)
 {
 #define DECL_ATTR(X)	__typeof__(st->st_##X)	X
 #define SET_ATTR(X)	.X = st->st_##X
@@ -300,11 +300,11 @@ addStatHash(hashFunctionContext *h_ctx, struct stat const * const st)
 #undef DECL_ATTR
 
   
-  return hashFunctionContextUpdate(h_ctx, (void *)&tmp, sizeof tmp)!=-1;
+  return ensc_crypto_hashctx_update(h_ctx, (void *)&tmp, sizeof tmp)!=-1;
 }
 #else
 static bool
-addStatHash(hashFunctionContext UNUSED *h_ctx, struct stat const UNUSED * const st)
+addStatHash(ensc_hash_context UNUSED *h_ctx, struct stat const UNUSED * const st)
 {
   return true;
 }
@@ -313,13 +313,13 @@ addStatHash(hashFunctionContext UNUSED *h_ctx, struct stat const UNUSED * const 
 static bool
 calculateHashFromFD(int fd, HashPath d_path, struct stat const * const st)
 {
-  hashFunctionContext * const	h_ctx    = &global_info.hash_context;
+  ensc_hash_context * const	h_ctx    = &global_info.hash_context;
   void const * volatile		buf      = 0;
   loff_t volatile		buf_size = 0;
   bool   volatile		res      = false;
 
 
-  if (hashFunctionContextReset(h_ctx)==-1 ||
+  if (ensc_crypto_hashctx_reset(h_ctx)==-1 ||
       !addStatHash(h_ctx, st))
     return false;
 
@@ -340,7 +340,7 @@ calculateHashFromFD(int fd, HashPath d_path, struct stat const * const st)
       offset += buf_size;
       madvise(const_cast(void *)(buf), buf_size, MADV_SEQUENTIAL);	// ignore error...
 
-      if (hashFunctionContextUpdate(h_ctx, buf, buf_size)==-1) goto out;
+      if (ensc_crypto_hashctx_update(h_ctx, buf, buf_size)==-1) goto out;
 
       munmap(const_cast(void *)(buf), buf_size);
       buf = 0;
@@ -668,14 +668,15 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
+  ensc_crypto_init();
   switch (args.mode) {
     case mdMANUALLY	:  initModeManually(&args, argc-optind, argv+optind); break;
     case mdVSERVER	:  initModeVserver (&args, argc-optind, argv+optind); break;
     default		:  assert(false); return EXIT_FAILURE;
   };
 
-  if (hashFunctionContextInit(&global_info.hash_context,
-			      global_info.hash_conf.method)==-1) {
+  if (ensc_crypto_hashctx_init(&global_info.hash_context,
+			       global_info.hash_conf.method)==-1) {
     WRITE_MSG(2, "Failed to initialize hash-context\n");
     return EXIT_FAILURE;
   }
@@ -691,7 +692,7 @@ int main(int argc, char *argv[])
 #ifndef NDEBUG
   MatchList_destroy(&global_info.dst_list);
   freeHashList(&global_info.hash_dirs);
-  hashFunctionContextFree(&global_info.hash_context);
+  ensc_crypto_hashctx_free(&global_info.hash_context);
 #endif
 
   return EXIT_SUCCESS;

@@ -22,7 +22,7 @@ src_testsuite_check_active_PRGS =	src/testsuite/vunify-functest \
 src_testsuite_check_passive_PRGS =	src/testsuite/rpm-fake-test
 
 if ENSC_HAVE_C99_COMPILER
-if ENSC_HAVE_BEECRYPT
+if ENSC_HAVE_CRYPTO
 src_testsuite_check_passive_PRGS +=	src/testsuite/hashcalc		\
 					src/testsuite/hashcalc-plain
 endif
@@ -33,7 +33,7 @@ check_PROGRAMS +=			$(src_testsuite_check_passive_PRGS) \
 
 if ENSC_HAVE_C99_COMPILER
 src_testsuite_check_src_C99_SCRPTS =	src/testsuite/vunify-test.sh
-if ENSC_HAVE_BEECRYPT
+if ENSC_HAVE_CRYPTO
 src_testsuite_check_src_C99_SCRPTS +=	src/testsuite/hashcalc-plain.sh		\
 					src/testsuite/hashcalc.sh
 endif
@@ -73,18 +73,21 @@ src_testsuite_chbind_test_LDADD =	lib/libvserver.la
 
 src_testsuite_hashcalc_SOURCES =	src/testsuite/hashcalc.c
 src_testsuite_hashcalc_plain_SOURCES =	src/testsuite/hashcalc-plain.c
-if ENSC_CAN_BEECRYPT_WITH_DIETLIBC
-src_testsuite_hashcalc_LDADD =		$(LIBINTERNAL) $(LIBENSCVECTOR) -lbeecrypt $(VSERVER_LDADDS)
+src_testsuite_hashcalc_CFLAGS =		$(AM_CFLAGS) $(ENSC_CRYPTO_CFLAGS)
+src_testsuite_hashcalc_plain_CFLAGS =	$(AM_CFLAGS) $(ENSC_CRYPTO_CFLAGS)
+
+if ENSC_CAN_CRYPTO_WITH_DIETLIBC
+src_testsuite_hashcalc_LDADD =		$(LIBINTERNAL) $(LIBENSCVECTOR) $(ENSC_CRYPTO_LIB) $(VSERVER_LDADDS)
 src_testsuite_hashcalc_LDFLAGS =	$(VSERVER_LDFLGS)
 
-src_testsuite_hashcalc_plain_LDADD =	$(LIBINTERNAL) $(LIBENSCVECTOR) -lbeecrypt $(VSERVER_LDADDS)
+src_testsuite_hashcalc_plain_LDADD =	$(LIBINTERNAL) $(LIBENSCVECTOR) $(ENSC_CRYPTO_LIB) $(VSERVER_LDADDS)
 src_testsuite_hashcalc_plain_LDFLAGS =	$(VSERVER_LDFLGS)
 else
-src_testsuite_hashcalc_LDADD =		$(LIBINTERNAL_GLIBC) $(LIBENSCVECTOR_GLIBC) $(LIBVSERVER_GLIBC) -lbeecrypt
-src_testsuite_hashcalc_LDFLAGS =
+src_testsuite_hashcalc_LDADD =		$(LIBINTERNAL_GLIBC) $(LIBENSCVECTOR_GLIBC) $(LIBVSERVER_GLIBC) $(ENSC_CRYPTO_LIB)
+src_testsuite_hashcalc_LDFLAGS =	 -Wl,--as-needed
 
-src_testsuite_hashcalc_plain_LDADD =	$(LIBINTERNAL_GLIBC) $(LIBENSCVECTOR_GLIBC) $(LIBVSERVER_GLIBC) -lbeecrypt
-src_testsuite_hashcalc_plain_LDFLAGS =
+src_testsuite_hashcalc_plain_LDADD =	$(LIBINTERNAL_GLIBC) $(LIBENSCVECTOR_GLIBC) $(LIBVSERVER_GLIBC) $(ENSC_CRYPTO_LIB)
+src_testsuite_hashcalc_plain_LDFLAGS =	 -Wl,--as-needed
 endif
 
 src_testsuite_CPPFLAGS =		-I $(top_srcdir)/src -D ENSC_TESTSUITE

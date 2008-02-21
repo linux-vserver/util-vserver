@@ -39,17 +39,18 @@ int main(int UNUSED argc, char *argv[])
       volatile unsigned int	canary2;
       volatile unsigned int	canary3;
   } __attribute__((__packed__))	d_path;
-
+ 
   d_path.canary0 = 0x12345678;
   d_path.canary1 = 0x21436587;
   d_path.canary2 = 0x89abcdef;
   d_path.canary3 = 0x98badcfe;
   memset(d_path.d, 0x66, sizeof d_path.d);
 
-  global_info.hash_conf.method = hashFunctionFind(argv[2]);
+  ensc_crypto_init();
+  global_info.hash_conf.method = ensc_crypto_hash_find(argv[2]);
   
-  assert(hashFunctionContextInit(&global_info.hash_context,
-				 global_info.hash_conf.method)!=-1);
+  assert(ensc_crypto_hashctx_init(&global_info.hash_context,
+				  global_info.hash_conf.method)!=-1);
 
   assert(fstat(fd, &st)!=-1);
 
@@ -68,7 +69,7 @@ int main(int UNUSED argc, char *argv[])
   Vwrite(1, d_path.d, strlen(d_path.d));
   Vwrite(1, "\n", 1);
   
-  hashFunctionContextFree(&global_info.hash_context);
+  ensc_crypto_hashctx_free(&global_info.hash_context);
   
   return 0;
 }

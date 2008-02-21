@@ -51,21 +51,16 @@ test x"$ensc_use_expensive_tests" != xyes || {
 } &>/dev/null
 
 for i in $tmpdir/rand-*; do
-    sha1_0=$($hashcalc "$i" SHA-1 | tr -d / )
-    sha1_1=$(sha1sum   "$i" | awk '{ print $1}' )
+    for m in md5 sha1 sha256 sha512; do
+	sum_0=$($hashcalc "$i" "$m" | tr -d / )
+	sum_1=$(${m}sum   "$i" | awk '{ print $1}' )
 
-    test x"$sha1_0" = x"$sha1_1" || {
-	echo "SHA-1 mismatch at $(basename $i)"
-	exit 1
-    }
-
-    md5_0=$($hashcalc "$i" MD5  | tr -d / )
-    md5_1=$(md5sum   "$i" | awk '{ print $1}' )
-
-    test x"$md5_0" = x"$md5_1" || {
-	echo "MD5 mismatch at $(basename $i)"
-	exit 1
-    }
+	# compare only the first 80 chars as vhashify will cut digest to MAXPATHLEN
+	test x"${sum_0::80}" = x"${sum_1::80}" || {
+	  echo "$m mismatch at $(basename $i): '$sum_0' vs. '$sum_1'"
+	  exit 1
+	}
+    done
 done
 
 true

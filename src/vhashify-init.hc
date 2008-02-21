@@ -96,15 +96,18 @@ initHashMethod(struct HashDirConfiguration *conf, char const *filename)
 {
   int		fd = open(filename, O_RDONLY);
   if (fd==-1 && conf->method==0)
-    conf->method = hashFunctionDefault();
+    conf->method = ensc_crypto_hash_get_default();
 
   if (fd==-1) {
+    char const	*hash_name;
     assert(conf->method!=0);
     if (conf->method==0)      return false;
     if (global_args->dry_run) return true;	// do not create the file
-    
+
     fd = Eopen(filename, O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW, 0644);
-    TEMP_FAILURE_RETRY(write(fd, conf->method->name, strlen(conf->method->name)));
+
+    hash_name = ensc_crypto_hash_get_name(conf->method);
+    TEMP_FAILURE_RETRY(write(fd, hash_name, strlen(hash_name)));
     TEMP_FAILURE_RETRY(write(fd, "\n", 1));
   }
   else {
@@ -119,7 +122,7 @@ initHashMethod(struct HashDirConfiguration *conf, char const *filename)
 	--s;
       buf[s] = '\0';
 
-      conf->method = hashFunctionFind(buf);
+      conf->method = ensc_crypto_hash_find(buf);
       if (conf->method==0) {
 	WRITE_MSG(2, "Can not find hash-function '");
 	WRITE_STR(2, buf);
@@ -130,7 +133,7 @@ initHashMethod(struct HashDirConfiguration *conf, char const *filename)
       WRITE_MSG(2, "Can not read configuration file for hash-method\n");
   }
 
-  if (conf->method!=0 && conf->method->digestsize*8>HASH_MAXBITS) {
+  if (conf->method!=0 && ensc_crypto_hash_get_digestsize(conf->method)*8>HASH_MAXBITS) {
     WRITE_MSG(2, "Wow... what an huge hash-function. I can not handle so much bits; giving up...\n");
     conf->method=0;
   }

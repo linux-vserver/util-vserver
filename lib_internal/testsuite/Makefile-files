@@ -36,9 +36,20 @@ TESTS +=			lib_internal/testsuite/filecfg-ml \
 				lib_internal/testsuite/matchlist-gnu
 endif
 
+if ENSC_HAVE_CRYPTO
+check_PROGRAMS +=		lib_internal/testsuite/crypto \
+				lib_internal/testsuite/crypto-speed
+TESTS +=			lib_internal/testsuite/crypto
+endif
+
 DIETPROGS +=			lib_internal/testsuite/isnumber \
 				lib_internal/testsuite/sigbus \
 				lib_internal/testsuite/matchlist
+
+if ENSC_CAN_CRYPTO_WITH_DIETLIBC
+DIETPROGS +=			lib_internal/testsuite/crypto \
+				lib_internal/testsuite/crypto-speed
+endif
 
 EXTRA_DIST +=			lib_internal/testsuite/copy-check
 
@@ -79,3 +90,18 @@ lib_internal_testsuite_matchlist_CPPFLAGS =	$(AM_CPPFLAGS)		# see note above
 lib_internal_testsuite_matchlist_gnu_SOURCES =	lib_internal/testsuite/matchlist.c
 lib_internal_testsuite_matchlist_gnu_LDADD =	$(LIBINTERNAL_GLIBC)
 lib_internal_testsuite_matchlist_gnu_CPPFLAGS =	$(AM_CPPFLAGS)		# see note above
+
+if ENSC_HAVE_CRYPTO
+lib_internal_testsuite_crypto_speed_SOURCES =	lib_internal/testsuite/crypto-speed.c
+lib_internal_testsuite_crypto_speed_CFLAGS =	$(AM_CFLAGS) $(ENSC_CRYPTO_CFLAGS)
+lib_internal_testsuite_crypto_speed_LDADD =	$(ENSC_CRYPTO_LIB) -lrt
+
+lib_internal_testsuite_crypto_SOURCES =		lib_internal/testsuite/crypto.c
+lib_internal_testsuite_crypto_CFLAGS =		$(AM_CFLAGS) $(ENSC_CRYPTO_CFLAGS)
+lib_internal_testsuite_crypto_LDADD =		$(ENSC_CRYPTO_LIB)
+
+if !ENSC_CAN_CRYPTO_WITH_DIETLIBC
+lib_internal_testsuite_crypto_speed_LDFLAGS =	-Wl,--as-needed
+lib_internal_testsuite_crypto_LDFLAGS =		-Wl,--as-needed
+endif
+endif

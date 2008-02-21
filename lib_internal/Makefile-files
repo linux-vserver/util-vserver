@@ -52,6 +52,9 @@ endif
 
 noinst_HEADERS += \
 				lib_internal/coreassert.h \
+				lib_internal/crypto-wrapper.h \
+				lib_internal/crypto-wrapper-nss.h \
+				lib_internal/crypto-wrapper-beecrypt.h \
 				lib_internal/errinfo.h \
 				lib_internal/jail.h \
 				lib_internal/matchlist.h \

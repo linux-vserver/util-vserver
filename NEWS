@@ -1,3 +1,12 @@
+version 0.30.???
+================
+
+	- added support for using libnss instead of beecrypt for
+	vhashify's hash calculation.  libnss has bad SHA1 performance on
+	i386, but is a) maintained and b) gives better performance with
+	all other hashes and on x86_64.
+	
+	
 version 0.30.214
 ================
 	- patches for yum-3.2.
