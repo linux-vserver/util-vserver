@@ -173,14 +173,17 @@ int main(int argc, char *argv[])
 	do_enter = true;
 	xid      = Evc_xidopt2xid(optarg,true);
 	break;
-      case 'm'		:
-	if (!isNumberUnsigned(optarg, &mask, true)) {
+      case 'm'		:  {
+	unsigned long	mask_l;
+	if (!isNumberUnsigned(optarg, &mask_l, true)) {
 	  WRITE_MSG(2, "Invalid mask '");
 	  WRITE_STR(2, optarg);
 	  WRITE_MSG(2, "'; try '--help' for more information\n");
 	  return wrapper_exit_code;
 	}
+	mask = mask_l;
 	break;
+      }
       case 'M'		:  mask |= CLONE_NEWNS;		break;
       case 'F'		:  mask |= CLONE_FS;		break;
       case 'I'		:  mask |= CLONE_NEWIPC;	break;
