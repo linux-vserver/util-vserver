@@ -67,7 +67,7 @@ case "$1" in
 	    env \
 	    CFLAGS="-O0 -g3$ARCH_CFLAGS"   \
 	    CXXFLAGS="-O0 -g3$ARCH_CFLAGS" \
-	    CPPFLAGS=$CPPFLAGS \
+	    CPPFLAGS="$CPPFLAGS" \
 	    ./configure $confflags
 	$make
 	exit
