@@ -19,7 +19,7 @@ set -e
 
 J=-j8
 
-confflags="-C --enable-maintainer-mode --prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+confflags="-C --enable-maintainer-mode --prefix=/usr --sysconfdir=/etc --localstatedir=/var $CONFIGURE_FLAGS"
 configure="`pwd`/configure $confflags"
 make=eval\ "${CLEAN:+make $J silent.clean;} \
 	    echo -e \"== executing 'make all'...\" && \
@@ -28,7 +28,13 @@ make=eval\ "${CLEAN:+make $J silent.clean;} \
 	    make $J ${SILENT:+-s silent.}check"
 
 LANG=C
-CPPFLAGS='-D_FORTIFY_SOURCE=99'
+
+case $(arch) in
+  (x86_64)	ARCH_CFLAGS=' -m64';;
+  (i?86)	ARCH_CFLAGS=' -m32';;
+esac
+
+CPPFLAGS=-D_FORTIFY_SOURCE=99$ARCH_CFLAGS
 
 ## Usage: xtermTitle <title>
 function xtermTitle
@@ -49,8 +55,8 @@ function operate()
     
     mkdir -p $d && cd $d
 
-    test -z "$CLEAN" || rm -f config.cache
-    test -e Makefile || CCACHE_DISABLE=1 $configure "$@"
+    test -z "$CLEAN"                         || rm -f config.cache
+    test -e Makefile -a -z "$CONFIGURE_FLAGS"|| CCACHE_DISABLE=1 $configure "$@"
     $make
     cd -
 }
@@ -58,7 +64,10 @@ function operate()
 case "$1" in
     dist)
 	test -e Makefile || \
-	    CFLAGS='-O0 -g3' CXXFLAGS='-O0 -g3' CPPFLAGS=$CPPFLAGS \
+	    env \
+	    CFLAGS="-O0 -g3$ARCH_CFLAGS"   \
+	    CXXFLAGS="-O0 -g3$ARCH_CFLAGS" \
+	    CPPFLAGS=$CPPFLAGS \
 	    ./configure $confflags
 	$make
 	exit
@@ -81,16 +90,20 @@ case "$1" in
 esac
 
 test -d "Build" || {
-    d=$(mktemp -d /tmp/build-ensc.XXXXXX)
+    d=$(mktemp -t -d build-ensc.XXXXXX)
     rm -f Build
     ln -sf $d Build
 }
 
-operate Build/diet-noopt                                       CPPFLAGS=$CPPFLAGS CFLAGS='-O0 -g3' CXXFLAGS='-O0 -g3'
-operate Build/diet-opt     --enable-release                    CPPFLAGS=$CPPFLAGS
-operate Build/nodiet-noopt --disable-dietlibc                  CPPFLAGS=$CPPFLAGS CFLAGS='-O0 -g3' CXXFLAGS='-O0 -g3' 
-operate Build/nodiet-opt   --enable-release --disable-dietlibc CPPFLAGS=$CPPFLAGS
-operate Build/gcc32-opt    --enable-release --disable-dietlibc CPPFLAGS=$CPPFLAGS CC='ccache gcc32'  CXX='ccache g++'
+noopt_flags=-O0\ -g3
+opt_flags=-O2\ -g
+ldflags=$ARCH_CFLAGS
 
-operate Build/diet-opt-api   --enable-release --enable-apis=NOLEGACY                    CPPFLAGS=$CPPFLAGS
-operate Build/nodiet-opt-api --enable-release --enable-apis=NOLEGACY --disable-dietlibc CPPFLAGS=$CPPFLAGS
+operate Build/diet-noopt                                       CPPFLAGS="$CPPFLAGS" CFLAGS="$noopt_flags" CXXFLAGS="$noopt_flags" LDFLAGS="$ldflags"
+operate Build/diet-opt     --enable-release                    CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags"   LDFLAGS="$ldflags"
+operate Build/nodiet-noopt --disable-dietlibc                  CPPFLAGS="$CPPFLAGS" CFLAGS="$noopt_flags" CXXFLAGS="$noopt_flags" LDFLAGS="$ldflags"
+operate Build/nodiet-opt   --enable-release --disable-dietlibc CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags"   LDFLAGS="$ldflags"
+#operate Build/gcc32-opt    --enable-release --disable-dietlibc CPPFLAGS="$CPPFLAGS" CC='ccache gcc32'  CXX='ccache g++' CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags" LDFLAGS="$ldflags"
+
+operate Build/diet-opt-api   --enable-release --enable-apis=NOLEGACY                    CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags" LDFLAGS="$ldflags"
+operate Build/nodiet-opt-api --enable-release --enable-apis=NOLEGACY --disable-dietlibc CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags" LDFLAGS="$ldflags"
