@@ -53,9 +53,10 @@ the GNU General Public License.  This program has absolutely no warranty."
 
 
 declare -a guests
-while true; do
+while test $# -gt 0; do
     case "$1" in
 	(--)	shift; break;;
+        (-*)    break;
 	(*)
 	    _setVserverDir "$1"
 	    guests=( "${guests[@]}" "$VSERVER_DIR" )
