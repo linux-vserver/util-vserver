@@ -134,8 +134,6 @@ doTunctl(struct Arguments *args, char *interface)
   ifr.ifr_flags = args->type;
   EioctlD(fd, TUNSETIFF, &ifr);
 
-  if (args->set & (CMD_PERSIST|CMD_NOPERSIST))
-    EioctlD(fd, TUNSETPERSIST, (void *) (long) args->persist);
   if (args->set & (CMD_CSUM|CMD_NOCSUM))
     EioctlD(fd, TUNSETNOCSUM, (void *) (long) !args->checksum);
   if (args->set & CMD_UID)
@@ -146,6 +144,8 @@ doTunctl(struct Arguments *args, char *interface)
     EioctlD(fd, TUNSETNID, (void *) (long) args->nid);
   if (args->set & CMD_LINKTYPE)
     EioctlD(fd, TUNSETLINK, (void *) (long) args->linktype);
+  if (args->set & (CMD_PERSIST|CMD_NOPERSIST))
+    EioctlD(fd, TUNSETPERSIST, (void *) (long) args->persist);
 
   close(fd);
 }
