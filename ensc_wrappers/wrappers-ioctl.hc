@@ -27,3 +27,8 @@ Eioctl(int fd, int request, void *p)
   FatalErrnoError(res<0, "ioctl()");
 }
 
+#define EioctlD(fd, request, p)				\
+  do {							\
+    int   res = ioctl(fd, request, p);			\
+    FatalErrnoError(res<0, "ioctl(" #request ")");	\
+  } while (0)

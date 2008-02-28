@@ -69,6 +69,7 @@ base   @PKGLIBDIR@/save_ctxinfo
 base   @PKGLIBDIR@/secure-mount
 base   @PKGLIBDIR@/sigexec
 base   @PKGLIBDIR@/start-vservers
+base   @PKGLIBDIR@/tunctl
 build  @PKGLIBDIR@/vapt-get-worker
 build  @PKGLIBDIR@/vyum-worker
 build  @PKGLIBDIR@/vpkg
