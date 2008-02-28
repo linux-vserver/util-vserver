@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
   else if (do_delete)    Eioctl(fd, VROOT_CLR_DEV, 0);
   else {
     int		dfd = EopenD(real_root_device, O_RDONLY, 0);
-    Eioctl(fd, VROOT_SET_DEV, (void*)dfd);
+    Eioctl(fd, VROOT_SET_DEV, (void*)(long)dfd);
     Eclose(dfd);
   }
 
