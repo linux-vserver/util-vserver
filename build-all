@@ -17,6 +17,7 @@
 
 set -e
 
+BDIR=Build-$(hostname)
 J=-j8
 
 confflags="-C --enable-maintainer-mode --prefix=/usr --sysconfdir=/etc --localstatedir=/var $CONFIGURE_FLAGS"
@@ -89,21 +90,21 @@ case "$1" in
 	}
 esac
 
-test -d "Build" || {
+test -d "$BDIR" || {
     d=$(mktemp -t -d build-ensc.XXXXXX)
-    rm -f Build
-    ln -sf $d Build
+    rm -f $BDIR
+    ln -sf $d $BDIR
 }
 
 noopt_flags=-O0\ -g3
 opt_flags=-O2\ -g
 ldflags=$ARCH_CFLAGS
 
-operate Build/diet-noopt                                       CPPFLAGS="$CPPFLAGS" CFLAGS="$noopt_flags" CXXFLAGS="$noopt_flags" LDFLAGS="$ldflags"
-operate Build/diet-opt     --enable-release                    CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags"   LDFLAGS="$ldflags"
-operate Build/nodiet-noopt --disable-dietlibc                  CPPFLAGS="$CPPFLAGS" CFLAGS="$noopt_flags" CXXFLAGS="$noopt_flags" LDFLAGS="$ldflags"
-operate Build/nodiet-opt   --enable-release --disable-dietlibc CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags"   LDFLAGS="$ldflags"
-#operate Build/gcc32-opt    --enable-release --disable-dietlibc CPPFLAGS="$CPPFLAGS" CC='ccache gcc32'  CXX='ccache g++' CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags" LDFLAGS="$ldflags"
+operate $BDIR/diet-noopt                                       CPPFLAGS="$CPPFLAGS" CFLAGS="$noopt_flags" CXXFLAGS="$noopt_flags" LDFLAGS="$ldflags"
+operate $BDIR/diet-opt     --enable-release                    CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags"   LDFLAGS="$ldflags"
+operate $BDIR/nodiet-noopt --disable-dietlibc                  CPPFLAGS="$CPPFLAGS" CFLAGS="$noopt_flags" CXXFLAGS="$noopt_flags" LDFLAGS="$ldflags"
+operate $BDIR/nodiet-opt   --enable-release --disable-dietlibc CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags"   LDFLAGS="$ldflags"
+#operate $BDIR/gcc32-opt    --enable-release --disable-dietlibc CPPFLAGS="$CPPFLAGS" CC='ccache gcc32'  CXX='ccache g++' CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags" LDFLAGS="$ldflags"
 
-operate Build/diet-opt-api   --enable-release --enable-apis=NOLEGACY                    CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags" LDFLAGS="$ldflags"
-operate Build/nodiet-opt-api --enable-release --enable-apis=NOLEGACY --disable-dietlibc CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags" LDFLAGS="$ldflags"
+operate $BDIR/diet-opt-api   --enable-release --enable-apis=NOLEGACY                    CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags" LDFLAGS="$ldflags"
+operate $BDIR/nodiet-opt-api --enable-release --enable-apis=NOLEGACY --disable-dietlibc CPPFLAGS="$CPPFLAGS" CFLAGS="$opt_flags"   CXXFLAGS="$opt_flags" LDFLAGS="$ldflags"
