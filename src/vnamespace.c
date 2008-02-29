@@ -21,7 +21,7 @@
 #endif
 
 #include "util.h"
-#include <lib_internal/sys_clone.h>
+#include <lib_internal/sys_unshare.h>
 
 #include <vserver.h>
 
@@ -88,26 +88,14 @@ showVersion()
 }
 
 static void
-newNamespace(char const *cmd)
+newNamespace(void)
 {
-  pid_t		pid;
+  int		rc;
 
-  signal(SIGCHLD, SIG_DFL);
-  
-#ifdef NDEBUG    
-  pid = sys_clone(CLONE_NEWNS|CLONE_VFORK|SIGCHLD, 0);
-#else
-  pid = sys_clone(CLONE_NEWNS|SIGCHLD, 0);
-#endif
-
-  switch (pid) {
-    case -1	:
-      perror("vnamespace: clone()");
-      exit(wrapper_exit_code);
-    case 0	:
-      break;
-    default	:
-      exitLikeProcess(pid, cmd, wrapper_exit_code);
+  rc = sys_unshare(CLONE_NEWNS);
+  if (rc!=0) {
+    perror("vnamespace: unshare()");
+    exit(wrapper_exit_code);
   }
 }
 
@@ -181,7 +169,7 @@ int main(int argc, char *argv[])
   else if (optind==argc && (do_new || do_enter))
     WRITE_MSG(2, "No command specified; try '--help' for more information\n");
   else {
-    if      (do_new)     newNamespace(argv[optind]);
+    if      (do_new)     newNamespace();
     else if (do_set)     setNamespace(VC_SAMECTX, CLONE_NEWNS|CLONE_FS);
     else if (do_cleanup) cleanupNamespace();
     else if (do_enter)   enterNamespace(xid, CLONE_NEWNS|CLONE_FS);
