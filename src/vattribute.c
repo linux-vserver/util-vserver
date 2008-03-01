@@ -162,7 +162,6 @@ printAttrs(struct Arguments *args)
 {
   struct vc_ctx_flags flags;
   struct vc_ctx_caps caps;
-  int first;
 
   Evc_get_cflags(args->xid, &flags);
   Evc_get_ccaps(args->xid, &caps);
