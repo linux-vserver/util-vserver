@@ -1341,6 +1341,47 @@ When this file exists, the steps which setup and destroy a VLAN
 interface will be executed.
 	  </description>
 	</boolean>
+	<boolean name="tun" since="0.30.215">
+	  <description>
+When this file exists, a tun interface will be created when the guest
+starts, and removed when the guest stops.
+	  </description>
+	</boolean>
+	<boolean name="tap" since="0.30.215">
+	  <description>
+When this file exists, a tap interface will be created when the guest
+starts, and removed when the guest stops.
+	  </description>
+	</boolean>
+	<boolean name="nocsum" since="0.30.215">
+	  <description>
+If a tun or tap interface is created, the presence of this file will
+disable checksumming on it.
+	  </description>
+	</boolean>
+	<boolean name="shared" since="0.30.215">
+	  <description>
+When this file exists, the tun/tap interface created will not be
+owned by this particular guest.
+	  </description>
+	</boolean>
+	<scalar name="uid" since="0.30.215">
+	  <description>
+Sets the ownership of tun/tap interfaces. Requires a user id, not a
+username.
+	  </description>
+	</scalar>
+	<scalar name="gid" since="0.30.215">
+	  <description>
+Sets the group ownership of tun/tap interfaces. Requires a group id,
+not a group name.
+	  </description>
+	</scalar>
+	<scalar name="linktype" since="0.30.215">
+	  <description>
+Sets the link type of tun/tap interfaces.
+	  </description>
+	</scalar>
       </collection>
     </collection>
     

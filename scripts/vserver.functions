@@ -66,6 +66,7 @@ _IS_FAKEINIT=
 INITSTYLE=sysv
 
 S_CONTEXT=
+N_CONTEXT=
 
 SILENT_OPT=
 
@@ -108,9 +109,7 @@ function _generateChbindOptions
     f="$vdir"/interfaces/lback
     getFileValue lback "$f"
 
-    getFileValue nid "$vdir/ncontext" "$vdir/context"
-    
-    CHBIND_CMD=( $_CHBIND $SILENT_OPT --secure ${nid:+--nid "$nid"}
+    CHBIND_CMD=( $_CHBIND $SILENT_OPT --secure ${N_CONTEXT:+--nid "$N_CONTEXT"}
 		 ${bcast:+--bcast "$bcast"} ${lback:+--lback "$lback"}
 		)
 
@@ -512,6 +511,33 @@ create them before starting the vserver and use the 'nodev' flag then"
     return 0
 }
 
+function _getTunInfo
+{
+    local iface="$1"
+
+    test -e "$iface/tun" -o -e "$iface/tap" || return 1
+    test ! -e "$iface/tun"     || echo --tun
+    test ! -e "$iface/tap"     || echo --tap
+    test ! -e "$iface/nocsum"  || echo --~checksum
+    test   -e "$iface/shared"  || echo --nid-failure-ok "$N_CONTEXT"
+    if test -e "$iface/uid"; then
+	local uid
+	getFileValue uid "$iface/uid"
+	echo --uid "$uid"
+    fi
+    if test -e "$iface/gid"; then
+	local gid
+	getFileValue gid "$iface/gid"
+	echo --gid "$gid"
+    fi
+    if test -e "$iface/linktype"; then
+	local linktype
+	getFileValue linktype "$iface/linktype"
+	echo --linktype "$linktype"
+    fi
+    return 0
+}
+
 ## Usage: _processSingleInterface <interface-directory>
 function _processSingleInterface
 {
@@ -571,21 +597,27 @@ function _processSingleInterface
 
 	if ! test -e "$iface"/indirect; then
 	    # XXX: IPv6 hack
-	    use_bcast="broadcast ${bcast:-+}"
+	    local use_bcast="broadcast ${bcast:-+}"
 	    echo "$ip" | $_GREP -q : && use_bcast=
+
+	    local tun_info
+	    if tun_info=$(_getTunInfo "$iface"); then
+		_addInterfaceCmd TUNCTL "$dev" $tun_info
+	    fi
+
 	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" $use_bcast ${name:+label "$dev:$name"} dev "$dev"
 	    #_addInterfaceCmd IP_ROUTE "$ip${prefix:+/$prefix}" dev "$dev"
 	    _addInterfaceCmd IP_LINK  "$dev" $up
-	elif ! test -n "$ctx"; then
+	elif ! test -n "$N_CONTEXT"; then
 	    echo $"Using 'dummy' (indirect) for interface '$dev' requires a fixed context number; dynamic ctx are not supported" >&2
 	    return 1
 	else
-	    test -z "$mac" || _generateMac mac "$(basename $iface)" "$ctx" || return 1
+	    test -z "$mac" || _generateMac mac "$(basename $iface)" "$N_CONTEXT" || return 1
 	    _addInterfaceCmd MODPROBE dummy "$dev"
 	    _addInterfaceCmd IP_LINK  dev dummy0 address "$mac"
 	    _addInterfaceCmd NAMEIF   "$dev" "$mac"
 	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" dev "$dev"
-	    test -z "$extip" || _addInterfaceCmd IPTABLES "$ip${prefix:+/$prefix}" ${name:+label "$dev:$name"} "$ctx" "$extip"
+	    test -z "$extip" || _addInterfaceCmd IPTABLES "$ip${prefix:+/$prefix}" ${name:+label "$dev:$name"} "$N_CONTEXT" "$extip"
 	fi
 
 	break
@@ -596,9 +628,11 @@ function _processSingleInterface
 function _generateInterfaceOptions
 {
     local iface
-    local ctx
 
-    test ! -e "$1"/context || read ctx <"$1"/context
+    # XXX: This is here instead of in _generateChbindOptions
+    #      to avoid a circular dependency
+    getFileValue N_CONTEXT "$1/ncontext" "$1/context"
+    test -n "$N_CONTEXT" -o -z "$S_CONTEXT" || N_CONTEXT="$S_CONTEXT"
 
     for iface in "$1/interfaces/"*; do
         test   -d "$iface"          || continue
@@ -637,6 +671,11 @@ function enableInterfaces
 	    IP_ADDR_FLUSH)	$_IP addr  flush "$@";;
 	    IP_LINK)		$_IP link  set   "$@";;
 	    IP_ROUTE)		$_IP route add   "$@";;
+	    TUNCTL)
+		local dev="$1"
+		shift
+		$_TUNCTL --persist "$@" "$dev"
+		;;
 	    *)			echo "Unknown interface-command type '$type'" >&2; false;;
 	esac
 
@@ -672,6 +711,7 @@ function disableInterfaces
 	    IP_ADDR_FLUSH)	;;
 	    IP_LINK)		;; ## Ignore the link-down command for now
 	    IP_ROUTE)		$_IP route del "$@";;
+	    TUNCTL)		$_TUNCTL --~persist "$1";;
 	    *)			echo "Unknown interface-command type '$type'" >&2; false;;
 	esac
     done

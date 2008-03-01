@@ -61,24 +61,26 @@
 #define CMD_LINKTYPE		0x0100
 #define CMD_TUN			0x0200
 #define CMD_TAP			0x0400
+#define CMD_NID_FAILURE_OK	(0x0800 | CMD_NID)
 
 int		wrapper_exit_code  =  255;
 
 struct option const
 CMDLINE_OPTIONS[] = {
-  { "help",       no_argument,       0, CMD_HELP },
-  { "version",    no_argument,       0, CMD_VERSION },
-  { "nid",        required_argument, 0, CMD_NID },
-  { "device",     required_argument, 0, CMD_DEVICE },
-  { "persist",    no_argument,       0, CMD_PERSIST },
-  { "~persist",   no_argument,       0, CMD_NOPERSIST },
-  { "checksum",   no_argument,       0, CMD_CSUM },
-  { "~checksum",  no_argument,       0, CMD_NOCSUM },
-  { "uid",        required_argument, 0, CMD_UID },
-  { "gid",        required_argument, 0, CMD_GID },
-  { "linktype",   required_argument, 0, CMD_LINKTYPE },
-  { "tun",        no_argument,       0, CMD_TUN },
-  { "tap",        no_argument,       0, CMD_TAP },
+  { "help",           no_argument,       0, CMD_HELP },
+  { "version",        no_argument,       0, CMD_VERSION },
+  { "nid",            required_argument, 0, CMD_NID },
+  { "device",         required_argument, 0, CMD_DEVICE },
+  { "persist",        no_argument,       0, CMD_PERSIST },
+  { "~persist",       no_argument,       0, CMD_NOPERSIST },
+  { "checksum",       no_argument,       0, CMD_CSUM },
+  { "~checksum",      no_argument,       0, CMD_NOCSUM },
+  { "uid",            required_argument, 0, CMD_UID },
+  { "gid",            required_argument, 0, CMD_GID },
+  { "linktype",       required_argument, 0, CMD_LINKTYPE },
+  { "tun",            no_argument,       0, CMD_TUN },
+  { "tap",            no_argument,       0, CMD_TAP },
+  { "nid-failure-ok", required_argument, 0, CMD_NID_FAILURE_OK },
   {0,0,0,0}
 };
 
@@ -140,8 +142,12 @@ doTunctl(struct Arguments *args, char *interface)
     EioctlD(fd, TUNSETOWNER, (void *) (long) args->uid);
   if (args->set & CMD_GID)
     EioctlD(fd, TUNSETGROUP, (void *) (long) args->gid);
-  if (args->set & CMD_NID)
-    EioctlD(fd, TUNSETNID, (void *) (long) args->nid);
+  if (args->set & CMD_NID) {
+    if (args->set & CMD_NID_FAILURE_OK)
+      ioctl(fd, TUNSETNID, (void *) (long) args->nid);
+    else
+      EioctlD(fd, TUNSETNID, (void *) (long) args->nid);
+  }
   if (args->set & CMD_LINKTYPE)
     EioctlD(fd, TUNSETLINK, (void *) (long) args->linktype);
   if (args->set & (CMD_PERSIST|CMD_NOPERSIST))
@@ -174,6 +180,7 @@ int main(int argc, char *argv[])
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
 
+      case CMD_NID_FAILURE_OK:
       case CMD_NID	:  args.nid = Evc_nidopt2nid(optarg, true);	break;
       case CMD_DEVICE	:  args.device = optarg;			break;
       case CMD_PERSIST	:  args.persist = 1;				break;

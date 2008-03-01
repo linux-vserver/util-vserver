@@ -95,9 +95,9 @@ fi
 
 # Remove persistent so those contexts can be stopped
 $_VATTRIBUTE --set --xid "$S_CONTEXT" --flag !persistent 2>/dev/null || :
-if $_VSERVER_INFO -q "$S_CONTEXT" XIDTYPE static &&
+if $_VSERVER_INFO -q "$N_CONTEXT" XIDTYPE static &&
    $_VSERVER_INFO - FEATURE vnet; then
-    $_NATTRIBUTE --set --nid "$S_CONTEXT" --flag !persistent 2>/dev/null || :
+    $_NATTRIBUTE --set --nid "$N_CONTEXT" --flag !persistent 2>/dev/null || :
 fi
 
 vshelper.doStopSync
