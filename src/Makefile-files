@@ -102,7 +102,8 @@ noinst_HEADERS +=	src/capability-compat.h \
 			src/vhashify.h \
 			src/vhashify-init.hc \
 			src/vserver-visitdir.hc \
-			src/context-sync.hc
+			src/context-sync.hc \
+			src/attribute-util.h
 
 pkglib_PROGRAMS +=	src/capchroot \
 			src/chain-echo \
