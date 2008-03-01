@@ -21,6 +21,7 @@
 #endif
 
 #include "util.h"
+#include "attribute-util.h"
 #include <lib/vserver.h>
 
 #include <getopt.h>
@@ -156,19 +157,6 @@ parseSecure(struct vc_ctx_flags UNUSED * flags,
   flags->mask     = VC_VXF_HIDE_NETIF;
 }
 
-static inline int
-ffsull(unsigned long long word)
-{
-  int bit;
-  for (bit = 0; bit < 64; bit++) {
-    if (word & (1ULL << bit))
-      break;
-  }
-  if (bit == 64)
-    bit = 0;
-  return bit;
-}
-
 static int
 printAttrs(struct Arguments *args)
 {
@@ -179,37 +167,9 @@ printAttrs(struct Arguments *args)
   Evc_get_cflags(args->xid, &flags);
   Evc_get_ccaps(args->xid, &caps);
 
-#define PRINT_VALUES(type, name, var)	\
-  WRITE_MSG(1, name ":\n");		\
-  first = 1;				\
-  while (1) {				\
-    char const *i;			\
-    i = vc_lo ## type ## 2text(var);	\
-    if (!i)				\
-      break;				\
-    if (!first)				\
-      WRITE_MSG(1, ",");		\
-    else				\
-      first = 0;			\
-    WRITE_STR(1, i);			\
-  }					\
-  while (*(var)) {			\
-    int bit = ffsull(*(var));		\
-    if (!bit)				\
-      break;				\
-    if (!first)				\
-      WRITE_MSG(1, ",");		\
-    else				\
-      first = 0;			\
-    WRITE_MSG(1, "^");			\
-    WRITE_INT(1, bit);			\
-    *(var) &= ~(1ULL << bit);		\
-  }					\
-  WRITE_MSG(1, "\n");
-
-  PRINT_VALUES(bcap, "bcapabilities", &caps.bcaps);
-  PRINT_VALUES(ccap, "ccapabilities", &caps.ccaps);
-  PRINT_VALUES(cflag, "flags", &flags.flagword);
+  print_bitfield(1, bcap, "bcapabilities", &caps.bcaps);
+  print_bitfield(1, ccap, "ccapabilities", &caps.ccaps);
+  print_bitfield(1, cflag, "flags", &flags.flagword);
 
   return 0;
 }

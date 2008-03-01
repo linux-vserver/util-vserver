@@ -22,6 +22,7 @@
 #endif
 
 #include "util.h"
+#include "attribute-util.h"
 #include <lib/vserver.h>
 
 #include <getopt.h>
@@ -40,6 +41,7 @@
 #define CMD_CAP			0x2002
 #define CMD_FLAG		0x2003
 #define CMD_SECURE		0x2004
+#define CMD_GET			0x2005
 
 int			wrapper_exit_code = 1;
 
@@ -52,13 +54,15 @@ CMDLINE_OPTIONS[] = {
   { "ncap",       required_argument, 0, CMD_CAP },
   { "flag",       required_argument, 0, CMD_FLAG },
   { "secure",     no_argument,       0, CMD_SECURE },
+  { "get",        no_argument,       0, CMD_GET },
   {0,0,0,0}
 };
 
 struct Arguments {
+    int			mode;
     nid_t		nid;
-    struct vc_net_flags flags;
-    struct vc_net_caps  caps;
+    struct vc_net_flags	flags;
+    struct vc_net_caps	caps;
 };
 
 static void
@@ -67,7 +71,8 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:\n    ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " --set [--nid <nid>] [--ncap [~!]<ncap>] [--flag [~!]<flag>] [--secure] -- [<program> <args>*]\n"
+	    " {--set|--get} [--nid <nid>] [--ncap [~!]<ncap>] [--flag [~!]<flag>] [--secure] --\n"
+	    "    [<program> <args>*]\n"
 	    "\n"
 	    " --ncap <cap>   ...  network capability to be added\n"
 	    " --flag <flag>  ...  network flag to be added\n"
@@ -81,7 +86,7 @@ static void
 showVersion()
 {
   WRITE_MSG(1,
-	    "nattribute " VERSION " -- sets attributes of network contexts\n"
+	    "nattribute " VERSION " -- sets/gets attributes of network contexts\n"
 	    "This program is part of " PACKAGE_STRING "\n\n"
 	    "Copyright (C) 2004 Enrico Scholz\n"
 	    "Copyright (C) 2006 Daniel Hokka Zakrisson\n"
@@ -133,9 +138,25 @@ parseSecure(struct vc_net_flags * flags,
   flags->mask     = VC_NXF_HIDE_NETIF;
 }
 
+static int
+printAttrs(struct Arguments *args)
+{
+  struct vc_net_flags flags;
+  struct vc_net_caps  caps;
+
+  Evc_get_nflags(args->nid, &flags);
+  Evc_get_ncaps(args->nid, &caps);
+
+  print_bitfield(1, ncap, "ncapabilities", &caps.ncaps);
+  print_bitfield(1, nflag, "nflags", &flags.flagword);
+
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
   struct Arguments		args = {
+    .mode  = CMD_SET,
     .nid   = VC_NOCTX,
     .flags = { .flagword = 0, .mask = 0 },
     .caps  = { .ncaps = 0, .cmask = 0 },
@@ -148,7 +169,8 @@ int main(int argc, char *argv[])
     switch (c) {
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
-      case CMD_SET	:  break; // default op currently
+      case CMD_SET	:  args.mode = CMD_SET;                    break;
+      case CMD_GET	:  args.mode = CMD_GET;                    break;
       case CMD_NID	:  args.nid = Evc_nidopt2nid(optarg,true); break;
       case CMD_FLAG	:  parseFlags(optarg, &args.flags);        break;
       case CMD_CAP	:  parseNCaps(optarg, &args.caps);         break;
@@ -164,16 +186,25 @@ int main(int argc, char *argv[])
 
   if (args.nid==VC_NOCTX) args.nid = Evc_get_task_nid(0);
 
-  if (args.caps.cmask &&
-      vc_set_ncaps(args.nid, &args.caps)==-1)
-    perror(ENSC_WRAPPERS_PREFIX "vc_set_ncaps()");
-  else if (args.flags.mask &&
-	   vc_set_nflags(args.nid, &args.flags)==-1)
-    perror(ENSC_WRAPPERS_PREFIX "vc_set_nflags()");
-  else if (optind<argc)
-    EexecvpD(argv[optind], argv+optind);
-  else
-    return EXIT_SUCCESS;
+  if (args.mode == CMD_SET) {
+    if (args.caps.cmask &&
+        vc_set_ncaps(args.nid, &args.caps)==-1)
+      perror(ENSC_WRAPPERS_PREFIX "vc_set_ncaps()");
+    else if (args.flags.mask &&
+	     vc_set_nflags(args.nid, &args.flags)==-1)
+      perror(ENSC_WRAPPERS_PREFIX "vc_set_nflags()");
+    else if (optind<argc)
+      EexecvpD(argv[optind], argv+optind);
+    else
+      return EXIT_SUCCESS;
+  }
+  else if (args.mode == CMD_GET) {
+    printAttrs(&args);
+    if (optind<argc)
+      EexecvpD(argv[optind], argv+optind);
+    else
+      return EXIT_SUCCESS;
+  }
 
   return EXIT_FAILURE;
 }
