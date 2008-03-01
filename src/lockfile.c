@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 		   
   if ((sync_fd=open(argv[idx+1], O_WRONLY))==-1)
     perror("lockfile: open(<syncpipe>)");
-  else if ((fd=open(argv[idx], O_CREAT|O_RDONLY|O_NOFOLLOW|O_NONBLOCK, 0644))==-1)
+  else if ((fd=open(argv[idx], O_CREAT|O_WRONLY|O_NOFOLLOW|O_NONBLOCK, 0644))==-1)
     perror("lockfile: open(<lockfile>)");
   else if (unlink(argv[idx+1])==-1)
     perror("lockfile: unlink(<syncpipe>)");
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
   else while (time(0)<end_time && getppid()==ppid) {
     int		duration = end_time-time(0);
     alarm(MIN(10, MAX(duration,1)));
-    
+
     if (lockf(fd,F_LOCK,0)==-1) {
       if (errno==EINTR) continue;
       perror("lockfile: lockf()");
