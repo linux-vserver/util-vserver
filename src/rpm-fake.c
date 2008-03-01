@@ -25,7 +25,7 @@
 
 #include <lib/vserver.h>
 #include <lib/internal.h>
-#include <lib_internal/sys_unshare.h>
+#include <lib_internal/sys_clone.h>
 
 #include <sys/socket.h>
 #include <dlfcn.h>
@@ -49,7 +49,7 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <grp.h>
-#include <sched.h>
+
 
   // from selinux.h
   // FIXME: add configure autodetection and include <selinux.h> directly
@@ -629,12 +629,20 @@ execvWorker(char const *path, char * const argv[], char * const envp[])
   return res;
 }
 
-static int
-removeNamespaceMounts(char const *mnts)
+struct ExecvParams
 {
-  char			buf[strlen(mnts)+1], *ptr;
+    char const *	path;
+    char * const *	argv;
+    char * const *	envp;
+    char const *	mnts;
+};
 
-  strcpy(buf, mnts);
+static int
+removeNamespaceMountsChild(struct ExecvParams const *params)
+{
+  char			buf[strlen(params->mnts)+1], *ptr;
+
+  strcpy(buf, params->mnts);
   ptr = strtok(buf, ":");
   while (ptr) {
     if (umount2(ptr, 0)==-1) {
@@ -648,27 +656,53 @@ removeNamespaceMounts(char const *mnts)
     ptr = strtok(0, ":");
   }
 
-  return 0;
+  return execvWorker(params->path, params->argv, params->envp);
 }
 
 static int
-execv_main(char const *path, char * const argv[], char * const envp[])
+removeNamespaceMounts(char const *path,
+		      char * const argv[], char * const envp[])
 {
-  int		rc = 0;
+  if (mnts==0) return execvWorker(path, argv, envp);
 
-  if (sys_unshare(CLONE_NEWNS)==-1) {
-    perror("unshare()");
+  {
+    int				status;
+    pid_t			p, pid;
+    struct ExecvParams		params;
+
+    params.path = path;
+    params.argv = argv;
+    params.envp = envp;
+    params.mnts = mnts;
+
+      // the rpmlib signal-handler is still active; use the default one to
+      // make wait4() working...
+    signal(SIGCHLD, SIG_DFL);
+
+#ifdef NDEBUG
+    pid = sys_clone(CLONE_NEWNS|SIGCHLD|CLONE_VFORK, 0);
+#else
+    pid = sys_clone(CLONE_NEWNS|SIGCHLD, 0);
+#endif
+
+    switch (pid) {
+      case -1	:  return -1;
+      case 0	:  _exit(removeNamespaceMountsChild(&params));
+      default	:  break;
+    }
+	
+    while ((p=wait4(pid, &status, 0,0))==-1 &&
+	   (errno==EINTR || errno==EAGAIN)) ;
+
+    if (p==-1)   return -1;
+
+    if (WIFEXITED(status))   _exit(WEXITSTATUS(status));
+    if (WIFSIGNALED(status)) kill(getpid(), WTERMSIG(status));
+
     return -1;
   }
-
-  if (mnts)
-    rc = removeNamespaceMounts(mnts);
-
-  if (rc!=0)
-    return rc;
-  
-  return execvWorker(path, argv, envp);
 }
+
 
 int
 execv(char const *path, char * const argv[])
@@ -681,7 +715,7 @@ execv(char const *path, char * const argv[])
     WRITE_MSG(2, "', ...)\n");
   }
 
-  return execv_main(path, argv, environ);
+  return removeNamespaceMounts(path, argv, environ);
 }
 
 int
@@ -695,7 +729,7 @@ rpm_execcon(unsigned int UNUSED verified,
     WRITE_MSG(2, "', ...)\n");
   }
 
-  return execv_main(filename, argv, envp);
+  return removeNamespaceMounts(filename, argv, envp);
 }
 
 int

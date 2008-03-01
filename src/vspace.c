@@ -22,7 +22,7 @@
 #endif
 
 #include "util.h"
-#include <lib_internal/sys_unshare.h>
+#include <lib_internal/sys_clone.h>
 
 #include <vserver.h>
 
@@ -106,14 +106,30 @@ showVersion()
 }
 
 static void
-newSpaces(uint_least64_t mask)
+newSpaces(uint_least64_t mask, const char *cmd)
 {
-  int rc;
+  pid_t pid;
 
-  rc = sys_unshare(mask);
-  if (rc) {
-	  perror(ENSC_WRAPPERS_PREFIX "unshare()");
-	  exit(wrapper_exit_code);
+  /* optimize default case */
+  if (mask == 0)
+    return;
+
+  signal(SIGCHLD, SIG_DFL);
+
+#ifdef NDEBUG
+  pid = sys_clone((int) mask | CLONE_VFORK|SIGCHLD, 0);
+#else
+  pid = sys_clone((int) mask | SIGCHLD, 0);
+#endif
+
+  switch (pid) {
+    case -1	:
+      perror(ENSC_WRAPPERS_PREFIX "clone()");
+      exit(wrapper_exit_code);
+    case 0	:
+      break;
+    default	:
+      exitLikeProcess(pid, cmd, wrapper_exit_code);
   }
 }
 
@@ -195,7 +211,7 @@ int main(int argc, char *argv[])
   else if (optind==argc && (do_new || do_enter))
     WRITE_MSG(2, "No command specified; try '--help' for more information\n");
   else {
-    if      (do_new)     newSpaces(mask);
+    if      (do_new)     newSpaces(mask, argv[optind]);
     else if (do_set)     setSpaces(VC_SAMECTX, mask);
     else if (do_enter)   enterSpaces(xid, mask);
 
