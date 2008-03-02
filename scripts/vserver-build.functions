@@ -264,7 +264,7 @@ function base.setSuccess
 function startSleepingGuest
 {
     local guest="$1"
-    local timeout="$2"
+    local timeout="${2:-15}"
     $_VSERVER "$guest" start --rescue --rescue-init bash -c "
 	exec  > /dev/null
 	exec 2> /dev/null
@@ -278,5 +278,5 @@ function startSleepingGuest
 function stopSleepingGuest
 {
     local guest="$1"
-    $_VKILL --xid "$guest" -s INT -- 1
+    $_VKILL --xid "$guest" -s INT -- 0
 }
