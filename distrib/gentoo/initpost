@@ -51,6 +51,11 @@ $_CHROOT_SH mkdir /usr/portage 2>/dev/null || :
 $_CHROOT_SH mkdir /usr/portage/distfiles 2>/dev/null || :
 
 
+# check if we have openrc
+have_openrc=0
+$_CHROOT_SH testfile /lib/rc/bin/is_older_than && have_openrc=1
+
+
 # gentoo initstyle magic
 initstyle=sysv
 test -e "$cfgdir"/apps/init/style && initstyle=$(<"$cfgdir"/apps/init/style)
@@ -59,8 +64,8 @@ if test "$initstyle" == "gentoo"; then
 	echo ">>> Installing special init-style magic ... "
 
 	$_CAT "$__DISTRIBDIR"/gentoo/init-vserver.sh | \
-	$_CHROOT_SH truncate   /lib/rcscripts/sh/init-vserver.sh
-	$_CHROOT_SH chmod 0755 /lib/rcscripts/sh/init-vserver.sh
+	$_CHROOT_SH truncate   /lib/rc/sh/init-vserver.sh
+	$_CHROOT_SH chmod 0755 /lib/rc/sh/init-vserver.sh
 
 	$_CAT "$__DISTRIBDIR"/gentoo/reboot.sh | \
 	$_CHROOT_SH truncate   /etc/init.d/reboot.sh
@@ -83,15 +88,17 @@ fi
 
 # unneeded runlevel scripts
 echo ">>> Fixing default runlevel scripts ... "
-$_CHROOT_SH rm /etc/runlevels/boot/{clock,consolefont,keymaps,modules,net.lo} 2>/dev/null || :
-$_CHROOT_SH rm /etc/runlevels/default/{hdparm,netmount} 2>/dev/null || :
+if test $have_openrc -ne 1; then
+	$_CHROOT_SH rm /etc/runlevels/boot/{clock,consolefont,keymaps,modules,net.lo} 2>/dev/null || :
+	$_CHROOT_SH rm /etc/runlevels/default/{hdparm,netmount} 2>/dev/null || :
+fi
 
 
 # setting hostname
 if test -r "$cfgdir"/uts/nodename && $_CHROOT_SH testfile /etc/conf.d/hostname; then
 	echo ">>> Setting hostname ... "
 	chrootsed /etc/conf.d/hostname \
-		-e "s:HOSTNAME=\"\(.*\)\":HOSTNAME=\"$(< "$cfgdir"/uts/nodename)\":"
+		-e "s:\(HOSTNAME\)=\"\(.*\)\":\1=\"$(< "$cfgdir"/uts/nodename)\":i"
 fi
 
 
@@ -114,16 +121,19 @@ fi
 
 # fix fstab for checkfs/localmount in baselayout-2
 # (does not affect any previous versions)
-echo ">>> Fixing fstab ... "
-echo "/dev/hdv1 / ufs defaults 0 0" | $_CHROOT_SH truncate /etc/fstab
-
+if test $have_openrc -ne 1; then
+	echo ">>> Fixing fstab ... "
+	echo "/dev/hdv1 / ufs defaults 0 0" | $_CHROOT_SH truncate /etc/fstab
+fi
 
 # always satisfy net dependency in baselayout-2
 # (does not affect any previous versions)
-echo ">>> Providing dummy net dependency ... "
-$_CAT "$__DISTRIBDIR"/gentoo/net.vserver | \
-$_CHROOT_SH truncate /etc/init.d/net.vserver
-$_CHROOT_SH chmod 0755 /etc/init.d/net.vserver
-$_CHROOT_SH link /etc/init.d/net.vserver /etc/runlevels/boot/net.vserver
+if test $have_openrc -ne 1; then
+	echo ">>> Providing dummy net dependency ... "
+	$_CAT "$__DISTRIBDIR"/gentoo/net.vserver | \
+	$_CHROOT_SH truncate /etc/init.d/net.vserver
+	$_CHROOT_SH chmod 0755 /etc/init.d/net.vserver
+	$_CHROOT_SH link /etc/init.d/net.vserver /etc/runlevels/boot/net.vserver
+fi
 
 popd &>/dev/null
