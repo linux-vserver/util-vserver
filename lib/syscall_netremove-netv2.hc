@@ -31,10 +31,10 @@ vc_net_remove_netv2(nid_t nid, struct vc_net_addr const *info)
     k_ipv4.type = VC_NXA_TYPE_ANY;
     k_ipv6.type = VC_NXA_TYPE_ANY;
 
-    ret = vserver(VCMD_net_remove_ipv4, NID_USER2KERNEL(nid), &k_ipv4);
-    if (ret == -1)
+    ret = vserver(VCMD_net_remove_ipv6, NID_USER2KERNEL(nid), &k_ipv6);
+    if (ret == -1 && errno != ENOSYS)
       return -1;
-    return vserver(VCMD_net_remove_ipv6, NID_USER2KERNEL(nid), &k_ipv6);
+    return vserver(VCMD_net_remove_ipv4, NID_USER2KERNEL(nid), &k_ipv4);
   }
   switch (info->vna_type & (VC_NXA_TYPE_IPV4 | VC_NXA_TYPE_IPV6)) {
     case VC_NXA_TYPE_IPV4: {
