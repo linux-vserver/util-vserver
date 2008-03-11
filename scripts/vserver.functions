@@ -317,7 +317,15 @@ function _generateInitOptions
 	    test -n "$RUNLEVEL_START" || RUNLEVEL_START="default"
 	    RC_PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
-	    INITCMD_START=( env TERM=$TERM /lib/rcscripts/sh/init-vserver.sh "$RUNLEVEL_START" )
+	    if test -x "$vdir/vdir/lib/rcscripts/sh/init-vserver.sh"; then
+	    	RC_WRAP=/lib/rcscripts/sh/init-vserver.sh
+	    elif test -x "$vdir/vdir/lib/rc/sh/init-vserver.sh"; then
+	    	RC_WRAP=/lib/rc/sh/init-vserver.sh
+	    else
+	    	panic "init-vserver.sh not found; aborting"
+	    fi
+
+	    INITCMD_START=( env TERM=$TERM $RC_WRAP "$RUNLEVEL_START" )
 	    INITCMD_STOP=( env -i PATH=$RC_PATH TERM=$TERM RUNLEVEL=0 /sbin/rc shutdown )
 	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL 3 /var/run/utmp )
 	    ;;

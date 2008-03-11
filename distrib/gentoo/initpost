@@ -83,16 +83,21 @@ if test "$initstyle" == "gentoo"; then
 	echo "!!! Consult the Gentoo Handbook on how to chroot and install"
 	echo "!!! packages into the guest environment."
 	echo "!!!"
+else
+	# fix gettys in inittab
+	if $_CHROOT_SH testfile /etc/inittab; then
+		echo ">>> Fixing inittab ... "
+		chrootsed /etc/inittab \
+			-e 's/\(^[^#].*getty.*$\)/#\1/'
+	fi
 fi
 
-
 # unneeded runlevel scripts
-echo ">>> Fixing default runlevel scripts ... "
 if test $have_openrc -ne 1; then
+	echo ">>> Fixing default runlevel scripts ... "
 	$_CHROOT_SH rm /etc/runlevels/boot/{clock,consolefont,keymaps,modules,net.lo} 2>/dev/null || :
 	$_CHROOT_SH rm /etc/runlevels/default/{hdparm,netmount} 2>/dev/null || :
 fi
-
 
 # setting hostname
 if test -r "$cfgdir"/uts/nodename && $_CHROOT_SH testfile /etc/conf.d/hostname; then
@@ -101,7 +106,6 @@ if test -r "$cfgdir"/uts/nodename && $_CHROOT_SH testfile /etc/conf.d/hostname; 
 		-e "s:\(HOSTNAME\)=\"\(.*\)\":\1=\"$(< "$cfgdir"/uts/nodename)\":i"
 fi
 
-
 # fix syslog-ng.conf
 if $_CHROOT_SH testfile /etc/syslog-ng/syslog-ng.conf; then
 	echo ">>> Fixing syslog-ng.conf ... "
@@ -109,15 +113,6 @@ if $_CHROOT_SH testfile /etc/syslog-ng/syslog-ng.conf; then
 		-e 's:pipe("/proc/kmsg"); ::' \
 		-e 's:\(.*console_all.*\):#\1:g'
 fi
-
-
-# fix gettys in inittab
-if $_CHROOT_SH testfile /etc/inittab; then
-	echo ">>> Fixing inittab ... "
-	chrootsed /etc/inittab \
-		-e 's/\(^[^#].*getty.*$\)/#\1/'
-fi
-
 
 # fix fstab for checkfs/localmount in baselayout-2
 # (does not affect any previous versions)
