@@ -65,10 +65,19 @@ showHelp(int fd, char const *cmd)
 	    "\n"
 	    "    --flags <flags>     Set the specified flags\n"
 	    "    --open              Allow opening of the device\n"
-	    "    --create            If SECURE_MKNOD is given, allow mknod(2)\n"
+	    "    --create            If CAP_MKNOD is given, allow mknod(2)\n"
 	    "    --device <dev>      Device to apply the command to\n"
 	    "    --remap             Remap the device to the target\n"
 	    "    --target <dev>      Target for --remap\n"
+	    "\n"
+	    "EXAMPLES\n"
+	    "  Remap /dev/hda1 to /dev/vroot1 for xid 42\n"
+	    "    vdevmap --xid 42 --set --open --device /dev/hda1 --target /dev/vroot1 --remap\n"
+	    "  Let xid 42 create all device nodes\n"
+	    "    vdevmap --xid 42 --set --open --create --target /dev/null\n"
+	    "    vdevmap --xid 42 --set --open --create --target /dev/root\n"
+	    "  Let xid 43 create just /dev/null\n"
+	    "    vdevmap --xid 43 --set --open --create --device /dev/null\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
@@ -136,12 +145,14 @@ int main(int argc, char *argv[])
   if (allow_create)	flags |= VC_DATTR_CREATE;
   if (do_remap)		flags |= VC_DATTR_REMAP;
 
-  if (target && !do_remap)
-    WRITE_MSG(2, "Target specified without --remap; try '--help' for more information\n");
+  if (!target && do_remap)
+    WRITE_MSG(2, "Remapping specified without a target; try '--help' for more information\n");
   else if (xid==VC_NOCTX)
     WRITE_MSG(2, "No xid specified; try '--help' for more information\n");
   else if (optind!=argc)
     WRITE_MSG(2, "Unused argument(s); try '--help' for more information\n");
+  else if (!device && !target)
+    WRITE_MSG(2, "Device and target are missing; try '--help' for more information\n");
   else if (set && vc_set_mapping(xid, device, target, flags)==-1)
       perror("vc_set_mapping()");
   else if (!set && vc_unset_mapping(xid, device, target, flags)==-1)
