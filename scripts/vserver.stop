@@ -50,7 +50,7 @@ OPTION_FORCE_SYNC=1
 
 while test "$#" -gt 0; do
     case "$1" in
-	(--rescue-init)	_IS_FAKEINIT=1;;
+	(--rescue-init)	shift; _IS_FAKEINIT=1;;
 	(--)		shift; break;;
 	(-*)		panic $"vserver ... stop: unknown option '$1'";;
     esac
@@ -69,6 +69,8 @@ execScriptlets     "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
 cd "$VSERVER_DIR"/vdir/
 
 test -z "$OPTION_DEFAULTTTY" || setDefaultTTY "$VSERVER_DIR"
+
+$_VATTRIBUTE --set --xid "$S_CONTEXT" --flag !SC_HELPER
 
 fail=
 initWait	   "$VSERVER_DIR" "$S_CONTEXT" vwait_statdir

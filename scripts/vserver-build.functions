@@ -282,5 +282,5 @@ function startSleepingGuest
 function stopSleepingGuest
 {
     local guest="$1"
-    $_VKILL --xid "$guest" -s INT -- 1
+    $_VSERVER "$guest" stop --rescue-init
 }
