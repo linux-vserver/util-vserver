@@ -1,11 +1,50 @@
-version 0.30.???
+version 0.30.215
 ================
 
 	- added support for using libnss instead of beecrypt for
 	vhashify's hash calculation.  libnss has bad SHA1 performance on
 	i386, but is a) maintained and b) gives better performance with
 	all other hashes and on x86_64.
-	
+
+	- added tunctl, a small program to setup tun/tap interfaces, with
+	support in the configuration.
+
+	- vattribute and nattribute now support a --get operation, which
+	parses the flags and capabilities into a human-readable form.
+
+	- vspace supports all the spaces currently available.
+
+	- vmemctrl controls the OOM bias of context.
+
+	- dynamic contexts are unbroken.
+
+	- hopefully all rpm-fake races have been fixed.
+
+	- flock has been replaced by lockf, which works on NFS.
+
+	- the clone build method now supports exclude lists.
+
+	- vmount handles mounting into a guest.
+
+	- various fixes for the Gentoo-scripts, thanks to Benedikt Böhm.
+
+	- support for yum's persistdir has been added.
+
+	- per-guest device maps are now supported.
+
+	- vserver ... build now sets the barrier on the parent directory.
+
+	- fsck is now supported for the guest's fstab.
+
+	- symlinks are now handled on all levels in namespace cleanup.
+
+	- the debootstrap build method now supports debootstrap 1.0.8.
+
+	- a documentation update, thanks to Micah Anderson.
+
+	- use numeric uids/gids for the template build method.
+
+	- add support for the alpine and f8 distributions.
 	
 version 0.30.214
 ================
