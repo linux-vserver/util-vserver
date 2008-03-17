@@ -239,6 +239,7 @@
 
 #define VC_NXF_SINGLE_IP		0x00000100ull
 #define VC_NXF_LBACK_REMAP		0x00000200ull
+#define VC_NXF_LBACK_ALLOW		0x00000400ull
 
 #define VC_NXF_HIDE_NETIF		0x02000000ull
 #define VC_NXF_HIDE_LBACK		0x04000000ull
@@ -251,6 +252,8 @@
 
 
 // the network capabilities
+#define VC_NXC_TUN_CREATE		0x00000001ull
+
 #define VC_NXC_RAW_ICMP			0x00000100ull
 
 
