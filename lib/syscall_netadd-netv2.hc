@@ -27,10 +27,15 @@ vc_net_add_netv2(nid_t nid, struct vc_net_addr const *info)
     case VC_NXA_TYPE_IPV4: {
       struct vcmd_net_addr_ipv4_v1	k_info;
 
-      k_info.type        = info->vna_type & ~VC_NXA_TYPE_IPV4;
-      k_info.flags       = info->vna_flags;
-      k_info.ip.s_addr   = info->vna_v4_ip.s_addr;
-      k_info.mask.s_addr = info->vna_v4_mask.s_addr;
+      k_info.type          = info->vna_type & ~VC_NXA_TYPE_IPV4;
+      k_info.flags         = info->vna_flags;
+      k_info.ip.s_addr     = info->vna_v4_ip.s_addr;
+      k_info.mask.s_addr   = info->vna_v4_mask.s_addr;
+
+      if (k_info.ip.s_addr == 0) {
+	k_info.type        = VC_NXA_TYPE_MASK;
+	k_info.mask.s_addr = 0;
+      }
 
       return vserver(VCMD_net_add_ipv4, NID_USER2KERNEL(nid), &k_info);
     }
