@@ -315,7 +315,6 @@ parseIPFormat(char const *str_c, struct vc_ips **ips,
   }
 
 out:
-  free(str);
   return ret;
 }
 
