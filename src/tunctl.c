@@ -33,6 +33,21 @@
 #include <linux/if_tun.h>
 
 /* Make sure we have the necessary ioctls */
+#ifndef TUNSETNOCSUM
+#  define TUNSETNOCSUM		_IOW('T', 200, int)
+#endif
+#ifndef TUNSETIFF
+#  define TUNSETIFF		_IOW('T', 202, int)
+#endif
+#ifndef TUNSETPERSIST
+#  define TUNSETPERSIST		_IOW('T', 203, int)
+#endif
+#ifndef TUNSETOWNER
+#  define TUNSETOWNER		_IOW('T', 204, int)
+#endif
+#ifndef TUNSETLINK
+#  define TUNSETLINK		_IOW('T', 205, int)
+#endif
 #ifndef TUNSETGROUP
 #  define TUNSETGROUP		_IOW('T', 206, int)
 #endif
