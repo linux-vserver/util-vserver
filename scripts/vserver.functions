@@ -561,6 +561,7 @@ function _processSingleInterface
     local mac
     local extip
     local up="up"
+    local peer
 
     _getInterfaceValue ip     '' "$iface"
     _getInterfaceValue extip  '' "$iface" "$iface/.."
@@ -571,6 +572,7 @@ function _processSingleInterface
     _getInterfaceValue name   '' "$iface"
     _getInterfaceValue scope  '' "$iface" "$iface/.."
     _getInterfaceValue mac    '' "$iface"
+    _getInterfaceValue peer   '' "$iface"
 
     test -n "$ip" || { echo $"Can not read ip for '$iface'"  >&2; return 1; }
     test -n "$dev" -o -e "$iface"/nodev || {
@@ -613,7 +615,7 @@ function _processSingleInterface
 		_addInterfaceCmd TUNCTL "$dev" $tun_info
 	    fi
 
-	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" $use_bcast ${name:+label "$dev:$name"} dev "$dev"
+	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" $use_bcast ${name:+label "$dev:$name"} dev "$dev" ${peer:+peer "$peer"}
 	    #_addInterfaceCmd IP_ROUTE "$ip${prefix:+/$prefix}" dev "$dev"
 	    _addInterfaceCmd IP_LINK  "$dev" $up
 	elif ! test -n "$N_CONTEXT"; then

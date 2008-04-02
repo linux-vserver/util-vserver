@@ -1382,6 +1382,11 @@ not a group name.
 Sets the link type of tun/tap interfaces.
 	  </description>
 	</scalar>
+	<scalar name="peer" since="0.30.216">
+	  <description>
+Sets the peer for a point-to-point link, such as a tun interface.
+	  </description>
+	</scalar>
       </collection>
     </collection>
     
