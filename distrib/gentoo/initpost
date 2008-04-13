@@ -63,6 +63,11 @@ test -e "$cfgdir"/apps/init/style && initstyle=$(<"$cfgdir"/apps/init/style)
 if test "$initstyle" == "gentoo"; then
 	echo ">>> Installing special init-style magic ... "
 
+	# force /lib/rc/sh even if we don't have it in older stages
+	$_CHROOT_SH mkdir /lib 2>/dev/null || :
+	$_CHROOT_SH mkdir /lib/rc 2/dev/null || :
+	$_CHROOT_SH mkdir /lib/rc/sh 2/dev/null || :
+
 	$_CAT "$__DISTRIBDIR"/gentoo/init-vserver.sh | \
 	$_CHROOT_SH truncate   /lib/rc/sh/init-vserver.sh
 	$_CHROOT_SH chmod 0755 /lib/rc/sh/init-vserver.sh

@@ -21,7 +21,7 @@ if test -e /etc/init.d/functions; then
     _postResult() { echo; }
     lockfile=/var/lock/subsys/$LOCKFILE
 elif test -e /etc/gentoo-release; then
-    . /sbin/functions.sh
+    . /etc/init.d/functions.sh
     _beginResult() { ebegin "$@"; }
     _postResult() { :; }
     success() { eend 0; }
