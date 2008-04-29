@@ -114,6 +114,8 @@ newSpaces(uint_least64_t mask, const char *cmd)
   if (mask == 0)
     return;
 
+  mask &= ~CLONE_FS;
+
   signal(SIGCHLD, SIG_DFL);
 
 #ifdef NDEBUG
