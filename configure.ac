@@ -320,7 +320,7 @@ AC_ARG_WITH(crypto-api,
                            [select crypto api to be used; possible values are `none', `nss', `beecrypt', `auto' (default:auto)]),
 	    [case $withval in
 		(none|nss|beecrypt|auto)	ensc_crypto_api=$withval;;
-		(*)	AC_MSG_ERROR([invalid initscripts value, only gentoo and sysv are supported]);;
+		(*)	AC_MSG_ERROR([invalid crypto-api value, only none,nss,beecrypt,auto are supported]);;
 	     esac],[ensc_crypto_api=auto])
 AC_MSG_RESULT($ensc_crypto_api)
 
