@@ -65,8 +65,8 @@ if test "$initstyle" == "gentoo"; then
 
 	# force /lib/rc/sh even if we don't have it in older stages
 	$_CHROOT_SH mkdir /lib 2>/dev/null || :
-	$_CHROOT_SH mkdir /lib/rc 2/dev/null || :
-	$_CHROOT_SH mkdir /lib/rc/sh 2/dev/null || :
+	$_CHROOT_SH mkdir /lib/rc 2>/dev/null || :
+	$_CHROOT_SH mkdir /lib/rc/sh 2>/dev/null || :
 
 	$_CAT "$__DISTRIBDIR"/gentoo/init-vserver.sh | \
 	$_CHROOT_SH truncate   /lib/rc/sh/init-vserver.sh
