@@ -419,22 +419,30 @@ initPwSocket()
 static void
 reduceCapabilities()
 {
+  int retried = 0;
   struct __user_cap_header_struct header;
-  struct __user_cap_data_struct user;
+  struct __user_cap_data_struct user[2];
   
-  header.version = _LINUX_CAPABILITY_VERSION;
+  header.version = _LINUX_CAPABILITY_VERSION_2;
   header.pid     = 0;
 
-  if (capget(&header, &user)==-1) {
+retry:
+  if (capget(&header, user)==-1) {
+    if (!retried &&
+	header.version != _LINUX_CAPABILITY_VERSION_2) {
+      header.version = _LINUX_CAPABILITY_VERSION_1;
+      retried = 1;
+      goto retry;
+    }
     perror("capget()");
     exit(wrapper_exit_code);
   }
 
-  user.effective   &= ~(1<<CAP_MKNOD);
-  user.permitted   &= ~(1<<CAP_MKNOD);
-  user.inheritable &= ~(1<<CAP_MKNOD);
+  user[0].effective   &= ~(1<<CAP_MKNOD);
+  user[0].permitted   &= ~(1<<CAP_MKNOD);
+  user[0].inheritable &= ~(1<<CAP_MKNOD);
 
-  if (capset(&header, &user)==-1) {
+  if (capset(&header, user)==-1) {
     perror("capset()");
     exit(wrapper_exit_code);
   }

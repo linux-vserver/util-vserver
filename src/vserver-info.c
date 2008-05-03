@@ -185,9 +185,11 @@ verifyProc()
 static bool
 verifyCap()
 {
+  int retried = 0;
   struct __user_cap_header_struct header;
-  struct __user_cap_data_struct user;
-  header.version = _LINUX_CAPABILITY_VERSION;
+  struct __user_cap_data_struct user[2];
+
+  header.version = _LINUX_CAPABILITY_VERSION_2;
   header.pid     = 0;
 
   if (getuid()!=0) {
@@ -199,17 +201,24 @@ verifyCap()
 //    perror( "prctl:" );
 //    return false;
 //  }
-  
-  if (capget(&header, &user)==-1) {
+
+retry:
+  if (capget(&header, user)==-1) {
+    if (!retried &&
+	header.version != _LINUX_CAPABILITY_VERSION_2) {
+      header.version = _LINUX_CAPABILITY_VERSION_1;
+      retried = 1;
+      goto retry;
+    }
     perror("capget()");
     return false;
   }
 
-  user.effective   = 0;
-  user.permitted   = 0;
-  user.inheritable = 0;
+  user[0].effective   = user[1].effective   = 0;
+  user[0].permitted   = user[1].permitted   = 0;
+  user[0].inheritable = user[1].inheritable = 0;
 
-  if (capset(&header, &user)==-1) {
+  if (capset(&header, user)==-1) {
     perror("capset()");
     return false;
   }

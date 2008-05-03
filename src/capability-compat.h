@@ -29,3 +29,11 @@ extern int capget (struct __user_cap_header_struct *, struct __user_cap_data_str
 extern int capset (struct __user_cap_header_struct *, struct __user_cap_data_struct *);
 
 #endif
+
+#ifndef _LINUX_CAPABILITY_VERSION_1
+#  define _LINUX_CAPABILITY_VERSION_1	_LINUX_CAPABILITY_VERSION
+#endif
+
+#ifndef _LINUX_CAPABILITY_VERSION_2
+#  define _LINUX_CAPABILITY_VERSION_2	0x20071026
+#endif
