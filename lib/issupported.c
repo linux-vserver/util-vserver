@@ -47,6 +47,7 @@ vc_isSupported(vcFeatureSet feature)
     case vcFEATURE_VNET		:  return ver >= 0x00020001;
     case vcFEATURE_VSTAT	:  return ver >= 0x00020103;
     case vcFEATURE_PPTAG	:  return conf & VC_VCI_PPTAG;
+    case vcFEATURE_PIDSPACE	:  return ver >= 0x00020303 || ver >= 0x00020201;
     default			:  assert(false); 
   }
 

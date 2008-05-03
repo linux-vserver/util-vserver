@@ -757,8 +757,9 @@ function _generateSpaceOptions
     local vdir="$1"
     local d="$vdir"/spaces
 
-    test ! -e "$d"/pid || \
-      OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --pid )
+    ( test ! -e "$d"/pid &&
+      ! $_VSERVER_INFO PIDSPACE FEATURE ) || \
+	OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --pid )
 
     test ! -e "$d"/net || {
 	OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --net )
