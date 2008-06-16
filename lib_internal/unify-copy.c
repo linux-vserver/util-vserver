@@ -132,8 +132,8 @@ copyMMap(int in_fd, int out_fd)
       buf_size = in_len - offset;
       if (buf_size > MMAP_BLOCKSIZE) buf_size = MMAP_BLOCKSIZE;
       
-      if ((in_buf  = mmap(0, buf_size, PROT_READ,  MAP_SHARED,  in_fd, offset))==0 ||
-	  (out_buf = mmap(0, buf_size, PROT_WRITE, MAP_SHARED, out_fd, offset))==0) {
+      if ((in_buf  = mmap(0, buf_size, PROT_READ,  MAP_SHARED,  in_fd, offset))==MAP_FAILED ||
+	  (out_buf = mmap(0, buf_size, PROT_WRITE, MAP_SHARED, out_fd, offset))==MAP_FAILED) {
 	perror("mmap()");
 	goto out;
       }

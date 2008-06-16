@@ -148,7 +148,7 @@ process_file(file_format_t *head, const char *file, file_format_t *ret[2])
   fd = EopenD(file, O_RDONLY, 0);
   Efstat(fd, &st);
   mapping = mmap(NULL, MIN(st.st_size, MAX_PEEK_SIZE), PROT_READ, MAP_SHARED, fd, 0);
-  if (!mapping) {
+  if (mapping == MAP_FAILED) {
     perror("mmap()");
     Eclose(fd);
     return -1;

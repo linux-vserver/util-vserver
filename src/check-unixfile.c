@@ -73,7 +73,7 @@ checkFile(char const *fname)
   }
   else if (l>0) {
     data = mmap(0, l, PROT_READ, MAP_PRIVATE, fd, 0);
-    if (data==0) {
+    if (data==MAP_FAILED) {
       perror("mmap()");
       exit(wrapper_exit_code);
     }

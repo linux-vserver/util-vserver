@@ -332,7 +332,7 @@ calculateHashFromFD(int fd, HashPath d_path, struct stat const * const st)
       buf_size = size-offset;
       if (buf_size>HASH_BLOCKSIZE) buf_size = HASH_BLOCKSIZE;
 
-      if ((buf=mmap(0, buf_size, PROT_READ, MAP_SHARED, fd, offset))==0) {
+      if ((buf=mmap(0, buf_size, PROT_READ, MAP_SHARED, fd, offset))==MAP_FAILED) {
 	perror("mmap(<hash>)");
 	goto out;
       }

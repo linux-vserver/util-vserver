@@ -76,7 +76,7 @@ int main(int UNUSED argc, char *argv[])
     void const *		buf;
     if (buf_size>HASH_BLOCKSIZE) buf_size = HASH_BLOCKSIZE;
 
-    assert((buf=mmap(0, buf_size, PROT_READ, MAP_SHARED, fd, offset))!=0);
+    assert((buf=mmap(0, buf_size, PROT_READ, MAP_SHARED, fd, offset))!=MAP_FAILED);
     offset += buf_size;
     assert(ensc_crypto_hashctx_update(&hash_context, buf, buf_size)!=-1);
     munmap((void *)(buf), buf_size);
