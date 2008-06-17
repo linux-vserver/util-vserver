@@ -210,6 +210,24 @@ execLink(int argc, char *argv[])
   return res;
 }
 
+static int
+execMv(int argc, char *argv[])
+{
+  int		res = EXIT_SUCCESS;
+
+  if (argc!=3) {
+    WRITE_MSG(2, "Need exactly two files for 'mv' operation; try '--help' for more information\n");
+    return wrapper_exit_code;
+  }
+
+  if (rename(argv[1], argv[2])==-1) {
+    PERROR_Q(ENSC_WRAPPERS_PREFIX "mv", argv[1]);
+    res = EXIT_FAILURE;
+  }
+
+  return res;
+}
+
 static struct Command {
     char const		*cmd;
     int			(*handler)(int argc, char *argv[]);
@@ -222,6 +240,7 @@ static struct Command {
   { "mkdir",    execMkdir },
   { "chmod",    execChmod },
   { "link",     execLink },
+  { "mv",       execMv },
   { 0,0 }
 };
 
@@ -236,16 +255,17 @@ showHelp()
 	    "directory, and symlinks can point to files under the current path only.\n"
 	    "\n"
 	    "The supported commands are:\n"
-	    "  cat <file>      ...  gives out <file> to stdout\n"
-	    "  append <file>   ...  appends stdin to <file> which is created when needed\n"
-	    "  truncate <file> ...  clear <file> and fill it with stdin; the <file> is\n"
+	    "  cat <file>       ...  gives out <file> to stdout\n"
+	    "  append <file>    ...  appends stdin to <file> which is created when needed\n"
+	    "  truncate <file>  ...  clear <file> and fill it with stdin; the <file> is\n"
 	    "                       created when needed\n"
-	    "  rm <file>+      ...  unlink the given files\n"
-	    "  mkdir <file>+   ...  create the given directories\n"
+	    "  rm <file>+       ...  unlink the given files\n"
+	    "  mkdir <file>+    ...  create the given directories\n"
 	    "  chmod <mode> <file>+\n"
-	    "                  ...  change access permissions of files\n"
-	    "  link <src> dst> ...  create a symbolic link from <src> to <dst>\n\n"
-	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
+	    "                   ...  change access permissions of files\n"
+	    "  link <src> <dst> ...  create a symbolic link from <src> to <dst>\n"
+	    "  mv <src> <dst>   ...  rename <src> to <dst>\n"
+	    "\nPlease report bugs to " PACKAGE_BUGREPORT "\n");
   exit(0);
 }
 
