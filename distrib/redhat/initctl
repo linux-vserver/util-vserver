@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if kill -s 0 -- 1 > /dev/null 2>&1; then
+	exec /sbin/initctl "$@"
+else
+	# Ignore...
+	exit 0
+fi

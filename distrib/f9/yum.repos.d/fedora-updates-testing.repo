@@ -1,0 +1,26 @@
+[updates-testing]
+name=Fedora 9 - $basearch - Test Updates
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/updates/testing/9/$basearch/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-testing-f9&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/9/Fedora/$basearch/os/RPM-GPG-KEY-fedora-test
+
+[updates-testing-debuginfo]
+name=Fedora 9 - $basearch - Test Updates Debug
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/updates/testing/9/$basearch/debug/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-testing-debug-f9&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/9/Fedora/$basearch/os/RPM-GPG-KEY-fedora-test
+
+[updates-testing-source]
+name=Fedora 9 - Test Updates Source
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/core/updates/testing/9/SRPMS/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-testing-source-f9&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/9/Fedora/$basearch/os/RPM-GPG-KEY-fedora-test

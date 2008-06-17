@@ -1,0 +1,26 @@
+[updates]
+name=Fedora 9 - $basearch - Updates
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/updates/9/$basearch/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f9&arch=$basearch
+enabled=1
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/9/Fedora/$basearch/os/RPM-GPG-KEY-fedora
+
+[updates-debuginfo]
+name=Fedora 9 - $basearch - Updates - Debug
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/updates/9/$basearch/debug/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-debug-f9&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/9/Fedora/$basearch/os/RPM-GPG-KEY-fedora
+
+[updates-source]
+name=Fedora 9 - Updates Source
+failovermethod=priority
+#baseurl=http://download.fedora.redhat.com/pub/fedora/linux/updates/9/SRPMS/
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-source-f9&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/9/Fedora/$basearch/os/RPM-GPG-KEY-fedora
