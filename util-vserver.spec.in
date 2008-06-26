@@ -191,7 +191,7 @@ MANIFEST_CONFIG_NOREPLACE='%config(noreplace)' \
 contrib/make-manifest %name $RPM_BUILD_ROOT contrib/manifest.dat
 
 
-%check || :
+%check
 %__make check
 
 
@@ -266,6 +266,11 @@ f="%confdefaultdir/apps/vunify/hash"; test -e "$f"/method -o -e "$f"/00 || \
 
 %preun build
 test "$1" != 0 || rm -f %confdir/.distributions/.common/pubkeys/fedora-*
+
+
+%pre build
+x="%_libdir/util-vserver/distributions/etch"
+test -d "$x" && mv "$x" "$x.rpmsave"
 
 
 ## Temporary workaround to remove old v_* files; it will conflict
