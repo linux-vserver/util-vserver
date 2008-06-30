@@ -67,9 +67,9 @@ static unsigned long	pagesize=0x42;
 struct XidData
 {
     xid_t		xid;
-    int			process_count;
-    int			VmSize_total;
-    int			VmRSS_total;
+    unsigned int	process_count;
+    uint64_t		VmSize_total;
+    uint64_t		VmRSS_total;
     uint64_t		start_time_oldest;
     uint64_t		stime_total, utime_total;
 
