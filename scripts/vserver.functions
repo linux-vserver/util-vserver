@@ -1352,7 +1352,7 @@ function _namespaceCleanup
     done < /proc/mounts
     # separate loop to avoid races while reading /proc/mounts
     for i in "${list_umount[@]}"; do
-	$_UMOUNT -l -n "$i"
+	$_UMOUNT -l -n -i "$i"
     done
 }
 
