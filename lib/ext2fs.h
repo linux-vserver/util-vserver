@@ -19,9 +19,6 @@
 #ifndef H_UTIL_VSERVER_SRC_EXT2FS_H
 #define H_UTIL_VSERVER_SRC_EXT2FS_H
 
-typedef unsigned long long __u64;
-typedef long long __s64;
-
 #ifdef ENSC_HAVE_EXT2FS_EXT2_FS_H
 #  include <ext2fs/ext2_fs.h>
 #elif defined(ENSC_HAVE_LINUX_EXT2_FS_H)
