@@ -255,6 +255,11 @@ copy fedora /etc/pki/rpm-gpg/RPM-GPG-*
 copy centos /usr/share/doc/centos-*/RPM-GPG-KEY-*
 
 
+%pre build
+x="%_libdir/util-vserver/distributions/etch"
+test -d "$x" && mv "$x" "$x.rpmsave" || :
+
+
 %post build
 test -d /vservers/.hash || mkdir -m0700 /vservers/.hash
 
@@ -266,11 +271,6 @@ f="%confdefaultdir/apps/vunify/hash"; test -e "$f"/method -o -e "$f"/00 || \
 
 %preun build
 test "$1" != 0 || rm -f %confdir/.distributions/.common/pubkeys/fedora-*
-
-
-%pre build
-x="%_libdir/util-vserver/distributions/etch"
-test -d "$x" && mv "$x" "$x.rpmsave" || :
 
 
 ## Temporary workaround to remove old v_* files; it will conflict
