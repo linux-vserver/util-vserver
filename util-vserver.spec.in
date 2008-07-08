@@ -13,9 +13,9 @@
 
 %global _localstatedir	%_var
 
-%global ver		%( echo @VERSION@ | sed 's/-.*//' )
-%global subver		%( s=`echo @VERSION@ | grep -- - | sed 's/.*-/./'`; echo ${s:-.1} )
 %global fullver		@VERSION@
+%global ver		%( echo %fullver | sed 's/-.*//' )
+%global subver		%( s=`echo %fullver | grep -- - | sed 's/.*-/./'`; echo ${s:-.1} )
 
 
 %{!?release_func:%global release_func() %1%{?dist}}
@@ -270,7 +270,7 @@ test "$1" != 0 || rm -f %confdir/.distributions/.common/pubkeys/fedora-*
 
 %pre build
 x="%_libdir/util-vserver/distributions/etch"
-test -d "$x" && mv "$x" "$x.rpmsave"
+test -d "$x" && mv "$x" "$x.rpmsave" || :
 
 
 ## Temporary workaround to remove old v_* files; it will conflict
