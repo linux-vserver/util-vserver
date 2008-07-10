@@ -38,6 +38,7 @@
 #include <signal.h>
 #include <pty.h>
 #include <fcntl.h>
+#include <sys/prctl.h>
 
 #define ENSC_WRAPPERS_PREFIX	"vlogin: "
 #define ENSC_WRAPPERS_IOCTL	1
@@ -196,11 +197,11 @@ signal_handler(int sig)
 
 }
 
-void do_vlogin(int argc, char *argv[], int ind)
+void do_vlogin(int UNUSED argc, char *argv[], int ind)
 {
   int slave;
   pid_t pid;
-  int n, i;
+  int n;
   fd_set rfds;
 
   if (!isatty(0) || !isatty(1)) {
@@ -252,12 +253,7 @@ void do_vlogin(int argc, char *argv[], int ind)
   t.pid = pid;
 
   /* set process title for ps */
-  n = strlen(argv[0]);
-
-  for (i = 0; i < argc; i++)
-    memset(argv[i], '\0', strlen(argv[i]));
-
-  strncpy(argv[0], "login", n);
+  prctl(PR_SET_NAME, (unsigned long) "login");
 
   /* we want a redraw */
   terminal_redraw();
