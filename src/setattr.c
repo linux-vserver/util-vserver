@@ -61,6 +61,9 @@ CMDLINE_OPTIONS[] = {
   { "immutable",   no_argument, 0, CMD_IMMUTABLE },
   { "~immutable",  no_argument, 0, CMD_UNSET_IMMUTABLE },
   { "!immutable",  no_argument, 0, CMD_UNSET_IMMUTABLE },
+  { "write",       no_argument, 0, CMD_WRITE },
+  { "~write",      no_argument, 0, CMD_UNSET_WRITE },
+  { "!write",      no_argument, 0, CMD_UNSET_WRITE },
   { 0,0,0,0 }
 };
 
@@ -72,7 +75,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-Rx] [--[~](iunlink|admin|watch|hide|barrier|iunlink-but-not-immutable|immutable)]* [--] <file>+\n\n"
+	    " [-Rx] [--[~](iunlink|admin|watch|hide|barrier|iunlink-but-not-immutable|immutable|write)]* [--] <file>+\n\n"
 	    " Options:\n"
 	    "   -R  ...  recurse through directories\n"
 	    "   -x  ...  do not cross filesystems\n\n"

@@ -107,12 +107,12 @@ handleFile(char const *name, char const *display_name)
   if (getFlags(name, &flags, &mask)) {
       //                                     1       1       0       0
       //                              fedcba9876543210fedcba9876543210
-    static char const	MARKER[33] = ".......x.....iub.............hwa";
+    static char const	MARKER[33] = ".......x.....iub............mhwa";
     int		i;
     uint32_t 		used_flags = (VC_IATTR_XID|VC_IATTR_ADMIN|
 				      VC_IATTR_WATCH|VC_IATTR_HIDE|
 				      VC_IATTR_BARRIER|VC_IATTR_IUNLINK|
-				      VC_IATTR_IMMUTABLE);
+				      VC_IATTR_IMMUTABLE|VC_IATTR_WRITE);
 
     for (i=0; i<32; ++i) {
       if (used_flags & 1) {
@@ -127,11 +127,11 @@ handleFile(char const *name, char const *display_name)
     }
   }      
   else {
-    memcpy(buf, "ERR   ", 7);
+    memcpy(buf, "ERR    ", 8);
     res = false;
   }
 
-  Vwrite(1, buf, 8);
+  Vwrite(1, buf, 9);
   Vwrite(1, display_name, strlen(display_name));
   Vwrite(1, "\n", 1);
 
