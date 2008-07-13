@@ -153,6 +153,7 @@ _UMOUNT="@UMOUNT@"
 _VCONFIG="@VCONFIG@"
 _WC="@WC@"
 _WGET="@WGET@"
+_IONICE="@IONICE@"
 
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=106057
 WORKAROUND_106057=1

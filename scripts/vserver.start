@@ -133,6 +133,7 @@ test -z "$OPTION_DEFAULTTTY" || setDefaultTTY "$VSERVER_DIR"
 pushd "$VSERVER_DIR"/vdir/ >/dev/null
 is_configured=1
 if $_VSERVER_INFO - FEATURE migrate; then
+    ${IONICE_CMD[@]} \
     ${NICE_CMD[@]} \
     "${CHBIND_CMD[@]}" \
     $_EXEC_ULIMIT "$VSERVER_DIR"/ulimits \
@@ -163,6 +164,7 @@ else
 	$_MKFIFO -m600 "$startsync_pipe"	## safe, since mkfifo does not follow symlinks
     fi
     
+    ${IONICE_CMD[@]} \
     ${NICE_CMD[@]} \
     "${CHBIND_CMD[@]}" \
     $_EXEC_ULIMIT      "$VSERVER_DIR/ulimits" \

@@ -195,6 +195,7 @@
 #define VC_VXF_PROLIFIC			(1ULL<<49)
 
 #define VC_VXF_IGNEG_NICE		(1ULL<<52)
+#define VC_VXF_IGNEG_IONICE		(1ULL<<53)
 
 
 // the ccapabilities

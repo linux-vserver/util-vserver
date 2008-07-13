@@ -20,6 +20,7 @@
 #  $VSERVER_NAME  ... name of vserver
 
 declare -a NICE_CMD=()
+declare -a IONICE_CMD=()
 declare -a CHBIND_CMD=()
 declare -a CAP_OPTS=()
 declare -a CHCONTEXT_INIT_OPTS=()
@@ -135,6 +136,17 @@ function _generateNiceCommand
     NICE_CMD=( $_NICE -n $nice )
 }
 
+function _generateIONiceCommand
+{
+    local vdir=$1
+    local ionice_class=2
+    local ionice_priority=0
+
+    test -r "$vdir/ionice/class" && read ionice_class <"$vdir"/ionice/class
+    test -r "$vdir/ionice/priority" && read ionice_priority <"$vdir"/ionice/priority
+
+    IONICE_CMD=( $_IONICE -c$ionice_class -n$ionice_priority )
+}
 
 function _generatePersonalityOptions
 {
@@ -812,6 +824,7 @@ function generateOptions
     _generateInterfaceOptions   "$1"
     test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1" 
     _generateNiceCommand        "$1"
+    _generateIONiceCommand	"$1"
     _generateInitOptions        "$1"
     _generateChcontextOptions   "$1"
     _generateScheduleOptions    "$1"

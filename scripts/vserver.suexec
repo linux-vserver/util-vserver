@@ -34,6 +34,7 @@ test -z "$OPTION_NONAMESPACE" || USE_VNAMESPACE=
 if $_VSERVER_INFO - FEATURE migrate; then
     if test -z "$is_stopped"; then
 	exec \
+	"${IONICE_CMD[@]}" \
 	"${NICE_CMD[@]}" \
 	"${CHBIND_CMD[@]}" \
 	$_EXEC_ULIMIT "$VSERVER_DIR/ulimits" \
@@ -45,6 +46,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
 	"$@"
     else
 	exec \
+	"${IONICE_CMD[@]}" \
 	"${NICE_CMD[@]}" \
 	"${CHBIND_CMD[@]}" \
 	$_EXEC_ULIMIT "$VSERVER_DIR/ulimits" \
@@ -57,6 +59,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
     fi
 else
     exec \
+    "${IONICE_CMD[@]}" \
     "${NICE_CMD[@]}" \
     "${CHBIND_CMD[@]}" \
     "$_EXEC_ULIMIT"  "$VSERVER_DIR/ulimits" \
