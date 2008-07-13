@@ -85,7 +85,8 @@ DIETPROGS +=		src/chcontext-compat \
 			src/vtag \
 			src/vspace \
 			src/vmemctrl \
-			src/tunctl
+			src/tunctl \
+			src/exec-remount
 
 if ENSC_CAN_CRYPTO_WITH_DIETLIBC
 DIETPROGS +=		src/vhashify
@@ -126,6 +127,7 @@ pkglib_PROGRAMS +=	src/capchroot \
 			src/vsysctl \
 			src/h2ext \
 			src/tunctl \
+			src/exec-remount \
 			$(src_pkglib_C99_X_PROGS) \
 			$(src_pkglib_CXX_X_PROGS)
 
@@ -367,6 +369,10 @@ src_vmemctrl_LDFLAGS		= $(VSERVER_LDFLGS)
 src_tunctl_SOURCES		= src/tunctl.c
 src_tunctl_LDADD		= $(VSERVER_LDADDS) $(LIBINTERNAL)
 src_tunctl_LDFLAGS		= $(VSERVER_LDFLGS)
+
+src_exec_remount_SOURCES	= src/exec-remount.c
+src_exec_remount_LDADD		= $(VSERVER_LDADDS)
+src_exec_remount_LDFLAGS	= $(VSERVER_LDFLGS)
 
 EXTRA_PROGRAMS +=		$(src_sbin_CXX_PROGS) $(src_pkglib_CXX_PROGS)
 

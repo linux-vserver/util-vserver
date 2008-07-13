@@ -142,6 +142,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
     ${OPTION_STRACE:+$_STRACE -fF -o /tmp/vserver-start.$$} \
     ${USE_VNAMESPACE:+$_VNAMESPACE --set -- } \
     $_VSPACE     --set "${OPTS_VSPACE[@]}" -- \
+    $_EXEC_REMOUNT -- \
     $_VLIMIT     --dir "$VSERVER_DIR"/rlimits --missingok -- \
     $_VSCHED     --xid self --force "${OPTS_VSCHED[@]}" -- \
     $_VSYSCTL    --xid self --dir "$VSERVER_DIR"/sysctl --missingok -- \
