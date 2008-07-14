@@ -38,7 +38,9 @@ Provides:	vserver = %version-%release
 Obsoletes:	vserver < %version
 BuildRequires:	mount vconfig gawk iproute iptables
 BuildRequires:	gcc-c++ wget which diffutils
-BuildRequires:	e2fsprogs-devel beecrypt-devel
+BuildRequires:	e2fsprogs-devel e2fsprogs
+%{!?_without_beecrypt:BuildRequires: beecrypt-devel}
+%{?_without_beecrypt:BuildRequires: nss-devel}
 BuildRequires:	e2fsprogs
 %{!?_without_doc:BuildRequires:	doxygen tetex-latex}
 Requires(post):		%name-core
