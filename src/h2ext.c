@@ -228,7 +228,7 @@ load_description(const char *file, file_format_t **head)
 
   *buf = '\0';
   while (1) {
-    if ((eol = strchr(buf, '\n')) == NULL && (end - buf) < (sizeof(buf) - 1)) {
+    if ((eol = strchr(buf, '\n')) == NULL && (end - buf) < (signed) (sizeof(buf) - 1)) {
       bytes_read = Eread(fd, end, sizeof(buf) - 1 - (end - buf));
       /* EOF, implicit newline */
       if (bytes_read == 0) {
