@@ -1049,6 +1049,8 @@ extern "C" {
 
   int		vc_compareVserverById(char const *lhs, vcCfgStyle lhs_style,
 				      char const *rhs, vcCfgStyle rhs_style);
+
+  void		vc_exitLikeProcess(int pid, int ret) VC_ATTR_NORETURN;
  
 #define vcSKEL_INTERFACES	1u
 #define vcSKEL_PKGMGMT		2u

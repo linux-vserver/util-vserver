@@ -25,7 +25,6 @@
 #include "util-declarecmd.h"
 #include "util-dimof.h"
 #include "util-dotfile.h"
-#include "util-exitlikeprocess.h"
 #include "util-io.h"
 #include "util-lockfile.h"
 #include "util-mem.h"

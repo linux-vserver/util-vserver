@@ -106,7 +106,7 @@ showVersion()
 }
 
 static void
-newSpaces(uint_least64_t mask, const char *cmd)
+newSpaces(uint_least64_t mask)
 {
   pid_t pid;
 
@@ -131,7 +131,7 @@ newSpaces(uint_least64_t mask, const char *cmd)
     case 0	:
       break;
     default	:
-      exitLikeProcess(pid, cmd, wrapper_exit_code);
+      vc_exitLikeProcess(pid, wrapper_exit_code);
   }
 }
 
@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
   else if (optind==argc && (do_new || do_enter))
     WRITE_MSG(2, "No command specified; try '--help' for more information\n");
   else {
-    if      (do_new)     newSpaces(mask, argv[optind]);
+    if      (do_new)     newSpaces(mask);
     else if (do_set)     setSpaces(VC_SAMECTX, mask);
     else if (do_enter)   enterSpaces(xid, mask);
 

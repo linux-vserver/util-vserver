@@ -267,5 +267,5 @@ int main(int argc, char *argv[])
   Eclose(p[0]);
   
   processOutput(data, len);
-  exitLikeProcess(pid, "ps", wrapper_exit_code);
+  vc_exitLikeProcess(pid, wrapper_exit_code);
 }

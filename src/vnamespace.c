@@ -88,7 +88,7 @@ showVersion()
 }
 
 static void
-newNamespace(char const *cmd)
+newNamespace(void)
 {
   pid_t		pid;
 
@@ -107,7 +107,7 @@ newNamespace(char const *cmd)
     case 0	:
       break;
     default	:
-      exitLikeProcess(pid, cmd, wrapper_exit_code);
+      vc_exitLikeProcess(pid, wrapper_exit_code);
   }
 }
 
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
   else if (optind==argc && (do_new || do_enter))
     WRITE_MSG(2, "No command specified; try '--help' for more information\n");
   else {
-    if      (do_new)     newNamespace(argv[optind]);
+    if      (do_new)     newNamespace();
     else if (do_set)     setNamespace(VC_SAMECTX, CLONE_NEWNS|CLONE_FS);
     else if (do_cleanup) cleanupNamespace();
     else if (do_enter)   enterNamespace(xid, CLONE_NEWNS|CLONE_FS);

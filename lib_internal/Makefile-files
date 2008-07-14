@@ -71,7 +71,6 @@ noinst_HEADERS += \
 				lib_internal/util-declarecmd.h \
 				lib_internal/util-dimof.h \
 				lib_internal/util-dotfile.h \
-				lib_internal/util-exitlikeprocess.h \
 				lib_internal/util-io.h \
 				lib_internal/util-lockfile.h \
 				lib_internal/util-mem.h \
@@ -99,7 +98,6 @@ lib_internal_libinternal_common_SRCS = \
 				lib_internal/unify-unify.c \
 				lib_internal/unify-isiunlinkable.c \
 				lib_internal/util-canonify.c \
-				lib_internal/util-exitlikeprocess.c \
 				lib_internal/util-isnumber.hc \
 				lib_internal/util-isnumber.c \
 				lib_internal/util-isnumberunsigned.c \

@@ -20,9 +20,6 @@
 #  include <config.h>
 #endif
 
-#include "util.h"
-#include <lib/internal.h>
-
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/resource.h>
@@ -31,14 +28,35 @@
 #include <signal.h>
 #include <sys/resource.h>
 #include <stdio.h>
+#include <errno.h>
+
+#include "vserver.h"
+
+static int pid;
+static void
+signalHandler(int signum)
+{
+  xid_t xid = vc_get_task_xid(pid);
+  if (xid)
+    vc_ctx_kill(xid, pid, signum);
+  else
+    kill(pid, signum);
+}
 
 void
-exitLikeProcess(int pid, char const *cmd, int ret)
+vc_exitLikeProcess(int p, int ret)
 {
-  int			status;
-  
+  int status, i;
+
+  pid = p;
+
+  for (i = 0; i < 32; i++)
+    signal(i, signalHandler);
+
+retry:
   if (wait4(pid, &status, 0,0)==-1) {
-    
+    if (errno==EINTR)
+      goto retry;
     perror("wait()");
     exit(ret);
   }
@@ -49,42 +67,12 @@ exitLikeProcess(int pid, char const *cmd, int ret)
   if (WIFSIGNALED(status)) {
     struct rlimit	lim = { 0,0 };
 
-    if (cmd) {
-      char		buf[sizeof(int)*3 + 2];
-      size_t		l = utilvserver_fmt_uint(buf, pid);
-      
-      WRITE_MSG(2, "command '");
-      WRITE_STR(2, cmd);
-      WRITE_MSG(2, "' (pid ");
-      Vwrite   (2, buf, l);
-      WRITE_MSG(2, ") exited with signal ");
-      l = utilvserver_fmt_uint(buf, WTERMSIG(status));      
-      Vwrite   (2, buf, l);
-      WRITE_MSG(2, "; following it...\n");
-    }
-
     // prevent coredumps which might override the real ones
     setrlimit(RLIMIT_CORE, &lim);
       
     kill(getpid(), WTERMSIG(status));
     exit(1);
   }
-  else {
-    char		buf[sizeof(int)*3 + 2];
-    size_t		l = utilvserver_fmt_uint(buf, WTERMSIG(status));
-
-    WRITE_MSG(2, "Unexpected status ");
-    Vwrite   (2, buf, l);
-    WRITE_MSG(2, " from '");
-    if (cmd) {
-      WRITE_STR(2, cmd);
-      WRITE_MSG(2, " (pid ");
-    }
-    l = utilvserver_fmt_uint(buf, pid);
-    Vwrite   (2, buf, l);
-    if (cmd) WRITE_MSG(2, ")\n");
-    else     WRITE_MSG(2, "\n");
-
+  else
     exit(ret);
-  }
 }
