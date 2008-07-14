@@ -76,7 +76,7 @@ while read filename; do
 	(:*)	params=(         --watch --hide ); filename=${filename#:};;
 	(!*)	params=(                 --hide ); filename=${filename#!};;
 	(+*)	params=(                --!hide ); filename=${filename#+};;
-	(>*)	params=(                        --write ); filename=${filename#>};;
+	(\>*)	params=(                        --write ); filename=${filename#>};;
 	(*)	params=(                --!hide );;
     esac
 	
