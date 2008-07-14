@@ -1610,5 +1610,14 @@ Puts the guest in a cpuset. Required entries are name, cpus and mems.
         <description>Contains a mask of spaces to clone/enter</description>
       </scalar>
     </collection>
+
+    <collection name="ionice" since="0.30.216">
+      <scalar name="class">
+        <description>The IO scheduling class to use for this guest (see ionice(1)).</description>
+      </scalar>
+      <scalar name="priority">
+        <description>The IO scheduling priority to use for this guest (see ionice(1)).</description>
+      </scalar>
+    </collection>
   </collection>
   </database>
