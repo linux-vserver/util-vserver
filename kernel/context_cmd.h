@@ -28,14 +28,16 @@ struct	vcmd_ctx_stat_v0 {
 /* context commands */
 
 #define VCMD_ctx_create_v0	VC_CMD(VPROC, 1, 0)
-#define VCMD_ctx_create		VC_CMD(VPROC, 1, 1)
+#define VCMD_ctx_create_v1	VC_CMD(VPROC, 1, 1)
+#define VCMD_ctx_create		VC_CMD(VPROC, 1, 2)
 
 struct	vcmd_ctx_create {
 	uint64_t flagword;
 };
 
 #define VCMD_ctx_migrate_v0	VC_CMD(PROCMIG, 1, 0)
-#define VCMD_ctx_migrate	VC_CMD(PROCMIG, 1, 1)
+#define VCMD_ctx_migrate_v1	VC_CMD(PROCMIG, 1, 1)
+#define VCMD_ctx_migrate	VC_CMD(PROCMIG, 1, 2)
 
 struct	vcmd_ctx_migrate {
 	uint64_t flagword;

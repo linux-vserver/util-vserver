@@ -13,6 +13,8 @@
 
 #define VCMD_get_space_mask	VC_CMD(PROCALT, 4, 0)
 
+#define VCMD_get_space_default	VC_CMD(PROCALT, 7, 0)
+
 
 struct	vcmd_space_mask {
 	uint64_t mask;

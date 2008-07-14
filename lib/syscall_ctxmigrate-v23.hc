@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2007 Daniel Hokka Zakrisson
+// Copyright (C) 2008 Daniel Hokka Zakrisson
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,30 +19,34 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-#include <lib_internal/sys_unshare.h>
+#include <signal.h>
+#include <lib_internal/sys_clone.h>
 
-static inline ALWAYSINLINE xid_t
-vc_ctx_create_v21(xid_t xid, struct vc_ctx_flags *flags)
+static inline ALWAYSINLINE int
+vc_ctx_migrate_v23(xid_t xid, uint_least64_t flags)
 {
-  struct vcmd_ctx_create data = {
-	.flagword = (VC_VXF_STATE_SETUP | VC_VXF_STATE_ADMIN |
-		     VC_VXF_STATE_INIT)
-  };
-  xid_t		res;
+  int ret;
+  struct vcmd_ctx_migrate data = { .flagword = flags };
+  int do_spaces = 0;
 
-  if (flags)
-    data.flagword = flags->flagword & flags->mask;
-
-  res = vserver(VCMD_ctx_create_v1, CTX_USER2KERNEL(xid), &data);
-  res = CTX_KERNEL2USER(res);
-
-  if (res != VC_NOCTX) {
-    if (utilvserver_checkCompatConfig() & VC_VCI_SPACES) {
-      uint32_t spaces = vc_get_space_mask() & ~(CLONE_NEWNS|CLONE_FS);
-      sys_unshare(spaces);
-      vc_set_namespace(VC_SAMECTX, spaces);
-    }
+  ret = vc_getXIDType(xid);
+  if (ret == vcTYPE_STATIC || ret == vcTYPE_DYNAMIC) {
+    do_spaces = 1;
+    ret = vc_enter_namespace(xid, vc_get_space_default());
+    if (ret)
+      return ret;
   }
 
-  return res;
+  ret = vserver(VCMD_ctx_migrate, CTX_USER2KERNEL(xid), &data);
+
+  if (!ret && do_spaces) {
+    /* Allocate a new pid */
+    int pid = sys_clone(SIGCHLD | CLONE_FS | CLONE_FILES, NULL);
+    if (pid == -1)
+      return -1;
+    else if (pid > 0)
+      vc_exitLikeProcess(pid, 1);
+  }
+
+  return ret;
 }

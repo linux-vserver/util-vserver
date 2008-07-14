@@ -36,11 +36,16 @@
 #  include "syscall_ctxcreate-v21.hc"
 #endif
 
+#if defined(VC_ENABLE_API_V23)
+#  include "syscall_ctxcreate-v23.hc"
+#endif
+
 #if defined(VC_ENABLE_API_V13) || defined(VC_ENABLE_API_V21)
 xid_t
 vc_ctx_create(xid_t xid, struct vc_ctx_flags *flags)
 {
-  CALL_VC(CALL_VC_V21 (vc_ctx_create, xid, flags),
+  CALL_VC(CALL_VC_V23P(vc_ctx_create, xid, flags),
+	  CALL_VC_V21 (vc_ctx_create, xid, flags),
 	  CALL_VC_V13A(vc_ctx_create, xid, flags));
 }
 #endif

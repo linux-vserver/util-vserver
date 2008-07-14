@@ -1,6 +1,6 @@
 // $Id$    --*- c -*--
 
-// Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2008 Daniel Hokka Zakrisson
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,31 +21,17 @@
 #endif
 
 #include "vserver.h"
+#include "vserver-internal.h"
 #include "virtual.h"
 
-#if defined(VC_ENABLE_API_V13) && defined(VC_ENABLE_API_V21)
-#  define VC_MULTIVERSION_SYSCALL 1
-#endif
-#include "vserver-internal.h"
-
-#if defined(VC_ENABLE_API_V13)
-#  include "syscall_ctxmigrate-v13.hc"
-#endif
-
-#if defined(VC_ENABLE_API_V21)
-#  include "syscall_ctxmigrate-v21.hc"
+#if defined(VC_ENABLE_API_V23)
+#  include "syscall_getspacedefault-v23.hc"
 #endif
 
 #if defined(VC_ENABLE_API_V23)
-#  include "syscall_ctxmigrate-v23.hc"
-#endif
-
-#if defined(VC_ENABLE_API_V13) || defined(VC_ENABLE_API_V21)
-int
-vc_ctx_migrate(xid_t xid, uint_least64_t flags)
+uint_least64_t
+vc_get_space_default()
 {
-  CALL_VC(CALL_VC_V23P  (vc_ctx_migrate, xid, flags),
-	  CALL_VC_SPACES(vc_ctx_migrate, xid, flags),
-	  CALL_VC_V13A  (vc_ctx_migrate, xid));
+  CALL_VC(CALL_VC_V23P(vc_get_space_default, 0));
 }
 #endif

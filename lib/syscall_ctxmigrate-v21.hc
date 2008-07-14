@@ -34,5 +34,5 @@ vc_ctx_migrate_spaces(xid_t xid, uint_least64_t flags)
       return ret;
   }
 
-  return vserver(VCMD_ctx_migrate, CTX_USER2KERNEL(xid), &data);
+  return vserver(VCMD_ctx_migrate_v1, CTX_USER2KERNEL(xid), &data);
 }

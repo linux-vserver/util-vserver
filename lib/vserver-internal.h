@@ -138,6 +138,12 @@ inline static ALWAYSINLINE void vc_noop0() {}
 #  define CALL_VC_V23(F,...)	CALL_VC_NOOP
 #endif
 
+#ifdef VC_ENABLE_API_V23
+#  define CALL_VC_V23P(F,...)	CALL_VC_GENERAL(0x00020303, v23, F, __VA_ARGS__)
+#else
+#  define CALL_VC_V23P(F,...)	CALL_VC_NOOP
+#endif
+
 #ifdef VC_ENABLE_API_NET
 #  define CALL_VC_NET(F,...)	CALL_VC_GENERAL(0x00010016, net, F, __VA_ARGS__)
 #else

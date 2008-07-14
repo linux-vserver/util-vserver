@@ -763,8 +763,9 @@ extern "C" {
     /* namespace related functions */
   int		vc_enter_namespace(xid_t xid, uint_least64_t mask);
   int		vc_set_namespace(xid_t xid, uint_least64_t mask);
-  int		vc_cleanup_namespace();
-  uint_least64_t vc_get_space_mask();
+  int		vc_cleanup_namespace(void);
+  uint_least64_t vc_get_space_mask(void);
+  uint_least64_t vc_get_space_default(void);
 
 
     /* disk limit related things */
