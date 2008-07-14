@@ -969,7 +969,7 @@ extern "C" {
 		 vcFEATURE_SCHED,  vcFEATURE_VINFO,   vcFEATURE_VHI,
                  vcFEATURE_VSHELPER0, vcFEATURE_VSHELPER, vcFEATURE_VWAIT,
 		 vcFEATURE_VNET, vcFEATURE_VSTAT,     vcFEATURE_PPTAG,
-		 vcFEATURE_PIDSPACE, }
+		 vcFEATURE_PIDSPACE, vcFEATURE_SPACES, }
     vcFeatureSet;
 
   bool		vc_isSupported(vcFeatureSet) VC_ATTR_CONST;
