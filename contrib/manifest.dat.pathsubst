@@ -54,6 +54,7 @@ core   @PKGLIBDIR@/chcontext-compat
 core   @PKGLIBDIR@/chbind-compat
 base   @PKGLIBDIR@/check-unixfile
 base   @PKGLIBDIR@/chroot-sh
+base   @PKGLIBDIR@/exec-remount
 base   @PKGLIBDIR@/exec-ulimit
 base   @PKGLIBDIR@/fakerunlevel
 base   @PKGLIBDIR@/filetime
