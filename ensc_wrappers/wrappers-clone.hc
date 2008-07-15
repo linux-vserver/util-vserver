@@ -20,15 +20,13 @@
 #  error wrappers_handler.hc can not be used in this way
 #endif
 
+#include <lib_internal/sys_clone.h>
+
 inline static WRAPPER_DECL pid_t
-Eclone(int (*fn)(void *), void *child_stack, int flags, void *arg)
+Eclone(uint64_t flags, void *child_stack)
 {
   pid_t		res;
-#ifndef __dietlibc__
-  res = clone(fn, child_stack, flags, arg);
-#else
-  res = clone((void*(*)(void*))(fn), child_stack, flags, arg);
-#endif
+  res = sys_clone(flags, child_stack);
   FatalErrnoError(res==-1, "clone()");
   return res;
 }
