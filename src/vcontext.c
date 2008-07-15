@@ -274,8 +274,8 @@ doit(struct Arguments const *args, int argc, char *argv[])
     if (args->do_chroot) {
       Echroot(".");
       if (args->set_namespace) {
-	if (args->do_migrateself)  Evc_set_namespace(xid, 0);
-	else if (args->do_migrate) Evc_enter_namespace(xid, 0);
+	if (args->do_migrateself)  Evc_set_namespace(xid, CLONE_NEWNS|CLONE_FS);
+	else if (args->do_migrate) Evc_enter_namespace(xid, CLONE_NEWNS|CLONE_FS);
       }
     }
 
