@@ -32,7 +32,7 @@ function set_helper()
 function kill_contexts()
 {
     local xid
-    for xid in `ls -1 /proc/virtual`; do
+    for xid in `ls -1 /proc/virtual 2>/dev/null`; do
 	test "$xid" = "info" -o "$xid" = "status" && continue
 	$_VATTRIBUTE --xid $xid --set --flag ~persistent
 	$_VKILL --xid $xid -s 15
@@ -40,7 +40,7 @@ function kill_contexts()
 	$_VKILL --xid $xid -s 9
     done
     local alive=0
-    for xid in `ls -1 /proc/virtual`; do
+    for xid in `ls -1 /proc/virtual 2>/dev/null`; do
 	test "$xid" = "info" -o "$xid" = "status" && continue
 	let alive+=1
     done
