@@ -34,6 +34,7 @@ defaults_DATA =		misc/debootstrap.mirror \
 nobase_distrib_SCRIPTS	=  redhat/initpost \
 			   redhat/initpre \
 			   redhat/rc.sysinit \
+			   redhat/initctl \
 			   gentoo/initpost \
 			   gentoo/initpre \
 			   debian/initpost \
