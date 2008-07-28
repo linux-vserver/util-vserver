@@ -5,3 +5,4 @@ random  c 1 8 644
 urandom c 1 9 644
 tty     c 5 0 666
 ptmx    c 5 2 666
+fd      l ../proc/self/fd 777

@@ -44,6 +44,9 @@ function makeDevEntry
 	(f)	touch "$dst"
 		chmod $4 "$dst"
 		;;
+	(l)	ln -s "$4" "$dst"
+		test -z "$5" || chmod "$5" "$dst"
+		;;
 	(*)	echo "Unknown dev-entry mode '$3'" >&2
 		false
 		;;
