@@ -56,7 +56,7 @@ Execution will continue in 5 seconds..."
 
 yum=${YUM:-yum}
 conf=yum.conf
-case $($yum --version|tail -n 1) in
+case $(python -c "import yum; print yum.__version__" 2>/dev/null) in
     (2.[012345]*)
 	check 'import yum,sys; sys.exit(not hasattr(yum.config.yumconf, "getRootedPath"))'
 	;;
