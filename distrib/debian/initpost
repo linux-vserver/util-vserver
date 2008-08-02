@@ -125,7 +125,9 @@ test "$(cat "$cfgdir"/apps/init/style 2>/dev/null)" != "plain" || \
 pushd etc/init.d &>/dev/null
 for i in *; do
     case "$i" in
-      (sysklogd|syslog-ng|README|skeleton|sendsigs|single|rc|rc.local|rcS)
+      (sysklogd|syslog-ng|rsyslog|dsyslog)
+	;;
+      (README|skeleton|sendsigs|single|rc|rc.local|rcS)
 	;;
       ($have_halt)
 	;;
