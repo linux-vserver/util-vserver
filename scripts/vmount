@@ -56,7 +56,7 @@ declare -a guests
 while test $# -gt 0; do
     case "$1" in
 	(--)	shift; break;;
-        (-*)    break;
+        (-*)    break;;
 	(*)
 	    _setVserverDir "$1"
 	    guests=( "${guests[@]}" "$VSERVER_DIR" )
