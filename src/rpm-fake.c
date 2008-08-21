@@ -511,6 +511,8 @@ initRPMFake()
   initEnvironment();
   initPwSocket();
 
+  atexit(exitRPMFake);
+
 #if 0
   if (isDbgLevel(DBG_VARIABLES|DBG_VERBOSE2)) {
     
