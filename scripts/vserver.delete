@@ -32,4 +32,5 @@ isVserverRunning "$VSERVER_DIR" &&
 base.init
 pkgmgmt.initVariables
 $_RM -rf "`$_VSERVER_INFO "$vserver" VDIR 1`" "$VSERVER_DIR" "$PKGCFGDIR" \
-	"`$_READLINK "$VSERVER_DIR/cache" 2>/dev/null`"
+	"`$_READLINK "$VSERVER_DIR/cache" 2>/dev/null`" \
+	"`$_READLINK "$VSERVER_DIR/run" 2>/dev/null`"
