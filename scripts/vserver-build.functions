@@ -271,11 +271,7 @@ function startSleepingGuest
 	exec  > /dev/null
 	exec 2> /dev/null
 	trap 'kill -s 9 -- -1; exit 0' INT
-	i=0
-	while [ \$i -lt $timeout ]; do
-	    sleep 1
-	    let ++i
-	done
+	sleep $timeout
 	kill -s 15 -- -1
 	sleep 1
 	kill -s 9 -- -1"
