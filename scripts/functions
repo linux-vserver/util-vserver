@@ -601,6 +601,8 @@ function getVserverStatus
     read _gvs_ctx <"$1"/run
     eval "$2"=\$_gvs_ctx
 
+    test "$1" = "$($_VUNAME -g --xid "$_gvs_ctx" context)" || return 1
+
     test -n "$3"     || return 0
     local _gvs_tmp
     _getProcNumberCount "$_gvs_ctx" _gvs_tmp
