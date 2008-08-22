@@ -240,11 +240,25 @@ function base._initVariables
     findFile BUILD_INITPOST "$__CONFDIR/.distributions/$DISTRIBUTION/initpost"  "$__DISTRIBDIR/$DISTRIBUTION/initpost" ""
 }
 
+declare -a __BASE_CLEANUP
+function base.pushCleanup
+{
+    __BASE_CLEANUP=( "${__BASE_CLEANUP[@]}" "$*" )
+}
+
+function base.popCleanup
+{
+    unset __BASE_CLEANUP[$((${#__BASE_CLEANUP[@]} - 1))]
+}
+
 function base.__cleanup
 {
-    test -z "$OPTION_KEEP"    || return 0
-    test -z "$__BASE_SUCCESS" || return 0
+    for cmd in "${__BASE_CLEANUP[@]}"; do
+	$cmd
+    done
     
+    test -z "$__BASE_SUCCESS" || return 0
+    test -z "$OPTION_KEEP"    || return 0
     rm -rf "${__BASE_GENERATED_FILES[@]}"
 }
 

@@ -53,6 +53,21 @@ setup_writeOption "$VSERVER_NAME"
 setup_writeInitialFstab
 
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
+
+if $_VSERVER_INFO - FEATURE persistent; then
+    $_VSPACE --new --mount --fs -- \
+	$_VCONTEXT --create ${SETUP_CONTEXT:+--xid "$SETUP_CONTEXT"} --silent -- \
+	$_VUNAME --set --xid self -t context="rpm-fake $SETUP_CONFDIR" -- \
+	$_VSPACE --set --mount --fs -- \
+	$_SAVE_CTXINFO "$SETUP_CONFDIR" \
+	$_VATTRIBUTE --set --xid self --secure --flag persistent -- \
+	$_VCONTEXT --xid self --migrate-self --endsetup -- \
+	/bin/true
+    RPM_FAKE_CTX=`cat $SETUP_CONFDIR/run`
+    export RPM_FAKE_CTX
+    base.pushCleanup $_VATTRIBUTE --xid "$RPM_FAKE_CTX" --flag '!persistent'
+fi
+
 rpm.initDB           "$SETUP_CONFDIR"
 rpm.importGPGPubKeys "$SETUP_CONFDIR" \
     "$__CONFDIR/.distributions/$DISTRIBUTION/pubkeys" \
@@ -60,6 +75,12 @@ rpm.importGPGPubKeys "$SETUP_CONFDIR" \
     "$__DISTRIBDIR/$DISTRIBUTION/pubkeys"
 yum.installBasePackages "$SETUP_CONFDIR" "$PKGINSTALLDIR"
 $_VYUM "$SETUP_CONFDIR" -- clean all
+
+if $_VSERVER_INFO - FEATURE persistent; then
+    base.popCleanup
+    $_VATTRIBUTE --xid "$RPM_FAKE_CTX" --flag '!persistent'
+fi
+
 test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
 
 base.setSuccess
