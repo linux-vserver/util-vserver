@@ -601,12 +601,16 @@ function getVserverStatus
     read _gvs_ctx <"$1"/run
     eval "$2"=\$_gvs_ctx
 
-    test "$1" = "$($_VUNAME -g --xid "$_gvs_ctx" context)" || return 1
-
-    test -n "$3"     || return 0
-    local _gvs_tmp
-    _getProcNumberCount "$_gvs_ctx" _gvs_tmp
-    eval "$3"=\$_gvs_tmp
+    if test "$1" = "$($_VUNAME -g --xid "$_gvs_ctx" context)"; then
+	test -n "$3" || return 0
+	local _gvs_tmp
+	_getProcNumberCount "$_gvs_ctx" _gvs_tmp
+	eval "$3"=\$_gvs_tmp
+    else
+	test -n "$3" || return 1
+	eval "$3"=0
+	_gvs_tmp=0
+    fi
 
     if test "$_gvs_tmp" = 0; then
 	local runfile=$($_READLINK "$1/run")
