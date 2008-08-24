@@ -305,6 +305,41 @@ interface will be executed.
         <description>The default /etc/resolv.conf file.</description>
       </data>
     </collection>
+
+    <collection name="cgroup" use="optional" since="0.30.216" id="global-cgroup">
+      <description>
+This directory contains cgroup settings which should be applied to all guests.
+See your kernel documentation for what settings are valid with your
+configuration.
+      </description>
+      <scalar name="mnt">
+        <description>
+The directory to mount the cgroup hierarchy at. The default is /dev/cgroup.
+        </description>
+      </scalar>
+      <scalar name="subsys">
+        <description>
+Comma-separated list of subsystems to enable on the cgroup mount point.
+The default is "all".
+        </description>
+      </scalar>
+      <list name="inherit">
+        <description>
+Some subsystems start out with clean slates, making it impossible to use the
+cgroup before certain things have been set. This is true for e.g. the cpuset
+subsystem. This file contains a list of filenames which should be explicitly
+inherited from the parent (root) cgroup, if not overridden elsewhere.
+The default is cpuset.cpus and cpuset.mems.
+        </description>
+      </list>
+      <scalar name="name" id="global-cgroup-name">
+        <description>
+If this file exists, all guests will be put in one cgroup named after the
+contents of this file. The default is to put each guest in a cgroup named the
+same thing as the guest.
+        </description>
+      </scalar>
+    </collection>
   </collection>
     
   <collection name=".distributions" use="optional">
@@ -1619,5 +1654,29 @@ Puts the guest in a cpuset. Required entries are name, cpus and mems.
         <description>The IO scheduling priority to use for this guest (see ionice(1)).</description>
       </scalar>
     </collection>
+
+    <collection name="cgroup" use="optional" since="0.30.216" id="guest-cgroup">
+      <description>
+This directory contains cgroup settings to be applied to this guest.
+See your kernel documentation for what settings are valid with your
+configuration.
+      </description>
+      <scalar name="name">
+        <description>
+If this file exists, the guest will be put in a cgroup named after the
+contents of this file. The default is to name the cgroup the same thing as the
+guest, unless
+<optionref ref="global-cgroup-name">.defaults/cgroup/name</optionref> says
+otherwise.
+        </description>
+      </scalar>
+    </collection>
+    <scalar name="nocgroup" since="0.30.216">
+      <description>
+If this file exists,
+<optionref ref="global-cgroup">.defaults/cgroup</optionref> will be ignored
+for this guest.
+      </description>
+    </scalar>
   </collection>
   </database>

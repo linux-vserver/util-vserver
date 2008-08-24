@@ -71,6 +71,10 @@ N_CONTEXT=
 
 SILENT_OPT=
 
+CGROUP_MNT=/dev/cgroup
+CGROUP_SUBSYS=all
+declare -a CGROUP_INHERIT=( cpuset.cpus cpuset.mems )
+
 : ${VSERVER_NAME:=$(basename "$VSERVER_DIR")}
 
 if test -e "$VSERVER_DIR"/noisy -o -n "$OPTION_VERBOSE"; then
@@ -831,6 +835,7 @@ function generateOptions
     _generateTagOptions         "$1"
     _generateMemctrlOptions     "$1"
     _generateSpaceOptions       "$1"
+    _generateCgroupOptions
 
     if test -n "$_IS_FAKEINIT"; then
 	CHCONTEXT_INIT_OPTS=( --disconnect --flag fakeinit )
@@ -1394,4 +1399,92 @@ function handleDeviceMap
 
 	$_VDEVMAP --xid "$xid" "$op" "${vdevmap_opts[@]}" || return $?
     done
+}
+
+function hasCgroup
+{
+    $_GREP -q "cgroup" /proc/filesystems
+}
+
+function _generateCgroupOptions
+{
+    local file
+
+    hasCgroup || return 0
+
+    findFile file "$__CONFDIR/.defaults/cgroup/mnt" ""
+    if test -n "$file"; then
+	read CGROUP_MNT < "$file"
+    fi
+    findFile file "$__CONFDIR/.defaults/cgroup/subsys" ""
+    if test -n "$file"; then
+	read CGROUP_SUBSYS < "$file"
+    fi
+    findFile file "$__CONFDIR/.defaults/cgroup/inherit" ""
+    if test -n "$file"; then
+	_readFileToArray CGROUP_INHERIT "$file" ""
+    fi
+
+    return 0
+}
+
+function useCgroup
+{
+    hasCgroup || return 1
+    test -d "$CGROUP_MNT" || return 1
+    test -d "$1/cgroup" -o \
+	\( -d "$__CONFDIR/.defaults/cgroup" -a \
+	   ! -e "$1/nocgroup" \)
+}
+
+function _handleCgroup
+{
+    local action="$1"
+    local vdir="$2"
+    local dir
+    local name
+    local i
+    local parent
+
+    useCgroup "$vdir" || return 0
+
+    findDir dir "$vdir/cgroup" "$__CONFDIR/.defaults/cgroup" ""
+    test -d "$dir" || return 0
+
+    if test -r "$dir"/name; then
+	read name < "$dir"/name
+    else
+	read name < "$vdir"/name
+    fi
+
+    if test "$action" = "attach"; then
+	if mkdir "$CGROUP_MNT/$name" 2>/dev/null; then
+	    parent="$CGROUP_MNT/$name"
+	    parent="${parent%/*}"
+            for i in "${CGROUP_INHERIT[@]}"; do
+		test -f "$parent/$i" || continue
+		cat "$parent/$i" > "$CGROUP_MNT/$name/$i"
+	    done
+
+	    shopt -s nullglob
+	    for i in "$dir"/*; do
+		cat "$i" > "$CGROUP_MNT/$name/${i##*/}"
+	    done
+	fi
+	echo "$$" > "$CGROUP_MNT/$name/tasks"
+    elif test "$action" = "destroy"; then
+	rmdir "$CGROUP_MNT/$name" 2>/dev/null || :
+    fi
+
+    return 0
+}
+
+function attachToCgroup
+{
+    _handleCgroup attach "$@"
+}
+
+function destroyCgroup
+{
+    _handleCgroup destroy "$@"
 }

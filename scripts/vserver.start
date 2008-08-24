@@ -121,6 +121,7 @@ enableInterfaces "$VSERVER_DIR" && have_interfaces=1
 mountVserver     "$VSERVER_DIR" && is_mounted=1
 prepareInit      "$VSERVER_DIR"
 addtoCPUSET      "$VSERVER_DIR"
+attachToCgroup   "$VSERVER_DIR"
 
 handleDeviceMap --set "$S_CONTEXT" "$VSERVER_DIR/apps/vdevmap"
 
