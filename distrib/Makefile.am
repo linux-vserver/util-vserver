@@ -50,30 +50,30 @@ nobase_distrib_DATA	=  defaults/devs \
 			   fc1/apt/rpmpriorities    fc1/pkgs/01    fc1/pkgs/02 \
 			   fc2/apt/rpmpriorities    fc2/pkgs/01    fc2/pkgs/02 \
 			   fc3/apt/rpmpriorities    fc3/pkgs/01    fc3/pkgs/02    fc3/pkgs/03 \
-			   fc3/yum/yum.conf $(wildcard fc3/yum.repos.d/*.repo) \
-			   $(wildcard fc3/rpmlist.d/*.lst) $(wildcard fc3/rpmlist.d/*.opt) \
+			   fc3/yum/yum.conf $(wildcard $(srcdir)/fc3/yum.repos.d/*.repo) \
+			   $(wildcard $(srcdir)/fc3/rpmlist.d/*.lst) $(wildcard $(srcdir)/c3/rpmlist.d/*.opt) \
 			   fc4/apt/rpmpriorities    fc4/pkgs/01    fc4/pkgs/02    fc4/pkgs/03 \
-			   fc4/yum/yum.conf $(wildcard fc4/yum.repos.d/*.repo) \
-			   $(wildcard fc4/rpmlist.d/*.lst) $(wildcard fc4/rpmlist.d/*.opt) \
+			   fc4/yum/yum.conf $(wildcard $(srcdir)/fc4/yum.repos.d/*.repo) \
+			   $(wildcard $(srcdir)/fc4/rpmlist.d/*.lst) $(wildcard $(srcdir)/c4/rpmlist.d/*.opt) \
 			   fc5/apt/rpmpriorities    fc5/pkgs/01    fc5/pkgs/02    fc5/pkgs/03 \
-			   fc5/yum/yum.conf $(wildcard fc5/yum.repos.d/*.repo) \
-			   $(wildcard fc5/rpmlist.d/*.lst) $(wildcard fc5/rpmlist.d/*.opt) \
+			   fc5/yum/yum.conf $(wildcard $(srcdir)/fc5/yum.repos.d/*.repo) \
+			   $(wildcard $(srcdir)/fc5/rpmlist.d/*.lst) $(wildcard $(srcdir)/c5/rpmlist.d/*.opt) \
 			   fc6/apt/rpmpriorities    fc6/pkgs/01    fc6/pkgs/02    fc6/pkgs/03 \
-			   fc6/yum/yum.conf $(wildcard fc6/yum.repos.d/*.repo) \
-			   $(wildcard fc6/rpmlist.d/*.lst) $(wildcard fc6/rpmlist.d/*.opt) \
+			   fc6/yum/yum.conf $(wildcard $(srcdir)/fc6/yum.repos.d/*.repo) \
+			   $(wildcard $(srcdir)/fc6/rpmlist.d/*.lst) $(wildcard $(srcdir)/c6/rpmlist.d/*.opt) \
 			   f7/apt/rpmpriorities    f7/pkgs/01    f7/pkgs/02    f7/pkgs/03 \
-			   f7/yum/yum.conf $(wildcard f7/yum.repos.d/*.repo) \
-			   $(wildcard f7/rpmlist.d/*.lst) $(wildcard f7/rpmlist.d/*.opt) \
+			   f7/yum/yum.conf $(wildcard $(srcdir)/f7/yum.repos.d/*.repo) \
+			   $(wildcard $(srcdir)/f7/rpmlist.d/*.lst) $(wildcard $(srcdir)/7/rpmlist.d/*.opt) \
 			   f8/apt/rpmpriorities    f8/pkgs/01    f8/pkgs/02    f8/pkgs/03 \
-			   f8/yum/yum.conf $(wildcard f8/yum.repos.d/*.repo) \
-			   $(wildcard f8/rpmlist.d/*.lst) $(wildcard f8/rpmlist.d/*.opt) \
+			   f8/yum/yum.conf $(wildcard $(srcdir)/f8/yum.repos.d/*.repo) \
+			   $(wildcard $(srcdir)/f8/rpmlist.d/*.lst) $(wildcard $(srcdir)/8/rpmlist.d/*.opt) \
 			   f9/pkgs/01 f9/pkgs/02 f9/pkgs/03 f9/yum/yum.conf \
-			   $(wildcard f9/yum.repos.d/*.repo) \
-			   $(wildcard f9/rpmlist.d/*.lst) $(wildcard f9/rpmlist.d/*.opt) \
+			   $(wildcard $(srcdir)/f9/yum.repos.d/*.repo) \
+			   $(wildcard $(srcdir)/f9/rpmlist.d/*.lst) $(wildcard $(srcdir)/9/rpmlist.d/*.opt) \
 			   centos4/pkgs/01 centos4/pkgs/02 centos4/pkgs/03 \
-			   centos4/yum/yum.conf $(wildcard centos4/yum.repos.d/*.repo) \
+			   centos4/yum/yum.conf $(wildcard $(srcdir)/centos4/yum.repos.d/*.repo) \
 			   centos5/pkgs/01 centos5/pkgs/02 centos5/pkgs/03 \
-			   centos5/yum/yum.conf $(wildcard centos5/yum.repos.d/*.repo) \
+			   centos5/yum/yum.conf $(wildcard $(srcdir)/centos5/yum.repos.d/*.repo) \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros \
 			   gentoo/init-vserver.sh gentoo/net.vserver \
