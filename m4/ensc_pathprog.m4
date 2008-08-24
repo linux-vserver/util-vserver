@@ -29,7 +29,7 @@ AC_DEFUN([ENSC_PATHPROG_INIT],
 ])
 
 
-dnl Usage: ENSC_PATHPROG(<VAR>, <PROG>[, <DFLT>, <DESCR>])
+dnl Usage: ENSC_PATHPROG(<VAR>, <PROG>[, <DFLT>, <DESCR>, <DEREF>])
 AC_DEFUN([ENSC_PATHPROG],
 [
 	AC_REQUIRE([ENSC_SET_SEARCHPATH])
@@ -59,8 +59,10 @@ $4])
 		fi
 	fi
 
-	if test -e "${$1}"; then
-		$1=`readlink -f "${$1}"`
+	if test "x$5" = x; then
+		if test -h "${$1}"; then
+			$1=`readlink -f "${$1}"`
+		fi
 	fi
 
 	test "${$1}" && ENSC_PATHPROG_SED="${ENSC_PATHPROG_SED}s!@'$1'@!${$1}!g;"
@@ -78,7 +80,7 @@ AC_DEFUN([ENSC_PATHPROG_STANDARD_TOOLS],
 	ENSC_PATHPROG(CMP,       cmp)
 	ENSC_PATHPROG(CP,        cp)
 	ENSC_PATHPROG(DIRNAME,   dirname)
-	ENSC_PATHPROG(EGREP,     egrep)
+	ENSC_PATHPROG(EGREP,     egrep, [], [], no-deref)
 	ENSC_PATHPROG(ENV,       env)
 	ENSC_PATHPROG(GREP,      grep)
 	ENSC_PATHPROG(LN,        ln)

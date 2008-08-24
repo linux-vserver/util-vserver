@@ -1037,7 +1037,7 @@ function initWait
 	    rc=$?
 
 	    if test "$rc" -ne 0 -a "$rc" -ne 1; then
-		$_VPS axf | $_EGREP -e "^[^ \t]+[ \t]+$S_CONTEXT[ \t]+" >&4
+		$_VPS axf | $_EGREP -e "^[ \t]*[^ \t]+[ \t]+$S_CONTEXT[ \t]+" >&4
 		killContext "$S_CONTEXT" 9
 	    fi
 
