@@ -63,8 +63,9 @@ if $_VSERVER_INFO - FEATURE persistent; then
 	$_VATTRIBUTE --set --xid self --secure --flag persistent -- \
 	$_VCONTEXT --xid self --migrate-self --endsetup -- \
 	/bin/true
-    RPM_FAKE_CTX=`cat $SETUP_CONFDIR/run`
+    RPM_FAKE_CTX=`$_CAT $SETUP_CONFDIR/run`
     export RPM_FAKE_CTX
+    base._addGeneratedFile "`$_READLINK $SETUP_CONFDIR/run`"
     base.pushCleanup $_VATTRIBUTE --xid "$RPM_FAKE_CTX" --flag '!persistent'
 fi
 
