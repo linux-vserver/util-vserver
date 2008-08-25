@@ -157,7 +157,8 @@ int main(int argc, char *argv[])
     DIR		  *dp;
     struct dirent *de;
 
-    Echdir(PROC_SYS_DIRECTORY);
+    if (chdir(PROC_SYS_DIRECTORY) == -1)
+      goto exec;
 
     dp = opendir(dir);
     if (dp != NULL) {
@@ -176,6 +177,7 @@ int main(int argc, char *argv[])
     Efchdir(curdir);
   }
 
+exec:
   Eexecvp(argv[optind], argv+optind);
   return EXIT_FAILURE;
 }
