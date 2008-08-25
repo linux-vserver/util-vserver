@@ -60,6 +60,13 @@ function mount_cgroup()
     $_MOUNT -t cgroup -o "$CGROUP_SUBSYS" vserver "$CGROUP_MNT"
 }
 
+function umount_cgroup()
+{
+    _generateCgroupOptions
+    test -n "$CGROUP_MNT" || return 0
+    $_UMOUNT "$CGROUP_MNT"
+}
+
 function start()
 {
     _beginResult $"Creating required directories"
@@ -91,6 +98,11 @@ function stop()
     kill_contexts
     _endResult $?
     local retval=$?
+    if hasCgroup; then
+	_beginResult $"Unmounting cgroup-hierarchy"
+	umount_cgroup
+	_endResult $?
+    fi
     $_RM -f "$lockfile"
     return $retval
 }
