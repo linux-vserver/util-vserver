@@ -38,24 +38,85 @@
 
 #define CMD_HELP		0x1000
 #define CMD_VERSION		0x1001
+#define CMD_MTAB		0x2001
+
+static struct option const
+CMDLINE_OPTIONS[] = {
+  { "help",	no_argument,       0, CMD_HELP },
+  { "version",	no_argument,       0, CMD_VERSION },
+  { "mtab",	required_argument, 0, CMD_MTAB },
+  { NULL, 0, 0, 0 }
+};
 
 int		wrapper_exit_code  =  255;
 
+static void
+showHelp(int fd, char const *cmd, int res)
+{
+  WRITE_MSG(fd, "Usage:\n    ");
+  WRITE_STR(fd, cmd);
+  WRITE_MSG(fd, " [--mtab <file>] <mount points>* -- <command> <args>*\n");
+  WRITE_MSG(fd, "\n"
+		"Please report bugs to " PACKAGE_BUGREPORT "\n");
+  exit(res);
+}
+
+static void
+showVersion(void)
+{
+  WRITE_MSG(1,
+	"exec-remount " VERSION " -- remounts specified mount points and executes a program\n"
+	"This program is part of " PACKAGE_STRING "\n\n"
+	"Copyright (c) 2008 Daniel Hokka Zakrisson\n"
+	VERSION_COPYRIGHT_DISCLAIMER);
+  exit(0);
+}
+
+static void
+do_remount(char const *mount)
+{
+  /* FIXME: Read this from mtab */
+  if (strcmp(mount, "/proc") == 0)
+    Emount("proc", "proc", "proc", 0, NULL);
+  else if (strcmp(mount, "/sys") == 0)
+    Emount("sysfs", "sys", "sysfs", 0, NULL);
+  else {
+    WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "unknown mount point: ");
+    WRITE_STR(2, mount);
+    WRITE_MSG(2, "\n");
+  }
+}
+
 int main(int argc, char *argv[])
 {
-	int i = 1;
-	if (vc_isSupported(vcFEATURE_PIDSPACE)) {
-		/* FIXME: Get options from etc/mtab
-		 *	  Get list of filesystems from argv
-		 */
-		if (umount("proc") == 0)
-			Emount("proc", "proc", "proc", 0, NULL);
-		if (umount("sys") == 0)
-			Emount("sysfs", "sys", "sysfs", 0, NULL);
-	}
-	if (strcmp(argv[i], "--") == 0)
-		i++;
-	EexecvpD(argv[i], argv+i);
-	/* NOTREACHED */
-	return 1;
+  int i;
+  char const *mtab = "/etc/mtab";
+
+  while (1) {
+    int c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
+    if (c==-1) break;
+
+    switch (c) {
+      case CMD_HELP	:  showHelp(1, argv[0], 0);
+      case CMD_VERSION	:  showVersion();
+      case CMD_MTAB	:  mtab = optarg; break;
+      default		:  showHelp(2, argv[0], 1);
+    }
+  }
+
+  for (i = optind; argv[i] != NULL && strcmp(argv[i], "--") != 0; i++) {
+    if (vc_isSupported(vcFEATURE_PIDSPACE)) {
+      /* + 1 to strip the leading / */
+      if (umount2(argv[i] + 1, MNT_DETACH) == 0)
+	do_remount(argv[i]);
+    }
+  }
+
+  if (argv[i] == NULL)
+    showHelp(2, argv[0], 1);
+
+  i++;
+  EexecvpD(argv[i], argv+i);
+  /* NOTREACHED */
+  return 1;
 }
