@@ -36,16 +36,11 @@
 #  include "syscall_ctxmigrate-v21.hc"
 #endif
 
-#if defined(VC_ENABLE_API_V23)
-#  include "syscall_ctxmigrate-v23.hc"
-#endif
-
 #if defined(VC_ENABLE_API_V13) || defined(VC_ENABLE_API_V21)
 int
 vc_ctx_migrate(xid_t xid, uint_least64_t flags)
 {
-  CALL_VC(CALL_VC_V23P  (vc_ctx_migrate, xid, flags),
-	  CALL_VC_SPACES(vc_ctx_migrate, xid, flags),
+  CALL_VC(CALL_VC_SPACES(vc_ctx_migrate, xid, flags),
 	  CALL_VC_V13A  (vc_ctx_migrate, xid));
 }
 #endif
