@@ -125,6 +125,7 @@ handleDirEntry(const PathInfo *src_path, const PathInfo *basename,
   else {
     PathInfo		dst_path = global_info.dst;
     char		dst_path_buf[ENSC_PI_APPSZ(dst_path, *src_path)];
+    struct stat		dst_st;
 
     if (S_ISDIR(st->st_mode))
       *is_dir = true;
@@ -141,7 +142,7 @@ handleDirEntry(const PathInfo *src_path, const PathInfo *basename,
     PathInfo_append(&dst_path, src_path, dst_path_buf);
 
     /* skip files that already exist */
-    if (access(dst_path.d, F_OK)!=-1) {
+    if (lstat(dst_path.d, &dst_st)!=-1) {
       if (Global_getVerbosity() > 1) {
 	WRITE_MSG(1, "  skipping '");
 	Vwrite(1, src_path->d, src_path->l);
