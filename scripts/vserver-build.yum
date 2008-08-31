@@ -75,6 +75,9 @@ rpm.importGPGPubKeys "$SETUP_CONFDIR" \
     "$__CONFDIR/.distributions/.common/pubkeys" \
     "$__DISTRIBDIR/$DISTRIBUTION/pubkeys"
 yum.installBasePackages "$SETUP_CONFDIR" "$PKGINSTALLDIR"
+
+test -z "$1" || $_VYUM "$SETUP_CONFDIR" -- -y install "$@"
+
 $_VYUM "$SETUP_CONFDIR" -- clean all
 
 if $_VSERVER_INFO - FEATURE persistent; then
