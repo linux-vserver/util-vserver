@@ -109,7 +109,7 @@ fixupParams(struct Arguments UNUSED *args, int argc)
     exit(1);
   }
 
-  args->ctx            = vc_xidopt2xid(args->ctx_str, true, 0);
+  args->ctx            = vc_tagopt2tag(args->ctx_str, true, 0);
   args->do_display_dir = !args->do_recurse;
   args->do_display_dot = true;
 }
