@@ -158,8 +158,6 @@ lib_v23_SRCS =			lib/syscall_tagmigrate-v23.hc \
 				lib/syscall_getbadness-v23.hc \
 				lib/syscall_setbadness.c \
 				lib/syscall_setbadness-v23.hc \
-				lib/syscall_ctxcreate-v23.hc \
-				lib/syscall_ctxmigrate-v23.hc \
 				lib/syscall_getspacedefault.c \
 				lib/syscall_getspacedefault-v23.hc
 
