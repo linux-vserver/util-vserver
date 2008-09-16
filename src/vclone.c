@@ -136,7 +136,7 @@ handleDirEntry(const PathInfo *src_path, const PathInfo *basename,
 	Vwrite(1, src_path->d, src_path->l);
 	WRITE_MSG(1, "' (excluded)\n");
       }
-      return false;
+      return true;
     }
 
     PathInfo_append(&dst_path, src_path, dst_path_buf);
