@@ -315,15 +315,15 @@ dnl ########################
 dnl
 dnl {crypto stuff
 dnl
-AC_MSG_CHECKING([for used crypto API])
 AC_ARG_WITH(crypto-api,
             AC_HELP_STRING([--with-crypto-api=API],
                            [select crypto api to be used; possible values are `none', `nss', `beecrypt', `auto' (default:auto)]),
 	    [case $withval in
 		(none|nss|beecrypt|auto)	ensc_crypto_api=$withval;;
+		(yes)				ensc_crypto_api=auto;;
+		(no)				ensc_crypto_api=none;;
 		(*)	AC_MSG_ERROR([invalid crypto-api value, only none,nss,beecrypt,auto are supported]);;
 	     esac],[ensc_crypto_api=auto])
-AC_MSG_RESULT($ensc_crypto_api)
 
 
 dnl Now, check for matching crypto api. When selected 'auto', the
@@ -379,8 +379,7 @@ case $ensc_crypto_api in
 (nss)	PKG_CHECK_MODULES(NSS, nss);;
 (auto)	PKG_CHECK_MODULES(NSS, nss, [
 		AC_MSG_NOTICE([using NSS as crypto api])
-		ensc_crypto_api=nss],
-                AC_MSG_RESULT(no));;
+		ensc_crypto_api=nss]);;
 esac
 
 dnl
@@ -405,14 +404,14 @@ case $ensc_crypto_api in
 	ENSC_CAN_CRYPTO_WITH_DIETLIBC=false
 	;;
 
-(none)
+(none|auto)
 	ENSC_HAVE_CRYPTO=false
 	ENSC_CRYPTO_API=ENSC_CRYPTO_API_NONE
 	ENSC_CRYPTO_CFLAGS=
 	ENSC_CRYPTO_LIB=
 	ENSC_CAN_CRYPTO_WITH_DIETLIBC=false
 
-	AC_MSG_WARN([No crypto api found/select. This will disable the build of `vhashify'])
+	AC_MSG_WARN([No crypto api found/select. This will disable the build of 'vhashify'])
 	;;
 
 (*)	AC_MSG_ERROR([internal error])
