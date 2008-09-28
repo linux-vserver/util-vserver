@@ -189,7 +189,7 @@ verifyCap()
   struct __user_cap_header_struct header;
   struct __user_cap_data_struct user[2];
 
-  header.version = _LINUX_CAPABILITY_VERSION_2;
+  header.version = _LINUX_CAPABILITY_VERSION_3;
   header.pid     = 0;
 
   if (getuid()!=0) {
@@ -205,7 +205,7 @@ verifyCap()
 retry:
   if (capget(&header, user)==-1) {
     if (!retried &&
-	header.version != _LINUX_CAPABILITY_VERSION_2) {
+	header.version != _LINUX_CAPABILITY_VERSION_3) {
       header.version = _LINUX_CAPABILITY_VERSION_1;
       retried = 1;
       goto retry;

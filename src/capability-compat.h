@@ -34,6 +34,6 @@ extern int capset (struct __user_cap_header_struct *, struct __user_cap_data_str
 #  define _LINUX_CAPABILITY_VERSION_1	_LINUX_CAPABILITY_VERSION
 #endif
 
-#ifndef _LINUX_CAPABILITY_VERSION_2
-#  define _LINUX_CAPABILITY_VERSION_2	0x20071026
+#ifndef _LINUX_CAPABILITY_VERSION_3
+#  define _LINUX_CAPABILITY_VERSION_3	0x20080522
 #endif
