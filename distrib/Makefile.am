@@ -67,9 +67,11 @@ nobase_distrib_DATA	=  defaults/devs \
 			   f8/apt/rpmpriorities    f8/pkgs/01    f8/pkgs/02    f8/pkgs/03 \
 			   f8/yum/yum.conf $(wildcard $(srcdir)/f8/yum.repos.d/*.repo) \
 			   $(wildcard $(srcdir)/f8/rpmlist.d/*.lst) $(wildcard $(srcdir)/8/rpmlist.d/*.opt) \
+			   $(wildcard $(srcdir)/f8/pubkeys/RPM-GPG*) \
 			   f9/pkgs/01 f9/pkgs/02 f9/pkgs/03 f9/yum/yum.conf \
 			   $(wildcard $(srcdir)/f9/yum.repos.d/*.repo) \
 			   $(wildcard $(srcdir)/f9/rpmlist.d/*.lst) $(wildcard $(srcdir)/9/rpmlist.d/*.opt) \
+			   $(wildcard $(srcdir)/f9/pubkeys/RPM-GPG*) \
 			   centos4/pkgs/01 centos4/pkgs/02 centos4/pkgs/03 \
 			   centos4/yum/yum.conf $(wildcard $(srcdir)/centos4/yum.repos.d/*.repo) \
 			   centos5/pkgs/01 centos5/pkgs/02 centos5/pkgs/03 \
