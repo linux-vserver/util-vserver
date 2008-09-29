@@ -72,13 +72,12 @@ diff -Nurp yum-3.2.4.orig/docs/yum.conf.5 yum-3.2.4/docs/yum.conf.5
  Either `1' or `0'. This tells yum whether or not it should perform a GPG
 diff -Nurp yum-3.2.4.orig/yum/config.py yum-3.2.4/yum/config.py
 --- yum-3.2.4.orig/yum/config.py	2007-08-28 19:38:39.000000000 +0200
-+++ yum-3.2.4/yum/config.py	2008-09-29 02:49:04.000000000 +0200
-@@ -469,6 +469,27 @@ class StartupConf(BaseConfig):
++++ yum-3.2.4/yum/config.py	2008-09-29 03:09:28.000000000 +0200
+@@ -469,6 +469,26 @@ class StartupConf(BaseConfig):
      pluginpath = ListOption(['/usr/share/yum-plugins', '/usr/lib/yum-plugins'])
      pluginconfpath = ListOption(['/etc/yum/pluginconf.d'])
  
-+    def getRootedPath(self, option, enforce_default=False, defaults_to_host=False):
-+        path = getattr(self, option)
++    def getRootedPath(self, path, enforce_default=False, defaults_to_host=False):
 +        instroot = getattr(self, 'installroot', None)
 +        if instroot==None:
 +            return path
@@ -101,7 +100,7 @@ diff -Nurp yum-3.2.4.orig/yum/config.py yum-3.2.4/yum/config.py
  class YumConf(StartupConf):
      '''
      Configuration option definitions for yum.conf\'s [main] section.
-@@ -482,6 +503,7 @@ class YumConf(StartupConf):
+@@ -482,6 +502,7 @@ class YumConf(StartupConf):
      persistdir = Option('/var/lib/yum')
      keepcache = BoolOption(True)
      logfile = Option('/var/log/yum.log')
@@ -109,28 +108,28 @@ diff -Nurp yum-3.2.4.orig/yum/config.py yum-3.2.4/yum/config.py
      reposdir = ListOption(['/etc/yum/repos.d', '/etc/yum.repos.d'])
      syslog_ident = Option()
      syslog_facility = Option('LOG_DAEMON')
-@@ -615,9 +637,8 @@ def readMainConfig(startupconf):
+@@ -615,9 +636,9 @@ def readMainConfig(startupconf):
      yumconf.populate(startupconf._parser, 'main')
  
      # Apply the installroot to directory options
 -    for option in ('cachedir', 'logfile', 'persistdir'):
--        path = getattr(yumconf, option)
--        setattr(yumconf, option, yumconf.installroot + path)
 +    for option in ('cachedir', 'logfile', 'lockfile'):
-+        setattr(yumconf, option, yumconf.getRootedPath(option))
+         path = getattr(yumconf, option)
+-        setattr(yumconf, option, yumconf.installroot + path)
++        setattr(yumconf, option, yumconf.getRootedPath(path))
      
      # Add in some extra attributes which aren't actually configuration values 
      yumconf.yumvar = yumvars
 diff -Nurp yum-3.2.4.orig/yum/__init__.py yum-3.2.4/yum/__init__.py
 --- yum-3.2.4.orig/yum/__init__.py	2007-08-28 20:45:13.000000000 +0200
-+++ yum-3.2.4/yum/__init__.py	2008-09-29 02:32:24.000000000 +0200
++++ yum-3.2.4/yum/__init__.py	2008-09-29 03:08:34.000000000 +0200
 @@ -214,8 +214,7 @@ class YumBase(depsolve.Depsolve):
          repo_config_age = self.conf.config_file_age
          
          for reposdir in self.conf.reposdir:
 -            if os.path.exists(self.conf.installroot+'/'+reposdir):
 -                reposdir = self.conf.installroot + '/' + reposdir
-+            reposdir  = self.conf.getRootedPath(reposdir)
++            reposdir = self.conf.getRootedPath(reposdir)
  
              if os.path.isdir(reposdir):
                  for repofn in glob.glob('%s/*.repo' % reposdir):
@@ -163,13 +162,14 @@ diff -Nurp yum-3.2.4.orig/yum/__init__.py yum-3.2.4/yum/__init__.py
      def _lock(self, filename, contents='', mode=0777):
 diff -Nurp yum-3.2.4.orig/yum/rpmtrans.py yum-3.2.4/yum/rpmtrans.py
 --- yum-3.2.4.orig/yum/rpmtrans.py	2007-08-15 19:27:19.000000000 +0200
-+++ yum-3.2.4/yum/rpmtrans.py	2008-09-29 02:48:23.000000000 +0200
-@@ -149,7 +149,7 @@ class RPMTransaction:
++++ yum-3.2.4/yum/rpmtrans.py	2008-09-29 03:09:54.000000000 +0200
+@@ -149,7 +149,8 @@ class RPMTransaction:
      
          if not hasattr(self, '_ts_done'):
              # need config variable to put this in a better path/name
 -            te_fn = '%s/transaction-done.%s' % (self.base.conf.persistdir, self._ts_time)
-+            te_fn = '%s/transaction-done.%s' % (self.base.conf.getRootedPath('persistdir'), self._ts_time)
++            te_fn = '%s/transaction-done.%s' % (
++                self.base.conf.getRootedPath(self.base.conf.persistdir), self._ts_time)
              self.ts_done_fn = te_fn
              try:
                  self._ts_done = open(te_fn, 'w')
