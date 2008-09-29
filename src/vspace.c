@@ -50,14 +50,23 @@ CMDLINE_OPTIONS[] = {
   { "enter",      required_argument, 0, 'e' },
   { "set",        no_argument,       0, 's' },
   { "mask",       required_argument, 0, 'm' },
+  { "default",    no_argument,       0, 'd' },
+  { "~default",   no_argument,       0, 'd' | 0x10000 },
 
   { "mount",      no_argument,       0, 'M' },
+  { "~mount",     no_argument,       0, 'M' | 0x10000 },
   { "fs",         no_argument,       0, 'F' },
+  { "~fs",        no_argument,       0, 'F' | 0x10000 },
   { "ipc",        no_argument,       0, 'I' },
+  { "~ipc",       no_argument,       0, 'I' | 0x10000 },
   { "uts",        no_argument,       0, 'U' },
+  { "~uts",       no_argument,       0, 'U' | 0x10000 },
   { "user",       no_argument,       0, 'S' },
+  { "~user",      no_argument,       0, 'S' | 0x10000 },
   { "pid",        no_argument,       0, 'P' },
+  { "~pid",       no_argument,       0, 'P' | 0x10000 },
   { "net",        no_argument,       0, 'N' },
+  { "~net",       no_argument,       0, 'N' | 0x10000 },
   {0,0,0,0}
 };
 
@@ -80,6 +89,7 @@ showHelp(int fd, char const *cmd, int res)
 	    "<spaces>* specifies the spaces to manipulate.\n"
 	    "It can be any combination of:\n"
 	    "    --mask <mask>     ...  specify a mask of spaces\n"
+	    "    --default         ...  the default spaces for this kernel\n"
 	    "    --mount           ...  the mount namespace\n"
 	    "    --fs              ...  the fs_struct\n"
 	    "    --ipc             ...  the IPC namespace\n"
@@ -109,10 +119,6 @@ static void
 newSpaces(uint_least64_t mask)
 {
   pid_t pid;
-
-  /* optimize default case */
-  if (mask == 0)
-    return;
 
   mask &= ~CLONE_FS;
 
@@ -163,10 +169,11 @@ int main(int argc, char *argv[])
   int			sum        = 0;
   
   while (1) {
-    int		c = getopt_long(argc, argv, "+nsce:m:" "MFIUSPN", CMDLINE_OPTIONS, 0);
+    int			c = getopt_long(argc, argv, "+nsce:m:" "MFIUSPN", CMDLINE_OPTIONS, 0);
+    uint_least64_t	thisbit = 0;
     if (c==-1) break;
 
-    switch (c) {
+    switch (c & 0xFFFF) {
       case CMD_HELP	:  showHelp(1, argv[0], 0);
       case CMD_VERSION	:  showVersion();
       case 'n'		:  do_new     = true; break;
@@ -186,13 +193,21 @@ int main(int argc, char *argv[])
 	mask = mask_l;
 	break;
       }
-      case 'M'		:  mask |= CLONE_NEWNS;		break;
-      case 'F'		:  mask |= CLONE_FS;		break;
-      case 'I'		:  mask |= CLONE_NEWIPC;	break;
-      case 'U'		:  mask |= CLONE_NEWUTS;	break;
-      case 'S'		:  mask |= CLONE_NEWUSER;	break;
-      case 'P'		:  mask |= CLONE_NEWPID;	break;
-      case 'N'		:  mask |= CLONE_NEWNET;	break;
+      case 'M'		:  thisbit = CLONE_NEWNS;	break;
+      case 'F'		:  thisbit = CLONE_FS;		break;
+      case 'I'		:  thisbit = CLONE_NEWIPC;	break;
+      case 'U'		:  thisbit = CLONE_NEWUTS;	break;
+      case 'S'		:  thisbit = CLONE_NEWUSER;	break;
+      case 'P'		:  thisbit = CLONE_NEWPID;	break;
+      case 'N'		:  thisbit = CLONE_NEWNET;	break;
+      case 'd'		:
+	thisbit = vc_get_space_default();
+	if (thisbit == (__typeof__(thisbit)) -1) {
+	  thisbit = vc_get_space_mask();
+	  if (thisbit == (__typeof__(thisbit)) -1)
+	    thisbit = CLONE_NEWNS | CLONE_FS;
+	}
+	break;
 
       default		:
 	WRITE_MSG(2, "Try '");
@@ -201,6 +216,11 @@ int main(int argc, char *argv[])
 	return 255;
 	break;
     }
+    /* ~ option used */
+    if (c & 0xFFFF0000)
+      mask &= ~thisbit;
+    else
+      mask |= thisbit;
   }
 
   sum = ((do_new ? 1 : 0) + (do_enter ? 1 : 0) +
