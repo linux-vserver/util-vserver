@@ -2,7 +2,7 @@
 name=Fedora 8 - $basearch - Updates
 failovermethod=priority
 #baseurl=http://download.fedora.redhat.com/pub/fedora/linux/updates/8/$basearch.newkey/
-mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f8.newkeye&arch=$basearch
+mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f8.newkey&arch=$basearch
 enabled=1
 gpgcheck=1
 gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/8/Everything/$basearch/os/RPM-GPG-KEY-fedora
