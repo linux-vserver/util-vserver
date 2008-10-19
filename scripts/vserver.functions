@@ -346,6 +346,13 @@ function _generateInitOptions
 	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL 3 /var/run/utmp )
 	    ;;
 
+	(xarch)
+	    test -n "$RUNLEVEL_START" || RUNLEVEL_START=3
+	    INITCMD_START=( /etc/rc.multi )
+	    INITCMD_STOP=( /etc/rc.shutdown )
+	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL "$RUNLEVEL_START" /var/run/utmp )
+	    ;;
+
 	(x) ;;
 	(*) panic "Unknown init-style '$INITSTYLE'; aborting";;
     esac
