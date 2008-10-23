@@ -1461,7 +1461,7 @@ function _handleCgroup
     if test -r "$dir"/name; then
 	read name < "$dir"/name
     else
-	read name < "$vdir"/name
+	name="$VSERVER_NAME"
     fi
 
     if test "$action" = "attach"; then
