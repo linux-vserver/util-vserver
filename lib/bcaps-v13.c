@@ -29,15 +29,7 @@
 #include <strings.h>
 #include <assert.h>
 
-#define DECL(VAL) { #VAL, sizeof(#VAL)-1, 1 << (CAP_ ## VAL) }
-
-#ifndef CAP_AUDIT_WRITE
-#  define CAP_AUDIT_WRITE	29
-#endif
-
-#ifndef CAP_AUDIT_CONTROL
-#  define CAP_AUDIT_CONTROL	30
-#endif
+#define DECL(VAL) { #VAL, sizeof(#VAL)-1, 1ULL << (VC_CAP_ ## VAL) }
 
 static struct Mapping_uint64 const VALUES[] = {
   DECL(CHOWN),
