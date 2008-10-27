@@ -25,19 +25,15 @@
 uint_least64_t
 vc_get_insecurebcaps()
 {
-  return ( (1<<VC_CAP_LINUX_IMMUTABLE) | (1<<VC_CAP_NET_BROADCAST) |
-	   (1<<VC_CAP_NET_ADMIN) | (1<<VC_CAP_NET_RAW) |
-	   (1<<VC_CAP_IPC_LOCK) | (1<<VC_CAP_IPC_OWNER) |
-	   (1<<VC_CAP_SYS_MODULE) | (1<<VC_CAP_SYS_RAWIO) |
-	   (1<<VC_CAP_SYS_PACCT) | (1<<VC_CAP_SYS_ADMIN) |
-	   (1<<VC_CAP_SYS_NICE) |
-	   (1<<VC_CAP_SYS_RESOURCE) | (1<<VC_CAP_SYS_TIME) |
-	   (1<<VC_CAP_MKNOD) | (1<<VC_CAP_AUDIT_CONTROL)
-	   | ~(0x7fffffff)
+  return ~((1<<VC_CAP_CHOWN) | (1<<VC_CAP_DAC_OVERRIDE) |
+	   (1<<VC_CAP_DAC_READ_SEARCH) | (1<<VC_CAP_FOWNER) |
+	   (1<<VC_CAP_FSETID) | (1<<VC_CAP_KILL) |
+	   (1<<VC_CAP_SETGID) | (1<<VC_CAP_SETUID) |
+	   (1<<VC_CAP_NET_BIND_SERVICE)
 
 #if defined(VC_ENABLE_API_COMPAT)
-	   | (vc_isSupported(vcFEATURE_VSHELPER) ? 0 : (1<<VC_CAP_SYS_BOOT))
-	   | (vc_isSupported(vcFEATURE_MIGRATE)  ? 0 : (1<<29)) // formerly QUOTACTL
+	   | (vc_isSupported(vcFEATURE_VSHELPER) ? (1<<VC_CAP_SYS_BOOT) : 0)
+	   | (vc_isSupported(vcFEATURE_MIGRATE)  ? (1<<VC_CAP_AUDIT_WRITE) : 0) // formerly QUOTACTL
 #endif
     );
 }
