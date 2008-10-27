@@ -141,6 +141,9 @@
 #define VC_CAP_LEASE            	28
 #define VC_CAP_AUDIT_WRITE          	29
 #define VC_CAP_AUDIT_CONTROL          	30
+#define VC_CAP_SETFCAP			31
+#define VC_CAP_MAC_OVERRIDE		32
+#define VC_CAP_MAC_ADMIN		33
 
 #define VC_IMMUTABLE_FILE_FL		0x0000010lu
 #define VC_IMMUTABLE_LINK_FL		0x0008000lu

@@ -71,6 +71,9 @@ static struct Mapping_uint64 const VALUES[] = {
   DECL(LEASE),
   DECL(AUDIT_WRITE),
   DECL(AUDIT_CONTROL),
+  DECL(SETFCAP),
+  DECL(MAC_OVERRIDE),
+  DECL(MAC_ADMIN),
 };
 
 inline static char const *
