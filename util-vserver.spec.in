@@ -1,5 +1,9 @@
 # $Id$
 
+%if "%{?_without_python:1}" != "1"
+%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
+%endif
+
 ## This package understands the following switches:
 ## --without dietlibc        ...   disable usage of dietlibc
 ## --with xalan              ...   require/use the xalan xslt processor
@@ -43,6 +47,7 @@ BuildRequires:	e2fsprogs-devel e2fsprogs
 %{?_without_beecrypt:BuildRequires: nss-devel}
 BuildRequires:	e2fsprogs
 %{!?_without_doc:BuildRequires:	doxygen tetex-latex}
+%{!?_without_python:BuildRequires: python python-devel}
 Requires(post):		%name-core
 Requires(pre):		%pkglibdir
 Requires(postun):	%pkglibdir
@@ -92,6 +97,11 @@ requires(postun):	%_initrddir %pkglibdir
 Summary:		Header-files and libraries needed to develop vserver based applications
 Group:			Development/Libraries
 Requires:		pkgconfig
+Requires:		%name-lib = %version-%release
+
+%package python
+Summary:		Python bindings to develop vserver-based applications
+Group:			Development/Libraries
 Requires:		%name-lib = %version-%release
 
 
@@ -167,6 +177,16 @@ can't interact with services in the main server.
 This package contains header files and libraries which are needed to
 develop VServer related applications.
 
+%description python
+util-vserver provides the components and a framework to setup virtual
+servers.  A virtual server runs inside a linux server. It is nevertheless
+highly independent. As such, you can run various services with normal
+configuration. The various vservers can't interact with each other and
+can't interact with services in the main server.
+
+This package contains the files needed to interface with the
+Linux-VServer API from Python.
+
 
 %prep
 %setup -q -n %name-%fullver
@@ -176,7 +196,8 @@ develop VServer related applications.
 %configure --with-initrddir=%_initrddir --enable-release \
            %{?_without_dietlibc:--disable-dietlibc} \
            %{?_with_legacy:--enable-apis=NOLEGACY} \
-           --with-initscripts=sysv
+           --with-initscripts=sysv \
+           %{?_without_python:--without-python}
 
 %__make %{?_smp_mflags} all
 %{!?_without_doc:%__make %{?_smp_mflags} doc}
@@ -359,6 +380,11 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 %defattr(-,root,root,-)
 %{!?_without_doc:%doc lib/apidoc/latex/refman.pdf}
 %{!?_without_doc:%doc lib/apidoc/html}
+
+
+%files python
+%defattr(-,root,root,-)
+%{!?_without_python:%{python_sitearch}/*}
 
 
 %changelog
