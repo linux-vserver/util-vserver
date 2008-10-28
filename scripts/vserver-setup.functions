@@ -220,7 +220,7 @@ function setup_writeOption
 
     test -z "$SETUP_FLAGS" || for i in "${SETUP_FLAGS[@]}"; do
 	echo "$i"
-    done >"$cfgdir"/flags
+    done >"$cfgdir"/cflags
 
     ln -s "$SETUP_LOCKFILE"   "$cfgdir"/run
 }

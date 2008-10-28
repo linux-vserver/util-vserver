@@ -381,10 +381,12 @@ function _generateInitOptions
 function _generateFlagOptions
 {
     local vdir=$1
+    local file
 
     CHCONTEXT_FLAG_OPTS=()
 
-    test ! -e "$vdir"/flags || \
+    findFile file "$vdir"/cflags "$vdir"/flags ""
+    test -z "$file" || \
     while read flag; do
 	case x"$flag" in
 	    (x|x\#*)		;;
@@ -398,7 +400,7 @@ function _generateFlagOptions
 				      --flag "$flag" )
 		;;
 	esac
-    done <"$vdir"/flags
+    done <"$file"
 
     isAvoidNamespace "$vdir" || {
 	USE_VNAMESPACE=1

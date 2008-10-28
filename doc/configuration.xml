@@ -616,51 +616,17 @@ is the personality-type followed by flags (one item per line). See
 values.
       </description>
     </list>
-    <list name="flags">
+    <list name="cflags" id="cflags" since="0.30.216">
       <description>
 Contains per line a flag. See <ulink
 url="http://svn.linux-vserver.org/svn/util-vserver/trunk/lib/cflags-v13.c">lib/cflags-v13.c</ulink>
 for possible values.
       </description>
-      <!--
-      <elements>
-	<element name="fakeinit">
-	  <description>
-The new process will believe it is process number 1. Useful to run a
-real /sbin/init in a vserver. Warning: this flag should not be used
-unless you know what you are doing. Often, it is better to use the
-'plain' initstyle.
-          </description>
-	</element>
-	<element name="lock">
-	  <description>
-The new process is trapped and can't use chcontext anymore.
-          </description>
-	</element>
-	<element name="sched">
-	  <description>
-The new process and its children will share a common
-          </description>
-	</element>
-	<element name="nproc">
-	  <description>
-Limit the number of process in the vserver according to
-ulimit setting. Normally, ulimit is a per user thing.
-With this flag, it becomes a per vserver thing.
-          </description>
-	</element>
-	<element name="private">
-	  <description>
-No one can join this security context once created.
-          </description>
-	</element>
-	<element name="ulimit">
-	  <description>
-Apply the current ulimit to the whole context
-          </description>
-	</element>
-      </elements>
-      -->
+    </list>
+    <list name="flags">
+      <description>
+Old name for <optionref>cflags</optionref>. Deprecated.
+      </description>
     </list>
     <list name="nflags" since="0.30.212">
       <description>
