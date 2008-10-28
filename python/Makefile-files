@@ -1,0 +1,34 @@
+## $Id$
+
+## Copyright (C) 2008 Daniel Hokka Zakrisson
+## 
+## This program is free software; you can redistribute it and/or
+## modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2
+## of the License, or (at your option) any later version.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+## 
+
+pyexec_LTLIBRARIES		+= python/_libvserver.la
+python__libvserver_la_SOURCES	=  python/_libvserver.c
+python__libvserver_la_CFLAGS	=  $(AM_CFLAGS) $(PYTHON_CFLAGS) \
+				   -I$(top_builddir)/python
+python__libvserver_la_LDFLAGS	=  -module -avoid-version $(PYTHON_LDFLAGS)
+python__libvserver_la_LIBADD	=  $(LIBVSERVER_GLIBC)
+
+# FIXME: Dude, this is ugly.
+python/_libvserver.c: $(top_builddir)/python/_libvserver-constants.c
+$(top_builddir)/python/_libvserver-constants.c: lib/vserver.h
+	ctags -x $(top_srcdir)/lib/vserver.h | \
+		awk '$$2 == "macro" || $$2 == "enumerator" { print $$1 }' | \
+		egrep '^(vc|VC|CLONE)' | grep -v VC_ATTR_ | \
+		awk '{ printf "  PyModule_AddIntConstant(mod, \"%s\", %s);\n", $$1, $$1 }' \
+		> $(top_builddir)/python/_libvserver-constants.c

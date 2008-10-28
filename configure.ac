@@ -449,6 +449,31 @@ AM_CONDITIONAL(HAVE_GENTOO_INIT, test x"$ensc_with_init" = xgentoo)
 AM_CONDITIONAL(HAVE_SYSV_INIT, test x"$ensc_with_init" = xsysv)
 
 
+dnl ########################
+dnl Check for Python
+
+AM_PATH_PYTHON(,, [:])
+ensc_python_config=python-config
+AC_ARG_WITH(python, AC_HELP_STRING([--with-python=FILE], [use FILE to query Python build details (default: python-config)]), [
+	case "$withval" in
+	(no)	PYTHON=:;;
+	(yes)	;;
+	(*)	ensc_python_config="$withval";;
+	esac])
+if $ensc_python_config --cflags > /dev/null 2>&1; then
+	PYTHON_CFLAGS=`$ensc_python_config --cflags`
+	PYTHON_LDFLAGS=`$ensc_python_config --ldflags`
+	AC_SUBST(PYTHON_CFLAGS)
+	AC_SUBST(PYTHON_LDFLAGS)
+else
+	PYTHON=:
+fi
+AM_CONDITIONAL([HAVE_PYTHON], [test "x$PYTHON" != x:])
+
+dnl Python stuff ends here
+dnl ########################
+
+
 dnl BIG HACK! Do some autodetection here!
 AC_DEFINE(UTMP_GID, [22], [The utmp gid-number])
 
