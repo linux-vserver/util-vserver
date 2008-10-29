@@ -453,22 +453,27 @@ dnl ########################
 dnl Check for Python
 
 AM_PATH_PYTHON(,, [:])
+if test "x$PYTHON" != x:; then
+	ensc_have_python=true
+else
+	ensc_have_python=false
+fi
 ensc_python_config=python-config
 AC_ARG_WITH(python, AC_HELP_STRING([--with-python=FILE], [use FILE to query Python build details (default: python-config)]), [
 	case "$withval" in
-	(no)	PYTHON=:;;
+	(no)	ensc_have_python=false;;
 	(yes)	;;
 	(*)	ensc_python_config="$withval";;
 	esac])
-if $ensc_python_config --cflags > /dev/null 2>&1; then
+if $ensc_have_python && $ensc_python_config --cflags > /dev/null 2>&1; then
 	PYTHON_CFLAGS=`$ensc_python_config --cflags`
 	PYTHON_LDFLAGS=`$ensc_python_config --ldflags`
 	AC_SUBST(PYTHON_CFLAGS)
 	AC_SUBST(PYTHON_LDFLAGS)
 else
-	PYTHON=:
+	ensc_have_python=false
 fi
-AM_CONDITIONAL([HAVE_PYTHON], [test "x$PYTHON" != x:])
+AM_CONDITIONAL([HAVE_PYTHON], [$ensc_have_python])
 
 dnl Python stuff ends here
 dnl ########################
