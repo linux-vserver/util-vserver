@@ -591,7 +591,7 @@ pyvserver_get_vhi_name(PyObject UNUSED *self, PyObject *args)
 {
   xid_t xid;
   vc_uts_type type;
-  char val[256];
+  char val[65];
 
   if (!PyArg_ParseTuple(args, "Ii", &xid, &type))
     return NULL;
