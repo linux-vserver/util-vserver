@@ -785,7 +785,7 @@ pyvserver_get_sched(PyObject UNUSED *self, PyObject *args)
   xid_t xid;
   struct vc_set_sched sched;
 
-  if (!PyArg_ParseTuple(args, "I", &xid))
+  if (!PyArg_ParseTuple(args, "Iii", &xid, &sched.cpu_id, &sched.bucket_id))
     return NULL;
 
   if (vc_get_sched(xid, &sched) == -1)
