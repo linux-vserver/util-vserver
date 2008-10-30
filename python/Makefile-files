@@ -28,7 +28,8 @@ EXTRA_DIST			+= python/ctags-constants.awk
 
 # FIXME: Dude, this is ugly.
 python/_libvserver.c: $(top_builddir)/python/_libvserver-constants.c
-$(top_builddir)/python/_libvserver-constants.c: lib/vserver.h
+$(top_builddir)/python/_libvserver-constants.c: lib/vserver.h \
+	$(top_srcdir)/python/ctags-constants.awk
 	$(CTAGS) -x $(top_srcdir)/lib/vserver.h | \
 		$(AWK) -f $(top_srcdir)/python/ctags-constants.awk \
 		> $(top_builddir)/python/_libvserver-constants.c

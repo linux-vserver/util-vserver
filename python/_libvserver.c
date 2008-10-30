@@ -1126,6 +1126,15 @@ static PyMethodDef methods[] = {
   { NULL, NULL, 0, NULL }
 };
 
+static void
+PyModule_AddLongLongConstant(PyObject *mod, const char *str, long long val)
+{
+	PyObject *o = PyLong_FromLongLong(val);
+	if (!o || PyModule_AddObject(mod, str, o) == -1)
+		/* This ought to be reported somehow... */
+		return;
+}
+
 PyMODINIT_FUNC init_libvserver(void)
 {
   PyObject *mod;

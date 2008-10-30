@@ -452,22 +452,14 @@ AM_CONDITIONAL(HAVE_SYSV_INIT, test x"$ensc_with_init" = xsysv)
 dnl ########################
 dnl Check for Python
 
+ensc_have_python=yes
 AM_PATH_PYTHON(,, [:])
-if test "x$PYTHON" != x:; then
-	ensc_have_python=yes
-else
+if test "x$PYTHON" = x:; then
 	ensc_have_python=no
 fi
-ensc_python_config=python-config
-AC_ARG_WITH(python, AC_HELP_STRING([--with-python=FILE], [use FILE to query Python build details (default: python-config)]), [
-	case "$withval" in
-	(no)	ensc_have_python=no;;
-	(yes)	;;
-	(*)	ensc_python_config="$withval";;
-	esac])
-if test x$ensc_have_python = xyes && $ensc_python_config --cflags > /dev/null 2>&1; then
-	PYTHON_CFLAGS=`$ensc_python_config --cflags`
-	PYTHON_LDFLAGS=`$ensc_python_config --ldflags`
+if test x$ensc_have_python = xyes; then
+	PYTHON_CFLAGS=-I`$PYTHON -c 'from distutils.sysconfig import get_python_inc; print get_python_inc(1)'`
+	PYTHON_LDFLAGS=-L`$PYTHON -c 'from distutils.sysconfig import get_python_lib; print get_python_lib(1)'`
 	AC_SUBST(PYTHON_CFLAGS)
 	AC_SUBST(PYTHON_LDFLAGS)
 else
