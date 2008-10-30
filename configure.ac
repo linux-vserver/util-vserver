@@ -454,26 +454,30 @@ dnl Check for Python
 
 AM_PATH_PYTHON(,, [:])
 if test "x$PYTHON" != x:; then
-	ensc_have_python=true
+	ensc_have_python=yes
 else
-	ensc_have_python=false
+	ensc_have_python=no
 fi
 ensc_python_config=python-config
 AC_ARG_WITH(python, AC_HELP_STRING([--with-python=FILE], [use FILE to query Python build details (default: python-config)]), [
 	case "$withval" in
-	(no)	ensc_have_python=false;;
+	(no)	ensc_have_python=no;;
 	(yes)	;;
 	(*)	ensc_python_config="$withval";;
 	esac])
-if $ensc_have_python && $ensc_python_config --cflags > /dev/null 2>&1; then
+if test x$ensc_have_python = xyes && $ensc_python_config --cflags > /dev/null 2>&1; then
 	PYTHON_CFLAGS=`$ensc_python_config --cflags`
 	PYTHON_LDFLAGS=`$ensc_python_config --ldflags`
 	AC_SUBST(PYTHON_CFLAGS)
 	AC_SUBST(PYTHON_LDFLAGS)
 else
-	ensc_have_python=false
+	ensc_have_python=no
 fi
-AM_CONDITIONAL([HAVE_PYTHON], [$ensc_have_python])
+AC_PATH_PROG([CTAGS], [ctags], [no])
+if test "x$CTAGS" = xno; then
+	ensc_have_python=no
+fi
+AM_CONDITIONAL([HAVE_PYTHON], [test x$ensc_have_python = xyes])
 
 dnl Python stuff ends here
 dnl ########################
@@ -522,6 +526,7 @@ Features:
     syscall(2) invocation: $with_syscall
       vserver(2) syscall#: $ensc_cv_value_syscall_vserver
                crypto api: $ensc_crypto_api
+          python bindings: $ensc_have_python
    
 Paths:
                    prefix: $prefix

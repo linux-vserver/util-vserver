@@ -278,7 +278,7 @@ pyvserver_get_rlimit(PyObject UNUSED *self, PyObject *args)
   if (vc_get_rlimit(xid, resource, &limit) == -1)
     return PyErr_SetFromErrno(PyExc_OSError);
 
-  return Py_BuildValue("(KKK)", limit.min, limit.soft, limit.hard);
+  return Py_BuildValue("(LLL)", limit.min, limit.soft, limit.hard);
 }
 
 static PyObject *

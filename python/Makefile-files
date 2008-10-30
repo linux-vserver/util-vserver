@@ -24,11 +24,11 @@ python__libvserver_la_CFLAGS	=  $(AM_CFLAGS) $(PYTHON_CFLAGS) \
 python__libvserver_la_LDFLAGS	=  -module -avoid-version $(PYTHON_LDFLAGS)
 python__libvserver_la_LIBADD	=  $(LIBVSERVER_GLIBC)
 
+EXTRA_DIST			+= python/ctags-constants.awk
+
 # FIXME: Dude, this is ugly.
 python/_libvserver.c: $(top_builddir)/python/_libvserver-constants.c
 $(top_builddir)/python/_libvserver-constants.c: lib/vserver.h
-	ctags -x $(top_srcdir)/lib/vserver.h | \
-		awk '$$2 == "macro" || $$2 == "enumerator" { print $$1 }' | \
-		egrep '^(vc|VC|CLONE)' | grep -v VC_ATTR_ | \
-		awk '{ printf "  PyModule_AddIntConstant(mod, \"%s\", %s);\n", $$1, $$1 }' \
+	$(CTAGS) -x $(top_srcdir)/lib/vserver.h | \
+		$(AWK) -f $(top_srcdir)/python/ctags-constants.awk \
 		> $(top_builddir)/python/_libvserver-constants.c
