@@ -475,6 +475,16 @@ dnl Python stuff ends here
 dnl ########################
 
 
+dnl ########################
+dnl Library versioning
+
+AM_CONDITIONAL([HAVE_VERSIONING], [true])
+AC_DEFINE([HAVE_VERSIONING], [1], [Define this to use library versioning])
+
+dnl /Library versioning
+dnl ########################
+
+
 dnl BIG HACK! Do some autodetection here!
 AC_DEFINE(UTMP_GID, [22], [The utmp gid-number])
 

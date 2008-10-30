@@ -32,6 +32,24 @@
 extern "C" {
 #endif
 
+
+#ifdef HAVE_VERSIONING
+/* FIXME: HAVE_ASM_DOT_GLOBAL_NAME */
+#  define _symbol_version(real, name, version) \
+     __asm__ (".symver " #real "," #name "@" #version)
+#  define _default_symbol_version(real, name, version) \
+     __asm__ (".symver " #real "," #name "@@" #version)
+#else
+#  define _symbol_version(real, name, version)
+#  define _default_symbol_version(real, name, version) \
+  extern __typeof (real) name __attribute__ ((alias (#name)));
+#endif
+#define symbol_version(real, name, version) \
+	_symbol_version(real, name, version)
+#define default_symbol_version(real, name, version) \
+	_default_symbol_version(real, name, version)
+
+
 char *	vc_getVserverByCtx_Internal(xid_t ctx, /*@null@*/vcCfgStyle *style,
 				    /*@null@*/char const *revdir,
 				    bool validate_result);

@@ -1,0 +1,6 @@
+VSERVER_0_30_215 {
+	global: *;
+};
+
+VSERVER_0_30_216 {
+} VSERVER_0_30_215;

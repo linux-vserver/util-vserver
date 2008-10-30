@@ -252,6 +252,10 @@ endif
 lib_libvserver_la_SOURCES =  	$(lib_SRCS)
 lib_libvserver_la_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS)
 lib_libvserver_la_LDFLAGS =	-version $(lib_VERSION)
+if HAVE_VERSIONING
+lib_libvserver_la_LDFLAGS +=	-Wl,-version-script=$(top_srcdir)/lib/libvserver.ver
+EXTRA_DIST +=			lib/libvserver.ver
+endif
 
 lib_libvserver_a_SOURCES =  	$(lib_SRCS)
 lib_libvserver_a_CPPFLAGS = 	$(AM_CPPFLAGS) $(LIB_DEBUG_CPPFLAGS)
