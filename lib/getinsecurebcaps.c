@@ -29,7 +29,9 @@ vc_get_insecurebcaps()
 	   (1<<VC_CAP_DAC_READ_SEARCH) | (1<<VC_CAP_FOWNER) |
 	   (1<<VC_CAP_FSETID) | (1<<VC_CAP_KILL) |
 	   (1<<VC_CAP_SETGID) | (1<<VC_CAP_SETUID) |
-	   (1<<VC_CAP_NET_BIND_SERVICE)
+	   (1<<VC_CAP_NET_BIND_SERVICE) | (1<<VC_CAP_SYS_CHROOT) |
+	   (1<<VC_CAP_SYS_PTRACE) | (1<<VC_CAP_SYS_TTY_CONFIG) |
+	   (1<<VC_CAP_LEASE)
 
 #if defined(VC_ENABLE_API_COMPAT)
 	   | (vc_isSupported(vcFEATURE_VSHELPER) ? (1<<VC_CAP_SYS_BOOT) : 0)
