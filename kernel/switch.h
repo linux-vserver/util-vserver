@@ -25,7 +25,7 @@
   CPU    |       |VPROC  |PROCALT|PROCMIG|PROCTRL|       | |SCHED. |       |
   PROCESS|     08|     09|     10|     11|     12|     13| |     14|     15|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
-  MEMORY |       |       |       |       |       |       | |SWAP   |       |
+  MEMORY |       |       |       |       |MEMCTRL|       | |SWAP   |       |
 	 |     16|     17|     18|     19|     20|     21| |     22|     23|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
   NETWORK|       |VNET   |NETALT |NETMIG |NETCTL |       | |SERIAL |       |
@@ -37,7 +37,7 @@
   OTHER  |VSTAT  |       |       |       |       |       | |VINFO  |       |
 	 |     40|     41|     42|     43|     44|     45| |     46|     47|
   =======+=======+=======+=======+=======+=======+=======+ +=======+=======+
-  SPECIAL|EVENT  |       |       |       |FLAGS  |       | |       |       |
+  SPECIAL|EVENT  |       |       |       |FLAGS  |       | |VSPACE |       |
 	 |     48|     49|     50|     51|     52|     53| |     54|     55|
   -------+-------+-------+-------+-------+-------+-------+ +-------+-------+
   SPECIAL|DEBUG  |       |       |       |RLIMIT |SYSCALL| |       |COMPAT |
@@ -59,7 +59,6 @@
 #define VC_CAT_PROCTRL		12
 
 #define VC_CAT_SCHED		14
-
 #define VC_CAT_MEMCTRL		20
 
 #define VC_CAT_VNET		25
@@ -76,6 +75,7 @@
 #define VC_CAT_EVENT		48
 
 #define VC_CAT_FLAGS		52
+#define VC_CAT_VSPACE		54
 #define VC_CAT_DEBUG		56
 #define VC_CAT_RLIMIT		60
 

@@ -13,9 +13,10 @@
 #define VCMD_set_space_v1	VC_CMD(PROCALT, 3, 1)
 #define VCMD_set_space		VC_CMD(PROCALT, 3, 2)
 
-#define VCMD_get_space_mask	VC_CMD(PROCALT, 4, 0)
+#define VCMD_get_space_mask_v0	VC_CMD(PROCALT, 4, 0)
 
-#define VCMD_get_space_default	VC_CMD(PROCALT, 7, 0)
+#define VCMD_get_space_mask	VC_CMD(VSPACE, 0, 1)
+#define VCMD_get_space_default	VC_CMD(VSPACE, 1, 0)
 
 
 struct	vcmd_space_mask_v1 {

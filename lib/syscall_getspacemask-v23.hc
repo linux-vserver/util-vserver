@@ -21,27 +21,12 @@
 #  include <config.h>
 #endif
 
-#include "vserver.h"
-#include "virtual.h"
-
-#if defined(VC_ENABLE_API_V21) && defined(VC_ENABLE_API_V23)
-#  define VC_MULTIVERSION_SYSCALL 1
-#endif
-#include "vserver-internal.h"
-
-#if defined(VC_ENABLE_API_V21)
-#  include "syscall_getspacemask-v21.hc"
-#endif
-
-#if defined(VC_ENABLE_API_V23)
-#  include "syscall_getspacemask-v23.hc"
-#endif
-
-#if defined(VC_ENABLE_API_V21) || defined(VC_ENABLE_API_V23)
-uint_least64_t
-vc_get_space_mask()
+static inline ALWAYSINLINE uint_least64_t
+vc_get_space_mask_v23(int UNUSED tmp)
 {
-  CALL_VC(CALL_VC_V23P  (vc_get_space_mask, 0),
-	  CALL_VC_SPACES(vc_get_space_mask, 0));
+  struct vcmd_space_mask_v1 data = { .mask = 0 };
+  int ret = vserver(VCMD_get_space_mask, 0, &data);
+  if (ret)
+    return ret;
+  return data.mask & ~(CLONE_NEWNS|CLONE_FS);
 }
-#endif

@@ -25,7 +25,7 @@ static inline ALWAYSINLINE uint_least64_t
 vc_get_space_mask_spaces(int UNUSED tmp)
 {
   struct vcmd_space_mask_v1 data = { .mask = 0 };
-  int ret = vserver(VCMD_get_space_mask, 0, &data);
+  int ret = vserver(VCMD_get_space_mask_v0, 0, &data);
   if (ret)
     return ret;
   return data.mask & ~(CLONE_NEWNS|CLONE_FS);
