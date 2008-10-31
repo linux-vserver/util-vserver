@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
 	if (thisbit == (__typeof__(thisbit)) -1) {
 	  thisbit = vc_get_space_mask();
 	  if (thisbit == (__typeof__(thisbit)) -1)
-	    thisbit = CLONE_NEWNS | CLONE_FS;
+	    thisbit = 0;
 	}
 	break;
 
