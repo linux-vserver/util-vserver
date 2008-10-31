@@ -164,7 +164,7 @@ fi
 export MIRROR
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE"  "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"
 mv "$VDIR"/dev "$VDIR"/dev.X
-"$_VNAMESPACE" --new -- \
+$_VNAMESPACE --new -- \
     "$DEBOOTSTRAP" $options "$@" "$DISTRIBUTION" "$VDIR" "$MIRROR" "$script" || :   ## HACK: ignore all errors...
 fixupDebian "$VDIR"
 test -z "$BUILD_INITPOST" || "$BUILD_INITPOST" "$SETUP_CONFDIR" "$UTIL_VSERVER_VARS"

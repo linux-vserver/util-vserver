@@ -60,7 +60,6 @@ DIETPROGS +=		src/chcontext-compat \
 			src/sigexec \
 			src/vattribute \
 			src/vlimit \
-			src/vnamespace \
 			src/vunify \
 			src/vuname \
 			src/rpm-fake-resolver \
@@ -158,7 +157,6 @@ sbin_PROGRAMS +=	src/exec-cd \
 			src/vcontext \
 			src/vlimit \
 			src/vkill \
-			src/vnamespace \
 			src/vrsetup \
 			src/vsched \
 			src/vserver-stat \
@@ -247,10 +245,6 @@ src_secure_mount_LDFLAGS =	$(VSERVER_LDFLGS)
 src_vattribute_SOURCES =	src/vattribute.c
 src_vattribute_LDADD =		$(VSERVER_LDADDS)
 src_vattribute_LDFLAGS =	$(VSERVER_LDFLGS)
-
-src_vnamespace_SOURCES =	src/vnamespace.c
-src_vnamespace_LDADD =		$(VSERVER_LDADDS) $(LIBINTERNAL)
-src_vnamespace_LDFLAGS =	$(VSERVER_LDFLGS)
 
 src_rpm_fake_resolver_SOURCES	=  src/rpm-fake-resolver.c
 src_rpm_fake_resolver_LDADD	=  $(VSERVER_LDADDS)

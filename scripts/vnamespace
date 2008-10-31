@@ -1,0 +1,60 @@
+#! /bin/bash
+# $Id$
+
+# Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+# Copyright (C) 2008 Daniel Hokka Zakrisson
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+    echo $"Can not find util-vserver installation (the file '$UTIL_VSERVER_VARS' would be expected); aborting..." >&2
+    exit 1
+}
+. "$UTIL_VSERVER_VARS"
+. "$_LIB_FUNCTIONS"
+
+function showHelp()
+{
+    echo \
+$"Usage: $1 <operation> [--] [<program> <args>*]
+
+<operation> can be one of:
+    --new|-n          ...  create new namespace and execute <program> there;
+                           <program> is mandatory in this case
+    --enter|-e <xid>  ...  enter the namespace of context <xid> and execute
+                           <program> there; <program> is mandatory in this
+                           case
+    --set|-s          ...  make current namespace the namespace of the
+                           current context
+    --cleanup|-c      ...  remove all mounts from the namespace of the
+                           current context
+
+Please report bugs to $PACKAGE_BUGREPORT"
+    exit $2
+}
+
+function showVersion()
+{
+    echo \
+$"vnamespace $PACKAGE_VERSION -- manages filesystem-namespace
+This program is part of $PACKAGE_STRING
+
+Copyright (C) 2004 Enrico Scholz
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License.  This program has absolutely no warranty."
+    exit $1
+}
+
+exec $_VSPACE --mount --fs "$@"

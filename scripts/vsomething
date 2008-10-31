@@ -112,7 +112,7 @@ for i in "${vservers[@]}"; do
 	      $_VSERVER "$i" status &> /dev/null || \
 		CHBIND_CMD=()
 	      callInNamespace "$i" \
-		"$_VNAMESPACE" --new -- \
+		$_VNAMESPACE --new -- \
 		"${CHBIND_CMD[@]}" \
 		"$VSOMETHING_WORKER" "$i" "$@" )
 	fi
