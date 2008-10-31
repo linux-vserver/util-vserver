@@ -161,7 +161,8 @@ lib_v23_SRCS =			lib/syscall_tagmigrate-v23.hc \
 				lib/syscall_getspacedefault.c \
 				lib/syscall_getspacedefault-v23.hc \
 				lib/syscall_setnamespace-v23.hc \
-				lib/syscall_enternamespace-v23.hc
+				lib/syscall_enternamespace-v23.hc \
+				lib/syscall_getspacemask-v23.hc
 
 if ENSC_HAVE_C99_COMPILER
 lib_v13_SRCS +=			lib/syscall_adddlimit-v13.hc \
