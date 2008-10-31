@@ -49,6 +49,7 @@ CMDLINE_OPTIONS[] = {
   { "new",        no_argument,       0, 'n' },
   { "enter",      required_argument, 0, 'e' },
   { "set",        no_argument,       0, 's' },
+  { "index",      required_argument, 0, 'i' },
   { "mask",       required_argument, 0, 'm' },
   { "default",    no_argument,       0, 'd' },
   { "~default",   no_argument,       0, 'd' | 0x10000 },
@@ -142,18 +143,18 @@ newSpaces(uint_least64_t mask)
 }
 
 static void
-enterSpaces(xid_t xid, uint_least64_t mask)
+enterSpaces(xid_t xid, uint_least64_t mask, uint32_t index)
 {
-  if (vc_enter_namespace(xid, mask)==-1) {
+  if (vc_enter_namespace(xid, mask, index)==-1) {
     perror(ENSC_WRAPPERS_PREFIX "vc_enter_namespace()");
     exit(wrapper_exit_code);
   }
 }
 
 static void
-setSpaces(xid_t xid, uint_least64_t mask)
+setSpaces(xid_t xid, uint_least64_t mask, uint32_t index)
 {
-  if (vc_set_namespace(xid, mask)==-1) {
+  if (vc_set_namespace(xid, mask, index)==-1) {
     perror(ENSC_WRAPPERS_PREFIX "vc_set_namespace()");
     exit(wrapper_exit_code);
   }
@@ -165,6 +166,7 @@ int main(int argc, char *argv[])
   bool			do_enter   = false;
   bool			do_set     = false;
   uint_least64_t	mask       = 0;
+  uint32_t		index      = 0;
   xid_t			xid        = VC_NOCTX;
   int			sum        = 0;
   
@@ -182,6 +184,17 @@ int main(int argc, char *argv[])
 	do_enter = true;
 	xid      = Evc_xidopt2xid(optarg,true);
 	break;
+      case 'i'		:  {
+	unsigned long	index_l;
+	if (!isNumberUnsigned(optarg, &index_l, true)) {
+	  WRITE_MSG(2, "Invalid index '");
+	  WRITE_STR(2, optarg);
+	  WRITE_MSG(2, "'; try '--help' for more information\n");
+	  return wrapper_exit_code;
+	}
+	index = (uint32_t)index_l;
+	break;
+      }
       case 'm'		:  {
 	unsigned long	mask_l;
 	if (!isNumberUnsigned(optarg, &mask_l, true)) {
@@ -234,8 +247,8 @@ int main(int argc, char *argv[])
     WRITE_MSG(2, "No command specified; try '--help' for more information\n");
   else {
     if      (do_new)     newSpaces(mask);
-    else if (do_set)     setSpaces(VC_SAMECTX, mask);
-    else if (do_enter)   enterSpaces(xid, mask);
+    else if (do_set)     setSpaces(VC_SAMECTX, mask, index);
+    else if (do_enter)   enterSpaces(xid, mask, index);
 
     if (optind<argc)
       EexecvpD(argv[optind], argv+optind);

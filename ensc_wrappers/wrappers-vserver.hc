@@ -146,15 +146,15 @@ Evc_set_ncaps(nid_t nid, struct vc_net_caps const *caps)
 }
 
 inline static WRAPPER_DECL void
-Evc_set_namespace(xid_t xid, uint_least64_t mask)
+Evc_set_namespace(xid_t xid, uint_least64_t mask, uint32_t index)
 {
-  FatalErrnoError(vc_set_namespace(xid, mask)==-1, "vc_set_namespace()");
+  FatalErrnoError(vc_set_namespace(xid, mask, index)==-1, "vc_set_namespace()");
 }
 
 inline static WRAPPER_DECL void
-Evc_enter_namespace(xid_t xid, uint_least64_t mask)
+Evc_enter_namespace(xid_t xid, uint_least64_t mask, uint32_t index)
 {
-  FatalErrnoError(vc_enter_namespace(xid, mask)==-1, "vc_enter_namespace()");
+  FatalErrnoError(vc_enter_namespace(xid, mask, index)==-1, "vc_enter_namespace()");
 }
 
 inline static WRAPPER_DECL xid_t

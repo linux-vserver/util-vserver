@@ -607,11 +607,12 @@ pyvserver_enter_namespace(PyObject UNUSED *self, PyObject *args)
 {
   xid_t xid;
   uint_least64_t mask;
+  uint32_t index;
 
-  if (!PyArg_ParseTuple(args, "IK", &xid, &mask))
+  if (!PyArg_ParseTuple(args, "IKI", &xid, &mask, &index))
     return NULL;
 
-  if (vc_enter_namespace(xid, mask) == -1)
+  if (vc_enter_namespace(xid, mask, index) == -1)
     return PyErr_SetFromErrno(PyExc_OSError);
 
   return NONE();
@@ -622,11 +623,12 @@ pyvserver_set_namespace(PyObject UNUSED *self, PyObject *args)
 {
   xid_t xid;
   uint_least64_t mask;
+  uint32_t index;
 
-  if (!PyArg_ParseTuple(args, "IK", &xid, &mask))
+  if (!PyArg_ParseTuple(args, "IKI", &xid, &mask, &index))
     return NULL;
 
-  if (vc_set_namespace(xid, mask) == -1)
+  if (vc_set_namespace(xid, mask, index) == -1)
     return PyErr_SetFromErrno(PyExc_OSError);
 
   return NONE();

@@ -23,7 +23,7 @@
 static inline ALWAYSINLINE uint_least64_t
 vc_get_space_default_v23(int UNUSED tmp)
 {
-  struct vcmd_space_mask data = { .mask = 0 };
+  struct vcmd_space_mask_v1 data = { .mask = 0 };
   int ret = vserver(VCMD_get_space_default, 0, &data);
   if (ret)
     return ret;

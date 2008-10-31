@@ -764,8 +764,8 @@ extern "C" {
 				char *val, size_t len)       VC_ATTR_NONNULL((3));
 
     /* namespace related functions */
-  int		vc_enter_namespace(xid_t xid, uint_least64_t mask);
-  int		vc_set_namespace(xid_t xid, uint_least64_t mask);
+  int		vc_enter_namespace(xid_t xid, uint_least64_t mask, uint32_t index);
+  int		vc_set_namespace(xid_t xid, uint_least64_t mask, uint32_t index);
   int		vc_cleanup_namespace(void);
   uint_least64_t vc_get_space_mask(void);
   uint_least64_t vc_get_space_default(void);

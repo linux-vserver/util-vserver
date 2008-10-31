@@ -21,12 +21,11 @@
 #  include <config.h>
 #endif
 
-static inline ALWAYSINLINE uint_least64_t
-vc_get_space_mask_spaces(int UNUSED tmp)
+#include "vserver.h"
+
+static inline ALWAYSINLINE int
+vc_enter_namespace_v23(xid_t xid, uint_least64_t mask, uint32_t index)
 {
-  struct vcmd_space_mask_v1 data = { .mask = 0 };
-  int ret = vserver(VCMD_get_space_mask, 0, &data);
-  if (ret)
-    return ret;
-  return data.mask & ~(CLONE_NEWNS|CLONE_FS);
+  struct vcmd_space_mask_v2 data = { .mask = mask, .index = index };
+  return vserver(VCMD_enter_space, CTX_USER2KERNEL(xid), &data);
 }

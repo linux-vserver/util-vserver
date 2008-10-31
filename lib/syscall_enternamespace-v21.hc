@@ -24,8 +24,12 @@
 #include "vserver.h"
 
 static inline ALWAYSINLINE int
-vc_enter_namespace_spaces(xid_t xid, uint_least64_t mask)
+vc_enter_namespace_spaces(xid_t xid, uint_least64_t mask, uint32_t index)
 {
-  struct vcmd_space_mask data = { .mask = mask };
-  return vserver(VCMD_enter_space, CTX_USER2KERNEL(xid), &data);
+  struct vcmd_space_mask_v1 data = { .mask = mask };
+  if (index != 0) {
+    errno = EINVAL;
+    return -1;
+  }
+  return vserver(VCMD_enter_space_v1, CTX_USER2KERNEL(xid), &data);
 }
