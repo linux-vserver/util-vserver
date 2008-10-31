@@ -51,7 +51,9 @@ if $_VSERVER_INFO - FEATURE migrate; then
 	"${CHBIND_CMD[@]}" \
 	$_EXEC_ULIMIT "$VSERVER_DIR/ulimits" \
 	$_VTAG --create "${OPTS_VTAG_CREATE[@]}" --silent -- \
+	$_VSPACE --new "${OPTS_VSPACE[@]}" -- \
         $_VCONTEXT --create "${OPTS_VCONTEXT_CREATE[@]}" -- \
+	$_VSPACE --set "${OPTS_VSPACE[@]}" -- \
 	$_VUNAME   --xid self --dir "$VSERVER_DIR"/uts     --missingok -- \
 	$_VUNAME   --xid self --set -t context="$VSERVER_DIR" -- \
 	$_VCONTEXT --migrate-self --endsetup --chroot $SILENT_OPT -- \

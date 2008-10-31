@@ -101,7 +101,7 @@ the GNU General Public License.  This program has absolutely no warranty."
 
 $_VSERVER_INFO - FEATURE migrate || exec $_CHCONTEXT_COMPAT "$@"
 
-tmp=$(getopt -o + --long cap:,ctx:,xid:,disconnect,domainname:,flag:,hostname:,secure,silent,help,version -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o + --long cap:,ctx:,xid:,disconnect,domainname:,flag:,hostname:,secure,silent,help,version,spaces: -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 OPT_CAPS=()
@@ -111,6 +111,7 @@ OPT_FLAGS=()
 OPT_SECURE=
 OPT_SILENT=
 OPT_INITPID=
+OPT_SPACES=--default
 
 while true; do
     case "$1" in
@@ -128,6 +129,7 @@ while true; do
 	    ;;
 	--secure)	OPT_SECURE=1;;
 	--silent)	OPT_SILENT=1;;
+	--spaces)	OPT_SPACES=$2; shift;;
 	--)		shift; break;;
 	*)		echo $"chcontext: internal error; arg=='$1'" >&2; exit 1;;
     esac
@@ -135,6 +137,7 @@ while true; do
 done
 
 create_cmd=( ${OPT_CTX:+$_VTAG --create --tag "$OPT_CTX" --silentexist --silent --}
+	     $_VSPACE --new $OPT_SPACES --
 	     $_VCONTEXT --create --silentexist
 	     ${OPT_SILENT:+--silent}
 	     ${OPT_CTX:+--xid "$OPT_CTX"} )
@@ -143,6 +146,10 @@ chain_cmd=()
 
 old_IFS=$IFS
 IFS=,$IFS
+
+chain_cmd=( "${chain_cmd[@]}"
+		--
+		$_VSPACE --set $OPT_SPACES )
 
 test -z "$OPT_DOMAINNAME$OPT_HOSTNAME" || \
     chain_cmd=( "${chain_cmd[@]}"

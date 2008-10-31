@@ -47,7 +47,7 @@ declare -a OPTS_ENV=()
 declare -a OPTS_VTAG_CREATE=()
 declare -a OPTS_VTAG_ENTER=()
 declare -a OPTS_VMEMCTRL=()
-declare -a OPTS_VSPACE=()
+declare -a OPTS_VSPACE=( --default )
 
 declare -a STOPCMD_PREPARE=()
 
