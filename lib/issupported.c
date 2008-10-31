@@ -49,7 +49,8 @@ vc_isSupported(vcFeatureSet feature)
     case vcFEATURE_VSTAT	:  return ver >= 0x00020103;
     case vcFEATURE_PPTAG	:  return conf & VC_VCI_PPTAG;
     case vcFEATURE_SPACES	:  return conf & VC_VCI_SPACES;
-    case vcFEATURE_PIDSPACE	:  return ver >= 0x00020304 || ver >= 0x00020201;
+    case vcFEATURE_PIVOT_ROOT	:  return ver >= 0x00020304;
+    case vcFEATURE_PIDSPACE	:  return ver >= 0x00020305;
     default			:  assert(false); 
   }
 

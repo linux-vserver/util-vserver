@@ -24,6 +24,7 @@
 #include "lib/internal.h"
 #include "lib_internal/jail.h"
 #include "lib_internal/sys_personality.h"
+#include "lib_internal/sys_unshare.h"
 
 #include <vserver.h>
 #include <getopt.h>
@@ -36,6 +37,7 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <grp.h>
+#include <sys/mount.h>
 
 #include <linux/personality.h>
 
@@ -66,6 +68,7 @@
 #define CMD_PERSTYPE		0x400e
 #define CMD_PERSFLAG		0x400f
 #define CMD_VLOGIN		0x4010
+#define CMD_PIVOT_ROOT		0x4011
 
 
 struct option const
@@ -90,6 +93,7 @@ CMDLINE_OPTIONS[] = {
   { "personality-type",  required_argument, 0, CMD_PERSTYPE },
   { "personality-flags", required_argument, 0, CMD_PERSFLAG },
   { "vlogin",       no_argument,        0, CMD_VLOGIN },
+  { "pivot-root",   no_argument,        0, CMD_PIVOT_ROOT },
 #if 1  
   { "fakeinit",     no_argument,       	0, CMD_INITPID },	// compatibility
 #endif  
@@ -110,6 +114,7 @@ struct Arguments {
     uint_least32_t	personality_type;
     int			verbosity;
     bool		do_chroot;
+    bool		do_pivot_root;
     char const *	uid;
     xid_t		xid;
     char const *	sync_sock;
@@ -278,6 +283,36 @@ doit(struct Arguments const *args, int argc, char *argv[])
 	else if (args->do_migrate) Evc_enter_namespace(xid, CLONE_NEWNS|CLONE_FS, 0);
       }
     }
+    else if (args->do_pivot_root) {
+      if (vc_enter_namespace(xid, CLONE_NEWNS | CLONE_FS, 1) == -1) {
+	bool existed = false;
+	if (sys_unshare(CLONE_NEWNS) == -1) {
+	  perror(ENSC_WRAPPERS_PREFIX "unshare(NEWNS)");
+	  return wrapper_exit_code;
+	}
+	if (mkdir("./.oldroot", 0700) == -1) {
+	  if (errno == EEXIST)
+	    existed = true;
+	  else {
+	    perror(ENSC_WRAPPERS_PREFIX "mkdir()");
+	    return wrapper_exit_code;
+	  }
+	}
+	if (pivot_root(".", "./.oldroot") == -1) {
+	  perror(ENSC_WRAPPERS_PREFIX "pivot_root()");
+	  return wrapper_exit_code;
+	}
+	if (umount2("/.oldroot", MNT_DETACH) == -1) {
+	  perror(ENSC_WRAPPERS_PREFIX "umount2()");
+	  return wrapper_exit_code;
+	}
+	if (!existed && rmdir("/.oldroot") == -1) {
+	  perror(ENSC_WRAPPERS_PREFIX "rmdir()");
+	  return wrapper_exit_code;
+	}
+	Evc_set_namespace(xid, CLONE_NEWNS | CLONE_FS, 1);
+      }
+    }
 
     setFlags(args, xid);
 
@@ -405,6 +440,7 @@ int main (int argc, char *argv[])
       case CMD_VLOGIN		:  args.do_vlogin      = true;   break;
       case CMD_INITPID		:  args.is_initpid     = true;   break;
       case CMD_CHROOT		:  args.do_chroot      = true;   break;
+      case CMD_PIVOT_ROOT	:  args.do_pivot_root  = true;   break;
       case CMD_NAMESPACE	:  args.set_namespace  = true;   break;
       case CMD_SILENTEXIST	:  args.is_silentexist = true;   break;
       case CMD_SYNCSOCK		:  args.sync_sock      = optarg; break;

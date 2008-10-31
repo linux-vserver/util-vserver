@@ -155,7 +155,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
     $_VATTRIBUTE --set "${OPTS_VATTRIBUTE[@]}" -- \
     $_SAVE_CTXINFO "$VSERVER_DIR" \
     $_ENV -i "${OPTS_ENV[@]}" \
-    $_VCONTEXT   --migrate-self --endsetup --chroot $SILENT_OPT \
+    $_VCONTEXT   --migrate-self --endsetup $OPT_VCONTEXT_CHROOT $SILENT_OPT \
     "${OPTS_VCONTEXT_MIGRATE[@]}" "${OPTS_VCONTEXT_ENTER[@]}" -- \
     "${INITCMD_START[@]}"
 else

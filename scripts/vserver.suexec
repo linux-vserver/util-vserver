@@ -41,7 +41,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
 	${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT" -- } \
 	$_VSPACE --enter "$S_CONTEXT" "${OPTS_VSPACE[@]}" -- \
 	$_VTAG --migrate "${OPTS_VTAG_ENTER[@]}" --silent -- \
-	$_VCONTEXT $SILENT_OPT --migrate --chroot \
+	$_VCONTEXT $SILENT_OPT --migrate $OPT_VCONTEXT_CHROOT \
 	  --xid "$S_CONTEXT" --uid "$user" "${OPTS_VCONTEXT_ENTER[@]}" -- \
 	"$@"
     else
@@ -51,12 +51,12 @@ if $_VSERVER_INFO - FEATURE migrate; then
 	"${CHBIND_CMD[@]}" \
 	$_EXEC_ULIMIT "$VSERVER_DIR/ulimits" \
 	$_VTAG --create "${OPTS_VTAG_CREATE[@]}" --silent -- \
-	$_VSPACE --new "${OPTS_VSPACE[@]}" -- \
+	$_VSPACE --new "${OPTS_VSPACE[@]}" ${USE_VNAMESPACE:+--mount --fs} -- \
         $_VCONTEXT --create "${OPTS_VCONTEXT_CREATE[@]}" -- \
-	$_VSPACE --set "${OPTS_VSPACE[@]}" -- \
-	$_VUNAME   --xid self --dir "$VSERVER_DIR"/uts     --missingok -- \
+	$_VSPACE --set "${OPTS_VSPACE[@]}" ${USE_VNAMESPACE:+--mount --fs} -- \
+	$_VUNAME   --xid self --dir "$VSERVER_DIR"/uts --missingok -- \
 	$_VUNAME   --xid self --set -t context="$VSERVER_DIR" -- \
-	$_VCONTEXT --migrate-self --endsetup --chroot $SILENT_OPT -- \
+	$_VCONTEXT --migrate-self --endsetup $OPT_VCONTEXT_CHROOT $SILENT_OPT -- \
 	"$@"
     fi
 else

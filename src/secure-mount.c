@@ -153,6 +153,11 @@ static struct FstabOption {
   { "noauto",     0,              0,               XFLAG_NOAUTO, false },
   { "user",       0,              0,               0, false },
   { "nouser",     0,              0,               0, false },
+  { "rec",        MS_REC,         MS_REC,          0, false },
+  { "unbindable", MS_UNBINDABLE,  MS_UNBINDABLE,   0, false },
+  { "private",    MS_PRIVATE,     MS_PRIVATE,      0, false },
+  { "slave",      MS_SLAVE,       MS_SLAVE,        0, false },
+  { "shared",     MS_SHARED,      MS_SHARED,       0, false },
 };
 
 int			wrapper_exit_code = 1;

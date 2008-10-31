@@ -41,6 +41,7 @@ declare -a ENTER_SHELL=()
 declare -a OPTS_VCONTEXT_CREATE=()
 declare -a OPTS_VCONTEXT_MIGRATE=()
 declare -a OPTS_VCONTEXT_ENTER=()
+OPT_VCONTEXT_CHROOT=--chroot
 declare -a OPTS_VATTRIBUTE=( --flag fakeinit )
 declare -a OPTS_VSCHED=()
 declare -a OPTS_ENV=()
@@ -405,6 +406,8 @@ function _generateFlagOptions
     isAvoidNamespace "$vdir" || {
 	USE_VNAMESPACE=1
 	CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}" --flag namespace )
+	! $_VSERVER_INFO - FEATURE PIVOT_ROOT || \
+	    OPT_VCONTEXT_CHROOT=--pivot-root
     }
 }
 
@@ -940,6 +943,8 @@ function mountVserver
     local ns_opt=$2
     local vdir=$1/vdir
     local mtab_src
+    local extra_opt=
+    local real_vdir
 
     test -e "$cfgdir"/fstab -o \
          -e "$cfgdir"/fstab.local -o \
@@ -960,8 +965,11 @@ function mountVserver
     isNamespaceCleanup "$cfgdir" && \
         _namespaceCleanup "$cfgdir"
 
+    real_vdir=$(getPhysicalDir "$vdir")
+    ! $_VSERVER_INFO - FEATURE PIVOT_ROOT || \
+	extra_opt=,shared
     isAvoidNamespace "$cfgdir" || \
-	$_SECURE_MOUNT --rbind -n -o dev "$vdir" "/"
+	$_SECURE_MOUNT --rbind -n -o dev$extra_opt "$vdir" "$real_vdir"
 }
 
 function _umountVserverInternal

@@ -85,7 +85,7 @@ elif $_VSERVER_INFO - FEATURE migrate; then
     "${CHBIND_CMD[@]}" \
     "$_VSPACE" --enter "$S_CONTEXT" "${OPTS_VSPACE[@]}" -- \
     "$_VTAG" --migrate "${OPTS_VTAG_ENTER[@]}" --silent -- \
-    $_VCONTEXT $SILENT_OPT --migrate --chroot --xid "$S_CONTEXT" -- \
+    $_VCONTEXT $SILENT_OPT --migrate $OPT_VCONTEXT_CHROOT --xid "$S_CONTEXT" -- \
     "${INITCMD_STOP[@]}" || fail=1
 else
     "${IONICE_CMD[@]}" \
