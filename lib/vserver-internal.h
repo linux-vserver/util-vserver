@@ -273,6 +273,12 @@ inline static ALWAYSINLINE void vc_noop0() {}
 #define EXT2_IOC_GETCONTEXT		_IOR('x', 1, long)
 #define EXT2_IOC_SETCONTEXT		_IOW('x', 2, long)
 
+#if defined(__GNUC__)
+#  define VC_ATTR_HIDDEN		__attribute__ ((hidden))
+#else
+#  define VC_ATTR_HIDDEN
+#endif
+
 #ifndef HAVE_VSERVER
 #ifdef ENSC_SYSCALL_TRADITIONAL
 inline static UNUSED ALWAYSINLINE
