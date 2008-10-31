@@ -28,5 +28,5 @@ vc_get_space_mask_spaces(int UNUSED tmp)
   int ret = vserver(VCMD_get_space_mask, 0, &data);
   if (ret)
     return ret;
-  return data.mask;
+  return data.mask & ~(CLONE_NEWNS|CLONE_FS);
 }
