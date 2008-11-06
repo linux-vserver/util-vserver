@@ -2,6 +2,7 @@
 # 
 # $Id$
 # Copyright (C) 2008 Daniel Hokka Zakrisson
+# vim:set ts=4 sw=4 expandtab:
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -16,8 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-# 
-# vim:set ts=4 sw=4 expandtab:
 
 import _libvserver
 
@@ -42,14 +41,17 @@ class struct:
     def __repr__(self):
         return repr(self.__dict__)
     def __addsub(self, other, negator):
+        import copy
+        c = copy.deepcopy(self)
         for i in vars(other):
             if i in self._fields_:
-                self.__dict__[i] = (self.__dict__.get(i, self._default_) +
-                                    (negator * getattr(other, i)))
+                c.__dict__[i] = (self.__dict__.get(i, self._default_) +
+                                 (negator * getattr(other, i)))
+        return c
     def __add__(self, other):
-        self.__addsub(other, 1)
+        return self.__addsub(other, 1)
     def __sub__(self, other):
-        self.__addsub(other, -1)
+        return self.__addsub(other, -1)
 
 get_vci = _libvserver.vc_get_vci
 
@@ -230,7 +232,21 @@ class struct_sched_info(struct):
                 "token_usec", "vavavoom"]
 def sched_info(xid, cpu_id=-1, bucket_id=0):
     if cpu_id == -1:
-        return None
+        import os
+        ret = struct_sched_info()
+        ncpus = os.sysconf("SC_NPROCESSORS_ONLN")
+        seen = 0
+        # * 2 is to make sure we get all the processors. CPU hot-plug...
+        for cpu in range(0, ncpus * 2):
+            try:
+                ret += struct_sched_info(*_libvserver.vc_sched_info(xid,
+                                                                    cpu, 0))
+                seen += 1
+            except:
+                pass
+            if seen == ncpus:
+                break
+        return ret
     else:
         return struct_sched_info(*_libvserver.vc_sched_info(xid, cpu_id,
                                                                bucket_id))
