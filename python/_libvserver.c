@@ -1,4 +1,4 @@
-/*
+/* $Id$
  * Copyright (C) 2008 Daniel Hokka Zakrisson
  * 
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,6 @@ static inline PyObject *NONE(void)
 }
 
 static PyObject *
-
 pyvserver_get_version(PyObject UNUSED *self, PyObject UNUSED *args)
 {
   int ver = vc_get_version();
@@ -120,7 +119,7 @@ pyvserver_virt_stat(PyObject UNUSED *self, PyObject *args)
   if (vc_virt_stat(xid, &stats) == -1)
     return PyErr_SetFromErrno(PyExc_OSError);
 
-  return Py_BuildValue("(KKIIIII(III))", stats.offset, stats.uptime,
+  return Py_BuildValue("(KKIIIIIIII)", stats.offset, stats.uptime,
                        stats.nr_threads, stats.nr_running,
                        stats.nr_uninterruptible, stats.nr_onhold,
                        stats.nr_forks, stats.load[0], stats.load[1],
@@ -1025,7 +1024,7 @@ pyvserver_list2 ## name(PyObject UNUSED *self, PyObject *args) \
   char const *str; \
   int len; \
   struct vc_err_listparser err; \
-  list_type val; \
+  list_type val = { .mask_member = 0 }; \
 \
   if (!PyArg_ParseTuple(args, "s#", &str, &len)) \
     return NULL; \
