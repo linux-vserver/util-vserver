@@ -478,8 +478,12 @@ dnl ########################
 dnl ########################
 dnl Library versioning
 
-AM_CONDITIONAL([HAVE_VERSIONING], [true])
-AC_DEFINE([HAVE_VERSIONING], [1], [Define this to use library versioning])
+ensc_have_versioning=yes
+AC_ARG_ENABLE(versioning, AC_HELP_STRING([--disable-versioning], [Disable library versioning]), [ensc_have_versioning="$enableval"])
+AM_CONDITIONAL([HAVE_VERSIONING], [test "x$ensc_have_versioning" = xyes])
+if test "x$ensc_have_versioning" = xyes; then
+	AC_DEFINE([HAVE_VERSIONING], [1], [Define this to use library versioning])
+fi
 
 dnl /Library versioning
 dnl ########################
@@ -529,6 +533,7 @@ Features:
       vserver(2) syscall#: $ensc_cv_value_syscall_vserver
                crypto api: $ensc_crypto_api
           python bindings: $ensc_have_python
+   use library versioning: $ensc_have_versioning
    
 Paths:
                    prefix: $prefix
