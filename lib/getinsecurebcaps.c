@@ -33,9 +33,7 @@ vc_get_insecurebcaps()
 	   (1<<VC_CAP_SYS_PTRACE) | (1<<VC_CAP_SYS_TTY_CONFIG) |
 	   (1<<VC_CAP_LEASE)
 
-#if defined(VC_ENABLE_API_COMPAT)
 	   | (vc_isSupported(vcFEATURE_VSHELPER) ? (1<<VC_CAP_SYS_BOOT) : 0)
 	   | (vc_isSupported(vcFEATURE_MIGRATE)  ? (1<<VC_CAP_AUDIT_WRITE) : 0) // formerly QUOTACTL
-#endif
     );
 }
