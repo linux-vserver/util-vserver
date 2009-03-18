@@ -966,10 +966,10 @@ function mountVserver
         _namespaceCleanup "$cfgdir"
 
     real_vdir=$(getPhysicalDir "$vdir")
-    ! $_VSERVER_INFO - FEATURE PIVOT_ROOT || \
-	extra_opt=,shared
     isAvoidNamespace "$cfgdir" || \
-	$_SECURE_MOUNT --rbind -n -o dev$extra_opt "$vdir" "$real_vdir"
+	$_SECURE_MOUNT --rbind -n -o dev "$vdir" "$real_vdir"
+    ! $_VSERVER_INFO - FEATURE PIVOT_ROOT || \
+	$_SECURE_MOUNT -n -o shared,rec "$real_vdir" "$real_vdir"
 }
 
 function _umountVserverInternal
