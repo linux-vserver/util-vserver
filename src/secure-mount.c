@@ -448,8 +448,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
 	return false;
       if (mount(mnt->src, ".",
 		mnt->type ? mnt->type : "",
-		((mnt->flag & ~(MS_BIND|MS_REC)) |
-		MS_REMOUNT), NULL) == -1 &&
+		(mnt->flag | MS_REMOUNT), NULL) == -1 &&
 	  errno != EBUSY) { /* Returned on older kernels */
 	perror("secure-mount: mount()");
 	return false;
