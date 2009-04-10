@@ -418,6 +418,8 @@ canHandleInternal(struct MountInfo const *mnt)
   
   if (!mnt)                                 return false;
   else if ((mnt->flag & (MS_BIND|MS_MOVE))) return true;
+  else if ((mnt->flag & (MS_SHARED|MS_SLAVE|MS_PRIVATE|
+			 MS_UNBINDABLE)))   return true;
   else if (mnt->type==0)                    return false;
 
   for (i=FS+0; *i!=0; ++i)
