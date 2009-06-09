@@ -1,0 +1,26 @@
+[updates]
+name=Fedora 11 - $basearch - Updates
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/11/$basearch/
+mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f11&arch=$basearch
+enabled=1
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/11/Fedora/$basearch/os/RPM-GPG-KEY-fedora-$basearch
+
+[updates-debuginfo]
+name=Fedora 11 - $basearch - Updates - Debug
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/11/$basearch/debug/
+mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-debug-f11&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/11/Fedora/$basearch/os/RPM-GPG-KEY-fedora-$basearch
+
+[updates-source]
+name=Fedora 11 - Updates Source
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/11/SRPMS/
+mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-source-f11&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://redhat.download.fedoraproject.org/pub/fedora/linux/releases/11/Fedora/$basearch/os/RPM-GPG-KEY-fedora-$basearch
