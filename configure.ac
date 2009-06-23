@@ -453,7 +453,7 @@ dnl ########################
 dnl Check for Python
 
 ensc_have_python=yes
-AM_PATH_PYTHON(,, [:])
+AM_PATH_PYTHON([2.4],, [:])
 if test "x$PYTHON" = x:; then
 	ensc_have_python=no
 fi
