@@ -112,7 +112,19 @@ CMDLINE_OPTIONS[] = {
 };
 
 #ifndef MS_REC
-#  define MS_REC	0x4000
+#define MS_REC		0x4000
+#endif
+#ifndef MS_UNBINDABLE
+#define MS_UNBINDABLE	(1<<17)
+#endif
+#ifndef MS_PRIVATE
+#define MS_PRIVATE	(1<<18)
+#endif
+#ifndef MS_SLAVE
+#define MS_SLAVE	(1<<19)
+#endif
+#ifndef MS_SHARED
+#define MS_SHARED	(1<<20)
 #endif
 
 static struct FstabOption {

@@ -40,6 +40,10 @@
 #define CMD_VERSION		0x1001
 #define CMD_MTAB		0x2001
 
+#ifndef MNT_DETACH
+#define MNT_DETACH		0x0002
+#endif
+
 static struct option const
 CMDLINE_OPTIONS[] = {
   { "help",	no_argument,       0, CMD_HELP },
