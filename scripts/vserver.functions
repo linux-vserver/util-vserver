@@ -147,6 +147,8 @@ function _generateIONiceCommand
     local ionice_class=2
     local ionice_priority=0
 
+    test -n "$_IONICE" || return 0
+
     test -r "$vdir/ionice/class" && read ionice_class <"$vdir"/ionice/class
     test -r "$vdir/ionice/priority" && read ionice_priority <"$vdir"/ionice/priority
 
