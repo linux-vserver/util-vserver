@@ -9,6 +9,7 @@
 ## --with xalan              ...   require/use the xalan xslt processor
 ## --without doc             ...   disable doc generation
 ## --with legacy             ...   enable the legacy APIs
+## --without python          ...   disable the Python bindings
 
 %global confdir		%_sysconfdir/vservers
 %global confdefaultdir	%confdir/.defaults
@@ -20,6 +21,18 @@
 %global fullver		@VERSION@
 %global ver		%( echo %fullver | sed 's/-.*//' )
 %global subver		%( s=`echo %fullver | grep -- - | sed 's/.*-/./'`; echo ${s:-.1} )
+
+
+# Mandriva does funky stuff that break us.
+%if %{?mandriva_release:1}%{!?mandriva_release:0}
+%global mandriva			1
+%global _disable_libtoolize		1
+%global _disable_ld_as_needed		1
+%global _disable_ld_no_undefined	1
+%global before_configure	\
+	%setup_compile_flags	\
+	CONFIGURE_TOP="${CONFIGURE_TOP:-.}"
+%endif
 
 
 %{!?release_func:%global release_func() %1%{?dist}}
@@ -40,7 +53,7 @@ Requires:	%name-lib  = %version-%release
 Requires:	diffutils mktemp sed
 Provides:	vserver = %version-%release
 Obsoletes:	vserver < %version
-BuildRequires:	mount vconfig gawk iproute iptables
+BuildRequires:	mount vconfig gawk /sbin/ip iptables
 BuildRequires:	gcc-c++ wget which diffutils
 BuildRequires:	e2fsprogs-devel e2fsprogs
 %{!?_without_beecrypt:BuildRequires: beecrypt-devel}
