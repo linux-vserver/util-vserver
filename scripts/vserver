@@ -166,12 +166,13 @@ test "$cmd" != build || { shift 2; exec $_VNAMESPACE --new -- \
 allow_legacy=
 
 case "$vserver" in
-    (./*) VSERVER_DIR=`pwd`/$vserver;;
-    (/*)  VSERVER_DIR=$vserver;;
-    (*)	  VSERVER_DIR=$__CONFDIR/$vserver
+    (./*) VSERVER_DIR="`pwd`/$vserver";;
+    (/*)  VSERVER_DIR="$vserver";;
+    (*)	  VSERVER_DIR="$__CONFDIR/$vserver"
 	  allow_legacy=1
 	  ;;
 esac
+VSERVER_DIR="${VSERVER_DIR%%/}"
 
 if test -n "$allow_legacy"; then
     do_legacy=
