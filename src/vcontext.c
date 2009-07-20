@@ -71,6 +71,11 @@
 #define CMD_PIVOT_ROOT		0x4011
 
 
+#ifndef MNT_DETACH
+#define MNT_DETACH		0x0002
+#endif
+
+
 struct option const
 CMDLINE_OPTIONS[] = {
   { "help",       no_argument,       0, CMD_HELP },
