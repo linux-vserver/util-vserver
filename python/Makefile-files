@@ -33,3 +33,5 @@ $(top_builddir)/python/_libvserver-constants.c: lib/vserver.h \
 	$(CTAGS) -x $(top_srcdir)/lib/vserver.h | \
 		$(AWK) -f $(top_srcdir)/python/ctags-constants.awk \
 		> $(top_builddir)/python/_libvserver-constants.c
+
+CLEANFILES +=		python/_libvserver-constants.c
