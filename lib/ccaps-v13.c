@@ -33,8 +33,11 @@
 static struct Mapping_uint64 const VALUES[] = {
   DECL("set_utsname",     VC_VXC_SET_UTSNAME),
   DECL("set_rlimit",      VC_VXC_SET_RLIMIT),
+  DECL("fs_security",     VC_VXC_FS_SECURITY),
   DECL("raw_icmp",        VC_VXC_RAW_ICMP),
   DECL("syslog",          VC_VXC_SYSLOG),
+  DECL("oom_adjust",      VC_VXC_OOM_ADJUST),
+  DECL("audit_control",   VC_VXC_AUDIT_CONTROL),
   DECL("secure_mount",    VC_VXC_SECURE_MOUNT),
   DECL("secure_remount",  VC_VXC_SECURE_REMOUNT),
   DECL("binary_mount",    VC_VXC_BINARY_MOUNT),
