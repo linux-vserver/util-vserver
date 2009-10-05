@@ -949,7 +949,7 @@ extern "C" {
 
   uint_least64_t		vc_get_insecurebcaps() VC_ATTR_CONST;
   inline static uint_least64_t	vc_get_insecureccaps() {
-    return ~(VC_VXC_SET_UTSNAME|VC_VXC_RAW_ICMP);
+    return ~(VC_VXC_SET_UTSNAME|VC_VXC_RAW_ICMP|VC_VXC_AUDIT_CONTROL);
   }
   
   inline static int	vc_setfilecontext(char const *filename, xid_t xid) {
