@@ -64,6 +64,9 @@ CMDLINE_OPTIONS[] = {
   { "write",       no_argument, 0, CMD_WRITE },
   { "~write",      no_argument, 0, CMD_UNSET_WRITE },
   { "!write",      no_argument, 0, CMD_UNSET_WRITE },
+  { "cow",       no_argument, 0, CMD_COW },
+  { "~cow",      no_argument, 0, CMD_UNSET_COW },
+  { "!cow",      no_argument, 0, CMD_UNSET_COW },
   { 0,0,0,0 }
 };
 
@@ -75,7 +78,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-Rx] [--[~](iunlink|admin|watch|hide|barrier|iunlink-but-not-immutable|immutable|write)]* [--] <file>+\n\n"
+	    " [-Rx] [--[~](iunlink|admin|watch|hide|barrier|iunlink-but-not-immutable|immutable|write|cow)]* [--] <file>+\n\n"
 	    " Options:\n"
 	    "   -R  ...  recurse through directories\n"
 	    "   -x  ...  do not cross filesystems\n\n"

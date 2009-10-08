@@ -204,6 +204,7 @@ int main(int argc, char *argv[])
       case CMD_HIDE		:  args.set_mask |= VC_IATTR_HIDE;	break;
       case CMD_BARRIER		:  args.set_mask |= VC_IATTR_BARRIER;	break;
       case CMD_WRITE		:  args.set_mask |= VC_IATTR_WRITE;	break;
+      case CMD_COW		:  args.set_mask |= VC_IATTR_COW;	break;
       case CMD_UNSET_IMMU	:  args.del_mask |= VC_IATTR_IMMUTABLE; /*@fallthrough@*/
       case CMD_UNSET_IMMUX	:  args.del_mask |= VC_IATTR_IUNLINK;	break;
       case CMD_UNSET_IMMUTABLE	:  args.del_mask |= VC_IATTR_IMMUTABLE;	break;
@@ -212,6 +213,7 @@ int main(int argc, char *argv[])
       case CMD_UNSET_HIDE	:  args.del_mask |= VC_IATTR_HIDE;	break;
       case CMD_UNSET_BARRIER	:  args.del_mask |= VC_IATTR_BARRIER;	break;
       case CMD_UNSET_WRITE	:  args.del_mask |= VC_IATTR_WRITE;	break;
+      case CMD_UNSET_COW	:  args.del_mask |= VC_IATTR_COW;	break;
       case 'R'			:  args.do_recurse     = true;		break;
       case 'a'			:  args.do_display_dot = true;		break;
       case 'd'			:  args.do_display_dir = true;		break;

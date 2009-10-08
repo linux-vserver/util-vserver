@@ -34,6 +34,7 @@
 #define CMD_BARRIER		0x8014
 #define CMD_IMMUX		0x8015
 #define CMD_WRITE		0x8016
+#define CMD_COW			0x8017
 #define CMD_UNSET_IMMU		0x8020
 #define CMD_UNSET_ADMIN		0x8021
 #define CMD_UNSET_WATCH		0x8022
@@ -42,6 +43,7 @@
 #define CMD_UNSET_IMMUX		0x8025
 #define CMD_UNSET_IMMUTABLE	0x8026
 #define CMD_UNSET_WRITE		0x8027
+#define CMD_UNSET_COW		0x8028
 
 
 struct stat;
