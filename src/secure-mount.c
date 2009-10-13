@@ -63,9 +63,10 @@
 typedef enum { rfsYES, rfsNO, rfsONLY }		RootFsOption;
 
 struct MountInfo {
-    char const *	src;
-    char const *	dst;
-    char const *	type;
+    char *		src;
+    char *		dst;
+    char *		name;
+    char *		type;
     unsigned long	flag;
     unsigned long	xflag;
     unsigned long	mask;
@@ -95,6 +96,7 @@ struct Options {
 #define OPTION_ROOTFS	1031
 
 #define XFLAG_NOAUTO	0x01
+#define XFLAG_FILE	0x02
 
 static struct option const
 CMDLINE_OPTIONS[] = {
@@ -304,6 +306,8 @@ updateMtab(struct MountInfo const *mnt, struct Options const *opt)
   if (writeStrX(fd, mnt->src)==-1 ||
       writeStrX(fd, " ")==-1 ||
       writeStrX(fd, mnt->dst)==-1 ||
+      writeStrX(fd, mnt->xflag & XFLAG_FILE ? "/" : "")==-1 ||
+      writeStrX(fd, mnt->xflag & XFLAG_FILE ? mnt->name : "")==-1 ||
       writeStrX(fd, " ")==-1 ||
       writeStrX(fd, getType(mnt))==-1 ||
       writeStrX(fd, " ")==-1 ||
@@ -358,7 +362,7 @@ callExternalMount(struct MountInfo const *mnt)
   }
 
   argv[idx++] = mnt->src;
-  argv[idx++] = ".";
+  argv[idx++] = mnt->name;
   argv[idx]   = 0;
 
   pid = fork();
@@ -449,7 +453,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
     return false;
 
   if (canHandleInternal(mnt)) {
-    if (mount(mnt->src, ".",
+    if (mount(mnt->src, mnt->name,
 	      mnt->type ? mnt->type : "",
 	      mnt->flag,  mnt->data_parsed)==-1) {
       perror("secure-mount: mount()");
@@ -460,7 +464,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
       /* This is needed to put us in the new mountpoint */
       if (!secureChdir(mnt->dst, opt))
 	return false;
-      if (mount(mnt->src, ".",
+      if (mount(mnt->src, mnt->name,
 		mnt->type ? mnt->type : "",
 		(mnt->flag | MS_REMOUNT), NULL) == -1 &&
 	  errno != EBUSY) { /* Returned on older kernels */
@@ -559,6 +563,7 @@ static enum {prDOIT, prFAIL, prIGNORE}
   info->flag  = MS_NODEV;
   info->mask  = 0;
   info->xflag = 0;
+  info->name = ".";
 
   if      (strcmp(info->type, "swap")  ==0) return prIGNORE;
   else if (strcmp(info->type, "none")  ==0) info->type  = 0;
@@ -589,6 +594,17 @@ showFstabPosition(int fd, char const *fname, size_t line_nr, size_t col_nr)
   Vwrite(fd, buf, len);
 }
 
+static void
+adjustFileMount(struct MountInfo *mnt)
+{
+  char *buf = strrchr(mnt->dst, '/');
+
+  if (buf)
+    *buf++ = 0;
+
+  mnt->name = buf;
+  mnt->xflag |= XFLAG_FILE;
+}
 
 static bool
 mountFstab(struct Options const *opt)
@@ -641,9 +657,13 @@ mountFstab(struct Options const *opt)
 	  Echdir("/");
 	  if (( is_rootfs && opt->rootfs==rfsNO) ||
 	      (!is_rootfs && opt->rootfs==rfsONLY)) { /* ignore the entry */ }
-	  else if (!mountSingle(&mnt, opt)) {
-	    showFstabPosition(2, opt->fstab, line_nr, 1);
-	    WRITE_MSG(2, ": failed to mount fstab-entry\n");
+	  else {
+            if (utilvserver_isFile(mnt.dst, 0))
+              adjustFileMount(&mnt);
+            if (!mountSingle(&mnt, opt)) {
+	      showFstabPosition(2, opt->fstab, line_nr, 1);
+	      WRITE_MSG(2, ": failed to mount fstab-entry\n");
+            }
 	  }
 	  break;
 	}
@@ -688,6 +708,7 @@ int main(int argc, char *argv[])
   struct MountInfo	mnt = {
     .src         = 0,
     .dst         = 0,
+    .name        = ".",
     .type        = 0,
     .flag        = MS_NODEV,
     .xflag	 = 0,
@@ -765,7 +786,10 @@ int main(int argc, char *argv[])
   mnt.src  = argv[optind++];
   mnt.dst  = argv[optind++];
 
-  if (!mountSingle(&mnt, &opt)) return EXIT_FAILURE;
+  if (utilvserver_isFile(mnt.dst, 0))
+    adjustFileMount(&mnt);
+  if (!mountSingle(&mnt, &opt))
+    return EXIT_FAILURE;
     
   return EXIT_SUCCESS;
 }
