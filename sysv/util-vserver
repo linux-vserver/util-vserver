@@ -4,6 +4,16 @@
 #
 # chkconfig: 2345 10 90
 # description: Sets the path to vshelper and kills all guest processes
+# 
+### BEGIN INIT INFO
+# Provides:          util-vserver
+# Required-Start:    $remote_fs $syslog $time
+# Required-Stop:     $remote_fs $syslog $time
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Sets the path to vshelper and kills all guest processes
+# Description:       Sets the path to vshelper and kills all guest processes
+### END INIT INFO
 
 : ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
 test -e "$UTIL_VSERVER_VARS" || {

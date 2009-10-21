@@ -4,6 +4,16 @@
 #
 # chkconfig: 2345 26 74
 # description: Makes some /proc entries visibly for vservers
+# 
+### BEGIN INIT INFO
+# Provides:          vprocunhide
+# Required-Start:    $remote_fs $syslog $time
+# Required-Stop:     $remote_fs $syslog $time
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: vprocunhide  sets vserver related attributes for /proc
+# Description:       vprocunhide  sets vserver related attributes for /proc.
+### END INIT INFO
 
 : ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
 test -e "$UTIL_VSERVER_VARS" || {
