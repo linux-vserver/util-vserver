@@ -1,0 +1,106 @@
+diff -Nurp yum-3.2.22.orig/cli.py yum-3.2.22/cli.py
+--- yum-3.2.22.orig/cli.py	2009-11-05 23:13:23.000000000 +0100
++++ yum-3.2.22/cli.py	2009-11-05 23:21:50.000000000 +0100
+@@ -1259,13 +1259,14 @@ class YumOptionParser(OptionParser):
+     def getRoot(self,opts):
+         # If the conf file is inside the  installroot - use that.
+         # otherwise look for it in the normal root
++        if opts.conffile is None:
++            opts.conffile = '/etc/yum/yum.conf'
++            if opts.installroot:
++                if os.access(opts.installroot+opts.conffile, os.R_OK):
++                    opts.conffile = opts.installroot+opts.conffile
++                elif os.access(opts.installroot+'/etc/yum.conf', os.R_OK):
++                    opts.conffile = opts.installroot+'/etc/yum.conf'
+         if opts.installroot:
+-            if os.access(opts.installroot+'/'+opts.conffile, os.R_OK):
+-                opts.conffile = opts.installroot+'/'+opts.conffile
+-            elif opts.conffile == '/etc/yum/yum.conf':
+-                # check if /installroot/etc/yum.conf exists.
+-                if os.access(opts.installroot+'/etc/yum.conf', os.R_OK):
+-                    opts.conffile = opts.installroot+'/etc/yum.conf'         
+             root=opts.installroot
+         else:
+             root = '/'
+@@ -1304,7 +1305,7 @@ class YumOptionParser(OptionParser):
+                 help=_("be tolerant of errors"))
+         group.add_option("-C", dest="cacheonly", action="store_true",
+                 help=_("run entirely from cache, don't update cache"))
+-        group.add_option("-c", dest="conffile", default='/etc/yum/yum.conf',
++        group.add_option("-c", dest="conffile", default=None,
+                 help=_("config file location"), metavar=' [config file]')
+         group.add_option("-R", dest="sleeptime", type='int', default=None,
+                 help=_("maximum command wait time"), metavar=' [minutes]')
+diff -Nurp yum-3.2.22.orig/yum/config.py yum-3.2.22/yum/config.py
+--- yum-3.2.22.orig/yum/config.py	2009-11-05 23:13:23.000000000 +0100
++++ yum-3.2.22/yum/config.py	2009-11-06 00:21:39.000000000 +0100
+@@ -588,6 +588,26 @@ class StartupConf(BaseConfig):
+     syslog_ident = Option()
+     syslog_facility = Option('LOG_DAEMON')
+ 
++    def getRootedPath(self, path, enforce_default=False, defaults_to_host=False):
++        instroot = self.installroot
++        if instroot is None:
++            return path
++
++        if   path.startswith('hostfs://'):   res = path[9:]
++        elif path.startswith('chrootfs://'): res = instroot + '/' + path[11:]
++        else:
++            tmp = instroot + '/' + path
++
++            if enforce_default:
++                if defaults_to_host:    res = path
++                else:                   res = tmp
++            else:
++                if os.path.exists(tmp): res = tmp
++                elif defaults_to_host:  res = path
++                else:                   res = tmp
++
++        return res
++
+ class YumConf(StartupConf):
+     '''
+     Configuration option definitions for yum.conf\'s [main] section.
+@@ -601,6 +621,7 @@ class YumConf(StartupConf):
+     persistdir = Option('/var/lib/yum')
+     keepcache = BoolOption(True)
+     logfile = Option('/var/log/yum.log')
++    lockfile = Option('/var/run/yum.pid')
+     reposdir = ListOption(['/etc/yum/repos.d', '/etc/yum.repos.d'])
+ 
+     sslcacert = Option()
+@@ -808,9 +829,9 @@ def readMainConfig(startupconf):
+     yumconf.populate(startupconf._parser, 'main')
+ 
+     # Apply the installroot to directory options
+-    for option in ('cachedir', 'logfile', 'persistdir'):
++    for option in ('cachedir', 'logfile', 'lockfile', 'persistdir'):
+         path = getattr(yumconf, option)
+-        ir_path = yumconf.installroot + path
++        ir_path = yumconf.getRootedPath(path)
+         ir_path = ir_path.replace('//', '/') # os.path.normpath won't fix this and
+                                              # it annoys me
+         setattr(yumconf, option, ir_path)
+diff -Nurp yum-3.2.22.orig/yum/__init__.py yum-3.2.22/yum/__init__.py
+--- yum-3.2.22.orig/yum/__init__.py	2009-11-05 23:13:23.000000000 +0100
++++ yum-3.2.22/yum/__init__.py	2009-11-06 00:23:19.000000000 +0100
+@@ -341,8 +341,7 @@ class YumBase(depsolve.Depsolve):
+             # this check makes sure that our dirs exist properly.
+             # if they aren't in the installroot then don't prepent the installroot path
+             # if we don't do this then anaconda likes to not  work.
+-            if os.path.exists(self.conf.installroot+'/'+reposdir):
+-                reposdir = self.conf.installroot + '/' + reposdir
++            reposdir = self.conf.getRootedPath(reposdir)
+ 
+             if os.path.isdir(reposdir):
+                 for repofn in sorted(glob.glob('%s/*.repo' % reposdir)):
+@@ -1128,8 +1127,7 @@ class YumBase(depsolve.Depsolve):
+             return
+             
+         root = self.conf.installroot
+-        lockfile = root + '/' + lockfile # lock in the chroot
+-        lockfile = os.path.normpath(lockfile) # get rid of silly preceding extra /
++        lockfile = self.conf.lockfile
+         
+         mypid=str(os.getpid())    
+         while not self._lock(lockfile, mypid, 0644):
