@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
   int			sum        = 0;
   
   while (1) {
-    int			c = getopt_long(argc, argv, "+nsce:m:" "MFIUSPN", CMDLINE_OPTIONS, 0);
+    int			c = getopt_long(argc, argv, "+nsce:m:i:" "MFIUSPN", CMDLINE_OPTIONS, 0);
     uint_least64_t	thisbit = 0;
     if (c==-1) break;
 
