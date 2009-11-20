@@ -128,11 +128,11 @@ handleFile(char const *name, char const *display_name)
     }
   }      
   else {
-    memcpy(buf, "ERR    ", 8);
+    memcpy(buf, "ERR    ", 9);
     res = false;
   }
 
-  Vwrite(1, buf, 9);
+  Vwrite(1, buf, 10);
   Vwrite(1, display_name, strlen(display_name));
   Vwrite(1, "\n", 1);
 
