@@ -246,10 +246,8 @@ test x"$enable_apis" != xALL      || enable_apis='legacy,compat,v11,fscompat,v13
 test x"$enable_apis" != xNOLEGACY || enable_apis='compat,v11,fscompat,v13,net,v21,v22,v23,netv2'
 enable_api_oldproc=
 enable_api_olduts=
-old_IFS=$IFS
-IFS=,;
 
-for i in $enable_apis; do
+echo $enable_apis | sed 's/,/\n/g' | while read i; do
 	case "$i" in
 		(compat)	AC_DEFINE(VC_ENABLE_API_COMPAT,   1)
 				enable_api_oldproc=${enable_api_oldproc:-1}
@@ -277,7 +275,6 @@ for i in $enable_apis; do
 		(*)		AC_MSG_ERROR(['$i' is not a supported API]);;
 	esac
 done
-IFS=$old_IFS
 if test x"$enable_api_oldproc" != x; then
 	AC_DEFINE(VC_ENABLE_API_OLDPROC, 1)
 	test x"$enable_api_oldproc" != x2 && enable_apis="$enable_apis,oldproc"
