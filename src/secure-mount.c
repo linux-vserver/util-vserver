@@ -460,7 +460,7 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
       return false;
     }
     if ((mnt->flag & MS_BIND) &&
-	(mnt->flag & ~(MS_BIND|MS_REC))) {
+	(mnt->mask & ~(MS_BIND|MS_REC))) {
       /* This is needed to put us in the new mountpoint */
       if (!secureChdir(mnt->dst, opt))
 	return false;
