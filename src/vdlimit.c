@@ -116,10 +116,10 @@ remDlimit(char const *filename, xid_t xid, uint32_t flags)
 }
 
 static void
-writeInt(int fd, char const *prefix, int val)
+writeInt(int fd, char const *prefix, unsigned int val)
 {
   char		buf[sizeof(val)*3 + 2];
-  size_t	len = utilvserver_fmt_int(buf, val);
+  size_t	len = utilvserver_fmt_uint(buf, val);
 
   if (prefix)
     WRITE_STR(fd, prefix);
