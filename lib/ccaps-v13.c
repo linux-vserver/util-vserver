@@ -34,6 +34,7 @@ static struct Mapping_uint64 const VALUES[] = {
   DECL("set_utsname",     VC_VXC_SET_UTSNAME),
   DECL("set_rlimit",      VC_VXC_SET_RLIMIT),
   DECL("fs_security",     VC_VXC_FS_SECURITY),
+  DECL("tiocsti",         VC_VXC_TIOCSTI),
   DECL("raw_icmp",        VC_VXC_RAW_ICMP),
   DECL("syslog",          VC_VXC_SYSLOG),
   DECL("oom_adjust",      VC_VXC_OOM_ADJUST),
