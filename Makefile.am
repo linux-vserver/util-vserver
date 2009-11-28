@@ -52,6 +52,7 @@ initrd_SCRIPTS =
 sysconf_DATA =
 
 pyexec_LTLIBRARIES = 
+pyexec_SCRIPTS =
 
 DIETPROGS =		$(LIBENSCVECTOR_DIET)
 
