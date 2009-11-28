@@ -222,9 +222,11 @@ WARNING: could not set the barrier attribute on '$VDIR/..',
     findAndCopy "$VDIR"/etc/hosts         "$__CONFDIR"/.defaults/files/hosts "$__CONFDIR/.distributions/$DISTRIBUTION"/files/hosts \
 	                                  "$__DISTRIBDIR/$DISTRIBUTION"/files/hosts "$__DISTRIBDIR"/defaults/files/hosts ""
 
-    for i in nsswitch.conf krb5.conf krb.conf krb.realms ldap.conf localtime resolv.conf; do
+    for i in nsswitch.conf krb5.conf krb.conf krb.realms ldap.conf localtime; do
 	findAndCopy "$VDIR"/etc/$i  "$__CONFDIR/.defaults/files/$i" "$__CONFDIR/.distributions/$DISTRIBUTION/files/$i" ""
     done
+    findAndCopy "$VDIR"/etc/resolv.conf "$__CONFDIR/.defaults/files/resolv.conf" \
+	"$__CONFDIR/.distributions/$DISTRIBUTION/files/resolv.conf" /etc/resolv.conf ""
 }
 
 function base._initVariables
