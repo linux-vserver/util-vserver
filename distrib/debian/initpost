@@ -104,9 +104,33 @@ if $_CHROOT_SH testfile /etc/init.d/sendsigs; then
 		-e 's/^\(\s\+splash_back\)$/#\1/'
 fi
 
-echo
-echo ">>> Executing post install script ... "
-echo
+
+# upstart fixing
+if $_CHROOT_SH testfile /sbin/initctl; then
+    for i in etc/init/*; do
+	i=${i##*/}
+	case "$i" in
+	  (control-alt-delete.conf|rc.conf)
+	    ;;
+	  (rsyslog.conf|syslog-ng.conf)
+	    ;;
+	  (*)
+	    chrootsed /etc/init/$i \
+		-e 's/^/#/'
+	    ;;
+	esac
+    done
+    $_CHROOT_SH truncate /etc/init/vserver.conf <<EOF
+start on startup
+script
+       initctl emit virtual-filesystems
+       initctl emit local-filesystems
+       initctl emit remote-filesystems
+       initctl emit filesystem
+end script
+EOF
+fi
+
 
 # start vserver before we can exec anything inside it
 $_VSERVER "$NAME" stop &>/dev/null || :
