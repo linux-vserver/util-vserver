@@ -123,7 +123,10 @@ writeInt(int fd, char const *prefix, unsigned int val)
 
   if (prefix)
     WRITE_STR(fd, prefix);
-  Vwrite(fd, buf, len);
+  if (val == VC_CDLIM_INFINITY)
+    WRITE_STR(fd, "-1");
+  else
+    Vwrite(fd, buf, len);
 }
 
 static void
