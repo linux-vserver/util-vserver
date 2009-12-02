@@ -918,6 +918,10 @@ function _mountVserverInternal
     # magic regarding the mtab file; when etc/mtab can not be touched,
     # add the '-n' flag to mount
     test -w etc -o -w etc/mtab || xflag=-n
+    if test -h etc/mtab; then
+	local l=$($_READLINK etc/mtab)
+	test "${l##/proc/}" = "$l" || xflag=-n
+    fi
     "$@" $_SECURE_MOUNT -a $xflag --chroot --fstab "$fstab" --rootfs no
     popd >/dev/null
 }
