@@ -222,6 +222,7 @@
 #define VC_VXC_ADMIN_CLOOP		0x00400000ull
 
 #define VC_VXC_KTHREAD			0x01000000ull
+#define VC_VXC_NAMESPACE		0x02000000ull
 
 
 // the scheduler flags
