@@ -115,7 +115,7 @@ fi
 if $_CHROOT_SH testfile /etc/syslog-ng/syslog-ng.conf; then
 	echo ">>> Fixing syslog-ng.conf ... "
 	chrootsed /etc/syslog-ng/syslog-ng.conf \
-		-e 's:pipe("/proc/kmsg"); ::' \
+		-e '/proc\/kmsg/d' \
 		-e 's:\(.*console_all.*\):#\1:g'
 fi
 
