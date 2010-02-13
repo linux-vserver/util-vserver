@@ -17,7 +17,8 @@
 
 DIETPROGS +=			lib/testsuite/cflags \
 				lib/testsuite/personality \
-				lib/testsuite/fmt
+				lib/testsuite/fmt \
+				lib/testsuite/parselimit
 
 check_PROGRAMS +=		lib/testsuite/cflags \
 				lib/testsuite/personality \
