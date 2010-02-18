@@ -43,7 +43,7 @@ function kill_contexts()
 {
     local xid
     for xid in `ls -1 /proc/virtual 2>/dev/null`; do
-	test "$xid" = "info" -o "$xid" = "status" && continue
+	[ "$xid" = "info" -o "$xid" = "status" ] && continue
 	$_VATTRIBUTE --xid $xid --set --flag ~persistent
 	$_VKILL --xid $xid -s 15
 	sleep 3
@@ -51,7 +51,7 @@ function kill_contexts()
     done
     local alive=0
     for xid in `ls -1 /proc/virtual 2>/dev/null`; do
-	test "$xid" = "info" -o "$xid" = "status" && continue
+	[ "$xid" = "info" -o "$xid" = "status" ] && continue
 	let alive+=1
     done
     test $alive = 0

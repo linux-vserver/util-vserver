@@ -10,9 +10,10 @@ set_helper() {
 	return 0
 }
 
-kill_contexts() {
+kill_contexts()
+{
 	local xid
-	for xid in `ls -1 /proc/virtual`; do
+	for xid in `ls -1 /proc/virtual 2>/dev/null`; do
 		[ "$xid" = "info" -o "$xid" = "status" ] && continue
 		$_VATTRIBUTE --xid $xid --set --flag ~persistent
 		$_VKILL --xid $xid -s 15
@@ -20,11 +21,31 @@ kill_contexts() {
 		$_VKILL --xid $xid -s 9
 	done
 	local alive=0
-	for xid in `ls -1 /proc/virtual`; do
+	for xid in `ls -1 /proc/virtual 2>/dev/null`; do
 		[ "$xid" = "info" -o "$xid" = "status" ] && continue
 		let alive+=1
 	done
-	return $alive
+	test $alive = 0
+}
+
+create_dirs()
+{
+	$_MKDIR -p "$__RUNDIR" && $_MKDIR -p "$__VSHELPERSTATEDIR" && $_MKDIR -p `$_READLINK "$__PKGSTATEREVDIR"`
+}
+
+function mount_cgroup()
+{
+    _generateCgroupOptions
+    test -n "$CGROUP_MNT" || return 0
+    $_MKDIR -p "$CGROUP_MNT"
+    $_MOUNT -t cgroup -o "$CGROUP_SUBSYS" vserver "$CGROUP_MNT"
+}
+
+function umount_cgroup()
+{
+    _generateCgroupOptions
+    test -n "$CGROUP_MNT" || return 0
+    $_UMOUNT "$CGROUP_MNT"
 }
 
 start() {
@@ -37,6 +58,10 @@ start() {
 	
 	. ${UTIL_VSERVER_VARS}
 
+	ebegin "Creating directories for $PACKAGE_NAME"
+	create_dirs
+	eend $?
+
 	ebegin "Setting vshelper path to $_VSHELPER"
 	set_helper
 	eend $?
@@ -44,6 +69,13 @@ start() {
 	ebegin "Loading default device map"
 	$__PKGLIBDIR/bash-wrapper 'handleDeviceMap --set 0 "$__CONFDIR/.defaults/apps/vdevmap"'
 	eend $?
+
+	$__PKGLIBDIR/bash-wrapper 'hasCgroup'
+	if [ $? -eq 0 ]; then
+		ebegin "Mounting cgroup-hierarchy"
+		$__PKGLIBDIR/bash-wrapper '_generateCgroupOptions; test -n "$CGROUP_MNT" || exit 0; $_MKDIR -p "$CGROUP_MNT"; $_MOUNT -t cgroup -o "$CGROUP_SUBSYS" vserver "$CGROUP_MNT"'
+		eend $?
+	fi
 }
 
 stop() {
@@ -63,6 +95,13 @@ stop() {
 	ebegin "Killing all running contexts"
 	kill_contexts
 	eend $?
+
+	$__PKGLIBDIR/bash-wrapper 'hasCgroup'
+	if [ $? -eq 0 ]; then
+		ebegin "Unmounting cgroup-hierarchy"
+		$__PKGLIBDIR/bash-wrapper '_generateCgroupOptions; test -n "$CGROUP_MNT" || exit 0; $_UMOUNT "$CGROUP_MNT"'
+		eend $?
+	fi
 }
 
 # vim:ts=4:filetype=gentoo-init-d
