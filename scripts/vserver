@@ -165,25 +165,27 @@ test "$cmd" != build || { shift 2; exec $_VNAMESPACE --new -- \
 
 allow_legacy=
 
+vserver="${vserver%%/}"
 case "$vserver" in
-    (./*) VSERVER_DIR="`pwd`/$vserver";;
-    (/*)  VSERVER_DIR="$vserver";;
-    (*)	  VSERVER_DIR="$__CONFDIR/$vserver"
-	  allow_legacy=1
-	  ;;
+    (./*)   VSERVER_DIR="`pwd`/$vserver";;
+    (/*)    VSERVER_DIR="$vserver";;
+    (*)	    # Check if this is a context id
+	    context=$(vuname --get --xid "$vserver" 2>/dev/null)
+	    if test -d "$context"; then
+		VSERVER_DIR="$context"
+	    else
+		VSERVER_DIR="$__CONFDIR/$vserver"
+		do_legacy=
+		test ! -e "$VSERVER_DIR/legacy" || do_legacy=1
+		test -d "$VSERVER_DIR" -o ! -e "$__CONFDIR/$vserver.conf" || do_legacy=1
+
+		test -z "$do_legacy" || {
+		    echo $"WARNING: can not find configuration, assuming legacy method" >&2
+		    exec "$_VSERVER_LEGACY" "$@"
+		}
+	    fi
+	    ;;
 esac
-VSERVER_DIR="${VSERVER_DIR%%/}"
-
-if test -n "$allow_legacy"; then
-    do_legacy=
-    test ! -e "$VSERVER_DIR/legacy" || do_legacy=1
-    test -d "$VSERVER_DIR" -o ! -e "$__CONFDIR/$vserver.conf" || do_legacy=1
-
-    test -z "$do_legacy" || {
-	echo $"WARNING: can not find configuration, assuming legacy method" >&2
-	exec "$_VSERVER_LEGACY" "$@"
-    }
-fi
 
 test -d "$VSERVER_DIR" || {
     echo $"\
