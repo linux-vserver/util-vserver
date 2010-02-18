@@ -1491,7 +1491,10 @@ function _handleCgroup
 
 	    shopt -s nullglob
 	    for i in "$dir"/*; do
-		cat "$i" > "$CGROUP_MNT/$name/${i##*/}"
+		f="${i##*/}"
+		test "$f" != mnt -a "$f" != subsys -a \
+		    "$f" != inherit -a "$f" != name || continue
+		cat "$i" > "$CGROUP_MNT/$name/$f"
 	    done
 	fi
 	echo "$$" > "$CGROUP_MNT/$name/tasks"
