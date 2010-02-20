@@ -90,6 +90,32 @@
 
 #elif	defined(__arm__)
 
+#ifdef __ARM_EABI__
+
+/*	The Arm calling convention uses stack args after four arguments
+	but the Linux kernel gets up to seven arguments in registers.
+	
+	scnr:	r7
+	args:	a1(r0), a2(r1), a3(r2), a4(r3), a5(r4), a6(r5),
+	sret:	r0(r0)
+	serr:	(sret >= (unsigned)-EMAXERRNO)
+	call:	swi
+	clob:	memory
+	move:	mov $dR,$sR
+*/
+
+#define	__sysc_max_err	125
+
+#define	__sysc_cmd(n)	"swi $0x0"
+
+#define	__sysc_regs	"r0", "r1", "r2", "r3", "r4", "r5"
+#define	__sysc_reg_cid	"r7"
+#define	__sysc_reg_ret	"r0"
+
+#warning syscall arch armel not tested yet
+
+#else
+
 /*	The Arm calling convention uses stack args after four arguments
 	but the Linux kernel gets up to seven arguments in registers.
 	
@@ -111,6 +137,7 @@
 
 #warning syscall arch arm not tested yet
 
+#endif
 
 
 /*	*****************************************
