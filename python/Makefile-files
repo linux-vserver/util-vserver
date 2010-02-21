@@ -18,14 +18,15 @@
 ## 
 
 pyexec_LTLIBRARIES		+= python/_libvserver.la
-pyexec_SCRIPTS			+= python/libvserver.py
+pyexec_DATA			+= python/libvserver.py
 python__libvserver_la_SOURCES	=  python/_libvserver.c
 python__libvserver_la_CFLAGS	=  $(AM_CFLAGS) $(PYTHON_CFLAGS) \
 				   -I$(top_builddir)/python
 python__libvserver_la_LDFLAGS	=  -module -avoid-version $(PYTHON_LDFLAGS)
 python__libvserver_la_LIBADD	=  $(LIBVSERVER_GLIBC)
 
-EXTRA_DIST			+= python/ctags-constants.awk
+EXTRA_DIST			+= python/ctags-constants.awk \
+				   python/libvserver.py
 
 # FIXME: Dude, this is ugly.
 python/_libvserver.c: $(top_builddir)/python/_libvserver-constants.c
