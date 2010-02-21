@@ -18,7 +18,7 @@
 ## 
 
 pyexec_LTLIBRARIES		+= python/_libvserver.la
-pyexec_DATA			+= python/libvserver.py
+pyexec_SCRIPTS			+= python/libvserver.py
 python__libvserver_la_SOURCES	=  python/_libvserver.c
 python__libvserver_la_CFLAGS	=  $(AM_CFLAGS) $(PYTHON_CFLAGS) \
 				   -I$(top_builddir)/python
