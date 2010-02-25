@@ -1443,6 +1443,10 @@ function _generateCgroupOptions
     findFile file "$__CONFDIR/.defaults/cgroup/subsys" ""
     if test -n "$file"; then
 	read CGROUP_SUBSYS < "$file"
+    elif $_GREP -q '^ns[[:space:]]' /proc/cgroups; then
+	# Hack for the ns subsystem, with which we are incompatible
+	CGROUP_SUBSYS=$($_SED '/^#/d;/^ns[[:space:]]/d;s/[[:space:]].*//' /proc/cgroups | \
+			(s=""; while read x; do test -n "$s" && s="$s,"; s="$s$x"; done; echo "$s"))
     fi
     findFile file "$__CONFDIR/.defaults/cgroup/inherit" ""
     if test -n "$file"; then
