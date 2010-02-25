@@ -1382,7 +1382,8 @@ function _namespaceCleanup
     while read -r dev path opts; do
 	test -n "$path" || continue
 	for i in "$root" /dev /proc; do
-	    test "${path#$i}" != "$path" && continue 2
+	    path_dir="${path}/"
+	    test "${path_dir#${i}/}" != "${path_dir}" && continue 2
 	done
 	for i in "${list[@]}" /; do
 	    test "$path" = "$i" && continue 2
