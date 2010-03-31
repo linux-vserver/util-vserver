@@ -344,7 +344,8 @@ function _generateInitOptions
 	    	panic "init-vserver.sh not found; aborting"
 	    fi
 
-	    INITCMD_START=( env TERM=$TERM $RC_WRAP "$RUNLEVEL_START" )
+	    OPTS_ENV=( "${OPTS_ENV[@]}" TERM=$TERM )
+	    INITCMD_START=( $RC_WRAP "$RUNLEVEL_START" )
 	    INITCMD_STOP=( env -i PATH=$RC_PATH TERM=$TERM RUNLEVEL=0 /sbin/rc shutdown )
 	    INITCMD_PREPARE=( $_FAKE_RUNLEVEL 3 /var/run/utmp )
 	    ;;
@@ -808,8 +809,8 @@ function prepareInit
     pushd "$1/vdir" >/dev/null
     case "$INITSTYLE" in
 	sysv)
-	    { find var/run  ! -type d -print0; \
-	      find var/lock ! -type d -print0; } | xargs -0r $_CHROOT_SH rm
+	    { $_FIND var/run  ! -type d -print0; \
+	      $_FIND var/lock ! -type d -print0; } | xargs -0r $_CHROOT_SH rm
 	    ;;
 	plain)
 	    $_CHROOT_SH rm .autofsck forcefsck 2>/dev/null || :
@@ -1217,7 +1218,7 @@ WARNING: There is no cachedirectory configured for this vserver;
   ln -s ../.defaults/cachebase/$VSERVER_NAME $cfgdir/cache
 "
 
-    find "$cfgdir" -type f -exec "$_CHECK_UNIXFILE" '{}' ';'
+    $_FIND "$cfgdir" -type f -exec "$_CHECK_UNIXFILE" '{}' ';'
 
     vshelper.doSanityCheck
 
