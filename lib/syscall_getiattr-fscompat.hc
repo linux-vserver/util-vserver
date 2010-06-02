@@ -25,6 +25,9 @@
 #include "ioctl-getxflg.hc"
 
 #include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
 static inline ALWAYSINLINE int
 vc_get_iattr_fscompat(char const *filename,
 		      xid_t    * /*@null@*/ xid,
