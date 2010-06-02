@@ -24,6 +24,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <sys/mman.h>
 
 #define ENSC_TESTSUITE

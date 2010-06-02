@@ -21,6 +21,7 @@
 #endif
 
 #include "util.h"
+#include "compat-pivot_root.h"
 #include "lib/internal.h"
 #include "lib_internal/jail.h"
 #include "lib_internal/sys_personality.h"

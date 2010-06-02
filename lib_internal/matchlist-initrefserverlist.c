@@ -26,6 +26,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #define ENSC_WRAPPERS_FCNTL	1
 #define ENSC_WRAPPERS_UNISTD	1
