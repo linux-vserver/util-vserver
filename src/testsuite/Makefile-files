@@ -1,16 +1,16 @@
 ## $Id$		--*- makefile -*--
 
 ## Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-##  
+##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
 ## the Free Software Foundation; version 2 of the License.
-##  
+##
 ## This program is distributed in the hope that it will be useful,
 ## but WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
-##  
+##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -57,19 +57,22 @@ EXTRA_DIST +=				$(src_testsuite_check_src_SCRPTS) \
 					src/testsuite/hashcalc-plain.sh \
 					src/testsuite/vwait-test.sh
 
+DIETPROGS +=				src/testsuite/vunify-functest \
+					src/testsuite/chcontext-test \
+					src/testsuite/chbind-test \
+					src/testsuite/rpm-fake-test
+
 src_testsuite_rpm_fake_test_SOURCES =	src/testsuite/rpm-fake-test.c
 
 src_testsuite_vunify_functest_SOURCES =	src/testsuite/vunify-functest.c
 src_testsuite_vunify_functest_LDADD =	$(LIBINTERNAL)
 src_testsuite_vunify_functest_CPPFLAGS=	$(AM_CPPFLAGS) $(src_testsuite_CPPFLAGS)
 
-
 src_testsuite_chcontext_test_SOURCES =	src/testsuite/chcontext-test.c
-src_testsuite_chcontext_test_LDADD =	lib/libvserver.la $(LIBINTERNAL)
-
+src_testsuite_chcontext_test_LDADD =	$(VSERVER_LDADDS) $(LIBINTERNAL)
 
 src_testsuite_chbind_test_SOURCES =	src/testsuite/chbind-test.c
-src_testsuite_chbind_test_LDADD =	lib/libvserver.la
+src_testsuite_chbind_test_LDADD =	$(LIBVSERVER)
 
 src_testsuite_hashcalc_SOURCES =	src/testsuite/hashcalc.c
 src_testsuite_hashcalc_plain_SOURCES =	src/testsuite/hashcalc-plain.c
@@ -77,6 +80,9 @@ src_testsuite_hashcalc_CFLAGS =		$(AM_CFLAGS) $(ENSC_CRYPTO_CFLAGS)
 src_testsuite_hashcalc_plain_CFLAGS =	$(AM_CFLAGS) $(ENSC_CRYPTO_CFLAGS)
 
 if ENSC_CAN_CRYPTO_WITH_DIETLIBC
+DIETPROGS +=				src/testsuite/hashcalc		\
+					src/testsuite/hashcalc-plain
+
 src_testsuite_hashcalc_LDADD =		$(LIBINTERNAL) $(LIBENSCVECTOR) $(ENSC_CRYPTO_LIB) $(VSERVER_LDADDS)
 src_testsuite_hashcalc_LDFLAGS =	$(VSERVER_LDFLGS)
 
