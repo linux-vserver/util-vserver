@@ -1,16 +1,16 @@
 // $Id$    --*- c -*--
 
 // Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-//  
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; version 2 of the License.
-//  
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//  
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -45,7 +45,7 @@ MatchList_initRefserverList(struct MatchList **lst, size_t *cnt,
   int			cur_dir = Eopen(".", O_RDONLY, 0);
   struct dirent		**entries;
   int			count,i;
-  
+
   Echdir(dir);
   count = scandir(".", &entries, selectRefserver, alphasort);
   if (count==-1) {
@@ -61,7 +61,7 @@ MatchList_initRefserverList(struct MatchList **lst, size_t *cnt,
   *lst = Emalloc(sizeof(struct MatchList) * count);
   *cnt = count;
   for (i=0; i<count; ++i) {
-    char const 			*tmp   = entries[i]->d_name;
+    char const			*tmp   = entries[i]->d_name;
     size_t			l      = strlen(tmp);
     char			vname[sizeof("./") + l];
     struct MatchVserverInfo	vserver = {
@@ -71,7 +71,7 @@ MatchList_initRefserverList(struct MatchList **lst, size_t *cnt,
 
     memcpy(vname,   "./", 2);
     memcpy(vname+2, tmp,  l+1);
-    
+
     if (!MatchVserverInfo_init(&vserver)) {
       WRITE_MSG(2, "failed to initialize unification of reference vserver\n");
       exit(1);

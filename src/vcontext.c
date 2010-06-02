@@ -1,16 +1,16 @@
 // $Id$    --*- c -*--
 
 // Copyright (C) 2004-2006 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-//  
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; version 2 of the License.
-//  
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//  
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -99,9 +99,9 @@ CMDLINE_OPTIONS[] = {
   { "personality-flags", required_argument, 0, CMD_PERSFLAG },
   { "vlogin",       no_argument,        0, CMD_VLOGIN },
   { "pivot-root",   no_argument,        0, CMD_PIVOT_ROOT },
-#if 1  
+#if 1
   { "fakeinit",     no_argument,       	0, CMD_INITPID },	// compatibility
-#endif  
+#endif
   { 0,0,0,0 },
 };
 
@@ -205,7 +205,7 @@ connectExternalSync(char const *filename)
 {
   int			fd;
   struct sockaddr_un	addr;
-  
+
   if (filename==0) return -1;
 
   ENSC_INIT_UNIX_SOCK(addr, filename);
@@ -237,7 +237,7 @@ static void
 doExternalSync(int fd, char const *msg)
 {
   char		c;
-  
+
   if (fd==-1) return;
 
   if (msg) EsendAll(fd, msg, strlen(msg));
@@ -256,13 +256,13 @@ doit(struct Arguments const *args, int argc, char *argv[])
 {
   int			p[2][2];
   pid_t			pid = initSync(p, args->do_disconnect);
-  
+
   if (pid==0) {
     xid_t			xid;
     int				ext_sync_fd = connectExternalSync(args->sync_sock);
 
-    doSyncStage0(p, args->do_disconnect);  
-    
+    doSyncStage0(p, args->do_disconnect);
+
     if (args->do_create) {
       xid = vc_ctx_create(args->xid, NULL);
       if (xid==VC_NOCTX) {
@@ -378,7 +378,7 @@ doit(struct Arguments const *args, int argc, char *argv[])
   }
 
   assert(args->do_disconnect);
-    
+
   waitOnSync(pid, p, args->xid!=VC_DYNAMIC_XID && args->do_migrate);
   return EXIT_SUCCESS;
 }
@@ -430,11 +430,11 @@ int main (int argc, char *argv[])
     .personality_flags = 0,
     .sync_msg          = "ok",
   };
-  
+
   while (1) {
     int		c = getopt_long(argc, argv, "+", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
-    
+
     switch (c) {
       case CMD_HELP		:  showHelp(1, argv[0], 0);
       case CMD_VERSION		:  showVersion();
@@ -474,10 +474,10 @@ int main (int argc, char *argv[])
   }
 
   signal(SIGCHLD, SIG_DFL);
-  
+
   if (args.do_migrateself)
     args.xid = Evc_get_task_xid(0);
-  
+
   if (!args.do_create && !args.do_migrate)
     WRITE_MSG(2, "Neither '--create' nor '--migrate' specified; try '--help' for more information\n");
   else if (args.do_create  &&  args.do_migrate)
