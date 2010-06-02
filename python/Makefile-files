@@ -17,6 +17,7 @@
 ## Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 ##
 
+AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += python/libvserver.py
 pyexec_LTLIBRARIES		+= python/_libvserver.la
 pyexec_SCRIPTS			+= python/libvserver.py
 python__libvserver_la_SOURCES	=  python/_libvserver.c
