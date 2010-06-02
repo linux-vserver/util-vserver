@@ -1,16 +1,16 @@
 // $Id$    --*- c -*--
 
 // Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-//  
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; version 2 of the License.
-//  
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//  
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -38,7 +38,7 @@ vc_set_iattr_fscompat(char const *filename,
 
   fd = open(filename, O_RDONLY|O_NONBLOCK);
   if (fd==-1) return -1;
-    
+
   stat_rc = fstat(fd, &st);
   if (stat_rc==-1) goto err;
 
@@ -60,7 +60,7 @@ vc_set_iattr_fscompat(char const *filename,
       if (vc_X_set_ext2flags(fd, 0, VC_IMMUTABLE_LINK_FL)==-1 ||
 	  fchmod(fd, 0500))
 	goto err;
-    }      
+    }
   }
 
   if ( (mask&VC_IATTR_XID) &&
