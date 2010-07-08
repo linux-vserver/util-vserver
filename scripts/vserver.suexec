@@ -40,7 +40,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
 	"${CHBIND_CMD[@]}" \
 	$_EXEC_ULIMIT "$VSERVER_DIR/ulimits" \
 	${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT" -- } \
-	$_VSPACE --enter "$S_CONTEXT" "${OPTS_VSPACE[@]}" -- \
+	$_VSPACE --enter "$S_CONTEXT" "${OPTS_VSPACE[@]}" "${OPTS_VSPACE_SHARED[@]}" -- \
 	$_VTAG --migrate "${OPTS_VTAG_ENTER[@]}" --silent -- \
 	$_VCONTEXT $SILENT_OPT --migrate $OPT_VCONTEXT_CHROOT \
 	  --xid "$S_CONTEXT" --uid "$user" "${OPTS_VCONTEXT_ENTER[@]}" -- \
