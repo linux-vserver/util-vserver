@@ -49,6 +49,8 @@ declare -a OPTS_VTAG_CREATE=()
 declare -a OPTS_VTAG_ENTER=()
 declare -a OPTS_VMEMCTRL=()
 declare -a OPTS_VSPACE=( --default )
+declare -a OPTS_VSPACE_SHARED=()
+declare -a VSPACE_SHARED_CMD=()
 
 declare -a STOPCMD_PREPARE=()
 
@@ -787,16 +789,30 @@ function _generateSpaceOptions
 {
     local vdir="$1"
     local d="$vdir"/spaces
+    local shared
 
-    ( test ! -e "$d"/pid ) || \
-	OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --pid )
+    if test -e "$d"/pid; then
+	getFileValue shared "$d"/pid
+	if test -z "$shared"; then
+	    OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --pid )
+	else
+	    OPTS_VSPACE_SHARED=( "${OPTS_VSPACE_SHARED[@]}" --pid )
+	    VSPACE_SHARED_CMD=( "${VSPACE_SHARED_CMD[@]}" $_VSPACE --enter --xid "$shared" --pid -- )
+	fi
+    fi
 
-    test ! -e "$d"/net || {
-	OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --net )
+    if test -e "$d"/net; then
+	getFileValue shared "$d"/net
 	# network context and namespace don't make much sense
 	_HAVE_CHBIND_OPTIONS=1
 	CHBIND_CMD=()
-    }
+	if test -z "$shared"; then
+	    OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --net )
+	else
+	    OPTS_VSPACE_SHARED=( "${OPTS_VSPACE_SHARED[@]}" --net )
+	    VSPACE_SHARED_CMD=( "${VSPACE_SHARED_CMD[@]}" $_VSPACE --enter --xid "$shared" --net -- )
+	fi
+    fi
 
     local mask
     getFileValue mask "$d"/mask || \
