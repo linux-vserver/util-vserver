@@ -797,7 +797,7 @@ function _generateSpaceOptions
 	    OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --pid )
 	else
 	    OPTS_VSPACE_SHARED=( "${OPTS_VSPACE_SHARED[@]}" --pid )
-	    VSPACE_SHARED_CMD=( "${VSPACE_SHARED_CMD[@]}" $_VSPACE --enter --xid "$shared" --pid -- )
+	    VSPACE_SHARED_CMD=( "${VSPACE_SHARED_CMD[@]}" $_VSPACE --enter "$shared" --pid -- )
 	fi
     fi
 
@@ -810,7 +810,7 @@ function _generateSpaceOptions
 	    OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --net )
 	else
 	    OPTS_VSPACE_SHARED=( "${OPTS_VSPACE_SHARED[@]}" --net )
-	    VSPACE_SHARED_CMD=( "${VSPACE_SHARED_CMD[@]}" $_VSPACE --enter --xid "$shared" --net -- )
+	    VSPACE_SHARED_CMD=( "${VSPACE_SHARED_CMD[@]}" $_VSPACE --enter "$shared" --net -- )
 	fi
     fi
 
