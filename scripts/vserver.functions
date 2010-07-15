@@ -112,6 +112,12 @@ function _generateChbindOptions
 
     test -n "$_HAVE_INTERFACE_OPTIONS" || _generateInterfaceOptions "$vdir"
 
+    if test -e "$vdir"/noncontext -o
+	    \( -e "$vdir"/spaces/net -a ! -e "$vdir"/ncontext \); then
+	_HAVE_CHBIND_OPTIONS=1
+	return 0
+    fi
+
     local f="$vdir"/interfaces/bcast
     getFileValue bcast "$f"
     f="$vdir"/interfaces/lback
@@ -790,29 +796,21 @@ function _generateSpaceOptions
     local vdir="$1"
     local d="$vdir"/spaces
     local shared
+    local space
 
-    if test -e "$d"/pid; then
-	getFileValue shared "$d"/pid
-	if test -z "$shared"; then
-	    OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --pid )
-	else
-	    OPTS_VSPACE_SHARED=( "${OPTS_VSPACE_SHARED[@]}" --pid )
-	    VSPACE_SHARED_CMD=( "${VSPACE_SHARED_CMD[@]}" $_VSPACE --enter "$shared" --pid -- )
+    for space in pid net; do
+	if test -e "$d"/$space; then
+	    getFileValue shared "$d"/$space || shared=""
+	    if test -z "$shared"; then
+		OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --$space )
+	    elif test "$shared" = "0"; then
+		# Do nothing
+	    else
+		OPTS_VSPACE_SHARED=( "${OPTS_VSPACE_SHARED[@]}" --$space )
+		VSPACE_SHARED_CMD=( "${VSPACE_SHARED_CMD[@]}" $_VSPACE --enter "$shared" --$space -- )
+	    fi
 	fi
-    fi
-
-    if test -e "$d"/net; then
-	getFileValue shared "$d"/net
-	# network context and namespace don't make much sense
-	_HAVE_CHBIND_OPTIONS=1
-	CHBIND_CMD=()
-	if test -z "$shared"; then
-	    OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --net )
-	else
-	    OPTS_VSPACE_SHARED=( "${OPTS_VSPACE_SHARED[@]}" --net )
-	    VSPACE_SHARED_CMD=( "${VSPACE_SHARED_CMD[@]}" $_VSPACE --enter "$shared" --net -- )
-	fi
-    fi
+    done
 
     local mask
     getFileValue mask "$d"/mask || \
