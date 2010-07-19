@@ -26,7 +26,7 @@ EXTRA_DIST +=	debian/rules \
 		debian/changelog.in \
 		debian/changelog
 
-CLEANFILES +=	debian/changelog
+#CLEANFILES +=	debian/changelog
 
 DEB_CL_DATE = $(shell date '+%a, %d %b %Y %H:%M:%S %z')
 debian/changelog: debian/changelog.in
