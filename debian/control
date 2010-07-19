@@ -1,0 +1,87 @@
+Source: util-vserver
+Section: net
+Priority: optional
+Maintainer: Daniel Hokka Zakrisson <daniel@hozac.com>
+Build-Depends: debhelper (>= 7), gawk, dietlibc-dev, net-tools, vlan, iptables, wget, procps, module-init-tools, libnss3-dev, po-debconf, e2fslibs-dev, pkg-config, python2.6-dev
+Standards-Version: 3.8.4
+Homepage: http://savannah.nongnu.org/projects/util-vserver/
+
+Package: util-vserver
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver-core, util-vserver-lib, util-vserver-sysv, coreutils, diffutils, sed
+Description: utilities for managing Linux-VServer guests
+ util-vserver provides the components and a framework to setup virtual
+ servers.  A virtual server runs inside a linux server. It is nevertheless
+ highly independent. As such, you can run various services with normal
+ configuration. The various vservers can't interact with each other and
+ can't interact with services in the main server.
+
+Package: libvserver0
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: dynamic libraries for util-vserver
+ util-vserver provides the components and a framework to setup virtual
+ servers.  A virtual server runs inside a linux server. It is nevertheless
+ highly independent. As such, you can run various services with normal
+ configuration. The various vservers can't interact with each other and
+ can't interact with services in the main server.
+
+Package: util-vserver-core
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, util-linux
+Description: core utilities of util-vserver
+ util-vserver provides the components and a framework to setup virtual
+ servers.  A virtual server runs inside a linux server. It is nevertheless
+ highly independent. As such, you can run various services with normal
+ configuration. The various vservers can't interact with each other and
+ can't interact with services in the main server.
+
+Package: util-vserver-build
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver, wget, binutils, tar
+Description: tools which can be used to build vservers
+ util-vserver provides the components and a framework to setup virtual
+ servers.  A virtual server runs inside a linux server. It is nevertheless
+ highly independent. As such, you can run various services with normal
+ configuration. The various vservers can't interact with each other and
+ can't interact with services in the main server.
+
+Package: util-vserver-sysv
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver, make, diffutils
+Description: initscripts for util-vserver
+ util-vserver provides the components and a framework to setup virtual
+ servers.  A virtual server runs inside a linux server. It is nevertheless
+ highly independent. As such, you can run various services with normal
+ configuration. The various vservers can't interact with each other and
+ can't interact with services in the main server.
+
+Package: util-vserver-legacy
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends}, util-vserver
+Description: legacy scripts for util-vserver
+ util-vserver provides the components and a framework to setup virtual
+ servers.  A virtual server runs inside a linux server. It is nevertheless
+ highly independent. As such, you can run various services with normal
+ configuration. The various vservers can't interact with each other and
+ can't interact with services in the main server.
+
+Package: libvserver0-dev
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver-lib, pkg-config
+Description: headers and libraries needed to develop vserver based applications
+ util-vserver provides the components and a framework to setup virtual
+ servers.  A virtual server runs inside a linux server. It is nevertheless
+ highly independent. As such, you can run various services with normal
+ configuration. The various vservers can't interact with each other and
+ can't interact with services in the main server.
+
+Package: util-vserver-python
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver-lib
+Description: python-bindings for util-vserver
+ util-vserver provides the components and a framework to setup virtual
+ servers.  A virtual server runs inside a linux server. It is nevertheless
+ highly independent. As such, you can run various services with normal
+ configuration. The various vservers can't interact with each other and
+ can't interact with services in the main server.

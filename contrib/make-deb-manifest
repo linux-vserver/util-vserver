@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Copyright (C) 2010 Daniel Hokka Zakrisson <daniel@hozac.com>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+## Usage: make-deb-manifest <basename> <destdir> <datfile>
+
+name=$2/$1
+dest=$2
+data=$3
+
+getname() {
+    if test $1 = "lib"; then
+	fullname="$dest/libvserver0"
+    elif test $1 = "devel"; then
+	fullname="$dest/libvserver0-dev"
+    elif test $1 = "base"; then
+	fullname="$name"
+    else
+	fullname="$name-$1"
+    fi
+}
+
+for i in {core,build,legacy,sysv,lib,devel,base}; do
+    getname $i
+    echo -n >${fullname}.install
+    rm -f ${fullname}.conffiles
+done
+
+DESTDIR=debian/tmp
+while read style file; do
+    test "$file" || continue
+    case "$style" in
+	(\#*)	continue;;
+    esac
+    getname $style
+    set -- $file
+    if test "$2"; then
+	file="$2"
+	for i in ${DESTDIR}$file; do
+	    echo "${i#${DESTDIR}}" >>${fullname}.conffiles
+	done
+    fi
+    for i in ${DESTDIR}$file; do
+	i=${i#${DESTDIR}}
+        echo "$i ${i%/*}" >>${fullname}.install
+    done
+done < $data

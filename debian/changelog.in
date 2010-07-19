@@ -1,0 +1,5 @@
+util-vserver (@PACKAGE_VERSION@-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Daniel Hokka Zakrisson <daniel@hozac.com>  @DATE@

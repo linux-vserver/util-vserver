@@ -233,6 +233,7 @@ include $(top_srcdir)/gentoo/Makefile-files
 if HAVE_PYTHON
 include $(top_srcdir)/python/Makefile-files
 endif
+include $(top_srcdir)/debian/Makefile-files
 
 include $(top_srcdir)/m4/gpgsig.am
 include $(top_srcdir)/m4/validate.am
