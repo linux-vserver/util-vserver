@@ -116,7 +116,7 @@ showHelp(char const *cmd)
   WRITE_STR(1, cmd);
   WRITE_MSG(1,
 	    "\n"
-	    "Show informations about all the active context.\n\n"
+	    "Show information about all active contexts.\n\n"
 	    "	CTX#		Context number\n"
 	    "			#0 = root context\n"
 	    "			#1 = monitoring context\n"
