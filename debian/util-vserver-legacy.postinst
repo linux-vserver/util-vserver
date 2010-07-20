@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if test "$1" = configure; then
+    update-rc.d rebootmgr start 98 2 3 4 5 stop 02 0 1 6 .
+    update-rc.d vservers-legacy start 98 2 3 4 5 stop 02 0 1 6 .
+    for i in httpd named portmap sendmail smb sshd xinetd gated; do
+	update-rc.d v_$i start 98 2 3 4 5 stop 02 0 1 6 .
+    done
+fi

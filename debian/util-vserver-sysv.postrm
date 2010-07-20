@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if test "$1" = upgrade; then
+    /etc/init.d/vprocunhide condrestart > /dev/null 2>&1
+fi

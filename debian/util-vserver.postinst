@@ -1,0 +1,10 @@
+#!/bin/sh
+
+test -d /vservers      || mkdir -m0000 /vservers
+test -d /vservers/.pkg || mkdir -m0755 /vservers/.pkg
+
+f="/etc/vservers/.defaults/vdirbase";  test -L "$f" -o -e "$f" || ln -s /vservers             "$f"
+f="/etc/vservers/.defaults/run.rev";   test -L "$f" -o -e "$f" || ln -s /var/run/vservers.rev "$f"
+f="/etc/vservers/.defaults/cachebase"; test -L "$f" -o -e "$f" || ln -s /var/cache/vservers   "$f"
+
+/usr/sbin/setattr --barrier /vservers /vservers/.pkg || :

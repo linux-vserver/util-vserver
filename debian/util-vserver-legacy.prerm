@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if test "$1" = remove; then
+    /etc/init.d/rebootmgr stop > /dev/null 2>&1
+    update-rc.d rebootmgr remove
+    update-rc.d vservers-legacy remove
+    for i in httpd named portmap sendmail smb sshd xinetd gated; do
+	update-rc.d v_$i remove
+    done
+fi

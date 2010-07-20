@@ -1,0 +1,8 @@
+#!/bin/sh
+
+test -d /vservers/.hash || mkdir -m0700 /vservers/.hash
+
+f="/etc/vservers/.defaults/apps/vunify/hash"; test -e "$f"/method -o -e "$f"/00 || \
+        ln -s /vservers/.hash "$f"/00
+
+/usr/sbin/setattr --barrier /vservers/.hash || :

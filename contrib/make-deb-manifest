@@ -33,7 +33,7 @@ getname() {
     fi
 }
 
-for i in {core,build,legacy,sysv,lib,devel,base}; do
+for i in {core,build,legacy,sysv,lib,devel,base,python}; do
     getname $i
     echo -n >${fullname}.install
     rm -f ${fullname}.conffiles
@@ -46,10 +46,13 @@ while read style file; do
 	(\#*)	continue;;
     esac
     getname $style
+    set -o noglob
     set -- $file
+    set +o noglob
     if test "$2"; then
 	file="$2"
 	for i in ${DESTDIR}$file; do
+	    test "${file#/etc/}" != "$file" && continue
 	    echo "${i#${DESTDIR}}" >>${fullname}.conffiles
 	done
     fi

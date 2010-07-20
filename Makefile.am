@@ -143,6 +143,9 @@ pathsubst_RULES =	s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			s!@'ENSC_HAVE_C99_COMPILER_FALSE'@!\@ENSC_HAVE_C99_COMPILER_FALSE@ !g; \
 			s!@'ENSC_HAVE_CXX_COMPILER_TRUE'@!\@ENSC_HAVE_CXX_COMPILER_TRUE@ !g; \
 			s!@'ENSC_HAVE_CXX_COMPILER_FALSE'@!\@ENSC_HAVE_CXX_COMPILER_FALSE@ !g; \
+			s!@'HAVE_PYTHON_TRUE'@!\@HAVE_PYTHON_TRUE@ !g; \
+			s!@'HAVE_PYTHON_FALSE'@!\@HAVE_PYTHON_FALSE@ !g; \
+			s!@'PYEXECDIR'@!$(pyexecdir)!g; \
 			$(ENSC_PATHPROG_SED)
 
 pathconfig.h:		.pathconfig.h.pathsubst.stamp

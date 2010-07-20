@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if test "$1" = purge; then
+    rm -rf /var/cache/vservers/* 2>/dev/null || :
+fi

@@ -159,3 +159,4 @@ legacy @CONFIG@ @INITRDDIR@/rebootmgr
 legacy @CONFIG@ @INITRDDIR@/vservers-legacy
 legacy @CONFIG_NOREPLACE@ @SYSCONFDIR@/vservers.conf
 build  @CONFIG_NOREPLACE@ @CONFDIR@/.distributions/*/apt/sources.list
+@HAVE_PYTHON_TRUE@python @PYEXECDIR@/*

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if test "$1" = remove; then
+    /etc/init.d/vprocunhide stop > /dev/null 2>&1
+    update-rc.d vprocunhide remove
+    update-rc.d util-vserver remove
+    update-rc.d vservers-default remove
+fi
