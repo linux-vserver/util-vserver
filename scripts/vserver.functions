@@ -804,7 +804,7 @@ function _generateSpaceOptions
 	    if test -z "$shared"; then
 		OPTS_VSPACE=( "${OPTS_VSPACE[@]}" --$space )
 	    elif test "$shared" = "0"; then
-		# Do nothing
+		: # Do nothing
 	    else
 		OPTS_VSPACE_SHARED=( "${OPTS_VSPACE_SHARED[@]}" --$space )
 		VSPACE_SHARED_CMD=( "${VSPACE_SHARED_CMD[@]}" $_VSPACE --enter "$shared" --$space -- )
