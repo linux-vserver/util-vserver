@@ -112,7 +112,7 @@ function _generateChbindOptions
 
     test -n "$_HAVE_INTERFACE_OPTIONS" || _generateInterfaceOptions "$vdir"
 
-    if test -e "$vdir"/noncontext -o
+    if test -e "$vdir"/noncontext -o \
 	    \( -e "$vdir"/spaces/net -a ! -e "$vdir"/ncontext \); then
 	_HAVE_CHBIND_OPTIONS=1
 	return 0
