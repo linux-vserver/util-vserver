@@ -8,7 +8,7 @@ Homepage: http://savannah.nongnu.org/projects/util-vserver/
 
 Package: util-vserver
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver-core, util-vserver-lib, util-vserver-sysv, diffutils
+Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver-core, libvserver0, util-vserver-sysv, diffutils
 Description: utilities for managing Linux-VServer guests
  util-vserver provides the components and a framework to setup virtual
  servers.  A virtual server runs inside a Linux server. It is nevertheless
@@ -70,7 +70,7 @@ Description: legacy scripts for util-vserver
 Package: libvserver0-dev
 Section: libdevel
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver-lib, pkg-config
+Depends: ${shlibs:Depends}, ${misc:Depends}, libvserver0, pkg-config
 Description: headers and libraries needed to develop vserver based applications
  util-vserver provides the components and a framework to setup virtual
  servers.  A virtual server runs inside a Linux server. It is nevertheless
@@ -80,7 +80,7 @@ Description: headers and libraries needed to develop vserver based applications
 
 Package: util-vserver-python
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver-lib, ${python:Depends}, ${python:Versions}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libvserver0, ${python:Depends}, ${python:Versions}
 Description: python-bindings for util-vserver
  util-vserver provides the components and a framework to setup virtual
  servers.  A virtual server runs inside a Linux server. It is nevertheless
