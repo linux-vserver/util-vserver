@@ -281,8 +281,18 @@
 
 // the VCI bit values
 #define VC_VCI_NO_DYNAMIC		(1 << 0)
+#define VC_VCI_PROC_SECURE		(1 << 4)
+#define VC_VCI_HARDCPU			(1 << 5)
+#define VC_VCI_IDLELIMIT		(1 << 6)
+#define VC_VCI_IDLETIME			(1 << 7)
+#define VC_VCI_COWBL			(1 << 8)
+#define VC_VCI_FULLCOWBL		(1 << 9)
 #define VC_VCI_SPACES			(1 << 10)
 #define VC_VCI_NETV2			(1 << 11)
+#define VC_VCI_MEMCG			(1 << 12)
+#define VC_VCI_DEBUG			(1 << 16)
+#define VC_VCI_HISTORY			(1 << 20)
+#define VC_VCI_TAGGED			(1 << 24)
 #define VC_VCI_PPTAG			(1 << 28)
 
 
@@ -980,7 +990,7 @@ extern "C" {
                  vcFEATURE_VSHELPER0, vcFEATURE_VSHELPER, vcFEATURE_VWAIT,
 		 vcFEATURE_VNET,   vcFEATURE_VSTAT,   vcFEATURE_PPTAG,
 		 vcFEATURE_PIDSPACE, vcFEATURE_SPACES, vcFEATURE_PERSISTENT,
-		 vcFEATURE_PIVOT_ROOT,
+		 vcFEATURE_PIVOT_ROOT, vcFEATURE_MEMCG,
 		 }
     vcFeatureSet;
 

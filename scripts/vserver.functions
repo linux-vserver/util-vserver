@@ -1475,8 +1475,12 @@ function useCgroup
 {
     hasCgroup || return 1
     test -d "$CGROUP_MNT" || return 1
+    memcg=""
+    if $_VSERVER_INFO - FEATURE memcg; then
+	memcg=1
+    fi
     test -d "$1/cgroup" -o \
-	\( -d "$__CONFDIR/.defaults/cgroup" -a \
+	\( \( -d "$__CONFDIR/.defaults/cgroup" -o -n "$memcg" \) -a \
 	   ! -e "$1/nocgroup" \)
 }
 

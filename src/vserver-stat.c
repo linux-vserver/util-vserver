@@ -24,6 +24,7 @@
 #include "vserver.h"
 #include "util.h"
 #include "internal.h"
+#include "pathconfig.h"
 
 #include <ensc_vector/vector.h>
 
@@ -277,6 +278,123 @@ registerXidVstat(struct Vector *vec, unsigned long xid_l)
     res->utime_total	+= sched.user_msec;
     res->stime_total	+= sched.sys_msec;
   }
+}
+
+static void
+registerXidCgroups(struct Vector *vec, struct process_info *process)
+{
+  xid_t				xid = (xid_t) process->s_context;
+  struct XidData		*res;
+
+  switch (vc_getXIDType(xid)) {
+    case vcTYPE_STATIC:
+    case vcTYPE_DYNAMIC:
+      break;
+    default:
+      return;
+  }
+
+  res = Vector_search(vec, &xid, cmpData);
+  if (res == 0) {
+    struct vc_rlimit_stat	limit;
+    struct vc_virt_stat		vstat;
+    struct vc_sched_info	sched;
+    int				cpu;
+    char			vhi_name[65],
+				filename[128],
+				cgroup[65],
+				buf[30];
+    int				fd;
+    ssize_t			cgroup_len;
+    unsigned long long		rss;
+    char			*endptr;
+
+    if (vc_virt_stat(xid, &vstat) == -1) {
+      perror("vc_virt_stat()");
+      return;
+    }
+    if (vc_rlimit_stat(xid, RLIMIT_NPROC, &limit) == -1) {
+      perror("vc_rlimit_stat(RLIMIT_NRPOC)");
+      return;
+    }
+    if (vc_get_vhi_name(xid, vcVHI_CONTEXT, vhi_name, sizeof(vhi_name)) == -1) {
+      perror("vc_get_vhi_name(CONTEXT)");
+      return;
+    }
+
+    if ((fd = open(DEFAULTCONFDIR "/cgroup/mnt", O_RDONLY)) == -1) {
+      strcpy(cgroup, "/dev/cgroup/");
+      cgroup_len = sizeof("/dev/cgroup");
+    }
+    else {
+      cgroup_len = read(fd, cgroup, sizeof(cgroup));
+      if (cgroup_len == -1) {
+        perror("read(cgroup/mnt)");
+        return;
+      }
+      close(fd);
+      cgroup[cgroup_len] = '/';
+      cgroup_len += 1;
+      cgroup[cgroup_len] = 0;
+    }
+
+    snprintf(filename, sizeof(filename), "%s/cgroup/name", vhi_name);
+    if ((fd = open(filename, O_RDONLY)) == -1) {
+      char *dir = strrchr(vhi_name, '/');
+      if (dir == NULL) {
+        fprintf(stderr, "invalid context name: %s\n", dir);
+        return;
+      }
+      snprintf(cgroup + cgroup_len, sizeof(cgroup) - cgroup_len, "%s", dir);
+    }
+    else {
+      ssize_t ret;
+      ret = read(fd, cgroup + cgroup_len, sizeof(cgroup) - cgroup_len);
+      if (ret == -1) {
+        perror("read(cgroup/name)");
+        return;
+      }
+      close(fd);
+    }
+
+    snprintf(filename, sizeof(filename), "%s/memory.usage_in_bytes", cgroup);
+    if ((fd = open(filename, O_RDONLY)) == -1) {
+      perror("open(memory.usage_in_bytes)");
+      return;
+    }
+    if (read(fd, buf, sizeof(buf)) == -1) {
+      perror("read(memory.usage_in_bytes)");
+      return;
+    }
+    close(fd);
+    if ((rss = strtoull(buf, &endptr, 0)) == ULLONG_MAX ||
+        (*endptr != '\n' && *endptr != '\0')) {
+      perror("strtoull(memory.usage_in_bytes)");
+      return;
+    }
+
+    res			= Vector_insert(vec, &xid, cmpData);
+    res->xid		= xid;
+
+    res->process_count	= limit.value;
+    res->VmRSS_total	= rss / 4096;
+    res->start_time_oldest= getUptime() - vstat.uptime/1000000;
+
+    res->utime_total	= 0;
+    res->stime_total	= 0;
+    // XXX: arbitrary CPU limit.
+    for (cpu = 0; cpu < 1024; cpu++) {
+      sched.cpu_id = cpu;
+      sched.bucket_id = 0;
+      if (vc_sched_info(xid, &sched) == -1)
+        break;
+
+      res->utime_total	+= sched.user_msec;
+      res->stime_total	+= sched.sys_msec;
+    }
+  }
+  
+  res->VmSize_total	+= process->VmSize;
 }
 
 static inline uint64_t
@@ -615,7 +733,7 @@ int main(int argc, char **argv)
   
   Vector_init(&xid_data, sizeof(struct XidData));
 
-  if (vc_isSupported(vcFEATURE_VSTAT)) {
+  if (vc_isSupported(vcFEATURE_VSTAT) && !vc_isSupported(vcFEATURE_MEMCG)) {
     unsigned long xid;
     Echdir(PROC_VIRT_DIR_NAME);
     proc_dir = Eopendir(".");
@@ -628,6 +746,8 @@ int main(int argc, char **argv)
     closedir(proc_dir);
   }
   else {
+    void (*handler)(struct Vector *vec, struct process_info *process);
+
     my_pid = getpid();
 
     if (!switchToWatchXid(&errptr)) {
@@ -641,6 +761,11 @@ int main(int argc, char **argv)
 	      "         procfs-security. Please read the FAQ for more details\n"
 	      "         http://linux-vserver.org/Proc-Security\n");
 
+    if (vc_isSupported(vcFEATURE_MEMCG))
+      handler = registerXidCgroups;
+    else
+      handler = registerXid;
+
     Echdir(PROC_DIR_NAME);
     proc_dir = Eopendir(".");
     while ((dir_entry = readdir(proc_dir)) != NULL)
@@ -652,7 +777,7 @@ int main(int argc, char **argv)
       if (atoi(dir_entry->d_name) != my_pid) {
 	struct process_info *	info = get_process_info(dir_entry->d_name);
 	if (info)
-	  registerXid(&xid_data, info);
+	  handler(&xid_data, info);
       }
     }
     closedir(proc_dir);
