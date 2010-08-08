@@ -50,6 +50,7 @@ vc_isSupported(vcFeatureSet feature)
     case vcFEATURE_PPTAG	:  return conf & VC_VCI_PPTAG;
     case vcFEATURE_SPACES	:  return conf & VC_VCI_SPACES;
     case vcFEATURE_PIVOT_ROOT	:  return ver >= 0x00020304;
+    case vcFEATURE_PIDSPACE	:  return false;
     case vcFEATURE_MEMCG	:  return ver >= 0x00020306 && conf & VC_VCI_MEMCG;
     default			:  assert(false); 
   }
