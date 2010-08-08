@@ -27,6 +27,7 @@ AC_PREREQ(2.57)
 AC_INIT(util-vserver, 0.30.215, vserver@list.linux-vserver.org)
 AC_CONFIG_SRCDIR([src/capchroot.c])
 AC_CONFIG_HEADER([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([1.9 gnits dist-bzip2 subdir-objects])
 AM_MAINTAINER_MODE
