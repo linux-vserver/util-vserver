@@ -308,6 +308,7 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
     ssize_t			cgroup_len;
     unsigned long long		rss;
     char			*endptr;
+    size_t			len;
 
     if (vc_virt_stat(xid, &vstat) == -1) {
       perror("vc_virt_stat()");
@@ -338,14 +339,33 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
       cgroup[cgroup_len] = 0;
     }
 
-    snprintf(filename, sizeof(filename), "%s/cgroup/name", vhi_name);
+    len = strlen(vhi_name);
+    if ((len + sizeof("/cgroup/name")) >= sizeof(filename)) {
+      WRITE_MSG(2, "too long context name: ");
+      WRITE_STR(2, vhi_name);
+      WRITE_MSG(2, "\n");
+      return;
+    }
+    strcpy(filename, vhi_name);
+    strcpy(filename + len, "/cgroup/name");
+
     if ((fd = open(filename, O_RDONLY)) == -1) {
       char *dir = strrchr(vhi_name, '/');
       if (dir == NULL) {
-        fprintf(stderr, "invalid context name: %s\n", dir);
+        WRITE_MSG(2, "invalid context name: ");
+        WRITE_STR(2, dir);
+        WRITE_MSG(2, "\n");
         return;
       }
-      snprintf(cgroup + cgroup_len, sizeof(cgroup) - cgroup_len, "%s", dir);
+      len = strlen(dir);
+      if ((len + cgroup_len) >= sizeof(cgroup)) {
+        WRITE_MSG(2, "cgroup name too long: ");
+        WRITE_STR(2, dir);
+        WRITE_MSG(2, "\n");
+        return;
+      }
+      strcpy(cgroup + cgroup_len, dir);
+      cgroup_len += len;
     }
     else {
       ssize_t ret;
@@ -354,10 +374,19 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
         perror("read(cgroup/name)");
         return;
       }
+      cgroup_len += ret;
       close(fd);
     }
 
-    snprintf(filename, sizeof(filename), "%s/memory.usage_in_bytes", cgroup);
+    if ((cgroup_len + sizeof("/memory.usage_in_bytes")) > sizeof(filename)) {
+      WRITE_MSG(2, "cgroup name too long: ");
+      WRITE_STR(2, cgroup);
+      WRITE_MSG(2, "\n");
+      return;
+    }
+    strcpy(filename, cgroup);
+    strcpy(filename + cgroup_len, "/memory.usage_in_bytes");
+
     if ((fd = open(filename, O_RDONLY)) == -1) {
       perror("open(memory.usage_in_bytes)");
       return;
