@@ -242,6 +242,21 @@ getAPIVer(char *buf)
   return buf;
 }
 
+static char *
+getAPIConfig(char *buf)
+{
+  vc_vci_t	v = vc_get_vci();
+  size_t	l;
+  
+  if (v==-1) return 0;
+
+  l = utilvserver_fmt_xuint64(0, (unsigned int)v);
+  memcpy(buf, "0x0000000000000000", 19);
+  utilvserver_fmt_xuint64(buf+2+16-l, (unsigned int)v);
+
+  return buf;
+}
+
 static inline char *
 getCtxId(char *buf, const char *pid_str, xid_t (*get_id)(pid_t pid), const char *err_str)
 {
@@ -432,12 +447,18 @@ printSysInfo(char *buf)
 	      "Versions:\n"
 	      "                   Kernel: ");
     WRITE_STR(1, uts.release);
+
     WRITE_MSG(1, "\n"
 	      "                   VS-API: ");
-
     memset(buf, 0, 128);
     if (getAPIVer(buf)) WRITE_STR(1, buf);
     else                WRITE_MSG(1, "???");
+
+    WRITE_MSG(1, "\n"
+	      "                      VCI: ");
+    memset(buf, 0, 128);
+    if (getAPIConfig(buf)) WRITE_STR(1, buf);
+    else                   WRITE_MSG(1, "???");
     
     WRITE_MSG(1, "\n"
 	      "             util-vserver: " PACKAGE_VERSION "; " __DATE__ ", " __TIME__"\n"
