@@ -1496,9 +1496,8 @@ function _handleCgroup
     useCgroup "$vdir" || return 0
 
     findDir dir "$vdir/cgroup" "$__CONFDIR/.defaults/cgroup" ""
-    test -d "$dir" || return 0
 
-    if test -r "$dir"/name; then
+    if test -n "$dir" -a -r "$dir"/name; then
 	read name < "$dir"/name
     else
 	name="$VSERVER_NAME"
@@ -1513,13 +1512,15 @@ function _handleCgroup
 		cat "$parent/$i" > "$CGROUP_MNT/$name/$i"
 	    done
 
-	    shopt -s nullglob
-	    for i in "$dir"/*; do
-		f="${i##*/}"
-		test "$f" != mnt -a "$f" != subsys -a \
-		    "$f" != inherit -a "$f" != name || continue
-		cat "$i" > "$CGROUP_MNT/$name/$f"
-	    done
+	    if test -n "$dir"; then
+		shopt -s nullglob
+		for i in "$dir"/*; do
+		    f="${i##*/}"
+		    test "$f" != mnt -a "$f" != subsys -a \
+		        "$f" != inherit -a "$f" != name || continue
+		    cat "$i" > "$CGROUP_MNT/$name/$f"
+		done
+	    fi
 	fi
 	echo "$$" > "$CGROUP_MNT/$name/tasks"
     elif test "$action" = "destroy"; then
