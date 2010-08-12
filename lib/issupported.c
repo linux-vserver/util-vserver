@@ -52,6 +52,7 @@ vc_isSupported(vcFeatureSet feature)
     case vcFEATURE_PIVOT_ROOT	:  return ver >= 0x00020304;
     case vcFEATURE_PIDSPACE	:  return false;
     case vcFEATURE_MEMCG	:  return ver >= 0x00020306 && conf & VC_VCI_MEMCG;
+    case vcFEATURE_DYNAMIC	:  return ver <  0x00020300 || !(conf & VC_VCI_NO_DYNAMIC);
     default			:  assert(false); 
   }
 

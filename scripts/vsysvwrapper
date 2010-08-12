@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 # based on vsyswrapper by Jacques Gelinas
@@ -35,11 +35,16 @@ else
 	if [ -f /etc/vservices/$SERVICE.conf ] ; then
 		. /etc/vservices/$SERVICE.conf
 	fi
+	if [ -z "$NID" ]; then
+		if ! $_VSERVER_INFO - FEATURE dynamic; then
+			NID=49151
+		fi
+	fi
 	IPOPT=
 	for oneip in $IP
 	do
 		IPOPT="$IPOPT --ip $oneip"
 	done
-	echo exec $_CHBIND $IPOPT /etc/init.d/$SERVICE "$@"
-	exec $_CHBIND $IPOPT /etc/init.d/$SERVICE "$@"
+	echo exec $_CHBIND ${NID:+--nid $NID} $IPOPT /etc/init.d/$SERVICE "$@"
+	exec $_CHBIND ${NID:+--nid $NID} $IPOPT /etc/init.d/$SERVICE "$@"
 fi
