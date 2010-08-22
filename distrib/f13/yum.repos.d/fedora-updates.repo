@@ -1,0 +1,26 @@
+[updates]
+name=Fedora 13 - $basearch - Updates
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/13/$basearch/
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f13&arch=$basearch
+enabled=1
+gpgcheck=1
+gpgkey=http://download.fedoraproject.org/pub/fedora/linux/releases/13/Everything/$basearch/os/RPM-GPG-KEY-fedora-$basearch
+
+[updates-debuginfo]
+name=Fedora 13 - $basearch - Updates - Debug
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/13/$basearch/debug/
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-released-debug-f13&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://download.fedoraproject.org/pub/fedora/linux/releases/13/Everything/$basearch/os/RPM-GPG-KEY-fedora-$basearch
+
+[updates-source]
+name=Fedora 13 - Updates Source
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/13/SRPMS/
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-released-source-f13&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://download.fedoraproject.org/pub/fedora/linux/releases/13/Everything/$basearch/os/RPM-GPG-KEY-fedora-$basearch

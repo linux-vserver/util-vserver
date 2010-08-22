@@ -33,21 +33,6 @@ create_dirs()
 	$_MKDIR -p "$__RUNDIR" && $_MKDIR -p "$__VSHELPERSTATEDIR" && $_MKDIR -p `$_READLINK "$__PKGSTATEREVDIR"`
 }
 
-function mount_cgroup()
-{
-    _generateCgroupOptions
-    test -n "$CGROUP_MNT" || return 0
-    $_MKDIR -p "$CGROUP_MNT"
-    $_MOUNT -t cgroup -o "$CGROUP_SUBSYS" vserver "$CGROUP_MNT"
-}
-
-function umount_cgroup()
-{
-    _generateCgroupOptions
-    test -n "$CGROUP_MNT" || return 0
-    $_UMOUNT "$CGROUP_MNT"
-}
-
 start() {
 	: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
 	if [ ! -e ${UTIL_VSERVER_VARS} ]; then

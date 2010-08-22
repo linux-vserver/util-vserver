@@ -78,6 +78,12 @@ nobase_distrib_DATA	=  defaults/devs \
 			   f11/pkgs/01 f11/pkgs/02 f11/pkgs/03 f11/yum/yum.conf \
 			   $(wildcard $(srcdir)/f11/yum.repos.d/*.repo) \
 			   $(wildcard $(srcdir)/f11/rpmlist.d/*.lst) $(wildcard $(srcdir)/f11/rpmlist.d/*.opt) \
+			   f12/pkgs/01 f12/pkgs/02 f12/pkgs/03 f12/yum/yum.conf \
+			   $(wildcard $(srcdir)/f12/yum.repos.d/*.repo) \
+			   $(wildcard $(srcdir)/f12/rpmlist.d/*.lst) $(wildcard $(srcdir)/f12/rpmlist.d/*.opt) \
+			   f13/pkgs/01 f13/pkgs/02 f13/pkgs/03 f13/yum/yum.conf \
+			   $(wildcard $(srcdir)/f13/yum.repos.d/*.repo) \
+			   $(wildcard $(srcdir)/f13/rpmlist.d/*.lst) $(wildcard $(srcdir)/f13/rpmlist.d/*.opt) \
 			   centos4/pkgs/01 centos4/pkgs/02 centos4/pkgs/03 \
 			   centos4/yum/yum.conf $(wildcard $(srcdir)/centos4/yum.repos.d/*.repo) \
 			   centos5/pkgs/01 centos5/pkgs/02 centos5/pkgs/03 \
@@ -105,7 +111,7 @@ EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(nobase_confdistrib_DATA) \
 			   $(defaults_DATA)
 
-redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 fc6 f7 f8 f9 f10 f11 centos4 centos5
+redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 fc6 f7 f8 f9 f10 f11 f12 f13 centos4 centos5
 sid_style		=  etch lenny squeeze sid
 
 install-exec-hook:	install-notify-xtra

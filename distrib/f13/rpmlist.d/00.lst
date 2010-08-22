@@ -1,0 +1,11 @@
+glibc-[0-9]*.rpm
+basesystem-*.rpm
+bash-[0-9]*.rpm
+filesystem-*.rpm
+glibc-common-*.rpm
+libgcc-[0-9]*.rpm
+ncurses-base-[0-9]*.rpm
+ncurses-libs-*.rpm
+nss-softokn-freebl-*.rpm
+setup-*.rpm
+tzdata-*.rpm

@@ -1,0 +1,26 @@
+[updates-testing]
+name=Fedora 12 - $basearch - Test Updates
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/testing/12/$basearch/
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-testing-f12&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://download.fedoraproject.org/pub/fedora/linux/releases/12/Everything/$basearch/os/RPM-GPG-KEY-fedora-test-$basearch
+
+[updates-testing-debuginfo]
+name=Fedora 12 - $basearch - Test Updates Debug
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/testing/12/$basearch/debug/
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-testing-debug-f12&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://download.fedoraproject.org/pub/fedora/linux/releases/12/Everything/$basearch/os/RPM-GPG-KEY-fedora-test-$basearch
+
+[updates-testing-source]
+name=Fedora 12 - Test Updates Source
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/testing/12/SRPMS/
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-testing-source-f12&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://download.fedoraproject.org/pub/fedora/linux/releases/12/Everything/$basearch/os/RPM-GPG-KEY-fedora-test-$basearch
