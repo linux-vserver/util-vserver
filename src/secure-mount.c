@@ -82,6 +82,7 @@ struct Options {
     bool		mount_all;
     RootFsOption	rootfs;
 
+    char		cur_dir_path[PATH_MAX];
     int			cur_dir_fd;
     int			cur_rootdir_fd;
 };
@@ -445,7 +446,7 @@ canHandleInternal(struct MountInfo const *mnt)
 }
 
 static bool
-mountSingle(struct MountInfo const *mnt, struct Options const *opt)
+mountSingle(struct MountInfo const *mnt, struct Options *opt)
 {
   assert(mnt->dst!=0);
   
@@ -458,6 +459,16 @@ mountSingle(struct MountInfo const *mnt, struct Options const *opt)
 	      mnt->flag,  mnt->data_parsed)==-1) {
       perror("secure-mount: mount()");
       return false;
+    }
+    if (strcmp(mnt->dst, "/") == 0) {
+      /* XXX: Hack */
+      if (chdir(opt->cur_dir_path) == -1) {
+	perror("secure-mount: chdir(.)");
+	return false;
+      }
+      close(opt->cur_dir_fd);
+      opt->cur_dir_fd = Eopen(".", O_RDONLY|O_DIRECTORY, 0);
+      Efcntl(opt->cur_dir_fd, F_SETFD, FD_CLOEXEC);
     }
     if ((mnt->flag & MS_BIND) &&
 	(mnt->mask & ~(MS_BIND|MS_REC))) {
@@ -607,7 +618,7 @@ adjustFileMount(struct MountInfo *mnt)
 }
 
 static bool
-mountFstab(struct Options const *opt)
+mountFstab(struct Options *opt)
 {
   bool		res = false;
   int		fd;
@@ -687,6 +698,11 @@ initFDs(struct Options *opt)
 
   Efcntl(opt->cur_dir_fd,     F_SETFD, FD_CLOEXEC);
   Efcntl(opt->cur_rootdir_fd, F_SETFD, FD_CLOEXEC);
+
+  if (getcwd(opt->cur_dir_path, sizeof(opt->cur_dir_path)) == NULL) {
+    perror("secure-mount: getcwd()");
+    exit(wrapper_exit_code);
+  }
 }
 
 static RootFsOption
