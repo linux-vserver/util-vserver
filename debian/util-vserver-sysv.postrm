@@ -3,3 +3,9 @@
 if test "$1" = upgrade; then
     /etc/init.d/vprocunhide condrestart > /dev/null 2>&1
 fi
+
+if test "$1" = purge; then
+    update-rc.d vprocunhide remove
+    update-rc.d util-vserver remove
+    update-rc.d vservers-default remove
+fi
