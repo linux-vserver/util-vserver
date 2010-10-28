@@ -86,6 +86,7 @@ showHelp(int fd, char const *cmd, int res)
 	    "                           <program> there; <program> is mandatory in this\n"
 	    "                           case\n"
 	    "    --set|-s          ...  assign the current spaces to the current context\n"
+	    "    --index|-i <idx>  ...  work with the namespaces for <idx>\n"
 	    "\n"
 	    "<spaces>* specifies the spaces to manipulate.\n"
 	    "It can be any combination of:\n"
