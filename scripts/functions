@@ -294,11 +294,7 @@ function _setVserverDir
 
 function _setVserverName
 {
-    if test -e "$VSERVER_DIR"/name; then
-	read VSERVER_NAME <"$VSERVER_DIR"/name
-    else
-	VSERVER_NAME=$(basename "$VSERVER_DIR")
-    fi
+    VSERVER_NAME=$(basename "$VSERVER_DIR")
 }
 
 function _pkgMountBindDir()
