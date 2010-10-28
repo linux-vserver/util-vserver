@@ -762,7 +762,7 @@ int main(int argc, char **argv)
   
   Vector_init(&xid_data, sizeof(struct XidData));
 
-  if (vc_isSupported(vcFEATURE_VSTAT) && !vc_isSupported(vcFEATURE_MEMCG)) {
+  if (vc_isSupported(vcFEATURE_VSTAT)) {
     unsigned long xid;
     Echdir(PROC_VIRT_DIR_NAME);
     proc_dir = Eopendir(".");
