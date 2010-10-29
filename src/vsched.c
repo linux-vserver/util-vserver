@@ -313,7 +313,8 @@ int main(int argc, char *argv[])
     do_dir(xid, &sched, dir, missing_ok, 0);
   }
   else {
-    if (sched.set_mask!=0 && vc_set_sched(xid, &sched)==-1) {
+    if (sched.set_mask!=0 && sched.set_mask!=VC_VXSM_FORCE &&
+        vc_set_sched(xid, &sched)==-1) {
       perror("vc_set_sched()");
       exit(255);
     }
