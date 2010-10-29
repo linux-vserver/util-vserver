@@ -347,7 +347,6 @@ test "$1" = 0  || %_initrddir/rebootmgr   condrestart >/dev/null || :
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING ChangeLog NEWS README THANKS
 %doc doc/*.html doc/*.css
-/sbin/vshelper
 %dir %confdir
 %dir %confdefaultdir
 %dir %confdefaultdir/apps
