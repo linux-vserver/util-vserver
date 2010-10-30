@@ -28,4 +28,5 @@ override_dh_auto_test:
 
 override_dh_auto_install:
 	dh_auto_install
+	make DESTDIR=$(CURDIR)/debian/tmp install-distribution
 	contrib/make-deb-manifest util-vserver debian contrib/manifest.dat files

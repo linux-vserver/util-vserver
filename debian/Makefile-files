@@ -24,7 +24,16 @@ EXTRA_DIST +=	debian/rules \
 		debian/copyright \
 		debian/docs \
 		debian/changelog.in \
-		debian/changelog
+		debian/changelog \
+		debian/util-vserver.postinst \
+		debian/util-vserver.postrm \
+		debian/util-vserver-build.postinst \
+		debian/util-vserver-sysv.postinst \
+		debian/util-vserver-sysv.postrm \
+		debian/util-vserver-sysv.prerm \
+		debian/util-vserver-legacy.postinst \
+		debian/util-vserver-legacy.postrm \
+		debian/util-vserver-legacy.prerm
 
 #CLEANFILES +=	debian/changelog
 
