@@ -29,7 +29,14 @@ test -e "$UTIL_VSERVER_VARS" || {
 function showHelp()
 {
     echo \
-$"Usage: $0 [--quiet|-q] [--debug] <cmd> [--] <vserver-name>* [--all] -- <params>+
+$"Usage: $0 [--quiet|-q] [--debug] <cmd> [--] <vserver-name>* [<filter>] -- <params>+
+where <filter> is any combination of:
+--all        All guests
+--running    All running guests
+--stopped    All stopped guests
+--marked     All guests with a mark set
+--unmarked   All guests without a mark set
+--mark <m>   All guests with mark <m> set
 
 Execute <cmd> <vserver> <params>* foreach vserver.
 
@@ -75,17 +82,24 @@ cmd=$1
 title=${VSOMETHING_TITLE:-$cmd}
 shift
 
-while test "$#" -ge 1; do
-    if getAllVserversByArg tmp "$1"; then
-	vservers=( "${vservers[@]}" "${tmp[@]}" )
-    else
+test "$1" != "--" || \
+   shift
+
+if getAllVserversByArg tmp "$@"; then
+    vservers=( "${vservers[@]}" "${tmp[@]}" )
+    while test "$1" != "--"; do
+        shift
+    done
+    shift
+else
+    while test "$#" -ge 1; do
 	case "$1" in
 	    (--) shift; break;;
 	    (*)  vservers=( "${vservers[@]}" "$1" )
 	esac
-    fi
-    shift
-done
+	shift
+    done
+fi
 
 
 test "${#vservers[@]}" -ne 1 || is_quiet=1
