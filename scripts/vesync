@@ -60,12 +60,11 @@ while true; do
 	(--version)      showVersion ;;
 	(--debug)        send_through=( "${send_through[@]}" "$1" ); set -x;;
 	(--quiet|-q)     send_through=( "${send_through[@]}" "$1" );;
-	(--all)          vsomething_opts=( "${vsomething_opts[@]}" "$1" );;
 	(--overlay)      overlay="${2%/}";;
 	(--overlay-host) overlay_host="${2%/}";;
 	(--overlay-only) overlay_only=1;;
 	(--)             test ${#vsomething_opts[@]} -eq 0 && shift; break;;
-	(*)              echo $"vesync: internal error; arg=='$1'" >&2; exit 1;;
+	(*)              vsomething_opts=( "${vsomething_opts[@]}" "$1" );;
     esac
     shift
 done

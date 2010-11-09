@@ -46,7 +46,7 @@ the GNU General Public License.  This program has absolutely no warranty."
     exit 0
 }
 
-tmp=$(getopt -o +q --long help,version,debug,quiet,all -n "$0" -- "$@") || exit 1
+tmp=$(getopt -o +q --long help,version,debug,quiet,$VS_ALLVSERVERS_ARGS -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 declare -a send_through vsomething_opts
@@ -57,9 +57,8 @@ while true; do
 	(--version) 	showVersion ;;
 	(--debug)	send_through=( "${send_through[@]}" "$1" ); set -x;;
 	(--quiet|-q)	send_through=( "${send_through[@]}" "$1" );;
-	(--all)         vsomething_opts=( "${vsomething_opts[@]}" "$1" );;
 	(--)		test ${#vsomething_opts[@]} -eq 0 && shift; break;;
-	(*)	   	echo $"vdispatch-conf: internal error; arg=='$1'" >&2; exit 1;;
+	(*)             vsomething_opts=( "${vsomething_opts[@]}" "$1" );;
     esac
     shift
 done

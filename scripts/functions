@@ -21,7 +21,6 @@ _VS_ERRFILE=
 _VS_NEWLINE='
 '
 declare -r _VS_NEWLINE=${_VS_NEWLINE:0-1}
-declare -r VS_ALLVSERVERS_ARGS=all,marked,unmarked,stopped,running
 
 function findObject
 {
@@ -553,6 +552,7 @@ function getAllVservers
     eval $1='( "${_ga_tmp[@]}" )'
 }
 
+declare -r VS_ALLVSERVERS_ARGS=all,marked,unmarked,stopped,running,mark:
 ## Usage: getAllVserversByArg <var> <arg>
 function getAllVserversByArg
 {
@@ -579,7 +579,8 @@ function getAllVserversByArg
 				shift
 				;;
 	    (--)		break;;
-	    (*)			return 1;;
+	    (*)			set -- "$_gav_v" "$@"
+				return 1;;
 	esac
 
 	getAllVservers _gav_tmp "$_gav_mark" $_gav_extra

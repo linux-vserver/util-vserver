@@ -87,8 +87,6 @@ eval set -- "$tmp"
 
 declare -a tmp_vservers=()
 declare -r TAB=$(echo -en "\t")
-OPTION_MARK=
-OPTION_MARK_ANY=1
 OPTION_PARALLEL=99
 OPTION_DEBUG=
 NOOPTION_DEBUG=1
@@ -99,22 +97,31 @@ case "`basename $0`" in
     *)		OPTION_FLAVOR=;;
 esac
 
+gav_args=()
 while true; do
-    getAllVserversByArg tmp_vservers "$1" || \
     case "$1" in
 	(--help)    	showHelp    $0 ;;
 	(--version) 	showVersion $0 ;;
 	(-c)		CONFDIR=$2;     shift;;
-	(-m)		OPTION_MARK=$2; OPTION_MARK_ANY=; shift;;
 	(-j)		OPTION_PARALLEL=$2; shift;;
 	(--start)	OPTION_FLAVOR=start;;
 	(--stop)	OPTION_FLAVOR=stop;;
 	(--debug)	OPTION_DEBUG=1; NOOPTION_DEBUG=; set -x;;
 	(--)	   	shift; break;;
-	(*)	   	echo $"$0: internal error; arg=='$1'" >&2; exit 1;;
+	(-m)		gav_args=( "${gav_args[@]}" --mark "$2" )
+			shift
+			;;
+	(*)		gav_args=( "${gav_args[@]}" "$1" );;
     esac
     shift
 done
+
+if test "${#gav_args[@]}" -gt 0; then
+    if ! getAllVserversByArg tmp_vservers "${gav_args[@]}"; then
+	echo $"$0: internal error; arg=='$1'" >&2
+	exit 1
+    fi
+fi
 
 test -n "$OPTION_FLAVOR" || {
     echo "$0: unknown invocation method; aborting..." >&2
@@ -122,19 +129,6 @@ test -n "$OPTION_FLAVOR" || {
 }
 
 vservers=( "$@" "${tmp_vservers[@]}" )
-
-orig_vservers=$vservers
-i=${#vservers[*]}
-
-while test $i -gt 0; do
-    let --i
-    d=$__CONFDIR/${vservers[$i]}/apps/init
-    f=$d/mark
-    { test -n "$OPTION_MARK_ANY"; } || \
-    { test -n "$OPTION_MARK" -a -r "$f" && grep -qx "$OPTION_MARK" "$f"; } || \
-    { test -z "$OPTION_MARK" && test ! -e "$f"; } || \
-    unset vservers[$i]
-done
 
 makedir=$($_MKTEMPDIR vserver-init.XXXXXX)
 okfile=$($_MKTEMP     vserver-init.XXXXXX)
