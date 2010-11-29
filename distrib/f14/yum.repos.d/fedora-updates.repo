@@ -1,0 +1,26 @@
+[updates]
+name=Fedora 14 - $basearch - Updates
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/14/$basearch/
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f14&arch=$basearch
+enabled=1
+gpgcheck=1
+gpgkey=http://download.fedoraproject.org/pub/fedora/linux/releases/14/Everything/$basearch/os/RPM-GPG-KEY-fedora-$basearch
+
+[updates-debuginfo]
+name=Fedora 14 - $basearch - Updates - Debug
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/14/$basearch/debug/
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-released-debug-f14&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://download.fedoraproject.org/pub/fedora/linux/releases/14/Everything/$basearch/os/RPM-GPG-KEY-fedora-$basearch
+
+[updates-source]
+name=Fedora 14 - Updates Source
+failovermethod=priority
+#baseurl=http://download.fedoraproject.org/pub/fedora/linux/updates/14/SRPMS/
+mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-released-source-f14&arch=$basearch
+enabled=0
+gpgcheck=1
+gpgkey=http://download.fedoraproject.org/pub/fedora/linux/releases/14/Everything/$basearch/os/RPM-GPG-KEY-fedora-$basearch
