@@ -61,7 +61,8 @@ BUILT_SOURCES =		pathconfig.h \
 
 man_MANS =
 
-kernel_HDRS =		$(wildcard kernel/*.h)
+kernel_HDRS = \
+	$(patsubst ${srcdir}/%,%,$(wildcard ${srcdir}/kernel/*.h))
 
 
 EXTRA_PROGRAMS =
