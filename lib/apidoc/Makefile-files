@@ -26,6 +26,7 @@ clean_lib_apidoc:
 
 lib/apidoc/.apidoc:	lib/apidoc/Doxyfile lib/vserver.h lib/internal.h
 			-rm -rf lib/apidoc/html lib/apidoc/latex lib/apidoc/man
-			cd "$$(dirname '$<')" && $(DOXYGEN) "$$(basename '$<')"
+			-cd '$(<D)' && $(DOXYGEN) -u '$(<F)'
+			cd '$(<D)' && $(DOXYGEN) '$(<F)'
 			$(MAKE) -j1 -C lib/apidoc/latex
 			touch '$@'
