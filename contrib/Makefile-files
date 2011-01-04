@@ -37,6 +37,7 @@ EXTRA_DIST +=				$(contrib_subst_SRCS) \
 					contrib/yum-3.2.0-chroot.patch \
 					contrib/yum-3.2.1-chroot.patch \
 					contrib/yum-3.2.4-chroot.patch \
+					contrib/yum-3.2.27_el6-chroot.patch \
 					contrib/make-manifest \
 					contrib/make-deb-manifest
 
