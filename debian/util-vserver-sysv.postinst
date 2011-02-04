@@ -1,10 +1,7 @@
 #!/bin/sh
 
 if test "$1" = configure; then
-    update-rc.d vservers-default start 98 2 3 4 5 .
-    update-rc.d vservers-default stop 02 0 1 6 .
-    update-rc.d vprocunhide start 26 2 3 4 5 .
-    update-rc.d vprocunhide stop 74 0 1 6 .
-    update-rc.d util-vserver start 10 2 3 4 5 .
-    update-rc.d util-vserver stop 90 0 1 6 .
+    update-rc.d vservers-default start 98 2 3 4 5 . stop 02 0 1 6 .
+    update-rc.d vprocunhide start 26 2 3 4 5 . stop 74 0 1 6 .
+    update-rc.d util-vserver start 10 2 3 4 5 . stop 90 0 1 6 .
 fi
