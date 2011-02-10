@@ -39,5 +39,5 @@ EXTRA_DIST +=	debian/rules \
 
 DEB_CL_DATE = $(shell date '+%a, %d %b %Y %H:%M:%S %z')
 debian/changelog: debian/changelog.in
-	$(MKDIR_P) $(@D)
+	$(mkdir_p) $(@D)
 	$(SED) "s/@"PACKAGE_VERSION"@/$(PACKAGE_VERSION)/g;s/@"DATE"@/$(DEB_CL_DATE)/g" $< > $@
