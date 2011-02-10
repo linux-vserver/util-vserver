@@ -190,6 +190,12 @@ getUptime()
   return secs*1000 + msecs;
 }
 
+static inline uint64_t
+toMsec(uint64_t v)
+{
+  return v*1000llu/hertz;
+}
+
 static int
 cmpData(void const *xid_v, void const *map_v)
 {
@@ -306,9 +312,11 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
 				buf[30];
     int				fd;
     ssize_t			cgroup_len;
-    unsigned long long		rss;
+    unsigned long long		rss = 0;
     char			*endptr;
     size_t			len;
+    uint64_t			stime_total, utime_total;
+
 
     if (vc_virt_stat(xid, &vstat) == -1) {
       perror("vc_virt_stat()");
@@ -387,19 +395,49 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
     strcpy(filename, cgroup);
     strcpy(filename + cgroup_len, "/memory.usage_in_bytes");
 
-    if ((fd = open(filename, O_RDONLY)) == -1) {
+    if ((fd = open(filename, O_RDONLY)) == -1)
       perror("open(memory.usage_in_bytes)");
-      return;
+    else {
+      if (read(fd, buf, sizeof(buf)) == -1) {
+	perror("read(memory.usage_in_bytes)");
+	return;
+      }
+      close(fd);
+      if ((rss = strtoull(buf, &endptr, 0)) == ULLONG_MAX ||
+	  (*endptr != '\n' && *endptr != '\0')) {
+	perror("strtoull(memory.usage_in_bytes)");
+	return;
+      }
     }
-    if (read(fd, buf, sizeof(buf)) == -1) {
-      perror("read(memory.usage_in_bytes)");
-      return;
+
+    strcpy(filename, cgroup);
+    strcpy(filename + cgroup_len, "/cpuacct.stat");
+
+    if ((fd = open(filename, O_RDONLY)) == -1) {
+      utime_total	= 0;
+      stime_total	= 0;
+      // XXX: arbitrary CPU limit.
+      for (cpu = 0; cpu < 1024; cpu++) {
+	sched.cpu_id = cpu;
+	sched.bucket_id = 0;
+	if (vc_sched_info(xid, &sched) == -1)
+	  break;
+
+	utime_total	+= sched.user_msec;
+	stime_total	+= sched.sys_msec;
+      }
     }
-    close(fd);
-    if ((rss = strtoull(buf, &endptr, 0)) == ULLONG_MAX ||
-        (*endptr != '\n' && *endptr != '\0')) {
-      perror("strtoull(memory.usage_in_bytes)");
-      return;
+    else {
+      if (read(fd, buf, sizeof(buf)) == -1) {
+	perror("read(cpuacct.stat)");
+	return;
+      }
+      close(fd);
+
+      if (sscanf(buf, "user %llu\nsystem %llu\n", &utime_total, &stime_total) != 2) {
+	perror("sscanf(cpuacct.stat)");
+	return;
+      }
     }
 
     res			= Vector_insert(vec, &xid, cmpData);
@@ -409,27 +447,11 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
     res->VmRSS_total	= rss / 4096;
     res->start_time_oldest= getUptime() - vstat.uptime/1000000;
 
-    res->utime_total	= 0;
-    res->stime_total	= 0;
-    // XXX: arbitrary CPU limit.
-    for (cpu = 0; cpu < 1024; cpu++) {
-      sched.cpu_id = cpu;
-      sched.bucket_id = 0;
-      if (vc_sched_info(xid, &sched) == -1)
-        break;
-
-      res->utime_total	+= sched.user_msec;
-      res->stime_total	+= sched.sys_msec;
-    }
+    res->utime_total	= toMsec(utime_total);
+    res->stime_total	= toMsec(stime_total);
   }
   
   res->VmSize_total	+= process->VmSize;
-}
-
-static inline uint64_t
-toMsec(uint64_t v)
-{
-  return v*1000llu/hertz;
 }
 
 
