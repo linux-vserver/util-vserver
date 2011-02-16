@@ -392,6 +392,8 @@ extern "C" {
      */
   vc_vci_t	vc_get_vci();
 
+  int		vc_get_kernel();
+
     /** \brief   Moves current process into a context
      *  \ingroup syscalls
      *
@@ -991,6 +993,7 @@ extern "C" {
 		 vcFEATURE_VNET,   vcFEATURE_VSTAT,   vcFEATURE_PPTAG,
 		 vcFEATURE_PIDSPACE, vcFEATURE_SPACES, vcFEATURE_PERSISTENT,
 		 vcFEATURE_PIVOT_ROOT, vcFEATURE_MEMCG, vcFEATURE_DYNAMIC,
+		 vcFEATURE_BME,
 		 }
     vcFeatureSet;
 

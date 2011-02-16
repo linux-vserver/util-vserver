@@ -470,7 +470,8 @@ mountSingle(struct MountInfo const *mnt, struct Options *opt)
       opt->cur_dir_fd = Eopen(".", O_RDONLY|O_DIRECTORY, 0);
       Efcntl(opt->cur_dir_fd, F_SETFD, FD_CLOEXEC);
     }
-    if ((mnt->flag & MS_BIND) &&
+    if (!vc_isSupported(vcFEATURE_BME) &&
+	(mnt->flag & MS_BIND) &&
 	(mnt->mask & ~(MS_BIND|MS_REC))) {
       /* This is needed to put us in the new mountpoint */
       if (!secureChdir(mnt->dst, opt))

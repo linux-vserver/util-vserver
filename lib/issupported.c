@@ -28,6 +28,7 @@ vc_isSupported(vcFeatureSet feature)
 {
   int		ver = vc_get_version();
   vc_vci_t	conf = vc_get_vci();
+  int		linux_ver = vc_get_kernel();
   if (ver==-1) return false;
   if (conf==(vc_vci_t)-1) conf = 0;
 
@@ -53,6 +54,7 @@ vc_isSupported(vcFeatureSet feature)
     case vcFEATURE_PIDSPACE	:  return false;
     case vcFEATURE_MEMCG	:  return ver >= 0x00020306 && conf & VC_VCI_MEMCG;
     case vcFEATURE_DYNAMIC	:  return ver <  0x00020300 || !(conf & VC_VCI_NO_DYNAMIC);
+    case vcFEATURE_BME		:  return linux_ver < 0x0002061a;
     default			:  assert(false); 
   }
 

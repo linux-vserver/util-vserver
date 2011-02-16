@@ -203,6 +203,7 @@ lib_SRCS =  			lib/syscall.c \
 				lib/val2text-v2t-uint32.c \
 				lib/val2text-v2t-uint64.c \
 				lib/parselimit.c \
+				lib/getkernel.c \
 				$(lib_legacy_SRCS) \
 				$(lib_compat_SRCS) \
 				$(lib_management_SRCS) \
