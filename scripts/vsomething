@@ -87,7 +87,7 @@ test "$1" != "--" || \
 
 if getAllVserversByArg tmp "$@"; then
     vservers=( "${vservers[@]}" "${tmp[@]}" )
-    while test "$1" != "--"; do
+    while test "$#" -ge 1 -a "$1" != "--"; do
         shift
     done
     shift
