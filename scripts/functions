@@ -526,6 +526,10 @@ function getAllVservers
 {
     local _ga_i
     declare -a _ga_tmp=()
+    local _ga_IFS="$IFS"
+    IFS=,
+    local -a _ga_marks=( $3 )
+    IFS="$_ga_IFS"
 
     for _ga_i in $__CONFDIR/*; do
 	isRegularFile "$_ga_i" -d   || continue
@@ -542,7 +546,19 @@ function getAllVservers
 	    (STOPPED)   ! $_VSERVER "$_ga_i" running &>/dev/null || _ga_doadd=;;
 	    (RUNNING)     $_VSERVER "$_ga_i" running &>/dev/null || _ga_doadd=;;
 	    (ALL)	;;
-	    (MARK)	test -s "$_ga_markfile" && grep -qx "$3" "$_ga_markfile" || _ga_doadd=;;
+	    (MARK)	if test -s "$_ga_markfile"; then
+			    if ! grep -qx "$3" "$_ga_markfile"; then
+				local _ga_j
+				local _ga_f=false
+				for _ga_j in "${_ga_marks[@]}"; do
+				    grep -qx "$_ga_j" "$_ga_markfile" && _ga_f=true || :
+				done
+				"$_ga_f" || _ga_doadd=
+			    fi
+			else
+			    _ga_doadd=
+			fi
+			;;
 	    (*)		panic $"Unknown vserver tagging '$2'";;
 	esac
 
@@ -588,7 +604,8 @@ function getAllVserversByArg
 	    _gav_res=( "${_gav_tmp[@]}" )
 	else
 	    local _gav_i=0
-	    while test $_gav_i -lt "${#_gav_res[@]}"; do
+	    local _gav_n="${#_gav_res[@]}"
+	    while test $_gav_i -lt $_gav_n; do
 		local _gav_found=0
 		for _gav_j in "${_gav_tmp[@]}"; do
 		    if test "$_gav_j" = "${_gav_res[$_gav_i]}"; then
