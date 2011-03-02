@@ -546,18 +546,18 @@ function getAllVservers
 	    (STOPPED)   ! $_VSERVER "$_ga_i" running &>/dev/null || _ga_doadd=;;
 	    (RUNNING)     $_VSERVER "$_ga_i" running &>/dev/null || _ga_doadd=;;
 	    (ALL)	;;
-	    (MARK)	if test -s "$_ga_markfile"; then
-			    if ! grep -qx "$3" "$_ga_markfile"; then
-				local _ga_j
-				local _ga_f=false
-				for _ga_j in "${_ga_marks[@]}"; do
-				    grep -qx "$_ga_j" "$_ga_markfile" && _ga_f=true || :
-				done
-				"$_ga_f" || _ga_doadd=
-			    fi
-			else
+	    (MARK)	local _ga_j
+			local _ga_mark
+			local _ga_f=false
+			local _ga_invert=false
+			for _ga_j in "${_ga_marks[@]}"; do
+			    _ga_mark="$(echo "$_ga_j" | $_SED 's/^[!~]//')"
+			    test "$_ga_j" = "$_ga_mark" || _ga_invert=true
+			    test -s "$_ga_markfile" && $_GREP -qx "$_ga_mark" "$_ga_markfile" && \
+				_ga_f=true || :
+			done
+			test $_ga_f = $_ga_invert && \
 			    _ga_doadd=
-			fi
 			;;
 	    (*)		panic $"Unknown vserver tagging '$2'";;
 	esac
