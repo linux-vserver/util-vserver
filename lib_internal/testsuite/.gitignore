@@ -1,0 +1,14 @@
+.deps
+.dirstamp
+.libs
+.libs
+.nfs0*
+command
+copy
+filecfg-ml
+isnumber
+isnumber-gnu
+sigbus
+sigbus-gnu
+matchlist
+matchlist-gnu
