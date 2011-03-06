@@ -95,9 +95,18 @@ EOF
     if $_CHROOT_SH testfile /sbin/initctl; then
 	cat "$__DISTRIBDIR"/redhat/initctl | $_CHROOT_SH truncate /sbin/initctl.vserver
 	$_CHROOT_SH chmod 0755 /sbin/initctl.vserver
-	subst etc/rc.d/rc 's!^\(.*\)/proc/cmdline\(.*\)$!\1/proc/cmdline 2>/dev/null \2!;s!/sbin/initctl!/sbin/initctl.vserver!'
-	subst etc/event.d/rcS 's!/etc/rc.d/rc.sysinit!/etc/rc.d/rc.sysinit.vserver!'
-	$_CHROOT_SH rm /etc/event.d/tty{1,2,3,4,5,6}
+	subst etc/rc.d/rc 's!^\(.*\)/proc/cmdline\(.*\)$!\1/proc/cmdline 2>/dev/null \2!;s!initctl!initctl.vserver!'
+	if test -d etc/event.d; then
+	    subst etc/event.d/rcS 's!/etc/rc.d/rc.sysinit!/etc/rc.d/rc.sysinit.vserver!'
+	    $_CHROOT_SH rm /etc/event.d/tty{1,2,3,4,5,6}
+	elif test -d etc/init; then
+	    for i in etc/init/*; do
+		subst $i 's!^console output!#\0!'
+	    done
+	    subst etc/init/control-alt-delete.conf 's!/sbin/shutdown -r!/sbin/shutdown -h!'
+	    subst etc/init/rcS.conf 's!/etc/rc.d/rc.sysinit!/etc/rc.d/rc.sysinit.vserver!;s!cat /proc/cmdline!cat /proc/cmdline 2>/dev/null!'
+	    subst etc/init/start-ttys.conf 's!^start on !\0never and !'
+	fi
     fi
 popd >/dev/null
 
