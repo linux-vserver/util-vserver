@@ -19,10 +19,10 @@
 ChangeLog.sed:
 				test "$(srcdir)" != "."
 
-if HAVE_SVN2CL
+if HAVE_GIT2CL
 ChangeLog:			Makefile
-				if test "$(srcdir)" = "." -a -d .svn; then	\
-					$(SVN2CL) $(SVN2CL_ALLFLAGS) -o $@;	\
+				if test "$(srcdir)" = "." -a -d .git; then	\
+					$(GIT2CL) > $@;				\
 				fi
 endif
 
