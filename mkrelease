@@ -1,8 +1,7 @@
 #!/bin/bash
 
 proj="util-vserver"
-rwroot="svn+ssh://svn.linux-vserver.org/var/svn/${proj}"
-roroot="http://svn.linux-vserver.org/svn/${proj}"
+roroot="http://git.linux-vserver.org/git/${proj}.git"
 
 usage() {
 	echo "Usage: mkrelease"
@@ -13,19 +12,19 @@ die() {
 	exit ${2:-1}
 }
 
+curdir="$PWD"
+
 TMP=`mktemp -d`
 cd "$TMP"
-svn co ${roroot}/trunk || die "svn co failed"
-cd trunk
+git clone ${roroot} || die "git clone failed"
+cd ${proj}
 
 ver=`grep AC_INIT configure.ac | awk '{ print $2 }'`
 ver=${ver/,}
 
 echo ">>> create release tag"
 
-svn copy ${rwroot}/trunk ${rwroot}/tags/release-${ver} \
-	-m "Tagging the ${ver} release of the ${proj} project" || die "svn copy failed"
-
+(cd "$curdir" && git tag -s "$ver") || die "git tag failed"
 
 echo ">>> bootstrap sources"
 
@@ -43,6 +42,11 @@ done
 echo ">>> uploading tarball and signature"
 
 scp -p *.tar.bz2* ftp.linux-vserver.org:/var/ftp/pub/utils/util-vserver || die "scp failed"
+
+echo ">>> updating documentation"
+
+read -p "Documentation directory (e.g. $HOME/cvs/uv-www/doc):" DOCDIR
+./update-doc "$DOCDIR"
 
 cd /
 rm -fr "$TMP"
