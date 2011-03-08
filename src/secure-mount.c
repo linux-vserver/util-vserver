@@ -98,6 +98,7 @@ struct Options {
 
 #define XFLAG_NOAUTO	0x01
 #define XFLAG_FILE	0x02
+#define XFLAG_NOMTAB	0x04
 
 static struct option const
 CMDLINE_OPTIONS[] = {
@@ -173,6 +174,7 @@ static struct FstabOption {
   { "private",    MS_PRIVATE,     MS_PRIVATE,      0, false },
   { "slave",      MS_SLAVE,       MS_SLAVE,        0, false },
   { "shared",     MS_SHARED,      MS_SHARED,       0, false },
+  { "nomtab",     0,              0,               XFLAG_NOMTAB, false },
 };
 
 int			wrapper_exit_code = 1;
@@ -488,7 +490,7 @@ mountSingle(struct MountInfo const *mnt, struct Options *opt)
   else if (!callExternalMount(mnt))
     return false;
 
-  if (!opt->ignore_mtab &&
+  if (!opt->ignore_mtab && (mnt->xflag & XFLAG_NOMTAB)==0 &&
       updateMtab(mnt, opt)==-1) {
     WRITE_MSG(2, "Failed to update mtab-file\n");
       // no error
