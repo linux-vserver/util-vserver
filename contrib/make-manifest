@@ -34,7 +34,7 @@ while read style file; do
 	(\#*)	continue;;
     esac
     if test "${file%/}" != "$file"; then
-        echo -n '%dir '
+        echo -n '%dir ' >>$name-$style.list
     fi
     echo "${file%/}" >>$name-$style.list
 done

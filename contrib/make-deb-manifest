@@ -35,7 +35,6 @@ getname() {
 
 for i in {core,build,legacy,sysv,lib,devel,base,python}; do
     getname $i
-    echo -n >${fullname}.install
     rm -f ${fullname}.conffiles
 done
 
@@ -58,6 +57,16 @@ while read style file; do
     fi
     for i in ${DESTDIR}$file; do
 	i=${i#${DESTDIR}}
-        echo "${i%/} ${i%/*}" >>${fullname}.install
+	dir=`dirname $i`
+	mkdir -p $fullname$dir
+	if test -d "$DESTDIR${i%/}"; then
+	    if test "${i%/}" != "$i"; then
+		mkdir -p $fullname${i%/}
+	    else
+		cp -a $DESTDIR$i $fullname$dir
+	    fi
+	else
+	    cp -d --preserve=all $DESTDIR${i%/} $fullname$dir
+	fi
     done
 done < $data

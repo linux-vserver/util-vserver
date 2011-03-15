@@ -168,7 +168,7 @@ base   @SYSCONFDIR@/vservers/.defaults/files/
 base   @PKGLIBDIR@/defaults/
 base   @PKGCACHEDIR@/
 base   @PKGSTATEDIR@/
-base   @PKGSTATEREVDIR@/
+base   @PKGSTATEDIR@.rev/
 base   @VSHELPERSTATEDIR@/
 core   @PKGLIBDIR@/
 legacy @LEGACYDIR@/
