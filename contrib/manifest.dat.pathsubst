@@ -161,3 +161,19 @@ legacy @CONFIG_NOREPLACE@ @SYSCONFDIR@/vservers.conf
 build  @CONFIG_NOREPLACE@ @CONFDIR@/.distributions/*/apt/sources.list
 @HAVE_PYTHON_TRUE@python @PYEXECDIR@/*
 base   /sbin/vshelper
+base   @SYSCONFDIR@/vservers/
+base   @SYSCONFDIR@/vservers/.defaults/
+base   @SYSCONFDIR@/vservers/.defaults/apps/
+base   @SYSCONFDIR@/vservers/.defaults/files/
+base   @PKGLIBDIR@/defaults/
+base   @PKGCACHEDIR@/
+base   @PKGSTATEDIR@/
+base   @PKGSTATEREVDIR@/
+base   @VSHELPERSTATEDIR@/
+core   @PKGLIBDIR@/
+legacy @LEGACYDIR@/
+build  @SYSCONFDIR@/vservers/.distributions/
+build  @SYSCONFDIR@/vservers/.distributions/.common/
+build  @SYSCONFDIR@/vservers/.distributions/.common/pubkeys/
+build  @SYSCONFDIR@/vservers/.defaults/apps/vunify/
+build  @SYSCONFDIR@/vservers/.defaults/apps/vunify/hash/

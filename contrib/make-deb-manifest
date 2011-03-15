@@ -58,6 +58,6 @@ while read style file; do
     fi
     for i in ${DESTDIR}$file; do
 	i=${i#${DESTDIR}}
-        echo "$i ${i%/*}" >>${fullname}.install
+        echo "${i%/} ${i%/*}" >>${fullname}.install
     done
 done < $data

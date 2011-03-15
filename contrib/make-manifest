@@ -33,5 +33,8 @@ while read style file; do
     case "$style" in
 	(\#*)	continue;;
     esac
-    echo "$file" >>$name-$style.list
+    if test "${file%/}" != "$file"; then
+        echo -n '%dir '
+    fi
+    echo "${file%/}" >>$name-$style.list
 done
