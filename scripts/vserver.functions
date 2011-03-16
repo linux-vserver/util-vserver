@@ -77,6 +77,7 @@ SILENT_OPT=
 CGROUP_MNT=/dev/cgroup
 CGROUP_SUBSYS=all
 declare -a CGROUP_INHERIT=( cpuset.cpus cpuset.mems )
+CGROUP_BASE=""
 
 : ${VSERVER_NAME:=$(basename "$VSERVER_DIR")}
 
@@ -1467,6 +1468,12 @@ function _generateCgroupOptions
     if test -n "$file"; then
 	_readFileToArray CGROUP_INHERIT "$file" ""
     fi
+    findFile file "$__CONFDIR/.defaults/cgroup/base" ""
+    if test -n "$file"; then
+	read CGROUP_BASE < "$file"
+	test "$CGROUP_BASE" != "${CGROUP_BASE%/}" || \
+	    CGROUP_BASE="${CGROUP_BASE}/"
+    fi
 
     return 0
 }
@@ -1491,6 +1498,7 @@ function _handleCgroup
     local dir
     local name
     local i
+    local j
     local parent
 
     useCgroup "$vdir" || return 0
@@ -1504,12 +1512,29 @@ function _handleCgroup
     fi
 
     if test "$action" = "attach"; then
-	if mkdir "$CGROUP_MNT/$name" 2>/dev/null; then
-	    parent="$CGROUP_MNT/$name"
+	if test -n "$CGROUP_BASE"; then
+	    local -a dirs=()
+	    i="$CGROUP_MNT/$CGROUP_BASE"
+	    while test "$CGROUP_MNT" != "$i"; do
+		dirs=( "$i" "${dirs[@]}" )
+		i="${i%/*}"
+	    done
+	    for i in "${dirs[@]}"; do
+		if mkdir "$i" 2>/dev/null; then
+		    parent="${i%/*}"
+		    for j in "${CGROUP_INHERIT[@]}"; do
+			test -f "$parent/$j" || continue
+			cat "$parent/$j" > "$i/$j"
+		    done
+		fi
+	    done
+	fi
+	if mkdir "$CGROUP_MNT/$CGROUP_BASE$name" 2>/dev/null; then
+	    parent="$CGROUP_MNT/$CGROUP_BASE$name"
 	    parent="${parent%/*}"
             for i in "${CGROUP_INHERIT[@]}"; do
 		test -f "$parent/$i" || continue
-		cat "$parent/$i" > "$CGROUP_MNT/$name/$i"
+		cat "$parent/$i" > "$CGROUP_MNT/$CGROUP_BASE$name/$i"
 	    done
 
 	    if test -n "$dir"; then
@@ -1518,11 +1543,11 @@ function _handleCgroup
 		    f="${i##*/}"
 		    test "$f" != mnt -a "$f" != subsys -a \
 		        "$f" != inherit -a "$f" != name || continue
-		    cat "$i" > "$CGROUP_MNT/$name/$f"
+		    cat "$i" > "$CGROUP_MNT/$CGROUP_BASE$name/$f"
 		done
 	    fi
 	fi
-	echo "$$" > "$CGROUP_MNT/$name/tasks"
+	echo "$$" > "$CGROUP_MNT/$CGROUP_BASE$name/tasks"
     elif test "$action" = "destroy"; then
 	rmdir "$CGROUP_MNT/$name" 2>/dev/null || :
     fi
