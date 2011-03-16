@@ -80,7 +80,7 @@ Description: headers and libraries needed to develop vserver based applications
 
 Package: util-vserver-python
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libvserver0, ${python:Depends}, ${python:Versions}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libvserver0, ${python:Depends}
 Description: python-bindings for util-vserver
  util-vserver provides the components and a framework to setup virtual
  servers.  A virtual server runs inside a Linux server. It is nevertheless
