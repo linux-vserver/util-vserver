@@ -339,6 +339,12 @@ contents of this file. The default is to put each guest in a cgroup named the
 same thing as the guest.
         </description>
       </scalar>
+      <scalar name="base">
+      	<description>
+If this file exists, all cgroups will be created underneath this directory
+in the cgroup mount point.
+        </description>
+      </scalar>
     </collection>
   </collection>
     

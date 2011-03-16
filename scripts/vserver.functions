@@ -1542,7 +1542,8 @@ function _handleCgroup
 		for i in "$dir"/*; do
 		    f="${i##*/}"
 		    test "$f" != mnt -a "$f" != subsys -a \
-		        "$f" != inherit -a "$f" != name || continue
+		        "$f" != inherit -a "$f" != name -a "$f" != base \
+			|| continue
 		    cat "$i" > "$CGROUP_MNT/$CGROUP_BASE$name/$f"
 		done
 	    fi
