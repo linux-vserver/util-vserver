@@ -69,7 +69,7 @@ tmp=$(getopt -o +o:t:an --long help,version,debug,bind,rbind,move -n "$0" -- "$@
 eval set -- "$tmp"
 
 declare -a options
-
+fstype=""
 while true; do
     case "$1" in
 	(--help)	showHelp $0 ;;
@@ -79,6 +79,7 @@ while true; do
 			options=( "${options[@]}" "$1" )
 			;;
 	(-t|-o)		options=( "${options[@]}" "$1" "$2" )
+			test "$1" != "-t" || fstype="$1"
 			shift
 			;;
 	(--)		shift; break;;
@@ -89,7 +90,7 @@ done
 
 case "x$1" in
     (x/*|x)	;;
-    (*)		panic $"vmount: the source must be an absolute path";;
+    (*)		test "$fstype" = "nfs" || panic $"vmount: the source must be an absolute path";;
 esac
 
 rc=0
