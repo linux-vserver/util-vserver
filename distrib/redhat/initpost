@@ -53,7 +53,7 @@ pushd "$vdir"/etc/init.d &>/dev/null ||
     for i in *; do
 	test -e "$i" || continue
 	case "$i" in
-	    functions|halt|killall|single) ;;
+	    functions|halt|killall|single|reboot) ;;
 	    syslog|rsyslog)
 		$_VSERVER "$1" chkconfig "$i" on
 		;;
