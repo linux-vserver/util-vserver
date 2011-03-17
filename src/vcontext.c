@@ -369,9 +369,6 @@ doit(struct Arguments const *args, int argc, char *argv[])
     doSyncStage1(p, args->do_disconnect);
     DPRINTF("doit: pid=%u, ppid=%u\n", getpid(), getppid());
 
-    if (args->do_migrateself)
-      setsid();
-
     if (!args->do_vlogin)
       execvp (argv[optind],argv+optind);
     else
