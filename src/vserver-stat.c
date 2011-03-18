@@ -308,7 +308,7 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
     int				cpu;
     char			vhi_name[65],
 				filename[128],
-				cgroup[65],
+				cgroup[129],
 				buf[30];
     int				fd;
     ssize_t			cgroup_len;
@@ -344,6 +344,21 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
       close(fd);
       cgroup[cgroup_len] = '/';
       cgroup_len += 1;
+      cgroup[cgroup_len] = 0;
+    }
+
+    if ((fd = open(DEFAULTCONFDIR "/cgroup/base", O_RDONLY)) != -1) {
+      len = read(fd, cgroup + cgroup_len, sizeof(cgroup) - cgroup_len);
+      if (len == -1) {
+        perror("read(cgroup/base)");
+        return;
+      }
+      close(fd);
+      cgroup_len += len;
+      if (cgroup[cgroup_len - 1] != '/') {
+        cgroup[cgroup_len] = '/';
+        cgroup_len += 1;
+      }
       cgroup[cgroup_len] = 0;
     }
 
