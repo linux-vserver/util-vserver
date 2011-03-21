@@ -341,10 +341,14 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
         perror("read(cgroup/mnt)");
         return;
       }
-      close(fd);
-      cgroup[cgroup_len] = '/';
-      cgroup_len += 1;
-      cgroup[cgroup_len] = 0;
+      if (cgroup_len > 0) {
+	close(fd);
+	while (cgroup[cgroup_len - 1] == '\n' || cgroup[cgroup_len - 1] == '\r')
+	  cgroup_len--;
+	cgroup[cgroup_len] = '/';
+	cgroup_len += 1;
+	cgroup[cgroup_len] = 0;
+      }
     }
 
     if ((fd = open(DEFAULTCONFDIR "/cgroup/base", O_RDONLY)) != -1) {
@@ -354,12 +358,16 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
         return;
       }
       close(fd);
-      cgroup_len += len;
-      if (cgroup[cgroup_len - 1] != '/') {
-        cgroup[cgroup_len] = '/';
-        cgroup_len += 1;
+      if (len > 0) {
+	while (cgroup[cgroup_len + len - 1] == '\n' || cgroup[cgroup_len + len - 1] == '\r')
+	  len--;
+	cgroup_len += len;
+	if (cgroup[cgroup_len - 1] != '/') {
+	  cgroup[cgroup_len] = '/';
+	  cgroup_len += 1;
+	}
+	cgroup[cgroup_len] = 0;
       }
-      cgroup[cgroup_len] = 0;
     }
 
     len = strlen(vhi_name);
