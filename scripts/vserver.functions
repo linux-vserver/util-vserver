@@ -1481,7 +1481,7 @@ function _generateCgroupOptions
 function useCgroup
 {
     hasCgroup || return 1
-    test -d "$CGROUP_MNT" || return 1
+    test -e "$CGROUP_MNT/tasks" || return 1
     memcg=""
     if $_VSERVER_INFO - FEATURE memcg; then
 	memcg=1
