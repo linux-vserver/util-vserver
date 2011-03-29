@@ -75,9 +75,10 @@ N_CONTEXT=
 SILENT_OPT=
 
 CGROUP_MNT=/dev/cgroup
-CGROUP_SUBSYS=all
+declare -a CGROUP_SUBSYS=()
 declare -a CGROUP_INHERIT=( cpuset.cpus cpuset.mems )
 CGROUP_BASE=""
+CGROUP_MNT_PER_SS=""
 
 : ${VSERVER_NAME:=$(basename "$VSERVER_DIR")}
 
@@ -1458,11 +1459,9 @@ function _generateCgroupOptions
     fi
     findFile file "$__CONFDIR/.defaults/cgroup/subsys" ""
     if test -n "$file"; then
-	read CGROUP_SUBSYS < "$file"
-    elif $_GREP -q '^ns[[:space:]]' /proc/cgroups; then
-	# Hack for the ns subsystem, with which we are incompatible
-	CGROUP_SUBSYS=$($_SED '/^#/d;/^ns[[:space:]]/d;s/[[:space:]].*//' /proc/cgroups | \
-			(s=""; while read x; do test -n "$s" && s="$s,"; s="$s$x"; done; echo "$s"))
+	_readFileToArray CGROUP_SUBSYS "$file"
+    else
+	CGROUP_SUBSYS=( $($_SED '/^#/d;/^ns[[:space:]]/d;s/[[:space:]].*//' /proc/cgroups) )
     fi
     findFile file "$__CONFDIR/.defaults/cgroup/inherit" ""
     if test -n "$file"; then
@@ -1473,6 +1472,10 @@ function _generateCgroupOptions
 	read CGROUP_BASE < "$file"
 	test "$CGROUP_BASE" != "${CGROUP_BASE%/}" || \
 	    CGROUP_BASE="${CGROUP_BASE}/"
+    fi
+    findFile file "$__CONFDIR/.defaults/cgroup/per-ss" ""
+    if test -n "$file"; then
+	CGROUP_MNT_PER_SS=1
     fi
 
     return 0
@@ -1500,6 +1503,8 @@ function _handleCgroup
     local i
     local j
     local parent
+    local -a mnts
+    local ss
 
     useCgroup "$vdir" || return 0
 
@@ -1511,47 +1516,57 @@ function _handleCgroup
 	name="$VSERVER_NAME"
     fi
 
-    if test "$action" = "attach"; then
-	if test -n "$CGROUP_BASE"; then
-	    local -a dirs=()
-	    i="$CGROUP_MNT/$CGROUP_BASE"
-	    while test "$CGROUP_MNT" != "$i"; do
-		dirs=( "$i" "${dirs[@]}" )
-		i="${i%/*}"
-	    done
-	    for i in "${dirs[@]}"; do
-		if mkdir "$i" 2>/dev/null; then
-		    parent="${i%/*}"
-		    for j in "${CGROUP_INHERIT[@]}"; do
-			test -f "$parent/$j" || continue
-			cat "$parent/$j" > "$i/$j"
-		    done
-		fi
-	    done
-	fi
-	if mkdir "$CGROUP_MNT/$CGROUP_BASE$name" 2>/dev/null; then
-	    parent="$CGROUP_MNT/$CGROUP_BASE$name"
-	    parent="${parent%/*}"
-            for i in "${CGROUP_INHERIT[@]}"; do
-		test -f "$parent/$i" || continue
-		cat "$parent/$i" > "$CGROUP_MNT/$CGROUP_BASE$name/$i"
-	    done
-
-	    if test -n "$dir"; then
-		shopt -s nullglob
-		for i in "$dir"/*; do
-		    f="${i##*/}"
-		    test "$f" != mnt -a "$f" != subsys -a \
-		        "$f" != inherit -a "$f" != name -a "$f" != base \
-			|| continue
-		    cat "$i" > "$CGROUP_MNT/$CGROUP_BASE$name/$f"
+    if test -n "$CGROUP_MNT_PER_SS"; then
+	mnts=()
+	for ss in $($_SED '/^#/d;/^ns[[:space:]]/d;s/[[:space:]].*//' /proc/cgroups); do
+	    mnts=( "${mnts[@]}" "$CGROUP_MNT/$ss" )
+	done
+    else
+	mnts=( "$CGROUP_MNT" )
+    fi
+    for mnt in "${mnts[@]}"; do
+	if test "$action" = "attach"; then
+	    if test -n "$CGROUP_BASE"; then
+		local -a dirs=()
+		i="$mnt/$CGROUP_BASE"
+		while test "$mnt" != "$i"; do
+		    dirs=( "$i" "${dirs[@]}" )
+		    i="${i%/*}"
+		done
+		for i in "${dirs[@]}"; do
+		    if mkdir "$i" 2>/dev/null; then
+			parent="${i%/*}"
+			for j in "${CGROUP_INHERIT[@]}"; do
+			    test -f "$parent/$j" || continue
+			    cat "$parent/$j" > "$i/$j"
+			done
+		    fi
 		done
 	    fi
+	    if mkdir "$mnt/$CGROUP_BASE$name" 2>/dev/null; then
+		parent="$mnt/$CGROUP_BASE$name"
+		parent="${parent%/*}"
+		for i in "${CGROUP_INHERIT[@]}"; do
+		    test -f "$parent/$i" || continue
+		    cat "$parent/$i" > "$mnt/$CGROUP_BASE$name/$i"
+		done
+
+		if test -n "$dir"; then
+		    shopt -s nullglob
+		    for i in "$dir"/*; do
+			f="${i##*/}"
+			test "$f" != mnt -a "$f" != subsys -a \
+			    "$f" != inherit -a "$f" != name -a "$f" != base \
+			    || continue
+			cat "$i" > "$mnt/$CGROUP_BASE$name/$f"
+		    done
+		fi
+	    fi
+	    echo "$$" > "$mnt/$CGROUP_BASE$name/tasks"
+	elif test "$action" = "destroy"; then
+	    rmdir "$mnt/$name" 2>/dev/null || :
 	fi
-	echo "$$" > "$CGROUP_MNT/$CGROUP_BASE$name/tasks"
-    elif test "$action" = "destroy"; then
-	rmdir "$CGROUP_MNT/$name" 2>/dev/null || :
-    fi
+    done
 
     return 0
 }

@@ -67,7 +67,18 @@ function mount_cgroup()
     _generateCgroupOptions
     test -n "$CGROUP_MNT" || return 0
     $_MKDIR -p "$CGROUP_MNT"
-    $_MOUNT -t cgroup -o "$CGROUP_SUBSYS" vserver "$CGROUP_MNT"
+    if test -n "$CGROUP_MNT_PER_SS"; then
+	for ss in "${CGROUP_SUBSYS[@]}"; do
+	    $_MKDIR -p "$CGROUP_MNT/$ss"
+	    $_MOUNT -t cgroup -o "$ss" vserver "$CGROUP_MNT/$ss"
+	done
+    else
+	oIFS="$IFS"
+	IFS=,
+	ss="${CGROUP_SUBSYS[*]}"
+	IFS="$oIFS"
+	$_MOUNT -t cgroup -o "$ss" vserver "$CGROUP_MNT"
+    fi
 }
 
 function umount_cgroup()

@@ -317,12 +317,11 @@ configuration.
 The directory to mount the cgroup hierarchy at. The default is /dev/cgroup.
         </description>
       </scalar>
-      <scalar name="subsys">
+      <list name="subsys">
         <description>
-Comma-separated list of subsystems to enable on the cgroup mount point.
-The default is "all".
+List of subsystems to enable on the cgroup mount point. The default is "all".
         </description>
-      </scalar>
+      </list>
       <list name="inherit">
         <description>
 Some subsystems start out with clean slates, making it impossible to use the
@@ -345,6 +344,11 @@ If this file exists, all cgroups will be created underneath this directory
 in the cgroup mount point.
         </description>
       </scalar>
+      <boolean name="per-ss">
+        <description>
+If this file exists, each subsystem will have its own mount point.
+        </description>
+      </boolean>
     </collection>
   </collection>
     
