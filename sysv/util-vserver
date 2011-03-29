@@ -85,7 +85,13 @@ function umount_cgroup()
 {
     _generateCgroupOptions
     test -n "$CGROUP_MNT" || return 0
-    $_UMOUNT "$CGROUP_MNT"
+    if test -n "$CGROUP_MNT_PER_SS"; then
+	for ss in "${CGROUP_SUBSYS[@]}"; do
+	    $_UMOUNT "$CGROUP_MNT/$ss"
+	done
+    else
+	$_UMOUNT "$CGROUP_MNT"
+    fi
 }
 
 function start()
