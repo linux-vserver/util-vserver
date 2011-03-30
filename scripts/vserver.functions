@@ -1484,8 +1484,19 @@ function _generateCgroupOptions
 function useCgroup
 {
     hasCgroup || return 1
-    test -e "$CGROUP_MNT/tasks" || return 1
-    memcg=""
+    if test -n "$CGROUP_MNT_PER_SS"; then
+	local existing=0
+	local ss
+	for ss in "${CGROUP_SUBSYS[@]}"; do
+	    if test -e "$CGROUP_MNT/$ss/tasks"; then
+		let existing=${existing}+1
+	    fi
+	done
+	test "$existing" -gt 0 || return 1
+    else
+	test -e "$CGROUP_MNT/tasks" || return 1
+    fi
+    local memcg=""
     if $_VSERVER_INFO - FEATURE memcg; then
 	memcg=1
     fi
@@ -1518,13 +1529,14 @@ function _handleCgroup
 
     if test -n "$CGROUP_MNT_PER_SS"; then
 	mnts=()
-	for ss in $($_SED '/^#/d;/^ns[[:space:]]/d;s/[[:space:]].*//' /proc/cgroups); do
+	for ss in "${CGROUP_SUBSYS[@]}"; do
 	    mnts=( "${mnts[@]}" "$CGROUP_MNT/$ss" )
 	done
     else
 	mnts=( "$CGROUP_MNT" )
     fi
     for mnt in "${mnts[@]}"; do
+	test -d "$mnt" || continue
 	if test "$action" = "attach"; then
 	    if test -n "$CGROUP_BASE"; then
 		local -a dirs=()
@@ -1556,8 +1568,13 @@ function _handleCgroup
 		    for i in "$dir"/*; do
 			f="${i##*/}"
 			test "$f" != mnt -a "$f" != subsys -a \
-			    "$f" != inherit -a "$f" != name -a "$f" != base \
+			    "$f" != inherit -a "$f" != name -a "$f" != base -a \
+			    "$f" != per-ss \
 			    || continue
+			if test -n "$CGROUP_MNT_PER_SS"; then
+			    ss="${f%%.*}"
+			    test "$ss" = "${mnt##*/}" || continue
+			fi
 			cat "$i" > "$mnt/$CGROUP_BASE$name/$f"
 		    done
 		fi
