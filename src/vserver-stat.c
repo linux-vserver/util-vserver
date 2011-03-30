@@ -309,13 +309,15 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
     char			vhi_name[65],
 				filename[128],
 				cgroup[129],
+				name[129],
 				buf[30];
     int				fd;
-    ssize_t			cgroup_len;
+    ssize_t			cgroup_len, name_len;
     unsigned long long		rss = 0;
     char			*endptr;
     size_t			len;
     uint64_t			stime_total, utime_total;
+    int				per_ss = 0;
 
 
     if (vc_virt_stat(xid, &vstat) == -1) {
@@ -370,6 +372,9 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
       }
     }
 
+    if (access(DEFAULTCONFDIR "/cgroup/per-ss", F_OK) == 0)
+      per_ss = 1;
+
     len = strlen(vhi_name);
     if ((len + sizeof("/cgroup/name")) >= sizeof(filename)) {
       WRITE_MSG(2, "too long context name: ");
@@ -388,35 +393,36 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
         WRITE_MSG(2, "\n");
         return;
       }
-      len = strlen(dir);
-      if ((len + cgroup_len) >= sizeof(cgroup)) {
+      name_len = strlen(dir);
+      if (name_len >= sizeof(name)) {
         WRITE_MSG(2, "cgroup name too long: ");
         WRITE_STR(2, dir);
         WRITE_MSG(2, "\n");
         return;
       }
-      strcpy(cgroup + cgroup_len, dir);
-      cgroup_len += len;
+      strcpy(name, dir);
     }
     else {
-      ssize_t ret;
-      ret = read(fd, cgroup + cgroup_len, sizeof(cgroup) - cgroup_len);
-      if (ret == -1) {
+      name_len = read(fd, name, sizeof(name));
+      if (name_len == -1) {
         perror("read(cgroup/name)");
         return;
       }
-      cgroup_len += ret;
+      if (name_len > 0) {
+	while (name[name_len - 1] == '\n' || name[name_len - 1] == '\r')
+	  name_len--;
+	name[name_len] = '\0';
+      }
       close(fd);
     }
 
-    if ((cgroup_len + sizeof("/memory.usage_in_bytes")) > sizeof(filename)) {
+    if ((cgroup_len + name_len + sizeof("/memory/memory.usage_in_bytes")) > sizeof(filename)) {
       WRITE_MSG(2, "cgroup name too long: ");
       WRITE_STR(2, cgroup);
       WRITE_MSG(2, "\n");
       return;
     }
-    strcpy(filename, cgroup);
-    strcpy(filename + cgroup_len, "/memory.usage_in_bytes");
+    snprintf(filename, sizeof(filename), "%s%s%s/memory.usage_in_bytes", cgroup, (per_ss ? "/memory" : ""), name);
 
     if ((fd = open(filename, O_RDONLY)) == -1)
       perror("open(memory.usage_in_bytes)");
@@ -433,8 +439,7 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
       }
     }
 
-    strcpy(filename, cgroup);
-    strcpy(filename + cgroup_len, "/cpuacct.stat");
+    snprintf(filename, sizeof(filename), "%s%s%s/cpuacct.stat", cgroup, (per_ss ? "/cpuacct" : ""), name);
 
     if ((fd = open(filename, O_RDONLY)) == -1) {
       utime_total	= 0;
