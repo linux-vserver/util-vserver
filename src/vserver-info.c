@@ -248,7 +248,7 @@ getAPIConfig(char *buf)
   vc_vci_t	v = vc_get_vci();
   size_t	l;
   
-  if (v==-1) return 0;
+  if (v==(vc_vci_t)-1) return 0;
 
   l = utilvserver_fmt_xuint64(0, (unsigned int)v);
   memcpy(buf, "0x0000000000000000", 19);
