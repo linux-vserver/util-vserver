@@ -163,7 +163,7 @@ pyvserver_set_cflags(PyObject UNUSED *self, PyObject *args)
   xid_t xid;
   struct vc_ctx_flags flags;
 
-  if (!PyArg_ParseTuple(args, "I(KK)", &xid, flags.flagword, flags.mask))
+  if (!PyArg_ParseTuple(args, "I(KK)", &xid, &flags.flagword, &flags.mask))
     return NULL;
 
   if (vc_set_cflags(xid, &flags) == -1)
