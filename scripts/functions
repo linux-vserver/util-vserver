@@ -354,8 +354,10 @@ function _pkgSetVarsBase
 function _pkgSetVarsRPM
 {
     if test -n "$PKGDIR"; then
-	findDir RPMETCDIR    $PKGDIR/rpmetc      $PKGDIR/base/rpm/etc       /etc/rpm
-	findDir RPMSTATEDIR  $PKGDIR/rpmstate    $PKGDIR/base/rpm/state
+	findDir RPMETCDIR    $PKGDIR/rpmetc        $PKGDIR/base/rpm/etc   \
+			     $PKGDIR/base/etc/rpm  /etc/rpm
+	findDir RPMSTATEDIR  $PKGDIR/rpmstate      $PKGDIR/base/rpm/state \
+			     $PKGDIR/base/var/lib/rpm
 
 	findDir RPMLIBDIR    $PKGDIR/rpmlib	 /
 
@@ -398,6 +400,17 @@ function _pkgSetVarsYum
     fi
 }
 
+function _pkgSetVarsUrpmi
+{
+    if test -n "$PKGDIR"; then
+	findDir URPMIETCDIR    $PKGDIR/urpmietc    $PKGDIR/base/etc/urpmi       /etc/urpmi
+	findDir URPMISTATEDIR  $PKGDIR/urpmistate  $PKGDIR/base/var/lib/urpmi
+    else
+	findDir URPMIETCDIR    "$VDIR"/etc/urpmi     /etc/urpmi
+	findDir URPMISTATEDIR  "$VDIR"/var/lib/urpmi /var/lib/urpmi
+    fi
+}
+
 
 function _pkgMountBase
 {
@@ -410,6 +423,11 @@ function _pkgMountApt
 }
 
 function _pkgMountYum
+{
+    :
+}
+
+function _pkgMountUrpmi
 {
     :
 }
@@ -450,6 +468,11 @@ function _pkgSetEnvYum
     :
 }
 
+function _pkgSetEnvUrpmi
+{
+    :
+}
+
 function _pkgSetEnvRPM
 {
     CUR_VSERVER=$vserver
@@ -471,6 +494,7 @@ function pkgInit
 	    rpm)	_pkgSetVarsRPM;;
 	    apt)	_pkgSetVarsApt;;
 	    yum)	_pkgSetVarsYum;;
+	    urpmi)	_pkgSetVarsUrpmi;;
 	    *)		echo "Unknown packaging flavor" >&2; exit 1;;
 	esac
     done
@@ -481,6 +505,7 @@ function pkgInit
 	    rpm)	_pkgMountRPM;;
 	    apt)	_pkgMountApt;;
 	    yum)	_pkgMountYum;;
+	    urpmi)	_pkgMountUrpmi;;
 	esac
     done
 
@@ -490,6 +515,7 @@ function pkgInit
 	    rpm)	_pkgSetEnvRPM;;
 	    apt)	_pkgSetEnvApt;;
 	    yum)	_pkgSetEnvYum;;
+	    urpmi)	_pkgSetEnvUrpmi;;
 	esac
     done
 
@@ -888,6 +914,27 @@ function pkgmgmt.isYumAvailable
     fi
 
     test -n "$have_yum" && return 0 || return 1
+}
+
+## Usage: pkgmgmt.isUrpmiAvailable <cfgdir> <vdir> [<is-internal>]
+function pkgmgmt.isUrpmiAvailable
+{
+    local cfgdir="$1"
+    local vdir="$2"
+    local is_internal="$3"
+    
+    local have_urpmi i
+    if test -n "$is_internal"; then
+	have_urpmi=1
+	test -d "$cfgdir"/var/lib/urpmi || have_yum=
+    else
+	have_urpmi=
+	for i in /bin /usr/bin /usr/local/bin; do
+	    test ! -x "$vdir$i"/urpmi || { have_urpmi=1; break; }
+	done
+    fi
+
+    test -n "$have_urpmi" && return 0 || return 1
 }
 
 

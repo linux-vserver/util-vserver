@@ -195,7 +195,7 @@ packagemanagement:
 "
     
     case $2 in
-	(RH)	pkgs=$(vrpm "$1" -- -q --qf '---%{NAME}---\n' rpm apt yum "${YUM_RELEASEPKGS[@]}")
+	(RH)	pkgs=$(vrpm "$1" -- -q --qf '---%{NAME}---\n' rpm apt yum urpmi "${YUM_RELEASEPKGS[@]}")
 		hasSubstring "$pkgs" ---rpm--- || {
 		    warning "$ERR
 * The vserver does not seem to have the 'rpm' package which is required
@@ -205,7 +205,7 @@ packagemanagement:
 		    ERR=
 		}
 		
-		hasSubstring "$pkgs"  ---apt--- ---yum--- || {
+		hasSubstring "$pkgs"  ---apt--- ---yum--- ---urpmi--- || {
 		    warning "$ERR
 * The vserver does not seem to have a depsolver like 'apt' or 'yum'
   installed. It is suggested to install such a program before setting
@@ -214,7 +214,8 @@ packagemanagement:
 		    ERR=
 		}
 
-		test -n "$have_apt" || test -z "$have_yum"   || \
+		test -n "$have_apt" || test -n "$have_urpmi" ||
+		test -z "$have_yum" || \
 		hasSubstring "$pkgs" "${YUM_RELEASEPKGS[@]}" || {
 		    warning "$ERR
 * yum requires a special package which describes the version of the
@@ -235,6 +236,8 @@ function processVserver_RH()
     local vserver=$1
     local is_internalize=$2
     local have_apt
+    local have_yum
+    local have_urpmi
     local cfgdir
     local i
 
@@ -244,8 +247,10 @@ function processVserver_RH()
     ## Figure out the environment....
     have_apt=1
     have_yum=1
+    have_urpmi=1
     pkgmgmt.isAptAvailable "$cfgdir" "$vdir" "$is_internalize" || have_apt=
     pkgmgmt.isYumAvailable "$cfgdir" "$vdir" "$is_internalize" || have_yum=
+    pkgmgmt.isUrpmiAvailable "$cfgdir" "$vdir" "$is_internalize" || have_urpmi=
 
     local APTETCDIR=
     local APTSTATEDIR=
@@ -280,11 +285,16 @@ Can not continue; use '--force' to override this check"
 	popd >/dev/null
 	
 	if test -n "$have_apt"; then
-	    findDir APTETCDIR    "$cfgdir"/aptetc "$cfgdir"/base/apt/etc /etc/apt /
+	    findDir APTETCDIR     "$cfgdir"/aptetc "$cfgdir"/base/apt/etc /etc/apt /
+	elif test -n "$have_urpmi"; then
+	    findDir URPMISTATEDIR "$cfgdir"/base/var/lib/urpmi
+	    findDir URPMIETCDIR   "$cfgdir"/base/etc/urpmi
 	fi
 
-	findDir RPMETCDIR   "$cfgdir"/rpmetc   "$cfgdir"/base/rpm/etc    /etc/rpm /
-	findDir RPMSTATEDIR "$cfgdir"/rpmstate "$cfgdir"/base/rpm/state
+	findDir RPMETCDIR   "$cfgdir"/rpmetc   "$cfgdir"/base/rpm/etc    \
+			    "$cfgdir"/base/etc/rpm /etc/rpm /
+	findDir RPMSTATEDIR "$cfgdir"/rpmstate "$cfgdir"/base/rpm/state  \
+			    "$cfgdir"/base/var/lib/rpm
     else
 	mkdir -m755 -p "$cfgdir"
 	local need_base=
@@ -327,6 +337,9 @@ Can not continue; use '--force' to override this check"
 	    pushd "$vdir" >/dev/null
 		_hashAuto /etc/apt/apt.conf '/'
 	    popd >/dev/null
+	elif test -n "$have_urpmi"; then
+	    _copySecure "$vdir" "$URPMISTATEDIR" /var/lib/urpmi
+	    _copySecure "$vdir" "$URPMIETCDIR" /etc/urpmi
 	fi
 
 	_copySecure "$vdir" "$RPMETCDIR"   /etc/rpm

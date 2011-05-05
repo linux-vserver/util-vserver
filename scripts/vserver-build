@@ -54,9 +54,10 @@ Possible methods are:
     apt-rpm     ... -- -d <distribution>
                 ...  installs the base-packages of the given distribution with
 		     help of 'vapt-get'
-    yum         ... -- -d <distribution>
+    yum         ... -- -d <distribution> [-- <packages>*]
                 ...  installs the base-packages of the given distribution with
 		     help of 'vyum'
+    urpmi       ... -- -d <distribution> -m <mirror>
     rpm         ... -- [-d <distribution>] --empty|([--force] [--nodeps] <manifest>)+
                 ...  installs lists of rpm-packages
     skeleton    ... -- [<cmd> <args>*]
@@ -136,7 +137,7 @@ setup_setDefaults "$VSERVER_NAME"
 
 case x"$method" in
     (xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
-    (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum|xrpm|xtemplate|xfai|xrsync|xclone)
+    (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum|xrpm|xtemplate|xfai|xrsync|xclone|xurpmi)
 		. $__PKGLIBDIR/vserver-build.$method
 		;;
     (x)		panic $"No build-method specified";;

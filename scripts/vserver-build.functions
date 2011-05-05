@@ -155,6 +155,9 @@ function getDistribution
 	if test -e /etc/fedora-release; then
 	    set -- $(cat /etc/fedora-release)
 	    DISTRIBUTION=fdr$4
+	elif test -e /etc/mandrake-release; then
+	    set -- $(cat /etc/mandrake-release)
+	    DISTRIBUTION=mdv$4
 	elif test -e /etc/redhat-release; then
 	    set -- $(cat /etc/redhat-release)
 	    DISTRIBUTION=rh$5
