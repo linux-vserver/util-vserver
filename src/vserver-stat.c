@@ -315,8 +315,8 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
     ssize_t			cgroup_len, name_len;
     unsigned long long		rss = 0;
     char			*endptr;
-    size_t			len;
-    uint64_t			stime_total, utime_total;
+    ssize_t			len;
+    unsigned long long		stime_total, utime_total;
     int				per_ss = 0;
 
 
