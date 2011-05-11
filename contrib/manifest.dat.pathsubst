@@ -11,6 +11,7 @@ build  @PKGLIBDIR@/vserver-build.rpm
 build  @PKGLIBDIR@/vserver-build.template
 build  @PKGLIBDIR@/vserver-build.rsync
 build  @PKGLIBDIR@/vserver-build.clone
+build  @PKGLIBDIR@/vserver-build.urpmi
 build  @PKGLIBDIR@/vserver-build.functions
 build  @PKGLIBDIR@/vserver-build.functions.apt
 build  @PKGLIBDIR@/vserver-build.functions.rpm
@@ -76,6 +77,7 @@ build  @PKGLIBDIR@/vpkg
 base   @PKGLIBDIR@/vprocunhide
 build  @PKGLIBDIR@/vrpm-preload
 build  @PKGLIBDIR@/vrpm-worker
+build  @PKGLIBDIR@/vurpm-worker
 build  @PKGLIBDIR@/vserver-build
 sysv   @PKGLIBDIR@/vserver-wrapper
 base   @PKGLIBDIR@/vshelper
@@ -129,6 +131,7 @@ core   @SBINDIR@/vtag
 base   @SBINDIR@/vtop
 core   @SBINDIR@/vuname
 build  @SBINDIR@/vupdateworld
+build  @SBINDIR@/vurpm
 core   @SBINDIR@/vwait
 build  @SBINDIR@/vyum
 devel  @INCLUDEDIR@/vserver.h
