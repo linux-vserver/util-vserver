@@ -762,7 +762,11 @@ function disableInterfaces
 	    IP_ADDR_FLUSH)	;;
 	    IP_LINK)		;; ## Ignore the link-down command for now
 	    IP_ROUTE)		$_IP route del "$@";;
-	    TUNCTL)		$_TUNCTL --~persist "$1";;
+	    TUNCTL)
+		local dev="$1"
+		shift
+		$_TUNCTL --~persist "$@" "$dev"
+		;;
 	    *)			echo "Unknown interface-command type '$type'" >&2; false;;
 	esac
     done
