@@ -591,6 +591,7 @@ pyvserver_get_vhi_name(PyObject UNUSED *self, PyObject *args)
   xid_t xid;
   vc_uts_type type;
   char val[65];
+  int i;
 
   if (!PyArg_ParseTuple(args, "Ii", &xid, &type))
     return NULL;
@@ -598,7 +599,10 @@ pyvserver_get_vhi_name(PyObject UNUSED *self, PyObject *args)
   if (vc_get_vhi_name(xid, type, val, sizeof(val)) == -1)
     return PyErr_SetFromErrno(PyExc_OSError);
 
-  return Py_BuildValue("s#", val, sizeof(val));
+  for (i = sizeof(val); i > 0 && val[i - 1] == '\0'; i--)
+    ;
+
+  return Py_BuildValue("s#", val, i);
 }
 
 static PyObject *
