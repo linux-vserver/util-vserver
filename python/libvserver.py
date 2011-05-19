@@ -179,7 +179,7 @@ def vhi_type(type):
     if isinstance(type, int):
         return type
     else:
-        return _libvserver.__dict__["vcVHI_" + repr(type)]
+        return _libvserver.__dict__["vcVHI_%s" % type]
 def set_vhi_name(xid, type, val):
     _libvserver.vc_set_vhi_name(xid, vhi_type(type), val)
 def get_vhi_name(xid, type):
