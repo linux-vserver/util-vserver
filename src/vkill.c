@@ -136,6 +136,9 @@ kill_wrapper_legacy(xid_t UNUSED xid, char const *proc, int UNUSED sig)
 static int
 kill_wrapper(xid_t xid, char const *pid, int sig)
 {
+  if (xid==VC_NOCTX)
+    xid = vc_get_task_xid(pid);
+
   //printf("kill_wrapper(%u, %s, %i)\n", xid, pid, sig);
   if (vc_ctx_kill(xid,atoi(pid),sig)==-1) {
     int		err = errno;
