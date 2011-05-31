@@ -34,7 +34,7 @@ vc_net_remove_netv2(nid_t nid, struct vc_net_addr const *info)
     ret = vserver(VCMD_net_remove_ipv6, NID_USER2KERNEL(nid), &k_ipv6);
     if (ret == -1 && errno != ENOSYS)
       return -1;
-    return vserver(VCMD_net_remove_ipv4, NID_USER2KERNEL(nid), &k_ipv4);
+    return vserver(VCMD_net_remove_ipv4_v1, NID_USER2KERNEL(nid), &k_ipv4);
   }
   switch (info->vna_type & (VC_NXA_TYPE_IPV4 | VC_NXA_TYPE_IPV6)) {
     case VC_NXA_TYPE_IPV4: {
@@ -45,7 +45,7 @@ vc_net_remove_netv2(nid_t nid, struct vc_net_addr const *info)
       k_info.ip.s_addr   = info->vna_v4_ip.s_addr;
       k_info.mask.s_addr = info->vna_v4_mask.s_addr;
 
-      return vserver(VCMD_net_remove_ipv4, NID_USER2KERNEL(nid), &k_info);
+      return vserver(VCMD_net_remove_ipv4_v1, NID_USER2KERNEL(nid), &k_info);
     }
     case VC_NXA_TYPE_IPV6: {
       struct vcmd_net_addr_ipv6_v1	k_info;

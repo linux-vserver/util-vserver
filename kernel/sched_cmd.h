@@ -89,4 +89,12 @@ struct	vcmd_sched_info {
 	int32_t vavavoom;
 };
 
+struct	vcmd_prio_bias {
+	int32_t cpu_id;
+	int32_t prio_bias;
+};
+
+#define VCMD_set_prio_bias	VC_CMD(SCHED, 4, 0)
+#define VCMD_get_prio_bias	VC_CMD(SCHED, 5, 0)
+
 #endif	/* _VX_SCHED_CMD_H */

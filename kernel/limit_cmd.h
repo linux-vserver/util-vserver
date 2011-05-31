@@ -7,6 +7,7 @@
 #define VCMD_get_rlimit		VC_CMD(RLIMIT, 1, 0)
 #define VCMD_set_rlimit		VC_CMD(RLIMIT, 2, 0)
 #define VCMD_get_rlimit_mask	VC_CMD(RLIMIT, 3, 0)
+#define VCMD_reset_hits		VC_CMD(RLIMIT, 7, 0)
 #define VCMD_reset_minmax	VC_CMD(RLIMIT, 9, 0)
 
 struct	vcmd_ctx_rlimit_v0 {
