@@ -119,7 +119,7 @@ kill_wrapper_legacy(xid_t UNUSED xid, char const *proc, int UNUSED sig)
   signal(SIGCHLD, SIG_DFL);
   pid = Efork();
 
-  if (pid==0) {
+  if (pid>0) {
     int		status;
     int		res;
     while ((res=wait4(pid, &status, 0,0))==-1 &&
@@ -132,28 +132,8 @@ kill_wrapper_legacy(xid_t UNUSED xid, char const *proc, int UNUSED sig)
   perror("vkill: execl()");
   exit(1);
 }
+#endif
 
-static int
-kill_wrapper(xid_t xid, char const *pid, int sig)
-{
-  if (xid==VC_NOCTX)
-    xid = vc_get_task_xid(pid);
-
-  //printf("kill_wrapper(%u, %s, %i)\n", xid, pid, sig);
-  if (vc_ctx_kill(xid,atoi(pid),sig)==-1) {
-    int		err = errno;
-    if (vc_get_version(VC_CAT_COMPAT)==-1)
-      return kill_wrapper_legacy(xid, pid, sig);
-    else {
-      errno = err;
-      perror("vkill: vc_ctx_kill()");
-      return 1;
-    }
-  }
-  
-  return 0;
-}
-#else // VC_ENABLE_API_LEGACY
 inline static int
 kill_wrapper(xid_t xid, char const *pid_s, int sig)
 {
@@ -170,12 +150,20 @@ kill_wrapper(xid_t xid, char const *pid_s, int sig)
   if (xid==VC_NOCTX)
     xid = vc_get_task_xid(pid);
   if (vc_ctx_kill(xid,pid,sig)==-1) {
-    perror("vkill: vc_ctx_kill()");
-    return 1;
+#if defined(VC_ENABLE_API_LEGACY)
+    int		err = errno;
+    if (vc_get_version(VC_CAT_COMPAT)==-1)
+      return kill_wrapper_legacy(xid, pid_s, sig);
+    else
+#endif
+    {
+      errno = err;
+      perror("vkill: vc_ctx_kill()");
+      return 1;
+    }
   }
   return 0;
 }
-#endif
 
 
 int main(int argc, char *argv[])
