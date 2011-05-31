@@ -191,6 +191,8 @@ int main(int argc, char *argv[])
   while (1) {
     int		c = getopt_long(argc, argv, CMDLINE_OPTIONS_SHORT,
 				CMDLINE_OPTIONS, 0);
+    long 	flags;
+    char	*endptr;
     if (c==-1) break;
 
     switch (c) {
@@ -214,6 +216,20 @@ int main(int argc, char *argv[])
       case CMD_UNSET_BARRIER	:  args.del_mask |= VC_IATTR_BARRIER;	break;
       case CMD_UNSET_WRITE	:  args.del_mask |= VC_IATTR_WRITE;	break;
       case CMD_UNSET_COW	:  args.del_mask |= VC_IATTR_COW;	break;
+      case CMD_FLAGS		:
+      case CMD_UNSET_FLAGS	:
+	flags = strtoul(optarg, &endptr, 0);
+	if ((flags == 0 && errno != 0) || *endptr != '\0') {
+	  WRITE_MSG(2, "Invalid flags argument: '");
+	  WRITE_STR(2, optarg);
+	  WRITE_MSG(2, "'; try '--help' for more information\n");
+	  return EXIT_FAILURE;
+	}
+	if (c == CMD_FLAGS)
+	  args.set_mask |= flags;
+	else
+	  args.del_mask |= flags;
+        break;
       case 'R'			:  args.do_recurse     = true;		break;
       case 'a'			:  args.do_display_dot = true;		break;
       case 'd'			:  args.do_display_dir = true;		break;

@@ -35,8 +35,8 @@
 
 struct option const
 CMDLINE_OPTIONS[] = {
-  { "help",     no_argument,  0, CMD_HELP },
-  { "version",  no_argument,  0, CMD_VERSION },
+  { "help",        no_argument, 0, CMD_HELP },
+  { "version",     no_argument, 0, CMD_VERSION },
   { "immu",        no_argument, 0, CMD_IMMU  },
   { "iunlink",     no_argument, 0, CMD_IMMU  },
   { "admin",       no_argument, 0, CMD_ADMIN },
@@ -64,9 +64,14 @@ CMDLINE_OPTIONS[] = {
   { "write",       no_argument, 0, CMD_WRITE },
   { "~write",      no_argument, 0, CMD_UNSET_WRITE },
   { "!write",      no_argument, 0, CMD_UNSET_WRITE },
-  { "cow",       no_argument, 0, CMD_COW },
-  { "~cow",      no_argument, 0, CMD_UNSET_COW },
-  { "!cow",      no_argument, 0, CMD_UNSET_COW },
+  { "cow",         no_argument, 0, CMD_COW },
+  { "~cow",        no_argument, 0, CMD_UNSET_COW },
+  { "!cow",        no_argument, 0, CMD_UNSET_COW },
+  { "ixunlink",    no_argument, 0, CMD_IMMUX },
+  { "~ixunlink",   no_argument, 0, CMD_UNSET_IMMUX },
+  { "!ixunlink",   no_argument, 0, CMD_UNSET_IMMUX },
+  { "flags",       required_argument, 0, CMD_FLAGS },
+  { "~flags",      required_argument, 0, CMD_UNSET_FLAGS },
   { 0,0,0,0 }
 };
 
@@ -78,7 +83,7 @@ showHelp(int fd, char const *cmd, int res)
   WRITE_MSG(fd, "Usage:  ");
   WRITE_STR(fd, cmd);
   WRITE_MSG(fd,
-	    " [-Rx] [--[~](iunlink|admin|watch|hide|barrier|iunlink-but-not-immutable|immutable|write|cow)]* [--] <file>+\n\n"
+	    " [-Rx] [--[~](iunlink|admin|watch|hide|barrier|iunlink-but-not-immutable|immutable|write|cow|ixunlink)]* [--] <file>+\n\n"
 	    " Options:\n"
 	    "   -R  ...  recurse through directories\n"
 	    "   -x  ...  do not cross filesystems\n\n"
