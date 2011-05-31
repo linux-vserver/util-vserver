@@ -512,6 +512,13 @@ url="http://svn.linux-vserver.org/svn/util-vserver/trunk/lib/ncaps-net.c">lib/nc
 for possible values.
       </description>
     </list>
+    <list name="umask" since="0.30.216">
+      <description>
+Contains the namespaces allowed to be unshared. See <ulink
+url="http://svn.linux-vserver.org/svn/util-vserver/trunk/lib/umask-v23.c">lib/umask-v23.c</ulink>
+for possible values.
+      </description>
+    </list>
 
     <boolean id="global-namespace" name="namespace">
       <description>

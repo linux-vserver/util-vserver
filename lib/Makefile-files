@@ -157,12 +157,18 @@ lib_v23_SRCS =			lib/syscall_tagmigrate-v23.hc \
 				lib/syscall_getbadness.c \
 				lib/syscall_getbadness-v23.hc \
 				lib/syscall_setbadness.c \
+				lib/syscall_setumask-v23.hc \
+				lib/syscall_setumask.c \
+				lib/syscall_getumask-v23.hc \
+				lib/syscall_getumask.c \
 				lib/syscall_setbadness-v23.hc \
 				lib/syscall_getspacedefault.c \
 				lib/syscall_getspacedefault-v23.hc \
 				lib/syscall_setnamespace-v23.hc \
 				lib/syscall_enternamespace-v23.hc \
-				lib/syscall_getspacemask-v23.hc
+				lib/syscall_getspacemask-v23.hc \
+				lib/umask-v23.c \
+				lib/umask_list-v23.c
 
 if ENSC_HAVE_C99_COMPILER
 lib_v13_SRCS +=			lib/syscall_adddlimit-v13.hc \

@@ -134,6 +134,12 @@ Evc_set_ccaps(xid_t xid, struct vc_ctx_caps const *caps)
 }
 
 inline static WRAPPER_DECL void
+Evc_get_umask(xid_t xid, struct vc_umask *umask)
+{
+  FatalErrnoError(vc_get_umask(xid, umask)==-1, "vc_get_umask()");
+}
+
+inline static WRAPPER_DECL void
 Evc_get_ncaps(nid_t nid, struct vc_net_caps *caps)
 {
   FatalErrnoError(vc_get_ncaps(nid, caps)==-1, "vc_get_ncaps()");

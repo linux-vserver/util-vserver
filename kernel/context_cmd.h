@@ -90,6 +90,18 @@ struct	vcmd_bcaps {
 
 
 
+/* umask commands */
+
+#define VCMD_get_umask		VC_CMD(FLAGS, 13, 0)
+#define VCMD_set_umask		VC_CMD(FLAGS, 14, 0)
+
+struct	vcmd_umask {
+	uint64_t umask;
+	uint64_t mask;
+};
+
+
+
 /* OOM badness */
 
 #define VCMD_get_badness	VC_CMD(MEMCTRL, 5, 0)

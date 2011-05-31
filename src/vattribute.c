@@ -42,6 +42,7 @@
 #define CMD_SECURE		0x2004
 #define CMD_BCAP		0x2005
 #define CMD_GET			0x2006
+#define CMD_UMASK		0x2007
 
 int			wrapper_exit_code = 1;
 
@@ -56,6 +57,7 @@ CMDLINE_OPTIONS[] = {
   { "bcap",       required_argument, 0, CMD_BCAP },
   { "flag",       required_argument, 0, CMD_FLAG },
   { "secure",     no_argument,       0, CMD_SECURE },
+  { "umask",      required_argument, 0, CMD_UMASK },
   {0,0,0,0}
 };
 
@@ -63,6 +65,7 @@ struct Arguments {
     xid_t		xid;
     struct vc_ctx_flags flags;
     struct vc_ctx_caps  caps;
+    struct vc_umask     umask;
     int			mode;
 };
 
@@ -78,6 +81,7 @@ showHelp(int fd, char const *cmd, int res)
 	    " --bcap <cap>   ...  system  capability to be set\n"
 	    " --ccap <cap>   ...  context capability to be set\n"
 	    " --flag <flag>  ...  context flag to be set\n"
+	    " --umask <mask> ...  unshare mask to be set\n"
 	    "\n"
 	    "Please report bugs to " PACKAGE_BUGREPORT "\n");
 
@@ -144,6 +148,22 @@ parseCCaps(char const *str, struct vc_ctx_caps *caps)
 }
 
 static void
+parseUMask(char const *str, struct vc_umask *umask)
+{
+  struct vc_err_listparser	err;
+  int				rc;
+
+  rc = vc_list2umask(str, 0, &err, umask);
+  
+  if (rc==-1) {
+    WRITE_MSG(2, "Unknown namespace '");
+    Vwrite(2, err.ptr, err.len);
+    WRITE_MSG(2, "'\n");
+    exit(wrapper_exit_code);
+  }
+}
+
+static void
 parseSecure(struct vc_ctx_flags UNUSED * flags,
 	    struct vc_ctx_caps  UNUSED * caps)
 {
@@ -162,13 +182,16 @@ printAttrs(struct Arguments *args)
 {
   struct vc_ctx_flags flags;
   struct vc_ctx_caps caps;
+  struct vc_umask umask = { .mask = ~0, .umask = 0x20200 };
 
   Evc_get_cflags(args->xid, &flags);
   Evc_get_ccaps(args->xid, &caps);
+  Evc_get_umask(args->xid, &umask);
 
   print_bitfield(1, bcap, "bcapabilities", &caps.bcaps);
   print_bitfield(1, ccap, "ccapabilities", &caps.ccaps);
   print_bitfield(1, cflag, "flags", &flags.flagword);
+  print_bitfield(1, umask, "umask", &umask.umask);
 
   return 0;
 }
@@ -179,6 +202,7 @@ int main(int argc, char *argv[])
     .xid   = VC_NOCTX,
     .flags = { .flagword = 0, .mask = 0 },
     .caps  = { .bcaps = 0, .bmask = 0,.ccaps = 0, .cmask = 0 },
+    .umask = { .umask = 0, .mask = 0 },
     .mode  = CMD_SET,
   };
 
@@ -196,6 +220,7 @@ int main(int argc, char *argv[])
       case CMD_CCAP	:  parseCCaps(optarg, &args.caps);         break;
       case CMD_BCAP	:  parseBCaps(optarg, &args.caps);         break;
       case CMD_SECURE	:  parseSecure(&args.flags, &args.caps);   break;
+      case CMD_UMASK	:  parseUMask(optarg, &args.umask);        break;
       default		:
 	WRITE_MSG(2, "Try '");
 	WRITE_STR(2, argv[0]);
@@ -214,6 +239,9 @@ int main(int argc, char *argv[])
     else if (args.flags.mask &&
 	     vc_set_cflags(args.xid, &args.flags)==-1)
       perror(ENSC_WRAPPERS_PREFIX "vc_set_flags()");
+    else if (args.umask.mask &&
+             vc_set_umask(args.xid, &args.umask)==-1)
+      perror(ENSC_WRAPPERS_PREFIX "vc_set_umask()");
     else if (optind<argc)
       EexecvpD(argv[optind], argv+optind);
     else

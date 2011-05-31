@@ -206,6 +206,13 @@ function _generateBCapabilityOptions
     _readFileToArray "$vdir"/bcapabilities OPTS_VATTRIBUTE --bcap
 }
 
+function _generateUMaskOptions
+{
+    local vdir=$1
+
+    _readFileToArray "$vdir"/umask OPTS_VATTRIBUTE --umask
+}
+
 function _generateCapabilityOptions
 {
     local vdir=$1
@@ -442,6 +449,7 @@ function _generateChcontextOptions
 
     _generateCapabilityOptions "$vdir"
     _generateFlagOptions       "$vdir"
+    _generateUMaskOptions      "$vdir"
 
     CHCONTEXT_OPTS=( $SILENT_OPT \
                      "${CHCONTEXT_FLAG_OPTS[@]}" \

@@ -862,6 +862,15 @@ extern "C" {
   int		vc_set_badness(xid_t xid, int64_t badness);
 
 
+  /** \brief	Namespaces allowed to unshare */
+  struct vc_umask {
+      uint_least64_t	umask;
+      uint_least64_t	mask;
+  };
+
+  int		vc_get_umask(xid_t xid, struct vc_umask *umask);
+  int		vc_set_umask(xid_t xid, struct vc_umask const *umask);
+
   /** \brief    Information about parsing errors
    *  \ingroup  helper
    */
@@ -934,7 +943,10 @@ extern "C" {
   int			vc_list2ccap(char const *, size_t len,
 				     struct vc_err_listparser *err,
 				     struct vc_ctx_caps *);
-
+  char const *		vc_loumask2text(uint_least64_t *);
+  int			vc_list2umask(char const *, size_t len,
+				     struct vc_err_listparser *err,
+				     struct vc_umask *);
   int			vc_list2cflag(char const *, size_t len,
 				     struct vc_err_listparser *err,
 				     struct vc_ctx_flags *flags);
