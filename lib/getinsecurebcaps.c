@@ -31,7 +31,7 @@ vc_get_insecurebcaps()
 	   (1<<VC_CAP_SETGID) | (1<<VC_CAP_SETUID) |
 	   (1<<VC_CAP_NET_BIND_SERVICE) | (1<<VC_CAP_SYS_CHROOT) |
 	   (1<<VC_CAP_SYS_PTRACE) | (1<<VC_CAP_SYS_TTY_CONFIG) |
-	   (1<<VC_CAP_LEASE)
+	   (1<<VC_CAP_LEASE) | (1<<VC_CAP_SETFCAP)
 
 	   | (vc_isSupported(vcFEATURE_VSHELPER) ? (1<<VC_CAP_SYS_BOOT) : 0)
 	   | (vc_isSupported(vcFEATURE_MIGRATE)  ? (1<<VC_CAP_AUDIT_WRITE) : 0) // formerly QUOTACTL
