@@ -154,10 +154,11 @@ kill_wrapper(xid_t xid, char const *pid_s, int sig)
     int		err = errno;
     if (vc_get_version(VC_CAT_COMPAT)==-1)
       return kill_wrapper_legacy(xid, pid_s, sig);
-    else
-#endif
-    {
+    else {
       errno = err;
+#else
+    {
+#endif
       perror("vkill: vc_ctx_kill()");
       return 1;
     }
