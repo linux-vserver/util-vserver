@@ -37,7 +37,7 @@ vc_net_add_netv2(nid_t nid, struct vc_net_addr const *info)
 	k_info.mask.s_addr = 0;
       }
 
-      return vserver(VCMD_net_add_ipv4, NID_USER2KERNEL(nid), &k_info);
+      return vserver(VCMD_net_add_ipv4_v1, NID_USER2KERNEL(nid), &k_info);
     }
     case VC_NXA_TYPE_IPV6: {
       struct vcmd_net_addr_ipv6_v1	k_info;
