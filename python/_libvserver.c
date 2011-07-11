@@ -1140,10 +1140,28 @@ PyModule_AddLongLongConstant(PyObject *mod, const char *str, long long val)
 		return;
 }
 
+#if PY_MAJOR_VERSION == 2
 PyMODINIT_FUNC init_libvserver(void)
 {
   PyObject *mod;
 
   mod = Py_InitModule("_libvserver", methods);
 #include "_libvserver-constants.c"
+  return mod;
 }
+#else
+PyMODINIT_FUNC
+PyInit__libvserver(void)
+{
+  static struct PyModuleDef lvmodule = {
+    PyModuleDef_HEAD_INIT,
+    "_libvserver",
+    NULL,
+    -1,
+    methods
+  };
+  PyObject *mod = PyModule_Create(&lvmodule);
+#include "_libvserver-constants.c"
+  return mod;
+}
+#endif

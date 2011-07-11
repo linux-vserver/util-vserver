@@ -25,14 +25,14 @@ class struct:
     def __init__(self, *args, **kwargs):
         l = len(args)
         if l > len(self._fields_):
-            raise KeyError, "%s has only %d fields" % (self.__class__,
-                                                       len(self._fields_))
+            raise KeyError("%s has only %d fields" % (self.__class__,
+                                                      len(self._fields_)))
         for i in range(0, l):
             self.__dict__[self._fields_[i]] = args[i]
         for i in kwargs.iterkeys():
             if i not in self._fields_:
-                raise KeyError, "%s has no such field '%s'" % (self.__class__,
-                                                               i)
+                raise KeyError("%s has no such field '%s'" % (self.__class__,
+                                                              i))
             self.__dict__[i] = kwargs[i]
     def __totuple(self):
         return tuple(self.__dict__.get(f, self._default_) for f in self._fields_)
@@ -62,9 +62,9 @@ def ctx_create(xid, flags=None):
     if flags is None:
         flags = (0, 0)
     elif not isinstance(flags, struct_ctx_flags):
-        raise TypeError, "flags must be of type struct_ctx_flags"
+        raise TypeError("flags must be of type struct_ctx_flags")
     return _libvserver.vc_ctx_create(xid, *flags)
-def ctx_migrate(xid, flags=0L):
+def ctx_migrate(xid, flags=0):
     return _libvserver.vc_ctx_migrate(xid, flags)
 
 class struct_ctx_stat(struct):
@@ -84,7 +84,7 @@ def get_cflags(xid):
     return struct_ctx_flags(*_libvserver.vc_get_cflags(xid))
 def set_cflags(xid, flags):
     if not isinstance(flags, struct_ctx_flags):
-        raise TypeError, "flags must be of type struct_ctx_flags"
+        raise TypeError("flags must be of type struct_ctx_flags")
     _libvserver.vc_set_cflags(xid, *flags)
 
 class struct_ctx_caps(struct):
@@ -93,7 +93,7 @@ def get_ccaps(xid):
     return struct_ctx_caps(*_libvserver.vc_get_ccaps(xid))
 def set_ccaps(xid, caps):
     if not isinstance(caps, struct_ctx_caps):
-        raise TypeError, "caps must be of type struct_ctx_caps"
+        raise TypeError("caps must be of type struct_ctx_caps")
     _libvserver.vc_set_ccaps(xid, *caps)
 
 class struct_vx_info(struct):
@@ -116,7 +116,7 @@ def get_rlimit(xid, resource):
     return struct_rlimit(*_libvserver.vc_get_rlimit(xid, resource))
 def set_rlimit(xid, resource, limit):
     if not isinstance(limit, struct_rlimit):
-        raise TypeError, "limit must be of type struct_rlimit"
+        raise TypeError("limit must be of type struct_rlimit")
     _libvserver.vc_set_rlimit(xid, resource, *limit)
 
 class stuct_rlimit_stat(struct):
@@ -136,12 +136,12 @@ class struct_net_addr(struct):
 
 def net_add(nid, addr):
     if not isinstance(addr, struct_net_addr):
-        raise TypeError, "addr must be of type struct_net_addr"
+        raise TypeError("addr must be of type struct_net_addr")
     _libvserver.vc_net_add(nid, *addr)
 
 def net_remove(nid, addr):
     if not isinstance(addr, struct_net_addr):
-        raise TypeError, "addr must be of type struct_net_addr"
+        raise TypeError("addr must be of type struct_net_addr")
     _libvserver.vc_net_remove(nid, *addr)
 
 class struct_net_flags(struct):
@@ -150,7 +150,7 @@ def get_nflags(nid):
     return struct_net_flags(*_libvserver.vc_get_nflags(nid))
 def set_nflags(nid, flags):
     if not isinstance(flags, struct_net_flags):
-        raise TypeError, "flags must be of type struct_net_flags"
+        raise TypeError("flags must be of type struct_net_flags")
     _libvserver.vc_set_nflags(nid, *flags)
 
 class struct_net_caps(struct):
@@ -159,7 +159,7 @@ def get_ncaps(nid):
     return struct_net_caps(*_libvserver.vc_get_ncaps(nid))
 def set_ncaps(nid, caps):
     if not isinstance(caps, struct_net_caps):
-        raise TypeError, "caps must be of type struct_net_caps"
+        raise TypeError("caps must be of type struct_net_caps")
     _libvserver.vc_set_ncaps(nid, *caps)
 
 def _vc_set_iattr(f, obj, tag, flags, mask):
@@ -200,7 +200,7 @@ class struct_ctx_dlimit(struct):
     _default_ = _libvserver.VC_CDLIM_KEEP
 def set_dlimit(path, tag, limit, flags=0):
     if not isinstance(limit, struct_ctx_dlimit):
-        raise TypeError, "limit must be of type struct_ctx_dlimit"
+        raise TypeError("limit must be of type struct_ctx_dlimit")
     _libvserver.vc_set_dlimit(path, tag, flags, *limit)
 def get_dlimit(path, tag, flags=0):
     return struct_ctx_dlimit(*_libvserver.vc_get_dlimit(path, tag, flags))
@@ -221,7 +221,7 @@ class struct_set_sched(struct):
             self.set_mask |= _libvserver.__dict__.get("VC_VXSM_" + f, 0)
 def set_sched(xid, sched):
     if not isinstance(sched, struct_set_sched):
-        raise TypeError, "sched must be of type struct_set_sched"
+        raise TypeError("sched must be of type struct_set_sched")
     sched.fill_set_mask()
     _libvserver.vc_set_sched(xid, *sched)
 def get_sched(xid, cpu_id=0, bucket_id=0):
@@ -276,7 +276,7 @@ def tagopt2tag(opt, honor_static=True):
 def text2bcap(text):
     ret = _libvserver.vc_text2bcap(text)
     if ret == 0:
-        raise ValueError, "%s is not a valid bcap" % text
+        raise ValueError("%s is not a valid bcap" % text)
     return ret
 lobcap2text = _libvserver.vc_lobcap2text
 def bcap2list(bcaps):
@@ -294,7 +294,7 @@ def list2bcap(list):
 def text2ccap(text):
     ret = _libvserver.vc_text2ccap(text)
     if ret == 0:
-        raise ValueError, "%s is not a valid ccap" % text
+        raise ValueError("%s is not a valid ccap" % text)
     return ret
 loccap2text = _libvserver.vc_loccap2text
 def ccap2list(ccaps):
@@ -312,7 +312,7 @@ def list2ccap(list):
 def text2cflag(text):
     ret = _libvserver.vc_text2cflag(text)
     if ret == 0:
-        raise ValueError, "%s is not a valid cflag" % text
+        raise ValueError("%s is not a valid cflag" % text)
     return ret
 locflag2text = _libvserver.vc_locflag2text
 def cflag2list(cflags):
@@ -329,7 +329,7 @@ def list2cflag(list):
 def text2nflag(text):
     ret = _libvserver.vc_text2nflag(text)
     if ret == 0:
-        raise ValueError, "%s is not a valid nflag" % text
+        raise ValueError("%s is not a valid nflag" % text)
     return ret
 lonflag2text = _libvserver.vc_lonflag2text
 def nflag2list(nflags):
@@ -346,7 +346,7 @@ def list2nflag(list):
 def text2ncap(text):
     ret = _libvserver.vc_text2ncap(text)
     if ret == 0:
-        raise ValueError, "%s is not a valid ncap" % text
+        raise ValueError("%s is not a valid ncap" % text)
     return ret
 loncap2text = _libvserver.vc_loncap2text
 def ncap2list(ncaps):

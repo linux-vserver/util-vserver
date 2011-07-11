@@ -458,8 +458,8 @@ if test "x$PYTHON" = x:; then
 	ensc_have_python=no
 fi
 if test x$ensc_have_python = xyes; then
-	PYTHON_CFLAGS=-I`$PYTHON -c 'from distutils.sysconfig import get_python_inc; print get_python_inc(1)'`
-	PYTHON_LDFLAGS=-L`$PYTHON -c 'from distutils.sysconfig import get_python_lib; print get_python_lib(1)'`
+	PYTHON_CFLAGS=-I`$PYTHON -c 'from distutils.sysconfig import get_python_inc; print(get_python_inc(1))'`
+	PYTHON_LDFLAGS=-L`$PYTHON -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib(1))'`
 	AC_SUBST(PYTHON_CFLAGS)
 	AC_SUBST(PYTHON_LDFLAGS)
 else
