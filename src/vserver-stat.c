@@ -389,7 +389,7 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
       char *dir = strrchr(vhi_name, '/');
       if (dir == NULL) {
         WRITE_MSG(2, "invalid context name: ");
-        WRITE_STR(2, dir);
+        WRITE_STR(2, vhi_name);
         WRITE_MSG(2, "\n");
         return;
       }
