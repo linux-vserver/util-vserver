@@ -186,12 +186,13 @@ printAttrs(struct Arguments *args)
 
   Evc_get_cflags(args->xid, &flags);
   Evc_get_ccaps(args->xid, &caps);
-  Evc_get_umask(args->xid, &umask);
 
   print_bitfield(1, bcap, "bcapabilities", &caps.bcaps);
   print_bitfield(1, ccap, "ccapabilities", &caps.ccaps);
   print_bitfield(1, cflag, "flags", &flags.flagword);
-  print_bitfield(1, umask, "umask", &umask.umask);
+  if (vc_get_umask(args->xid, &umask) == 0) {
+    print_bitfield(1, umask, "umask", &umask.umask);
+  }
 
   return 0;
 }
