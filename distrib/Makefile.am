@@ -91,6 +91,8 @@ nobase_distrib_DATA	=  defaults/devs \
 			   centos4/yum/yum.conf $(wildcard $(srcdir)/centos4/yum.repos.d/*.repo) \
 			   centos5/pkgs/01 centos5/pkgs/02 centos5/pkgs/03 \
 			   centos5/yum/yum.conf $(wildcard $(srcdir)/centos5/yum.repos.d/*.repo) \
+			   sl6/pkgs/01 sl6/pkgs/02 sl6/pkgs/03 \
+			   sl6/yum/yum.conf $(wildcard $(scrdir)/sl6/yum.repos.d/*.repo) \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros \
 			   gentoo/init-vserver.sh gentoo/net.vserver \
@@ -114,7 +116,7 @@ EXTRA_DIST		=  $(nobase_distrib_DATA) \
 			   $(nobase_confdistrib_DATA) \
 			   $(defaults_DATA)
 
-redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 fc6 f7 f8 f9 f10 f11 f12 f13 f14 centos4 centos5
+redhat_style		=  rh9 fc1 fc2 fc3 fc4 fc5 fc6 f7 f8 f9 f10 f11 f12 f13 f14 centos4 centos5 sl6
 sid_style		=  etch lenny squeeze wheezy sid
 
 install-exec-hook:	install-notify-xtra
