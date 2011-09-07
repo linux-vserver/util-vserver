@@ -92,7 +92,7 @@ nobase_distrib_DATA	=  defaults/devs \
 			   centos5/pkgs/01 centos5/pkgs/02 centos5/pkgs/03 \
 			   centos5/yum/yum.conf $(wildcard $(srcdir)/centos5/yum.repos.d/*.repo) \
 			   sl6/pkgs/01 sl6/pkgs/02 sl6/pkgs/03 \
-			   sl6/yum/yum.conf $(wildcard $(scrdir)/sl6/yum.repos.d/*.repo) \
+			   sl6/yum/yum.conf $(wildcard $(srcdir)/sl6/yum.repos.d/*.repo) \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros \
 			   gentoo/init-vserver.sh gentoo/net.vserver \
