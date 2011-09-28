@@ -843,8 +843,11 @@ function prepareInit
     pushd "$1/vdir" >/dev/null
     case "$INITSTYLE" in
 	sysv)
-	    { $_FIND var/run  ! -type d -print0; \
-	      $_FIND var/lock ! -type d -print0; } | xargs -0r $_CHROOT_SH rm
+	    local -a dirs=( $($_CHROOT_SH realpath /var/run /var/lock || :) )
+	    local dir
+	    for dir in dirs; do
+		$_FIND $dir ! -type d -print0 | xargs -0r $_CHROOT_SH rm
+	    done
 	    ;;
 	plain)
 	    $_CHROOT_SH rm .autofsck forcefsck 2>/dev/null || :

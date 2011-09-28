@@ -228,6 +228,33 @@ execMv(int argc, char *argv[])
   return res;
 }
 
+static int
+execRealpath(int argc, char *argv[])
+{
+  int		res = EXIT_SUCCESS,
+		i;
+
+  if (argc < 2) {
+    WRITE_MSG(2, "Need some files to work on for 'realpath' operation; try '--help' for more information\n");
+    return wrapper_exit_code;
+  }
+
+  for (i = 1; i< argc; i++) {
+    char buf[4096];
+
+    if (realpath(argv[i], buf) == NULL) {
+      PERROR_Q(ENSC_WRAPPERS_PREFIX "realpath", argv[i]);
+      res = EXIT_FAILURE;
+    }
+    else {
+      WRITE_STR(1, buf);
+      WRITE_MSG(1, "\n");
+    }
+  }
+
+  return res;
+}
+
 static struct Command {
     char const		*cmd;
     int			(*handler)(int argc, char *argv[]);
@@ -241,6 +268,7 @@ static struct Command {
   { "chmod",    execChmod },
   { "link",     execLink },
   { "mv",       execMv },
+  { "realpath", execRealpath },
   { 0,0 }
 };
 
@@ -265,6 +293,7 @@ showHelp()
 	    "                   ...  change access permissions of files\n"
 	    "  link <src> <dst> ...  create a symbolic link from <src> to <dst>\n"
 	    "  mv <src> <dst>   ...  rename <src> to <dst>\n"
+	    "  realpath <file>+ ...  output real path of each <file>\n"
 	    "\nPlease report bugs to " PACKAGE_BUGREPORT "\n");
   exit(0);
 }
