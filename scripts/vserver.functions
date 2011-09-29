@@ -845,7 +845,7 @@ function prepareInit
 	sysv)
 	    local -a dirs=( $($_CHROOT_SH realpath /var/run /var/lock || :) )
 	    local dir
-	    for dir in dirs; do
+	    for dir in "${dirs[@]}"; do
 		$_FIND $dir ! -type d -print0 | xargs -0r $_CHROOT_SH rm
 	    done
 	    ;;
