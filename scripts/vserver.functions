@@ -843,7 +843,7 @@ function prepareInit
     pushd "$1/vdir" >/dev/null
     case "$INITSTYLE" in
 	sysv)
-	    local -a dirs=( $($_CHROOT_SH realpath /var/run /var/lock || :) )
+	    local -a dirs=( $($_CHROOT_SH realpath /var/run /var/lock | $_SED 's!^/*!!' || :) )
 	    local dir
 	    for dir in "${dirs[@]}"; do
 		$_FIND $dir ! -type d -print0 | xargs -0r $_CHROOT_SH rm
