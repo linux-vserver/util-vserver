@@ -108,6 +108,7 @@ EOF
 	## Wash the calculated architecture
 	case $arch in
 	    (i?86|athlon)	arch=i386;;
+	    (x86_64)		arch=amd64;;
 	esac
 
 	test -z "$arch" || echo "$arch" >$DEBOOTSTRAP_DIR/arch
