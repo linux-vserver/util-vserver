@@ -107,6 +107,8 @@ _VTAG="$__SBINDIR/vtag"
 _VWAIT="$__SBINDIR/vwait"
 _VUNAME="$__SBINDIR/vuname"
 _VUNIFY="$__PKGLIBDIR/vunify"
+_VURPM="$__SBINDIR/vurpm"
+_VURPM_WORKER="$__PKGLIBDIR/vurpm-worker"
 _VYUM="$__SBINDIR/vyum"
 _VYUM_WORKER="$__PKGLIBDIR/vyum-worker"
 
