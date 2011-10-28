@@ -1,0 +1,58 @@
+# $Id$	--*- sh -*--
+
+# Copyright (C) 2011 Daniel Hokka Zakrisson <daniel@hozac.com>
+#  
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#  
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#  
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+function urpmi.initVariables
+{
+    if test -z "$MIRROR"; then
+	getFileValue MIRROR "$__CONFDIR/.distributions/$DISTRIBUTION/mirror" \
+	    "$__DISTRIBDIR/$DISTRIBUTION/mirror"
+	if test -z "$MIRROR"; then
+	    panic $"vserver-build.urpmi: --mirror argument required"
+	fi
+    fi
+}
+
+function urpmi.initFilesystem
+{
+    $_MKDIR -p "$PKGCFGDIR"/var/lib/urpmi "$PKGCFGDIR"/etc/urpmi
+}
+
+function urpmi.installPackages
+{
+    local name="$1"
+    local dir="$2"
+
+    test "$dir" != / || return 0
+    for filelist in "$dir"/*; do
+	isRegularFile "$filelist" || continue
+	local idx=0
+	local can_fail=false
+	local flags=
+
+	set -- $(<$filelist)
+	while test "$#" -gt 0; do
+	    case "$1" in
+		--reinstall) flags='';;
+		--can-fail)  can_fail=true;;
+		*)  	     break;;
+	    esac
+	    shift
+	done
+	"$_VURPM" urpmi "$name" -- $flags $* || $can_fail
+	"$_VYUM" "$name" -- -y install $flags $* || $can_fail
+    done
+}

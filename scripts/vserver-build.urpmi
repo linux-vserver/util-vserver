@@ -19,11 +19,12 @@ tmp=$(getopt -o '+d:m:o:' --long debug,mirror:,mirrorlist -n "$0" -- "$@") || ex
 eval set -- "$tmp"
 
 . "$_LIB_VSERVER_BUILD_FUNCTIONS_PKGMGMT"
+. "$_LIB_VSERVER_BUILD_FUNCTIONS_RPM"
+. "$_LIB_VSERVER_BUILD_FUNCTIONS_URPMI"
 
 DISTRIBUTION=
 MIRROR=
 MIRRORLIST=
-PKGS=( basesystem-minimal )
 while true; do
     case "$1" in
 	-d)		DISTRIBUTION=$2; shift;;
@@ -38,31 +39,26 @@ while true; do
     shift
 done
 
-if test -z "$MIRROR"; then
-    panic $"vserver-build.urpmi: --mirror argument required"
-fi
-
-if test "$#" -gt 0; then
-    PKGS=( "$@" )
-fi
-
 getDistribution
 
 base.init
 pkgmgmt.initVariables
-
+rpm.initVariables
+urpmi.initVariables
 
 base.initFilesystem "$OPTION_FORCE"
 pkgmgmt.initFilesystem "$OPTION_FORCE"
-
+rpm.initFilesystem
+urpmi.initFilesystem
 
 setup_writeOption "$VSERVER_NAME"
 setup_writeInitialFstab
 
 test -z "$BUILD_INITPRE"  || "$BUILD_INITPRE" "$SETUP_CONFDIR"  "$UTIL_VSERVER_VARS"
 
-urpmi.addmedia --urpmi-root "$PKGCFGDIR"/ --distrib $MIRRORLIST "$MIRROR"
-urpmi --urpmi-root "$PKGCFGDIR"/ --root "$VDIR"/ "${PKGS[@]}"
+$_VURPM urpmi.addmedia "$SETUP_CONFDIR" -- --distrib $MIRRORLIST "$MIRROR"
+urpmi.installPackages "$SETUP_CONFDIR" "$PKGINSTALLDIR"
+test -z "$1" || $_VURPM urpmi "$SETUP_CONFDIR" -- "$@"
 
 pushd "$VDIR"/ >/dev/null
 rm -rf dev
