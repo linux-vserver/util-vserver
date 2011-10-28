@@ -37,6 +37,7 @@ urpm="${VURPM_CMD:-urpmi}"
 args=( --urpmi-root "$PKGDIR/base" )
 if test "$urpm" = "urpmi" -o "$urpm" = "urpme"; then
     args=( "${args[@]}" --root "$VDIR" )
+fi
 
 rpmFake.exec $urpm \
     "${args[@]}" \
