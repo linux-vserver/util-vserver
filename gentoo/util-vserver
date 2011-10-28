@@ -2,37 +2,6 @@
 # Copyright 1999-2007 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-set_helper() {
-	local f="/proc/sys/kernel/vshelper"
-	if [ -e "$f" ]; then
-		echo "$_VSHELPER" > "$f"
-	fi
-	return 0
-}
-
-kill_contexts()
-{
-	local xid
-	for xid in `ls -1 /proc/virtual 2>/dev/null`; do
-		[ "$xid" = "info" -o "$xid" = "status" ] && continue
-		$_VATTRIBUTE --xid $xid --set --flag ~persistent
-		$_VKILL --xid $xid -s 15
-		sleep 3
-		$_VKILL --xid $xid -s 9
-	done
-	local alive=0
-	for xid in `ls -1 /proc/virtual 2>/dev/null`; do
-		[ "$xid" = "info" -o "$xid" = "status" ] && continue
-		let alive+=1
-	done
-	test $alive = 0
-}
-
-create_dirs()
-{
-	$_MKDIR -p "$__RUNDIR" && $_MKDIR -p "$__VSHELPERSTATEDIR" && $_MKDIR -p `$_READLINK "$__PKGSTATEREVDIR"`
-}
-
 start() {
 	: ${UTIL_VSERVER_VARS:=/usr/lib/util-vserver/util-vserver-vars}
 	if [ ! -e ${UTIL_VSERVER_VARS} ]; then
@@ -44,11 +13,11 @@ start() {
 	. ${UTIL_VSERVER_VARS}
 
 	ebegin "Creating directories for $PACKAGE_NAME"
-	create_dirs
+    $__PKGLIBDIR/bash-wrapper 'create_dirs'
 	eend $?
 
 	ebegin "Setting vshelper path to $_VSHELPER"
-	set_helper
+    $__PKGLIBDIR/bash-wrapper 'create_dirs'
 	eend $?
 
 	ebegin "Loading default device map"
@@ -58,7 +27,7 @@ start() {
 	$__PKGLIBDIR/bash-wrapper 'hasCgroup'
 	if [ $? -eq 0 ]; then
 		ebegin "Mounting cgroup-hierarchy"
-		$__PKGLIBDIR/bash-wrapper '_generateCgroupOptions; test -n "$CGROUP_MNT" || exit 0; $_MKDIR -p "$CGROUP_MNT"; $_MOUNT -t cgroup -o "$CGROUP_SUBSYS" vserver "$CGROUP_MNT"'
+		$__PKGLIBDIR/bash-wrapper 'mount_cgroup'
 		eend $?
 	fi
 }
@@ -78,13 +47,13 @@ stop() {
 	eend $?
 
 	ebegin "Killing all running contexts"
-	kill_contexts
+	$__PKGLIBDIR/bash-wrapper 'kill_contexts'
 	eend $?
 
 	$__PKGLIBDIR/bash-wrapper 'hasCgroup'
 	if [ $? -eq 0 ]; then
 		ebegin "Unmounting cgroup-hierarchy"
-		$__PKGLIBDIR/bash-wrapper '_generateCgroupOptions; test -n "$CGROUP_MNT" || exit 0; $_UMOUNT "$CGROUP_MNT"'
+		$__PKGLIBDIR/bash-wrapper 'umount_cgroup'
 		eend $?
 	fi
 }

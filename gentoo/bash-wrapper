@@ -22,6 +22,7 @@ test -e "$UTIL_VSERVER_VARS" || {
     exit 1
 }
 . "$UTIL_VSERVER_VARS"
+. "$_LIB_VSERVER_INIT_FUNCTIONS"
 . "$_LIB_FUNCTIONS"
 . "$__PKGLIBDIR/vserver.functions"
 

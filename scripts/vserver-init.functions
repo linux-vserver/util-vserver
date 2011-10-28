@@ -48,3 +48,69 @@ function _endResult()
     _postResult
     return $rc
 }
+
+function set_helper()
+{
+    local f="/proc/sys/kernel/vshelper"
+    if test -e "$f"; then
+	echo "$_VSHELPER" > "$f"
+	return 0
+    else
+	return 2
+    fi
+}
+
+function kill_contexts()
+{
+    local xid
+    for xid in `ls -1 /proc/virtual 2>/dev/null`; do
+	[ "$xid" = "info" -o "$xid" = "status" ] && continue
+	$_VATTRIBUTE --xid $xid --set --flag ~persistent
+	$_VKILL --xid $xid -s 15
+	sleep 3
+	$_VKILL --xid $xid -s 9
+    done
+    local alive=0
+    for xid in `ls -1 /proc/virtual 2>/dev/null`; do
+	[ "$xid" = "info" -o "$xid" = "status" ] && continue
+	let alive+=1
+    done
+    test $alive = 0
+}
+
+function create_dirs()
+{
+    $_MKDIR -p "$__RUNDIR" && $_MKDIR -p "$__VSHELPERSTATEDIR" && $_MKDIR -p `$_READLINK "$__PKGSTATEREVDIR"`
+}
+
+function mount_cgroup()
+{
+    _generateCgroupOptions
+    test -n "$CGROUP_MNT" || return 0
+    $_MKDIR -p "$CGROUP_MNT"
+    if test -n "$CGROUP_MNT_PER_SS"; then
+	for ss in "${CGROUP_SUBSYS[@]}"; do
+	    $_MKDIR -p "$CGROUP_MNT/$ss"
+	    $_MOUNT -t cgroup -o "$ss" vserver "$CGROUP_MNT/$ss"
+	done
+    else
+	oIFS="$IFS"
+	IFS=,
+	ss="${CGROUP_SUBSYS[*]}"
+	IFS="$oIFS"
+	$_MOUNT -t cgroup -o "$ss" vserver "$CGROUP_MNT"
+    fi
+}
+
+function umount_cgroup()
+{
+    _generateCgroupOptions
+    test -n "$CGROUP_MNT" || return 0
+    if test -n "$CGROUP_MNT_PER_SS"; then
+	for ss in "${CGROUP_SUBSYS[@]}"; do
+	    $_UMOUNT "$CGROUP_MNT/$ss"
+	done
+    else
+	$_UMOUNT "$CGROUP_MNT"
+    fi
+}
