@@ -926,7 +926,7 @@ function pkgmgmt.isUrpmiAvailable
     local have_urpmi i
     if test -n "$is_internal"; then
 	have_urpmi=1
-	test -d "$cfgdir"/var/lib/urpmi || have_urpmi=
+	test -d "$cfgdir"/base/var/lib/urpmi || have_urpmi=
     else
 	have_urpmi=
 	for i in /bin /usr/bin /usr/local/bin; do
