@@ -53,6 +53,5 @@ function urpmi.installPackages
 	    shift
 	done
 	"$_VURPM" urpmi "$name" -- $flags $* || $can_fail
-	"$_VYUM" "$name" -- -y install $flags $* || $can_fail
     done
 }
