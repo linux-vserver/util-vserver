@@ -38,13 +38,11 @@ AC_CANONICAL_HOST
 AC_SUBST(GPG_KEY, "0xFFD316AC53ACA43A!")
 
 # Checks for programs.
-AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AM_PROG_CC_C_O
 PKG_PROG_PKG_CONFIG
-ENSC_CXXCOMPILER
 ENSC_C99COMPILER
 AM_PROG_MKDIR_P
 
@@ -83,7 +81,6 @@ if test x"$prefix" = x/; then
 fi
 
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
-ENSC_CHECK_CXX_FLAG([-ansi   -Wall -pedantic -W -fmessage-length=0])
 
 AC_MSG_CHECKING([whether to enable extra optimizations])
 AC_ARG_ENABLE([extra-optimizations],
@@ -101,7 +98,6 @@ if test x"$use_extra_optimizations" = x; then
 else
 	AC_MSG_RESULT(yes)
 	ENSC_CHECK_CC_FLAG([-funit-at-a-time])
-	ENSC_CHECK_CXX_FLAG([-funit-at-a-time])
 fi
 
 AC_MSG_CHECKING([whether to enable debug-code in library])
@@ -519,10 +515,8 @@ AC_CONFIG_COMMANDS_PRE([
 			FEATURES_TXT="\
 Features:
 		       CC: $CC, $($CC   --version | sed -e '1p;d')
-                      CXX: $CXX, $($CXX --version | sed -e '1p;d')
                  CPPFLAGS: '$CPPFLAGS'
                    CFLAGS: '$CFLAGS'
-                 CXXFLAGS: '$CXXFLAGS'
                build/host: $build/$host
              Use dietlibc: $ensc_have_dietlibc$ensc_diet_version_msg$ensc_diet_msg$ensc_diet_compat_msg
        Build C++ programs: $ensc_cv_cxx_cxxcompiler$ensc_cxx_affected

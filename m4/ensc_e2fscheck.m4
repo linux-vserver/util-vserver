@@ -17,7 +17,7 @@ dnl Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 AC_DEFUN([ENSC_CHECK_EXT2FS_HEADER],
 [
-    AC_LANG_PUSH(C++)
+    AC_LANG_PUSH(C)
     AC_CACHE_CHECK([for ext2fs-headers], [ensc_cv_test_ext2fs_header],[
 	AC_COMPILE_IFELSE(AC_LANG_SOURCE([#include <ext2fs/ext2_fs.h>
 					  int main() { return 0; }]),

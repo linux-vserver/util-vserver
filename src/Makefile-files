@@ -17,9 +17,6 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-src_sbin_CXX_PROGS =	
-src_pkglib_CXX_PROGS =	
-
 src_pkglib_C99_PROGS =	src/vunify src/vcopy src/vclone
 
 
@@ -127,8 +124,7 @@ pkglib_PROGRAMS +=	src/capchroot \
 			src/h2ext \
 			src/tunctl \
 			src/exec-remount \
-			$(src_pkglib_C99_X_PROGS) \
-			$(src_pkglib_CXX_X_PROGS)
+			$(src_pkglib_C99_X_PROGS)
 
 if ENSC_HAVE_C99_COMPILER
 if ENSC_HAVE_CRYPTO
@@ -169,8 +165,7 @@ sbin_PROGRAMS +=	src/exec-cd \
 			src/vdevmap \
 			src/vtag \
 			src/vspace \
-			src/vmemctrl \
-			$(src_sbin_CXX_X_PROGS)
+			src/vmemctrl
 
 if ENSC_HAVE_C99_COMPILER
 sbin_PROGRAMS +=	src/vdlimit
@@ -368,8 +363,6 @@ src_exec_remount_SOURCES	= src/exec-remount.c
 src_exec_remount_LDADD		= $(VSERVER_LDADDS)
 src_exec_remount_LDFLAGS	= $(VSERVER_LDFLGS)
 
-EXTRA_PROGRAMS +=		$(src_sbin_CXX_PROGS) $(src_pkglib_CXX_PROGS)
-
 TESTS_ENVIRONMENT +=		srctestsuitedir=$(top_builddir)/src/testsuite
 
 if ENSC_HAVE_C99_COMPILER
@@ -378,14 +371,6 @@ src_pkglib_C99_X_PROGS =	$(src_pkglib_C99_PROGS)
 else
 src_sbin_C99_X_PROGS =
 src_pkglib_C99_X_PROGS =  
-endif
-
-if ENSC_HAVE_CXX_COMPILER
-src_sbin_CXX_X_PROGS =		$(src_sbin_CXX_PROGS)
-src_pkglib_CXX_X_PROGS =	$(src_pkglib_CXX_PROGS)
-else
-src_sbin_CXX_X_PROGS =
-src_pkglib_CXX_X_PROGS =  
 endif
 
 install-exec-hook:		src_install_exec_hook
