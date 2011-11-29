@@ -429,7 +429,7 @@ function _pkgMountYum
 
 function _pkgMountUrpmi
 {
-    :
+    _pkgMountBindDir "$RPMSTATEDIR" "$URPMISTATEDIR/../../../.rpmdb"
 }
 
 function _pkgMountRPM

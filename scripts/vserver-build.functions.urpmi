@@ -28,7 +28,7 @@ function urpmi.initVariables
 
 function urpmi.initFilesystem
 {
-    $_MKDIR -p "$PKGCFGDIR"/var/lib/urpmi "$PKGCFGDIR"/etc/urpmi
+    $_MKDIR -p "$PKGCFGDIR"/var/lib/urpmi "$PKGCFGDIR"/etc/urpmi "$PKGCFGDIR"/.rpmdb
 }
 
 function urpmi.installPackages
