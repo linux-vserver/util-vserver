@@ -290,5 +290,5 @@ int main(int argc, char *argv[])
   if (optind<argc)
     EexecvpD(argv[optind], argv+optind);
 
-  return wrapper_exit_code;
+  return EXIT_SUCCESS;
 }
