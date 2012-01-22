@@ -22,6 +22,7 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 				scripts/vrpm-worker \
 				scripts/vyum-worker \
 				scripts/vrpm-preload \
+				scripts/vurpm-worker \
 				scripts/save_s_context \
 				scripts/vservers.grabinfo.sh \
 				scripts/vpstree \
