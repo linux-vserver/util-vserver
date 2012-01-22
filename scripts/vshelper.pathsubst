@@ -1,16 +1,16 @@
-#! /usr/lib/util-vserver/sigexec /bin/bash
+#! @PKGLIBDIR@/sigexec /bin/bash
 
 # Copyright (C) 2004 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-#  
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; version 2 of the License.
-#  
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#  
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -93,7 +93,7 @@ function doInternalMethod
 	(async)
 	    spawn killContext "$XID"
 	    ;;
-	    
+
 	(sync)
 	    local f=${METHOD_ARGS[0]}
 	    test -n "$f" ||
@@ -109,7 +109,7 @@ function doInternalMethod
 	(*)
 	    local script
 	    findObject -x script "$__CONFDIR"/.defaults/apps/vshelper-methods/"$method" "$__PKGLIBDIR"/vshelper-methods/"$method" ''
-	    
+
 	    test -n '$script' || {
 		warning $"No handler for internal method '$method' found"
 		exit 1
@@ -119,7 +119,7 @@ function doInternalMethod
 	    execute "$script" "${ARGS[@]}"
     esac
 }
-    
+
 function doDefaultMethod
 {
     local handler
@@ -150,14 +150,14 @@ if ! tty -s; then
 fi
 
 logging "$(date): vshelper $*"
-    
+
 test "$#" -ge 2 ||
     panic $"vshelper called with missing arguments; try '--help' for more information"
 
-    
+
 vshelper.isEnabled || exit 0
 ! vshelper.isDebug || set -x
-    
+
 set -eu
 
 if $_VSERVER_INFO - FEATURE vshelper0; then
@@ -184,7 +184,7 @@ done
 
 vserver_id=$($_VSERVER_INFO "$responsible_xid" ID) || test "$ACTION" = "shutdown" ||
     panic $"No responsible vserver found for xid '$responsible_xid' ($XID); aborting..."
-    
+
 test "$XID" = "$responsible_xid" || {
     logging "Giving 'vshelper' task for '$XID' to parent vserver '$vserver_id' ($responsible_xid)"
     execute $_VSERVER "$vserver_id" exec $_VSHELPER "$@"
