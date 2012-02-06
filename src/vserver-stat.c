@@ -318,6 +318,7 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
     ssize_t			len;
     unsigned long long		stime_total, utime_total;
     int				per_ss = 0;
+    FILE			*fp;
 
 
     if (vc_virt_stat(xid, &vstat) == -1) {
@@ -416,27 +417,35 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
       close(fd);
     }
 
-    if ((cgroup_len + name_len + sizeof("/memory/memory.usage_in_bytes")) > sizeof(filename)) {
+    if ((cgroup_len + name_len + sizeof("/memory/memory.stat")) > sizeof(filename)) {
       WRITE_MSG(2, "cgroup name too long: ");
       WRITE_STR(2, cgroup);
       WRITE_MSG(2, "\n");
       return;
     }
-    snprintf(filename, sizeof(filename), "%s%s%s/memory.usage_in_bytes", cgroup, (per_ss ? "/memory" : ""), name);
+    snprintf(filename, sizeof(filename), "%s%s%s/memory.stat", cgroup, (per_ss ? "/memory" : ""), name);
 
-    if ((fd = open(filename, O_RDONLY)) == -1)
-      perror("open(memory.usage_in_bytes)");
+    if ((fp = fopen(filename, "r")) == -1)
+      perror("open(memory.stat)");
     else {
-      if (read(fd, buf, sizeof(buf)) == -1) {
-	perror("read(memory.usage_in_bytes)");
-	return;
+      unsigned long long _rss = 0, _mapped_file = 0;
+      while (fgets(buf, sizeof(buf), fp) != NULL) {
+	if (strncmp(buf, "rss ", 4) == 0) {
+	  if ((_rss = strtoull(buf + 4, &endptr, 0)) == ULLONG_MAX ||
+	      (*endptr != '\n' && *endptr != '\0')) {
+	    perror("strtoull(memory.stat:rss)");
+	    return;
+	  }
+	}
+        else if (strncmp(buf, "mapped_file ", 12) == 0) {
+	  if ((_mapped_file = strtoull(buf + 12, &endptr, 0)) == ULLONG_MAX ||
+	      (*endptr != '\n' && *endptr != '\0')) {
+	    perror("strtoull(memory.stat:mapped_file)");
+	    return;
+	  }
+	}
       }
-      close(fd);
-      if ((rss = strtoull(buf, &endptr, 0)) == ULLONG_MAX ||
-	  (*endptr != '\n' && *endptr != '\0')) {
-	perror("strtoull(memory.usage_in_bytes)");
-	return;
-      }
+      rss = _rss + _mapped_file;
     }
 
     snprintf(filename, sizeof(filename), "%s%s%s/cpuacct.stat", cgroup, (per_ss ? "/cpuacct" : ""), name);
