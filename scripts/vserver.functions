@@ -1482,7 +1482,7 @@ function _generateCgroupOptions
     if test -n "$file"; then
 	_readFileToArray CGROUP_SUBSYS "$file"
     else
-	CGROUP_SUBSYS=( $($_SED '/^#/d;/^ns[[:space:]]/d;s/[[:space:]].*//' /proc/cgroups) )
+	CGROUP_SUBSYS=( $($_AWK '/^#/ { next; } $1 == "ns" { next; } $4 != "0" { printf "%s%s", s, $1; s=","; }' /proc/cgroups) )
     fi
     findFile file "$__CONFDIR/.defaults/cgroup/inherit" ""
     if test -n "$file"; then
