@@ -37,6 +37,8 @@ $"Usage: $(basename $0) -m <method> -n <name> --force <cfg-options>*
 Options:
     --force     ...  remove/rename already existing vservers with the same
                      name
+    --i-know-its-there
+                ...  allow to finish build even if it exists
     --keep      ...  do not delete generated files and directories when
                      build of vserver failed.
     -m <method> ...  use method <method>; see below for possible values
@@ -101,7 +103,7 @@ set -e
 declare -a default_opts=()
 test -n "$NO_DEFAULT_OPTS" || getFileArray default_opts "$__CONFDIR/.defaults/apps/build/options" || :
 
-tmp=$(getopt -o +m:n: --long keep,force,debug,help,version,rootdir:,pkgbase:,$SETUP_OPTIONS -n "$(basename $0)" -- \
+tmp=$(getopt -o +m:n: --long keep,force,i-know-its-there,debug,help,version,rootdir:,pkgbase:,$SETUP_OPTIONS -n "$(basename $0)" -- \
 	"${default_opts[@]}" "$@") || exit 1
 eval set -- "$tmp"
 
@@ -109,6 +111,7 @@ VSERVER_NAME=
 OPTION_FORCE=
 OPTION_DEBUG=0
 OPTION_KEEP=
+OPTION_SEMIFORCE=
 
 while true; do
     case "$1" in
@@ -119,6 +122,8 @@ while true; do
 	(--debug)   let ++OPTION_DEBUG;  set -x;;
 	(--rootdir) ROOTDIR=$2;      shift;;
 	(--pkgbase) PKGCFGBASE=$2;   shift;;
+	(--i-know-its-there)
+		    OPTION_SEMIFORCE=1;;
 	(-m)	    method=$2;       shift;;
 	(-n)	    VSERVER_NAME=$2; shift;;
 	(--)	    shift; break;;
