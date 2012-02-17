@@ -1474,15 +1474,18 @@ function _generateCgroupOptions
 
     hasCgroup || return 0
 
-    findFile file "$__CONFDIR/.defaults/cgroup/mnt" ""
-    if test -n "$file"; then
-	read CGROUP_MNT < "$file"
-    fi
     findFile file "$__CONFDIR/.defaults/cgroup/subsys" ""
     if test -n "$file"; then
 	_readFileToArray CGROUP_SUBSYS "$file"
     else
 	CGROUP_SUBSYS=( $($_AWK '/^#/ { next; } $1 == "ns" { next; } $4 != "0" { printf "%s%s", s, $1; s=","; }' /proc/cgroups) )
+    fi
+    findFile file "$__CONFDIR/.defaults/cgroup/mnt" ""
+    if test -n "$file"; then
+	read CGROUP_MNT < "$file"
+    elif test -d /sys/fs/cgroup -a -d /sys/fs/cgroup/"${CGROUP_SUBSYS[0]}"; then
+	CGROUP_MNT=/sys/fs/cgroup
+	CGROUP_MNT_PER_SS=1
     fi
     findFile file "$__CONFDIR/.defaults/cgroup/inherit" ""
     if test -n "$file"; then
