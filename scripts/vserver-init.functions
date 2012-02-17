@@ -91,7 +91,8 @@ function mount_cgroup()
     if test -n "$CGROUP_MNT_PER_SS"; then
 	for ss in "${CGROUP_SUBSYS[@]}"; do
 	    $_MKDIR -p "$CGROUP_MNT/$ss"
-	    $_MOUNT -t cgroup -o "$ss" vserver "$CGROUP_MNT/$ss"
+	    $_GREP -q "$CGROUP_MNT/$ss" /proc/mounts || \
+		$_MOUNT -t cgroup -o "$ss" vserver "$CGROUP_MNT/$ss"
 	done
     else
 	oIFS="$IFS"
