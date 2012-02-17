@@ -17,7 +17,7 @@ start() {
 	eend $?
 
 	ebegin "Setting vshelper path to $_VSHELPER"
-    $__PKGLIBDIR/bash-wrapper 'create_dirs'
+    $__PKGLIBDIR/bash-wrapper 'set_helper'
 	eend $?
 
 	ebegin "Loading default device map"
