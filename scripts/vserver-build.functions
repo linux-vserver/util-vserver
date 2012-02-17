@@ -202,8 +202,7 @@ function base._addGeneratedFile
 function base.initFilesystem
 {
     test -z "$1" || _renameVserverCfg
-    if test -n "$OPTION_SEMIFORCE"; then
-    { { test -n "$OPTION_SEMIFORCE" || isDirectoryEmpty "$VDIR" 1 } && test  ! -e "$SETUP_CONFDIR"; } || colpanic $"\
+    { { test -n "$OPTION_SEMIFORCE" || isDirectoryEmpty "$VDIR" 1; } && test  ! -e "$SETUP_CONFDIR"; } || colpanic $"\
 vserver-topdirectory '$VDIR' and/or configuration at '$SETUP_CONFDIR'
 exist already; please try to use '--force', or remove them manually."
 
