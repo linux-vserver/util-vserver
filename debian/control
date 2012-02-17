@@ -8,7 +8,7 @@ Homepage: http://savannah.nongnu.org/projects/util-vserver/
 
 Package: util-vserver
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver-core, libvserver0, util-vserver-sysv, diffutils
+Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver-core, libvserver0, util-vserver-sysv, diffutils | diff
 Description: utilities for managing Linux-VServer guests
  util-vserver provides the components and a framework to setup virtual
  servers.  A virtual server runs inside a Linux server. It is nevertheless
@@ -49,7 +49,7 @@ Description: tools which can be used to build vservers
 
 Package: util-vserver-sysv
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver, make, diffutils
+Depends: ${shlibs:Depends}, ${misc:Depends}, util-vserver, make, diffutils | diff
 Description: initscripts for util-vserver
  util-vserver provides the components and a framework to setup virtual
  servers.  A virtual server runs inside a Linux server. It is nevertheless
