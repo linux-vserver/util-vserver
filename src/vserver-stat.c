@@ -335,8 +335,14 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
     }
 
     if ((fd = open(DEFAULTCONFDIR "/cgroup/mnt", O_RDONLY)) == -1) {
-      strcpy(cgroup, "/dev/cgroup/");
-      cgroup_len = sizeof("/dev/cgroup");
+      if (utilvserver_isDirectory("/sys/fs/cgroup", false)) {
+        strcpy(cgroup, "/sys/fs/cgroup/");
+        cgroup_len = sizeof("/sys/fs/cgroup");
+        per_ss = 1;
+      } else {
+        strcpy(cgroup, "/dev/cgroup/");
+        cgroup_len = sizeof("/dev/cgroup");
+      }
     }
     else {
       cgroup_len = read(fd, cgroup, sizeof(cgroup));
