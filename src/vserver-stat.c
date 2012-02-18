@@ -335,7 +335,7 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
     }
 
     if ((fd = open(DEFAULTCONFDIR "/cgroup/mnt", O_RDONLY)) == -1) {
-      if (utilvserver_isDirectory("/sys/fs/cgroup", false)) {
+      if (utilvserver_isDirectory("/sys/fs/cgroup/memory", false)) {
         strcpy(cgroup, "/sys/fs/cgroup/");
         cgroup_len = sizeof("/sys/fs/cgroup");
         per_ss = 1;
