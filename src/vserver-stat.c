@@ -431,7 +431,7 @@ registerXidCgroups(struct Vector *vec, struct process_info *process)
     }
     snprintf(filename, sizeof(filename), "%s%s%s/memory.stat", cgroup, (per_ss ? "/memory" : ""), name);
 
-    if ((fp = fopen(filename, "r")) == -1)
+    if ((fp = fopen(filename, "r")) == NULL)
       perror("open(memory.stat)");
     else {
       unsigned long long _rss = 0, _mapped_file = 0;
