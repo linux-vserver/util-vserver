@@ -1491,7 +1491,7 @@ function _generateCgroupOptions
     findFile file "$__CONFDIR/.defaults/cgroup/mnt" ""
     if test -n "$file"; then
 	read CGROUP_MNT < "$file"
-    elif test -d /sys/fs/cgroup -a -d /sys/fs/cgroup/"${CGROUP_SUBSYS[0]}"; then
+    elif test -d /sys/fs/cgroup; then
 	CGROUP_MNT=/sys/fs/cgroup
 	CGROUP_MNT_PER_SS=1
     fi
