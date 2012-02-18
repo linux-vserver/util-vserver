@@ -1416,11 +1416,19 @@ function _namespaceCleanup
 	done
     done
 
+    # keep cgroup mount points
+    list=( "${list[@]}" "${CGROUP_MNT}" )
+    if test -n "$CGROUP_MNT_PER_SS"; then
+        for ss in "${CGROUP_SUBSYS[@]}"; do
+            list=( "${list[@]}" "${CGROUP_MNT}/${ss}" )
+        done
+    fi
+
     local -a list_umount
     while read -r dev path opts; do
 	test -n "$path" || continue
-	for i in "$root" /dev /proc; do
-	    path_dir="${path}/"
+	path_dir="${path}/"
+	for i in "$root" /dev /proc /sys; do
 	    test "${path_dir#${i}/}" != "${path_dir}" && continue 2
 	done
 	for i in "${list[@]}" /; do
