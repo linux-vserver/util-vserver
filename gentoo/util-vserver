@@ -23,6 +23,13 @@ start() {
 	ebegin "Loading default device map"
 	$__PKGLIBDIR/bash-wrapper 'handleDeviceMap --set 0 "$__CONFDIR/.defaults/apps/vdevmap"'
 	eend $?
+
+	$__PKGLIBDIR/bash-wrapper 'hasCgroup'
+	if [ $? -eq 0 ]; then
+		ebegin "Mounting cgroup-hierarchy"
+		$__PKGLIBDIR/bash-wrapper 'mount_cgroup'
+		eend $?
+	fi
 }
 
 stop() {
@@ -42,6 +49,13 @@ stop() {
 	ebegin "Killing all running contexts"
 	$__PKGLIBDIR/bash-wrapper 'kill_contexts'
 	eend $?
+
+	$__PKGLIBDIR/bash-wrapper 'hasCgroup'
+	if [ $? -eq 0 ]; then
+		ebegin "Unmounting cgroup-hierarchy"
+		$__PKGLIBDIR/bash-wrapper 'umount_cgroup'
+		eend $?
+	fi
 }
 
 # vim:ts=4:filetype=gentoo-init-d
