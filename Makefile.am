@@ -151,7 +151,7 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@mkdir -p $$(dirname '$@')
 			@echo "$(SED) -e '...' $*.pathsubst >$*"
 			@$(SED) -e '$(pathsubst_RULES)' '$<' >'$@.tmp'
-			@-chmod --reference='$<' '$@.tmp'
+			@-chmod $$(stat -c '%a' '$<') '$@.tmp'
 			@if cmp -s '$@.tmp' '$*'; then \
 				echo "... no changes, reusing old version"; \
 				rm -f '$@.tmp'; \
