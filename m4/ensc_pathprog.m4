@@ -60,9 +60,13 @@ $4])
 	fi
 
 	if test "x$5" = x; then
-		if test -h "${$1}"; then
-			$1=`readlink -f "${$1}"`
-		fi
+		ensc_pathprog_path="${$1}"
+		while test -h "$ensc_pathprog_path"; do
+			case "$ensc_pathprog_path" in
+				../*) $1=`readlink -f "${$1}"`; break ;;
+			esac
+			ensc_pathprog_path=`readlink "$ensc_pathprog_path"`
+		done
 	fi
 
 	test "${$1}" && ENSC_PATHPROG_SED="${ENSC_PATHPROG_SED}s!@'$1'@!${$1}!g;"
