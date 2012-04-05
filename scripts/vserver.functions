@@ -355,7 +355,7 @@ function _generateInitOptions
 	    ! isNumber "${RUNLEVEL_START:-3}" || INITCMD_PREPARE=( $_FAKE_RUNLEVEL "${RUNLEVEL_START:-3}" /var/run/utmp )
 	    ;;
 
-	(xgentoo)
+	(xgentoo|xopenrc)
 	    test -n "$RUNLEVEL_START" || RUNLEVEL_START="default"
 	    RC_PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
