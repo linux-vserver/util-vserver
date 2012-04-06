@@ -60,6 +60,7 @@ Failed to start vserver '$VSERVER_NAME'"
     test -n "$OPTION_DEBUG"    || exec 2>/dev/null >/dev/null
     test -z "$is_mounted"      || umountVserver     "$VSERVER_DIR" || :
     test -z "$have_interfaces" || disableInterfaces "$VSERVER_DIR" || :
+    test -z "$have_cgroup"     || destroyCgroup     "$VSERVER_DIR" || :
 
     unlock || :
 }
@@ -72,6 +73,7 @@ is_vshelper_init=
 have_interfaces=
 startsync_pipe=
 have_initcmd=
+have_cgroup=
 
 while test "$#" -gt 0; do
     case "$1" in
@@ -121,7 +123,7 @@ enableInterfaces "$VSERVER_DIR" && have_interfaces=1
 mountVserver     "$VSERVER_DIR" && is_mounted=1
 prepareInit      "$VSERVER_DIR"
 addtoCPUSET      "$VSERVER_DIR"
-attachToCgroup   "$VSERVER_DIR"
+attachToCgroup   "$VSERVER_DIR" && have_cgroup=1
 
 handleDeviceMap --set "$S_CONTEXT" "$VSERVER_DIR/apps/vdevmap"
 
