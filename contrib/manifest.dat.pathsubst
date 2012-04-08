@@ -14,9 +14,10 @@ build  @PKGLIBDIR@/vserver-build.clone
 build  @PKGLIBDIR@/vserver-build.urpmi
 build  @PKGLIBDIR@/vserver-build.functions
 build  @PKGLIBDIR@/vserver-build.functions.apt
-build  @PKGLIBDIR@/vserver-build.functions.rpm
-build  @PKGLIBDIR@/vserver-build.functions.yum
 build  @PKGLIBDIR@/vserver-build.functions.pkgmgmt
+build  @PKGLIBDIR@/vserver-build.functions.rpm
+build  @PKGLIBDIR@/vserver-build.functions.urpmi
+build  @PKGLIBDIR@/vserver-build.functions.yum
 build  @PKGLIBDIR@/vserver-setup.functions
 base   @PKGLIBDIR@/vserver.functions
 base   @PKGLIBDIR@/vserver.start

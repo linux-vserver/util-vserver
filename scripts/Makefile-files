@@ -51,8 +51,9 @@ scripts_pkglib_src_DTA =	scripts/functions \
 				scripts/vserver-build.clone \
 				scripts/vserver-build.functions \
 				scripts/vserver-build.functions.apt \
-				scripts/vserver-build.functions.rpm \
 				scripts/vserver-build.functions.pkgmgmt \
+				scripts/vserver-build.functions.rpm \
+				scripts/vserver-build.functions.urpmi \
 				scripts/vserver-build.functions.yum \
 				scripts/vserver-setup.functions \
 				scripts/vserver.functions \
