@@ -70,6 +70,7 @@
 #define CMD_PERSFLAG		0x400f
 #define CMD_VLOGIN		0x4010
 #define CMD_PIVOT_ROOT		0x4011
+#define CMD_CLOSE_FD		0x4012
 
 
 #ifndef MNT_DETACH
@@ -100,6 +101,7 @@ CMDLINE_OPTIONS[] = {
   { "personality-flags", required_argument, 0, CMD_PERSFLAG },
   { "vlogin",       no_argument,        0, CMD_VLOGIN },
   { "pivot-root",   no_argument,        0, CMD_PIVOT_ROOT },
+  { "closefd",      no_argument,        0, CMD_CLOSE_FD },
 #if 1
   { "fakeinit",     no_argument,       	0, CMD_INITPID },	// compatibility
 #endif
@@ -121,6 +123,7 @@ struct Arguments {
     int			verbosity;
     bool		do_chroot;
     bool		do_pivot_root;
+    bool		do_close_fd;
     char const *	uid;
     xid_t		xid;
     char const *	sync_sock;
@@ -165,6 +168,7 @@ showHelp(int fd, char const *cmd, int res)
 	    "                    ...  use <message> as synchronization message; by\n"
 	    "                         default, 'ok' will be used\n"
 	    "    --vlogin        ...  enable terminal proxy\n"
+	    "    --closefd       ...  close all open file descriptors >2\n"
 	    "\n"
 	    "'vcontext --create' exits with code 254 iff the context exists already.\n"
 	    "\n"
@@ -263,6 +267,15 @@ doit(struct Arguments const *args, int argc, char *argv[])
     int				ext_sync_fd = connectExternalSync(args->sync_sock);
 
     doSyncStage0(p, args->do_disconnect);
+
+    if (args->do_close_fd) {
+      int fd;
+      for (fd = 3; fd < sysconf(_SC_OPEN_MAX); fd++) {
+	if (fd == ext_sync_fd)
+	  continue;
+	close(fd);
+      }
+    }
 
     if (args->do_create) {
       xid = vc_ctx_create(args->xid, NULL);
@@ -422,6 +435,7 @@ int main (int argc, char *argv[])
     .do_disconnect     = false,
     .do_endsetup       = false,
     .do_vlogin         = false,
+    .do_close_fd       = false,
     .is_initpid        = false,
     .is_silentexist    = false,
     .set_namespace     = false,
@@ -450,6 +464,7 @@ int main (int argc, char *argv[])
       case CMD_PIVOT_ROOT	:  args.do_pivot_root  = true;   break;
       case CMD_NAMESPACE	:  args.set_namespace  = true;   break;
       case CMD_SILENTEXIST	:  args.is_silentexist = true;   break;
+      case CMD_CLOSE_FD		:  args.do_close_fd    = true;   break;
       case CMD_SYNCSOCK		:  args.sync_sock      = optarg; break;
       case CMD_SYNCMSG		:  args.sync_msg       = optarg; break;
       case CMD_UID		:  args.uid            = optarg; break;

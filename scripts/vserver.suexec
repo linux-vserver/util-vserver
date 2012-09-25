@@ -42,7 +42,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
 	${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT" -- } \
 	$_VSPACE --enter "$S_CONTEXT" "${OPTS_VSPACE[@]}" "${OPTS_VSPACE_SHARED[@]}" -- \
 	$_VTAG --migrate "${OPTS_VTAG_ENTER[@]}" --silent -- \
-	$_VCONTEXT $SILENT_OPT --migrate $OPT_VCONTEXT_CHROOT \
+	$_VCONTEXT $SILENT_OPT --migrate $OPT_VCONTEXT_CHROOT $OPT_VCONTEXT_CLOSE_FD \
 	  --xid "$S_CONTEXT" --uid "$user" "${OPTS_VCONTEXT_ENTER[@]}" -- \
 	"$@"
     else

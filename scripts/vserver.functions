@@ -42,6 +42,7 @@ declare -a OPTS_VCONTEXT_CREATE=()
 declare -a OPTS_VCONTEXT_MIGRATE=()
 declare -a OPTS_VCONTEXT_ENTER=()
 OPT_VCONTEXT_CHROOT=--chroot
+OPT_VCONTEXT_CLOSE_FD=""
 declare -a OPTS_VATTRIBUTE=( --flag fakeinit )
 declare -a OPTS_VSCHED=()
 declare -a OPTS_ENV=()
@@ -467,6 +468,8 @@ function _generateChcontextOptions
 
     OPTS_VCONTEXT_CREATE=( $SILENT_OPT \
 			   ${ctx:+--xid "$ctx"} )
+    findFile file "$vdir"/keepfds "$__CONFDIR/.defaults/keepfds" ""
+    test -n "$file" || OPT_VCONTEXT_CLOSE_FD=( "--closefd" )
     ## put '--secure' at front so that it can be overridden
     OPTS_VATTRIBUTE=( --secure --flag default "${OPTS_VATTRIBUTE[@]}" )
 }
