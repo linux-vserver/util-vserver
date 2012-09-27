@@ -271,7 +271,11 @@ doit(struct Arguments const *args, int argc, char *argv[])
     if (args->do_close_fd) {
       int fd;
       for (fd = 3; fd < sysconf(_SC_OPEN_MAX); fd++) {
-	if (fd == ext_sync_fd)
+	if (fd == ext_sync_fd ||
+            fd == p[0][0] ||
+            fd == p[0][1] ||
+            fd == p[1][0] ||
+            fd == p[1][1])
 	  continue;
 	close(fd);
       }
