@@ -27,7 +27,7 @@ elif test -e /etc/gentoo-release; then
     success() { eend 0; }
     passed()  { eend 0; }
     failure() { eend 1; }
-    lockfile=/var/lock/vservers/$LOCKFILE
+    lockfile=/var/run/$LOCKFILE
 else
     _beginResult() { echo -n "$@..."; }
     _postResult() { :; }
