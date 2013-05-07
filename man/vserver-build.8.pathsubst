@@ -94,14 +94,14 @@ Requires kernel patch from http://www.bullopensource.org/cpuset/
 \& \fB\-\-\fR \fB\-d\fR \fIdistribution\fR
 
 \&Installs the base\-packages of the given distribution with the help of
-'\fBvapt\-get\fR'
+\fBvapt\-get\fR
 .TP
 \fByum\fR
 .IP
 \&\fB\-\-\fR \fB\-d\fR \fIdistribution\fR
 
 \&Installs the base\-packages of the given distribution with help of
-'\fBvyum\fR'
+\fBvyum\fR
 .TP
 \fBrpm\fR
 .IP
