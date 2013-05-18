@@ -27,7 +27,43 @@ man_pages		=  man/chbind.8 \
 			   man/vserver-copy.8 \
 			   man/vserver-stat.8 \
 			   man/vserver.8 \
-			   man/vtop.8
+			   man/vtop.8 \
+			   man/chxid.8 \
+			   man/exec-cd.8 \
+			   man/lsxid.8 \
+			   man/naddress.8 \
+			   man/nattribute.8 \
+			   man/ncontext.8 \
+			   man/setattr.8 \
+			   man/showattr.8 \
+			   man/vapt-get.8 \
+			   man/vattribute.8 \
+			   man/vcontext.8 \
+			   man/vdevmap.8 \
+			   man/vdispatch-conf.8 \
+			   man/vdlimit.8 \
+			   man/vdu.8 \
+			   man/vemerge.8 \
+			   man/vesync.8 \
+			   man/vkill.8 \
+			   man/vlimit.8 \
+			   man/vmemctrl.8 \
+			   man/vmount.8 \
+			   man/vnamespace.8 \
+			   man/vrpm.8 \
+			   man/vrsetup.8 \
+			   man/vsched.8 \
+			   man/vserver-info.8 \
+			   man/vshelper.8 \
+			   man/vsomething.8 \
+			   man/vspace.8 \
+			   man/vtag.8 \
+			   man/vuname.8 \
+			   man/vupdateworld.8 \
+			   man/vurpm.8 \
+			   man/vwait.8 \
+			   man/vyum.8
+
 man_susbt_SRCS =	man/vserver-build.8.pathsubst
 man_gen_DTA =		man/vserver-build.8
 
