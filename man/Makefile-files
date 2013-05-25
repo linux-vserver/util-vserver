@@ -62,7 +62,9 @@ man_pages		=  man/chbind.8 \
 			   man/vupdateworld.8 \
 			   man/vurpm.8 \
 			   man/vwait.8 \
-			   man/vyum.8
+			   man/vyum.8 \
+			   man/viotop.8 \
+			   man/vhtop.8
 
 man_susbt_SRCS =	man/vserver-build.8.pathsubst
 man_gen_DTA =		man/vserver-build.8

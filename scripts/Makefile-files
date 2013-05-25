@@ -28,6 +28,8 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 				scripts/vserver-wrapper \
 				scripts/vsysvwrapper \
 				scripts/vtop \
+				scripts/viotop \
+				scripts/vhtop \
 				scripts/h2ext-worker \
 				scripts/legacy/distrib-info \
 				scripts/legacy/vps \
@@ -102,6 +104,8 @@ scripts_sbin_src_PRGS =		scripts/chbind \
 				scripts/vserver \
 				scripts/vsomething \
 				scripts/vtop \
+				scripts/viotop \
+				scripts/vhtop \
 				scripts/vupdateworld \
 				scripts/vurpm \
 				scripts/vyum
