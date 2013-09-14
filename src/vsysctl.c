@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
     }
 
     Efchdir(curdir);
-    close(curdir);
+    Eclose(curdir);
   }
 
 exec:

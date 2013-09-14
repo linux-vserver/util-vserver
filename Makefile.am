@@ -208,6 +208,10 @@ _install-vserverdir:
 			chmod a-w util-vserver.spec
 			touch $@
 
+dist-snapshot:
+	$(MAKE) -f $(top_srcdir)/m4/release.mk D=$(abs_top_srcdir) \
+		VERSION=$(VERSION) NAME=$(PACKAGE_NAME) DIST_ARCHIVES='$(DIST_ARCHIVES)'
+
 if USE_DIETLIBC
 $(addsuffix $(EXEEXT), $(DIETPROGS)) \
 $(addsuffix $(OBJEXT), $(DIETPROGS)) \
