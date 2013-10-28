@@ -28,15 +28,15 @@ AC_DEFUN([_ENSC_DIETLIBC_C99],
 		CC="${DIET:-diet} $CC"
 
 		AC_LANG_PUSH(C)
-		AC_COMPILE_IFELSE([/* */],[
-			AC_COMPILE_IFELSE([
+		AC_COMPILE_IFELSE([AC_LANG_SOURCE([/* */])],[
+			AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 				#include <stdint.h>
 				#include <sys/cdefs.h>
 				#if defined(inline)
 				#  error 'inline' badly defined
 				#endif
 				volatile uint64_t	a;
-			],
+			])],
 			[ensc_cv_c_dietlibc_c99=yes],
 			[ensc_cv_c_dietlibc_c99=no])],
 			[ensc_cv_c_dietlibc_c99='skipped (compiler does not support C99)'])
@@ -61,10 +61,10 @@ AC_DEFUN([_ENSC_DIETLIBC_SYSCALL],
 		CC="${DIET:-diet} $CC"
 
 		AC_LANG_PUSH(C)
-		AC_COMPILE_IFELSE([
+		AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 			#include <sys/syscall.h>
 			long int syscall(long int __sysno, ...);
-		],
+		])],
 		[ensc_cv_c_dietlibc_syscall=no],
 		[ensc_cv_c_dietlibc_syscall=yes])
 		AC_LANG_POP

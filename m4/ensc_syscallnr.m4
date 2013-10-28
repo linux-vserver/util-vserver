@@ -26,7 +26,7 @@ AC_DEFUN([ENSC_SYSCALLNR],
 	AC_CACHE_CHECK([for number of syscall '$1'], [ensc_cv_value_syscall_$1],
 	[
 		AC_LANG_PUSH(C)
-		AC_LANG_CONFTEST([
+		AC_LANG_CONFTEST([AC_LANG_SOURCE([
 #ifdef ENSC_SYSCALL_FALLBACK
 #  include ENSC_SYSCALL_FALLBACK
 #else
@@ -36,7 +36,7 @@ AC_DEFUN([ENSC_SYSCALLNR],
 ensc_syscall_tmp_nr=__NR_$1;
 ensc_syscall_tmp_src=ENSC_MARK
 #endif
-])
+])])
 		ensc_syscall_tmp_nr=
 		ensc_syscall_tmp_src=
 		test x"$ensc_syscall_tmp_nr" != x || \

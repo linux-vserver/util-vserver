@@ -23,9 +23,9 @@ AC_DEFUN([ENSC_CXXCOMPILER],
 	AC_CACHE_CHECK([whether $CXX is a C++ compiler], [ensc_cv_cxx_cxxcompiler],
 	[
 		AC_LANG_PUSH(C++)
-		AC_COMPILE_IFELSE([
+		AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 		    #include <ostream>
-		],
+		])],
 		[ensc_cv_cxx_cxxcompiler=yes],
 		[ensc_cv_cxx_cxxcompiler=no])
 		AC_LANG_POP(C++)
@@ -46,13 +46,13 @@ AC_DEFUN([ENSC_C99COMPILER],
 	AC_CACHE_CHECK([whether $CC is a C99 compiler], [ensc_cv_c99_c99compiler],
 	[
 		AC_LANG_PUSH(C)
-		AC_COMPILE_IFELSE([
+		AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 int main(int argc, char *argv[]) {
   struct { int x; }   a = { .x = argc };
   if (0) return 0;
   int b;
 }
-		],
+		])],
 		[ensc_cv_c99_c99compiler=yes],
 		[ensc_cv_c99_c99compiler=no])
 		AC_LANG_POP(C)

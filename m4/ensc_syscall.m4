@@ -55,7 +55,7 @@ AC_DEFUN([ENSC_SYSCALL],
 		AC_CACHE_CHECK([which syscall(2) invocation works], [ensc_cv_test_syscall],
 			       [
 				AC_LANG_PUSH(C)
-				AC_COMPILE_IFELSE(AC_LANG_SOURCE([
+				AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 #include "$srcdir/lib/syscall-wrap.h"
 #include <errno.h>
 
@@ -80,7 +80,7 @@ int main() {
 	 foo4(1,2,3,4) || \
 	 foo5(1,2,3,4,5);
 }
-				]),
+				])],
 				[ensc_cv_test_syscall=fast],
 				[ensc_cv_test_syscall=traditional])
 
