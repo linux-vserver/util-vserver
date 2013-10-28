@@ -94,9 +94,16 @@ EOF
         esac
         cd $dir
         ar x "$dst"
-        tar xzf data.tar.gz
+        local data=`ls -1 data.tar.*`
+        test "${data%.gz}" = "$data" || tar xzf data.tar.gz
+        test "${data%.bz2}" = "$data" || tar xjf data.tar.bz2
+        test "${data%.xz}" = "$data" || tar xJf data.tar.xz
         DEBOOTSTRAP_DIR=`pwd`/usr/lib/debootstrap
         DEBOOTSTRAP=`pwd`/usr/sbin/debootstrap
+        test -x "$DEBOOTSTRAP" || {
+            echo $"Unable to extract debootstrap: data file is $data" >&2
+            exit 1
+        }
         test -d "$DEBOOTSTRAP_DIR" || DEBOOTSTRAP_DIR=`pwd`/usr/share/debootstrap
         export DEBOOTSTRAP_DIR
 
