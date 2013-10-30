@@ -24,6 +24,7 @@ test -z "$is_stopped" -o "$OPTION_INSECURE" || {
 generateOptions  "$VSERVER_DIR"
 addtoCPUSET      "$VSERVER_DIR"
 attachToCgroup   "$VSERVER_DIR"
+enterNetNS       "$VSERVER_DIR"
 
 user=$1
 shift
@@ -37,6 +38,7 @@ if $_VSERVER_INFO - FEATURE migrate; then
 	exec \
 	"${IONICE_CMD[@]}" \
 	"${NICE_CMD[@]}" \
+	"${NETNS_CMD[@]}" \
 	"${CHBIND_CMD[@]}" \
 	$_EXEC_ULIMIT "$VSERVER_DIR/ulimits" \
 	${USE_VNAMESPACE:+$_VNAMESPACE --enter "$S_CONTEXT" -- } \

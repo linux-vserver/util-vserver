@@ -124,6 +124,7 @@ mountVserver     "$VSERVER_DIR" && is_mounted=1
 prepareInit      "$VSERVER_DIR"
 addtoCPUSET      "$VSERVER_DIR"
 attachToCgroup   "$VSERVER_DIR" && have_cgroup=1
+setupNetNS       "$VSERVER_DIR"
 
 handleDeviceMap --set "$S_CONTEXT" "$VSERVER_DIR/apps/vdevmap"
 
@@ -138,6 +139,7 @@ is_configured=1
 if $_VSERVER_INFO - FEATURE migrate; then
     ${IONICE_CMD[@]} \
     ${NICE_CMD[@]} \
+    "${NETNS_CMD[@]}" \
     "${VSPACE_SHARED_CMD[@]}" \
     "${CHBIND_CMD[@]}" \
     $_EXEC_ULIMIT "$VSERVER_DIR"/ulimits \

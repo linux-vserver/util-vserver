@@ -39,3 +39,5 @@ src/tunctl
 stamp-h1
 util-vserver-*.tar.*
 util-vserver.spec
+*.orig
+*~

@@ -63,6 +63,7 @@ set +e
 vshelper.doDestroy "$VSERVER_DIR" "$S_CONTEXT"
 initSync           "$VSERVER_DIR" "$S_CONTEXT" sync_fifo
 prepareStop        "$VSERVER_DIR"
+enterNetNS         "$VSERVER_DIR"
 
 cd "$VSERVER_DIR"/vdir/
 execScriptlets     "$VSERVER_DIR" "$VSERVER_NAME" pre-stop
@@ -82,6 +83,7 @@ if test -n "$_IS_FAKEINIT" && \
 elif $_VSERVER_INFO - FEATURE migrate; then
     "${IONICE_CMD[@]}" \
     "${NICE_CMD[@]}" \
+    "${NETNS_CMD[@]}" \
     "${CHBIND_CMD[@]}" \
     "$_VSPACE" --enter "$S_CONTEXT" "${OPTS_VSPACE[@]}" "${OPTS_VSPACE_SHARED[@]}" -- \
     "$_VTAG" --migrate "${OPTS_VTAG_ENTER[@]}" --silent -- \
@@ -127,3 +129,4 @@ saveDiskLimits    "$VSERVER_DIR"
 execScriptlets    "$VSERVER_DIR" "$VSERVER_NAME" postpost-stop
 removeCPUSET      "$VSERVER_DIR"
 destroyCgroup     "$VSERVER_DIR"
+destroyNetNS      "$VSERVER_DIR"

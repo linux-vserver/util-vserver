@@ -350,6 +350,20 @@ If this file exists, each subsystem will have its own mount point.
         </description>
       </boolean>
     </collection>
+
+    <collection name="netns" use="optional" since="0.30.216" id="global-netns">
+      <scalar name="name">
+        <description>
+The name of the network namespace to use for guests.
+        </description>
+      </scalar>
+      <boolean name="shared">
+        <description>
+Whether or not util-vserver should add and delete the network namespace when
+the guest is started and stopped, respectively.
+        </description>
+      </boolean>
+    </collection>
   </collection>
     
   <collection name=".distributions" use="optional">
@@ -1658,6 +1672,57 @@ otherwise.
       <description>
 If this file exists,
 <optionref ref="global-cgroup">.defaults/cgroup</optionref> will be ignored
+for this guest.
+      </description>
+    </scalar>
+
+    <collection name="netns" use="optional" since="0.30.216" id="guest-netns">
+      <scalar name="name">
+        <description>
+The name of the network namespace to use for the guest. Defaults to the
+guest's name.
+        </description>
+      </scalar>
+      <boolean name="shared">
+        <description>
+Whether or not util-vserver should add and delete the network namespace when
+the guest is started and stopped, respectively.
+        </description>
+      </boolean>
+      <collection name="interfaces">
+        <collection name="iface" type="symbolic">
+          <description>
+'iface' is an arbitrary name for the interface; the value itself is
+not important but may be interesting regarding interface-creation.
+It happens in alphabetical order and numbers like '00' are good names for
+these directories.
+
+For each of these directories, a pair of network interfaces will be created,
+one left on the host, and the other moved into the guest's namespace.
+          </description>
+          <scalar name="host">
+            <description>
+Name of the interface on the host.
+            </description>
+          </scalar>
+          <scalar name="guest">
+            <description>
+Name of the interface in the guest. Defaults to gethX, where X starts at 0 
+and increases for every interface.
+            </description>
+          </scalar>
+          <scalar name="type">
+            <description>
+Type of link to create. Defaults to veth.
+            </description>
+          </scalar>
+        </collection>
+      </collection>
+    </collection>
+    <scalar name="nonetns" since="0.30.216">
+      <description>
+If this file exists,
+<optionref ref="global-netns">.defaults/netns</optionref> will be ignored
 for this guest.
       </description>
     </scalar>

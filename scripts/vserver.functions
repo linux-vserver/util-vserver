@@ -21,6 +21,7 @@
 
 declare -a NICE_CMD=()
 declare -a IONICE_CMD=()
+declare -a NETNS_CMD=()
 declare -a CHBIND_CMD=()
 declare -a CAP_OPTS=()
 declare -a CHCONTEXT_INIT_OPTS=()
@@ -1631,4 +1632,72 @@ function attachToCgroup
 function destroyCgroup
 {
     _handleCgroup destroy "$@"
+}
+
+function _handleNetNS
+{
+    local action="$1"
+    local vdir="$2"
+    local dir
+    local name
+
+    findDir dir "$vdir/netns" "$__CONFDIR/.defaults/netns" ""
+    test -n "$dir" -a ! -e "$vdir"/nonetns  || return 0
+
+    if test -r "$dir"/name; then
+	read name < "$dir"/name
+    else
+	name="$VSERVER_NAME"
+    fi
+
+    NETNS_CMD=( "$_IP" netns exec "$name" )
+    if test ! -e "$dir"/shared; then
+	if test "$action" = "add"; then
+	    "$_IP" netns add "$name"
+	    shopt -s nullglob
+	    counter=0
+	    for i in "$dir"/interfaces/*; do
+		local host
+		local guest
+		local type
+		read host < "$i"/host
+		if test -r "$i"/guest; then
+		    read guest < "$i"/guest
+		else
+		    guest="geth$counter"
+		    counter=$(( $counter + 1 ))
+		fi
+		if test -r "$i"/type; then
+		    read type < "$i"/type
+		else
+		    type="veth"
+		fi
+		"$_IP" link add name "$host" type "$type" peer "$guest"
+		"$_IP" link set "$guest" netns "$name"
+	    done
+	elif test "$action" = "del"; then
+	    shopt -s nullglob
+	    for i in "$dir"/interfaces/*; do
+		local host
+		read host < "$i"/host
+		"$_IP" link del "$host"
+	    done
+	    "$_IP" netns del "$name"
+	fi
+    fi
+}
+
+function setupNetNS
+{
+    _handleNetNS add "$1"
+}
+
+function enterNetNS
+{
+    _handleNetNS exec "$1"
+}
+
+function destroyNetNS
+{
+    _handleNetNS del "$1"
 }
