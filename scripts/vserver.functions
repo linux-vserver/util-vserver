@@ -1673,7 +1673,7 @@ function _handleNetNS
 		else
 		    type="veth"
 		fi
-		"$_IP" link add name "$host" type "$type" peer "$guest"
+		"$_IP" link add name "$host" type "$type" peer name "$guest"
 		"$_IP" link set "$guest" netns "$name"
 	    done
 	elif test "$action" = "del"; then
