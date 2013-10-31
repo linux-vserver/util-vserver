@@ -23,7 +23,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 }
 . "$UTIL_VSERVER_VARS"
 . "$_LIB_FUNCTIONS"
-. "$__PKGLIBDIR/vserver.functions"
+. "$_LIB_VSERVER_FUNCTIONS"
 
 
 function showHelp()

@@ -18,7 +18,7 @@ tmp=$(getopt -o '+d:f:n:a' --long debug,pkgmgmt -n "$0" -- "$@") || exit 1
 eval set -- "$tmp"
 
 . "$_LIB_VSERVER_BUILD_FUNCTIONS_PKGMGMT"
-. "$__PKGLIBDIR/vserver.functions"
+. "$_LIB_VSERVER_FUNCTIONS"
 
 DISTRIBUTION=:
 

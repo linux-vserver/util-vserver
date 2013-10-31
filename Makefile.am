@@ -23,7 +23,7 @@ SUBDIRS			=  . distrib
 confdir			=  $(sysconfdir)/vservers
 confdefaultsdir		=  $(confdir)/.defaults
 sbincfgdir		=  $(sbindir)
-legacydir		=  $(pkglibdir)/legacy
+legacydir		=  $(pkglibexecdir)/legacy
 
 include_HEADERS =
 noinst_HEADERS =	$(ENSC_VECTOR_HDRS) \
@@ -34,9 +34,9 @@ lib_LIBRARIES =
 lib_LTLIBRARIES =
 pkglib_LTLIBRARIES =
 
-pkglib_SCRIPTS =
-pkglib_DATA =		FEATURES.txt
-pkglib_PROGRAMS =
+pkglibexec_SCRIPTS =
+pkgdata_DATA =		FEATURES.txt
+pkglibexec_PROGRAMS =
 legacy_SCRIPTS =
 legacy_PROGRAMS =
 
@@ -116,6 +116,8 @@ silent.%:		FORCE
 			$(MAKE) '$*' -s >/dev/null
 
 pathsubst_RULES =	s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
+			s!@'PKGDATADIR'@!$(pkgdatadir)!g; \
+			s!@'PKGLIBEXECDIR'@!$(pkglibexecdir)!g; \
 			s!@'LEGACYDIR'@!$(legacydir)!g; \
 			s!@'SBINDIR'@!$(sbindir)!g; \
 			s!@'CONFDIR'@!$(confdir)!g; \
@@ -167,7 +169,7 @@ pkgstaterevdir =	$(confdefaultsdir)/run.rev
 vserverpkgdir =		$(vserverdir)/.pkg
 vshelperstatedir =	$(localstatedir)/run/vshelper
 
-fix_SCRPTS		=  $(addprefix $(pkglibdir)/, $(notdir $(pkglib_SCRIPTS))) \
+fix_SCRPTS		=  $(addprefix $(pkglibexecdir)/, $(notdir $(pkglibexec_SCRIPTS))) \
 			   $(addprefix $(legacydir)/, $(notdir $(legacy_SCRIPTS))) \
 			   $(addprefix $(sbindir)/,   $(notdir $(sbin_SCRIPTS))) \
 			   $(addprefix $(initrddir)/, $(notdir $(initrd_SCRIPTS)))
@@ -186,10 +188,10 @@ install-create-dirs:
 			f=$(DESTDIR)$(pkgstaterevdir);            test -e "$$f" || ln -sf '$(pkgstatedir).rev' "$$f"
 
 install-fix-script-paths:
-			test "/usr/lib/util-vserver" = "$(pkglibdir)" || \
+			test "/usr/lib/util-vserver" = "$(pkgdatadir)" || \
 			for i in $(fix_SCRPTS); do \
 				f="$(DESTDIR)$$i"; \
-				$(SED) -e 's!/usr/lib/util-vserver!$(pkglibdir)!g' "$$f" >"$$f.tmp"; \
+				$(SED) -e 's!/usr/lib/util-vserver!$(pkgdatadir)!g' "$$f" >"$$f.tmp"; \
 				$(CMP) -s "$$f.tmp" "$$f" || cat "$$f.tmp" >"$$f"; \
 				rm -f "$$f.tmp"; \
 			done
@@ -198,7 +200,7 @@ install-distribution:	_install-vserverdir _install-vshelperlink
 
 _install-vshelperlink:
 			$(mkinstalldirs) $(DESTDIR)/sbin
-			ln -sf ..$(pkglibdir)/vshelper $(DESTDIR)/sbin/vshelper
+			ln -sf ..$(pkglibexecdir)/vshelper $(DESTDIR)/sbin/vshelper
 
 _install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)

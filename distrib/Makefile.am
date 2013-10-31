@@ -16,8 +16,8 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 confdir =		$(sysconfdir)/vservers
-defaultsdir =		$(pkglibdir)/defaults
-distribdir =		$(pkglibdir)/distributions
+defaultsdir =		$(pkgdatadir)/defaults
+distribdir =		$(pkgdatadir)/distributions
 confdistribdir =	$(confdir)/.distributions
 confdefaultsdir =	$(confdir)/.defaults
 

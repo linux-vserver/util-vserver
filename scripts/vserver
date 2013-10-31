@@ -101,7 +101,7 @@ the GNU General Public License.  This program has absolutely no warranty."
 
 function suexec()
 {
-    . $__PKGLIBDIR/vserver.suexec
+    . $__PKGDATADIR/vserver.suexec
 }
 
 function restart()
@@ -214,11 +214,11 @@ test "$cmd" != enter -a "$cmd" != stop || \
 set_init_cwd
 cd /
 
-. $__PKGLIBDIR/vserver.functions
+. "$_LIB_VSERVER_FUNCTIONS"
 case "$2" in
     (start|stop|delete)
 	shift 2
-	. $__PKGLIBDIR/vserver.$cmd
+	. $__PKGDATADIR/vserver.$cmd
 	;;
     (suexec|restart)
 	shift 2

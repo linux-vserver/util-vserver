@@ -43,7 +43,7 @@ MatchList_initByVserver(struct MatchList *list,
 
   excl_list = tmp;
   if (access(excl_list, R_OK)==-1) excl_list = CONFDIR   "/.defaults/apps/vunify/exclude";
-  if (access(excl_list, R_OK)==-1) excl_list = PKGLIBDIR "/defaults/vunify-exclude";
+  if (access(excl_list, R_OK)==-1) excl_list = PKGDATADIR "/defaults/vunify-exclude";
 
   MatchList_initManually(list, vserver, 0, excl_list);
   

@@ -17,7 +17,7 @@
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 ##  
 
-src_pkglib_C99_PROGS =	src/vunify src/vcopy src/vclone
+src_pkglibexec_C99_PROGS =	src/vunify src/vcopy src/vclone
 
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
@@ -102,7 +102,7 @@ noinst_HEADERS +=	src/capability-compat.h \
 			src/context-sync.hc \
 			src/attribute-util.h
 
-pkglib_PROGRAMS +=	src/capchroot \
+pkglibexec_PROGRAMS +=	src/capchroot \
 			src/chain-echo \
 			src/chcontext-compat \
 			src/check-unixfile \
@@ -124,11 +124,11 @@ pkglib_PROGRAMS +=	src/capchroot \
 			src/h2ext \
 			src/tunctl \
 			src/exec-remount \
-			$(src_pkglib_C99_X_PROGS)
+			$(src_pkglibexec_C99_X_PROGS)
 
 if ENSC_HAVE_C99_COMPILER
 if ENSC_HAVE_CRYPTO
-pkglib_PROGRAMS +=	src/vhashify
+pkglibexec_PROGRAMS +=	src/vhashify
 endif ENSC_HAVE_CRYPTO
 endif ENSC_HAVE_C99_COMPILER
 
@@ -367,10 +367,10 @@ TESTS_ENVIRONMENT +=		srctestsuitedir=$(top_builddir)/src/testsuite
 
 if ENSC_HAVE_C99_COMPILER
 src_sbin_C99_X_PROGS =		$(src_sbin_C99_PROGS)
-src_pkglib_C99_X_PROGS =	$(src_pkglib_C99_PROGS)
+src_pkglibexec_C99_X_PROGS =	$(src_pkglibexec_C99_PROGS)
 else
 src_sbin_C99_X_PROGS =
-src_pkglib_C99_X_PROGS =  
+src_pkglibexec_C99_X_PROGS =  
 endif
 
 install-exec-hook:		src_install_exec_hook

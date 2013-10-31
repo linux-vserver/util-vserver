@@ -25,7 +25,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 . "$_LIB_FUNCTIONS"
 . "$_LIB_VSERVER_BUILD_FUNCTIONS"
 . "$_LIB_VSERVER_BUILD_FUNCTIONS_PKGMGMT"
-. "$__PKGLIBDIR/vserver.functions"
+. "$_LIB_VSERVER_FUNCTIONS"
 
 function showHelp()
 {

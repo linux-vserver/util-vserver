@@ -1409,7 +1409,8 @@ function _namespaceCleanup
 
     # these are things that have to be accessible post-cleanup
     for i in "$root" "$__SBINDIR" "$__PKGLIBDIR" "$vdir" \
-	"$__PKGSTATEDIR" "$__LOCKDIR" /usr/local /tmp "${skip[@]}"; do
+	"$__PKGSTATEDIR" "$__LOCKDIR" "$__PKGDATADIR" "$__PKGLIBEXECDIR" \
+	/usr/local /tmp "${skip[@]}"; do
 	local real=`getPhysicalDir "$i"`
 	test "$i" != "$real" || real=
 	for j in "$i" "$real"; do

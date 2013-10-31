@@ -20,11 +20,13 @@
 #define H_UTIL_VSERVER_PATHCONFIG_H
 
 #define PKGLIBDIR		"@PKGLIBDIR@"
+#define PKGDATADIR		"@PKGDATADIR@"
+#define PKGLIBEXECDIR	"@PKGLIBEXECDIR@"
 #define SBINDIR			"@SBINDIR@"
 #define CONFDIR			"@CONFDIR@"
 #define SYSCONFDIR		"@SYSCONFDIR@"
 #define LOCKDIR			"/var/lock"
-#define PKGLIBDEFAULTDIR	PKGLIBDIR "/defaults"
+#define PKGLIBDEFAULTDIR	PKGDATADIR "/defaults"
 #define DEFAULTCONFDIR		"@CONFDIR@/.defaults"
 
 #define DEFAULT_VSERVERDIR	"@VSERVERDIR@"
@@ -36,19 +38,19 @@
 #define UMOUNT_PROG		"@UMOUNT@"
 #define PS_PROG			"@PS@"
 
-#define VPKG_PROG		PKGLIBDIR "/vpkg"
-#define RESOLVER_PROG		PKGLIBDIR "/rpm-fake-resolver"
+#define VPKG_PROG		PKGLIBEXECDIR "/vpkg"
+#define RESOLVER_PROG		PKGLIBEXECDIR "/rpm-fake-resolver"
 
 #define PROG_IP			"@IP@"
 #define PROG_MODPROBE		"@MODPROBE@"
 #define PROG_NAMEIF		"@NAMEIF@"
 #define PROG_VCONFIG		"@VCONFIG@"
 
-#define PROG_SECURE_MOUNT	PKGLIBDIR "/secure-mount"
-#define PROG_H2EXT_WORKER	PKGLIBDIR "/h2ext-worker"
+#define PROG_SECURE_MOUNT	PKGLIBEXECDIR "/secure-mount"
+#define PROG_H2EXT_WORKER	PKGLIBEXECDIR "/h2ext-worker"
 
-#define PATH_VSERVER_START	PKGLIBDIR "/vserver.start"
-#define PATH_FUNCTIONS		PKGLIBDIR "/functions"
-#define PATH_UTILVSERVER_VARS	PKGLIBDIR "/util-vserver-vars"
+#define PATH_VSERVER_START	PKGDATADIR "/vserver.start"
+#define PATH_FUNCTIONS		PKGDATADIR "/functions"
+#define PATH_UTILVSERVER_VARS	PKGDATADIR "/util-vserver-vars"
 
 #endif	//  H_UTIL_VSERVER_PATHCONFIG_H

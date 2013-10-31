@@ -27,7 +27,7 @@ test -e "$UTIL_VSERVER_VARS" || {
 . "$UTIL_VSERVER_VARS"
 
 USR_SBIN=$__SBINDIR
-USR_LIB_VSERVER=$__PKGLIBDIR
+USR_LIB_VSERVER=$__PKGLIBEXECDIR
 DEFAULTPATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin
 
 vserver_mknod(){

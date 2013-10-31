@@ -14,6 +14,8 @@
 %global confdir		%_sysconfdir/vservers
 %global confdefaultdir	%confdir/.defaults
 %global pkglibdir	%_libdir/%name
+%global pkgdatadir	%_datadir/%name
+%global pkglibexecdir %_libexecdir/%name
 %global chkconfig	/sbin/chkconfig
 
 %global _localstatedir	%_var

@@ -42,7 +42,7 @@ if ($context == -1) {
    exit;
 }
 if ($context != 1) {
-   exec("@PKGLIBDIR@/chcontext-compat --silent --ctx 1 $0 @ARGV");
+   exec("@PKGLIBEXECDIR@/chcontext-compat --silent --ctx 1 $0 @ARGV");
    print "Can not execute chcontext\n";
    exit; # not reached
 } 

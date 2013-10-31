@@ -13,21 +13,21 @@ start() {
 	. ${UTIL_VSERVER_VARS}
 
 	ebegin "Creating directories for $PACKAGE_NAME"
-    $__PKGLIBDIR/bash-wrapper 'create_dirs'
+    $_BASH_WRAPPER 'create_dirs'
 	eend $?
 
 	ebegin "Setting vshelper path to $_VSHELPER"
-    $__PKGLIBDIR/bash-wrapper 'set_helper'
+    $_BASH_WRAPPER 'set_helper'
 	eend $?
 
 	ebegin "Loading default device map"
-	$__PKGLIBDIR/bash-wrapper 'handleDeviceMap --set 0 "$__CONFDIR/.defaults/apps/vdevmap"'
+	$_BASH_WRAPPER 'handleDeviceMap --set 0 "$__CONFDIR/.defaults/apps/vdevmap"'
 	eend $?
 
-	$__PKGLIBDIR/bash-wrapper 'hasCgroup'
+	$_BASH_WRAPPER 'hasCgroup'
 	if [ $? -eq 0 ]; then
 		ebegin "Mounting cgroup-hierarchy"
-		$__PKGLIBDIR/bash-wrapper 'mount_cgroup'
+		$_BASH_WRAPPER 'mount_cgroup'
 		eend $?
 	fi
 }
@@ -47,13 +47,13 @@ stop() {
 	eend $?
 
 	ebegin "Killing all running contexts"
-	$__PKGLIBDIR/bash-wrapper 'kill_contexts'
+	$_BASH_WRAPPER 'kill_contexts'
 	eend $?
 
-	$__PKGLIBDIR/bash-wrapper 'hasCgroup'
+	$_BASH_WRAPPER 'hasCgroup'
 	if [ $? -eq 0 ]; then
 		ebegin "Unmounting cgroup-hierarchy"
-		$__PKGLIBDIR/bash-wrapper 'umount_cgroup'
+		$_BASH_WRAPPER 'umount_cgroup'
 		eend $?
 	fi
 }

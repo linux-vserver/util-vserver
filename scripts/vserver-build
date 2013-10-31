@@ -143,7 +143,7 @@ setup_setDefaults "$VSERVER_NAME"
 case x"$method" in
     (xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
     (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum|xrpm|xtemplate|xfai|xrsync|xclone|xurpmi)
-		. $__PKGLIBDIR/vserver-build.$method
+		. $__PKGDATADIR/vserver-build.$method
 		;;
     (x)		panic $"No build-method specified";;
     (*)		panic $"Unknown build-method '$method'";;
