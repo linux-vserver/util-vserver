@@ -676,6 +676,11 @@ Contains the context id which shall be used for the vserver. Valid range is 2 th
 Contains the network context id which shall be used for the vserver. Valid range is 2 through 49151.
       </description>
     </scalar>
+    <boolean name="noncontext" since="0.30.216" id="noncontext">
+      <description>
+When this file exists, it disables network isolation for this guest. Typically used with netns.
+      </description>
+    </boolean>
     <scalar name="tag">
       <description>
 Contains the filesystem tag which shall be used for the vserver. Valid range is 2 through 49151.
@@ -1677,6 +1682,11 @@ for this guest.
     </scalar>
 
     <collection name="netns" use="optional" since="0.30.216" id="guest-netns">
+      <description>
+When this directory exists, a network namespace will be used for this guest.
+Note that you typically will want to <optionref ref="noncontext">disable
+network isolation</optionref> when using network namespaces.
+      </description>
       <scalar name="name">
         <description>
 The name of the network namespace to use for the guest. Defaults to the
