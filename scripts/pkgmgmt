@@ -195,7 +195,7 @@ packagemanagement:
 "
     
     case $2 in
-	(RH)	pkgs=$(vrpm "$1" -- -q --qf '---%{NAME}---\n' rpm apt yum urpmi "${YUM_RELEASEPKGS[@]}")
+	(RH)	pkgs=$(vrpm "$1" -- -q --qf '---%{NAME}---\n' rpm apt yum urpmi poldek "${YUM_RELEASEPKGS[@]}")
 		hasSubstring "$pkgs" ---rpm--- || {
 		    warning "$ERR
 * The vserver does not seem to have the 'rpm' package which is required
@@ -204,10 +204,10 @@ packagemanagement:
 		    res=1
 		    ERR=
 		}
-		
-		hasSubstring "$pkgs"  ---apt--- ---yum--- ---urpmi--- || {
+
+		hasSubstring "$pkgs"  ---apt--- ---yum--- ---urpmi--- ---poldek--- || {
 		    warning "$ERR
-* The vserver does not seem to have a depsolver like 'apt' or 'yum'
+* The vserver does not seem to have a depsolver like 'apt', 'yum' or 'poldek'
   installed. It is suggested to install such a program before setting
   up internal package management."
 		    res=1
@@ -281,9 +281,9 @@ Can not continue; use '--force' to override this check"
 	    test -d "$i" ||
 		$_EXEC_CD /$(dirname "$i") $_MKDIR -m755 $(basename "$i") || :
 	done #2>/dev/null
-	
+
 	popd >/dev/null
-	
+
 	if test -n "$have_apt"; then
 	    findDir APTETCDIR     "$cfgdir"/aptetc "$cfgdir"/base/apt/etc /etc/apt /
 	elif test -n "$have_urpmi"; then
@@ -381,6 +381,131 @@ Can not continue; use '--force' to override this check"
     fi
 }
 
+function processVserver_PLD()
+{
+    local vserver=$1
+    local is_internalize=$2
+    local cfgdir
+    local i
+
+    cfgdir=$($_VSERVER_INFO "$vserver" APPDIR pkgmgmt) || \
+    cfgdir=$($_VSERVER_INFO "$vserver" APPDIR)/pkgmgmt
+
+    ## Figure out the environment....
+    pkgmgmt.isPoldekAvailable "$cfgdir" "$vdir" "$is_internalize" || have_poldek=
+
+    local POLDEKETCDIR=
+    local POLDEKCACHEDIR=
+    local RPMETCDIR=
+    local RPMSTATEDIR=
+
+    ## Create directories and assign variables where configuration
+    ## can/will be found on the host
+    if test -n "$is_internalize"; then
+	verifyInternalPackages "$vserver" RH || test -n "$IS_FORCE" ||
+	    panic "
+Can not continue; use '--force' to override this check"
+    
+	pushd "$vdir" >/dev/null
+
+	test ! -L var/lib/rpm || {
+	    $_EXEC_CD /var/lib $_RM            rpm &&
+	    $_EXEC_CD /var/lib $_MKDIR -m755   rpm &&
+	    $_EXEC_CD /var/lib $_CHOWN rpm:rpm rpm ||
+	    :
+	} </dev/null 2>/dev/null
+
+	for i in var/tmp/poldek-cache etc/rpm etc/poldek; do
+	    test -d "$i" ||
+		$_EXEC_CD /$(dirname "$i") $_MKDIR -m755 $(basename "$i") || :
+	done #2>/dev/null
+
+	popd >/dev/null
+
+	if test -n "$have_poldek"; then
+	    findDir POLDEKETCDIR    "$cfgdir"/poldeketc "$cfgdir"/base/poldek/etc /etc/poldek
+	fi
+
+	findDir RPMETCDIR   "$cfgdir"/rpmetc   "$cfgdir"/base/rpm/etc    /etc/rpm /
+	findDir RPMSTATEDIR "$cfgdir"/rpmstate "$cfgdir"/base/rpm/state
+    else
+	mkdir -m755 -p "$cfgdir"
+	local need_base=
+
+	if test -n "$have_poldek"; then
+	    findDir POLDEKETCDIR   "$cfgdir"/poldeketc    "$cfgdir"/base/poldek/etc	/
+	    findDir POLDEKCACHEDIR "$cfgdir"/poldek-cache "$cfgdir"/base/poldek/cache	/
+	    
+	    test "$POLDEKETCDIR"    != / || POLDEKETCDIR=$cfgdir/base/poldek/etc
+	    test "$POLDEKCACHEDIR"  != / || POLDEKCACHEDIR=$cfgdir/base/poldek/cache
+
+	    test -d "$cfgdir"/poldeketc -a -d "$cfgdir"/poldek-cache || need_base=1
+	fi
+
+	findDir RPMETCDIR     "$cfgdir"/rpmetc   "$cfgdir"/base/rpm/etc    /
+	findDir RPMSTATEDIR   "$cfgdir"/rpmstate "$cfgdir"/base/rpm/state  /
+
+	test "$RPMETCDIR"   != / || RPMETCDIR=$cfgdir/base/rpm/etc
+	test "$RPMSTATEDIR" != / || RPMSTATEDIR=$cfgdir/base/rpm/state
+
+	test -d "$cfgdir"/rpmetc -a -d "$cfgdir"/rpmstate || need_base=1
+	test ! -e "$cfgdir"/base || need_base=
+
+	test -z "$need_base" || ln -s "$PKGCFGDIR" "$cfgdir"/base
+
+	mkdir -m755 -p "$PKGCFGDIR"
+	_createDirs "$POLDEKETCDIR" "$POLDEKCACHEDIR" \
+		    "$RPMETCDIR" "$RPMSTATEDIR"
+    fi
+
+    ## Copy the files...
+    if test -n "$is_internalize"; then
+	if test -n "$have_poldek"; then
+	    _copySecure "$vdir" "$POLDEKETCDIR" /etc/poldek
+	    pushd "$vdir" >/dev/null
+		_hashAuto /etc/poldek.conf '/'
+	    popd >/dev/null
+	fi
+
+	_copySecure "$vdir" "$RPMETCDIR"   /etc/rpm
+	_copySecure "$vdir" "$RPMSTATEDIR" /var/lib/rpm
+
+	pushd "$vdir" >/dev/null
+	    ## remove %_dbpath settings
+	    _substFile /etc/rpm/macros '/^%_dbpath[ \t].*/D'
+	popd >/dev/null
+    else
+	if test -n "$have_poldek"; then
+	    _copySecureRev "$vdir" /etc/poldek "$POLDEKETCDIR"
+	    _unhashAuto "$POLDEKETCDIR"/poldek.conf '/'
+	fi
+
+	_copySecureRev "$vdir" /etc/rpm     "$RPMETCDIR"
+	_copySecureRev "$vdir" /var/lib/rpm "$RPMSTATEDIR"
+
+	echo -e "%_dbpath\t\t$rpmdb_mntpoint" >>$RPMETCDIR/macros
+    fi
+
+    ## Cleanups...
+    if test -n "$is_internalize"; then
+	:
+    else
+	tmpdir=$($_MKTEMPDIR -p /var/tmp pgmgmt.XXXXXX)
+	trap "$_RM -rf $tmpdir" EXIT
+	pushd "$vdir" >/dev/null
+	$_EXEC_CD /var/lib $_MV rpm $tmpdir/
+	$_EXEC_CD /var/lib $_LN_S "$rpmdb_mntpoint" rpm
+	$_RM -rf $tmpdir
+    fi
+
+    ## Finish it...
+    if test -n "$is_internalize"; then
+	$_TOUCH "$cfgdir"/internal
+    else
+	$_RM -f "$cfgdir"/internal
+    fi
+}
+
 function processVserver_Debian()
 {
     local vserver=$1
@@ -435,6 +560,7 @@ function processVserver()
 
     case "$style" in
 	(redhat|mandrake)	processVserver_RH     "$vserver" "$IS_INTERNALIZE";;
+	(pld)			processVserver_PLD    "$vserver" "$IS_INTERNALIZE";;
 	(debian)		processVserver_Debian "$vserver" "$IS_INTERNALIZE";;
 	(*)
 	    echo $"Vserver style '$style' is not supported for packagemanagment" >&2

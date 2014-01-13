@@ -60,6 +60,9 @@ Possible methods are:
                 ...  installs the base-packages of the given distribution with
 		     help of 'vyum'
     urpmi       ... -- -d <distribution> -m <mirror>
+    poldek      ... -- -d <distribution>
+                ...  installs the base-packages of the given distribution with
+		     help of 'vpoldek'
     rpm         ... -- [-d <distribution>] --empty|([--force] [--nodeps] <manifest>)+
                 ...  installs lists of rpm-packages
     skeleton    ... -- [<cmd> <args>*]
@@ -142,7 +145,7 @@ setup_setDefaults "$VSERVER_NAME"
 
 case x"$method" in
     (xlegacy)	exec $_VSERVER_LEGACY "$VSERVER_NAME" build "$@" ;;
-    (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum|xrpm|xtemplate|xfai|xrsync|xclone|xurpmi)
+    (xapt-rpm|xcopy|xskeleton|xdebootstrap|xyum|xrpm|xtemplate|xfai|xrsync|xclone|xurpmi|xpoldek)
 		. $__PKGDATADIR/vserver-build.$method
 		;;
     (x)		panic $"No build-method specified";;

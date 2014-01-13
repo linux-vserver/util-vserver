@@ -92,7 +92,7 @@ function isDirectoryEmpty
 
 	ignore_lostfound=1
 	test -n "$2" -a "$2" != 0 || ignore_lostfound=
-	
+
 	for i in "$1"/*; do
 	    case "$i" in
 		($1/lost+found)
@@ -310,7 +310,7 @@ function _pkgSetVarsBase
 	    if test -d "$vserver/vdir"; then
 		BASEDIR=$vserver
 		VDIR=$(getPhysicalDir "$vserver/vdir")
-		
+
 		PKGDIR=$BASEDIR/apps/pkgmgmt
 		test -d "$PKGDIR" || {
 		    echo "Can not find configuration-directory for package-managment tools"
@@ -411,6 +411,20 @@ function _pkgSetVarsUrpmi
     fi
 }
 
+function _pkgSetVarsPoldek
+{
+    if test -n "$PKGDIR"; then
+	findDir POLDEKETCDIR    $PKGDIR/poldeketc      $PKGDIR/base/poldek/etc       /etc/poldek
+	findDir POLDEKCACHEDIR  $PKGDIR/poldek-cache   $PKGDIR/base/poldek/cache
+    else
+	findDir POLDEKETCDIR    "$VDIR"/etc/poldek	/etc/poldek
+	findDir POLDEKCACHEDIR  "$VDIR"/var/tmp/poldek-cache
+    fi
+
+    findFile POLDEK_CONFIG "$POLDEKETCDIR"/poldek.conf ""
+    test -z "$POLDEK_CONFIG" || export POLDEK_CONFIG
+}
+
 
 function _pkgMountBase
 {
@@ -495,6 +509,7 @@ function pkgInit
 	    apt)	_pkgSetVarsApt;;
 	    yum)	_pkgSetVarsYum;;
 	    urpmi)	_pkgSetVarsUrpmi;;
+	    poldek)	_pkgSetVarsPoldek;;
 	    *)		echo "Unknown packaging flavor" >&2; exit 1;;
 	esac
     done
@@ -565,7 +580,7 @@ function getAllVservers
 
 	local _ga_doadd=1
 	local _ga_markfile=$_ga_i/apps/init/mark
-	
+
 	case ${2:-ALL} in
 	    (MARKED)	test   -s "$_ga_markfile" || _ga_doadd=;;
 	    (UNMARKED)	test ! -s "$_ga_markfile" || _ga_doadd=;;
@@ -849,6 +864,8 @@ function pkgmgmt.guessStyle()
 	style=redhat
     elif test -e "$_pgs_vdir"/etc/mandrake-release; then
 	style=mandrake
+    elif test -e "$_pgs_vdir"/etc/pld-release; then
+	style=pld
     elif test -e "$_pgs_vdir"/etc/debian_version; then
 	style=debian
     elif test -e "$_pgs_vdir"/etc/SuSE-release; then
@@ -937,6 +954,27 @@ function pkgmgmt.isUrpmiAvailable
     test -n "$have_urpmi" && return 0 || return 1
 }
 
+## Usage: pkgmgmt.isPoldekAvailable <cfgdir> <vdir> [<is-internal>]
+function pkgmgmt.isPoldekAvailable
+{
+    local cfgdir="$1"
+    local vdir="$2"
+    local is_internal="$3"
+    
+    local have_poldek i
+    if test -n "$is_internal"; then
+	have_poldek=1
+	test -d "$cfgdir"/base/poldek -o -d "$cfgdir"/poldeketc || have_poldek=
+    else
+	have_poldek=
+	for i in /bin /usr/bin /usr/local/bin; do
+	    test ! -x "$vdir$i"/poldek || { have_poldek=1; break; }
+	done
+    fi
+
+    test -n "$have_poldek" && return 0 || return 1
+}
+
 
 function vshelper.doSanityCheck
 {
@@ -994,7 +1032,7 @@ functionality:"
 	done
 
 	warning $"\
-	
+
 To fix this, you can:"
 
 	test -z "$solution_disable" || warning $"\
