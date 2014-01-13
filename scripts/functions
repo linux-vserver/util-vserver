@@ -72,7 +72,7 @@ function isRegularFile
     test ${2:--f} "$1" || return 1
 
     case $1 in
-	(*.rpmsave|*.rpmnew|*.rpmorig|*.cfsaved*|*.~*~)	return 1;;
+	(*.rpmsave|*.rpmnew|*.rpmorig|*.cfsaved*|*.~*~|*~)	return 1;;
     esac
 
     return 0
