@@ -24,6 +24,10 @@
 
 #include "syscall-wrap.h"
 
+#ifdef ENSC_SYSCALL_TRADITIONAL
+int pivot_root(const char *new_root, const char *put_old);
+#else
 inline static _syscall2(int,pivot_root,const char *,new_root,const char *,put_old)
+#endif
 
 #endif	//  H_UTIL_VSERVER_SRC_COMPAT_PIVOT_ROOT_H
