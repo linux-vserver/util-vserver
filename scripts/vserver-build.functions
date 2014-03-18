@@ -207,7 +207,7 @@ vserver-topdirectory '$VDIR' and/or configuration at '$SETUP_CONFDIR'
 exist already; please try to use '--force', or remove them manually."
 
     mkdir -p -m755 "$VDIR"
-    $_SETATTR --~barrier "$VDIR"
+    $_SETATTR --~barrier "$VDIR" || :
     $_SETATTR --barrier "$VDIR"/.. || colwarn $"\
 WARNING: could not set the barrier attribute on '$VDIR/..',
          please set it manually."
