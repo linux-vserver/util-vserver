@@ -91,8 +91,8 @@ function isDirectoryEmpty
 	shopt -s nullglob || *
 
 	ignore_lostfound=1
-	test -n "$2" -a "$2" != 0 || ignore_lostfound=
-	
+	test -n "$2" -a "$2" = 0 && ignore_lostfound=
+
 	for i in "$1"/*; do
 	    case "$i" in
 		($1/lost+found)
