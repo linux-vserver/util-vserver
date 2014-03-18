@@ -2,7 +2,7 @@ Source: util-vserver
 Section: net
 Priority: optional
 Maintainer: Daniel Hokka Zakrisson <daniel@hozac.com>
-Build-Depends: debhelper (>= 7), gawk, dietlibc-dev, net-tools, vlan, iptables, wget, procps, module-init-tools, libnss3-dev, po-debconf, e2fslibs-dev, pkg-config, python-dev, ctags
+Build-Depends: debhelper (>= 9), gawk, dietlibc-dev, net-tools, vlan, iptables, wget, procps, module-init-tools, libnss3-dev, po-debconf, e2fslibs-dev, pkg-config, python-dev, ctags
 Standards-Version: 3.8.4
 Homepage: http://savannah.nongnu.org/projects/util-vserver/
 
