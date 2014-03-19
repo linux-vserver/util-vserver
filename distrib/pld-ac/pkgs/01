@@ -1,0 +1,6 @@
+basesystem
+filesystem
+glibc-misc
+issue
+rpm-base
+vserver-packages

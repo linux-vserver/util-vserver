@@ -1,0 +1,83 @@
+# --*- sh -*--
+
+# Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+function poldek.installBasePackages
+{
+    local name="$1"
+    local dir="$2"
+
+    test "$dir" != / || return 0
+    for filelist in "$dir"/*; do
+	isRegularFile "$filelist" || continue
+	local idx=0
+	local can_fail=false
+	local flags='--install'
+
+	set -- $(<$filelist)
+	while test "$#" -gt 0; do
+	    case "$1" in
+		--reinstall) flags='--reinstall';;
+		--can-fail)  can_fail=true;;
+		*)  	     break;;
+	    esac
+	    shift
+	done
+	"$_VPOLDEK" "$name" -- $flags $* || $can_fail
+    done
+}
+
+function poldek.initVariables
+{
+    findFile POLDEKCONFDEFAULT \
+	"$__CONFDIR/.distributions/$DISTRIBUTION/poldek/poldek.conf" \
+	"$__CONFDIR/.defaults/apps/pkgmgmt/poldek/poldek.conf" \
+	"$__DISTRIBDIR/$DISTRIBUTION/poldek/poldek.conf" \
+	"$__DISTRIBDIR/defaults/poldek/poldek.conf" \
+	''
+}
+
+function poldek.initFilesystem
+{
+    mkdir -p "$PKGCFGDIR"/poldek/etc/repos.d
+
+    $_LN_S "$__CONFDIR"/.defaults/cachebase/poldek "$PKGCFGDIR"/poldek/cache
+
+    populateDirectory "$PKGCFGDIR/poldek/etc" \
+	"$__DISTRIBDIR/defaults/poldek" \
+	"$__DISTRIBDIR/$DISTRIBUTION/poldek" \
+	"$__CONFDIR/.distributions/$DISTRIBUTION/poldek"
+
+    populateDirectory "$PKGCFGDIR/poldek/etc/repos.d" \
+	"$__DISTRIBDIR/defaults/poldek/repos.d" \
+	"$__DISTRIBDIR/$DISTRIBUTION/poldek/repos.d" \
+	"$__CONFDIR/.distributions/$DISTRIBUTION/poldek/repos.d"
+
+	if [ -n "$SETUP_MACHINE" ]; then
+		say "Using $SETUP_MACHINE as machine"
+		sed -i -e "s#^\(_arch\s*\)=.*#\1= $SETUP_MACHINE#" "$PKGCFGDIR"/poldek/etc/repos.d/*.conf
+	fi
+
+	if [ -n "$MIRROR" ]; then
+		say "Using $MIRROR as mirror URL"
+		sed -i -e "s#^\(_prefix\s*\)=.*#\1= $MIRROR#" "$PKGCFGDIR"/poldek/etc/repos.d/*.conf
+	fi
+
+	if [ "$DISTRIBUTION" = "pld-ac" ]; then
+		echo 'auto directory dependencies = no' >>  "$PKGCFGDIR"/poldek/etc/poldek.conf
+		echo '%_check_dirname_deps 0' >> "$PKGCFGDIR"/rpm/etc/macros
+	fi
+}
