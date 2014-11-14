@@ -1,20 +1,20 @@
 // $Id$    --*- c++ -*--
 
 // Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-//  
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; version 2 of the License.
-//  
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//  
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-//  
+//
 
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
@@ -207,7 +207,7 @@ static void
 clearEnv()
 {
   if (isDbgLevel(DBG_ENV)) WRITE_MSG(2, "clearEnv()\n");
-  
+
   unsetenv("RPM_FAKE_S_CONTEXT_REV");
   unsetenv("RPM_FAKE_S_CONTEXT_NR");
   unsetenv("RPM_FAKE_CTX");
@@ -217,7 +217,7 @@ clearEnv()
 
   unsetenv("RPM_FAKE_RESOLVER_GID");
   unsetenv("RPM_FAKE_RESOLVER_UID");
-  unsetenv("RPM_FAKE_RESOLVER");    
+  unsetenv("RPM_FAKE_RESOLVER");
   unsetenv("RPM_FAKE_PWSOCKET");
 
   unsetenv("RPM_FAKE_DEBUG");
@@ -242,7 +242,7 @@ static bool
 setupContext(xid_t xid, char const **xid_str)
 {
   bool		res = false;
-  
+
   if (vc_isSupported(vcFEATURE_MIGRATE)) {
     xid_t	rc=VC_NOCTX;
 
@@ -258,7 +258,7 @@ setupContext(xid_t xid, char const **xid_str)
       size_t			l;
       struct vc_ctx_caps	caps;
       struct vc_ctx_flags	flags;
-      
+
       strcpy(buf, "rpm-fake.so #");
       l = utilvserver_fmt_uint(buf+sizeof("rpm-fake.so #")-1, getppid());
       Evc_set_vhi_name(rc, vcVHI_CONTEXT, buf, sizeof("rpm-fake.so #")+l-1);
@@ -272,7 +272,7 @@ setupContext(xid_t xid, char const **xid_str)
       flags.flagword = 0;
       flags.mask = VC_VXF_SC_HELPER;
       Evc_set_cflags(rc, &flags);
-      
+
 	// context will be activated later...
 
       xid = rc;
@@ -286,11 +286,11 @@ setupContext(xid_t xid, char const **xid_str)
   else {
     char		buf[sizeof(xid_t)*3 + 2];
     size_t		l;
-    
+
     l        = utilvserver_fmt_uint(buf, xid); buf[l] = '\0';
     *xid_str = strdup(buf);
   }
- 
+
   Ewrite(3, &xid, sizeof xid);
   return res;
 }
@@ -308,7 +308,7 @@ initPwSocket()
 
     strncpy(addr.sun_path, sock_name, sizeof(addr.sun_path)-1);
     addr.sun_path[sizeof(addr.sun_path)-1]='\0';
-    
+
     if ((pw_sock=socket(AF_UNIX, SOCK_STREAM, 0))==-1 ||
 	connect(pw_sock, (struct sockaddr *)(&addr), sizeof addr)==-1 ||
 	(flag=fcntl(pw_sock, F_GETFD))==-1 ||
@@ -324,7 +324,7 @@ initPwSocket()
 {
   char const *	resolver = getenv("RPM_FAKE_RESOLVER");
   if (resolver==0) resolver=RESOLVER_PROG;
-  
+
   if (resolver!=0 && *resolver!='\0') {
     int			res_sock[2];
     int			sync_pipe[2];
@@ -358,7 +358,7 @@ initPwSocket()
       char		caps_str[ sizeof(caps)*3  + 2];
 
       clearEnv();
-      
+
       setsid();
       dup2(res_sock[1],  0);
       dup2(res_sock[1],  1);
@@ -384,7 +384,7 @@ initPwSocket()
 
       if (setupContext(ctx, &xid_str)) { *ptr++ = "-s"; }
       else if (xid_str)                { *ptr++ = "-c"; *ptr++ = xid_str; }
-      
+
       *ptr++ = 0;
       execve(resolver, (char **)args, (char **)env);
       perror(ENSC_WRAPPERS_PREFIX "failed to exec resolver");
@@ -422,7 +422,7 @@ reduceCapabilities()
   int retried = 0;
   struct __user_cap_header_struct header;
   struct __user_cap_data_struct user[2];
-  
+
   header.version = _LINUX_CAPABILITY_VERSION_3;
   header.pid     = 0;
 
@@ -453,17 +453,17 @@ initEnvironment()
 {
   int		syscall_rev;
   int		syscall_nr;
-  
+
   if (is_initialized) return;
 
   syscall_rev = getDefaultEnv("RPM_FAKE_S_CONTEXT_REV", 0);
   syscall_nr  = getDefaultEnv("RPM_FAKE_S_CONTEXT_NR",  273);
-  
+
 #ifdef VC_ENABLE_API_LEGACY
   {
     extern void vc_init_internal_legacy(int ctx_rev, int ctx_number,
 					int ipv4_rev, int ipv4_number);
-  
+
     vc_init_internal_legacy(syscall_rev, syscall_nr, 3, 274);
   }
 #endif
@@ -481,7 +481,7 @@ initEnvironment()
     dprintf(2, "ctx=%u, caps=%016x, flags=%016x,\nroot='%s',\nmnts='%s'\n",
 	    ctx, caps, flags, root, mnts);
 #endif
-  
+
   is_initialized = true;
 }
 
@@ -501,11 +501,11 @@ initRPMFake()
 {
   if (getenv("RPM_FAKE_VERSION")) showVersion();
   if (getenv("RPM_FAKE_HELP"))    showHelp();
-  
+
   debug_level = getDefaultEnv("RPM_FAKE_DEBUG", 0);
 
   if (isDbgLevel(DBG_INIT)) WRITE_MSG(2, ">>>>> initRPMFake <<<<<\n");
-  
+
   reduceCapabilities();
   initSymbols();
   initEnvironment();
@@ -513,14 +513,14 @@ initRPMFake()
 
 #if 0
   if (isDbgLevel(DBG_VARIABLES|DBG_VERBOSE2)) {
-    
+
   }
 #endif
 }
 
 void
 exitRPMFake()
-{ 
+{
   if (isDbgLevel(DBG_INIT)) WRITE_MSG(2, ">>>>> exitRPMFake <<<<<\n");
   if (pw_sock!=-1) {
     uint8_t	c;
@@ -575,7 +575,7 @@ getpwnam(const char * name)
     res.pw_name = (char *)(name);
     if (!doPwStringRequest(&id, 'P', name)) return 0;
     res.pw_uid = id;
-    
+
     return &res;
   }
 }
@@ -622,15 +622,15 @@ execvWorker(char const *path, char * const argv[], char * const envp[])
   if (vc_isSupported(vcFEATURE_MIGRATE))
     res = vc_ctx_migrate(ctx, 0);
   else {
-#ifdef VC_ENABLE_API_COMPAT  
+#ifdef VC_ENABLE_API_COMPAT
     res = vc_new_s_context(ctx,caps,flags);
 #else
     WRITE_MSG(2, ENSC_WRAPPERS_PREFIX "can not change context: migrate kernel feature missing and 'compat' API disabled\n");
 #endif
   }
 
-  clearEnv();    
-    
+  clearEnv();
+
   if (res!=-1)
     res=execve(path, argv, envp);
 
@@ -698,7 +698,7 @@ removeNamespaceMounts(char const *path,
       case 0	:  _exit(removeNamespaceMountsChild(&params));
       default	:  break;
     }
-	
+
     while ((p=wait4(pid, &status, 0,0))==-1 &&
 	   (errno==EINTR || errno==EAGAIN)) ;
 
