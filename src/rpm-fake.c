@@ -95,15 +95,17 @@ static int		sync_sock = -1;
 static unsigned int	debug_level = 0;
 
 static bool		is_initialized = false;
+static bool		chroot_seen = false;
 
 static bool		ctx_created = false;
 
   //DECLARE(rpm_execcon);
-  //DECLARE(execv);
+DECLARE(execve);
 DECLARE(getpwnam);
 DECLARE(getgrnam);
 DECLARE(endpwent);
 DECLARE(endgrent);
+DECLARE(chroot);
 
 static void		initRPMFake() __attribute__((__constructor__));
 static void		exitRPMFake() __attribute__((__destructor__));
@@ -386,7 +388,7 @@ initPwSocket()
       else if (xid_str)                { *ptr++ = "-c"; *ptr++ = xid_str; }
 
       *ptr++ = 0;
-      execve(resolver, (char **)args, (char **)env);
+      execve_func(resolver, (char **)args, (char **)env);
       perror(ENSC_WRAPPERS_PREFIX "failed to exec resolver");
       exit(255);
     }
@@ -489,11 +491,12 @@ static void
 initSymbols()
 {
     //INIT(RTLD_NEXT, rpm_execcon);
-    //INIT(RTLD_NEXT, execv);
+  INIT(RTLD_NEXT, execve);
   INIT(RTLD_NEXT, getgrnam);
   INIT(RTLD_NEXT, getpwnam);
   INIT(RTLD_NEXT, endpwent);
   INIT(RTLD_NEXT, endgrent);
+  INIT(RTLD_NEXT, chroot);
 }
 
 void
@@ -632,7 +635,7 @@ execvWorker(char const *path, char * const argv[], char * const envp[])
   clearEnv();
 
   if (res!=-1)
-    res=execve(path, argv, envp);
+    res=execve_func(path, argv, envp);
 
   return res;
 }
@@ -723,6 +726,12 @@ execv(char const *path, char * const argv[])
     WRITE_MSG(2, "', ...)\n");
   }
 
+  if (!chroot_seen) {
+    if (isDbgLevel(DBG_VERBOSE1|DBG_EXECV))
+      WRITE_MSG(2, "chroot() not called yet; bypassing execve() wrapper\n");
+    return execve_func(path, argv, environ);
+  }
+
   return removeNamespaceMounts(path, argv, environ);
 }
 
@@ -738,6 +747,13 @@ rpm_execcon(unsigned int UNUSED verified,
   }
 
   return removeNamespaceMounts(filename, argv, envp);
+}
+
+int
+chroot(char const *path)
+{
+  chroot_seen = true;
+  return chroot_func(path);
 }
 
 int
