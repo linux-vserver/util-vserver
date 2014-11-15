@@ -1,0 +1,16 @@
+Index: yum-3.2.29/yum/config.py
+===================================================================
+--- yum-3.2.29.orig/yum/config.py
++++ yum-3.2.29/yum/config.py
+@@ -911,7 +911,10 @@ def readStartupConfig(configfile, root):
+     # Stuff this here to avoid later re-parsing
+     startupconf._parser = parser
+     # setup the release ver here
+-    startupconf.releasever = _getsysver(startupconf.installroot, startupconf.distroverpkg)
++    try:
++        startupconf.releasever = _getsysver(startupconf.installroot, startupconf.distroverpkg)
++    except:
++        startupconf.releasever = ""
+     uuidfile = '%s/uuid' % (startupconf.persistdir,)
+     startupconf.uuid = get_uuid(uuidfile)
+ 
