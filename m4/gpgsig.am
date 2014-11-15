@@ -18,4 +18,4 @@
 
 gpgsig:
 			gpgkey=$(GPG_KEY); \
-			gpg $${gpgkey:+--default-key "$$gpgkey"} --armor --detach-sign $(distdir).tar.bz2
+			gpg $${gpgkey:+--default-key "$$gpgkey"} --armor --detach-sign $(distdir).tar.xz
