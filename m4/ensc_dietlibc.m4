@@ -77,6 +77,34 @@ AC_DEFUN([_ENSC_DIETLIBC_SYSCALL],
 	fi
 ])
 
+AC_DEFUN([_ENSC_DIETLIBC_PIVOT_ROOT],
+[
+	AH_TEMPLATE([ENSC_DIETLIBC_HAS_PIVOT_ROOT], [Define to 1 if dietlibc declares pivot_root()])
+
+	AC_CACHE_CHECK([whether dietlibc declares pivot_root], [ensc_cv_c_dietlibc_pivot_root],
+	[
+		_ensc_dietlibc_pivot_root_old_CC="$CC"
+		CC="${DIET:-diet} $CC"
+
+		AC_LANG_PUSH(C)
+		AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+			#define _GNU_SOURCE
+			#define _LINUX_SOURCE
+			#include <unistd.h>
+			void pivot_root(void);
+		])],
+		[ensc_cv_c_dietlibc_pivot_root=no],
+		[ensc_cv_c_dietlibc_pivot_root=yes])
+		AC_LANG_POP
+
+		CC="$_ensc_dietlibc_pivot_root_old_CC"
+	])
+
+	if test x"$ensc_cv_c_dietlibc_pivot_root" = xyes; then
+		AC_DEFINE([ENSC_DIETLIBC_HAS_PIVOT_ROOT],1)
+	fi
+])
+
 dnl Usage: ENSC_ENABLE_DIETLIBC(<conditional>[,<min-version>])
 dnl        <conditional> ... automake-conditional which will be set when
 dnl                          dietlibc shall be enabled
@@ -161,5 +189,6 @@ AC_DEFUN([ENSC_ENABLE_DIETLIBC],
 	if test x"$ensc_have_dietlibc" != xno; then
 		_ENSC_DIETLIBC_C99
 		_ENSC_DIETLIBC_SYSCALL
+		_ENSC_DIETLIBC_PIVOT_ROOT
 	fi
 ])
