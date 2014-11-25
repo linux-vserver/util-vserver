@@ -28,7 +28,11 @@ test -e "$UTIL_VSERVER_VARS" || {
 function showHelp()
 {
     echo \
-$"Usage: $0 <vserver-name>* [--all] -- <params>+
+$"Usage: $0 <vserver-name> -- <params>
+
+vserver-name can be the name of a running guest, or --running to run the command on all running guests.
+
+params is the list of parameters to pass to the apt command that will be run in the guest.
 
 Report bugs to <$PACKAGE_BUGREPORT>."
     exit 0
