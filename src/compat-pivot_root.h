@@ -19,6 +19,9 @@
 #ifndef H_UTIL_VSERVER_SRC_COMPAT_PIVOT_ROOT_H
 #define H_UTIL_VSERVER_SRC_COMPAT_PIVOT_ROOT_H
 
+#if defined(ENSC_DIETLIBC_HAS_PIVOT_ROOT) && defined(__dietlibc__)
+#  include <unistd.h>
+#else
 #include <asm/unistd.h>
 #include <unistd.h>
 #include <errno.h>
@@ -33,6 +36,7 @@ int pivot_root(const char *new_root, const char *put_old)
 }
 #else
 inline static _syscall2(int,pivot_root,const char *,new_root,const char *,put_old)
+#endif
 #endif
 
 #endif	//  H_UTIL_VSERVER_SRC_COMPAT_PIVOT_ROOT_H

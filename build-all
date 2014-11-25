@@ -96,7 +96,7 @@ test -d "$BDIR" || {
     ln -sf $d $BDIR
 }
 
-noopt_flags=-O0\ -g3
+noopt_flags=-O0\ -g3\ -U_FORTIFY_SOURCE
 opt_flags=-O2\ -g
 ldflags=$ARCH_CFLAGS
 
