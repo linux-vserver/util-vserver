@@ -1489,7 +1489,7 @@ function _generateCgroupOptions
 
     findFile file "$__CONFDIR/.defaults/cgroup/subsys" ""
     if test -n "$file"; then
-	_readFileToArray CGROUP_SUBSYS "$file"
+	_readFileToArray "$file" CGROUP_SUBSYS ""
     else
 	CGROUP_SUBSYS=( $($_AWK '/^#/ { next; } $1 == "ns" { next; } $4 != "0" { print $1; }' /proc/cgroups) )
     fi
@@ -1502,7 +1502,7 @@ function _generateCgroupOptions
     fi
     findFile file "$__CONFDIR/.defaults/cgroup/inherit" ""
     if test -n "$file"; then
-	_readFileToArray CGROUP_INHERIT "$file" ""
+	_readFileToArray "$file" CGROUP_INHERIT ""
     fi
     findFile file "$__CONFDIR/.defaults/cgroup/base" ""
     if test -n "$file"; then
