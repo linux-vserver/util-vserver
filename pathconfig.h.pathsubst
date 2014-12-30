@@ -21,7 +21,7 @@
 
 #define PKGLIBDIR		"@PKGLIBDIR@"
 #define PKGDATADIR		"@PKGDATADIR@"
-#define PKGLIBEXECDIR	"@PKGLIBEXECDIR@"
+#define PKGLIBEXECDIR		"@PKGLIBEXECDIR@"
 #define SBINDIR			"@SBINDIR@"
 #define CONFDIR			"@CONFDIR@"
 #define SYSCONFDIR		"@SYSCONFDIR@"
@@ -51,6 +51,6 @@
 
 #define PATH_VSERVER_START	PKGDATADIR "/vserver.start"
 #define PATH_FUNCTIONS		PKGDATADIR "/functions"
-#define PATH_UTILVSERVER_VARS	PKGDATADIR "/util-vserver-vars"
+#define PATH_UTILVSERVER_VARS	PKGLIBEXECDIR "/util-vserver-vars"
 
 #endif	//  H_UTIL_VSERVER_PATHCONFIG_H

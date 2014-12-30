@@ -25,7 +25,7 @@ base   @PKGDATADIR@/vserver.stop
 base   @PKGDATADIR@/vserver.suexec
 base   @PKGDATADIR@/vserver.delete
 sysv   @PKGDATADIR@/vserver-init.functions
-core   @PKGDATADIR@/util-vserver-vars
+core   @PKGLIBEXECDIR@/util-vserver-vars
 build  @PKGLIBDIR@/rpm-fake.so
 legacy @LEGACYDIR@/save_s_context
 legacy @LEGACYDIR@/vps
@@ -39,7 +39,7 @@ legacy @LEGACYDIR@/rebootmgr
 legacy @LEGACYDIR@/rootshell
 legacy @LEGACYDIR@/showperm
 legacy @LEGACYDIR@/vreboot
-core   @PKGDATADIR@/FEATURES.txt
+core   @PKGLIBDIR@/FEATURES.txt
 base   @PKGDATADIR@/defaults/mtab
 base   @PKGDATADIR@/defaults/vprocunhide-files
 base   @PKGDATADIR@/defaults/environment

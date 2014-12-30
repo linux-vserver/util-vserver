@@ -35,7 +35,8 @@ lib_LTLIBRARIES =
 pkglib_LTLIBRARIES =
 
 pkglibexec_SCRIPTS =
-pkgdata_DATA =		FEATURES.txt
+xpkglib_DATA =		FEATURES.txt
+xpkglibexec_DATA =
 pkglibexec_PROGRAMS =
 legacy_SCRIPTS =
 legacy_PROGRAMS =
@@ -44,6 +45,7 @@ sbin_SCRIPTS =
 sbin_PROGRAMS =
 noinst_PROGRAMS =
 noinst_DATA =
+pkgdata_DATA =
 
 initrd_SCRIPTS =
 sysconf_DATA =
@@ -163,6 +165,8 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@chmod a-w '$*'
 			@touch '$@'
 
+xpkglibdir =		$(pkglibdir)
+xpkglibexecdir =	$(pkglibexecdir)
 pkgcachedir =		$(localstatedir)/cache/vservers
 pkgstatedir =		$(localstatedir)/run/vservers
 pkgstaterevdir =	$(confdefaultsdir)/run.rev
@@ -188,15 +192,16 @@ install-create-dirs:
 			f=$(DESTDIR)$(pkgstaterevdir);            test -e "$$f" || ln -sf '$(pkgstatedir).rev' "$$f"
 
 install-fix-script-paths:
-			test "/usr/lib/util-vserver" = "$(pkgdatadir)" || \
+			test "/usr/lib/util-vserver" = "$(xpkglibexecdir)" || \
 			for i in $(fix_SCRPTS); do \
 				f="$(DESTDIR)$$i"; \
-				$(SED) -e 's!/usr/lib/util-vserver!$(pkgdatadir)!g' "$$f" >"$$f.tmp"; \
+				$(SED) -e 's!/usr/lib/util-vserver!$(xpkglibexecdir)!g' "$$f" >"$$f.tmp"; \
 				$(CMP) -s "$$f.tmp" "$$f" || cat "$$f.tmp" >"$$f"; \
 				rm -f "$$f.tmp"; \
 			done
 
-install-distribution:	_install-vserverdir _install-vshelperlink
+install-distribution:	_install-vserverdir _install-vshelperlink install-compat
+install-compat:		_install-varlink
 
 _install-vshelperlink:
 			$(mkinstalldirs) $(DESTDIR)/sbin
@@ -205,6 +210,10 @@ _install-vshelperlink:
 _install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
 
+_install-varlink:
+			$(mkinstalldirs) $(DESTDIR)/${pkglibdir}
+			ln -s ${pkglibexecdir}/util-vserver-vars $(DESTDIR)/${pkglibdir}/util-vserver-vars
+			ln -s ${pkglibexecdir}/util-vserver-vars $(DESTDIR)/${pkgdatadir}/util-vserver-vars
 
 .fixups:		config.status util-vserver.spec
 			chmod a-w util-vserver.spec
