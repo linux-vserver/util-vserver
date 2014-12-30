@@ -950,6 +950,7 @@ extern "C" {
   int			vc_list2cflag(char const *, size_t len,
 				     struct vc_err_listparser *err,
 				     struct vc_ctx_flags *flags);
+  uint_least64_t	vc_text2umask(char const *str, size_t len);
   uint_least64_t	vc_text2cflag(char const *, size_t len);
   char const *		vc_locflag2text(uint_least64_t *);
   
