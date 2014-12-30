@@ -734,8 +734,7 @@ function enableInterfaces
 		$_MODPROBE ${name:+-o "$name"} "$mod" "$@"
 		;;
 	    NAMEIF)		$_NAMEIF   "$@";;
-	    VCONFIG)		$_VCONFIG  set_name_type "$4"      >/dev/null
-				$_VCONFIG  add           "$2" "$3" >/dev/null;;
+	    VCONFIG)		$_IP link  add link "$2" name "$1" type vlan id "$3";;
 	    IP_ADDR)		$_IP addr  add   "$@";;
 	    IP_ADDR_FLUSH)	$_IP addr  flush "$@";;
 	    IP_LINK)		$_IP link  set   "$@";;
@@ -775,7 +774,7 @@ function disableInterfaces
 	    IPTABLES)		;; ## TODO
 	    MODPROBE)		$_RMMOD "${2:-$1}";;
 	    NAMEIF)		;;
-	    VCONFIG)		$_VCONFIG  rem "$2.$3" >/dev/null;;
+	    VCONFIG)		$_IP link  delete "$1" type vlan;;
 	    IP_ADDR)		$_IP addr  del "$@";;
 	    IP_ADDR_FLUSH)	;;
 	    IP_LINK)		;; ## Ignore the link-down command for now

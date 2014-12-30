@@ -1,7 +1,6 @@
 Build requirements:
 * iproute/iproute2
 * iptables
-* vconfig/vlan (see http://www.candelatech.com/~greear/vlan.html)
 * wget
 
 Recommended build environment:

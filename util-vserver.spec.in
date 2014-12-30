@@ -55,7 +55,7 @@ Requires:	%name-lib  = %version-%release
 Requires:	diffutils mktemp sed
 Provides:	vserver = %version-%release
 Obsoletes:	vserver < %version
-BuildRequires:	/bin/mount vconfig gawk /sbin/ip iptables
+BuildRequires:	/bin/mount gawk /sbin/ip iptables
 BuildRequires:	gcc-c++ wget which diffutils
 BuildRequires:	e2fsprogs-devel e2fsprogs
 %{!?_without_beecrypt:BuildRequires: beecrypt-devel}
