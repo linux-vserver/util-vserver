@@ -127,7 +127,8 @@ pkgdata_DATA +=			$(scripts_pkglib_src_DTA) $(scripts_pkglib_gen_DTA)
 CLEANFILES +=			$(scripts_pkglib_gen_DTA) \
 				$(scripts_sbin_gen_PRGS) \
 				$(scripts_sbincfg_gen_DTA) \
-				$(scripts_legacy_gen_SCRPTS)
+				$(scripts_legacy_gen_SCRPTS) \
+				$(scripts_pkglib_gen_SCRPTS)
 
 EXTRA_DIST +=			$(scripts_pkglib_src_DTA) \
 				$(scripts_pkglib_src_SCRPTS) \
