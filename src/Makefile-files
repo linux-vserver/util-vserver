@@ -374,8 +374,14 @@ src_pkglibexec_C99_X_PROGS =
 endif
 
 install-exec-hook:		src_install_exec_hook
+uninstall-local:		src_uninstall_local
 
 src_install_exec_hook:
 				-rm -f $(DESTDIR)$(pkglibdir)/rpm-fake.a $(DESTDIR)$(pkglibdir)/rpm-fake.la
+
+# because we do not ship the .la file, we have to remove the rpm-fake.so
+# module manually
+src_uninstall_local:
+				-rm -f $(DESTDIR)$(pkglibdir)/rpm-fake.so
 
 include $(top_srcdir)/src/testsuite/Makefile-files
