@@ -30,6 +30,7 @@ function rpm.importGPGPubKeys
 	local file=
 	for file in "$i"/*; do
 	    isRegularFile "$file" || continue
+	    test -s "$file" || continue
 
 	    pkgs=( "${pkgs[@]}" "$file" )
 	done
