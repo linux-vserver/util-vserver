@@ -1,0 +1,16 @@
+Index: yum-3.4.3/yum/rpmtrans.py
+===================================================================
+--- yum-3.4.3.orig/yum/rpmtrans.py
++++ yum-3.4.3/yum/rpmtrans.py
+@@ -255,7 +255,10 @@ class RPMTransaction:
+     def _scriptout(self, data):
+         msgs = self._scriptOutput()
+         self.display.scriptout(data, msgs)
+-        self.base.history.log_scriptlet_output(data, msgs)
++        try:
++            self.base.history.log_scriptlet_output(data, msgs)
++        except:
++            self.display.errorlog('could not log scriptlet output')
+ 
+     def __del__(self):
+         self._shutdownOutputLogging()

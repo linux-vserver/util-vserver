@@ -41,6 +41,9 @@ EXTRA_DIST +=				$(contrib_subst_SRCS) \
 					contrib/yum-3.2.29_el66-chroot.patch \
 					contrib/yum-3.2.29_el66-no-scriptout-exception.patch \
 					contrib/yum-3.2.29_el66-releasever.patch \
+					contrib/yum-3.4.3_el70-chroot.patch \
+					contrib/yum-3.4.3_el70-no-scriptout-exception.patch \
+					contrib/yum-3.4.3_el70-releasever.patch \
 					contrib/make-manifest \
 					contrib/make-deb-manifest
 

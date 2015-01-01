@@ -1,0 +1,223 @@
+Remove hardcoded '/var/lib/rpm' and use %_dbpath instead of
+
+Index: yum-3.4.3/yum/rpmsack.py
+===================================================================
+--- yum-3.4.3.orig/yum/rpmsack.py
++++ yum-3.4.3/yum/rpmsack.py
+@@ -228,11 +228,8 @@ class RPMDBPackageSack(PackageSackBase):
+         self._loaded_gpg_keys = False
+         if cachedir is None:
+             cachedir = persistdir + "/rpmdb-indexes"
+-        self.setCacheDir(cachedir)
+-        if not os.path.normpath(persistdir).startswith(self.root):
+-            self._persistdir = root +  '/' + persistdir
+-        else:
+-            self._persistdir = persistdir
++        self._cachedir = cachedir
++        self._persistdir = persistdir
+         if hasattr(rpm, 'expandMacro'):
+             dbpath = rpm.expandMacro('%_dbpath')
+         else:
+@@ -396,18 +393,6 @@ class RPMDBPackageSack(PackageSackBase):
+             pkg.yumdb_info._read_cached_data['checksum_type'] = T
+             pkg.yumdb_info._read_cached_data['checksum_data'] = D
+ 
+-    def setCacheDir(self, cachedir):
+-        """ Sets the internal cachedir value for the rpmdb, to be the
+-            "rpmdb-indexes" directory in the persisent yum storage. """
+-        if not os.path.normpath(cachedir).startswith(self.root):
+-            self._cachedir = self.root + '/' + cachedir
+-        else:
+-            self._cachedir = '/' + cachedir
+-
+-        if hasattr(self, 'yumdb'): # Need to keep this up to date, after init.
+-            version_path = os.path.normpath(self._cachedir + '/version')
+-            self.yumdb.conf.version_path = version_path
+-
+     def readOnlyTS(self):
+         if not self.ts:
+             self.ts =  initReadOnlyTransaction(root=self.root)
+Index: yum-3.4.3/cli.py
+===================================================================
+--- yum-3.4.3.orig/cli.py
++++ yum-3.4.3/cli.py
+@@ -2323,13 +2323,14 @@ class YumOptionParser(OptionParser):
+         self._checkAbsInstallRoot(opts)
+         # If the conf file is inside the  installroot - use that.
+         # otherwise look for it in the normal root
++        if opts.conffile==None:
++            opts.conffile = '/etc/yum/yum.conf'
++            if opts.installroot and opts.installroot.lstrip('/'):
++                if os.access(opts.installroot+opts.conffile, os.R_OK):
++                    opts.conffile = opts.installroot+opts.conffile
++                elif os.access(opts.installroot+'/etc/yum.conf', os.R_OK):
++                    opts.conffile = opts.installroot+'/etc/yum.conf'
+         if opts.installroot and opts.installroot.lstrip('/'):
+-            if os.access(opts.installroot+'/'+opts.conffile, os.R_OK):
+-                opts.conffile = opts.installroot+'/'+opts.conffile
+-            elif opts.conffile == '/etc/yum/yum.conf':
+-                # check if /installroot/etc/yum.conf exists.
+-                if os.access(opts.installroot+'/etc/yum.conf', os.R_OK):
+-                    opts.conffile = opts.installroot+'/etc/yum.conf'         
+             root=opts.installroot
+         else:
+             root = '/'
+@@ -2370,7 +2371,6 @@ class YumOptionParser(OptionParser):
+                 action="store_true",
+                 help=_("run entirely from system cache, don't update cache"))
+         group.add_option("-c", "--config", dest="conffile",
+-                default='/etc/yum/yum.conf',
+                 help=_("config file location"), metavar='[config file]')
+         group.add_option("-R", "--randomwait", dest="sleeptime", type='int',
+                 default=None,
+Index: yum-3.4.3/yum/__init__.py
+===================================================================
+--- yum-3.4.3.orig/yum/__init__.py
++++ yum-3.4.3/yum/__init__.py
+@@ -558,8 +558,7 @@ class YumBase(depsolve.Depsolve):
+             # this check makes sure that our dirs exist properly.
+             # if they aren't in the installroot then don't prepend the installroot path
+             # if we don't do this then anaconda likes to not  work.
+-            if os.path.exists(self.conf.installroot+'/'+reposdir):
+-                reposdir = self.conf.installroot + '/' + reposdir
++            reposdir = self.conf.getRootedPath(reposdir)
+ 
+             if os.path.isdir(reposdir):
+                 for repofn in sorted(glob.glob('%s/*.repo' % reposdir)):
+@@ -2146,12 +2145,16 @@ much more problems).
+         exid = "yum.includepkgs.3"
+         self.pkgSack.addPackageExcluder(repo.id, exid, 'exclude.marked')
+         
+-    def doLock(self, lockfile = YUM_PID_FILE):
++    def doLock(self, lockfile = None):
+         """Acquire the yum lock.
+ 
+         :param lockfile: the file to use for the lock
+         :raises: :class:`yum.Errors.LockError`
+         """
++
++        if lockfile is None:
++            lockfile = self.conf.lockfile
++
+         if self.conf.uid != 0:
+             #  If we are a user, assume we are using the root cache ... so don't
+             # bother locking.
+@@ -2160,10 +2163,6 @@ much more problems).
+             root = self.conf.cachedir
+             # Don't want <cachedir>/var/run/yum.pid ... just: <cachedir>/yum.pid
+             lockfile = os.path.basename(lockfile)
+-        else:
+-            root = self.conf.installroot
+-        lockfile = root + '/' + lockfile # lock in the chroot
+-        lockfile = os.path.normpath(lockfile) # get rid of silly preceding extra /
+         
+         mypid=str(os.getpid())    
+         while not self._lock(lockfile, mypid, 0644):
+Index: yum-3.4.3/yum/config.py
+===================================================================
+--- yum-3.4.3.orig/yum/config.py
++++ yum-3.4.3/yum/config.py
+@@ -727,6 +727,26 @@ class StartupConf(BaseConfig):
+     syslog_device = Option('/dev/log')
+     persistdir = Option('/var/lib/yum')
+     
++    def getRootedPath(self, path, enforce_default=False, defaults_to_host=False):
++        instroot = getattr(self, 'installroot', None)
++        if instroot==None or instroot == '/':
++            return path
++
++        if   path.startswith('hostfs://'):   res = path[9:]
++        elif path.startswith('chrootfs://'): res = instroot + '/' + path[11:]
++        else:
++            tmp = instroot + '/' + path
++
++            if enforce_default:
++                if defaults_to_host:    res = path
++                else:                   res = tmp
++            else:
++                if os.path.exists(tmp): res = tmp
++                elif defaults_to_host:  res = path
++                else:                   res = tmp
++
++        return res
++
+ class YumConf(StartupConf):
+     """Configuration option definitions for yum.conf's [main] section.
+ 
+@@ -740,6 +760,7 @@ class YumConf(StartupConf):
+ 
+     keepcache = BoolOption(True)
+     logfile = Option('/var/log/yum.log')
++    lockfile = Option('/var/run/yum.pid')
+     reposdir = ListOption(['/etc/yum/repos.d', '/etc/yum.repos.d'])
+ 
+     commands = ListOption()
+@@ -1056,7 +1077,7 @@ def readStartupConfig(configfile, root,
+                                 startupconf.distroverpkg)
+     startupconf.releasever = releasever
+ 
+-    uuidfile = '%s/%s/uuid' % (startupconf.installroot, startupconf.persistdir)
++    uuidfile = '%s/uuid' % (startupconf.persistdir,)
+     startupconf.uuid = get_uuid(uuidfile)
+ 
+     return startupconf
+@@ -1086,7 +1107,7 @@ def readMainConfig(startupconf):
+     # Apply the installroot to directory options
+     def _apply_installroot(yumconf, option):
+         path = getattr(yumconf, option)
+-        ir_path = yumconf.installroot + path
++        ir_path = yumconf.getRootedPath(path)
+         ir_path = ir_path.replace('//', '/') # os.path.normpath won't fix this and
+                                              # it annoys me
+         ir_path = varReplace(ir_path, yumvars)
+@@ -1094,7 +1115,10 @@ def readMainConfig(startupconf):
+     
+     # Read the FS yumvars
+     try:
+-        dir_fsvars = yumconf.installroot + "/etc/yum/vars/"
++        if startupconf.config_file_path == '/etc/yum.conf':
++            dir_fsvars = '/etc/yum/vars/'
++        else:
++            dir_fsvars = os.path.dirname(startupconf.config_file_path) + "/vars/"
+         fsvars = os.listdir(dir_fsvars)
+     except OSError:
+         fsvars = []
+@@ -1110,7 +1134,7 @@ def readMainConfig(startupconf):
+         yumvars[fsvar] = val
+ 
+     # These can use the above FS yumvars
+-    for option in ('cachedir', 'logfile', 'persistdir'):
++    for option in ('cachedir', 'logfile', 'persistdir', 'lockfile'):
+         _apply_installroot(yumconf, option)
+ 
+     # Add in some extra attributes which aren't actually configuration values 
+Index: yum-3.4.3/yum/history.py
+===================================================================
+--- yum-3.4.3.orig/yum/history.py
++++ yum-3.4.3/yum/history.py
+@@ -659,10 +659,7 @@ class YumHistory:
+         self._conn = None
+         
+         self.conf = yum.misc.GenericHolder()
+-        if not os.path.normpath(db_path).startswith(root):
+-            self.conf.db_path  = os.path.normpath(root + '/' + db_path)
+-        else:
+-            self.conf.db_path = os.path.normpath('/' + db_path)
++        self.conf.db_path  = db_path
+         self.conf.writable = False
+         self.conf.readable = True
+ 
+Index: yum-3.4.3/test/testbase.py
+===================================================================
+--- yum-3.4.3.orig/test/testbase.py
++++ yum-3.4.3/test/testbase.py
+@@ -68,6 +68,9 @@ class FakeConf(object):
+         self.depsolve_loop_limit = 10
+         self.override_install_langs = ''
+ 
++    def getRootedPath(self, path, enforce_default=False, defaults_to_host=False):
++        return path
++
+ class FakeSack:
+     """ Fake PackageSack to use with FakeRepository"""
+     def __init__(self):
