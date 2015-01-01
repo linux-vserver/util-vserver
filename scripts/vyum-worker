@@ -60,7 +60,7 @@ case $(python -c "import yum; print yum.__version__" 2>/dev/null) in
     (2.[012345]*)
 	check 'import yum,sys; sys.exit(not hasattr(yum.config.yumconf, "getRootedPath"))'
 	;;
-    (2.[6789]*|3.[012]*)
+    (2.[6789]*|3.[0124]*)
 	check 'import yum,sys; sys.exit(not hasattr(yum.config.YumConf, "getRootedPath"))'
 	;;
     (*)
