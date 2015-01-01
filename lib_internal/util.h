@@ -37,5 +37,6 @@ size_t		canonifyVserverName(char *);
 bool		isNumber(char const *, signed long *result, bool is_strict);
 bool		isNumberUnsigned(char const *, unsigned long *result, bool is_strict);
 bool		mkdirRecursive(char const *);
+bool		cleanupMount(void);
 
 #endif	//  H_UTILVSERVER_LIB_INTERNAL_UTIL_H
