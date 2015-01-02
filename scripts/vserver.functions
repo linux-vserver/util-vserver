@@ -660,7 +660,7 @@ function _processSingleInterface
 		    echo -e $"VLAN device-name used, but vlan subsystem not enabled.\nTry to execute 'modprobe 8021q' before starting the vservers"  >&2
 		    return 1
 		}
-		_addInterfaceCmd VCONFIG $vlan_info
+		_addInterfaceCmd $VCONFIGOP $vlan_info
 	    fi
 	}
 
@@ -735,6 +735,8 @@ function enableInterfaces
 		;;
 	    NAMEIF)		$_NAMEIF   "$@";;
 	    VCONFIG)		$_IP link  add link "$2" name "$1" type vlan id "$3";;
+	    VCONFIG_LEGACY)	$_VCONFIG  set_name_type "$4"      >/dev/null
+				$_VCONFIG  add           "$2" "$3" >/dev/null;;
 	    IP_ADDR)		$_IP addr  add   "$@";;
 	    IP_ADDR_FLUSH)	$_IP addr  flush "$@";;
 	    IP_LINK)		$_IP link  set   "$@";;
@@ -775,6 +777,7 @@ function disableInterfaces
 	    MODPROBE)		$_RMMOD "${2:-$1}";;
 	    NAMEIF)		;;
 	    VCONFIG)		$_IP link  delete "$1" type vlan;;
+	    VCONFIG_LEGACY)	$_VCONFIG  rem "$2.$3" >/dev/null;;
 	    IP_ADDR)		$_IP addr  del "$@";;
 	    IP_ADDR_FLUSH)	;;
 	    IP_LINK)		;; ## Ignore the link-down command for now

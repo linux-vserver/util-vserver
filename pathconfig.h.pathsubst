@@ -44,6 +44,7 @@
 #define PROG_IP			"@IP@"
 #define PROG_MODPROBE		"@MODPROBE@"
 #define PROG_NAMEIF		"@NAMEIF@"
+#define PROG_VCONFIG		"@VCONFIG@"
 
 #define PROG_SECURE_MOUNT	PKGLIBEXECDIR "/secure-mount"
 #define PROG_H2EXT_WORKER	PKGLIBEXECDIR "/h2ext-worker"

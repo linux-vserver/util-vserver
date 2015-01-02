@@ -79,6 +79,37 @@ if test x"$prefix" = x/; then
 	prefix=
 fi
 
+### 'vcconfig' vs. 'ip link ... type vlan' check
+AC_MSG_CHECKING([whether 'ip' tool supports VLAN operations])
+AC_ARG_ENABLE([ip-vlan],
+              [AC_HELP_STRING([--disable-ip-vlan],
+	                      [disable VLAN setup with 'ip' (default: auto)])],
+	      [case "$enableval" in
+	      	  (yes)  use_ip_vlan=true;;
+		  (no)   use_ip_vlan=false;;
+		  (auto) use_ip_vlan=;;
+		  (*)   AC_MSG_ERROR(['$enableval' is not a valid value for '--disable-ip-vlan']);;
+	       esac],
+	      [use_ip_vlan=])
+
+if test -z "$use_ip_vlan" && $IP link help 2>&1 | grep -q vlan; then
+  use_ip_vlan=true
+else
+  use_ip_vlan=false
+fi
+
+if $use_ip_vlan; then
+  AC_MSG_RESULT([yes])
+  AC_SUBST([VCONFIG],[])
+  AC_SUBST([VCONFIGOP],[VCONFIG])
+  ENSC_PATHPROG_SED="${ENSC_PATHPROG_SED}s!@'VCONFIG'@!!g;"
+else
+  AC_MSG_RESULT([no])
+  AC_SUBST([VCONFIGOP],[VCONFIG_LEGACY])
+  ENSC_PATHPROG(VCONFIG,   vconfig,, [See http://www.candelatech.com/~greear/vlan.html; usually this tool is shipped in the 'vconfig' or 'vlan' package of your distribution])
+fi
+
+
 ENSC_CHECK_CC_FLAG([-std=c99 -Wall -pedantic -W])
 
 AC_MSG_CHECKING([whether to enable extra optimizations])

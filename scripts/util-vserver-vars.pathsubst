@@ -159,9 +159,11 @@ _TAR="@TAR@"
 _TOUCH="@TOUCH@"
 _TTY="@TTY@"
 _UMOUNT="@UMOUNT@"
+_VCONFIG="@VCONFIG@"
 _WC="@WC@"
 _WGET="@WGET@"
 _IONICE="@IONICE@"
+_VCONFIGOP="@VCONFIGOP@"
 
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=106057
 WORKAROUND_106057=1

@@ -118,6 +118,7 @@ _TAR="/bin/tar"
 _TOUCH="/bin/touch"
 _TTY="/usr/bin/tty"
 _UMOUNT="/bin/umount"
+_VCONFIG="/sbin/vconfig"
 _WC="/usr/bin/wc"
 _WGET="/usr/bin/wget"
 
