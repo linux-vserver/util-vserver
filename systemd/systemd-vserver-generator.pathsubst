@@ -1,0 +1,104 @@
+#! /bin/bash
+
+# Copyright (C) 2015 Enrico Scholz <enrico.scholz@ensc.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 and/or (at your option)
+# version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+: ${UTIL_VSERVER_VARS:=@PKGLIBEXECDIR@/util-vserver-vars}
+test -e "$UTIL_VSERVER_VARS" || {
+  echo $"Can not find util-vserver installation (the file '$UTIL_VSERVER_VARS' would be expected); aborting..." >&2
+  exit 1
+}
+. "$UTIL_VSERVER_VARS"
+. "$_LIB_FUNCTIONS"
+
+exec 2>/run/systemd-vserver-generator.$$
+set -x
+
+# see http://www.freedesktop.org/wiki/Software/systemd/Generators/
+# about meaning of $1/$2/$3
+GENDIR=$1
+
+function showHelp()
+{
+  echo \
+      $"Usage: $(basename $0)
+
+Please report bugs to $PACKAGE_BUGREPORT"
+  exit 0
+}
+
+
+function showVersion()
+{
+  echo \
+      $"start-vserver $PACKAGE_VERSION -- systemd generator script
+This program is part of $PACKAGE_STRING
+
+Copyright (C) 2015 Enrico Scholz
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License.  This program has absolutely no warranty."
+  exit 0
+}
+
+function generate_target() {
+  local d=$GENDIR/$1.wants
+  local f=$GENDIR/$1
+
+  if ! test -e "$f"; then
+      mkdir -p "$d"
+  fi
+
+  shift
+
+  while test $# -ge 1; do
+      ln -sf ../"$1" "$d"/"${2:-$1}"
+      shift
+      shift
+  done
+}
+
+## The base 'vserver.target' unit
+generate_target "vserver.target"
+
+## Reimplement parts of getAllVserversByArg here because this function
+## is not applicable in systemd generator context ('vdir' might not be
+## mounted yet)
+for vcfg in $__CONFDIR/*; do
+    isRegularFile "$vcfg" -d   || continue
+    test ! -e "$vcfg"/disabled || continue
+    test   -h "$vcfg"/vdir -o -d "$vcfg"/vdir || continue
+
+    f=$vcfg/apps/init/mark
+    # ignore vservers with empty/non-existing 'mark' file
+    test -s "$f" || continue
+    read mark <$f
+
+    v=${vcfg##$__CONFDIR/}
+
+    generate_target "vserver.target" \
+		    "vserver-mark@$mark.target"
+    generate_target "vserver-mark@$mark.target" \
+		    "vserver@.service" "vserver@$v.service"
+
+    f=$vcfg/apps/init/depends
+    if test -s "$f"; then
+	d=$GENDIR/vserver@$v.service.requires
+
+	mkdir -p "$d"
+	while read dep; do
+	    ln -s "../vserver@.service" "$d/vserver@$dep.service"
+	done < "$f"
+    fi
+done

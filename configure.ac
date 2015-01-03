@@ -474,6 +474,34 @@ AC_MSG_RESULT([$ensc_with_init])
 AM_CONDITIONAL(HAVE_GENTOO_INIT, test x"$ensc_with_init" = xgentoo)
 AM_CONDITIONAL(HAVE_SYSV_INIT, test x"$ensc_with_init" = xsysv)
 
+dnl Check
+AC_MSG_CHECKING([whether to enable systemd support])
+AC_ARG_ENABLE([systemd],
+              [AC_HELP_STRING([--disable-systemd],[disable systemd support])],
+	      [],[enable_systemd=auto])
+
+AS_CASE([$enable_systemd],
+  [yes|no], [AC_MSG_RESULT([$enable_systemd])],
+  [auto], [
+    PKG_CHECK_EXISTS([systemd], [enable_systemd=yes], [enable_systemd=no])
+    AC_MSG_RESULT([$enable_systemd (auto)])
+  ],
+  [AC_MSG_ERROR(['$enable_systemd' is not a valid value for '--enable-systemd'])])
+
+if test x"$enable_systemd" != xyes; then
+  AM_CONDITIONAL([HAVE_SYSTEMD], [false])
+else
+  PKG_CHECK_MODULES([SYSTEMD], [systemd])
+  dnl 'tmpfilesdir' and 'sysctldir' require a very recent version of
+  dnl systemd; provide fallback values for RHEL7 and Fedora 20...
+  PKG_CHECK_VAR([SYSTEMD_TMPFILESDIR],  [systemd], [tmpfilesdir],[],
+                [SYSTEMD_TMPFILESDIR='${prefix}/lib/tmpfiles.d'])
+  PKG_CHECK_VAR([SYSTEMD_SYSCTLDIR],    [systemd], [sysctldir],[],
+		[SYSTEMD_SYSCTLDIR='${prefix}/lib/sysctl.d'])
+  PKG_CHECK_VAR([SYSTEMD_UNITDIR],      [systemd], [systemdsystemunitdir])
+  PKG_CHECK_VAR([SYSTEMD_GENERATORDIR], [systemd], [systemdsystemgeneratordir])
+  AM_CONDITIONAL([HAVE_SYSTEMD], [true])
+fi
 
 dnl ########################
 dnl Check for Python

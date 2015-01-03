@@ -183,3 +183,8 @@ build  @SYSCONFDIR@/vservers/.distributions/.common/
 build  @SYSCONFDIR@/vservers/.distributions/.common/pubkeys/
 build  @SYSCONFDIR@/vservers/.defaults/apps/vunify/
 build  @SYSCONFDIR@/vservers/.defaults/apps/vunify/hash/
+@HAVE_SYSTEMD_TRUE@systemd @SYSTEMDUNITDIR@/*
+@HAVE_SYSTEMD_TRUE@systemd @SYSTEMDGENERATORDIR@/*
+@HAVE_SYSTEMD_TRUE@systemd @TMPFILESDIR@/*
+@HAVE_SYSTEMD_TRUE@systemd @SYSCTLDIR@/*
+@HAVE_SYSTEMD_TRUE@systemd @PKGLIBEXECDIR@/systemd-*

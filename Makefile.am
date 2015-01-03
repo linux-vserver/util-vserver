@@ -133,6 +133,7 @@ pathsubst_RULES =	s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
 			s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
 			s!@'VSHELPERSTATEDIR'@!$(vshelperstatedir)!g; \
+			s!@'VSHELPER'@!$(pkglibexecdir)/vshelper!g; \
 			s!@'INITRDDIR'@!$(initrddir)!g; \
 			s!@'LIBDIR'@!$(libdir)!g; \
 			s!@'MANDIR'@!$(mandir)!g; \
@@ -150,6 +151,12 @@ pathsubst_RULES =	s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			s!@'HAVE_PYTHON_TRUE'@!\@HAVE_PYTHON_TRUE@ !g; \
 			s!@'HAVE_PYTHON_FALSE'@!\@HAVE_PYTHON_FALSE@ !g; \
 			s!@'PYEXECDIR'@!$(pyexecdir)!g; \
+			s!@'HAVE_SYSTEMD_TRUE'@!\@HAVE_SYSTEMD_TRUE@ !g; \
+			s!@'HAVE_SYSTEMD_FALSE'@!\@HAVE_SYSTEMD_FALSE@ !g; \
+			s!@'SYSTEMDUNITDIR'@!$(systemdunitdir)!g; \
+			s!@'SYSTEMDGENERATORDIR'@!$(systemdgeneratordir)!g; \
+			s!@'SYSCTLDIR'@!$(sysctldir)!g; \
+			s!@'TMPFILESDIR'@!$(tmpfilesdir)!g; \
 			$(ENSC_PATHPROG_SED)
 
 pathconfig.h:		.pathconfig.h.pathsubst.stamp
@@ -252,6 +259,7 @@ if HAVE_PYTHON
 include $(top_srcdir)/python/Makefile-files
 endif
 include $(top_srcdir)/debian/Makefile-files
+include $(top_srcdir)/systemd/Makefile-files
 
 include $(top_srcdir)/m4/gpgsig.am
 include $(top_srcdir)/m4/validate.am

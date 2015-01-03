@@ -1,0 +1,3 @@
+d @VSHELPERSTATEDIR@	0755 root root
+d @PKGSTATEDIR@		0755 root root
+d @PKGSTATEDIR@.rev	0755 root root

@@ -1,0 +1,8 @@
+[Unit]
+After = network-online.target
+Wants = network-online.target
+
+[Service]
+RemainAfterExit = yes
+ExecStart = @PKGLIBEXECDIR@/systemd-start
+ExecStop = @PKGLIBEXECDIR@/systemd-stop
