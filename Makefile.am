@@ -20,6 +20,8 @@
 ACLOCAL_AMFLAGS		=  -I m4
 SUBDIRS			=  . distrib
 
+AM_DISTCHECK_CONFIGURE_FLAGS =
+
 confdir			=  $(sysconfdir)/vservers
 confdefaultsdir		=  $(confdir)/.defaults
 sbincfgdir		=  $(sbindir)
