@@ -156,7 +156,7 @@ Esetgid(gid_t gid)
   FatalErrnoError(setgid(gid)==-1, "setgid()");
 }
 
-#if defined(_GRP_H) && (defined(__USE_BSD) || defined(__dietlibc__))
+#if defined(_GRP_H) && (defined(__USE_BSD) || defined(_DEFAULT_SOURCE) || defined(__dietlibc__))
 inline static void
 Esetgroups(size_t size, const gid_t *list)
 {
