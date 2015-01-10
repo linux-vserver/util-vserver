@@ -791,7 +791,7 @@ function callInNamespace
 
     shift
     if test -n "$ctx"; then
-	$_VNAMESPACE --enter "$ctx" -- "$@"
+	$_VSPACE "${OPTS_VSPACE[@]}" --mount --fs --enter "$ctx" -- "$@"
     else
 	"$@"
     fi

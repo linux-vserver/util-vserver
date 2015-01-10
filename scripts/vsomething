@@ -123,6 +123,7 @@ for i in "${vservers[@]}"; do
 	    _setVserverDir "$i"
 	    # subshell so we don't have to clean up
 	    ( _generateChbindOptions "$VSERVER_DIR"
+	      _generateSpaceOptions  "$VSERVER_DIR"
 	      $_VSERVER "$i" status &> /dev/null || \
 		CHBIND_CMD=()
 	      callInNamespace "$i" \
