@@ -209,7 +209,8 @@ test "$cmd" != start -o -n "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_D
 test "$cmd" != enter -a "$cmd" != stop || \
     test -n "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" || \
     ! isVserverRunning "$VSERVER_DIR" || \
-    exec $_VNAMESPACE --enter "$VSERVER_DIR" -- $_VSERVER ----nonamespace "${OPTIONS_ORIG[@]}"
+    exec $_VSPACE --mount --fs --enter "$VSERVER_DIR" -- \
+	 $_VSERVER ----nonamespace "${OPTIONS_ORIG[@]}"
 
 set_init_cwd
 cd /

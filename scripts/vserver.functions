@@ -660,7 +660,7 @@ function _processSingleInterface
 		    echo -e $"VLAN device-name used, but vlan subsystem not enabled.\nTry to execute 'modprobe 8021q' before starting the vservers"  >&2
 		    return 1
 		}
-		_addInterfaceCmd VCONFIG $vlan_info
+		_addInterfaceCmd $VCONFIGOP $vlan_info
 	    fi
 	}
 
@@ -734,7 +734,8 @@ function enableInterfaces
 		$_MODPROBE ${name:+-o "$name"} "$mod" "$@"
 		;;
 	    NAMEIF)		$_NAMEIF   "$@";;
-	    VCONFIG)		$_VCONFIG  set_name_type "$4"      >/dev/null
+	    VCONFIG)		$_IP link  add link "$2" name "$1" type vlan id "$3";;
+	    VCONFIG_LEGACY)	$_VCONFIG  set_name_type "$4"      >/dev/null
 				$_VCONFIG  add           "$2" "$3" >/dev/null;;
 	    IP_ADDR)		$_IP addr  add   "$@";;
 	    IP_ADDR_FLUSH)	$_IP addr  flush "$@";;
@@ -775,7 +776,8 @@ function disableInterfaces
 	    IPTABLES)		;; ## TODO
 	    MODPROBE)		$_RMMOD "${2:-$1}";;
 	    NAMEIF)		;;
-	    VCONFIG)		$_VCONFIG  rem "$2.$3" >/dev/null;;
+	    VCONFIG)		$_IP link  delete "$1" type vlan;;
+	    VCONFIG_LEGACY)	$_VCONFIG  rem "$2.$3" >/dev/null;;
 	    IP_ADDR)		$_IP addr  del "$@";;
 	    IP_ADDR_FLUSH)	;;
 	    IP_LINK)		;; ## Ignore the link-down command for now
@@ -850,7 +852,7 @@ function prepareInit
 	    local -a dirs=( $($_CHROOT_SH realpath /var/run /var/lock | $_SED 's!^/*!!' || :) )
 	    local dir
 	    for dir in "${dirs[@]}"; do
-		$_FIND $dir ! -type d -print0 | xargs -0r $_CHROOT_SH rm
+		$_FIND "$dir/." ! -type d -print0 2>/dev/null | xargs -0r $_CHROOT_SH rm
 	    done
 	    ;;
 	plain)

@@ -1,0 +1,11 @@
+# This file is part of util-vserver
+
+[Unit]
+Description = vserver '%I'
+After = vprocunhide.service util-vserver.service
+Wants = vprocunhide.service util-vserver.service
+
+[Service]
+ExecStart = @SBINDIR@/vserver %I start
+ExecStop = @SBINDIR@/vserver %I stop
+RemainAfterExit = yes

@@ -1,0 +1,5 @@
+[Unit]
+Description = Target for vservers tagged with '%I'
+
+[Install]
+WantedBy = vserver.target

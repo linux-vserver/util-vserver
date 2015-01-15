@@ -20,6 +20,8 @@
 ACLOCAL_AMFLAGS		=  -I m4
 SUBDIRS			=  . distrib
 
+AM_DISTCHECK_CONFIGURE_FLAGS =
+
 confdir			=  $(sysconfdir)/vservers
 confdefaultsdir		=  $(confdir)/.defaults
 sbincfgdir		=  $(sbindir)
@@ -35,7 +37,8 @@ lib_LTLIBRARIES =
 pkglib_LTLIBRARIES =
 
 pkglibexec_SCRIPTS =
-pkgdata_DATA =		FEATURES.txt
+xpkglib_DATA =		FEATURES.txt
+xpkglibexec_DATA =
 pkglibexec_PROGRAMS =
 legacy_SCRIPTS =
 legacy_PROGRAMS =
@@ -44,6 +47,7 @@ sbin_SCRIPTS =
 sbin_PROGRAMS =
 noinst_PROGRAMS =
 noinst_DATA =
+pkgdata_DATA =
 
 initrd_SCRIPTS =
 sysconf_DATA =
@@ -129,6 +133,7 @@ pathsubst_RULES =	s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
 			s!@'VSERVERPKGDIR'@!$(vserverpkgdir)!g; \
 			s!@'VSHELPERSTATEDIR'@!$(vshelperstatedir)!g; \
+			s!@'VSHELPER'@!$(pkglibexecdir)/vshelper!g; \
 			s!@'INITRDDIR'@!$(initrddir)!g; \
 			s!@'LIBDIR'@!$(libdir)!g; \
 			s!@'MANDIR'@!$(mandir)!g; \
@@ -146,6 +151,12 @@ pathsubst_RULES =	s!@'PKGLIBDIR'@!$(pkglibdir)!g; \
 			s!@'HAVE_PYTHON_TRUE'@!\@HAVE_PYTHON_TRUE@ !g; \
 			s!@'HAVE_PYTHON_FALSE'@!\@HAVE_PYTHON_FALSE@ !g; \
 			s!@'PYEXECDIR'@!$(pyexecdir)!g; \
+			s!@'HAVE_SYSTEMD_TRUE'@!\@HAVE_SYSTEMD_TRUE@ !g; \
+			s!@'HAVE_SYSTEMD_FALSE'@!\@HAVE_SYSTEMD_FALSE@ !g; \
+			s!@'SYSTEMDUNITDIR'@!$(systemdunitdir)!g; \
+			s!@'SYSTEMDGENERATORDIR'@!$(systemdgeneratordir)!g; \
+			s!@'SYSCTLDIR'@!$(sysctldir)!g; \
+			s!@'TMPFILESDIR'@!$(tmpfilesdir)!g; \
 			$(ENSC_PATHPROG_SED)
 
 pathconfig.h:		.pathconfig.h.pathsubst.stamp
@@ -163,6 +174,8 @@ pathconfig.h:		.pathconfig.h.pathsubst.stamp
 			@chmod a-w '$*'
 			@touch '$@'
 
+xpkglibdir =		$(pkglibdir)
+xpkglibexecdir =	$(pkglibexecdir)
 pkgcachedir =		$(localstatedir)/cache/vservers
 pkgstatedir =		$(localstatedir)/run/vservers
 pkgstaterevdir =	$(confdefaultsdir)/run.rev
@@ -188,15 +201,16 @@ install-create-dirs:
 			f=$(DESTDIR)$(pkgstaterevdir);            test -e "$$f" || ln -sf '$(pkgstatedir).rev' "$$f"
 
 install-fix-script-paths:
-			test "/usr/lib/util-vserver" = "$(pkgdatadir)" || \
+			test "/usr/lib/util-vserver" = "$(xpkglibexecdir)" || \
 			for i in $(fix_SCRPTS); do \
 				f="$(DESTDIR)$$i"; \
-				$(SED) -e 's!/usr/lib/util-vserver!$(pkgdatadir)!g' "$$f" >"$$f.tmp"; \
+				$(SED) -e 's!/usr/lib/util-vserver!$(xpkglibexecdir)!g' "$$f" >"$$f.tmp"; \
 				$(CMP) -s "$$f.tmp" "$$f" || cat "$$f.tmp" >"$$f"; \
 				rm -f "$$f.tmp"; \
 			done
 
-install-distribution:	_install-vserverdir _install-vshelperlink
+install-distribution:	_install-vserverdir _install-vshelperlink install-compat
+install-compat:		_install-varlink
 
 _install-vshelperlink:
 			$(mkinstalldirs) $(DESTDIR)/sbin
@@ -205,6 +219,10 @@ _install-vshelperlink:
 _install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
 
+_install-varlink:
+			$(mkinstalldirs) $(DESTDIR)/${pkglibdir}
+			ln -s ${pkglibexecdir}/util-vserver-vars $(DESTDIR)/${pkglibdir}/util-vserver-vars
+			ln -s ${pkglibexecdir}/util-vserver-vars $(DESTDIR)/${pkgdatadir}/util-vserver-vars
 
 .fixups:		config.status util-vserver.spec
 			chmod a-w util-vserver.spec
@@ -241,6 +259,7 @@ if HAVE_PYTHON
 include $(top_srcdir)/python/Makefile-files
 endif
 include $(top_srcdir)/debian/Makefile-files
+include $(top_srcdir)/systemd/Makefile-files
 
 include $(top_srcdir)/m4/gpgsig.am
 include $(top_srcdir)/m4/validate.am

@@ -437,7 +437,7 @@ getUTS(char *buf, xid_t xid, size_t argc, char * argv[])
 static int
 printSysInfo(char *buf)
 {
-  int			fd = open(PKGDATADIR "/FEATURES.txt", O_RDONLY);
+  int			fd = open(PKGLIBDIR "/FEATURES.txt", O_RDONLY);
   struct utsname	uts;
 
   if (uname(&uts)==-1)

@@ -1,0 +1,98 @@
+## -*- makefile -*-
+
+## Copyright (C) 2015 Enrico Scholz <enrico.scholz@ensc.de>
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# 'make distcheck' does not work because 'pkgconfig systemd
+# --variable=...'  returns paths outside of '${prefix}'; override
+# those variable for 'distcheck' here...
+AM_DISTCHECK_CONFIGURE_FLAGS += \
+	SYSTEMD_TMPFILESDIR='$${prefix}/lib/tmpfiles.d' \
+	SYSTEMD_SYSCTLDIR='$${prefix}/lib/sysctl.d' \
+	SYSTEMD_UNITDIR='$${prefix}/lib/systemd/system' \
+	SYSTEMD_GENERATORDIR='$${prefix}/lib/systemd/systemd-generator'
+
+AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
+	systemd/systemd-start \
+	systemd/systemd-stop
+
+tmpfilesdir =		@SYSTEMD_TMPFILESDIR@
+sysctldir =		@SYSTEMD_SYSCTLDIR@
+systemdunitdir =	@SYSTEMD_UNITDIR@
+systemdgeneratordir =	@SYSTEMD_GENERATORDIR@
+
+tmpfiles_gen_DTA =	.systemd/tmpfiles/90-util-vserver.conf
+sysctl_gen_DTA =	.systemd/sysctl/90-util-vserver.conf
+systemdunit_gen_DTA = \
+	systemd/vserver@.service \
+	systemd/vprocunhide.service \
+	systemd/util-vserver.service
+systemdunit_src_DTA = \
+	systemd/vserver.target \
+	systemd/vserver-mark@.target
+
+systemd_systemd_vserver_generator_SOURCES = \
+	systemd/systemd-vserver-generator.c
+
+systemd_pkglibexec_SCRPTS = \
+	systemd/systemd-start \
+	systemd/systemd-stop
+
+EXTRA_DIST += \
+	systemd/util-vserver.tmpfiles.pathsubst \
+	systemd/util-vserver.sysctl.pathsubst \
+	systemd/vserver@.service.pathsubst \
+	systemd/vserver@.service.pathsubst \
+	systemd/vprocunhide.service.pathsubst \
+	systemd/util-vserver.service.pathsubst \
+	${systemdunit_src_DTA} \
+	${systemd_pkglibexec_SCRPTS}
+
+if HAVE_SYSTEMD
+
+tmpfiles_DATA	= ${tmpfiles_gen_DTA}
+sysctl_DATA	= ${sysctl_gen_DTA}
+systemdunit_DATA	= \
+	${systemdunit_gen_DTA} \
+	${systemdunit_src_DTA}
+
+pkglibexec_SCRIPTS += \
+	${systemd_pkglibexec_SCRPTS}
+
+systemdgenerator_PROGRAMS = \
+	systemd/systemd-vserver-generator
+
+DIETPROGS += \
+	systemd/systemd-vserver-generator
+
+endif
+
+CLEANFILES += \
+	systemd/util-vserver.sysctl \
+	systemd/util-vserver.tmpfiles \
+	${systemdunit_gen_DTA} \
+	${tmpfiles_gen_DTA} \
+	${sysctl_gen_DTA}
+
+.systemd/tmpfiles/90-util-vserver.conf:	systemd/.util-vserver.tmpfiles.pathsubst.stamp
+	@mkdir -p ${@D}
+	cat ${<D}/util-vserver.tmpfiles > $@
+
+.systemd/sysctl/90-util-vserver.conf:	systemd/.util-vserver.sysctl.pathsubst.stamp
+	@mkdir -p ${@D}
+	cat ${<D}/util-vserver.sysctl > $@
+
+${systemdunit_gen_DTA}:systemd/%: \
+	systemd/.%.pathsubst.stamp
