@@ -201,9 +201,14 @@ Possible solutions:
 
 _setVserverName
 
-# Create a new namespace when starting the guest
-test "$cmd" != start -o -n "$OPTION_NONAMESPACE" || isAvoidNamespace "$VSERVER_DIR" || \
+if test "$cmd" = start -a -z "$OPTION_NONAMESPACE" && ! isAvoidNamespace "$VSERVER_DIR"; then
+    # trigger automount and ignore errors (the later, real mounting
+    # will be more exact)
+    mountTriggerAutomount "$VSERVER_DIR" || :
+
+    # Create a new namespace when starting the guest
     exec $_VNAMESPACE --new -- $_VSERVER ----nonamespace "${OPTIONS_ORIG[@]}"
+fi
 
 # Enter the namespace early so we can test for files inside the guest
 test "$cmd" != enter -a "$cmd" != stop || \

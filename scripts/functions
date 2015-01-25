@@ -547,6 +547,26 @@ function isNamespaceCleanup
     return 0
 }
 
+## Usage: mountTriggerAutomount <cfgdir>
+function mountTriggerAutomount
+{
+    local cfgdir=$1
+    local vdir=$1/vdir
+    local f
+    local r=0
+
+    for f in fstab fstab.local fstab.remote; do
+	local fstab=$cfgdir/$f
+	test -e "$fstab" || continue
+
+	pushd "$vdir" >/dev/null
+	$_SECURE_MOUNT --trigger-automount -a --fstab "$fstab" || rc=1
+	popd >/dev/null
+    done
+
+    return $rc
+}
+
 ## Usage: getAllVservers <var> [<KIND>*]
 function getAllVservers
 {
