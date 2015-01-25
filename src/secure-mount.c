@@ -592,7 +592,8 @@ transformOptionList(struct MountInfo *info, size_t UNUSED *col)
   while (isspace(*PTR)) ++PTR
 
 static enum {prDOIT, prFAIL, prIGNORE}
-  parseFstabLine(struct MountInfo *info, char *buf, size_t *col)
+  parseFstabLine(struct MountInfo *info, char *buf, size_t *col,
+	  bool honor_noauto)
 {
   char const * const	start_buf = buf;
   size_t		err_col;
@@ -624,7 +625,7 @@ static enum {prDOIT, prFAIL, prIGNORE}
 
   if (col) *col = err_col;
   if (!transformOptionList(info,col)) return prFAIL;
-  if (info->xflag & XFLAG_NOAUTO)     return prIGNORE;
+  if (honor_noauto && (info->xflag & XFLAG_NOAUTO)) return prIGNORE;
 
   return prDOIT;
 }
@@ -695,7 +696,7 @@ mountFstab(struct Options *opt)
       struct MountInfo	mnt;
       ++line_nr;
 
-      switch (parseFstabLine(&mnt, ptr, &col_nr)) {
+      switch (parseFstabLine(&mnt, ptr, &col_nr, !opt->trigger_automount)) {
 	case prFAIL	:
 	  showFstabPosition(2, opt->fstab, line_nr, col_nr);
 	  WRITE_MSG(2, ": syntax error\n");
