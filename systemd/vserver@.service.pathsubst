@@ -6,6 +6,7 @@ After = vprocunhide.service util-vserver.service
 Wants = vprocunhide.service util-vserver.service
 
 [Service]
+Type = oneshot
 ExecStart = @SBINDIR@/vserver %I start
 ExecStop = @SBINDIR@/vserver %I stop
 RemainAfterExit = yes
