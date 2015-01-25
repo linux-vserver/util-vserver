@@ -990,7 +990,6 @@ function mountRootFS
 function mountVserver
 {
     local cfgdir=$1
-    local ns_opt=$2
     local vdir=$1/vdir
     local mtab_src
     local extra_opt=
