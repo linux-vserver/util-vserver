@@ -474,7 +474,8 @@ triggerAutomount(struct MountInfo const *mnt)
   } else if (stat(mnt->src, &st) == 0) {
     /* when this failed (because src is a file), access it directly */
     rc = !S_ISDIR(st.st_mode);
-    WRITE_MSG(2, "unexpected src type\n");
+    if (!(mnt->xflag & XFLAG_FILE))
+      WRITE_MSG(2, "unexpected src type\n");
   } else {
     perror("stat()");
     rc = false;
