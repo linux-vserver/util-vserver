@@ -492,6 +492,12 @@ mountSingle(struct MountInfo const *mnt, struct Options *opt)
   if (!secureChdir(mnt->dst, opt))
     return false;
 
+  /* Note: this is racy on running vservers... */
+  if (utilvserver_isLink(mnt->name)) {
+    WRITE_MSG(2, "destination is a symbolic link\n");
+    return false;
+  }
+
   if (canHandleInternal(mnt)) {
     if (mount(mnt->src, mnt->name,
 	      mnt->type ? mnt->type : "",
@@ -710,7 +716,7 @@ mountFstab(struct Options *opt)
 	  if (( is_rootfs && opt->rootfs==rfsNO) ||
 	      (!is_rootfs && opt->rootfs==rfsONLY)) { /* ignore the entry */ }
 	  else {
-            if (utilvserver_isFile(mnt.src, 0))
+            if ((mnt.flag & MS_BIND) && utilvserver_isFile(mnt.src, 1))
               adjustFileMount(&mnt);
 
 	    if (opt->trigger_automount) {
@@ -850,7 +856,7 @@ int main(int argc, char *argv[])
   mnt.src  = argv[optind++];
   mnt.dst  = argv[optind++];
 
-  if (utilvserver_isFile(mnt.src, 0))
+  if ((mnt.flag & MS_BIND) && utilvserver_isFile(mnt.src, 1))
     adjustFileMount(&mnt);
 
   if (( opt.trigger_automount && !triggerAutomount(&mnt)) ||
