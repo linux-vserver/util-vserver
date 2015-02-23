@@ -220,8 +220,10 @@ _install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
 
 _install-varlink:
+ifneq ($(pkglibexecdir),$(pkglibdir))
 			$(mkinstalldirs) $(DESTDIR)/${pkglibdir}
 			ln -s ${pkglibexecdir}/util-vserver-vars $(DESTDIR)/${pkglibdir}/util-vserver-vars
+endif
 			ln -s ${pkglibexecdir}/util-vserver-vars $(DESTDIR)/${pkgdatadir}/util-vserver-vars
 
 .fixups:		config.status util-vserver.spec
