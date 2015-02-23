@@ -1,6 +1,6 @@
 // $Id$    --*- c++ -*--
 
-// Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+// Copyright (C) 2003,2015 Enrico Scholz <enrico.scholz@ensc.de>
 //  
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -80,6 +80,7 @@ struct Options {
     bool		do_chroot;
     bool		ignore_mtab;
     bool		mount_all;
+    bool		trigger_automount;
     RootFsOption	rootfs;
 
     char		cur_dir_path[PATH_MAX];
@@ -95,6 +96,7 @@ struct Options {
 #define OPTION_SECURE	1029
 #define OPTION_RBIND	1030
 #define OPTION_ROOTFS	1031
+#define OPTION_TRIGGER_AUTOMOUNT	1032
 
 #define XFLAG_NOAUTO	0x01
 #define XFLAG_FILE	0x02
@@ -112,6 +114,7 @@ CMDLINE_OPTIONS[] = {
   { "chroot",  no_argument,	  0, OPTION_CHROOT },
   { "secure",  no_argument,       0, OPTION_SECURE },
   { "rbind",   no_argument,       0, OPTION_RBIND },
+  { "trigger-automount", no_argument, 0, OPTION_TRIGGER_AUTOMOUNT },
   { 0, 0, 0, 0 }
 };
 
@@ -213,6 +216,8 @@ showHelp(int fd, char const *cmd, int res)
 	    "                                mount it among the other entries, 'only' will\n"
 	    "                                mount only the rootfs entry, and 'no' will ignore\n"
 	    "                                it and mount only the other entries [default: yes]\n"
+	    "  --trigger-automount      ...  trigger automounting of <src> paths but do not\n"
+	    "                                mount <dst> nor touch mtab\n"
             "  -a                       ...  mount everything listed in the fstab-file\n\n"
             "  <src>                    ...  the source-filesystem; this path is absolute\n"
             "                                to the current root-filesystem. Only valid\n"
@@ -448,6 +453,38 @@ canHandleInternal(struct MountInfo const *mnt)
 }
 
 static bool
+triggerAutomount(struct MountInfo const *mnt)
+{
+  char		src[strlen(mnt->src) + sizeof "/."];
+  struct stat	st;
+  bool		rc;
+
+  if (mnt->src[0] != '/' || !canHandleInternal(mnt))
+    /* we handle only absolute source paths with local protocols */
+    return true;
+
+  strcpy(src, mnt->src);
+  strcat(src, "/.");
+
+  /* NOTE: using 'stat()' instead of 'lstat()' in this function is expected */
+
+  /* try to stat the directory first and trigger automount by accessing '.' */
+  if (stat(src, &st) == 0) {
+    rc = true;
+  } else if (stat(mnt->src, &st) == 0) {
+    /* when this failed (because src is a file), access it directly */
+    rc = !S_ISDIR(st.st_mode);
+    if (!(mnt->xflag & XFLAG_FILE))
+      WRITE_MSG(2, "unexpected src type\n");
+  } else {
+    perror("stat()");
+    rc = false;
+  }
+
+  return rc;
+}
+
+static bool
 mountSingle(struct MountInfo const *mnt, struct Options *opt)
 {
   assert(mnt->dst!=0);
@@ -556,7 +593,8 @@ transformOptionList(struct MountInfo *info, size_t UNUSED *col)
   while (isspace(*PTR)) ++PTR
 
 static enum {prDOIT, prFAIL, prIGNORE}
-  parseFstabLine(struct MountInfo *info, char *buf, size_t *col)
+  parseFstabLine(struct MountInfo *info, char *buf, size_t *col,
+	  bool honor_noauto)
 {
   char const * const	start_buf = buf;
   size_t		err_col;
@@ -588,7 +626,7 @@ static enum {prDOIT, prFAIL, prIGNORE}
 
   if (col) *col = err_col;
   if (!transformOptionList(info,col)) return prFAIL;
-  if (info->xflag & XFLAG_NOAUTO)     return prIGNORE;
+  if (honor_noauto && (info->xflag & XFLAG_NOAUTO)) return prIGNORE;
 
   return prDOIT;
 }
@@ -659,7 +697,7 @@ mountFstab(struct Options *opt)
       struct MountInfo	mnt;
       ++line_nr;
 
-      switch (parseFstabLine(&mnt, ptr, &col_nr)) {
+      switch (parseFstabLine(&mnt, ptr, &col_nr, !opt->trigger_automount)) {
 	case prFAIL	:
 	  showFstabPosition(2, opt->fstab, line_nr, col_nr);
 	  WRITE_MSG(2, ": syntax error\n");
@@ -672,9 +710,15 @@ mountFstab(struct Options *opt)
 	  if (( is_rootfs && opt->rootfs==rfsNO) ||
 	      (!is_rootfs && opt->rootfs==rfsONLY)) { /* ignore the entry */ }
 	  else {
-            if (utilvserver_isFile(mnt.dst, 0))
+            if (utilvserver_isFile(mnt.src, 0))
               adjustFileMount(&mnt);
-            if (!mountSingle(&mnt, opt)) {
+
+	    if (opt->trigger_automount) {
+	      if (!triggerAutomount(&mnt)) {
+	        showFstabPosition(2, opt->fstab, line_nr, 1);
+	        WRITE_MSG(2, ": failed to stat src\n");
+	      }
+	    } else if (!mountSingle(&mnt, opt)) {
 	      showFstabPosition(2, opt->fstab, line_nr, 1);
 	      WRITE_MSG(2, ": failed to mount fstab-entry\n");
             }
@@ -763,6 +807,7 @@ int main(int argc, char *argv[])
       case OPTION_FSTAB	:  opt.fstab       = optarg;  break;
       case OPTION_CHROOT:  opt.do_chroot   = true;    break;
       case OPTION_ROOTFS:  opt.rootfs      = parseRootFS(optarg); break;
+      case OPTION_TRIGGER_AUTOMOUNT: opt.trigger_automount = true; break;
       case OPTION_SECURE:
 	WRITE_MSG(2, "secure-mount: The '--secure' option is deprecated...\n");
 	break;
@@ -805,9 +850,11 @@ int main(int argc, char *argv[])
   mnt.src  = argv[optind++];
   mnt.dst  = argv[optind++];
 
-  if (utilvserver_isFile(mnt.dst, 0))
+  if (utilvserver_isFile(mnt.src, 0))
     adjustFileMount(&mnt);
-  if (!mountSingle(&mnt, &opt))
+
+  if (( opt.trigger_automount && !triggerAutomount(&mnt)) ||
+      (!opt.trigger_automount && !mountSingle(&mnt, &opt)))
     return EXIT_FAILURE;
     
   return EXIT_SUCCESS;
