@@ -13,6 +13,7 @@ start() {
 		eerror "(the file '$UTIL_VSERVER_VARS' would be expected)"
 		return 1
 	fi
+	. ${UTIL_VSERVER_VARS}
 	MARK=${SVCNAME#vservers.} $_VSERVER_WRAPPER start
 }
 
@@ -23,6 +24,7 @@ stop() {
 		eerror "(the file '$UTIL_VSERVER_VARS' would be expected)"
 		return 1
 	fi
+	. ${UTIL_VSERVER_VARS}
 	MARK=${SVCNAME#vservers.} $_VSERVER_WRAPPER stop
 }
 
