@@ -542,6 +542,9 @@ fi
 dnl /Library versioning
 dnl ########################
 
+dnl Check for pkglibdir and pkgdatadir being identical
+AM_CONDITIONAL([PKGLIBDIR_IS_PKGDATADIR], [test "x$pkglibdir" = "x$pkgdatadir"])
+
 
 dnl BIG HACK! Do some autodetection here!
 AC_DEFINE(UTMP_GID, [22], [The utmp gid-number])

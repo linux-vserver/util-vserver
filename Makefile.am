@@ -219,11 +219,15 @@ _install-vshelperlink:
 _install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
 
-_install-varlink:
-ifneq ($(pkglibexecdir),$(pkglibdir))
+if PKGLIBDIR_IS_PKGDATADIR
+_install-varlink-pkglibdir:
 			$(mkinstalldirs) $(DESTDIR)/${pkglibdir}
 			ln -s ${pkglibexecdir}/util-vserver-vars $(DESTDIR)/${pkglibdir}/util-vserver-vars
+else
+_install-varlink-pkglibdir:
 endif
+
+_install-varlink: _install-varlink-pkglibdir
 			ln -s ${pkglibexecdir}/util-vserver-vars $(DESTDIR)/${pkgdatadir}/util-vserver-vars
 
 .fixups:		config.status util-vserver.spec
