@@ -221,10 +221,10 @@ _install-vserverdir:
 
 if PKGLIBDIR_IS_PKGLIBEXECDIR
 _install-varlink-pkglibdir:
-			$(mkinstalldirs) $(DESTDIR)/${pkglibdir}
-			ln -s ${pkglibexecdir}/util-vserver-vars $(DESTDIR)/${pkglibdir}/util-vserver-vars
 else
 _install-varlink-pkglibdir:
+			$(mkinstalldirs) $(DESTDIR)/${pkglibdir}
+			ln -s ${pkglibexecdir}/util-vserver-vars $(DESTDIR)/${pkglibdir}/util-vserver-vars
 endif
 
 _install-varlink: _install-varlink-pkglibdir
