@@ -17,6 +17,7 @@
 ## Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 ##
 
+if HAVE_PYTHON
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += python/libvserver.py
 pyexec_LTLIBRARIES		+= python/_libvserver.la
 pyexec_SCRIPTS			+= python/libvserver.py
@@ -25,9 +26,6 @@ python__libvserver_la_CFLAGS	=  $(AM_CFLAGS) $(PYTHON_CFLAGS) \
 				   -I$(top_builddir)/python
 python__libvserver_la_LDFLAGS	=  -module -avoid-version $(PYTHON_LDFLAGS)
 python__libvserver_la_LIBADD	=  $(LIBVSERVER_GLIBC)
-
-EXTRA_DIST			+= python/ctags-constants.awk \
-				   python/libvserver.py
 
 # FIXME: Dude, this is ugly.
 python/_libvserver.c: $(top_builddir)/python/_libvserver-constants.c
@@ -38,3 +36,7 @@ $(top_builddir)/python/_libvserver-constants.c: lib/vserver.h \
 		> $(top_builddir)/python/_libvserver-constants.c
 
 CLEANFILES +=		python/_libvserver-constants.c
+endif
+
+EXTRA_DIST			+= python/ctags-constants.awk \
+				   python/libvserver.py

@@ -261,9 +261,7 @@ include $(top_srcdir)/ensc_fmt/Makefile-files
 include $(top_srcdir)/lib_internal/Makefile-files
 #include $(top_srcdir)/vserver-start/Makefile-files
 include $(top_srcdir)/gentoo/Makefile-files
-if HAVE_PYTHON
 include $(top_srcdir)/python/Makefile-files
-endif
 include $(top_srcdir)/debian/Makefile-files
 include $(top_srcdir)/systemd/Makefile-files
 
