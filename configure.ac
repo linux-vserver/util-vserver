@@ -543,7 +543,7 @@ dnl /Library versioning
 dnl ########################
 
 dnl Check for pkglibdir and pkgdatadir being identical
-AM_CONDITIONAL([PKGLIBDIR_IS_PKGDATADIR], [test "x$pkglibdir" = "x$pkgdatadir"])
+AM_CONDITIONAL([PKGLIBDIR_IS_PKGLIBEXECDIR], [test "x$libdir" = "x$libexecdir"])
 
 
 dnl BIG HACK! Do some autodetection here!

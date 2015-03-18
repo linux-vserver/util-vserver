@@ -219,7 +219,7 @@ _install-vshelperlink:
 _install-vserverdir:
 			$(mkinstalldirs) $(DESTDIR)$(vserverdir) $(DESTDIR)$(vserverpkgdir)
 
-if PKGLIBDIR_IS_PKGDATADIR
+if PKGLIBDIR_IS_PKGLIBEXECDIR
 _install-varlink-pkglibdir:
 			$(mkinstalldirs) $(DESTDIR)/${pkglibdir}
 			ln -s ${pkglibexecdir}/util-vserver-vars $(DESTDIR)/${pkglibdir}/util-vserver-vars
