@@ -47,6 +47,10 @@
 #define ENSC_WRAPPERS_STDLIB 1
 #include "../ensc_wrappers/wrappers.h"
 
+#ifndef O_PATH
+#  define O_PATH 010000000
+#endif
+
 int wrapper_exit_code = EX_OSERR;
 
 static char const * const	IGNORE_PATTERN[] = {
