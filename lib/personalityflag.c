@@ -51,6 +51,10 @@ static struct Mapping_uint32 const VALUES[] = {
 #if HAVE_DECL_ADDR_LIMIT_3GB
   DECL(ADDR_LIMIT_3GB),
 #endif
+
+#if HAVE_DECL_UNAME26
+  DECL(UNAME26),
+#endif
 };
 
 uint_least32_t
