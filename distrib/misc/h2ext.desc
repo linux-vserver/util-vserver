@@ -17,3 +17,5 @@
 # dump/restore old-fs big and little endian
 24	belong		60011			restore -rf -			0
 24	lelong		60011			restore -rf -			0
+# xz
+0	string		\375\67zXZ\0		xz -d -c			1
