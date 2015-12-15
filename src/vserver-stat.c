@@ -546,11 +546,13 @@ get_process_info(char *pid)
 
   if (process.s_context==VC_NOCTX) {
     int		err=errno;
-    WRITE_MSG(2, "vc_get_task_xid(");
-    WRITE_STR(2, pid);
-    WRITE_MSG(2, "): ");
-    WRITE_STR(2, strerror(err));
-    WRITE_MSG(2, "\n");
+    if (err != ESRCH) {
+      WRITE_MSG(2, "vc_get_task_xid(");
+      WRITE_STR(2, pid);
+      WRITE_MSG(2, "): ");
+      WRITE_STR(2, strerror(err));
+      WRITE_MSG(2, "\n");
+    }
 
     return 0;
   }
