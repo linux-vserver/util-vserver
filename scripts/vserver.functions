@@ -1619,7 +1619,7 @@ function _handleCgroup
 	    fi
 	    echo "$$" > "$mnt/$CGROUP_BASE$name/tasks"
 	elif test "$action" = "destroy"; then
-	    rmdir "$mnt/$name" 2>/dev/null || :
+	    rmdir "$mnt/$CGROUP_BASE$name" 2>/dev/null || :
 	fi
     done
 
