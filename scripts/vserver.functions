@@ -62,6 +62,7 @@ declare -a CMD_IP_NETNS=( $_IP )
 INIT_RESCUE=
 VSHELPER_SYNC_TIMEOUT=30
 USE_VNAMESPACE=
+INTERFACE_NETNS=
 INTERFACE_CMDS_IDX=0
 RUNLEVEL_START=
 RUNLEVEL_STOP=
@@ -1657,6 +1658,7 @@ function _handleNetNS
 	name="$VSERVER_NAME"
     fi
 
+    INTERFACE_NETNS=$name
     NETNS_CMD=( "$_IP" netns exec "$name" )
     if test ! -e "$dir"/shared; then
 	if test "$action" = "add"; then
