@@ -57,6 +57,7 @@ declare -a VSPACE_SHARED_CMD=()
 declare -a STOPCMD_PREPARE=()
 
 declare -a VSERVER_EXTRA_CMDS=()
+declare -a CMD_IP_NETNS=( $_IP )
 
 INIT_RESCUE=
 VSHELPER_SYNC_TIMEOUT=30
@@ -741,10 +742,10 @@ function enableInterfaces
 	    VCONFIG)		$_IP link  add link "$2" name "$1" type vlan id "$3";;
 	    VCONFIG_LEGACY)	$_VCONFIG  set_name_type "$4"      >/dev/null
 				$_VCONFIG  add           "$2" "$3" >/dev/null;;
-	    IP_ADDR)		$_IP addr  add   "$@";;
-	    IP_ADDR_FLUSH)	$_IP addr  flush "$@";;
-	    IP_LINK)		$_IP link  set   "$@";;
-	    IP_ROUTE)		$_IP route add   "$@";;
+	    IP_ADDR)		"${CMD_IP_NETNS[@]}" addr  add   "$@";;
+	    IP_ADDR_FLUSH)	"${CMD_IP_NETNS[@]}" addr  flush "$@";;
+	    IP_LINK)		"${CMD_IP_NETNS[@]}" link  set   "$@";;
+	    IP_ROUTE)		"${CMD_IP_NETNS[@]}" route add   "$@";;
 	    TUNCTL)
 		local dev="$1"
 		shift
@@ -782,10 +783,10 @@ function disableInterfaces
 	    NAMEIF)		;;
 	    VCONFIG)		$_IP link  delete "$1" type vlan;;
 	    VCONFIG_LEGACY)	$_VCONFIG  rem "$2.$3" >/dev/null;;
-	    IP_ADDR)		$_IP addr  del "$@";;
+	    IP_ADDR)		"${CMD_IP_NETNS[@]}" addr  del "$@";;
 	    IP_ADDR_FLUSH)	;;
 	    IP_LINK)		;; ## Ignore the link-down command for now
-	    IP_ROUTE)		$_IP route del "$@";;
+	    IP_ROUTE)		"${CMD_IP_NETNS[@]}" route del "$@";;
 	    TUNCTL)
 		local dev="$1"
 		shift
