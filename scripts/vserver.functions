@@ -632,6 +632,7 @@ function _processSingleInterface
     _getInterfaceValue scope  '' "$iface" "$iface/.."
     _getInterfaceValue mac    '' "$iface"
     _getInterfaceValue peer   '' "$iface"
+    _getInterfaceValue gw     '' "$iface"
 
     test -n "$ip" || { echo $"Can not read ip for '$iface'"  >&2; return 1; }
     test -n "$dev" -o -e "$iface"/nodev || {
@@ -675,8 +676,11 @@ function _processSingleInterface
 	    fi
 
 	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" $use_bcast ${name:+label "$dev:$name"} dev "$dev" ${peer:+peer "$peer"}
-	    #_addInterfaceCmd IP_ROUTE "$ip${prefix:+/$prefix}" dev "$dev"
 	    _addInterfaceCmd IP_LINK  "$dev" $up
+
+	    #_addInterfaceCmd IP_ROUTE "$ip${prefix:+/$prefix}" dev "$dev"
+	    test -z "$gw" ||
+		_addInterfaceCmd IP_ROUTE default via "$gw" dev "$dev"
 	elif ! test -n "$N_CONTEXT"; then
 	    echo $"Using 'dummy' (indirect) for interface '$dev' requires a fixed context number; dynamic ctx are not supported" >&2
 	    return 1

@@ -1424,6 +1424,11 @@ Sets the link type of tun/tap interfaces.
 Sets the peer for a point-to-point link, such as a tun interface.
 	  </description>
 	</scalar>
+	<scalar name="gw" since="0.30.216">
+	  <description>
+Create a default route to given gateway; should be used with netns only
+	  </description>
+	</scalar>
       </collection>
     </collection>
     
