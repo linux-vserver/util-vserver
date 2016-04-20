@@ -94,6 +94,11 @@ case "x$1" in
 esac
 
 rc=0
+# avoid per vserver 'enterNetNS' calls and run callInNamespace without
+# entering the netns
+#
+# TODO: is this safe with netfs mounts?
+NETNS_CMD=()
 for guest in "${guests[@]}"; do
     pushd "$guest/vdir" &> /dev/null
     callInNamespace "$guest" \
