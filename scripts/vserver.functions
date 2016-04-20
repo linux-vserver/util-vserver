@@ -1439,6 +1439,19 @@ function _namespaceCleanup
     local -a list_umount
     while read -r dev path type opts; do
 	test -n "$path" || continue
+	case $type in
+	  # recent kernel uses 'nsfs' fs type; older ones 'proc'
+	  nsfs|proc)
+		case $path in
+		  */netns/$INTERFACE_NETNS)	continue;;
+		esac
+		;;
+	  tmpfs)
+		case $path in
+		  /run/netns|/var/run/netns)	continue;;
+		esac
+		;;
+	esac
 	path_dir="${path}/"
 	for i in "$root" /dev /proc /sys; do
 	    test "${path_dir#${i}/}" != "${path_dir}" && continue 2
