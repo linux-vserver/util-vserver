@@ -1690,6 +1690,10 @@ function _handleNetNS
 	    "$_IP" netns add "$name"
 	fi
 
+	_addInterfaceCmd IP_ADDR 127.0.0.1/8 scope host dev lo
+	_addInterfaceCmd IP_ADDR ::1/128     scope host dev lo
+	_addInterfaceCmd IP_LINK up dev lo
+
 	shopt -s nullglob
 	for i in "$dir"/interfaces/*; do
 	    local host
