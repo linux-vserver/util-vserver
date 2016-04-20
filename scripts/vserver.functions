@@ -1719,6 +1719,12 @@ function _handleNetNS
 
 		    $_IP link add name "$host" type "$type" peer name "$tmp_guest"
 		    ;;
+
+	      macvlan)
+		    test -n "$host"  || host=eth0
+
+		    $_IP link add link "$host" name "$tmp_guest" type macvlan mode bridge
+		    ;;
 	    esac
 
 	    $_IP link set "$tmp_guest" netns "$name"
