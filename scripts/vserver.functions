@@ -1,16 +1,16 @@
 # $Id$  --*- sh -*--
 
 # Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-#  
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; version 2 of the License.
-#  
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#  
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -228,7 +228,7 @@ function _generateCapabilityOptions
 
     _generateBCapabilityOptions "$vdir"
     _generateCCapabilityOptions "$vdir"
-    
+
     test -e "$vdir"/capabilities || return 0
 
     CAP_OPTS=()
@@ -256,7 +256,7 @@ function getEnterShell
     ENTER_SHELL=()
 
     getFileValue ENTER_SHELL "$vdir"/shell "$__CONFDIR"/.defaults/shell
-    
+
     test -n "$ENTER_SHELL" || {
 	local i
 	for i in "/bin/bash -login" "/bin/sh -l" /bin/csh; do
@@ -319,7 +319,7 @@ function _generateInitOptions
 	    INITCMD_START=( "${INITCMD_RESCUE[@]}" )
 	    INITCMD_STOP=( /sbin/killall5 )
 	    ;;
-	    
+
 	(xsysv)
 	    test -n "$RUNLEVEL_START" || RUNLEVEL_START=3
 	    test -n "$RUNLEVEL_STOP"  || RUNLEVEL_STOP=6
@@ -336,7 +336,7 @@ function _generateInitOptions
 		INITCMD_STOP=( /bin/bash -x "${INITCMD_STOP[@]}" )
 	    fi
 	    ;;
-	    
+
 	(xplain)
 	    INITCMD_START=( /sbin/init )
 	    INITCMD_STOP=(  /sbin/init )
@@ -345,7 +345,7 @@ function _generateInitOptions
 	    test -z "$RUNLEVEL_START" || INITCMD_START=( "${INITCMD_START[@]}" "$RUNLEVEL_START" )
 	    test -z "$RUNLEVEL_STOP"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$RUNLEVEL_STOP"  )
 	    ;;
-	    
+
 	(xminit)
 	    INITCMD_START=( /sbin/minit-start )
 	    INITCMD_STOP=(  /sbin/minit-stop  )
@@ -362,11 +362,11 @@ function _generateInitOptions
 	    RC_PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 	    if test -x "$vdir/vdir/lib/rcscripts/sh/init-vserver.sh"; then
-	    	RC_WRAP=/lib/rcscripts/sh/init-vserver.sh
+		RC_WRAP=/lib/rcscripts/sh/init-vserver.sh
 	    elif test -x "$vdir/vdir/lib/rc/sh/init-vserver.sh"; then
-	    	RC_WRAP=/lib/rc/sh/init-vserver.sh
+		RC_WRAP=/lib/rc/sh/init-vserver.sh
 	    else
-	    	panic "init-vserver.sh not found; aborting"
+		panic "init-vserver.sh not found; aborting"
 	    fi
 
 	    OPTS_ENV=( "${OPTS_ENV[@]}" TERM=$TERM )
@@ -393,7 +393,7 @@ function _generateInitOptions
 	getFileArray INITCMD_STOP_SYNC  "$cfgdir"/cmd.stop-sync  || :
 	getFileArray INITCMD_PREPARE    "$cfgdir"/cmd.prepare    || :
     fi
-    
+
     test -n "$OPTION_FORCE_SYNC" -o -e "$cfgdir"/sync || {
 	INITCMD_START_SYNC=()
 	INITCMD_STOP_SYNC=()
@@ -425,7 +425,7 @@ function _generateFlagOptions
 		;;
 	    (*)
 		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --flag "$flag" )
-	    	CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}"
+		CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}"
 				      --flag "$flag" )
 		;;
 	esac
@@ -513,7 +513,7 @@ function _getInterfaceValue
     local _giv_val=$1
     local _giv_dflt=$2
     shift 2
-    
+
     local _giv_i
     local _giv_tmp
 
@@ -529,7 +529,7 @@ function _getInterfaceValue
 function _transformMask2Prefix
 {
     local _tm2p_tmp=$2
-    
+
     test -n "$_tm2p_tmp" || {
 	$_MASK2PREFIX "$3" || _tm2p_tmp=$?
     }
@@ -706,7 +706,7 @@ function _generateInterfaceOptions
     for iface in "$1/interfaces/"*; do
         test   -d "$iface"          || continue
         test ! -e "$iface"/disabled || continue
-    
+
         _processSingleInterface "$iface"
     done
     _HAVE_INTERFACE_OPTIONS=1
@@ -763,14 +763,14 @@ function disableInterfaces
     declare -a var
 
     lock "$__LOCKDIR"/vserver.interfaces
-    
+
     while test $i -gt 0; do
 	let --i || :
 
 	eval var='( "${INTERFACE_CMDS_'$i'[@]}" )'
 	local type=${var[0]}
 	unset var[0]
-	
+
 	set -- "${var[@]}"
 	case "$type" in
 	    IPTABLES)		;; ## TODO
@@ -883,7 +883,7 @@ function prepareStop
 function generateOptions
 {
     _generateInterfaceOptions   "$1"
-    test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1" 
+    test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1"
     _generateNiceCommand        "$1"
     _generateIONiceCommand	"$1"
     _generateInitOptions        "$1"
@@ -953,7 +953,7 @@ function _mountVserverInternal
 {
     local fstab="$1"
     local xflag=
-    
+
     test -e "$fstab" || return 0
     shift
 
@@ -1000,7 +1000,7 @@ function mountVserver
 	 -e "$cfgdir"/fstab.remote || return 0
 
     findObject -r mtab_src "$cfgdir"/apps/init/mtab "$__CONFDIR"/.defaults/init/mtab "$__PKGLIBDEFAULTDIR"/mtab /dev/null
-    
+
     pushd "$vdir" >/dev/null
     $_CHROOT_SH truncate /etc/mtab <"$mtab_src"
     popd >/dev/null
@@ -1035,7 +1035,7 @@ function _umountVserverInternal
 		(x\#*)	continue;;
 	    esac
 
-	
+
 	    "$@" $_EXEC_CD "$dst" $_UMOUNT -lfn . || is_ok=
 	done
 	test -n "$is_ok"
@@ -1053,7 +1053,7 @@ function umountVserver
          -e "$cfgdir"/fstab.local -o \
          -e "$cfgdir"/fstab.remote || return 0
     test -n "$_HAVE_CHBIND_OPTIONS"  || _generateChbindOptions "$cfgdir"
-    
+
     pushd "$vdir/" >/dev/null || return 1
 	_umountVserverInternal  "$cfgdir"/fstab.remote "${CHBIND_CMD[@]}" || is_ok=
 	_umountVserverInternal  "$cfgdir"/fstab.local                     || is_ok=
@@ -1109,7 +1109,7 @@ function initWait
 
 	    exit $rc
 	) 4>$_is_tmpdir/procs &
-	    
+
 	echo "$!" >$_is_tmpdir/pid
 	eval "$3"=$_is_tmpdir
     fi </dev/null
@@ -1202,7 +1202,7 @@ function execScriptlets
     for base in "$vdir"/scripts "$__CONFDIR"/.defaults/scripts; do
 	local	DONT_SKIP_DEFAULTS=
 	local	already_handled=
-	
+
 	for i in "$base/$flavor" "$base/$flavor.d"/*; do
 	    isRegularFile "$i" || continue
 	    test  -r "$i"      || continue
@@ -1239,7 +1239,7 @@ WARNING: The hostname is now configured in 'uts/nodename' but not in
 WARNING: The domainname is now configured in 'uts/domainname' but not
   in 'domainname'." >&2
 
-  
+
     local i
     for i in "$cfgdir"/interfaces/*/only_ip; do
 	if test -e "$i"; then
