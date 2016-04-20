@@ -1661,6 +1661,7 @@ function _handleNetNS
     local vdir="$2"
     local dir
     local name
+    local is_add
 
     findDir dir "$vdir/netns" "$__CONFDIR/.defaults/netns" ""
     test -n "$dir" -a ! -e "$vdir"/nonetns  || return 0
@@ -1673,39 +1674,58 @@ function _handleNetNS
 
     INTERFACE_NETNS=$name
     NETNS_CMD=( "$_IP" netns exec "$name" )
+    CMD_IP_NETNS+=( -n "$name" )
+
+    case $action in
+      add)	is_add=true;;
+      del)	is_add=false;;
+      *)	return 0;;
+    esac
+
     if test ! -e "$dir"/shared; then
-	if test "$action" = "add"; then
+	local counter=0
+
+	if $is_add; then
+	    rm -f /run/netns/"$name"
 	    "$_IP" netns add "$name"
-	    shopt -s nullglob
-	    counter=0
-	    for i in "$dir"/interfaces/*; do
-		local host
-		local guest
-		local type
-		read host < "$i"/host
-		if test -r "$i"/guest; then
-		    read guest < "$i"/guest
-		else
-		    guest="geth$counter"
-		    counter=$(( $counter + 1 ))
-		fi
-		if test -r "$i"/type; then
-		    read type < "$i"/type
-		else
-		    type="veth"
-		fi
-		"$_IP" link add name "$host" type "$type" peer name "$guest"
-		"$_IP" link set "$guest" netns "$name"
-	    done
-	elif test "$action" = "del"; then
-	    shopt -s nullglob
-	    for i in "$dir"/interfaces/*; do
-		local host
-		read host < "$i"/host
-		"$_IP" link del "$host"
-	    done
-	    "$_IP" netns del "$name"
 	fi
+
+	shopt -s nullglob
+	for i in "$dir"/interfaces/*; do
+	    local host
+	    local guest
+	    local tmp_guest
+	    local type
+
+	    _getInterfaceValue host  ''    "$i"
+	    _getInterfaceValue guest ''    "$i"
+	    _getInterfaceValue type 'veth' "$i" "$i/.."
+
+	    test -n "$guest" || guest=geth$counter
+	    let ++counter
+
+	    # use a temporary name to avoid races when vservers
+	    # are started in parallel
+	    tmp_guest=$guest-$$
+
+	    if ! $is_add; then
+		"${CMD_IP_NETNS[@]}" link del "$guest"
+		continue
+	    fi
+
+	    case $type in
+	      veth)
+		    test -n "$host"  || host=veth$N_CONTEXT
+
+		    $_IP link add name "$host" type "$type" peer name "$tmp_guest"
+		    ;;
+	    esac
+
+	    $_IP link set "$tmp_guest" netns "$name"
+	    "${CMD_IP_NETNS[@]}" link set name "$guest" dev "$tmp_guest"
+	done
+
+	$is_add || "$_IP" netns del "$name"
     fi
 }
 
