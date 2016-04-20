@@ -1437,7 +1437,7 @@ function _namespaceCleanup
     fi
 
     local -a list_umount
-    while read -r dev path opts; do
+    while read -r dev path type opts; do
 	test -n "$path" || continue
 	path_dir="${path}/"
 	for i in "$root" /dev /proc /sys; do
