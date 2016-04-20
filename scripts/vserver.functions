@@ -727,10 +727,11 @@ function enableInterfaces
 
     while test $i -lt $INTERFACE_CMDS_IDX; do
 	eval var='( "${INTERFACE_CMDS_'$i'[@]}" )'
-	local type=${var[0]}
-	unset var[0]
-
 	set -- "${var[@]}"
+
+	local type=$1
+	shift
+
 	case "$type" in
 	    IPTABLES)	;; ## TODO
 	    MODPROBE)
