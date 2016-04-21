@@ -733,7 +733,10 @@ function enableInterfaces
 	shift
 
 	case "$type" in
-	    IPTABLES)	;; ## TODO
+	    IPTABLES)
+		_iptablesApply "$@"
+		;;
+
 	    MODPROBE)
 		local mod=$1
 		local name=$2
@@ -1656,6 +1659,41 @@ function destroyCgroup
     _handleCgroup destroy "$@"
 }
 
+function _iptablesSetup
+{
+    local vdir=$1
+    local i
+
+    shift
+
+    for i in 4 6; do
+	local f=ip${i}tables.rules
+	local rules
+
+	findFile rules "$vdir/netns/$f" "$__CONFDIR/.defaults/netns/$f" ''
+	test -z "$rules" || "$@" "$i" "$rules"
+    done
+}
+
+function _iptablesApply
+{
+    local prog
+    eval prog=\${_IP${1}TABLES_RESTORE}
+    eval label=ip${1}tables
+
+    # when rules file is executable, run it directly. Else, assume it
+    # is iptables-restore input
+    if test -x "$2"; then
+	set -- "$2"
+    else
+	set -- "$prog" "$2"
+    fi
+
+    "${NETNS_CMD[@]}" "$@"
+
+    klog 8 "$label setup for $VSERVER_NAME completed"
+}
+
 function _handleNetNS
 {
     local action="$1"
@@ -1735,6 +1773,8 @@ function _handleNetNS
 	    $_IP link set "$tmp_guest" netns "$name"
 	    "${CMD_IP_NETNS[@]}" link set name "$guest" dev "$tmp_guest"
 	done
+
+	_iptablesSetup "$vdir" _addInterfaceCmd IPTABLES
 
 	$is_add || "$_IP" netns del "$name"
     fi
