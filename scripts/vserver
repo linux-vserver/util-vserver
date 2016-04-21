@@ -81,6 +81,14 @@ Possible commands are:
 
     hashify
                 ... hashify the guest.
+
+    exec-netns <command> <args*>
+                ... executes the command in the network namespace of
+                    the running vserver
+
+    reload-iptables
+                ... reloads the iptables setup within the network namespace of
+                    the running vserver
 		    
 
 Please report bugs to $PACKAGE_BUGREPORT"
@@ -297,6 +305,33 @@ case "$2" in
 	    exit 3
 	fi
 	;;
+
+    (exec-netns)
+	getVserverStatus "$VSERVER_DIR" ctx procnum || \
+	    panic $"exec-netns can be applied for running vservers only"
+
+	. "$_LIB_VSERVER_FUNCTIONS"
+	enterNetNS "$VSERVER_DIR" "$ctx"
+	test -n "$INTERFACE_NETNS" || panic $"netns not configured for this vserver"
+
+	shift 2
+
+	exec $_VSPACE --mount --fs --enter "$ctx" -- "${NETNS_CMD[@]}" "$@"
+	;;
+
+    (reload-iptables)
+	getVserverStatus "$VSERVER_DIR" ctx procnum || \
+	    panic $"reload-iptables can be applied for running vservers only"
+
+	. "$_LIB_VSERVER_FUNCTIONS"
+	enterNetNS "$VSERVER_DIR" "$ctx"
+	test -n "$INTERFACE_NETNS" || panic $"netns not configured for this vserver"
+
+	NETNS_CMD=( $_VSPACE --mount --fs --enter "$ctx" -- "${NETNS_CMD[@]}" )
+
+	_iptablesSetup "$VSERVER_DIR" _iptablesApply
+	;;
+
     (*)
 	echo $"Usage: $0 <vserver> {start|stop|suexec|restart|condrestart|exec|enter|chkconfig|running|status|delete}" >&2
 	exit 2

@@ -109,6 +109,16 @@ the vserver will be used.
 \fBhashify\fR
 .IP
 \&Hashify the vserver.
+.TP
+\fBexec-netns\fR \fIprogram args*\fR
+.IP
+\&Executes the command in the network namespace of the running
+vserver. Only possible for netns enabled vservers.
+.TP
+\fBreload-iptables\fR
+.IP
+\&Reloads the iptables setup within the network namespace of the
+running vserver. Only possible for netns enabled vservers.
 .SH "FILES"
 .LP 
 \fI/usr/sbin/vserver\fP 
