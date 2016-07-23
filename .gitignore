@@ -1,8 +1,10 @@
 *.a
+*.o
 .*.stamp
 .X_*etc-up-to-date
 .deps
 .fixups
+.systemd/
 ChangeLog
 FEATURES.txt
 INSTALL
@@ -11,6 +13,7 @@ Makefile.in
 aclocal.m4
 autom4te.cache
 compile
+config.cache
 config.guess
 config.h
 config.h.in
@@ -34,9 +37,13 @@ python/.dirstamp
 python/.libs/
 python/_libvserver-constants.c
 python/python__libvserver_la-_libvserver.lo
+scripts/vshelper
 src/exec-remount
 src/tunctl
 stamp-h1
+systemd/*.service
+systemd/.dirstamp
+test-driver
 util-vserver-*.tar.*
 util-vserver.spec
 *.orig
