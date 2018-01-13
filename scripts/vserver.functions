@@ -852,6 +852,7 @@ function prepareInit
 	    local -a dirs=( $($_CHROOT_SH realpath /var/run /var/lock | $_SED 's!^/*!!' || :) )
 	    local dir
 	    for dir in "${dirs[@]}"; do
+		test ! -L "$dir" || continue
 		$_FIND "$dir/." ! -type d -print0 2>/dev/null | xargs -0r $_CHROOT_SH rm
 	    done
 	    ;;
