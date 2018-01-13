@@ -46,6 +46,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/file.h>
+#ifdef HAVE_LINUX_TYPES_H
+#  include <linux/types.h>
+#endif
 #include <linux/fs.h>
 #include <assert.h>
 #include <ctype.h>

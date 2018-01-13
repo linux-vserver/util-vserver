@@ -38,6 +38,9 @@
 #include <fcntl.h>
 #include <stdarg.h>
 #include <sys/mount.h>
+#ifdef HAVE_LINUX_TYPES_H
+#  include <linux/types.h>
+#endif
 #include <linux/fs.h>
 #include <sched.h>
 #include <signal.h>

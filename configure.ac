@@ -326,7 +326,7 @@ AC_CHECK_TYPES(xid_t,,,[#include <sys/types.h>])
 AC_CHECK_TYPES(nid_t,,,[#include <sys/types.h>])
 AC_CHECK_TYPES(tag_t,,,[#include <sys/types.h>])
 
-AC_CHECK_HEADERS([sys/capability.h])
+AC_CHECK_HEADERS([sys/capability.h linux/types.h])
 
 dnl vlogin might need -lutil
 if test x"$ensc_have_dietlibc" = xno; then
