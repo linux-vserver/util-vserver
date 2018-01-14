@@ -22,6 +22,9 @@
 
 #include <stdio.h>
 #include <sys/mount.h>
+#ifdef HAVE_LINUX_TYPES_H
+#  include <linux/types.h>
+#endif
 #include <linux/fs.h>
 
 #ifndef MS_REC
