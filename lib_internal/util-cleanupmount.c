@@ -30,8 +30,8 @@
 #ifndef MS_REC
 #define MS_REC		0x4000
 #endif
-#ifndef MS_PRIVATE
-#define MS_PRIVATE	(1<<18)
+#ifndef MS_SLAVE
+#define MS_SLAVE	(1<<19)
 #endif
 
 bool cleanupMount(void)
@@ -40,9 +40,9 @@ bool cleanupMount(void)
 
   /* systemd mounts everything with MS_SHARED which breaks our
    * filesystem mounting.  Revert mount status back to pre-systemd */
-  rc = mount(NULL, "/", NULL, MS_REC|MS_PRIVATE, NULL) >= 0;
+  rc = mount(NULL, "/", NULL, MS_REC|MS_SLAVE, NULL) >= 0;
   if (!rc)
-    perror("mount(\"/\", MS_REC|MS_PRIVATE)");
+    perror("mount(\"/\", MS_REC|MS_SLAVE)");
 
   return rc;
 }

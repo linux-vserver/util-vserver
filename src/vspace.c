@@ -137,6 +137,8 @@ newSpaces(uint_least64_t mask)
       perror(ENSC_WRAPPERS_PREFIX "clone()");
       exit(wrapper_exit_code);
     case 0	:
+      if (mask & CLONE_NEWNS)
+	cleanupMount();
       break;
     default	:
       vc_exitLikeProcess(pid, wrapper_exit_code);

@@ -313,6 +313,8 @@ doit(struct Arguments const *args, int argc, char *argv[])
 	  perror(ENSC_WRAPPERS_PREFIX "unshare(NEWNS)");
 	  return wrapper_exit_code;
 	}
+	if (!cleanupMount())
+	  return wrapper_exit_code;
 	if (mkdir("./.oldroot", 0700) == -1) {
 	  if (errno == EEXIST)
 	    existed = true;
