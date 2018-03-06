@@ -21,6 +21,7 @@ AM_INSTALLCHECK_STD_OPTIONS_EXEMPT += \
 				scripts/vapt-get-worker \
 				scripts/vrpm-worker \
 				scripts/vyum-worker \
+				scripts/vpoldek-worker \
 				scripts/vrpm-preload \
 				scripts/vurpm-worker \
 				scripts/save_s_context \
@@ -50,12 +51,14 @@ scripts_pkglib_src_DTA =	scripts/functions \
 				scripts/vserver-build.template \
 				scripts/vserver-build.rsync \
 				scripts/vserver-build.clone \
+				scripts/vserver-build.poldek \
 				scripts/vserver-build.functions \
 				scripts/vserver-build.functions.apt \
 				scripts/vserver-build.functions.pkgmgmt \
 				scripts/vserver-build.functions.rpm \
 				scripts/vserver-build.functions.urpmi \
 				scripts/vserver-build.functions.yum \
+				scripts/vserver-build.functions.poldek \
 				scripts/vserver-setup.functions \
 				scripts/vserver.functions \
 				scripts/vserver.start \
@@ -71,6 +74,7 @@ scripts_pkglib_gen_SCRPTS =	scripts/vshelper
 scripts_pkglib_src_SCRPTS =	scripts/pkgmgmt \
 				scripts/vapt-get-worker \
 				scripts/vpkg \
+				scripts/vpoldek-worker \
 				scripts/vrpm-worker \
 				scripts/vrpm-preload \
 				scripts/start-vservers \
@@ -94,6 +98,7 @@ scripts_legacy_src_PRGS =	scripts/legacy/vserver-copy
 scripts_sbin_src_PRGS =		scripts/chbind \
 				scripts/chcontext \
 				scripts/vapt-get \
+				scripts/vpoldek \
 				scripts/vdispatch-conf \
 				scripts/vemerge \
 				scripts/vesync \

@@ -1,0 +1,3 @@
+%_netsharedpath		/dev:/proc
+%_tmppath			/tmp
+%_host_os			%_os

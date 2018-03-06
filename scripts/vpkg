@@ -90,7 +90,7 @@ case "$style" in
 		apt_param=( install "$@" )
 		;;
 	esac
-	
+
 	if test -n "$is_external"; then
 	    have_apt=1
 	    test -d "$cfgdir"/base/apt -o -d "$cfgdir"/aptetc || have_apt=
@@ -100,7 +100,7 @@ case "$style" in
 		test ! -x "$vdir$i"/apt-get || { have_apt=1; break; }
 	    done
 	fi
-	
+
 	if test -n "$is_external"; then
 	    if test "$have_apt" -a "$apt_param"; then
 		cmd=( "$_VAPT_GET" "$vserver" -- "${apt_param[@]}" )
@@ -110,6 +110,44 @@ case "$style" in
 	else
 	    if test "$have_apt" -a "$apt_param"; then
 		cmd=( "$_VSERVER" --silent "$vserver" exec apt-get "${apt_param[@]}" )
+	    else
+		cmd=( "$_VSERVER" --silent "$vserver" exec rpm "${rpm_param[@]}" )
+	    fi
+	fi
+	;;
+    (pld)
+	rpm_param=
+	poldek_param=
+	case "$tag" in
+	    ## rpm outputs sometimes '(contains no files)', so return
+	    ## only the valid output
+	    (get-conffiles)
+		rpm_param=( -qac --pipe "$_SED '\!^/!p;d'" );;
+	    (install)
+		rpm_param=( -Uvh "$@" )
+		poldek_param=( --install -v "$@" )
+		;;
+	esac
+
+	if test -n "$is_external"; then
+	    have_poldek=1
+	    test -d "$cfgdir"/base/poldek -o -d "$cfgdir"/poldeketc || have_poldek=
+	else
+	    have_poldek=
+	    for i in /bin /usr/bin /usr/local/bin; do
+		test ! -x "$vdir$i"/poldek || { have_poldek=1; break; }
+	    done
+	fi
+
+	if test -n "$is_external"; then
+	    if test "$have_poldek" -a "$poldek_param"; then
+		cmd=( "$_VPOLDEK" "$vserver" -- "${poldek_param[@]}" )
+	    else
+		cmd=( "$_VRPM" "$vserver" -- "${rpm_param[@]}" )
+	    fi
+	else
+	    if test "$have_poldek" -a "$poldek_param"; then
+		cmd=( "$_VSERVER" --silent "$vserver" exec poldek "${poldek_param[@]}" )
 	    else
 		cmd=( "$_VSERVER" --silent "$vserver" exec rpm "${rpm_param[@]}" )
 	    fi

@@ -45,6 +45,7 @@ nobase_distrib_DATA	=  defaults/devs \
 			   defaults/apt.conf \
 			   defaults/rpm/macros \
 			   defaults/apt/apt.conf \
+			   defaults/poldek/poldek.conf \
 			   template/initpost template/initpre \
 			   rh9/apt/rpmpriorities    rh9/pkgs/01    rh9/pkgs/02 \
 			   fc1/apt/rpmpriorities    fc1/pkgs/01    fc1/pkgs/02 \
@@ -96,7 +97,9 @@ nobase_distrib_DATA	=  defaults/devs \
 			   suse91/apt/rpmpriorities suse91/pkgs/01 suse91/pkgs/02 \
 			   suse91/rpm/macros \
 			   gentoo/init-vserver.sh gentoo/net.vserver \
-			   gentoo/reboot.sh gentoo/shutdown.sh
+			   gentoo/reboot.sh gentoo/shutdown.sh\
+			   pld-ac/pkgs/01 pld-ac/rpm/macros pld-ac/rpm/macros.lang \
+			   pld-th/pkgs/01 pld-th/rpm/macros pld-th/rpm/macros.lang
 
 nobase_confdistrib_DATA	=  rh9/apt/sources.list \
 			   fc1/apt/sources.list \
@@ -106,7 +109,9 @@ nobase_confdistrib_DATA	=  rh9/apt/sources.list \
 			   fc5/apt/sources.list \
 			   fc6/apt/sources.list \
 			   f7/apt/sources.list \
-			   suse91/apt/sources.list
+			   suse91/apt/sources.list \
+			   pld-ac/poldek/repos.d/pld.conf \
+			   pld-th/poldek/repos.d/pld.conf
 
 AM_INSTALLCHECK_STD_OPTIONS_EXEMPT \
 			=  $(nobase_distrib_SCRIPTS)
