@@ -51,6 +51,8 @@ ENSC_PATHPROG_STANDARD_TOOLS
 
 ENSC_PATHPROG(IP,        ip,,      [Usually, this tool is shipped in the 'iproute' or 'iproute2' package of your distribution])
 ENSC_PATHPROG(IPTABLES,  iptables)
+ENSC_PATHPROG(IP4TABLES_RESTORE,  iptables-restore)
+ENSC_PATHPROG(IP6TABLES_RESTORE,  ip6tables-restore)
 ENSC_PATHPROG(MODPROBE,  modprobe)
 ENSC_PATHPROG(NAMEIF,    nameif)
 ENSC_PATHPROG(NOHUP,     nohup)

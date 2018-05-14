@@ -106,6 +106,14 @@ function isDirectoryEmpty
     )
 }
 
+function klog {
+    test -c /dev/kmsg || return 0
+
+    local l=$1
+    shift
+    echo "<$l>$*" > /dev/kmsg 2>/dev/null || :
+}
+
 ## Usage: logging <message>
 function logging
 {
@@ -811,7 +819,11 @@ function callInNamespace
 
     shift
     if test -n "$ctx"; then
-	$_VSPACE "${OPTS_VSPACE[@]}" --mount --fs --enter "$ctx" -- "$@"
+	## NETNS_CMD must be run in the guest's fs context because the
+	## netns was created within this context and the 'ip' tool
+	## uses 'nsfs' mountpoints
+	$_VSPACE "${OPTS_VSPACE[@]}" --mount --fs --enter "$ctx" -- \
+		 "${NETNS_CMD[@]}" "$@"
     else
 	"$@"
     fi

@@ -1424,6 +1424,11 @@ Sets the link type of tun/tap interfaces.
 Sets the peer for a point-to-point link, such as a tun interface.
 	  </description>
 	</scalar>
+	<scalar name="gw" since="0.30.216">
+	  <description>
+Create a default route to given gateway; should be used with netns only
+	  </description>
+	</scalar>
       </collection>
     </collection>
     
@@ -1693,7 +1698,7 @@ The name of the network namespace to use for the guest. Defaults to the
 guest's name.
         </description>
       </scalar>
-      <boolean name="shared">
+      <boolean name="shared" id="netns-shared">
         <description>
 Whether or not util-vserver should add and delete the network namespace when
 the guest is started and stopped, respectively.
@@ -1728,6 +1733,24 @@ Type of link to create. Defaults to veth.
           </scalar>
         </collection>
       </collection>
+      <data name="ip4tables.rules">
+	<description>
+IPv4 packet filtering rules for this netns.  It will be either
+executed directly (when x bit is set) or given to the
+<filename>iptables-restore</filename> program and is only valid when
+the <optionref ref="netns-shared">shared</optionref> attribute is not
+set.
+	</description>
+      </data>
+      <data name="ip6tables.rules">
+	<description>
+IPv6 packet filtering rules for this netns.  It will be either
+executed directly (when x bit is set) or given to the
+<filename>ip6tables-restore</filename> program and is only valid when
+the <optionref ref="netns-shared">shared</optionref> attribute is not
+set.
+	</description>
+      </data>
     </collection>
     <scalar name="nonetns" since="0.30.216">
       <description>

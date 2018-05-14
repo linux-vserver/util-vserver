@@ -1,16 +1,16 @@
 # $Id$  --*- sh -*--
 
 # Copyright (C) 2003 Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-#  
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; version 2 of the License.
-#  
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#  
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -57,10 +57,12 @@ declare -a VSPACE_SHARED_CMD=()
 declare -a STOPCMD_PREPARE=()
 
 declare -a VSERVER_EXTRA_CMDS=()
+declare -a CMD_IP_NETNS=( $_IP )
 
 INIT_RESCUE=
 VSHELPER_SYNC_TIMEOUT=30
 USE_VNAMESPACE=
+INTERFACE_NETNS=
 INTERFACE_CMDS_IDX=0
 RUNLEVEL_START=
 RUNLEVEL_STOP=
@@ -228,7 +230,7 @@ function _generateCapabilityOptions
 
     _generateBCapabilityOptions "$vdir"
     _generateCCapabilityOptions "$vdir"
-    
+
     test -e "$vdir"/capabilities || return 0
 
     CAP_OPTS=()
@@ -256,7 +258,7 @@ function getEnterShell
     ENTER_SHELL=()
 
     getFileValue ENTER_SHELL "$vdir"/shell "$__CONFDIR"/.defaults/shell
-    
+
     test -n "$ENTER_SHELL" || {
 	local i
 	for i in "/bin/bash -login" "/bin/sh -l" /bin/csh; do
@@ -319,7 +321,7 @@ function _generateInitOptions
 	    INITCMD_START=( "${INITCMD_RESCUE[@]}" )
 	    INITCMD_STOP=( /sbin/killall5 )
 	    ;;
-	    
+
 	(xsysv)
 	    test -n "$RUNLEVEL_START" || RUNLEVEL_START=3
 	    test -n "$RUNLEVEL_STOP"  || RUNLEVEL_STOP=6
@@ -336,7 +338,7 @@ function _generateInitOptions
 		INITCMD_STOP=( /bin/bash -x "${INITCMD_STOP[@]}" )
 	    fi
 	    ;;
-	    
+
 	(xplain)
 	    INITCMD_START=( /sbin/init )
 	    INITCMD_STOP=(  /sbin/init )
@@ -345,7 +347,7 @@ function _generateInitOptions
 	    test -z "$RUNLEVEL_START" || INITCMD_START=( "${INITCMD_START[@]}" "$RUNLEVEL_START" )
 	    test -z "$RUNLEVEL_STOP"  || INITCMD_STOP=(  "${INITCMD_STOP[@]}"  "$RUNLEVEL_STOP"  )
 	    ;;
-	    
+
 	(xminit)
 	    INITCMD_START=( /sbin/minit-start )
 	    INITCMD_STOP=(  /sbin/minit-stop  )
@@ -362,11 +364,11 @@ function _generateInitOptions
 	    RC_PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 	    if test -x "$vdir/vdir/lib/rcscripts/sh/init-vserver.sh"; then
-	    	RC_WRAP=/lib/rcscripts/sh/init-vserver.sh
+		RC_WRAP=/lib/rcscripts/sh/init-vserver.sh
 	    elif test -x "$vdir/vdir/lib/rc/sh/init-vserver.sh"; then
-	    	RC_WRAP=/lib/rc/sh/init-vserver.sh
+		RC_WRAP=/lib/rc/sh/init-vserver.sh
 	    else
-	    	panic "init-vserver.sh not found; aborting"
+		panic "init-vserver.sh not found; aborting"
 	    fi
 
 	    OPTS_ENV=( "${OPTS_ENV[@]}" TERM=$TERM )
@@ -393,7 +395,7 @@ function _generateInitOptions
 	getFileArray INITCMD_STOP_SYNC  "$cfgdir"/cmd.stop-sync  || :
 	getFileArray INITCMD_PREPARE    "$cfgdir"/cmd.prepare    || :
     fi
-    
+
     test -n "$OPTION_FORCE_SYNC" -o -e "$cfgdir"/sync || {
 	INITCMD_START_SYNC=()
 	INITCMD_STOP_SYNC=()
@@ -425,7 +427,7 @@ function _generateFlagOptions
 		;;
 	    (*)
 		OPTS_VATTRIBUTE=( "${OPTS_VATTRIBUTE[@]}" --flag "$flag" )
-	    	CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}"
+		CHCONTEXT_FLAG_OPTS=( "${CHCONTEXT_FLAG_OPTS[@]}"
 				      --flag "$flag" )
 		;;
 	esac
@@ -513,7 +515,7 @@ function _getInterfaceValue
     local _giv_val=$1
     local _giv_dflt=$2
     shift 2
-    
+
     local _giv_i
     local _giv_tmp
 
@@ -529,7 +531,7 @@ function _getInterfaceValue
 function _transformMask2Prefix
 {
     local _tm2p_tmp=$2
-    
+
     test -n "$_tm2p_tmp" || {
 	$_MASK2PREFIX "$3" || _tm2p_tmp=$?
     }
@@ -632,6 +634,7 @@ function _processSingleInterface
     _getInterfaceValue scope  '' "$iface" "$iface/.."
     _getInterfaceValue mac    '' "$iface"
     _getInterfaceValue peer   '' "$iface"
+    _getInterfaceValue gw     '' "$iface"
 
     test -n "$ip" || { echo $"Can not read ip for '$iface'"  >&2; return 1; }
     test -n "$dev" -o -e "$iface"/nodev || {
@@ -675,8 +678,11 @@ function _processSingleInterface
 	    fi
 
 	    _addInterfaceCmd IP_ADDR  "$ip${prefix:+/$prefix}" $use_bcast ${name:+label "$dev:$name"} dev "$dev" ${peer:+peer "$peer"}
-	    #_addInterfaceCmd IP_ROUTE "$ip${prefix:+/$prefix}" dev "$dev"
 	    _addInterfaceCmd IP_LINK  "$dev" $up
+
+	    #_addInterfaceCmd IP_ROUTE "$ip${prefix:+/$prefix}" dev "$dev"
+	    test -z "$gw" ||
+		_addInterfaceCmd IP_ROUTE default via "$gw" dev "$dev"
 	elif ! test -n "$N_CONTEXT"; then
 	    echo $"Using 'dummy' (indirect) for interface '$dev' requires a fixed context number; dynamic ctx are not supported" >&2
 	    return 1
@@ -706,7 +712,7 @@ function _generateInterfaceOptions
     for iface in "$1/interfaces/"*; do
         test   -d "$iface"          || continue
         test ! -e "$iface"/disabled || continue
-    
+
         _processSingleInterface "$iface"
     done
     _HAVE_INTERFACE_OPTIONS=1
@@ -721,12 +727,16 @@ function enableInterfaces
 
     while test $i -lt $INTERFACE_CMDS_IDX; do
 	eval var='( "${INTERFACE_CMDS_'$i'[@]}" )'
-	local type=${var[0]}
-	unset var[0]
-
 	set -- "${var[@]}"
+
+	local type=$1
+	shift
+
 	case "$type" in
-	    IPTABLES)	;; ## TODO
+	    IPTABLES)
+		_iptablesApply "$@"
+		;;
+
 	    MODPROBE)
 		local mod=$1
 		local name=$2
@@ -737,10 +747,10 @@ function enableInterfaces
 	    VCONFIG)		$_IP link  add link "$2" name "$1" type vlan id "$3";;
 	    VCONFIG_LEGACY)	$_VCONFIG  set_name_type "$4"      >/dev/null
 				$_VCONFIG  add           "$2" "$3" >/dev/null;;
-	    IP_ADDR)		$_IP addr  add   "$@";;
-	    IP_ADDR_FLUSH)	$_IP addr  flush "$@";;
-	    IP_LINK)		$_IP link  set   "$@";;
-	    IP_ROUTE)		$_IP route add   "$@";;
+	    IP_ADDR)		"${CMD_IP_NETNS[@]}" addr  add   "$@";;
+	    IP_ADDR_FLUSH)	"${CMD_IP_NETNS[@]}" addr  flush "$@";;
+	    IP_LINK)		"${CMD_IP_NETNS[@]}" link  set   "$@";;
+	    IP_ROUTE)		"${CMD_IP_NETNS[@]}" route add   "$@";;
 	    TUNCTL)
 		local dev="$1"
 		shift
@@ -763,14 +773,14 @@ function disableInterfaces
     declare -a var
 
     lock "$__LOCKDIR"/vserver.interfaces
-    
+
     while test $i -gt 0; do
 	let --i || :
 
 	eval var='( "${INTERFACE_CMDS_'$i'[@]}" )'
 	local type=${var[0]}
 	unset var[0]
-	
+
 	set -- "${var[@]}"
 	case "$type" in
 	    IPTABLES)		;; ## TODO
@@ -778,10 +788,10 @@ function disableInterfaces
 	    NAMEIF)		;;
 	    VCONFIG)		$_IP link  delete "$1" type vlan;;
 	    VCONFIG_LEGACY)	$_VCONFIG  rem "$2.$3" >/dev/null;;
-	    IP_ADDR)		$_IP addr  del "$@";;
+	    IP_ADDR)		"${CMD_IP_NETNS[@]}" addr  del "$@";;
 	    IP_ADDR_FLUSH)	;;
 	    IP_LINK)		;; ## Ignore the link-down command for now
-	    IP_ROUTE)		$_IP route del "$@";;
+	    IP_ROUTE)		"${CMD_IP_NETNS[@]}" route del "$@";;
 	    TUNCTL)
 		local dev="$1"
 		shift
@@ -884,7 +894,7 @@ function prepareStop
 function generateOptions
 {
     _generateInterfaceOptions   "$1"
-    test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1" 
+    test -n "$_HAVE_CHBIND_OPTIONS" || _generateChbindOptions "$1"
     _generateNiceCommand        "$1"
     _generateIONiceCommand	"$1"
     _generateInitOptions        "$1"
@@ -954,7 +964,7 @@ function _mountVserverInternal
 {
     local fstab="$1"
     local xflag=
-    
+
     test -e "$fstab" || return 0
     shift
 
@@ -1001,7 +1011,7 @@ function mountVserver
 	 -e "$cfgdir"/fstab.remote || return 0
 
     findObject -r mtab_src "$cfgdir"/apps/init/mtab "$__CONFDIR"/.defaults/init/mtab "$__PKGLIBDEFAULTDIR"/mtab /dev/null
-    
+
     pushd "$vdir" >/dev/null
     $_CHROOT_SH truncate /etc/mtab <"$mtab_src"
     popd >/dev/null
@@ -1036,7 +1046,7 @@ function _umountVserverInternal
 		(x\#*)	continue;;
 	    esac
 
-	
+
 	    "$@" $_EXEC_CD "$dst" $_UMOUNT -lfn . || is_ok=
 	done
 	test -n "$is_ok"
@@ -1054,7 +1064,7 @@ function umountVserver
          -e "$cfgdir"/fstab.local -o \
          -e "$cfgdir"/fstab.remote || return 0
     test -n "$_HAVE_CHBIND_OPTIONS"  || _generateChbindOptions "$cfgdir"
-    
+
     pushd "$vdir/" >/dev/null || return 1
 	_umountVserverInternal  "$cfgdir"/fstab.remote "${CHBIND_CMD[@]}" || is_ok=
 	_umountVserverInternal  "$cfgdir"/fstab.local                     || is_ok=
@@ -1110,7 +1120,7 @@ function initWait
 
 	    exit $rc
 	) 4>$_is_tmpdir/procs &
-	    
+
 	echo "$!" >$_is_tmpdir/pid
 	eval "$3"=$_is_tmpdir
     fi </dev/null
@@ -1203,7 +1213,7 @@ function execScriptlets
     for base in "$vdir"/scripts "$__CONFDIR"/.defaults/scripts; do
 	local	DONT_SKIP_DEFAULTS=
 	local	already_handled=
-	
+
 	for i in "$base/$flavor" "$base/$flavor.d"/*; do
 	    isRegularFile "$i" || continue
 	    test  -r "$i"      || continue
@@ -1240,7 +1250,7 @@ WARNING: The hostname is now configured in 'uts/nodename' but not in
 WARNING: The domainname is now configured in 'uts/domainname' but not
   in 'domainname'." >&2
 
-  
+
     local i
     for i in "$cfgdir"/interfaces/*/only_ip; do
 	if test -e "$i"; then
@@ -1432,8 +1442,21 @@ function _namespaceCleanup
     fi
 
     local -a list_umount
-    while read -r dev path opts; do
+    while read -r dev path type opts; do
 	test -n "$path" || continue
+	case $type in
+	  # recent kernel uses 'nsfs' fs type; older ones 'proc'
+	  nsfs|proc)
+		case $path in
+		  */netns/$INTERFACE_NETNS)	continue;;
+		esac
+		;;
+	  tmpfs)
+		case $path in
+		  /run/netns|/var/run/netns)	continue;;
+		esac
+		;;
+	esac
 	path_dir="${path}/"
 	for i in "$root" /dev /proc /sys; do
 	    test "${path_dir#${i}/}" != "${path_dir}" && continue 2
@@ -1637,12 +1660,48 @@ function destroyCgroup
     _handleCgroup destroy "$@"
 }
 
+function _iptablesSetup
+{
+    local vdir=$1
+    local i
+
+    shift
+
+    for i in 4 6; do
+	local f=ip${i}tables.rules
+	local rules
+
+	findFile rules "$vdir/netns/$f" "$__CONFDIR/.defaults/netns/$f" ''
+	test -z "$rules" || "$@" "$i" "$rules"
+    done
+}
+
+function _iptablesApply
+{
+    local prog
+    eval prog=\${_IP${1}TABLES_RESTORE}
+    eval label=ip${1}tables
+
+    # when rules file is executable, run it directly. Else, assume it
+    # is iptables-restore input
+    if test -x "$2"; then
+	set -- "$2"
+    else
+	set -- "$prog" "$2"
+    fi
+
+    "${NETNS_CMD[@]}" "$@"
+
+    klog 8 "$label setup for $VSERVER_NAME completed"
+}
+
 function _handleNetNS
 {
     local action="$1"
     local vdir="$2"
     local dir
     local name
+    local is_add
 
     findDir dir "$vdir/netns" "$__CONFDIR/.defaults/netns" ""
     test -n "$dir" -a ! -e "$vdir"/nonetns  || return 0
@@ -1653,40 +1712,72 @@ function _handleNetNS
 	name="$VSERVER_NAME"
     fi
 
+    INTERFACE_NETNS=$name
     NETNS_CMD=( "$_IP" netns exec "$name" )
+    CMD_IP_NETNS+=( -n "$name" )
+
+    case $action in
+      add)	is_add=true;;
+      del)	is_add=false;;
+      *)	return 0;;
+    esac
+
     if test ! -e "$dir"/shared; then
-	if test "$action" = "add"; then
+	local counter=0
+
+	if $is_add; then
+	    rm -f /run/netns/"$name"
 	    "$_IP" netns add "$name"
-	    shopt -s nullglob
-	    counter=0
-	    for i in "$dir"/interfaces/*; do
-		local host
-		local guest
-		local type
-		read host < "$i"/host
-		if test -r "$i"/guest; then
-		    read guest < "$i"/guest
-		else
-		    guest="geth$counter"
-		    counter=$(( $counter + 1 ))
-		fi
-		if test -r "$i"/type; then
-		    read type < "$i"/type
-		else
-		    type="veth"
-		fi
-		"$_IP" link add name "$host" type "$type" peer name "$guest"
-		"$_IP" link set "$guest" netns "$name"
-	    done
-	elif test "$action" = "del"; then
-	    shopt -s nullglob
-	    for i in "$dir"/interfaces/*; do
-		local host
-		read host < "$i"/host
-		"$_IP" link del "$host"
-	    done
-	    "$_IP" netns del "$name"
 	fi
+
+	_addInterfaceCmd IP_ADDR 127.0.0.1/8 scope host dev lo
+	_addInterfaceCmd IP_ADDR ::1/128     scope host dev lo
+	_addInterfaceCmd IP_LINK up dev lo
+
+	shopt -s nullglob
+	for i in "$dir"/interfaces/*; do
+	    local host
+	    local guest
+	    local tmp_guest
+	    local type
+
+	    _getInterfaceValue host  ''    "$i"
+	    _getInterfaceValue guest ''    "$i"
+	    _getInterfaceValue type 'veth' "$i" "$i/.."
+
+	    test -n "$guest" || guest=geth$counter
+	    let ++counter
+
+	    # use a temporary name to avoid races when vservers
+	    # are started in parallel
+	    tmp_guest=$guest-$$
+
+	    if ! $is_add; then
+		"${CMD_IP_NETNS[@]}" link del "$guest"
+		continue
+	    fi
+
+	    case $type in
+	      veth)
+		    test -n "$host"  || host=veth$N_CONTEXT
+
+		    $_IP link add name "$host" type "$type" peer name "$tmp_guest"
+		    ;;
+
+	      macvlan)
+		    test -n "$host"  || host=eth0
+
+		    $_IP link add link "$host" name "$tmp_guest" type macvlan mode bridge
+		    ;;
+	    esac
+
+	    $_IP link set "$tmp_guest" netns "$name"
+	    "${CMD_IP_NETNS[@]}" link set name "$guest" dev "$tmp_guest"
+	done
+
+	_iptablesSetup "$vdir" _addInterfaceCmd IPTABLES
+
+	$is_add || "$_IP" netns del "$name"
     fi
 }
 
